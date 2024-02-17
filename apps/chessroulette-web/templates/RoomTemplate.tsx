@@ -1,5 +1,5 @@
 import Header from '../components/Header';
-import { RoomSideMenu } from '../modules/room/Learn/RoomSideMenu';
+import { RoomSideMenu } from '../modules/room/RoomSideMenu';
 import { toImgPath } from '../lib/misc';
 import { CSSProperties } from 'react';
 import { Session } from 'next-auth';

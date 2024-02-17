@@ -130,7 +130,7 @@ export const Button: React.FC<ButtonProps> = ({
 
       {tooltip && (
         <div
-          className="hidden group-hover:block absolute sbg-red-100"
+          className="hidden group-hover:block absolute"
           style={{
             transition: 'all 50ms linear',
             top: '0%',
@@ -141,7 +141,7 @@ export const Button: React.FC<ButtonProps> = ({
           }}
         >
           <div
-            className="bg-white stext-right text-nowrap   text-xs border rounded-lg p-1 text-black font-normal sbg-opacity-70"
+            className="bg-white text-nowrap text-xs border rounded-lg p-1 text-black font-normal"
             style={{
               boxShadow: '0 6px 13px rgba(0, 0, 0, .1)',
             }}
