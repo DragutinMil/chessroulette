@@ -1,12 +1,12 @@
 import { ResourceIdentifier } from 'movex-core-util';
-import Streaming from '../Streaming';
+import Streaming from '../../Streaming';
 import { IceServerRecord } from 'apps/chessroulette-web/providers/PeerToPeerProvider/type';
-import { EditModeState } from './types';
-import { EditChaptersWidget } from './chapters/EditChaptersWidget';
+import { EditModeState } from '../types';
+import { EditChaptersWidget } from '../chapters/EditChaptersWidget';
 import movexConfig from 'apps/chessroulette-web/movex.config';
 import { MovexBoundResource } from 'movex-react';
 import { usePathname, useRouter } from 'next/navigation';
-import { LearnBoardPanel } from './components/LearnBoardPanel';
+import { LearnBoardPanel } from '../components/LearnBoardPanel';
 import { useUpdateableSearchParams } from 'apps/chessroulette-web/hooks/useSearchParams';
 import { ChessFENBoard } from '@xmatter/util-kit';
 

@@ -28,13 +28,13 @@ export const links = {
       id,
       ...params
     }: {
-      id: string;
+      id?: string;
       activity: 'learn'; // Add more
     } & RoomLinkParams,
     nav?: {
       origin: string;
     }
-  ) => `${nav?.origin ?? ''}/r/new/${id}?${toSearchParams(params).toString()}`,
+  ) => `${nav?.origin ?? ''}/r/new/${id ? id : ''}?${toSearchParams(params).toString()}`,
 };
 
 const toSearchParams = ({

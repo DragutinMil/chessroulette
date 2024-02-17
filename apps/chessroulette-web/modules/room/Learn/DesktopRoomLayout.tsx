@@ -51,9 +51,9 @@ export const DesktopRoomLayout: React.FC<DesktopRoomLayoutProps> = ({
   const containerRef = useRef(null);
   const containerDimensions = useContainerDimensions(containerRef);
 
-  useEffect(() => {
-    console.log('container dimensions changed', containerDimensions);
-  }, [containerDimensions]);
+  // useEffect(() => {
+  //   console.log('container dimensions changed', containerDimensions);
+  // }, [containerDimensions]);
 
   const s = useMemo(() => {}, []);
 
@@ -212,7 +212,7 @@ export const DesktopRoomLayout: React.FC<DesktopRoomLayoutProps> = ({
       {/* <div style={{ height: props.topHeight }}>{renderedTop}</div> */}
       <div
         className={
-          'flex flex-col sitems-stretch sitems-end w-full h-full smax-h-full smax-w-full sbg-blue-100'
+          'flex flex-col ≥sitems-stretch sitems-end w-full h-full smax-h-full smax-w-full sbg-blue-100'
         }
         ref={containerRef}
         style={

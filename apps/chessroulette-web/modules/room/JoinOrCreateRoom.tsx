@@ -13,9 +13,10 @@ import {
 import { useUpdateableSearchParams } from 'apps/chessroulette-web/hooks/useSearchParams';
 import { generateUserId } from 'apps/chessroulette-web/util';
 import { links } from './links';
+import { AsyncErr } from 'ts-async-results';
 
 type Props = {
-  id: string;
+  id?: string;
   activity: 'learn'; // To expand in the future
 };
 
@@ -26,13 +27,16 @@ export const JoinOrCreateRoom: React.FC<Props> = ({ activity, id }: Props) => {
 
   useEffect(() => {
     if (roomResource && activity === 'learn') {
-      const rid = toResourceIdentifierStr({
-        resourceId: id,
-        resourceType: 'room',
-      });
+      const resource = id
+        ? roomResource.get(
+            toResourceIdentifierStr({
+              resourceId: id,
+              resourceType: 'room',
+            })
+          )
+        : AsyncErr.EMPTY; // Fail in order to crreate a new room
 
-      roomResource
-        .get(rid)
+      resource
         .flatMapErr(() =>
           roomResource.create(
             {

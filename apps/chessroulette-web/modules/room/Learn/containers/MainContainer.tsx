@@ -1,9 +1,10 @@
 import movexConfig from 'apps/chessroulette-web/movex.config';
 import { ResourceIdentifier } from 'movex-core-util';
 import { MovexBoundResource } from 'movex-react';
-import { EditModeState } from './types';
-import { LearnBoardEditor } from './components/LearnBoardEditor';
-import { LearnBoard } from './components/LearnBoard';
+import { EditModeState } from '../types';
+import { LearnBoardEditor } from '../components/LearnBoardEditor';
+import { LearnBoard } from '../components/LearnBoard';
+import { PreviewChessboardContainer } from 'apps/chessroulette-web/components/PreviewChessboard/PreviewChessboardContainer';
 
 type Props = {
   rid: ResourceIdentifier<'room'>;
@@ -25,6 +26,11 @@ export const MainContainer = ({
     <MovexBoundResource
       movexDefinition={movexConfig}
       rid={rid}
+      fallback={
+        <div style={{ aspectRatio: 1 / 1 }} className="h-full">
+          <PreviewChessboardContainer fen="empty" />
+        </div>
+      }
       render={({
         boundResource: {
           state: { activity },

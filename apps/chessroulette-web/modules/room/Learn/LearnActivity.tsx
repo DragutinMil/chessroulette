@@ -3,7 +3,7 @@
 import movexConfig from 'apps/chessroulette-web/movex.config';
 import { ResourceIdentifier } from 'movex-core-util';
 import { MovexBoundResource, useMovexBoundResourceFromRid } from 'movex-react';
-import { ChessColor, ChessFEN, ChessFENBoard, min } from '@xmatter/util-kit';
+import { ChessFEN, ChessFENBoard, min } from '@xmatter/util-kit';
 import { useUserId } from 'apps/chessroulette-web/hooks/useUserId/useUserId';
 import { useEffect, useRef, useState } from 'react';
 import { IconButton } from 'apps/chessroulette-web/components/Button';
@@ -13,21 +13,16 @@ import { useSearchParams } from 'next/navigation';
 import { useDesktopRoomLayout } from './useDesktopRoomLayout';
 import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
 import { EditModeState } from './types';
-import { SideContainer } from './SideContainer';
-import { MainContainer } from './MainContainer';
+import { SideContainer } from './containers/SideContainer';
+import { MainContainer } from './containers/MainContainer';
 
 type Props = {
   rid: ResourceIdentifier<'room'>;
   fen?: ChessFEN;
-  playingColor?: ChessColor;
   iceServers: IceServerRecord[];
 };
 
-export const LearnActivity = ({
-  playingColor = 'white',
-  iceServers,
-  ...props
-}: Props) => {
+export const LearnActivity = ({ iceServers, ...props }: Props) => {
   const userId = useUserId();
   const settings = useLearnActivitySettings();
   const searchParams = useSearchParams();
@@ -40,7 +35,7 @@ export const LearnActivity = ({
     isActive: isEditParamsSet,
     state: {
       fen: ChessFENBoard.STARTING_FEN,
-      orientation: playingColor,
+      orientation: 'white',
     },
   });
 
@@ -62,8 +57,6 @@ export const LearnActivity = ({
   useEffect(() => {
     setBoardSize(min(desktopLayout.container.height, mainPanelRealSize));
   }, [desktopLayout.main, mainPanelRealSize]);
-
-  const roomResource = useMovexBoundResourceFromRid(movexConfig, props.rid);
 
   return (
     <div
@@ -89,14 +82,10 @@ export const LearnActivity = ({
         }}
         render={() => null}
       />
-      <PanelGroup
-        autoSaveId="learn-activity"
-        direction="horizontal"
-        className="sbg-purple-500"
-      >
+      <PanelGroup autoSaveId="learn-activity" direction="horizontal">
         <Panel
           defaultSize={70}
-          className="sbg-green-100 flex justify-end "
+          className="sbg-green-100 flex justify-end"
           onResize={(nextPct) => {
             if (!desktopLayout.updated) {
               return;
@@ -116,19 +105,17 @@ export const LearnActivity = ({
           //   //   : 51
           // }
         >
-          {roomResource?.state.activity.activityType === 'learn' && (
-            <MainContainer
-              editMode={editMode}
-              rid={props.rid}
-              boardSizePx={boardSize}
-              onUpdateEditModeState={(next) =>
-                setEditMode((prev) => ({
-                  ...prev,
-                  state: next(prev.state),
-                }))
-              }
-            />
-          )}
+          <MainContainer
+            editMode={editMode}
+            rid={props.rid}
+            boardSizePx={boardSize}
+            onUpdateEditModeState={(next) =>
+              setEditMode((prev) => ({
+                ...prev,
+                state: next(prev.state),
+              }))
+            }
+          />
         </Panel>
         <div className="w-8 sbg-blue-100 relative flex flex-col items-center justify-center">
           <div className="flex-1">

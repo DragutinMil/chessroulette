@@ -3,7 +3,7 @@
 import { ClipboardCopyButton } from 'apps/chessroulette-web/components/ClipboardCopyButton';
 import { useMemo, useState } from 'react';
 import { useUrl } from 'nextjs-current-url';
-import { useLearnActivitySettings } from './useLearnActivitySettings';
+import { useLearnActivitySettings } from './Learn/useLearnActivitySettings';
 import { IconButton } from 'apps/chessroulette-web/components/Button';
 import { useRouter, usePathname } from 'next/navigation';
 import { useUpdateableSearchParams } from 'apps/chessroulette-web/hooks/useSearchParams';

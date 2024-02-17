@@ -24,6 +24,7 @@ type Props = {
   rid: ResourceIdentifier<'room'>;
   aspectRatio?: FaceTimeProps['aspectRatio'];
   iceServers: IceServerRecord[];
+  fallback?: React.ReactNode;
 };
 
 const hashDemoImgId = (id: string) => {
