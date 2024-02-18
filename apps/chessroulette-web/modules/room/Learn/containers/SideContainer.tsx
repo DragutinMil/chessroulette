@@ -158,6 +158,12 @@ export const SideContainer = ({
                     fen: ChessFENBoard.STARTING_FEN,
                   }));
                 }}
+                onUseChapter={(id) => {
+                  dispatch({
+                    type: 'playChapter',
+                    payload: { id },
+                  });
+                }}
               />
             );
           }}

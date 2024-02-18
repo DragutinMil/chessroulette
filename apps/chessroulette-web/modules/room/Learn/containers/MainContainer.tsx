@@ -22,6 +22,8 @@ export const MainContainer = ({
   boardSizePx,
   onUpdateEditModeState,
 }: Props) => {
+  console.log('edit mode redner in main container', editMode);
+
   return (
     <MovexBoundResource
       movexDefinition={movexConfig}
@@ -42,11 +44,13 @@ export const MainContainer = ({
         }
 
         if (editMode.isActive) {
-          <LearnBoardEditor
-            state={editMode.state}
-            onUpdate={onUpdateEditModeState}
-            boardSizePx={boardSizePx}
-          />;
+          return (
+            <LearnBoardEditor
+              state={editMode.state}
+              onUpdate={onUpdateEditModeState}
+              boardSizePx={boardSizePx}
+            />
+          );
         }
 
         return (

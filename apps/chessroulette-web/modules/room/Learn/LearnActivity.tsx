@@ -2,7 +2,7 @@
 
 import movexConfig from 'apps/chessroulette-web/movex.config';
 import { ResourceIdentifier } from 'movex-core-util';
-import { MovexBoundResource, useMovexBoundResourceFromRid } from 'movex-react';
+import { MovexBoundResource } from 'movex-react';
 import { ChessFEN, ChessFENBoard, min } from '@xmatter/util-kit';
 import { useUserId } from 'apps/chessroulette-web/hooks/useUserId/useUserId';
 import { useEffect, useRef, useState } from 'react';
@@ -109,12 +109,12 @@ export const LearnActivity = ({ iceServers, ...props }: Props) => {
             editMode={editMode}
             rid={props.rid}
             boardSizePx={boardSize}
-            onUpdateEditModeState={(next) =>
+            onUpdateEditModeState={(next) => {
               setEditMode((prev) => ({
                 ...prev,
                 state: next(prev.state),
-              }))
-            }
+              }));
+            }}
           />
         </Panel>
         <div className="w-8 sbg-blue-100 relative flex flex-col items-center justify-center">

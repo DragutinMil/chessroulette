@@ -11,10 +11,12 @@ import {
   PgnInputBox,
   PgnInputBoxProps,
 } from 'apps/chessroulette-web/components/PgnInputBox';
+import { ChaptersTab, ChaptersTabProps } from '../chapters/ChaptersTab';
 
 type Props = {
   state: LearnActivityState['activityState'];
   onImport: PgnInputBoxProps['onChange'];
+  onUseChapter: ChaptersTabProps['onUseChapter'];
   onHistoryNotationRefocus: FreeBoardNotationProps['onRefocus'];
   onHistoryNotationDelete: FreeBoardNotationProps['onDelete'];
 };
@@ -24,6 +26,7 @@ export const LearnBoardPanel = ({
   onImport,
   onHistoryNotationDelete,
   onHistoryNotationRefocus,
+  onUseChapter,
 }: Props) => {
   const settings = useLearnActivitySettings();
 
@@ -77,18 +80,11 @@ export const LearnBoardPanel = ({
                 </Button>
               ),
               renderContent: () => (
-                <div>TODO add chapters back</div>
-                // <ChaptersTab
-                //   boardFen={editMode.state.fen}
-                //   chaptersMap={chaptersMap}
-                //   className="min-h-0"
-                //   // onUseChapter={(id) => {
-                //   //   dispatch({
-                //   //     type: 'playChapter',
-                //   //     payload: { id },
-                //   //   });
-                //   // }}
-                // />
+                <ChaptersTab
+                  chaptersMap={chaptersMap}
+                  className="min-h-0"
+                  onUseChapter={onUseChapter}
+                />
               ),
             }
           : undefined,

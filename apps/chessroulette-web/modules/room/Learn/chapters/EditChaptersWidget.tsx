@@ -35,6 +35,8 @@ export const EditChaptersWidget = ({
 }: Props) => {
   const chaptersCount = Object.keys(chaptersMap).length;
 
+  console.log('EditChaptersWidget boardState', boardState.fen)
+
   return (
     <Tabs
       containerClassName="bg-slate-700 p-3 flex flex-col flex-1 min-h-0 soverflow-hidden rounded-lg shadow-2xl"

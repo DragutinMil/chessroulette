@@ -3,7 +3,7 @@ import { noop } from '@xmatter/util-kit';
 
 export type Props = {
   chapter: Chapter;
-  onUse?: () => void;
+  onUse: () => void;
 };
 
 export const ChapterItem = ({ chapter, onUse = noop }: Props) => {

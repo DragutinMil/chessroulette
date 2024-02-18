@@ -1,4 +1,4 @@
-import { ChessFEN, noop } from '@xmatter/util-kit';
+import { noop } from '@xmatter/util-kit';
 import { Chapter } from '../../activity/reducer';
 import { useMemo } from 'react';
 import { objectKeys } from 'movex-core-util';
@@ -6,18 +6,17 @@ import { ChapterItem } from './ChapterItem';
 import { Button } from 'apps/chessroulette-web/components/Button';
 import { useCurrentRoomLinks } from '../../hooks/useCurrentLinks';
 
-export type Props = {
-  boardFen: ChessFEN;
+export type ChaptersTabProps = {
   chaptersMap: Record<Chapter['id'], Chapter>;
   className?: string;
-  // onUseChapter: (id: Chapter['id']) => void;
+  onUseChapter: (id: Chapter['id']) => void;
 };
 
 export const ChaptersTab = ({
-  // onUseChapter = noop,
+  onUseChapter = noop,
   chaptersMap,
   className,
-}: Props) => {
+}: ChaptersTabProps) => {
   const currentRoomLinks = useCurrentRoomLinks();
 
   const chaptersList = useMemo(
@@ -32,24 +31,27 @@ export const ChaptersTab = ({
           <ChapterItem
             key={chapter.id}
             chapter={chapter}
-            // onUse={() => onUseChapter(chapter.id)}
+            onUse={() => onUseChapter(chapter.id)}
           />
         ))}
       </div>
       {chaptersList.length === 0 && (
-        <div className='flex-1 flex items-center justify-center'>
+        <div className="flex-1 flex items-center justify-center">
           Wow, So Empty!
-          </div>
+        </div>
       )}
-      <Button size='sm' onClick={() => {
-        // links.getRoomLink({
-        //   id: 
-        // })
-        currentRoomLinks.setForCurrentRoom({
-          edit: true,
-        })
-      }}>
-          Edit Chapters
+      <Button
+        size="sm"
+        onClick={() => {
+          // links.getRoomLink({
+          //   id:
+          // })
+          currentRoomLinks.setForCurrentRoom({
+            edit: true,
+          });
+        }}
+      >
+        Edit Chapters
       </Button>
     </div>
   );
