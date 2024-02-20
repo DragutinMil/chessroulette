@@ -1,14 +1,19 @@
 import { ResourceIdentifier } from 'movex-core-util';
-import Streaming from '../../Streaming';
+import Streaming from '../../StreamingContainer';
 import { IceServerRecord } from 'apps/chessroulette-web/providers/PeerToPeerProvider/type';
 import { EditModeState } from '../types';
 import { EditChaptersWidget } from '../chapters/EditChaptersWidget';
 import movexConfig from 'apps/chessroulette-web/movex.config';
 import { MovexBoundResource } from 'movex-react';
 import { usePathname, useRouter } from 'next/navigation';
-import { LearnBoardPanel } from '../components/LearnBoardPanel';
+import { WidgetPanel } from '../components/WidgetPanel';
 import { useUpdateableSearchParams } from 'apps/chessroulette-web/hooks/useSearchParams';
-import { ChessFENBoard } from '@xmatter/util-kit';
+import {
+  ChessFENBoard,
+  ChessFENStateNotationBrand,
+  FreeBoardHistory,
+} from '@xmatter/util-kit';
+import { FreeBoardNotation } from 'apps/chessroulette-web/components/FreeBoardNotation';
 
 type Props = {
   rid: ResourceIdentifier<'room'>;
@@ -52,120 +57,122 @@ export const SideContainer = ({
 
             const { activityState } = activity;
 
-            if (editMode.isActive) {
-              return (
-                <EditChaptersWidget
-                  boardState={editMode.state}
-                  chaptersMap={activityState.chaptersMap}
-                  onCreate={(s) => {
-                    dispatch({
-                      type: 'createChapter',
-                      payload: {
-                        name: s.name,
-                        fen: s.fen,
-                        arrowsMap: editMode.state.arrowsMap,
-                        circlesMap: editMode.state.circlesMap,
-                      },
-                    });
-                  }}
-                  onDeleteChapter={(id) => {
-                    dispatch({
-                      type: 'deleteChapter',
-                      payload: { id },
-                    });
-                  }}
-                  onUpdateChapter={(id, state) => {
-                    dispatch({
-                      type: 'updateChapter',
-                      payload: { id, state },
-                    });
-                  }}
-                  onUpdateFen={(fen) => {
-                    onUpdateEditModeState((prev) => ({
-                      ...prev,
-                      fen,
-                    }));
-                  }}
-                  onExitEditMode={() => {
-                    router.push(
-                      `${currentPathName}?${updatedableSearchParams.set(
-                        (prev) => ({
-                          ...prev,
-                          edit: undefined,
-                        })
-                      )}`
-                    );
-                  }}
-                  onUseChapter={(id) => {
-                    const nextChapter = activityState.chaptersMap[id];
+            // if (editMode.isActive) {
+            //   return (
+            //     <EditChaptersWidget
+            //       boardState={editMode.state}
+            //       chaptersMap={activityState.chaptersMap}
+            //       onCreate={(s) => {
+            //         dispatch({
+            //           type: 'createChapter',
+            //           payload: {
+            //             name: s.name,
+            //             startingFen: s.startingFen,
+            //             arrowsMap: editMode.state.arrowsMap,
+            //             circlesMap: editMode.state.circlesMap,
+            //           },
+            //         });
+            //       }}
+            //       onDeleteChapter={(id) => {
+            //         dispatch({
+            //           type: 'deleteChapter',
+            //           payload: { id },
+            //         });
+            //       }}
+            //       onUpdateChapter={(id, state) => {
+            //         dispatch({
+            //           type: 'updateChapter',
+            //           payload: { id, state },
+            //         });
+            //       }}
+            //       onUpdateFen={(fen) => {
+            //         onUpdateEditModeState((prev) => ({
+            //           ...prev,
+            //           fen,
+            //         }));
+            //       }}
+            //       onExitEditMode={() => {
+            //         router.push(
+            //           `${currentPathName}?${updatedableSearchParams.set(
+            //             (prev) => ({
+            //               ...prev,
+            //               edit: undefined,
+            //             })
+            //           )}`
+            //         );
+            //       }}
+            //       onUseChapter={(id) => {
+            //         const nextChapter = activityState.chaptersMap[id];
 
-                    onUpdateEditModeState((prev) => ({
-                      ...prev,
-                      fen: nextChapter.fen,
-                      arrowsMap: nextChapter.arrowsMap,
-                      circlesMap: nextChapter.circlesMap,
-                    }));
-                  }}
-                  onUseCurrentBoard={() => {
-                    dispatch({
-                      type: 'importFen',
-                      payload: editMode.state.fen,
-                    });
+            //         onUpdateEditModeState((prev) => ({
+            //           ...prev,
+            //           startingFen: nextChapter.startingFen,
+            //           arrowsMap: nextChapter.arrowsMap,
+            //           circlesMap: nextChapter.circlesMap,
+            //         }));
+            //       }}
+            //       onUseCurrentBoard={() => {
+            //         dispatch({
+            //           type: 'importFen',
+            //           payload: editMode.state.fen,
+            //         });
 
-                    router.push(
-                      `${currentPathName}?${updatedableSearchParams.set(
-                        (prev) => ({
-                          ...prev,
-                          edit: undefined,
-                        })
-                      )}`
-                    );
-                  }}
-                  onClearArrowsAndCircles={() => {
-                    onUpdateEditModeState((prev) => ({
-                      ...prev,
-                      arrowsMap: undefined,
-                      circlesMap: undefined,
-                    }));
-                  }}
-                />
-              );
-            }
+            //         router.push(
+            //           `${currentPathName}?${updatedableSearchParams.set(
+            //             (prev) => ({
+            //               ...prev,
+            //               edit: undefined,
+            //             })
+            //           )}`
+            //         );
+            //       }}
+            //       onClearArrowsAndCircles={() => {
+            //         onUpdateEditModeState((prev) => ({
+            //           ...prev,
+            //           arrowsMap: undefined,
+            //           circlesMap: undefined,
+            //         }));
+            //       }}
+            //     />
+            //   );
+            // }
 
-            return (
-              <LearnBoardPanel
-                state={activityState}
-                onHistoryNotationRefocus={(index) => {
-                  dispatch({
-                    type: 'focusHistoryIndex',
-                    payload: { index },
-                  });
-                }}
-                onHistoryNotationDelete={(atIndex) => {
-                  dispatch({
-                    type: 'deleteHistoryMove',
-                    payload: { atIndex },
-                  });
-                }}
-                onImport={(inputType, nextInput) => {
-                  dispatch({
-                    type: inputType === 'FEN' ? 'importFen' : 'importPgn',
-                    payload: nextInput,
-                  });
+            // return (
+            //   <WidgetPanel
+            //     state={activityState}
+            //     onHistoryNotationRefocus={(index) => {
+            //       dispatch({
+            //         type: 'focusHistoryIndex',
+            //         payload: { index },
+            //       });
+            //     }}
+            //     onHistoryNotationDelete={(atIndex) => {
+            //       dispatch({
+            //         type: 'deleteHistoryMove',
+            //         payload: { atIndex },
+            //       });
+            //     }}
+            //     onImport={(inputType, nextInput) => {
+            //       dispatch({
+            //         type: inputType === 'FEN' ? 'importFen' : 'importPgn',
+            //         payload: nextInput,
+            //       });
 
-                  onUpdateEditModeState((prev) => ({
-                    ...prev,
-                    fen: ChessFENBoard.STARTING_FEN,
-                  }));
-                }}
-                onUseChapter={(id) => {
-                  dispatch({
-                    type: 'playChapter',
-                    payload: { id },
-                  });
-                }}
-              />
-            );
+            //       onUpdateEditModeState((prev) => ({
+            //         ...prev,
+            //         fen: ChessFENBoard.STARTING_FEN,
+            //       }));
+            //     }}
+            //     onUseChapter={(id) => {
+            //       dispatch({
+            //         type: 'playChapter',
+            //         payload: { id },
+            //       });
+            //     }}
+            //   />
+            // );
+
+            return null;
           }}
         />
       </div>

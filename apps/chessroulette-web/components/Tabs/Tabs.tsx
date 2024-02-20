@@ -1,4 +1,12 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+
+export type TabsNav = {
+  stackPush: () => void;
+  stackBack: () => void;
+  stackPop: () => void;
+  stackTo: (i: number) => void;
+  stackIndex: number;
+};
 
 type Tab = {
   renderHeader: (p: {
@@ -8,6 +16,7 @@ type Tab = {
   renderContent: (p: {
     focus: (tabIndex: number) => void;
     isFocused: boolean;
+    nav: TabsNav;
   }) => React.ReactNode;
 };
 
@@ -21,12 +30,37 @@ type Props = {
   containerClassName?: string;
   headerContainerClassName?: string;
   contentClassName?: string;
+  onTabChange?: (tabIndex: number) => void;
+};
+
+const isInBoundariesOr = (i: number, tabs: unknown[], or: number): number =>
+  i > -1 && i < tabs.length ? i : or;
+
+type TabIndex = {
+  tabIndex: number;
+  stackindex: number; // This is the deeper layer
 };
 
 export const Tabs = (props: Props) => {
   const [currentTabIndex, setCurrentTabIndex] = useState(
-    props.currentIndex || 0
+    isInBoundariesOr(props.currentIndex || 0, props.tabs, 0)
   );
+
+  const [currentStackIndex, setCurrentStackIndex] = useState(0);
+
+  useEffect(() => {
+    setCurrentTabIndex(
+      isInBoundariesOr(props.currentIndex || 0, props.tabs, 0)
+    );
+  }, [props.currentIndex]);
+
+  const focus = (i: number) => {
+    setCurrentTabIndex(i);
+    props.onTabChange?.(i);
+
+    // Reset the stack index each time
+    setCurrentStackIndex(0);
+  };
 
   const headerComponent = useMemo(() => {
     const tabs = props.tabs
@@ -39,7 +73,7 @@ export const Tabs = (props: Props) => {
         return (
           <div key={i}>
             {p?.renderHeader({
-              focus: () => setCurrentTabIndex(i),
+              focus: () => focus(i),
               isFocused: i === currentTabIndex,
             })}
           </div>
@@ -49,7 +83,7 @@ export const Tabs = (props: Props) => {
     if (props.renderContainerHeader) {
       return props.renderContainerHeader({
         tabs,
-        focus: setCurrentTabIndex,
+        focus,
       });
     }
 
@@ -58,15 +92,28 @@ export const Tabs = (props: Props) => {
         {tabs.map((c) => c)}
       </div>
     );
-  }, [currentTabIndex, props.renderContainerHeader]);
+  }, [currentTabIndex, props.renderContainerHeader, focus]);
 
   return (
     <div className={props.containerClassName}>
       {headerComponent}
       <div className={`flex-1 ${props.contentClassName}`}>
         {props.tabs[currentTabIndex]?.renderContent({
-          focus: setCurrentTabIndex,
+          focus: () => focus(currentTabIndex),
           isFocused: true,
+          nav: {
+            stackPush: () => {
+              setCurrentStackIndex((prev) => prev + 1);
+            },
+            stackBack: () => {
+              setCurrentStackIndex((prev) => (prev > 0 ? prev - 1 : prev));
+            },
+            stackPop: () => {
+              setCurrentStackIndex(0);
+            },
+            stackTo: setCurrentStackIndex,
+            stackIndex: currentStackIndex,
+          },
         })}
       </div>
     </div>

@@ -1,7 +1,7 @@
 import { ChessFEN, objectKeys } from '@xmatter/util-kit';
 import { Chapter, ChapterState } from '../../activity/reducer';
 import { useMemo, useState } from 'react';
-import { EditChapterItem, EditChapterItemProps } from './EditChapterItem';
+import { EditChapterView, EditChapterItemProps } from './EditChapterView';
 
 export type EditChaptersTabProps = {
   chaptersMap: Record<Chapter['id'], Chapter>;
@@ -33,22 +33,23 @@ export const EditChaptersTab = ({
     <div className={`flex flex-col spt-4 w-full`}>
       <div className="flexs flex-0 overflow-scroll">
         {chaptersList.map((chapter) => (
-          <EditChapterItem
-            key={chapter.id}
-            boardState={boardState}
-            className="p-2 py-3 border-b border-slate-400"
-            chapter={chapter}
-            expanded={active === chapter.id}
-            onExpand={() => setActive(chapter.id)}
-            onCollapse={() => setActive(undefined)}
-            onUse={() => onUse(chapter.id)}
-            onUpdate={(state) => onUpdate(chapter.id, state)}
-            onDelete={() => {
-              onDelete(chapter.id);
-            }}
-            onUpdateFen={onUpdateFen}
-            onClearArrowsAndCircles={onClearArrowsAndCircles}
-          />
+          // <EditChapterView
+          //   key={chapter.id}
+          //   boardState={boardState}
+          //   className="p-2 py-3 border-b border-slate-400"
+          //   chapter={chapter}
+          //   // expanded={active === chapter.id}
+          //   // onExpand={() => setActive(chapter.id)}
+          //   // onCollapse={() => setActive(undefined)}
+          //   onUse={() => onUse(chapter.id)}
+          //   onUpdate={(state) => onUpdate(chapter.id, state)}
+          //   onDelete={() => {
+          //     onDelete(chapter.id);
+          //   }}
+          //   onUpdateFen={onUpdateFen}
+          //   onClearArrowsAndCircles={onClearArrowsAndCircles}
+          // />
+          null
         ))}
       </div>
     </div>

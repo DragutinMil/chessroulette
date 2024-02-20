@@ -1,5 +1,5 @@
-import { ChessColor } from '@xmatter/util-kit';
-import { ChapterState } from '../activity/reducer';
+import { ChessColor, ChessFEN } from '@xmatter/util-kit';
+import { ArrowsMap, ChapterState, CirclesMap } from '../activity/reducer';
 
 export type LayoutContainerDimensions = {
   width: number;
@@ -19,9 +19,9 @@ export type GenericLayoutExtendedDimensions = {
   isMobile: boolean;
 };
 
-export type EditModeState = Pick<
-  ChapterState,
-  'fen' | 'arrowsMap' | 'circlesMap'
-> & {
+export type EditModeState = {
+  fen: ChessFEN;
   orientation: ChessColor;
+  arrowsMap?: ArrowsMap;
+  circlesMap?: CirclesMap;
 };

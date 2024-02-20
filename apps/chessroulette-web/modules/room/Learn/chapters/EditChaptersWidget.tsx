@@ -1,10 +1,10 @@
 import { Button } from 'apps/chessroulette-web/components/Button';
 import { Tabs } from 'apps/chessroulette-web/components/Tabs';
-import { CreateChapterItem } from './CreateChapterItem';
+import { CreateChapterView } from './CreateChapterView';
 import { ChessFEN, noop } from '@xmatter/util-kit';
 import { Chapter, ChapterState } from '../../activity/reducer';
 import { EditChaptersTab, EditChaptersTabProps } from './EditChaptersTab';
-import { EditChapterItemProps } from './EditChapterItem';
+import { EditChapterItemProps } from './EditChapterView';
 
 type Props = {
   boardState: EditChapterItemProps['boardState'];
@@ -35,7 +35,7 @@ export const EditChaptersWidget = ({
 }: Props) => {
   const chaptersCount = Object.keys(chaptersMap).length;
 
-  console.log('EditChaptersWidget boardState', boardState.fen)
+  // console.log('EditChaptersWidget boardState', boardState.fen)
 
   return (
     <Tabs
@@ -84,13 +84,13 @@ export const EditChaptersWidget = ({
             return (
               <div className={`flex flex-col spt-4 w-full ${className}`}>
                 <div className="flexs flex-0 overflow-scroll">
-                  <CreateChapterItem
+                  {/* <CreateChapterView
                     boardFen={boardState.fen}
                     defaultChapterName={`Chapter ${chaptersCount + 1}`}
                     onCreate={onCreate}
                     onUpdateFen={onUpdateFen}
                     onClearArrowsAndCircles={onClearArrowsAndCircles}
-                  />
+                  /> */}
                 </div>
               </div>
             );

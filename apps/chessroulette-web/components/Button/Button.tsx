@@ -16,7 +16,7 @@ export type ButtonProps = Omit<
     React.ButtonHTMLAttributes<HTMLButtonElement>,
     HTMLButtonElement
   >,
-  'type'
+  'type' | 'ref'
 > &
   PropsWithChildren<{
     type?: 'primary' | 'secondary' | 'clear' | 'custom';
@@ -56,7 +56,7 @@ const toStringColors = (p: {
 }) => `${p.initial} hover:${p.hover} active:${p.active}`;
 
 const classes = {
-  md: 'p-3 px-5 rounded-xl',
+  md: 'p-2 px-4 rounded-xl',
   lg: '',
   sm: 'p-1 px-2 text-sm rounded-lg',
   xs: 'p-1 px-2 text-xs rounded-md',
@@ -83,73 +83,86 @@ export const buttonIconClasses = {
   xs: 'h-3 w-3',
 };
 
-export const Button: React.FC<ButtonProps> = ({
-  children,
-  type = 'primary',
-  disabled,
-  isActive,
-  onClick,
-  className,
-  size = 'md',
-  icon,
-  iconKind,
-  bgColor,
-  tooltip,
-  tooltipPositon = 'left',
-  ...props
-}) => {
-  const isActiveClass = invoke(() => {
-    if (isActive && type !== 'custom') {
-      const bgColorClass = getButtonColors(
-        bgColor || typeToColors[type]
-      ).active;
-      return `${bgColorClass} hover:${bgColorClass}`;
-    }
+export const Button = React.forwardRef<
+  HTMLButtonElement | null,
+  ButtonProps
+>(
+  (
+    {
+      children,
+      type = 'primary',
+      disabled,
+      isActive,
+      onClick,
+      className,
+      size = 'md',
+      icon,
+      iconKind,
+      bgColor,
+      tooltip,
+      tooltipPositon = 'left',
+      ...props
+    },
+    ref
+  ) => {
+    const isActiveClass = invoke(() => {
+      if (isActive && type !== 'custom') {
+        const bgColorClass = getButtonColors(
+          bgColor || typeToColors[type]
+        ).active;
+        return `${bgColorClass} hover:${bgColorClass}`;
+      }
 
-    return '';
-  });
+      return '';
+    });
 
-  return (
-    <button
-      className={`group relative hover:cursor-pointer ${classes[type]} ${
-        classes[size]
-      } ${
-        disabled ? 'bg-slate-400 hover:bg-slate-400' : ''
-      } flex items-center justify-center gap-1 ${className} ${
-        bgColor ? toStringColors(getButtonColors(bgColor)) : ''
-      } ${isActiveClass}`}
-      onClick={onClick}
-      disabled={disabled === true}
-      {...props}
-    >
-      {icon && (
-        <Icon kind={iconKind} name={icon} className={buttonIconClasses[size]} />
-      )}
+    return (
+      <button
+        ref={ref}
+        className={`group relative hover:cursor-pointer ${classes[type]} ${
+          classes[size]
+        } ${
+          disabled ? 'bg-slate-400 hover:bg-slate-400' : ''
+        } flex items-center justify-center gap-1 ${className} ${
+          bgColor ? toStringColors(getButtonColors(bgColor)) : ''
+        } ${isActiveClass}`}
+        onClick={onClick}
+        disabled={disabled === true}
+        {...props}
+      >
+        {icon && (
+          <Icon
+            kind={iconKind}
+            name={icon}
+            className={buttonIconClasses[size]}
+          />
+        )}
 
-      {children}
+        {children}
 
-      {tooltip && (
-        <div
-          className="hidden group-hover:block absolute"
-          style={{
-            transition: 'all 50ms linear',
-            top: '0%',
-
-            [swapDirection(tooltipPositon)]: '120%',
-
-            zIndex: 999,
-          }}
-        >
+        {tooltip && (
           <div
-            className="bg-white text-nowrap text-xs border rounded-lg p-1 text-black font-normal"
+            className="hidden group-hover:block absolute"
             style={{
-              boxShadow: '0 6px 13px rgba(0, 0, 0, .1)',
+              transition: 'all 50ms linear',
+              top: '0%',
+
+              [swapDirection(tooltipPositon)]: '120%',
+
+              zIndex: 999,
             }}
           >
-            {tooltip}
+            <div
+              className="bg-white text-nowrap text-xs border rounded-lg p-1 text-black font-normal"
+              style={{
+                boxShadow: '0 6px 13px rgba(0, 0, 0, .1)',
+              }}
+            >
+              {tooltip}
+            </div>
           </div>
-        </div>
-      )}
-    </button>
-  );
-};
+        )}
+      </button>
+    );
+  }
+);

@@ -4,9 +4,7 @@ import { ClipboardCopyButton } from 'apps/chessroulette-web/components/Clipboard
 import { useMemo, useState } from 'react';
 import { useUrl } from 'nextjs-current-url';
 import { useLearnActivitySettings } from './Learn/useLearnActivitySettings';
-import { IconButton } from 'apps/chessroulette-web/components/Button';
 import { useRouter, usePathname } from 'next/navigation';
-import { useUpdateableSearchParams } from 'apps/chessroulette-web/hooks/useSearchParams';
 import { generateUserId } from 'apps/chessroulette-web/util';
 
 export const RoomSideMenu = () => {
@@ -29,7 +27,6 @@ export const RoomSideMenu = () => {
   }, [url, nextUserId]);
 
   const settings = useLearnActivitySettings();
-  const searchParams = useUpdateableSearchParams();
 
   return (
     <div className="flex flex-col items-center gap-4">
@@ -48,7 +45,7 @@ export const RoomSideMenu = () => {
             onCopiedIcon="CheckIcon"
             tooltip="Invite Student"
           />
-          <IconButton
+          {/* <IconButton
             tooltip="Edit Board"
             onClick={() => {
               const nextSearchParams = searchParams.set((prev) => ({
@@ -60,7 +57,7 @@ export const RoomSideMenu = () => {
             }}
             size="sm"
             icon="PencilSquareIcon"
-          />
+          /> */}
         </>
       )}
     </div>

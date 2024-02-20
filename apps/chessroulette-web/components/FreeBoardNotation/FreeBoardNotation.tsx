@@ -4,8 +4,8 @@ import { useKeysToRefocusHistory } from './hooks';
 import { FBHHistory, FreeBoardHistory } from '@xmatter/util-kit';
 
 export type FreeBoardNotationProps = {
-  history: FBHHistory;
-  focusedIndex: ListProps['focusedIndex'];
+  history?: FBHHistory;
+  focusedIndex?: ListProps['focusedIndex'];
   onRefocus: ListProps['onRefocus'];
   onDelete: ListProps['onDelete'];
   emptyContent?: string | React.ReactNode;

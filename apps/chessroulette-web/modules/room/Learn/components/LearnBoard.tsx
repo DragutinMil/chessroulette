@@ -1,7 +1,9 @@
-import { LearnActivityState, SquareMap } from '../../activity/reducer';
+import {
+  ChapterBoardState,
+  ChapterState,
+  SquareMap,
+} from '../../activity/reducer';
 import { useMemo } from 'react';
-import { MovexBoundResourceFromConfig } from 'movex-react';
-import movexConfig from 'apps/chessroulette-web/movex.config';
 import { useLearnActivitySettings } from '../useLearnActivitySettings';
 import { Freeboard } from 'apps/chessroulette-web/components/Chessboard/Freeboard';
 import { Playboard } from 'apps/chessroulette-web/components/Chessboard/Playboard';
@@ -15,28 +17,33 @@ import {
 import { Square } from 'chess.js';
 import { ChessboardContainerProps } from 'apps/chessroulette-web/components/Chessboard/ChessboardContainer';
 
-type Props = Pick<
-  ChessboardContainerProps,
-  'onMove' | 'onArrowsChange' | 'onCircleDraw' | 'onClearCircles'
-> & {
-  state: LearnActivityState['activityState'];
-  sizePx: number;
-};
+type Props = Required<
+  Pick<
+    ChessboardContainerProps,
+    'onMove' | 'onArrowsChange' | 'onCircleDraw' | 'onClearCircles' | 'sizePx'
+  >
+> &
+  ChapterBoardState & {
+    notation?: ChapterState['notation'];
+  };
 
 export const LearnBoard = ({
-  state: { history, fen, boardOrientation, arrows, circles },
-  // dispatch,
+  startingFen: fen,
+  orientation,
+  arrowsMap,
+  circlesMap,
   sizePx,
+  notation,
   ...chessBoardProps
 }: Props) => {
   const settings = useLearnActivitySettings();
-  const lm = FreeBoardHistory.findMoveAtIndex(
-    history.moves,
-    history.focusedIndex
-  );
+  const lm =
+    notation &&
+    FreeBoardHistory.findMoveAtIndex(notation.history, notation.focusedIndex);
   const lastMove = lm?.isNonMove ? undefined : lm;
 
   // Don't leave this here as it's not optimal
+  // TODO: Move this lower level
   const inCheckSquaresMap = useMemo(() => getInCheckSquareMap(fen), [fen]);
 
   const Board = settings.canMakeInvalidMoves ? Freeboard : Playboard;
@@ -45,14 +52,14 @@ export const LearnBoard = ({
     <>
       <Board
         containerClassName="shadow-2xl"
-        boardOrientation={boardOrientation}
-        playingColor={boardOrientation}
+        boardOrientation={orientation}
+        playingColor={orientation}
         sizePx={sizePx}
         fen={fen}
         lastMove={lastMove}
         inCheckSquares={inCheckSquaresMap}
-        arrowsMap={arrows}
-        circlesMap={circles}
+        arrowsMap={arrowsMap}
+        circlesMap={circlesMap}
         {...chessBoardProps}
       />
       {/* <div className="flex flex-col pt-0 pb-0">

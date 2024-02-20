@@ -12,8 +12,6 @@ export const ContainerWithDimensions: React.FC<Props> = ({
   const targetRef = useRef<HTMLDivElement>(null);
   const dimensions = useContainerDimensions(targetRef);
 
-  console.log('dimensions changed', dimensions)
-
   return (
     <div ref={targetRef} {...props}>
       {dimensions.updated &&

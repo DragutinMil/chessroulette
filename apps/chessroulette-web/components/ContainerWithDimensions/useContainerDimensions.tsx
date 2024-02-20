@@ -29,8 +29,6 @@ export function useContainerDimensions(
           updated: true,
         };
 
-        console.log('on resize', next);
-
         // If nothing changed return prev!
         if (
           prev.height === next.height &&

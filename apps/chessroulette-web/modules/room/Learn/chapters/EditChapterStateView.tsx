@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ChapterState } from '../../activity/reducer';
 import {
   ChessFENBoard,
@@ -11,19 +11,20 @@ import { FenPreview } from '../components/FenPreview';
 import { PgnInputBox } from 'apps/chessroulette-web/components/PgnInputBox';
 import useInstance from '@use-it/instance';
 import { SQUARES, Square } from 'chess.js';
+import { Button } from 'apps/chessroulette-web/components/Button';
 
 export type Props = {
   state: ChapterState;
-  onUpdate?: (s: Partial<ChapterState>) => void;
+  onUpdate: (s: Partial<ChapterState>) => void;
 };
 
 const EN_PASSANT_SQUARES = SQUARES.filter(
   ([_, rank]) => rank === '3' || rank === '6'
 );
 
-export const EditChapterState = ({ state, onUpdate = noop }: Props) => {
+export const EditChapterStateView = ({ state, onUpdate }: Props) => {
   const fenBoardInstance = useInstance<ChessFENBoard>(
-    new ChessFENBoard(state.fen)
+    new ChessFENBoard(state.startingFen)
   );
 
   const [boardFenState, setBoardFenState] = useState<FenState>(
@@ -31,19 +32,19 @@ export const EditChapterState = ({ state, onUpdate = noop }: Props) => {
   );
 
   useEffect(() => {
-    fenBoardInstance.loadFen(state.fen);
+    fenBoardInstance.loadFen(state.startingFen);
     setBoardFenState(fenBoardInstance.getFenState());
-  }, [state.fen]);
+  }, [state.startingFen]);
 
   const updateFenState = (nextFenState: DeepPartial<FenState>) => {
     fenBoardInstance.setFenNotation({ fromState: nextFenState });
 
-    onUpdate({ fen: fenBoardInstance.fen });
+    onUpdate({ startingFen: fenBoardInstance.fen });
   };
 
   return (
-    <div className="flex flex-col gap-3">
-      <div className="flex items-center gap-3 sbg-red-100">
+    <div className="flex flex-col gap-4 flex-1">
+      <div className="flex items-center gap-3">
         <label className="font-bold text-sm text-gray-400">Title</label>
 
         <input
@@ -62,14 +63,12 @@ export const EditChapterState = ({ state, onUpdate = noop }: Props) => {
         <label className="font-bold text-sm text-gray-400">Turn</label>
         <div className="flex items-center">
           <input
-            id="white"
+            id="turn-white"
             type="radio"
             checked={boardFenState.turn === 'w'}
             name="white"
             className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-            onChange={() => {
-              updateFenState({ turn: 'w' });
-            }}
+            onChange={() => updateFenState({ turn: 'w' })}
           />
           <label
             htmlFor="white"
@@ -80,17 +79,50 @@ export const EditChapterState = ({ state, onUpdate = noop }: Props) => {
         </div>
         <div className="flex items-center smb-4">
           <input
-            id="black"
+            id="turn-black"
             type="radio"
             // value=""
             checked={boardFenState.turn === 'b'}
             name="black"
             className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-            onChange={() => {
-              updateFenState({
-                turn: 'b',
-              });
-            }}
+            onChange={() => updateFenState({ turn: 'b' })}
+          />
+          <label
+            htmlFor="black"
+            className="ml-1 ms-2 text-sm font-medium text-gray-300"
+          >
+            Black
+          </label>
+        </div>
+      </div>
+
+      <div className="flex items-center gap-3 sbg-red-100">
+        <label className="font-bold text-sm text-gray-400">Orientation</label>
+        <div className="flex items-center">
+          <input
+            id="orientation-white"
+            type="radio"
+            checked={state.orientation === 'w'}
+            name="white"
+            className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+            onChange={() => onUpdate({ orientation: 'w' })}
+          />
+          <label
+            htmlFor="white"
+            className="ml-1 ms-2 text-sm font-medium text-gray-300"
+          >
+            White
+          </label>
+        </div>
+        <div className="flex items-center smb-4">
+          <input
+            id="orientation-black"
+            type="radio"
+            // value=""
+            checked={state.orientation === 'b'}
+            name="black"
+            className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+            onChange={() => onUpdate({ orientation: 'b' })}
           />
           <label
             htmlFor="black"
@@ -211,9 +243,7 @@ export const EditChapterState = ({ state, onUpdate = noop }: Props) => {
           id="countries"
           className="bg-slate-500 p-1 border border-slate-400 text-gray-900 text-sm rounded-lg block w-20 "
           onChange={(e) => {
-            updateFenState({
-              enPassant: e.target.value as Square,
-            });
+            updateFenState({ enPassant: e.target.value as Square });
           }}
         >
           <option value={undefined}>-</option>
@@ -232,7 +262,7 @@ export const EditChapterState = ({ state, onUpdate = noop }: Props) => {
           containerClassName="flex-1"
           onChange={(type, fenOrPgn) => {
             onUpdate({
-              fen:
+              startingFen:
                 type === 'FEN'
                   ? fenOrPgn
                   : getNewChessGame({ pgn: fenOrPgn }).fen(),
@@ -241,7 +271,51 @@ export const EditChapterState = ({ state, onUpdate = noop }: Props) => {
         />
       </div>
 
-      <FenPreview fen={state.fen} />
+      <div className="flex flex-col gap-3">
+        <label className="font-bold text-sm text-gray-400">Board</label>
+
+        <div className="flex gap-3 sjustify-between">
+          <Button
+            size="sm"
+            type="secondary"
+            onClick={() => {
+              onUpdate({ startingFen: ChessFENBoard.ONLY_KINGS_FEN });
+
+              // TODO: Bring this back
+              // onClearArrowsAndCircles();
+            }}
+            icon="TrashIcon"
+            iconKind="outline"
+          >
+            Clear
+          </Button>
+          <Button
+            size="sm"
+            type="secondary"
+            onClick={() => {
+              onUpdate({ startingFen: ChessFENBoard.STARTING_FEN });
+
+              // TODO: Bring this back as well
+              // onClearArrowsAndCircles();
+            }}
+            icon="ArrowPathIcon"
+            iconKind="outline"
+          >
+            Start Position
+          </Button>
+          {/* <div className="flex-1" /> */}
+          <Button
+            size="sm"
+            type="custom"
+            bgColor="green"
+            icon="PencilSquareIcon"
+          >
+            Edit
+          </Button>
+        </div>
+      </div>
+
+      <FenPreview fen={state.startingFen} />
     </div>
   );
 };

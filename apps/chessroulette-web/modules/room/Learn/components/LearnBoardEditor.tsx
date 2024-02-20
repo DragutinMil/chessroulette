@@ -1,60 +1,69 @@
-import { BoardEditorWithSize } from 'apps/chessroulette-web/components/Chessboard/BoardEditor';
-import { EditModeState } from '../types';
-import { swapColor } from '@xmatter/util-kit';
+import {
+  BoardEditorProps,
+  BoardEditorWithSize,
+} from 'apps/chessroulette-web/components/Chessboard/BoardEditor';
+import { ChessFEN, Ensure, swapColor } from '@xmatter/util-kit';
+import { ChapterBoardState } from '../../activity/reducer';
 
-type Props = {
-  state: EditModeState;
-  onUpdate: (s: (prev: EditModeState) => EditModeState) => void;
+export type LearnBoardEditorProps = {
   boardSizePx: number;
-};
+  state: ChapterBoardState;
+  // onUpdate: (s: (prev: ChapterBoardState) => ChapterBoardState) => void;
+  // onUpdateFen: (fen: ChessFEN) => void;
+} & Required<
+  Pick<
+    BoardEditorProps,
+    | 'onUpdated'
+    | 'onClearCircles'
+    | 'onFlipBoard'
+    | 'onCircleDraw'
+    | 'onArrowsChange'
+  >
+>;
 
 export const LearnBoardEditor = ({
-  state: { fen, orientation, arrowsMap, circlesMap },
+  state: { startingFen, orientation, arrowsMap, circlesMap },
   boardSizePx,
-  onUpdate,
-}: Props) => {
-  return (
-    <BoardEditorWithSize
-      fen={fen}
-      // sizePx={desktopLayout.main.width.val}
-      sizePx={boardSizePx}
-      onUpdated={(fen) => onUpdate((prev) => ({ ...prev, fen }))}
-      boardOrientation={orientation}
-      onArrowsChange={(arrowsMap) =>
-        onUpdate((prev) => ({ ...prev, arrowsMap }))
-      }
-      arrowsMap={arrowsMap}
-      circlesMap={circlesMap}
-      onCircleDraw={(circleTuple) => {
-        onUpdate((prev) => {
-          const [at] = circleTuple;
-          const circleId = `${at}`;
-          const { [circleId]: existent, ...restOfCirles } =
-            prev.circlesMap || {};
+  ...boardProps
+}: LearnBoardEditorProps) => (
+  <BoardEditorWithSize
+    fen={startingFen}
+    sizePx={boardSizePx}
+    // onUpdated={(fen) => onUpdate((prev) => ({ ...prev, fen }))}
+    // onUpdated={onUpdateFen}
+    boardOrientation={orientation}
+    // onArrowsChange={(arrowsMap) => onUpdate((prev) => ({ ...prev, arrowsMap }))}
+    arrowsMap={arrowsMap}
+    circlesMap={circlesMap}
+    {...boardProps}
+    // onCircleDraw={(circleTuple) => {
+    //   onUpdate((prev) => {
+    //     const [at] = circleTuple;
+    //     const circleId = `${at}`;
+    //     const { [circleId]: existent, ...restOfCirles } = prev.circlesMap || {};
 
-          return {
-            ...prev,
-            circlesMap: {
-              ...restOfCirles,
-              ...(!!existent
-                ? undefined // Set it to undefined if same
-                : { [circleId]: circleTuple }),
-            },
-          };
-        });
-      }}
-      onClearCircles={() => {
-        onUpdate((prev) => ({
-          ...prev,
-          circlesMap: {},
-        }));
-      }}
-      onFlipBoard={() => {
-        onUpdate((prev) => ({
-          ...prev,
-          orientation: swapColor(prev.orientation),
-        }));
-      }}
-    />
-  );
-};
+    //     return {
+    //       ...prev,
+    //       circlesMap: {
+    //         ...restOfCirles,
+    //         ...(!!existent
+    //           ? undefined // Set it to undefined if same
+    //           : { [circleId]: circleTuple }),
+    //       },
+    //     };
+    //   });
+    // }}
+    // onClearCircles={() => {
+    //   onUpdate((prev) => ({
+    //     ...prev,
+    //     circlesMap: {},
+    //   }));
+    // }}
+    // onFlipBoard={() => {
+    //   onUpdate((prev) => ({
+    //     ...prev,
+    //     orientation: swapColor(prev.orientation),
+    //   }));
+    // }}
+  />
+);

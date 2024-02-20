@@ -34,7 +34,7 @@ export type BoardEditorProps = Pick<
 > & {
   fen: ChessFEN;
   onUpdated: (fen: ChessFEN) => void;
-  onFlipBoard?: () => void;
+  onFlipBoard: () => void;
   sizePx: number;
 };
 
@@ -44,8 +44,8 @@ const blackPieces: PieceSan[] = ['bP', 'bB', 'bN', 'bQ', 'bR'];
 export const BoardEditor = ({
   fen = ChessFENBoard.STARTING_FEN,
   sizePx,
-  onUpdated = noop,
-  onFlipBoard = noop,
+  onUpdated,
+  onFlipBoard,
   ...props
 }: BoardEditorProps) => {
   const fenBoard = useInstance<ChessFENBoard>(new ChessFENBoard(fen));
