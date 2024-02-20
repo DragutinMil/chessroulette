@@ -28,7 +28,7 @@ type Props = Required<
   };
 
 export const LearnBoard = ({
-  startingFen: fen,
+  displayFen: fen,
   orientation,
   arrowsMap,
   circlesMap,

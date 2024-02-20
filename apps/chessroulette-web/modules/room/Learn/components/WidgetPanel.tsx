@@ -117,6 +117,7 @@ export const WidgetPanel = ({
                   onDelete={onHistoryNotationDelete}
                   onRefocus={onHistoryNotationRefocus}
                 />
+                <FenPreview fen={fen} />
               </div>
             ),
           },

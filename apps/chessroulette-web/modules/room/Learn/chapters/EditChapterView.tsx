@@ -29,10 +29,11 @@ const toChapterState = (c: Chapter): ChapterState => {
 };
 
 const areChapterStatesEqual = (a: ChapterState, b: ChapterState) =>
-  a.startingFen === b.startingFen &&
+  a.displayFen === b.displayFen &&
   a.name === b.name &&
   a.arrowsMap === b.arrowsMap &&
   a.circlesMap === b.circlesMap;
+  // TODO: should this involve more details in the comparison?
 
 const calcUncommited = ({
   chapter,

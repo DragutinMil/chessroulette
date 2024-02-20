@@ -22,12 +22,12 @@ export type LearnBoardEditorProps = {
 >;
 
 export const LearnBoardEditor = ({
-  state: { startingFen, orientation, arrowsMap, circlesMap },
+  state: { displayFen, orientation, arrowsMap, circlesMap },
   boardSizePx,
   ...boardProps
 }: LearnBoardEditorProps) => (
   <BoardEditorWithSize
-    fen={startingFen}
+    fen={displayFen}
     sizePx={boardSizePx}
     // onUpdated={(fen) => onUpdate((prev) => ({ ...prev, fen }))}
     // onUpdated={onUpdateFen}

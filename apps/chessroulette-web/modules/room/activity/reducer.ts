@@ -46,7 +46,7 @@ export type LearnActivityState = {
 
     // This is only here when there is no chapter created - kinda like
     // student and instructor just play around
-    freeChapter: Omit<ChapterState, 'name'>;
+    freeChapter: ChapterState;
   };
 };
 
@@ -72,16 +72,17 @@ export type ChapterState = {
 
   // Also the chapter might get a type: position, or puzzle (containing next correct moves)
 
-  notation?: {
+  notation: {
     // The starting fen is the chapter fen
     history: FBHHistory;
     focusedIndex: FBHIndex;
+    startingFen: ChessFEN; // This could be strtingPGN as well especially for puzzles but not necessarily
   };
 } & ChapterBoardState;
 
 export type ChapterBoardState = {
   // Board State
-  startingFen: ChessFEN; // This could be strtingPGN as well especially for puzzles but not necessarily
+  displayFen: ChessFEN; // This could be strtingPGN as well especially for puzzles but not necessarily
 
   // fen: ChessFEN;
   arrowsMap: ArrowsMap;
@@ -93,17 +94,18 @@ export type ChapterBoardState = {
 
 export const initialChapterState: ChapterState = {
   name: 'New Chapter', // TODO: Should it have a name?
-  startingFen: ChessFENBoard.STARTING_FEN,
+  displayFen: ChessFENBoard.STARTING_FEN,
   arrowsMap: {},
   circlesMap: {},
   notation: {
     history: [],
     focusedIndex: FreeBoardHistory.getStartingIndex(),
+    startingFen: ChessFENBoard.STARTING_FEN,
   },
   orientation: 'w',
 };
 
-export const { name: _, ...initialFreeChapter } = initialChapterState;
+export const initialFreeChapter = { ...initialChapterState, name: '' };
 
 export const initialLearnActivityState: LearnActivityState = {
   activityType: 'learn',
@@ -131,10 +133,17 @@ export type ActivityActions =
   | Action<'loadChapter', { id: Chapter['id'] }>
 
   // Board
-  | Action<'dropPiece', ChessMove>
+  | Action<
+      'dropPiece',
+      {
+        move: ChessMove;
+        // If not present, it's free chapter
+        chapterId?: Chapter['id'];
+      }
+    >
   | Action<'importPgn', ChessPGN>
   | Action<'importFen', ChessFEN>
-  | Action<'focusHistoryIndex', { index: FBHIndex }>
+  | Action<'focusHistoryIndex', { index: FBHIndex; chapterId?: Chapter['id'] }>
   | Action<'deleteHistoryMove', { atIndex: FBHIndex }>
   | Action<'changeBoardOrientation', ChessColor>
   | Action<'arrowChange', ArrowsMap>
@@ -165,6 +174,27 @@ export type ActivityActions =
 
 // PART 3: The Reducer – This is where all the logic happens
 
+const getPrevChapterAndDetails = (
+  activityState: LearnActivityState['activityState'],
+  chapterId?: string
+) => {
+  if (!chapterId) {
+    // if the chapter id isn't present, return freeChapter - but mybe it should throw an error
+
+    return {
+      chapterType: 'freeChapter',
+      chapter: activityState.freeChapter,
+      chapterId: undefined,
+    } as const;
+  }
+
+  return {
+    chapterType: 'identifiable',
+    chapterId,
+    chapter: activityState.chaptersMap[chapterId] as ChapterState | undefined,
+  } as const;
+};
+
 export default (
   prev: ActivityState = initialActivtityState,
   action: ActivityActions
@@ -177,118 +207,160 @@ export default (
 
   if (prev.activityType === 'learn') {
     // TODO: Should this be split?
-    // if (action.type === 'dropPiece') {
-    //   // TODO: the logic for this should be in GameHistory class/static  so it can be tested
-    //   try {
-    //     const { from, to, promoteTo } = action.payload.move;
-    //     const chapter = [prev.activityState.chaptersMap];
-    //     const instance = new ChessFENBoard(prev.activityState.fen);
-    //     const fenPiece = instance.piece(from);
-    //     if (!fenPiece) {
-    //       console.error('Err', instance.board);
-    //       throw new Error(`No Piece at ${from}`);
-    //     }
-    //     const promoteToFenBoardPiecesymbol:
-    //       | FenBoardPromotionalPieceSymbol
-    //       | undefined = promoteTo
-    //       ? (pieceSanToFenBoardPieceSymbol(
-    //           promoteTo
-    //         ) as FenBoardPromotionalPieceSymbol)
-    //       : undefined;
-    //     const nextMove = instance.move(
-    //       from,
-    //       to,
-    //       promoteToFenBoardPiecesymbol
-    //     ) as FBHMove;
-    //     const prevMove = FreeBoardHistory.findMoveAtIndex(
-    //       prev.activityState.history.moves,
-    //       prev.activityState.history.focusedIndex
-    //     );
-    //     const { moves: prevHistoryMoves, focusedIndex: prevFocusedIndex } =
-    //       prev.activityState.history;
-    //     // If the moves are the same introduce a non move
-    //     const [nextHistory, addedAtIndex] = invoke(() => {
-    //       const isFocusedIndexLastInBranch =
-    //         FreeBoardHistory.isLastIndexInHistoryBranch(
-    //           prevHistoryMoves,
-    //           prevFocusedIndex
-    //         );
-    //       const [_, __, prevFocusRecursiveIndexes] = prevFocusedIndex;
-    //       if (prevFocusRecursiveIndexes) {
-    //         const addAtIndex =
-    //           FreeBoardHistory.incrementIndex(prevFocusedIndex);
-    //         if (prevMove?.color === nextMove.color) {
-    //           const [nextHistory, addedAtIndex] = FreeBoardHistory.addMove(
-    //             prev.activityState.history.moves,
-    //             FreeBoardHistory.getNonMove(swapColor(nextMove.color)),
-    //             addAtIndex
-    //           );
-    //           return FreeBoardHistory.addMove(
-    //             nextHistory,
-    //             nextMove,
-    //             FreeBoardHistory.incrementIndex(addedAtIndex)
-    //           );
-    //         }
-    //         return FreeBoardHistory.addMove(
-    //           prev.activityState.history.moves,
-    //           nextMove,
-    //           addAtIndex
-    //         );
-    //       }
-    //       const addAtIndex = isFocusedIndexLastInBranch
-    //         ? FreeBoardHistory.incrementIndex(
-    //             prev.activityState.history.focusedIndex
-    //           )
-    //         : prev.activityState.history.focusedIndex;
-    //       // if 1st move is black add a non move
-    //       if (prevHistoryMoves.length === 0 && nextMove.color === 'b') {
-    //         const [nextHistory] = FreeBoardHistory.addMove(
-    //           prev.activityState.history.moves,
-    //           FreeBoardHistory.getNonMove(swapColor(nextMove.color))
-    //         );
-    //         return FreeBoardHistory.addMove(nextHistory, nextMove);
-    //       }
-    //       // If it's not the last branch
-    //       if (!isFocusedIndexLastInBranch) {
-    //         return FreeBoardHistory.addMove(
-    //           prev.activityState.history.moves,
-    //           nextMove,
-    //           prevFocusedIndex
-    //         );
-    //       }
-    //       // Add nonMoves for skipping one
-    //       if (prevMove?.color === nextMove.color) {
-    //         const [nextHistory] = FreeBoardHistory.addMove(
-    //           prev.activityState.history.moves,
-    //           FreeBoardHistory.getNonMove(swapColor(nextMove.color)),
-    //           addAtIndex
-    //         );
-    //         return FreeBoardHistory.addMove(nextHistory, nextMove);
-    //       }
-    //       return FreeBoardHistory.addMove(
-    //         prev.activityState.history.moves,
-    //         nextMove
-    //       );
-    //     });
-    //     return {
-    //       ...prev,
-    //       activityState: {
-    //         ...prev.activityState,
-    //         fen: instance.fen,
-    //         circles: {},
-    //         arrows: {},
-    //         history: {
-    //           ...prev.activityState.history,
-    //           moves: nextHistory,
-    //           focusedIndex: addedAtIndex,
-    //         },
-    //       },
-    //     };
-    //   } catch (e) {
-    //     console.error('failed', e);
-    //     return prev;
-    //   }
-    // }
+    if (action.type === 'dropPiece') {
+      // TODO: the logic for this should be in GameHistory class/static  so it can be tested
+      try {
+        const { from, to, promoteTo } = action.payload.move;
+        // const prevChapter = action.payload.chapterId
+        //   ? prev.activityState.chaptersMap[action.payload.chapterId] ||
+        //     undefined
+        //   : prev.activityState.freeChapter;
+
+        const prevChapterAndDetails = getPrevChapterAndDetails(
+          prev.activityState,
+          action.payload.chapterId
+        );
+
+        if (!prevChapterAndDetails.chapter) {
+          console.error('The chapter wasnt found');
+          return prev;
+        }
+
+        const prevChapter = prevChapterAndDetails.chapter;
+
+        const instance = new ChessFENBoard(prevChapter.displayFen);
+        const fenPiece = instance.piece(from);
+        if (!fenPiece) {
+          console.error('Err', instance.board);
+          throw new Error(`No Piece at ${from}`);
+        }
+        const promoteToFenBoardPiecesymbol:
+          | FenBoardPromotionalPieceSymbol
+          | undefined = promoteTo
+          ? (pieceSanToFenBoardPieceSymbol(
+              promoteTo
+            ) as FenBoardPromotionalPieceSymbol)
+          : undefined;
+        const nextMove = instance.move(
+          from,
+          to,
+          promoteToFenBoardPiecesymbol
+        ) as FBHMove;
+        const prevMove = FreeBoardHistory.findMoveAtIndex(
+          prevChapter.notation.history,
+          prevChapter.notation.focusedIndex
+        );
+        const { history: prevHistoryMoves, focusedIndex: prevFocusedIndex } =
+          prevChapter.notation;
+        // If the moves are the same introduce a non move
+        const [nextHistory, addedAtIndex] = invoke(() => {
+          const isFocusedIndexLastInBranch =
+            FreeBoardHistory.isLastIndexInHistoryBranch(
+              prevHistoryMoves,
+              prevFocusedIndex
+            );
+          const [_, __, prevFocusRecursiveIndexes] = prevFocusedIndex;
+          if (prevFocusRecursiveIndexes) {
+            const addAtIndex =
+              FreeBoardHistory.incrementIndex(prevFocusedIndex);
+            if (prevMove?.color === nextMove.color) {
+              const [nextHistory, addedAtIndex] = FreeBoardHistory.addMove(
+                prevChapter.notation.history,
+                FreeBoardHistory.getNonMove(swapColor(nextMove.color)),
+                addAtIndex
+              );
+              return FreeBoardHistory.addMove(
+                nextHistory,
+                nextMove,
+                FreeBoardHistory.incrementIndex(addedAtIndex)
+              );
+            }
+            return FreeBoardHistory.addMove(
+              prevChapter.notation.history,
+              nextMove,
+              addAtIndex
+            );
+          }
+          const addAtIndex = isFocusedIndexLastInBranch
+            ? FreeBoardHistory.incrementIndex(prevChapter.notation.focusedIndex)
+            : prevChapter.notation.focusedIndex;
+          // if 1st move is black add a non move
+          if (prevHistoryMoves.length === 0 && nextMove.color === 'b') {
+            const [nextHistory] = FreeBoardHistory.addMove(
+              prevChapter.notation.history,
+              FreeBoardHistory.getNonMove(swapColor(nextMove.color))
+            );
+            return FreeBoardHistory.addMove(nextHistory, nextMove);
+          }
+          // If it's not the last branch
+          if (!isFocusedIndexLastInBranch) {
+            return FreeBoardHistory.addMove(
+              prevChapter.notation.history,
+              nextMove,
+              prevFocusedIndex
+            );
+          }
+          // Add nonMoves for skipping one
+          if (prevMove?.color === nextMove.color) {
+            const [nextHistory] = FreeBoardHistory.addMove(
+              prevChapter.notation.history,
+              FreeBoardHistory.getNonMove(swapColor(nextMove.color)),
+              addAtIndex
+            );
+            return FreeBoardHistory.addMove(nextHistory, nextMove);
+          }
+          return FreeBoardHistory.addMove(
+            prevChapter.notation.history,
+            nextMove
+          );
+        });
+
+        // const nextChapter = action.payload.chapterId ? {
+        //   ...prevChapter
+        // }
+        const nextChapterState: ChapterState = {
+          ...prevChapter,
+          displayFen: instance.fen,
+          circlesMap: {},
+          arrowsMap: {},
+          notation: {
+            ...prevChapter.notation,
+            history: nextHistory,
+            focusedIndex: addedAtIndex,
+          },
+        };
+
+        if (prevChapterAndDetails.chapterType === 'identifiable') {
+          return {
+            ...prev,
+            activityState: {
+              ...prev.activityState,
+              chaptersMap: {
+                ...prev.activityState.chaptersMap,
+                [prevChapterAndDetails.chapterId]: {
+                  ...prev.activityState.chaptersMap[
+                    prevChapterAndDetails.chapterId
+                  ],
+                  ...nextChapterState,
+                },
+              },
+            },
+          };
+        }
+
+        // Otherwise it's a Free chapter
+        return {
+          ...prev,
+          activityState: {
+            ...prev.activityState,
+            freeChapter: nextChapterState,
+          },
+        };
+      } catch (e) {
+        console.error('failed', e);
+        return prev;
+      }
+    }
     // // TODO: Bring all of these back
     // else if (action.type === 'importFen') {
     //   if (!ChessFENBoard.validateFenString(action.payload).ok) {
@@ -332,32 +404,72 @@ export default (
     //       },
     //     },
     //   };
-    // } else if (action.type === 'focusHistoryIndex') {
-    //   const historyAtFocusedIndex =
-    //     FreeBoardHistory.calculateLinearHistoryToIndex(
-    //       prev.activityState.history.moves,
-    //       action.payload.index
-    //     );
-    //   const instance = new ChessFENBoard(
-    //     prev.activityState.history.startingFen
-    //   );
-    //   historyAtFocusedIndex.forEach((m) => {
-    //     if (!m.isNonMove) {
-    //       instance.move(m.from, m.to);
-    //     }
-    //   });
-    //   return {
-    //     ...prev,
-    //     activityState: {
-    //       ...prev.activityState,
-    //       fen: instance.fen,
-    //       history: {
-    //         ...prev.activityState.history,
-    //         focusedIndex: action.payload.index,
-    //       },
-    //     },
-    //   };
     // }
+    else if (action.type === 'focusHistoryIndex') {
+      // TODO: absract this away
+      // const prevChapter = action.payload.chapterId
+      //   ? prev.activityState.chaptersMap[action.payload.chapterId] || undefined
+      //   : prev.activityState.freeChapter;
+      const prevChapterAndDetails = getPrevChapterAndDetails(
+        prev.activityState,
+        action.payload.chapterId
+      );
+
+      if (!prevChapterAndDetails.chapter) {
+        console.error('The chapter wasnt found');
+        return prev;
+      }
+
+      const prevChapter = prevChapterAndDetails.chapter;
+
+      const historyAtFocusedIndex =
+        FreeBoardHistory.calculateLinearHistoryToIndex(
+          prevChapter.notation.history,
+          action.payload.index
+        );
+      const instance = new ChessFENBoard(prevChapter.notation.startingFen);
+      historyAtFocusedIndex.forEach((m) => {
+        if (!m.isNonMove) {
+          instance.move(m.from, m.to);
+        }
+      });
+
+      const nextChapterState: ChapterState = {
+        ...prevChapter,
+        displayFen: instance.fen,
+        notation: {
+          ...prevChapter.notation,
+          focusedIndex: action.payload.index,
+        },
+      };
+
+      if (prevChapterAndDetails.chapterType === 'identifiable') {
+        return {
+          ...prev,
+          activityState: {
+            ...prev.activityState,
+            chaptersMap: {
+              ...prev.activityState.chaptersMap,
+              [prevChapterAndDetails.chapterId]: {
+                ...prev.activityState.chaptersMap[
+                  prevChapterAndDetails.chapterId
+                ],
+                ...nextChapterState,
+              },
+            },
+          },
+        };
+      }
+
+      // Otherwise it's a Free chapter
+      return {
+        ...prev,
+        activityState: {
+          ...prev.activityState,
+          freeChapter: nextChapterState,
+        },
+      };
+    }
     // if (action.type === 'deleteHistoryMove') {
     //   // TODO: Fix this!
     //   // const nextIndex = FreeBoardHistory.decrementIndexAbsolutely(action.payload.atIndex);

@@ -82,8 +82,6 @@ export const LearnActivity = ({
     remoteState?.freeChapter ||
     initialFreeChapter;
 
-  
-
   return (
     <div
       className="flex w-full h-full align-center justify-center"
@@ -122,6 +120,7 @@ export const LearnActivity = ({
                   sizePx={boardSize}
                   {...inputState.chapterState}
                   onMove={(payload) => {
+                    // onUpdateInputState()
                     // TODO: This can be returned from a more internal component
                     return true;
                   }}
@@ -136,8 +135,8 @@ export const LearnActivity = ({
             <LearnBoard
               sizePx={boardSize}
               {...currentChapterState}
-              onMove={(payload) => {
-                dispatch({ type: 'dropPiece', payload });
+              onMove={(move) => {
+                dispatch({ type: 'dropPiece', payload: { move } });
 
                 // TODO: This can be returned from a more internal component
                 return true;
@@ -209,13 +208,13 @@ export const LearnActivity = ({
                 />
               </div>
 
-              {inputState.isActive ? 'active': 'not active'}
+              {inputState.isActive ? 'active' : 'not active'}
               <WidgetPanel
                 // state={activityState}
 
                 // NOT SURE THIS IS THE NEW CHAPTER OR WHAT?
                 // Should this come from the baordState? I guess?
-                fen={currentChapterState.startingFen}
+                fen={currentChapterState.displayFen}
                 notation={currentChapterState.notation}
                 chaptersMap={remoteState?.chaptersMap || {}}
                 inputModeState={inputState}

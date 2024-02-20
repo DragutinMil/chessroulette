@@ -201,7 +201,7 @@ export const ChaptersTab = ({
               <EditChapterView
                 boardState={{
                   ...chaptersMap[editChapterId],
-                  fen: chaptersMap[editChapterId].startingFen,
+                  fen: chaptersMap[editChapterId].displayFen,
                 }}
                 isBoardEditorShown={!!props.inputModeState.isBoardEditorShown}
                 onToggleBoardEditor={(show) => {

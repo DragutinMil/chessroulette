@@ -32,7 +32,7 @@ export const EditChapterStateView = ({
   onToggleBoardEditor,
 }: EditChapterStateViewProps) => {
   const fenBoardInstance = useInstance<ChessFENBoard>(
-    new ChessFENBoard(state.startingFen)
+    new ChessFENBoard(state.displayFen)
   );
 
   const [boardFenState, setBoardFenState] = useState<FenState>(
@@ -40,9 +40,9 @@ export const EditChapterStateView = ({
   );
 
   useEffect(() => {
-    fenBoardInstance.loadFen(state.startingFen);
+    fenBoardInstance.loadFen(state.displayFen);
     setBoardFenState(fenBoardInstance.getFenState());
-  }, [state.startingFen]);
+  }, [state.displayFen]);
 
   const partialUpdate = (partial: Partial<ChapterState>) =>
     onUpdate({ ...state, ...partial });
@@ -50,7 +50,7 @@ export const EditChapterStateView = ({
   const updateFenState = (nextFenState: DeepPartial<FenState>) => {
     fenBoardInstance.setFenNotation({ fromState: nextFenState });
 
-    partialUpdate({ startingFen: fenBoardInstance.fen });
+    partialUpdate({ displayFen: fenBoardInstance.fen });
   };
 
   return (
@@ -273,7 +273,7 @@ export const EditChapterStateView = ({
           containerClassName="flex-1"
           onChange={(type, fenOrPgn) => {
             partialUpdate({
-              startingFen:
+              displayFen:
                 type === 'FEN'
                   ? fenOrPgn
                   : getNewChessGame({ pgn: fenOrPgn }).fen(),
@@ -290,7 +290,7 @@ export const EditChapterStateView = ({
             size="sm"
             type="secondary"
             onClick={() => {
-              partialUpdate({ startingFen: ChessFENBoard.ONLY_KINGS_FEN });
+              partialUpdate({ displayFen: ChessFENBoard.ONLY_KINGS_FEN });
 
               // TODO: Bring this back
               // onClearArrowsAndCircles();
@@ -304,7 +304,7 @@ export const EditChapterStateView = ({
             size="sm"
             type="secondary"
             onClick={() => {
-              partialUpdate({ startingFen: ChessFENBoard.STARTING_FEN });
+              partialUpdate({ displayFen: ChessFENBoard.STARTING_FEN });
 
               // TODO: Bring this back as well
               // onClearArrowsAndCircles();
@@ -339,7 +339,7 @@ export const EditChapterStateView = ({
         </div>
       </div>
 
-      <FenPreview fen={state.startingFen} />
+      <FenPreview fen={state.displayFen} />
     </div>
   );
 };
