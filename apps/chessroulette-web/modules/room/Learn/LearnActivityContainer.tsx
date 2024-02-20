@@ -3,22 +3,9 @@
 import movexConfig from 'apps/chessroulette-web/movex.config';
 import { ResourceIdentifier } from 'movex-core-util';
 import { MovexBoundResource, useMovexBoundResourceFromRid } from 'movex-react';
-import { ChessFEN, ChessFENBoard, min, noop } from '@xmatter/util-kit';
 import { useUserId } from 'apps/chessroulette-web/hooks/useUserId/useUserId';
-import { useEffect, useRef, useState } from 'react';
-import { IconButton } from 'apps/chessroulette-web/components/Button';
+import { useEffect, useState } from 'react';
 import { IceServerRecord } from 'apps/chessroulette-web/providers/PeerToPeerProvider/type';
-import { useLearnActivitySettings } from './useLearnActivitySettings';
-import { useSearchParams } from 'next/navigation';
-import { useDesktopRoomLayout } from './useDesktopRoomLayout';
-import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
-import { EditModeState } from './types';
-// import { SideContainer } from './containers/SideContainer';
-// import { MainContainer } from './containers/MainContainer';
-import { MainArea } from './components/MainArea';
-import { ChapterState, initialChapterState } from '../activity/reducer';
-import Streaming from '../StreamingContainer';
-import { WidgetPanel } from './components/WidgetPanel';
 import { LearnActivity, LearnActivityProps } from './LearnActivity';
 import { toRidAsObj } from 'movex';
 
@@ -31,10 +18,12 @@ export const LearnActivityContainer = ({ iceServers, ...props }: Props) => {
   const userId = useUserId();
   const movexResource = useMovexBoundResourceFromRid(movexConfig, props.rid);
 
-  const [localState, setLocalState] = useState<
-    LearnActivityProps['localState']
+  const [inputState, setInputState] = useState<
+    LearnActivityProps['inputState']
   >({
-    newChapter: initialChapterState,
+    isActive: false,
+    chapterState: undefined,
+    isBoardEditorShown: false,
   });
 
   useEffect(() => {
@@ -46,7 +35,7 @@ export const LearnActivityContainer = ({ iceServers, ...props }: Props) => {
     console.log(movexResource?.state.activity.activityType);
     console.log(movexResource?.state.activity.activityState);
     console.groupEnd();
-  }, [movexResource?.state])
+  }, [movexResource?.state]);
 
   return (
     <>
@@ -76,7 +65,8 @@ export const LearnActivityContainer = ({ iceServers, ...props }: Props) => {
         userId={userId}
         participants={movexResource?.state.participants || {}}
         iceServers={iceServers}
-        localState={localState}
+        inputState={inputState}
+        onUpdateInputState={setInputState}
         remoteState={
           movexResource?.state.activity.activityType === 'learn'
             ? movexResource?.state.activity.activityState

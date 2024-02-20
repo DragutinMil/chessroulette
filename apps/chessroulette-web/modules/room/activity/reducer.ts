@@ -43,6 +43,10 @@ export type LearnActivityState = {
     currentChapterId: Chapter['id'] | undefined;
     chaptersMap: Record<Chapter['id'], Chapter>;
     chaptersIndex: number;
+
+    // This is only here when there is no chapter created - kinda like
+    // student and instructor just play around
+    freeChapter: Omit<ChapterState, 'name'>;
   };
 };
 
@@ -99,39 +103,22 @@ export const initialChapterState: ChapterState = {
   orientation: 'w',
 };
 
+export const { name: _, ...initialFreeChapter } = initialChapterState;
+
 export const initialLearnActivityState: LearnActivityState = {
   activityType: 'learn',
   activityState: {
-    // boardOrientation: 'white',
-    // fen: ChessFENBoard.STARTING_FEN,
-    // arrows: {},
-    // circles: {},
-    // history: {
-    //   startingFen: ChessFENBoard.STARTING_FEN,
-    //   moves: [],
-    //   focusedIndex: [-1, 1],
-    // },
-    // current: {
-    //   // boardOrientation: 'white',
-    //   orientation: 'white',
-    //   fen: ChessFENBoard.STARTING_FEN,
-    //   arrowsMap: {},
-    //   circlesMap: {},
-    //   notation: {
-    //     startingFen: ChessFENBoard.STARTING_FEN,
-    //     history: [],
-    //     focusedIndex: [-1, 1],
-    //   },
-    // },
     currentChapterId: undefined,
     chaptersMap: {},
     chaptersIndex: 0,
+    freeChapter: initialFreeChapter,
   },
 };
 
 // PART 2: Action Types
 
 export type ActivityActions =
+  // Chapter Logistcs
   | Action<'createChapter', ChapterState>
   | Action<
       'updateChapter',
@@ -141,7 +128,9 @@ export type ActivityActions =
       }
     >
   | Action<'deleteChapter', { id: Chapter['id'] }>
-  | Action<'playChapter', { id: Chapter['id'] }>
+  | Action<'loadChapter', { id: Chapter['id'] }>
+
+  // Board
   | Action<'dropPiece', ChessMove>
   | Action<'importPgn', ChessPGN>
   | Action<'importFen', ChessFEN>
@@ -472,6 +461,7 @@ export default (
               ...action.payload,
             },
           },
+          currentChapterId: nextChapterId,
           chaptersIndex: nextChapterIndex,
         },
       };
@@ -504,22 +494,24 @@ export default (
         },
       };
     }
-    // if (action.type === 'playChapter') {
-    //   const { [action.payload.id]: chapter } = prev.activityState.chaptersMap;
-    //   if (!chapter) {
-    //     return prev;
-    //   }
-    //   return {
-    //     ...prev,
-    //     activityState: {
-    //       ...prev.activityState,
-    //       fen: chapter.fen,
-    //       arrows: chapter.arrowsMap || {},
-    //       circles: chapter.circlesMap || {},
-    //       // boardOrientation: chapter.orientation,
-    //     },
-    //   };
-    // }
+    if (action.type === 'loadChapter') {
+      const { [action.payload.id]: chapter } = prev.activityState.chaptersMap;
+      if (!chapter) {
+        return prev;
+      }
+
+      return {
+        ...prev,
+        activityState: {
+          ...prev.activityState,
+          currentChapterId: chapter.id,
+          // fen: chapter.fen,
+          // arrows: chapter.arrowsMap || {},
+          // circles: chapter.circlesMap || {},
+          // boardOrientation: chapter.orientation,
+        },
+      };
+    }
   }
 
   return prev;

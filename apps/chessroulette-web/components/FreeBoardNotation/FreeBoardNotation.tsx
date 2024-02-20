@@ -21,7 +21,7 @@ export type FreeBoardNotationProps = {
  */
 export const FreeBoardNotation: React.FC<FreeBoardNotationProps> = ({
   history = [],
-  emptyContent = 'Wow, so empty!',
+  emptyContent = 'Wow, So Empty!',
   focusedIndex = FreeBoardHistory.getStartingIndex(),
   onRefocus,
   onDelete,
@@ -42,7 +42,7 @@ export const FreeBoardNotation: React.FC<FreeBoardNotationProps> = ({
           rowClassName="border-b border-slate-600"
         />
       ) : (
-        <div className="flex-1 flex items-center justify-center">
+        <div className="flex-1 flex items-center justify-center text-slate-500">
           {emptyContent}
         </div>
       )}

@@ -125,7 +125,7 @@ export default (state = initialRoomState, action: RoomActions): RoomState => {
     action.type === 'createChapter' ||
     action.type === 'deleteChapter' ||
     action.type === 'updateChapter' ||
-    action.type === 'playChapter'
+    action.type === 'loadChapter'
   ) {
     // console.log('heere')
     return {

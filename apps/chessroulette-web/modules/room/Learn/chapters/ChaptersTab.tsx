@@ -1,36 +1,64 @@
-import { ChessFENBoard, noop } from '@xmatter/util-kit';
-import { Chapter, ChapterState } from '../../activity/reducer';
-import { useEffect, useMemo, useState } from 'react';
+import { ChessFEN, ChessFENBoard } from '@xmatter/util-kit';
+import {
+  Chapter,
+  ChapterState,
+  LearnActivityState,
+  initialChapterState,
+} from '../../activity/reducer';
+import { useMemo, useState } from 'react';
 import { objectKeys } from 'movex-core-util';
 import { ChapterItem } from './ChapterItem';
 import { Button, IconButton } from 'apps/chessroulette-web/components/Button';
-import { useCurrentRoomLinks } from '../../hooks/useCurrentLinks';
-import { useSearchParams } from 'next/navigation';
 import { CreateChapteViewProps, CreateChapterView } from './CreateChapterView';
 import { TabsNav } from 'apps/chessroulette-web/components/Tabs';
 import { EditChapterView } from './EditChapterView';
+import { InputState } from '../LearnActivity';
 
 export type ChaptersTabProps = {
   chaptersMap: Record<Chapter['id'], Chapter>;
   chaptersMapIndex: number; // The number of chapters in the whole state
+  currentLoadedChapterId: Chapter['id'] | undefined;
   className?: string;
-  onUseChapter: (id: Chapter['id']) => void;
-  onDeleteChapter: (id: Chapter['id']) => void;
-  // onCreateChapter: CreateChapteViewProps['onCreate'];
-  onCreateChapter: (state: ChapterState) => void;
   tabsNav: TabsNav;
+
+  // Input Mode
+  onActivateInputMode: (s: {
+    isBoardEditorShown?: boolean;
+    chapterState: ChapterState; // Create or Update Chapter but it will come here!
+  }) => void;
+  onDeactivateInputMode: () => void;
+  onUpdateInputModeState: (
+    s: Partial<{
+      chapterState: ChapterState;
+      isBoardEditorShown?: boolean;
+    }>
+  ) => void;
+  inputModeState: { chapterState?: ChapterState; isBoardEditorShown?: boolean };
+
+  // Chapters Logistics
+  onLoadChapter: (id: Chapter['id']) => void;
+  onDeleteChapter: (id: Chapter['id']) => void;
+  onCreateChapter: () => void;
+
+  // Board Logic
+  // onUpdateBoardFen: (fen: ChessFEN) => void;
+  // onToggleBoardEditor: CreateChapteViewProps['onToggleBoardEditor'];
+  // isBoardEditorShown: CreateChapteViewProps['isBoardEditorShown'];
 };
 
 export const ChaptersTab = ({
-  onUseChapter,
+  onLoadChapter,
   onCreateChapter,
   onDeleteChapter,
+  // onToggleBoardEditor,
   chaptersMapIndex,
+  currentLoadedChapterId,
   chaptersMap,
   className,
   tabsNav,
+  ...props
 }: ChaptersTabProps) => {
-  const currentRoomLinks = useCurrentRoomLinks();
+  // const currentRoomLinks = useCurrentRoomLinks();
   // const chaptersCount = Object.keys(chaptersMap).length;
 
   const chaptersList = useMemo(
@@ -38,7 +66,7 @@ export const ChaptersTab = ({
     [chaptersMap]
   );
 
-  const searchParams = useSearchParams();
+  // const searchParams = useSearchParams();
   // const isNewChapterParamsSet = searchParams.get('newChapter') === '1';
 
   // useEffect(() => {
@@ -61,11 +89,14 @@ export const ChaptersTab = ({
                 {chaptersList.map((chapter) => (
                   <ChapterItem
                     key={chapter.id}
+                    isActive={currentLoadedChapterId === chapter.id}
                     chapter={chapter}
-                    onLoadClick={() => onUseChapter(chapter.id)}
+                    onLoadClick={() => onLoadChapter(chapter.id)}
                     onEditClick={() => {
                       setEditChapterId(chapter.id);
                       tabsNav.stackTo(2);
+
+                      props.onActivateInputMode({ chapterState: chapter });
                     }}
                     onDeleteClick={() => onDeleteChapter(chapter.id)}
                   />
@@ -77,32 +108,63 @@ export const ChaptersTab = ({
               className="mt-4"
               icon="PlusIcon"
               onClick={() => {
-                // links.getRoomLink({
-                //   id:
-                // })
-                // currentRoomLinks.setForCurrentRoom({
-                //   newChapter: '1',
-                //   // edit: true,
-                // });
                 tabsNav.stackPush();
+
+                props.onActivateInputMode({
+                  chapterState: {
+                    ...initialChapterState,
+                    name: `Chapter ${chaptersMapIndex + 1}`,
+                  },
+                });
               }}
             >
               Create New Chapter
             </Button>
           </>,
           <div className="flex-1 flex overflow-scroll">
-            <CreateChapterView
-              boardFen={ChessFENBoard.STARTING_FEN}
-              defaultChapterName={`Chapter ${chaptersMapIndex + 1}`}
-              // onCreate={onCreateChapter}
-              onUpdateFen={() => {}}
-              onClearArrowsAndCircles={() => {}}
-              renderSubmit={(nextState) => (
+            {props.inputModeState.chapterState && (
+              <div className="flex flex-1 flex-col gap-3 pt-2 sborder-b border-slate-400 overflow-scroll">
+                <CreateChapterView
+                  // defaultChapterName={`Chapter ${chaptersMapIndex + 1}`}
+                  // onToggleBoardEditor={onToggleBoardEditor}
+                  // isBoardEditorShown={props.isBoardEditorShown}
+                  // boardFen={ChessFENBoard.STARTING_FEN}
+                  // onUpdateBoardFen={props.onUpdateBoardFen}
+                  onToggleBoardEditor={(show) =>
+                    props.onUpdateInputModeState({
+                      isBoardEditorShown: show,
+                    })
+                  }
+                  isBoardEditorShown={!!props.inputModeState.isBoardEditorShown}
+                  state={props.inputModeState.chapterState}
+                  onUpdate={(nextChapterState) =>
+                    props.onUpdateInputModeState({
+                      chapterState: nextChapterState,
+                    })
+                  }
+                  // onCreate={onCreateChapter}
+                  // onUpdateFen={(s) => {
+                  //   console.log('update', s)
+                  // }}
+                  // onClearArrowsAndCircles={() => {}}
+                  // renderSubmit={(nextState) => (
+
+                  // )}
+                />
                 <div className="flex gap-2">
                   <IconButton
                     // size="sm"
                     type="secondary"
-                    onClick={tabsNav.stackBack}
+                    onClick={() => {
+                      tabsNav.stackBack();
+
+                      props.onUpdateInputModeState({
+                        ...props.inputModeState,
+                        isBoardEditorShown: false,
+                      });
+
+                      props.onDeactivateInputMode();
+                    }}
                     icon="ArrowLeftIcon"
                   />
                   <Button
@@ -110,7 +172,19 @@ export const ChaptersTab = ({
                     // size="sm"
                     onClick={() => {
                       // TODO: Bring back
-                      onCreateChapter(nextState);
+                      onCreateChapter();
+
+                      // Go back
+                      tabsNav.stackPop();
+
+                      // this only if
+                      // onToggleBoardEditor(false);
+                      props.onUpdateInputModeState({
+                        ...props.inputModeState,
+                        isBoardEditorShown: false,
+                      });
+
+                      props.onDeactivateInputMode();
                       // onClearArrowsAndCircles();
                     }}
                     icon="PlusIcon"
@@ -118,8 +192,8 @@ export const ChaptersTab = ({
                     Create Chapter
                   </Button>
                 </div>
-              )}
-            />
+              </div>
+            )}
           </div>,
 
           <>
@@ -128,6 +202,13 @@ export const ChaptersTab = ({
                 boardState={{
                   ...chaptersMap[editChapterId],
                   fen: chaptersMap[editChapterId].startingFen,
+                }}
+                isBoardEditorShown={!!props.inputModeState.isBoardEditorShown}
+                onToggleBoardEditor={(show) => {
+                  props.onUpdateInputModeState({
+                    ...props.inputModeState,
+                    isBoardEditorShown: show,
+                  });
                 }}
                 className="p-2 py-3 border-b border-slate-400"
                 chapter={chaptersMap[editChapterId]}
@@ -144,7 +225,10 @@ export const ChaptersTab = ({
                     <IconButton
                       // size="sm"
                       type="secondary"
-                      onClick={() => tabsNav.stackPop()}
+                      onClick={() => {
+                        tabsNav.stackPop();
+                        props.onDeactivateInputMode();
+                      }}
                       icon="ArrowLeftIcon"
                     />
                     <Button
@@ -154,10 +238,12 @@ export const ChaptersTab = ({
                         // TODO: Bring back
                         // onCreateChapter(nextState.state);
                         // onClearArrowsAndCircles();
+
+                        props.onDeactivateInputMode();
                       }}
-                      icon="PlusIcon"
+                      icon="PencilSquareIcon"
                     >
-                      Create Chapter
+                      Update Chapter
                     </Button>
                   </div>
                 )}

@@ -1,14 +1,11 @@
-import {
-  ChessFEN,
-  isObject,
-  keyInObject,
-  range,
-} from 'apps/onlychessfans-web/lib/util';
 import { AspectRatio } from '../AspectRatio';
 import React, { useMemo } from 'react';
 import {
+  ChessFEN,
   ChessFENBoard,
   fenBoardPieceSymbolToDetailedChessPiece,
+  isObject,
+  keyInObject,
   matrixMap,
 } from '@xmatter/util-kit';
 // import { fenBoardPieceSymbolToDetailed } from 'util-kit/src/lib/ChessFENBoard/chessUtils';

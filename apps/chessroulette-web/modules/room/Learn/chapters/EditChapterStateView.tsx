@@ -6,6 +6,7 @@ import {
   FenState,
   getNewChessGame,
   noop,
+  toShortColor,
 } from '@xmatter/util-kit';
 import { FenPreview } from '../components/FenPreview';
 import { PgnInputBox } from 'apps/chessroulette-web/components/PgnInputBox';
@@ -13,16 +14,23 @@ import useInstance from '@use-it/instance';
 import { SQUARES, Square } from 'chess.js';
 import { Button } from 'apps/chessroulette-web/components/Button';
 
-export type Props = {
+export type EditChapterStateViewProps = {
   state: ChapterState;
-  onUpdate: (s: Partial<ChapterState>) => void;
+  onUpdate: (s: ChapterState) => void;
+  isBoardEditorShown: boolean;
+  onToggleBoardEditor: (show: boolean) => void;
 };
 
 const EN_PASSANT_SQUARES = SQUARES.filter(
   ([_, rank]) => rank === '3' || rank === '6'
 );
 
-export const EditChapterStateView = ({ state, onUpdate }: Props) => {
+export const EditChapterStateView = ({
+  state,
+  onUpdate,
+  isBoardEditorShown,
+  onToggleBoardEditor,
+}: EditChapterStateViewProps) => {
   const fenBoardInstance = useInstance<ChessFENBoard>(
     new ChessFENBoard(state.startingFen)
   );
@@ -36,10 +44,13 @@ export const EditChapterStateView = ({ state, onUpdate }: Props) => {
     setBoardFenState(fenBoardInstance.getFenState());
   }, [state.startingFen]);
 
+  const partialUpdate = (partial: Partial<ChapterState>) =>
+    onUpdate({ ...state, ...partial });
+
   const updateFenState = (nextFenState: DeepPartial<FenState>) => {
     fenBoardInstance.setFenNotation({ fromState: nextFenState });
 
-    onUpdate({ startingFen: fenBoardInstance.fen });
+    partialUpdate({ startingFen: fenBoardInstance.fen });
   };
 
   return (
@@ -54,7 +65,7 @@ export const EditChapterStateView = ({ state, onUpdate }: Props) => {
           value={state.name}
           className="w-fulls text-sm rounded-md border-slate-400 focus:border-slate-400 border border-transparent block bg-slate-500 text-white block py-1 px-2"
           onChange={(e) => {
-            onUpdate({ name: e.target.value });
+            partialUpdate({ name: e.target.value });
           }}
         />
       </div>
@@ -65,7 +76,7 @@ export const EditChapterStateView = ({ state, onUpdate }: Props) => {
           <input
             id="turn-white"
             type="radio"
-            checked={boardFenState.turn === 'w'}
+            checked={toShortColor(boardFenState.turn) === 'w'}
             name="white"
             className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
             onChange={() => updateFenState({ turn: 'w' })}
@@ -82,7 +93,7 @@ export const EditChapterStateView = ({ state, onUpdate }: Props) => {
             id="turn-black"
             type="radio"
             // value=""
-            checked={boardFenState.turn === 'b'}
+            checked={toShortColor(boardFenState.turn) === 'b'}
             name="black"
             className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
             onChange={() => updateFenState({ turn: 'b' })}
@@ -102,10 +113,10 @@ export const EditChapterStateView = ({ state, onUpdate }: Props) => {
           <input
             id="orientation-white"
             type="radio"
-            checked={state.orientation === 'w'}
+            checked={toShortColor(state.orientation) === 'w'}
             name="white"
             className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-            onChange={() => onUpdate({ orientation: 'w' })}
+            onChange={() => partialUpdate({ orientation: 'w' })}
           />
           <label
             htmlFor="white"
@@ -119,10 +130,10 @@ export const EditChapterStateView = ({ state, onUpdate }: Props) => {
             id="orientation-black"
             type="radio"
             // value=""
-            checked={state.orientation === 'b'}
+            checked={toShortColor(state.orientation) === 'b'}
             name="black"
             className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-            onChange={() => onUpdate({ orientation: 'b' })}
+            onChange={() => partialUpdate({ orientation: 'b' })}
           />
           <label
             htmlFor="black"
@@ -261,7 +272,7 @@ export const EditChapterStateView = ({ state, onUpdate }: Props) => {
           compact
           containerClassName="flex-1"
           onChange={(type, fenOrPgn) => {
-            onUpdate({
+            partialUpdate({
               startingFen:
                 type === 'FEN'
                   ? fenOrPgn
@@ -279,7 +290,7 @@ export const EditChapterStateView = ({ state, onUpdate }: Props) => {
             size="sm"
             type="secondary"
             onClick={() => {
-              onUpdate({ startingFen: ChessFENBoard.ONLY_KINGS_FEN });
+              partialUpdate({ startingFen: ChessFENBoard.ONLY_KINGS_FEN });
 
               // TODO: Bring this back
               // onClearArrowsAndCircles();
@@ -293,7 +304,7 @@ export const EditChapterStateView = ({ state, onUpdate }: Props) => {
             size="sm"
             type="secondary"
             onClick={() => {
-              onUpdate({ startingFen: ChessFENBoard.STARTING_FEN });
+              partialUpdate({ startingFen: ChessFENBoard.STARTING_FEN });
 
               // TODO: Bring this back as well
               // onClearArrowsAndCircles();
@@ -304,14 +315,27 @@ export const EditChapterStateView = ({ state, onUpdate }: Props) => {
             Start Position
           </Button>
           {/* <div className="flex-1" /> */}
-          <Button
-            size="sm"
-            type="custom"
-            bgColor="green"
-            icon="PencilSquareIcon"
-          >
-            Edit
-          </Button>
+          {isBoardEditorShown ? (
+            <Button
+              size="sm"
+              type="custom"
+              bgColor="green"
+              icon="PencilSquareIcon"
+              onClick={() => onToggleBoardEditor(false)}
+            >
+              Close Board Editor
+            </Button>
+          ) : (
+            <Button
+              size="sm"
+              type="custom"
+              bgColor="green"
+              icon="PencilSquareIcon"
+              onClick={() => onToggleBoardEditor(true)}
+            >
+              Board Editor
+            </Button>
+          )}
         </div>
       </div>
 

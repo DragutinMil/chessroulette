@@ -4,6 +4,7 @@ import { Chapter, ChapterState } from '../../activity/reducer';
 import { EditChapterStateView } from './EditChapterStateView';
 import { ChessFEN, ChessFENBoard } from '@xmatter/util-kit';
 import { EditModeState } from '../types';
+import { CreateChapteViewProps } from './CreateChapterView';
 
 export type EditChapterItemProps = {
   chapter: Chapter;
@@ -16,6 +17,9 @@ export type EditChapterItemProps = {
   // expanded?: boolean;
   className?: string;
   renderSubmit: (state: InputState) => React.ReactNode;
+
+  onToggleBoardEditor: CreateChapteViewProps['onToggleBoardEditor'];
+  isBoardEditorShown: CreateChapteViewProps['isBoardEditorShown'];
 };
 
 const toChapterState = (c: Chapter): ChapterState => {
@@ -68,6 +72,7 @@ export const EditChapterView = ({
   // expanded = false,
   renderSubmit,
   className,
+  ...props
 }: EditChapterItemProps) => {
   const [uncommited, setUncommited] = useState<InputState>({
     isChanged: false,
@@ -133,6 +138,8 @@ export const EditChapterView = ({
       {/* <div className="spt-2 flex flex-col gap-3"> */}
       <EditChapterStateView
         state={uncommited.state}
+        isBoardEditorShown={props.isBoardEditorShown}
+        onToggleBoardEditor={props.onToggleBoardEditor}
         onUpdate={(nextPartialState) => {
           setUncommited(
             calcUncommited({

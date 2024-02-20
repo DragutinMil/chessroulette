@@ -37,7 +37,7 @@ export const QuickConfirmButton: React.FC<Props> = ({
         }
       }}
     >
-      {show ? confirmationMessage : children}
+      {show ? <span className='font-normal'>{confirmationMessage}</span> : children}
     </Button>
   );
 };

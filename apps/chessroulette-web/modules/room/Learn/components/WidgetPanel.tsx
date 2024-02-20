@@ -26,29 +26,54 @@ type Props = {
   notation: ChapterState['notation'];
   chaptersMap: Record<Chapter['id'], Chapter>;
   chaptersMapIndex: number;
+  currentLoadedChapterId: ChaptersTabProps['currentLoadedChapterId'];
 
+  // Chapter Logistics
+  // onLoadChapter: ChaptersTabProps['onLoadChapter'];
+  // onCreateChapter: ChaptersTabProps['onCreateChapter'];
+  // onDeleteChapter: ChaptersTabProps['onDeleteChapter'];
+
+  // Board
   onImport: PgnInputBoxProps['onChange'];
-  onUseChapter: ChaptersTabProps['onUseChapter'];
-  onCreateChapter: ChaptersTabProps['onCreateChapter'];
-  onDeleteChapter: ChaptersTabProps['onDeleteChapter'];
+  // onUpdateBoardFenForChapter: ChaptersTabProps['onUpdateBoardFen'];
+  // onToggleBoardEditor: ChaptersTabProps['onToggleBoardEditor'];
+  // isBoardEditorShown: ChaptersTabProps['isBoardEditorShown'];
+
+  // onUpdateFen: ChaptersTabProps['onUpdateFen'];
   onHistoryNotationRefocus: FreeBoardNotationProps['onRefocus'];
   onHistoryNotationDelete: FreeBoardNotationProps['onDelete'];
-};
+} & Pick<
+  ChaptersTabProps,
+  | 'onLoadChapter'
+  | 'onCreateChapter'
+  | 'onDeleteChapter'
+  | 'onUpdateInputModeState'
+  | 'inputModeState'
+  | 'onActivateInputMode'
+  | 'onDeactivateInputMode'
+>;
 
 export const WidgetPanel = ({
-  // state: { history, chaptersMap, fen },
-  // state: { chaptersMap, hi },
-  // fen,
-  // notation,
-  // state: {},
   chaptersMap,
   chaptersMapIndex,
+  currentLoadedChapterId,
+  // isBoardEditorShown,
+  notation,
+
   onImport,
   onHistoryNotationDelete,
   onHistoryNotationRefocus,
-  onUseChapter,
-  onCreateChapter,
-  onDeleteChapter,
+
+  fen,
+  // onUpdateFen,
+
+  // onToggleBoardEditor,
+
+  // onLoadChapter,
+  // onCreateChapter,
+  // onDeleteChapter,
+  // onUpdateBoardFenForChapter,
+  ...chapterTabsProps
 }: Props) => {
   const settings = useLearnActivitySettings();
   const updateableSearchParams = useUpdateableSearchParams();
@@ -81,19 +106,17 @@ export const WidgetPanel = ({
                   p.isFocused && 'bg-slate-800'
                 }`}
               >
-                Chapter Notation
+                Notation
               </Button>
             ),
             renderContent: () => (
-              <div className="flex flex-col flex-1 gap-2 bg-slate-700 min-h-0">
-                {/* TODO: bring back */}
-                {/* <FreeBoardNotation
-                history={history.moves}
-                focusedIndex={history.focusedIndex}
-                onDelete={onHistoryNotationDelete}
-                onRefocus={onHistoryNotationRefocus}
-              />
-              <FenPreview fen={fen} /> */}
+              <div className="flex flex-col flex-1 gap-2 min-h-0">
+                <FreeBoardNotation
+                  history={notation?.history}
+                  focusedIndex={notation?.focusedIndex}
+                  onDelete={onHistoryNotationDelete}
+                  onRefocus={onHistoryNotationRefocus}
+                />
               </div>
             ),
           },
@@ -122,48 +145,69 @@ export const WidgetPanel = ({
           //       ),
           //     }
           //   : undefined,
-          settings.isInstructor
-            ? {
-                renderHeader: (p) => (
-                  <Button
-                    onClick={p.focus}
-                    size="sm"
-                    className={`bg-slate-600 font-bold hover:bg-slate-800 ${
-                      p.isFocused && 'bg-slate-800'
-                    }`}
-                  >
-                    Chapters ({Object.keys(chaptersMap).length})
-                  </Button>
-                ),
-                renderContent: (p) => (
-                  <ChaptersTab
-                    chaptersMap={chaptersMap}
-                    chaptersMapIndex={chaptersMapIndex}
-                    className="min-h-0"
-                    onUseChapter={onUseChapter}
-                    onCreateChapter={onCreateChapter}
-                    onDeleteChapter={onDeleteChapter}
-                    tabsNav={p.nav}
-                  />
-                ),
-              }
-            : undefined,
+          {
+            renderHeader: (p) => (
+              <Button
+                onClick={p.focus}
+                size="sm"
+                className={`bg-slate-600 font-bold hover:bg-slate-800 ${
+                  p.isFocused && 'bg-slate-800'
+                }`}
+              >
+                Chapters ({Object.keys(chaptersMap).length})
+              </Button>
+            ),
+            renderContent: (p) => (
+              <ChaptersTab
+                chaptersMap={chaptersMap}
+                chaptersMapIndex={chaptersMapIndex}
+                currentLoadedChapterId={currentLoadedChapterId}
+                className="min-h-0"
+                // onLoadChapter={onLoadChapter}
+                // onCreateChapter={onCreateChapter}
+                // onDeleteChapter={onDeleteChapter}
+                // onUpdateBoardFen={onUpdateBoardFenForChapter}
+                // onToggleBoardEditor={onToggleBoardEditor}
+                // isBoardEditorShown={isBoardEditorShown}
+                tabsNav={p.nav}
+                {...chapterTabsProps}
+              />
+            ),
+          },
         ]}
       />
     );
   }
 
   return (
-    <div className={`flex flex-col w-full`}>
-      <div className="min-h-0 overflow-scroll">
-        {/* <FreeBoardNotation
+    <div
+      className={`bg-slate-700 p-3 flex flex-col flex-1 min-h-0 soverflow-hidden rounded-lg shadow-2xl`}
+    >
+      {/* <div className="min-h-0 overflow-scroll"> */}
+      {/* TODO: bring back */}
+      {/* <FreeBoardNotation
+                history={history.moves}
+                focusedIndex={history.focusedIndex}
+                onDelete={onHistoryNotationDelete}
+                onRefocus={onHistoryNotationRefocus}
+              />
+              <FenPreview fen={fen} /> */}
+      <FreeBoardNotation
+        history={notation?.history}
+        focusedIndex={notation?.focusedIndex}
+        onDelete={onHistoryNotationDelete}
+        onRefocus={onHistoryNotationRefocus}
+      />
+      <FenPreview fen={fen} />
+
+      {/* <FreeBoardNotation
           history={notation?.history}
           focusedIndex={notation?.focusedIndex}
           onDelete={onHistoryNotationDelete}
           onRefocus={onHistoryNotationRefocus}
         />
         <FenPreview fen={fen} /> */}
-      </div>
+      {/* </div> */}
     </div>
   );
 };
