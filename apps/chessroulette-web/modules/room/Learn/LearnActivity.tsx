@@ -65,7 +65,7 @@ export const LearnActivity = ({
 
   return (
     <div
-      className="flex w-full h-full align-center justify-center bg-red-100"
+      className="flex w-full h-full align-center justify-center"
       ref={containerRef}
     >
       <PanelGroup autoSaveId="learn-activity" direction="horizontal">
