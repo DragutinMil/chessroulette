@@ -7,10 +7,9 @@ import { useMemo, useState } from 'react';
 import { objectKeys } from 'movex-core-util';
 import { ChapterItem } from './ChapterItem';
 import { Button, IconButton } from 'apps/chessroulette-web/components/Button';
-import { CreateChapterView } from './CreateChapterView';
+import { CreateChapterView } from './views/CreateChapterView';
 import { TabsNav } from 'apps/chessroulette-web/components/Tabs';
-import { EditChapterView } from './EditChapterView';
-import { EditChapterStateView } from './EditChapterStateView';
+import { UpdateChapterView } from './views/UpdateChapterView';
 
 export type ChaptersTabProps = {
   chaptersMap: Record<Chapter['id'], Chapter>;
@@ -77,7 +76,7 @@ export const ChaptersTab = ({
   // }
 
   return (
-    <div className={`flex flex-col w-full ${className}`}>
+    <div className={`flex flex-col w-full pt-2 ${className}`}>
       {
         [
           <>
@@ -126,7 +125,7 @@ export const ChaptersTab = ({
           // CREATE CHAPTER TAB
           <div className="flex-1 flex overflow-scroll">
             {props.inputModeState.chapterState && (
-              <div className="flex flex-1 flex-col gap-3 pt-2 sborder-b border-slate-400 overflow-scroll">
+              <div className="flex flex-1 flex-col gap-3 overflow-scroll">
                 <CreateChapterView
                   onToggleBoardEditor={(show) =>
                     props.onUpdateInputModeState({
@@ -185,112 +184,65 @@ export const ChaptersTab = ({
           </div>,
 
           // UPDATE CHAPTER TAB
-          <div className="flex-1 flex overflow-scroll">
+          <>
             {updatingChapterId &&
               chaptersMap[updatingChapterId] &&
               props.inputModeState.chapterState && (
-                <div className="flex flex-1 flex-col gap-3 pt-2 sborder-b border-slate-400 overflow-scroll">
-                  <EditChapterStateView
-                    onToggleBoardEditor={(show) =>
-                      props.onUpdateInputModeState({
-                        isBoardEditorShown: show,
-                      })
-                    }
-                    isBoardEditorShown={
-                      !!props.inputModeState.isBoardEditorShown
-                    }
-                    state={props.inputModeState.chapterState}
-                    onUpdate={(nextChapterState) =>
-                      props.onUpdateInputModeState({
-                        chapterState: nextChapterState,
-                      })
-                    }
-                  />
-                  <div className="flex gap-2">
-                    <IconButton
-                      // size="sm"
-                      type="secondary"
-                      onClick={() => {
-                        tabsNav.stackPop();
-                        props.onDeactivateInputMode();
-                      }}
-                      icon="ArrowLeftIcon"
-                    />
-                    <Button
-                      className="flex-1"
-                      // size="sm"
-                      onClick={() => {
-                        onUpdateChapter(updatingChapterId)
-                        // TODO: Bring back
-                        // onCreateChapter(nextState.state);
-                        // onClearArrowsAndCircles();
-                        // Go back
-                        tabsNav.stackPop();
+                <UpdateChapterView
+                  onToggleBoardEditor={(show) =>
+                    props.onUpdateInputModeState({
+                      isBoardEditorShown: show,
+                    })
+                  }
+                  isBoardEditorShown={!!props.inputModeState.isBoardEditorShown}
+                  state={props.inputModeState.chapterState}
+                  onUpdate={(nextChapterState) =>
+                    props.onUpdateInputModeState({
+                      chapterState: nextChapterState,
+                    })
+                  }
+                  renderSubmit={({ hasInputChanged }) => (
+                    <div className="flex gap-2">
+                      <IconButton
+                        // size="sm"
+                        type="secondary"
+                        onClick={() => {
+                          tabsNav.stackPop();
+                          props.onDeactivateInputMode();
+                        }}
+                        title="Cancel Changes"
+                        icon="ArrowLeftIcon"
+                      />
+                      <Button
+                        className="flex-1"
+                        // size="sm"
+                        disabled={!hasInputChanged}
+                        onClick={() => {
+                          onUpdateChapter(updatingChapterId);
+                          // TODO: Bring back
+                          // onCreateChapter(nextState.state);
+                          // onClearArrowsAndCircles();
+                          // Go back
+                          tabsNav.stackPop();
 
-                        // this only if
-                        // onToggleBoardEditor(false);
-                        props.onUpdateInputModeState({
-                          ...props.inputModeState,
-                          isBoardEditorShown: false,
-                        });
+                          // this only if
+                          // onToggleBoardEditor(false);
+                          props.onUpdateInputModeState({
+                            ...props.inputModeState,
+                            isBoardEditorShown: false,
+                          });
 
-                        props.onDeactivateInputMode();
-                      }}
-                      icon="PencilSquareIcon"
-                    >
-                      Update Chapter
-                    </Button>
-                  </div>
-                </div>
-                // <EditChapterView
-                //   boardState={{
-                //     ...chaptersMap[editChapterId],
-                //     fen: chaptersMap[editChapterId].displayFen,
-                //   }}
-                //   isBoardEditorShown={!!props.inputModeState.isBoardEditorShown}
-                //   onToggleBoardEditor={(show) => {
-                //     props.onUpdateInputModeState({
-                //       ...props.inputModeState,
-                //       isBoardEditorShown: show,
-                //     });
-                //   }}
-                //   className="p-2 py-3 border-b border-slate-400"
-                //   chapter={chaptersMap[editChapterId]}
-                //   onUse={() => {}}
-                //   onUpdate={(state) => {}}
-                //   onDelete={() => {}}
-                //   onUpdateFen={() => {}}
-                //   onClearArrowsAndCircles={() => {}}
-                //   renderSubmit={(nextState) => (
-                //     <div className="flex gap-2">
-                //       <IconButton
-                //         // size="sm"
-                //         type="secondary"
-                //         onClick={() => {
-                //           tabsNav.stackPop();
-                //           props.onDeactivateInputMode();
-                //         }}
-                //         icon="ArrowLeftIcon"
-                //       />
-                //       <Button
-                //         className="flex-1"
-                //         // size="sm"
-                //         onClick={() => {
-                //           // TODO: Bring back
-                //           // onCreateChapter(nextState.state);
-                //           // onClearArrowsAndCircles();
-
-                //           props.onDeactivateInputMode();
-                //         }}
-                //         icon="PencilSquareIcon"
-                //       >
-                //         Update Chapter
-                //       </Button>
-                //     </div>
-                //   )}
-                // />
+                          props.onDeactivateInputMode();
+                        }}
+                        icon="PencilSquareIcon"
+                      >
+                        Update Chapter
+                      </Button>
+                    </div>
+                  )}
+                />
               )}
-          </div>,
+          </>,
         ][tabsNav.stackIndex]
       }
     </div>

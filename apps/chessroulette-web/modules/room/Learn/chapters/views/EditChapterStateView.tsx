@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ChapterState } from '../../activity/reducer';
+import { ChapterState } from '../../../activity/reducer';
 import {
   ChessFENBoard,
   DeepPartial,
@@ -7,7 +7,7 @@ import {
   getNewChessGame,
   toShortColor,
 } from '@xmatter/util-kit';
-import { FenPreview } from '../components/FenPreview';
+import { FenPreview } from '../../components/FenPreview';
 import { PgnInputBox } from 'apps/chessroulette-web/components/PgnInputBox';
 import useInstance from '@use-it/instance';
 import { SQUARES, Square } from 'chess.js';

@@ -2,7 +2,7 @@ import { ResourceIdentifier } from 'movex-core-util';
 import Streaming from '../../StreamingContainer';
 import { IceServerRecord } from 'apps/chessroulette-web/providers/PeerToPeerProvider/type';
 import { EditModeState } from '../types';
-import { EditChaptersWidget } from '../chapters/EditChaptersWidget';
+// import { EditChaptersWidget } from '../chapters/views/EditChaptersWidget';
 import movexConfig from 'apps/chessroulette-web/movex.config';
 import { MovexBoundResource } from 'movex-react';
 import { usePathname, useRouter } from 'next/navigation';

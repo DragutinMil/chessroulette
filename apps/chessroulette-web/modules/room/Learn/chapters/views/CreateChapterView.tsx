@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Button, IconButton } from 'apps/chessroulette-web/components/Button';
-import { ChapterState } from '../../activity/reducer';
+import { ChapterState } from '../../../activity/reducer';
 import {
   ChessFEN,
   ChessFENBoard,

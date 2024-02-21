@@ -1,6 +1,6 @@
 import { Button } from 'apps/chessroulette-web/components/Button';
 import { Tabs } from 'apps/chessroulette-web/components/Tabs';
-import { CreateChapterView } from './CreateChapterView';
+import { CreateChapterView } from './views/CreateChapterView';
 import { ChessFEN, noop } from '@xmatter/util-kit';
 import { Chapter, ChapterState } from '../../activity/reducer';
 import { EditChaptersTab, EditChaptersTabProps } from './EditChaptersTab';

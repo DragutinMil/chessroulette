@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Chapter, ChapterState } from '../../activity/reducer';
-import { EditChapterStateView } from './EditChapterStateView';
+import { EditChapterStateView } from './views/EditChapterStateView';
 import { ChessFEN } from '@xmatter/util-kit';
 import { EditModeState } from '../types';
-import { CreateChapteViewProps } from './CreateChapterView';
+import { CreateChapteViewProps } from './views/CreateChapterView';
 
 export type EditChapterItemProps = {
   chapter: Chapter;
