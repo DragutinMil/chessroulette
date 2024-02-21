@@ -3,6 +3,8 @@ import {
   ChessFEN,
   ChessFENBoard,
   PieceSan,
+  isBlackColor,
+  isWhiteColor,
   objectKeys,
   pieceSanToFenBoardPieceSymbol,
   toShortColor,
@@ -15,8 +17,6 @@ import {
 } from '../ChessboardContainer';
 import { Square } from 'chess.js';
 import useInstance from '@use-it/instance';
-import { noop } from 'movex-core-util';
-
 import { useBoardTheme } from '../useBoardTheme';
 import { getSquareSize } from './util';
 import { DropContainer } from './DropContainer';
@@ -171,7 +171,11 @@ export const BoardEditor = ({
               onUpdated(fenBoard.fen);
               setHoveredSquare(undefined);
             }}
-            isFlipped={props.boardOrientation !== 'white'}
+            isFlipped={
+              props.boardOrientation
+                ? isBlackColor(props.boardOrientation)
+                : false
+            }
           >
             <ChessboardContainer
               fen={fen}
