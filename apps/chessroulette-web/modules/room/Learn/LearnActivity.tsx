@@ -65,7 +65,7 @@ export const LearnActivity = ({
 
   return (
     <div
-      className="flex w-full h-full align-center justify-center"
+      className="flex w-full h-full align-center justify-center bg-red-100"
       ref={containerRef}
     >
       <PanelGroup autoSaveId="learn-activity" direction="horizontal">
@@ -174,16 +174,6 @@ export const LearnActivity = ({
               }}
             />
           )}
-
-          {/* <MainArea
-            boardSizePx={boardSize}
-            isBoardEditorActive={localState.isBoardEditorShown}
-            boardState={currentBoardState}
-            dispatch={dispatch}
-            // onUpdateBoardState={() => {
-            // TODO: add this back
-            // }}
-          /> */}
         </Panel>
         <div className="w-8 sbg-blue-100 relative flex flex-col items-center justify-center">
           <div className="flex-1">

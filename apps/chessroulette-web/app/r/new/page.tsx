@@ -28,7 +28,11 @@ export default function Page({
   );
 
   if (!result.success) {
-    return <>{JSON.stringify(result.error)}</>;
+    return (
+      <>
+        {JSON.stringify({ error: result.error, searchParams, params }, null, 2)}
+      </>
+    );
   }
 
   const { activity, ...nextParamsObj } = result.data;
