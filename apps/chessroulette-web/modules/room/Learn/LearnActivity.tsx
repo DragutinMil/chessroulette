@@ -215,6 +215,7 @@ export const LearnActivity = ({
                   userId={userId}
                   peerGroupId={roomId}
                   iceServers={iceServers}
+                  aspectRatio={16/9}
                 />
               </div>
 
