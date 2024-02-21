@@ -2,6 +2,8 @@ import { Chapter } from '../../activity/reducer';
 import { IconButton } from 'apps/chessroulette-web/components/Button';
 import { QuickConfirmButton } from 'apps/chessroulette-web/components/Button/QuickConfirmButton';
 import { Icon } from 'apps/chessroulette-web/components/Icon';
+import { PreviewChessboardContainer } from 'apps/chessroulette-web/components/PreviewChessboard/PreviewChessboardContainer';
+import { useState } from 'react';
 
 export type Props = {
   chapter: Chapter;
@@ -20,6 +22,8 @@ export const ChapterItem = ({
   onDeleteClick,
   className,
 }: Props) => {
+  // const [isHovered, setIsHovered] = useState(false);
+
   return (
     <div
       key={chapter.id}
@@ -28,8 +32,24 @@ export const ChapterItem = ({
       } ${className}`}
       title={`Load "${chapter.name}"`}
       onClick={onLoadClick}
+      // onMouseEnter={() => setIsHovered(true)}
+      // onMouseLeave={() => setIsHovered(false)}
     >
-      <span className="text-sm flex-1 flex items-center"> {chapter.name}</span>
+      <span className="text-sm flex-1 flex items-center group relative">
+        {chapter.name}
+
+        {/* <div
+          className="hidden absolute bg-red w-32 h-32 z-50 shadow-2xl"
+          style={{
+            display: isHovered ? 'block' : 'none',
+            // left: '-100%',
+            right: 0,
+            top: 0,
+          }}
+        >
+          <PreviewChessboardContainer fen={chapter.displayFen} />
+        </div> */}
+      </span>
 
       <div className="flex gap-2">
         <IconButton
