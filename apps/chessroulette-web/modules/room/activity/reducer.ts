@@ -142,6 +142,9 @@ export type ActivityActions =
   | Action<'loadedChapter:addMove', ChessMove>
   | Action<'loadedChapter:focusHistoryIndex', FBHIndex>
   | Action<'loadedChapter:deleteHistoryMove', FBHIndex>
+  | Action<'loadedChapter:drawCircle', CircleDrawTuple>
+  | Action<'loadedChapter:clearCircles'>
+  | Action<'loadedChapter:setArrows', ArrowsMap>
 
   // Board
   // Deprecate
@@ -436,64 +439,8 @@ export default (
           },
         },
       };
-
-      // return {
-      //   ...prev,
-      //   activityState: {
-      //     ...prev.activityState,
-      //     circles: {},
-      //     arrows: {},
-      //     fen: nextFen,
-      //     history: {
-      //       ...prev.activityState.history,
-      //       focusedIndex: nextIndex,
-      //       moves: nextHistory,
-      //     },
-      //   },
-      // };
     }
-    // if (action.type === 'deleteHistoryMove') {
-    //   // TODO: Fix this!
-    //   // const nextIndex = FreeBoardHistory.decrementIndexAbsolutely(action.payload.atIndex);
-    //   const [slicedHistory, lastIndexInSlicedHistory] =
-    //     FreeBoardHistory.sliceHistory(
-    //       prev.activityState.history.moves,
-    //       action.payload.atIndex
-    //     );
-    //   const nextHistory =
-    //     FreeBoardHistory.removeTrailingNonMoves(slicedHistory);
-    //   const nextIndex = FreeBoardHistory.findNextValidMoveIndex(
-    //     nextHistory,
-    //     FreeBoardHistory.incrementIndex(lastIndexInSlicedHistory),
-    //     'left'
-    //   );
-    //   const instance = new ChessFENBoard(
-    //     prev.activityState.history.startingFen
-    //   );
-    //   nextHistory.forEach((turn, i) => {
-    //     turn.forEach((m) => {
-    //       if (m.isNonMove) {
-    //         return;
-    //       }
-    //       instance.move(m.from, m.to);
-    //     });
-    //   });
-    //   const nextFen = instance.fen;
-    //   return {
-    //     ...prev,
-    //     activityState: {
-    //       ...prev.activityState,
-    //       circles: {},
-    //       arrows: {},
-    //       fen: nextFen,
-    //       history: {
-    //         ...prev.activityState.history,
-    //         focusedIndex: nextIndex,
-    //         moves: nextHistory,
-    //       },
-    //     },
-    //   };
-    // }
+
     // if (action.type === 'changeBoardOrientation') {
     //   return {
     //     ...prev,
@@ -512,33 +459,85 @@ export default (
     //     },
     //   };
     // }
-    // if (action.type === 'drawCircle') {
-    //   const [at, hex] = action.payload;
-    //   const circleId = `${at}`;
-    //   const { [circleId]: existent, ...restOfCirles } =
-    //     prev.activityState.circles;
-    //   return {
-    //     ...prev,
-    //     activityState: {
-    //       ...prev.activityState,
-    //       circles: {
-    //         ...restOfCirles,
-    //         ...(!!existent
-    //           ? undefined // Set it to undefined if same
-    //           : { [circleId]: action.payload }),
-    //       },
-    //     },
-    //   };
-    // }
-    // if (action.type === 'clearCircles') {
-    //   return {
-    //     ...prev,
-    //     activityState: {
-    //       ...prev.activityState,
-    //       circles: {},
-    //     },
-    //   };
-    // }
+    if (action.type === 'loadedChapter:setArrows') {
+      const prevChapter = findLoadedChapter(prev.activityState);
+
+      if (!prevChapter) {
+        console.error('No loaded chapter');
+        return prev;
+      }
+
+      const nextChapter: Chapter = {
+        ...prevChapter,
+        arrowsMap: action.payload,
+      };
+
+      return {
+        ...prev,
+        activityState: {
+          ...prev.activityState,
+          chaptersMap: {
+            [nextChapter.id]: nextChapter,
+          },
+        },
+      };
+    }
+    if (action.type === 'loadedChapter:drawCircle') {
+      const prevChapter = findLoadedChapter(prev.activityState);
+
+      if (!prevChapter) {
+        console.error('No loaded chapter');
+        return prev;
+      }
+
+      const [at, hex] = action.payload;
+      const circleId = `${at}`;
+      const { [circleId]: existent, ...restOfCirlesMap } =
+        prevChapter.circlesMap;
+
+      const nextChapter: Chapter = {
+        ...prevChapter,
+        circlesMap: {
+          ...restOfCirlesMap,
+          ...(!!existent
+            ? undefined // Set it to undefined if same
+            : { [circleId]: action.payload }),
+        },
+      };
+
+      return {
+        ...prev,
+        activityState: {
+          ...prev.activityState,
+          chaptersMap: {
+            [nextChapter.id]: nextChapter,
+          },
+        },
+      };
+    }
+    if (action.type === 'clearCircles') {
+      const prevChapter = findLoadedChapter(prev.activityState);
+
+      if (!prevChapter) {
+        console.error('No loaded chapter');
+        return prev;
+      }
+
+      const nextChapter: Chapter = {
+        ...prevChapter,
+        circlesMap: {},
+      };
+
+      return {
+        ...prev,
+        activityState: {
+          ...prev.activityState,
+          chaptersMap: {
+            [nextChapter.id]: nextChapter,
+          },
+        },
+      };
+    }
     if (action.type === 'createChapter') {
       const nextChapterIndex = prev.activityState.chaptersIndex + 1;
       const nextChapterId = String(nextChapterIndex);

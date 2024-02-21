@@ -128,7 +128,10 @@ export default (state = initialRoomState, action: RoomActions): RoomState => {
     action.type === 'loadChapter' ||
     action.type === 'loadedChapter:addMove' ||
     action.type === 'loadedChapter:focusHistoryIndex' ||
-    action.type === 'loadedChapter:deleteHistoryMove'
+    action.type === 'loadedChapter:deleteHistoryMove' ||
+    action.type === 'loadedChapter:clearCircles' ||
+    action.type === 'loadedChapter:drawCircle' ||
+    action.type === 'loadedChapter:setArrows'
   ) {
     console.group('Action', action.type);
     console.log('payload', (action as any).payload);

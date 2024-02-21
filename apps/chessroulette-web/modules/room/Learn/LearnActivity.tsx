@@ -2,7 +2,7 @@
 
 import movexConfig from 'apps/chessroulette-web/movex.config';
 import { MovexBoundResourceFromConfig } from 'movex-react';
-import { min, noop } from '@xmatter/util-kit';
+import { min, noop, swapColor } from '@xmatter/util-kit';
 import { useEffect, useReducer, useRef, useState } from 'react';
 import { IconButton } from 'apps/chessroulette-web/components/Button';
 import { IceServerRecord } from 'apps/chessroulette-web/providers/PeerToPeerProvider/type';
@@ -71,7 +71,7 @@ export const LearnActivity = ({
       <PanelGroup autoSaveId="learn-activity" direction="horizontal">
         <Panel
           defaultSize={70}
-          className="sbg-green-100 flex justify-end"
+          className="flex justify-end"
           onResize={(nextPct) => {
             if (!desktopLayout.updated) {
               return;
@@ -91,15 +91,26 @@ export const LearnActivity = ({
                   state={inputState.chapterState}
                   boardSizePx={boardSize}
                   onUpdated={(fen) => {
-                    // console.log('board editor on updated', s);
                     dispatchInputState({
-                      type: 'updateFen',
+                      type: 'updateChapterFen',
                       payload: { fen },
                     });
                   }}
-                  onArrowsChange={(arrowsMap) => {}}
-                  onCircleDraw={(circleTuple) => {}}
-                  onClearCircles={() => {}}
+                  onArrowsChange={(arrowsMap) => {
+                    dispatchInputState({
+                      type: 'updatePartialChapter',
+                      payload: { arrowsMap },
+                    });
+                  }}
+                  onCircleDraw={(payload) => {
+                    dispatchInputState({
+                      type: 'drawCircle',
+                      payload,
+                    });
+                  }}
+                  onClearCircles={() => {
+                    dispatchInputState({ type: 'clearCircles' });
+                  }}
                   onFlipBoard={() => {}}
                 />
               ) : (
@@ -113,9 +124,21 @@ export const LearnActivity = ({
                     // TODO: This can be returned from a more internal component
                     return true;
                   }}
-                  onArrowsChange={(payload) => {}}
-                  onCircleDraw={(tuple) => {}}
-                  onClearCircles={() => {}}
+                  onArrowsChange={(arrowsMap) => {
+                    dispatchInputState({
+                      type: 'updatePartialChapter',
+                      payload: { arrowsMap },
+                    });
+                  }}
+                  onCircleDraw={(payload) => {
+                    dispatchInputState({
+                      type: 'drawCircle',
+                      payload,
+                    });
+                  }}
+                  onClearCircles={() => {
+                    dispatchInputState({ type: 'clearCircles' });
+                  }}
                 />
               )}
             </>
@@ -124,6 +147,12 @@ export const LearnActivity = ({
             <LearnBoard
               sizePx={boardSize}
               {...currentChapter}
+              orientation={
+                // The instructor gets the opposite side as the student (so they can play together)
+                settings.isInstructor
+                  ? swapColor(currentChapter.orientation)
+                  : currentChapter.orientation
+              }
               onMove={(payload) => {
                 // dispatch({ type: 'dropPiece', payload: { move } });
                 dispatch({ type: 'loadedChapter:addMove', payload });
@@ -132,16 +161,16 @@ export const LearnActivity = ({
                 return true;
               }}
               onArrowsChange={(payload) => {
-                dispatch({ type: 'arrowChange', payload });
+                dispatch({ type: 'loadedChapter:setArrows', payload });
               }}
               onCircleDraw={(tuple) => {
                 dispatch({
-                  type: 'drawCircle',
+                  type: 'loadedChapter:drawCircle',
                   payload: tuple,
                 });
               }}
               onClearCircles={() => {
-                dispatch({ type: 'clearCircles' });
+                dispatch({ type: 'loadedChapter:clearCircles' });
               }}
             />
           )}
@@ -158,7 +187,8 @@ export const LearnActivity = ({
         </Panel>
         <div className="w-8 sbg-blue-100 relative flex flex-col items-center justify-center">
           <div className="flex-1">
-            {settings.canFlipBoard && (
+            {/* // TODO: bring it back somethow  */}
+            {/* {settings.canFlipBoard && (
               <IconButton
                 icon="ArrowsUpDownIcon"
                 iconKind="outline"
@@ -177,7 +207,7 @@ export const LearnActivity = ({
                   // });
                 }}
               />
-            )}
+            )} */}
           </div>
 
           <PanelResizeHandle

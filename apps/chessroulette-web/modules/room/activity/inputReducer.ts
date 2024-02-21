@@ -1,5 +1,5 @@
 import { Action } from 'movex-core-util';
-import { ChapterState } from './reducer';
+import { Chapter, ChapterState, CircleDrawTuple } from './reducer';
 import {
   ChessFEN,
   ChessFENBoard,
@@ -31,7 +31,11 @@ type InputAction =
     >
   | Action<'deactivate'>
   | Action<'move', { move: ChessMove }>
-  | Action<'updateFen', { fen: ChessFEN }>
+  | Action<'updateChapterFen', { fen: ChessFEN }>
+  | Action<'updatePartialChapter', Partial<Omit<ChapterState, 'notation'>>>
+  | Action<'drawCircle', CircleDrawTuple>
+  | Action<'clearCircles'>
+
   // TODO This maybe is too generericzx
   | Action<
       'update',
@@ -51,6 +55,12 @@ export default (
   prev: InputState = initialInputState,
   action: InputAction
 ): InputState => {
+  console.group('Input Action', action.type);
+  console.log('payload', (action as any).payload);
+  console.log('prev', prev);
+  console.log('');
+  console.groupEnd();
+
   if (action.type === 'activate') {
     return {
       isActive: true,
@@ -107,7 +117,7 @@ export default (
     };
   }
 
-  if (action.type === 'updateFen') {
+  if (action.type === 'updateChapterFen') {
     if (!prev.isActive) {
       return prev;
     }
@@ -121,6 +131,63 @@ export default (
         ...prev.chapterState.notation,
         startingFen: nextFen,
       },
+    };
+
+    return {
+      ...prev,
+      chapterState: nextChapterState,
+    };
+  }
+
+  if (action.type === 'updatePartialChapter') {
+    if (!prev.isActive) {
+      return prev;
+    }
+
+    const nextChapterState: ChapterState = {
+      ...prev.chapterState,
+      ...action.payload,
+    };
+
+    return {
+      ...prev,
+      chapterState: nextChapterState,
+    };
+  }
+
+  if (action.type === 'drawCircle') {
+    if (!prev.isActive) {
+      return prev;
+    }
+
+    const [at, hex] = action.payload;
+    const circleId = `${at}`;
+    const { [circleId]: existent, ...restOfCirlesMap } =
+      prev.chapterState.circlesMap;
+
+    const nextChapterState: ChapterState = {
+      ...prev.chapterState,
+      circlesMap: {
+        ...restOfCirlesMap,
+        ...(!!existent
+          ? undefined // Set it to undefined if same
+          : { [circleId]: action.payload }),
+      },
+    };
+
+    return {
+      ...prev,
+      chapterState: nextChapterState,
+    };
+  }
+  if (action.type === 'clearCircles') {
+    if (!prev.isActive) {
+      return prev;
+    }
+
+    const nextChapterState: ChapterState = {
+      ...prev.chapterState,
+      circlesMap: {},
     };
 
     return {
