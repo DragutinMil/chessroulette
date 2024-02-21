@@ -113,23 +113,23 @@ export default (state = initialRoomState, action: RoomActions): RoomState => {
 
   // TODO: This should be done differently!
   if (
-    action.type === 'dropPiece' ||
-    action.type === 'importPgn' ||
-    action.type === 'focusHistoryIndex' ||
+    // action.type === 'dropPiece' ||
+    // action.type === 'importPgn' ||
+    // action.type === 'focusHistoryIndex' ||
     action.type === 'changeBoardOrientation' ||
     action.type === 'arrowChange' ||
     action.type === 'drawCircle' ||
     action.type === 'clearCircles' ||
-    action.type === 'deleteHistoryMove' ||
-    action.type === 'importFen' ||
+    // action.type === 'deleteHistoryMove' ||
+    // action.type === 'importFen' ||
     action.type === 'createChapter' ||
     action.type === 'deleteChapter' ||
     action.type === 'updateChapter' ||
     action.type === 'loadChapter' ||
-    action.type === 'loadedChapter:addMove' || 
-    action.type === "loadedChapter:focusHistoryIndex"
+    action.type === 'loadedChapter:addMove' ||
+    action.type === 'loadedChapter:focusHistoryIndex' ||
+    action.type === 'loadedChapter:deleteHistoryMove'
   ) {
-
     console.group('Action', action.type);
     console.log('payload', (action as any).payload);
     console.log('prev', state);

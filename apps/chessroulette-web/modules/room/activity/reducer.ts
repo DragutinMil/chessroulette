@@ -134,77 +134,23 @@ export type ActivityActions =
       'updateChapter',
       {
         id: Chapter['id'];
-        state: Partial<ChapterState>;
+        state: Partial<Omit<ChapterState, 'notation'>>; // The notation is updateable via addMove or history actions only
       }
     >
   | Action<'deleteChapter', { id: Chapter['id'] }>
   | Action<'loadChapter', { id: Chapter['id'] }>
   | Action<'loadedChapter:addMove', ChessMove>
-  | Action<'loadedChapter:focusHistoryIndex', ChessMove>
+  | Action<'loadedChapter:focusHistoryIndex', FBHIndex>
+  | Action<'loadedChapter:deleteHistoryMove', FBHIndex>
 
   // Board
   // Deprecate
-  | Action<
-      'dropPiece',
-      {
-        move: ChessMove;
-        // If not present, it's free chapter
-        chapterId?: Chapter['id'];
-      }
-    >
-  | Action<'importPgn', ChessPGN>
-  | Action<'importFen', ChessFEN>
-  | Action<'focusHistoryIndex', { index: FBHIndex; chapterId?: Chapter['id'] }>
-  | Action<'deleteHistoryMove', { atIndex: FBHIndex }>
   | Action<'changeBoardOrientation', ChessColor>
   | Action<'arrowChange', ArrowsMap>
   | Action<'drawCircle', CircleDrawTuple>
   | Action<'clearCircles'>;
 
-// TODO: All of these are chapter based so most likely they will need to incorporate the chapter id
-// | Action<'dropPiece', { chapterId?: Chapter['id']; move: ChessMove }>
-
-// TODO: These can be compacted into one "import"
-// | Action<'import', { chapterId?: Chapter['id']; input: {
-//   type: 'PGN';
-// } }>
-// | Action<'importPgn', { chapterId?: Chapter['id']; input: ChessPGN }>
-// | Action<'importFen', { chapterId?: Chapter['id']; input: ChessFEN }>
-// | Action<'focusHistoryIndex', { chapterId?: Chapter['id']; index: FBHIndex }>
-// | Action<
-//     'deleteHistoryMove',
-//     { chapterId?: Chapter['id']; atIndex: FBHIndex }
-//   >
-// | Action<
-//     'changeBoardOrientation',
-//     { chapterId?: Chapter['id']; color: ChessColor }
-//   >
-// | Action<'arrowChange', { chapterId?: Chapter['id']; arrowsMap: ArrowsMap }>
-// | Action<'drawCircle', { chapterId?: Chapter['id']; circle: CircleDrawTuple }>
-// | Action<'clearCircles', { chapterId?: Chapter['id'] }>;
-
 // PART 3: The Reducer – This is where all the logic happens
-
-const getPrevChapterAndDetails = (
-  activityState: LearnActivityState['activityState'],
-  chapterId: string
-) => {
-  // if (!chapterId) {
-  //   // if the chapter id isn't present, return freeChapter - but mybe it should throw an error
-
-  //   return {
-  //     chapterType: 'freeChapter',
-  //     chapter: activityState.freeChapter,
-  //     chapterId: undefined,
-  //   } as const;
-  // }
-
-  return {
-    chapterType: 'identifiable',
-    chapterId,
-    chapter: activityState.chaptersMap[chapterId] as ChapterState | undefined,
-  } as const;
-};
 
 export const findLoadedChapter = (
   activityState: LearnActivityState['activityState']
@@ -220,21 +166,6 @@ export default (
     if (action.type === 'loadedChapter:addMove') {
       // TODO: the logic for this should be in GameHistory class/static  so it can be tested
       try {
-        // const prevChapter = action.payload.chapterId
-        //   ? prev.activityState.chaptersMap[action.payload.chapterId] ||
-        //     undefined
-        //   : prev.activityState.freeChapter;
-
-        // const prevChapterAndDetails = getPrevChapterAndDetails(
-        //   prev.activityState,
-        //   action.payload.chapterId
-        // );
-
-        // if (!prevChapterAndDetails.chapter) {
-        //   console.error('The chapter wasnt found');
-        //   return prev;
-        // }
-
         const prevChapter = findLoadedChapter(prev.activityState);
 
         if (!prevChapter) {
@@ -331,9 +262,6 @@ export default (
           );
         });
 
-        // const nextChapter = action.payload.chapterId ? {
-        //   ...prevChapter
-        // }
         const nextChapterState: ChapterState = {
           ...prevChapter,
           displayFen: instance.fen,
@@ -408,15 +336,7 @@ export default (
     //     },
     //   };
     // }
-    else if (action.type === 'focusHistoryIndex') {
-      // TODO: absract this away
-      // const prevChapter = action.payload.chapterId
-      //   ? prev.activityState.chaptersMap[action.payload.chapterId] || undefined
-      //   : prev.activityState.freeChapter;
-      // const prevChapterAndDetails = getPrevChapterAndDetails(
-      //   prev.activityState,
-      //   action.payload.chapterId
-      // );
+    else if (action.type === 'loadedChapter:focusHistoryIndex') {
       const prevChapter = findLoadedChapter(prev.activityState);
 
       if (!prevChapter) {
@@ -427,7 +347,7 @@ export default (
       const historyAtFocusedIndex =
         FreeBoardHistory.calculateLinearHistoryToIndex(
           prevChapter.notation.history,
-          action.payload.index
+          action.payload
         );
       const instance = new ChessFENBoard(prevChapter.notation.startingFen);
       historyAtFocusedIndex.forEach((m) => {
@@ -441,7 +361,7 @@ export default (
         displayFen: instance.fen,
         notation: {
           ...prevChapter.notation,
-          focusedIndex: action.payload.index,
+          focusedIndex: action.payload,
         },
       };
 
@@ -458,6 +378,79 @@ export default (
           },
         },
       };
+    }
+
+    if (action.type === 'loadedChapter:deleteHistoryMove') {
+      // TODO: Fix this!
+      // const nextIndex = FreeBoardHistory.decrementIndexAbsolutely(action.payload.atIndex);
+
+      const prevChapter = findLoadedChapter(prev.activityState);
+
+      if (!prevChapter) {
+        console.error('No loaded chapter');
+        return prev;
+      }
+
+      const [slicedHistory, lastIndexInSlicedHistory] =
+        FreeBoardHistory.sliceHistory(
+          prevChapter.notation.history,
+          action.payload
+        );
+      const nextHistory =
+        FreeBoardHistory.removeTrailingNonMoves(slicedHistory);
+      const nextIndex = FreeBoardHistory.findNextValidMoveIndex(
+        nextHistory,
+        FreeBoardHistory.incrementIndex(lastIndexInSlicedHistory),
+        'left'
+      );
+      const instance = new ChessFENBoard(prevChapter.notation.startingFen);
+      nextHistory.forEach((turn, i) => {
+        turn.forEach((m) => {
+          if (m.isNonMove) {
+            return;
+          }
+          instance.move(m.from, m.to);
+        });
+      });
+      const nextFen = instance.fen;
+
+      const nextChapter: Chapter = {
+        ...prevChapter,
+        displayFen: nextFen,
+        circlesMap: {},
+        arrowsMap: {},
+        notation: {
+          ...prevChapter.notation,
+          history: nextHistory,
+          focusedIndex: nextIndex,
+        },
+      };
+
+      return {
+        ...prev,
+        activityState: {
+          ...prev.activityState,
+          chaptersMap: {
+            ...prev.activityState.chaptersMap,
+            [nextChapter.id]: nextChapter,
+          },
+        },
+      };
+
+      // return {
+      //   ...prev,
+      //   activityState: {
+      //     ...prev.activityState,
+      //     circles: {},
+      //     arrows: {},
+      //     fen: nextFen,
+      //     history: {
+      //       ...prev.activityState.history,
+      //       focusedIndex: nextIndex,
+      //       moves: nextHistory,
+      //     },
+      //   },
+      // };
     }
     // if (action.type === 'deleteHistoryMove') {
     //   // TODO: Fix this!
@@ -569,18 +562,24 @@ export default (
     if (action.type === 'updateChapter') {
       const { [action.payload.id]: prevChapter } =
         prev.activityState.chaptersMap;
+
+      const nextChapter: Chapter = {
+        ...prevChapter,
+        ...action.payload.state,
+
+        // Ensure the notation resets each time there is an update (the starting fen might change)
+        notation: initialChapterState.notation,
+      };
+
       return {
         ...prev,
         activityState: {
           ...prev.activityState,
           chaptersMap: {
             ...prev.activityState.chaptersMap,
-            [prevChapter.id]: {
-              ...prevChapter,
-              ...action.payload.state,
-            },
+            [nextChapter.id]: nextChapter,
           },
-          loadedChapterId: prevChapter.id,
+          loadedChapterId: nextChapter.id,
         },
       };
     }

@@ -60,7 +60,8 @@ export const LearnActivity = ({
     initialInputState
   );
 
-  const currentChapter = findLoadedChapter(remoteState) || initialDefaultChapter;
+  const currentChapter =
+    findLoadedChapter(remoteState) || initialDefaultChapter;
 
   return (
     <div
@@ -200,65 +201,33 @@ export const LearnActivity = ({
               {/* {inputState.isActive ? 'active' : 'not active'} */}
               <ChapterDisplayView chapter={currentChapter} />
               <WidgetPanel
-                // state={activityState}
                 currentChapterState={currentChapter}
-                // NOT SURE THIS IS THE NEW CHAPTER OR WHAT?
-                // Should this come from the baordState? I guess?
-                // fen={currentChapterState.displayFen}
-                // notation={currentChapterState.notation}
-
                 chaptersMap={remoteState?.chaptersMap || {}}
                 inputModeState={inputState}
                 chaptersMapIndex={remoteState?.chaptersIndex || 0}
                 currentLoadedChapterId={remoteState?.loadedChapterId}
-                // onToggleBoardEditor={(isBoardEditorShown) => {
-                //   if (inputState.isActive) {
-                //     // Only update if isActive
-                //     onUpdateInputState({ ...inputState, isBoardEditorShown });
-                //   }
-                // }}
                 onActivateInputMode={(payload) => {
                   dispatchInputState({ type: 'activate', payload });
-                  // onUpdateInputState({
-                  //   isActive: true,
-                  //   isBoardEditorShown: !!s.isBoardEditorShown,
-                  //   chapterState: s.chapterState,
-                  // });
                 }}
                 onDeactivateInputMode={() => {
                   dispatchInputState({ type: 'deactivate' });
-                  // onUpdateInputState({
-                  //   isActive: false,
-                  //   chapterState: undefined,
-                  // });
                 }}
                 onUpdateInputModeState={(payload) => {
                   dispatchInputState({ type: 'update', payload });
-                  // if (inputState.isActive) {
-                  //   onUpdateInputState({
-                  //     ...inputState,
-                  //     ...next,
-                  //   });
-                  // }
                 }}
-                onHistoryNotationRefocus={(index) => {
+                onHistoryNotationRefocus={(payload) => {
                   dispatch({
-                    type: 'focusHistoryIndex',
-                    payload: { index },
+                    type: 'loadedChapter:focusHistoryIndex',
+                    payload,
                   });
                 }}
-                onHistoryNotationDelete={(atIndex) => {
+                onHistoryNotationDelete={(payload) => {
                   dispatch({
-                    type: 'deleteHistoryMove',
-                    payload: { atIndex },
+                    type: 'loadedChapter:deleteHistoryMove',
+                    payload,
                   });
                 }}
-                onImport={(inputType, nextInput) => {
-                  dispatch({
-                    type: inputType === 'FEN' ? 'importFen' : 'importPgn',
-                    payload: nextInput,
-                  });
-                }}
+                onImport={() => {}}
                 onCreateChapter={() => {
                   if (inputState.isActive) {
                     dispatch({
