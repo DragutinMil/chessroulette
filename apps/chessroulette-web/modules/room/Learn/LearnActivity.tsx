@@ -3,7 +3,7 @@
 import movexConfig from 'apps/chessroulette-web/movex.config';
 import { MovexBoundResourceFromConfig } from 'movex-react';
 import { min, noop, swapColor } from '@xmatter/util-kit';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useReducer, useRef, useState } from 'react';
 import { IconButton } from 'apps/chessroulette-web/components/Button';
 import { IceServerRecord } from 'apps/chessroulette-web/providers/PeerToPeerProvider/type';
 import { useLearnActivitySettings } from './useLearnActivitySettings';
@@ -12,6 +12,7 @@ import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
 import {
   ChapterState,
   LearnActivityState,
+  initialChapterState,
   initialFreeChapter,
 } from '../activity/reducer';
 import { WidgetPanel } from './components/WidgetPanel';
@@ -20,19 +21,20 @@ import { CameraPanel } from './components/CameraPanel';
 import { RoomState } from '../movex/reducer';
 import { LearnBoardEditor } from './components/LearnBoardEditor';
 import { LearnBoard } from './components/LearnBoard';
+import inputReducer, { initialInputState } from '../activity/inputReducer';
 
-export type InputState =
-  | {
-      // this means the instructor creates or edits chapters atm
-      isActive: true;
-      isBoardEditorShown: boolean;
-      chapterState: ChapterState; // Create or Update Chapter but it will come here!
-    }
-  | {
-      isActive: false;
-      isBoardEditorShown?: false;
-      chapterState: undefined;
-    };
+// export type InputState =
+//   | {
+//       // this means the instructor creates or edits chapters atm
+//       isActive: true;
+//       isBoardEditorShown: boolean;
+//       chapterState: ChapterState; // Create or Update Chapter but it will come here!
+//     }
+//   | {
+//       isActive: false;
+//       isBoardEditorShown?: false;
+//       chapterState: undefined;
+//     };
 
 export type LearnActivityProps = {
   roomId: string;
@@ -40,8 +42,8 @@ export type LearnActivityProps = {
   iceServers: IceServerRecord[];
   participants: RoomState['participants'];
 
-  inputState: InputState;
-  onUpdateInputState: (s: InputState) => void;
+  // inputState: InputState;
+  // onUpdateInputState: (s: InputState) => void;
 
   remoteState?: LearnActivityState['activityState'];
   dispatch?: MovexBoundResourceFromConfig<
@@ -51,13 +53,13 @@ export type LearnActivityProps = {
 };
 
 export const LearnActivity = ({
-  inputState,
+  // inputState,
   remoteState,
   userId,
   participants,
   roomId,
   iceServers,
-  onUpdateInputState,
+  // onUpdateInputState,
   dispatch = noop,
 }: LearnActivityProps) => {
   const settings = useLearnActivitySettings();
@@ -71,6 +73,11 @@ export const LearnActivity = ({
   useEffect(() => {
     setBoardSize(min(desktopLayout.container.height, mainPanelRealSize));
   }, [desktopLayout.main, mainPanelRealSize]);
+
+  const [inputState, dispatchInputState] = useReducer(
+    inputReducer,
+    initialInputState
+  );
 
   const currentChapterState =
     // First do we have an updating input?
@@ -109,7 +116,13 @@ export const LearnActivity = ({
                 <LearnBoardEditor
                   state={inputState.chapterState}
                   boardSizePx={boardSize}
-                  onUpdated={() => {}}
+                  onUpdated={(fen) => {
+                    // console.log('board editor on updated', s);
+                    dispatchInputState({
+                      type: 'updateFen',
+                      payload: { fen },
+                    });
+                  }}
                   onArrowsChange={(arrowsMap) => {}}
                   onCircleDraw={(circleTuple) => {}}
                   onClearCircles={() => {}}
@@ -119,7 +132,9 @@ export const LearnActivity = ({
                 <LearnBoard
                   sizePx={boardSize}
                   {...inputState.chapterState}
-                  onMove={(payload) => {
+                  onMove={(move) => {
+                    dispatchInputState({ type: 'move', payload: { move } });
+
                     // onUpdateInputState()
                     // TODO: This can be returned from a more internal component
                     return true;
@@ -196,7 +211,7 @@ export const LearnActivity = ({
           />
           <div className="flex-1" />
         </div>
-        <Panel defaultSize={30} minSize={25} maxSize={40} tagName="aside">
+        <Panel defaultSize={33} minSize={33} maxSize={40} tagName="aside">
           <div className="flex flex-col space-between w-full relative sbg-red-100 h-full">
             <div className="flex flex-col flex-1 min-h-0 gap-4">
               <div className="overflow-hidden rounded-lg shadow-2xl">
@@ -211,11 +226,12 @@ export const LearnActivity = ({
               {inputState.isActive ? 'active' : 'not active'}
               <WidgetPanel
                 // state={activityState}
-
+                currentChapterState={currentChapterState}
                 // NOT SURE THIS IS THE NEW CHAPTER OR WHAT?
                 // Should this come from the baordState? I guess?
-                fen={currentChapterState.displayFen}
-                notation={currentChapterState.notation}
+                // fen={currentChapterState.displayFen}
+                // notation={currentChapterState.notation}
+
                 chaptersMap={remoteState?.chaptersMap || {}}
                 inputModeState={inputState}
                 chaptersMapIndex={remoteState?.chaptersIndex || 0}
@@ -226,26 +242,29 @@ export const LearnActivity = ({
                 //     onUpdateInputState({ ...inputState, isBoardEditorShown });
                 //   }
                 // }}
-                onActivateInputMode={(s) => {
-                  onUpdateInputState({
-                    isActive: true,
-                    isBoardEditorShown: !!s.isBoardEditorShown,
-                    chapterState: s.chapterState,
-                  });
+                onActivateInputMode={(payload) => {
+                  dispatchInputState({ type: 'activate', payload });
+                  // onUpdateInputState({
+                  //   isActive: true,
+                  //   isBoardEditorShown: !!s.isBoardEditorShown,
+                  //   chapterState: s.chapterState,
+                  // });
                 }}
                 onDeactivateInputMode={() => {
-                  onUpdateInputState({
-                    isActive: false,
-                    chapterState: undefined,
-                  });
+                  dispatchInputState({ type: 'deactivate' });
+                  // onUpdateInputState({
+                  //   isActive: false,
+                  //   chapterState: undefined,
+                  // });
                 }}
-                onUpdateInputModeState={(next) => {
-                  if (inputState.isActive) {
-                    onUpdateInputState({
-                      ...inputState,
-                      ...next,
-                    });
-                  }
+                onUpdateInputModeState={(payload) => {
+                  dispatchInputState({ type: 'update', payload });
+                  // if (inputState.isActive) {
+                  //   onUpdateInputState({
+                  //     ...inputState,
+                  //     ...next,
+                  //   });
+                  // }
                 }}
                 onHistoryNotationRefocus={(index) => {
                   dispatch({
@@ -270,6 +289,17 @@ export const LearnActivity = ({
                     dispatch({
                       type: 'createChapter',
                       payload: inputState.chapterState,
+                    });
+                  }
+                }}
+                onUpdateChapter={(id) => {
+                  if (inputState.isActive) {
+                    dispatch({
+                      type: 'updateChapter',
+                      payload: {
+                        id,
+                        state: inputState.chapterState,
+                      },
                     });
                   }
                 }}

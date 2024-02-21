@@ -578,23 +578,23 @@ export default (
         },
       };
     }
-    // if (action.type === 'updateChapter') {
-    //   const { [action.payload.id]: prevChapter } =
-    //     prev.activityState.chaptersMap;
-    //   return {
-    //     ...prev,
-    //     activityState: {
-    //       ...prev.activityState,
-    //       chaptersMap: {
-    //         ...prev.activityState.chaptersMap,
-    //         [action.payload.id]: {
-    //           ...prevChapter,
-    //           ...action.payload.state,
-    //         },
-    //       },
-    //     },
-    //   };
-    // }
+    if (action.type === 'updateChapter') {
+      const { [action.payload.id]: prevChapter } =
+        prev.activityState.chaptersMap;
+      return {
+        ...prev,
+        activityState: {
+          ...prev.activityState,
+          chaptersMap: {
+            ...prev.activityState.chaptersMap,
+            [action.payload.id]: {
+              ...prevChapter,
+              ...action.payload.state,
+            },
+          },
+        },
+      };
+    }
     if (action.type === 'deleteChapter') {
       const { [action.payload.id]: removed, ...nextChapters } =
         prev.activityState.chaptersMap;

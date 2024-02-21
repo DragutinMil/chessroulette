@@ -1,18 +1,16 @@
-import { ChessFEN, ChessFENBoard } from '@xmatter/util-kit';
 import {
   Chapter,
   ChapterState,
-  LearnActivityState,
   initialChapterState,
 } from '../../activity/reducer';
 import { useMemo, useState } from 'react';
 import { objectKeys } from 'movex-core-util';
 import { ChapterItem } from './ChapterItem';
 import { Button, IconButton } from 'apps/chessroulette-web/components/Button';
-import { CreateChapteViewProps, CreateChapterView } from './CreateChapterView';
+import { CreateChapterView } from './CreateChapterView';
 import { TabsNav } from 'apps/chessroulette-web/components/Tabs';
 import { EditChapterView } from './EditChapterView';
-import { InputState } from '../LearnActivity';
+import { EditChapterStateView } from './EditChapterStateView';
 
 export type ChaptersTabProps = {
   chaptersMap: Record<Chapter['id'], Chapter>;
@@ -36,21 +34,18 @@ export type ChaptersTabProps = {
   inputModeState: { chapterState?: ChapterState; isBoardEditorShown?: boolean };
 
   // Chapters Logistics
-  onLoadChapter: (id: Chapter['id']) => void;
-  onDeleteChapter: (id: Chapter['id']) => void;
   onCreateChapter: () => void;
-
-  // Board Logic
-  // onUpdateBoardFen: (fen: ChessFEN) => void;
-  // onToggleBoardEditor: CreateChapteViewProps['onToggleBoardEditor'];
-  // isBoardEditorShown: CreateChapteViewProps['isBoardEditorShown'];
+  onUpdateChapter: (id: Chapter['id']) => void;
+  onDeleteChapter: (id: Chapter['id']) => void;
+  onLoadChapter: (id: Chapter['id']) => void;
 };
 
 export const ChaptersTab = ({
-  onLoadChapter,
   onCreateChapter,
+  onUpdateChapter,
   onDeleteChapter,
-  // onToggleBoardEditor,
+  onLoadChapter,
+
   chaptersMapIndex,
   currentLoadedChapterId,
   chaptersMap,
@@ -58,22 +53,28 @@ export const ChaptersTab = ({
   tabsNav,
   ...props
 }: ChaptersTabProps) => {
-  // const currentRoomLinks = useCurrentRoomLinks();
-  // const chaptersCount = Object.keys(chaptersMap).length;
-
   const chaptersList = useMemo(
     () => objectKeys(chaptersMap).map((id) => chaptersMap[id]),
     [chaptersMap]
   );
 
-  // const searchParams = useSearchParams();
-  // const isNewChapterParamsSet = searchParams.get('newChapter') === '1';
+  const [updatingChapterId, setUpdatingChapterId] = useState<Chapter['id']>();
 
-  // useEffect(() => {
-  //   console.log('nav', tabsNav.stackIndex);
-  // }, [tabsNav]);
+  // TODO: The Tab system needs a refactoring!
 
-  const [editChapterId, setEditChapterId] = useState<string>();
+  // Call this to cancel or after a submit to clean up the state
+  // Maybe it shouldnt even be here but in the reducer but for now it's good
+  // Not doing it for now b/c I need to do it at the end
+  // const cleanUpAfterInputStateAndNavigation = () => {
+  //   tabsNav.stackBack();
+
+  //   props.onUpdateInputModeState({
+  //     ...props.inputModeState,
+  //     isBoardEditorShown: false,
+  //   });
+
+  //   props.onDeactivateInputMode();
+  // }
 
   return (
     <div className={`flex flex-col w-full ${className}`}>
@@ -93,7 +94,7 @@ export const ChaptersTab = ({
                     chapter={chapter}
                     onLoadClick={() => onLoadChapter(chapter.id)}
                     onEditClick={() => {
-                      setEditChapterId(chapter.id);
+                      setUpdatingChapterId(chapter.id);
                       tabsNav.stackTo(2);
 
                       props.onActivateInputMode({ chapterState: chapter });
@@ -118,18 +119,15 @@ export const ChaptersTab = ({
                 });
               }}
             >
-              Create New Chapter
+              Add New Chapter
             </Button>
           </>,
+
+          // CREATE CHAPTER TAB
           <div className="flex-1 flex overflow-scroll">
             {props.inputModeState.chapterState && (
               <div className="flex flex-1 flex-col gap-3 pt-2 sborder-b border-slate-400 overflow-scroll">
                 <CreateChapterView
-                  // defaultChapterName={`Chapter ${chaptersMapIndex + 1}`}
-                  // onToggleBoardEditor={onToggleBoardEditor}
-                  // isBoardEditorShown={props.isBoardEditorShown}
-                  // boardFen={ChessFENBoard.STARTING_FEN}
-                  // onUpdateBoardFen={props.onUpdateBoardFen}
                   onToggleBoardEditor={(show) =>
                     props.onUpdateInputModeState({
                       isBoardEditorShown: show,
@@ -142,14 +140,6 @@ export const ChaptersTab = ({
                       chapterState: nextChapterState,
                     })
                   }
-                  // onCreate={onCreateChapter}
-                  // onUpdateFen={(s) => {
-                  //   console.log('update', s)
-                  // }}
-                  // onClearArrowsAndCircles={() => {}}
-                  // renderSubmit={(nextState) => (
-
-                  // )}
                 />
                 <div className="flex gap-2">
                   <IconButton
@@ -169,9 +159,7 @@ export const ChaptersTab = ({
                   />
                   <Button
                     className="flex-1"
-                    // size="sm"
                     onClick={() => {
-                      // TODO: Bring back
                       onCreateChapter();
 
                       // Go back
@@ -196,31 +184,28 @@ export const ChaptersTab = ({
             )}
           </div>,
 
-          <>
-            {editChapterId && chaptersMap[editChapterId] && (
-              <EditChapterView
-                boardState={{
-                  ...chaptersMap[editChapterId],
-                  fen: chaptersMap[editChapterId].displayFen,
-                }}
-                isBoardEditorShown={!!props.inputModeState.isBoardEditorShown}
-                onToggleBoardEditor={(show) => {
-                  props.onUpdateInputModeState({
-                    ...props.inputModeState,
-                    isBoardEditorShown: show,
-                  });
-                }}
-                className="p-2 py-3 border-b border-slate-400"
-                chapter={chaptersMap[editChapterId]}
-                // expanded={active === chapter.id}
-                // onUse={() => onUse(chapter.id)}
-                onUse={() => {}}
-                // onUpdate={(state) => onUpdate(chapter.id, state)}
-                onUpdate={(state) => {}}
-                onDelete={() => {}}
-                onUpdateFen={() => {}}
-                onClearArrowsAndCircles={() => {}}
-                renderSubmit={(nextState) => (
+          // UPDATE CHAPTER TAB
+          <div className="flex-1 flex overflow-scroll">
+            {updatingChapterId &&
+              chaptersMap[updatingChapterId] &&
+              props.inputModeState.chapterState && (
+                <div className="flex flex-1 flex-col gap-3 pt-2 sborder-b border-slate-400 overflow-scroll">
+                  <EditChapterStateView
+                    onToggleBoardEditor={(show) =>
+                      props.onUpdateInputModeState({
+                        isBoardEditorShown: show,
+                      })
+                    }
+                    isBoardEditorShown={
+                      !!props.inputModeState.isBoardEditorShown
+                    }
+                    state={props.inputModeState.chapterState}
+                    onUpdate={(nextChapterState) =>
+                      props.onUpdateInputModeState({
+                        chapterState: nextChapterState,
+                      })
+                    }
+                  />
                   <div className="flex gap-2">
                     <IconButton
                       // size="sm"
@@ -235,9 +220,19 @@ export const ChaptersTab = ({
                       className="flex-1"
                       // size="sm"
                       onClick={() => {
+                        onUpdateChapter(updatingChapterId)
                         // TODO: Bring back
                         // onCreateChapter(nextState.state);
                         // onClearArrowsAndCircles();
+                        // Go back
+                        tabsNav.stackPop();
+
+                        // this only if
+                        // onToggleBoardEditor(false);
+                        props.onUpdateInputModeState({
+                          ...props.inputModeState,
+                          isBoardEditorShown: false,
+                        });
 
                         props.onDeactivateInputMode();
                       }}
@@ -246,86 +241,58 @@ export const ChaptersTab = ({
                       Update Chapter
                     </Button>
                   </div>
-                )}
-              />
-            )}
-          </>,
+                </div>
+                // <EditChapterView
+                //   boardState={{
+                //     ...chaptersMap[editChapterId],
+                //     fen: chaptersMap[editChapterId].displayFen,
+                //   }}
+                //   isBoardEditorShown={!!props.inputModeState.isBoardEditorShown}
+                //   onToggleBoardEditor={(show) => {
+                //     props.onUpdateInputModeState({
+                //       ...props.inputModeState,
+                //       isBoardEditorShown: show,
+                //     });
+                //   }}
+                //   className="p-2 py-3 border-b border-slate-400"
+                //   chapter={chaptersMap[editChapterId]}
+                //   onUse={() => {}}
+                //   onUpdate={(state) => {}}
+                //   onDelete={() => {}}
+                //   onUpdateFen={() => {}}
+                //   onClearArrowsAndCircles={() => {}}
+                //   renderSubmit={(nextState) => (
+                //     <div className="flex gap-2">
+                //       <IconButton
+                //         // size="sm"
+                //         type="secondary"
+                //         onClick={() => {
+                //           tabsNav.stackPop();
+                //           props.onDeactivateInputMode();
+                //         }}
+                //         icon="ArrowLeftIcon"
+                //       />
+                //       <Button
+                //         className="flex-1"
+                //         // size="sm"
+                //         onClick={() => {
+                //           // TODO: Bring back
+                //           // onCreateChapter(nextState.state);
+                //           // onClearArrowsAndCircles();
+
+                //           props.onDeactivateInputMode();
+                //         }}
+                //         icon="PencilSquareIcon"
+                //       >
+                //         Update Chapter
+                //       </Button>
+                //     </div>
+                //   )}
+                // />
+              )}
+          </div>,
         ][tabsNav.stackIndex]
       }
-      {/* <div className="flex flex-1 flex-col gap-2 pt-2 hover:cursor-pointer hover:bg-slate-600 p-2 py-3 border-b last:border-0 border-slate-400">
-        <Button
-          size="sm"
-          onClick={() => {
-            // links.getRoomLink({
-            //   id:
-            // })
-            currentRoomLinks.setForCurrentRoom({
-              newChapter: '1',
-              // edit: true,
-            });
-          }}
-        >
-          Create Chapter
-        </Button>
-      </div> */}
-      {/* <Button
-        size="sm"
-        onClick={() => {
-          // links.getRoomLink({
-          //   id:
-          // })
-          currentRoomLinks.setForCurrentRoom({
-            edit: true,
-          });
-        }}
-      >
-        Edit Chapters
-      </Button> */}
-      {/* {isNewChapterParamsSet ? ( */}
-      {/* <div className="flex-1 flex overflow-scroll">
-        <CreateChapterView
-          boardFen={ChessFENBoard.STARTING_FEN}
-          defaultChapterName={`Chapter ${chaptersCount + 1}`}
-          onCreate={onCreateChapter}
-          onUpdateFen={() => {}}
-          onClearArrowsAndCircles={() => {}}
-        />
-      </div> */}
-      {/* ) : (
-        <div className="flex justify-end">
-          <Button
-            size="sm"
-            onClick={() => {
-              // links.getRoomLink({
-              //   id:
-              // })
-              currentRoomLinks.setForCurrentRoom({
-                newChapter: '1',
-                // edit: true,
-              });
-            }}
-          >
-            Create Chapter
-          </Button>
-        </div>
-      )} */}
-      {/* <Button
-        size="md"
-        className="mt-4"
-        icon="PlusIcon"
-        onClick={() => {
-          // links.getRoomLink({
-          //   id:
-          // })
-          // currentRoomLinks.setForCurrentRoom({
-          //   newChapter: '1',
-          //   // edit: true,
-          // });
-          tabsNav.stackPush();
-        }}
-      >
-        Create New Chapter
-      </Button> */}
     </div>
   );
 };

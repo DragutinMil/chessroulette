@@ -18,13 +18,13 @@ export const LearnActivityContainer = ({ iceServers, ...props }: Props) => {
   const userId = useUserId();
   const movexResource = useMovexBoundResourceFromRid(movexConfig, props.rid);
 
-  const [inputState, setInputState] = useState<
-    LearnActivityProps['inputState']
-  >({
-    isActive: false,
-    chapterState: undefined,
-    isBoardEditorShown: false,
-  });
+  // const [inputState, setInputState] = useState<
+  //   LearnActivityProps['inputState']
+  // >({
+  //   isActive: false,
+  //   chapterState: undefined,
+  //   isBoardEditorShown: false,
+  // });
 
   useEffect(() => {
     if (!movexResource) {
@@ -65,8 +65,8 @@ export const LearnActivityContainer = ({ iceServers, ...props }: Props) => {
         userId={userId}
         participants={movexResource?.state.participants || {}}
         iceServers={iceServers}
-        inputState={inputState}
-        onUpdateInputState={setInputState}
+        // inputState={inputState}
+        // onUpdateInputState={setInputState}
         remoteState={
           movexResource?.state.activity.activityType === 'learn'
             ? movexResource?.state.activity.activityState

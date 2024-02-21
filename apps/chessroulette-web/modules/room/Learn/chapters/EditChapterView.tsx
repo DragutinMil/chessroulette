@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
-import { Button } from 'apps/chessroulette-web/components/Button';
 import { Chapter, ChapterState } from '../../activity/reducer';
 import { EditChapterStateView } from './EditChapterStateView';
-import { ChessFEN, ChessFENBoard } from '@xmatter/util-kit';
+import { ChessFEN } from '@xmatter/util-kit';
 import { EditModeState } from '../types';
 import { CreateChapteViewProps } from './CreateChapterView';
 
@@ -14,7 +13,6 @@ export type EditChapterItemProps = {
   onUpdate: (s: Partial<ChapterState>) => void;
   onUpdateFen: (fen: ChessFEN) => void;
   onClearArrowsAndCircles: () => void;
-  // expanded?: boolean;
   className?: string;
   renderSubmit: (state: InputState) => React.ReactNode;
 
@@ -33,7 +31,7 @@ const areChapterStatesEqual = (a: ChapterState, b: ChapterState) =>
   a.name === b.name &&
   a.arrowsMap === b.arrowsMap &&
   a.circlesMap === b.circlesMap;
-  // TODO: should this involve more details in the comparison?
+// TODO: should this involve more details in the comparison?
 
 const calcUncommited = ({
   chapter,
@@ -65,12 +63,9 @@ export const EditChapterView = ({
   boardState,
   onUse,
   onUpdate,
-  // onExpand,
-  // onCollapse,
   onDelete,
   onClearArrowsAndCircles,
   onUpdateFen,
-  // expanded = false,
   renderSubmit,
   className,
   ...props
@@ -105,38 +100,7 @@ export const EditChapterView = ({
   }, [chapter, boardState]);
 
   return (
-    // <div className={`flex flex-1 flex-col gap-2 ${className} bg-red-100`}>
     <div className="flex flex-1 flex-col gap-3 pt-2 sborder-b border-slate-400 overflow-scroll">
-      {/* <div className="flex"> */}
-      {/* <div className="flex-1 flex items-center">{chapter.name}</div> */}
-
-      {/* <div className="flex align-end justify-end gap-2">
-          {!expanded && (
-            <Button
-              size="xs"
-              icon="PencilIcon"
-              onClick={() => {
-                onExpand();
-                onUse();
-              }}
-            >
-              Edit
-            </Button>
-          )}
-
-          <Button
-            size="xs"
-            type="clear"
-            onClick={onDelete}
-            icon="TrashIcon"
-            iconKind="outline"
-          >
-            Delete
-          </Button>
-        </div> */}
-      {/* </div> */}
-
-      {/* <div className="spt-2 flex flex-col gap-3"> */}
       <EditChapterStateView
         state={uncommited.state}
         isBoardEditorShown={props.isBoardEditorShown}
@@ -151,68 +115,6 @@ export const EditChapterView = ({
           );
         }}
       />
-      {/* </div> */}
-
-      {/* <div className="flex gap-3 justify-end">
-        <Button
-          size="sm"
-          type="secondary"
-          onClick={() => {
-            onUpdateFen(ChessFENBoard.ONLY_KINGS_FEN);
-
-            onClearArrowsAndCircles();
-          }}
-          icon="TrashIcon"
-          iconKind="outline"
-        >
-          Clear Board
-        </Button>
-        <Button
-          size="sm"
-          type="secondary"
-          onClick={() => {
-            onUpdateFen(ChessFENBoard.STARTING_FEN);
-            onClearArrowsAndCircles();
-          }}
-          icon="ArrowPathIcon"
-          iconKind="outline"
-        >
-          Starting Position
-        </Button>
-
-        <div className="flex-1" />
-
-        <Button
-          size="xs"
-          type="clear"
-          onClick={() => {
-            setUncommited({
-              isChanged: false,
-              state: toChapterState(chapter),
-            });
-
-            onUse();
-
-            // onCollapse();
-          }}
-        >
-          Cancel
-        </Button>
-        <Button
-          size="xs"
-          // type="clear"
-          disabled={!uncommited.isChanged}
-          onClick={() => {
-            if (uncommited.isChanged) {
-              onUpdate(uncommited.state);
-            }
-            // onCollapse();
-          }}
-        >
-          Save
-        </Button>
-      </div> */}
-
       {renderSubmit(uncommited)}
     </div>
   );

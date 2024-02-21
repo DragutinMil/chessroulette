@@ -5,7 +5,6 @@ import {
   DeepPartial,
   FenState,
   getNewChessGame,
-  noop,
   toShortColor,
 } from '@xmatter/util-kit';
 import { FenPreview } from '../components/FenPreview';

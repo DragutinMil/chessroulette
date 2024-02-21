@@ -56,7 +56,7 @@ export const PgnInputBox: React.FC<PgnInputBoxProps> = ({
     return (
       <DragAndDrop
         fileTypes={['PGN', 'FEN', 'TXT']}
-        className={`border-dashed border rounded-md border-slate-600 text-gray-300 ${props.containerClassName}`}
+        className={`border-dashed border rounded-md border-slate-400 text-gray-300 ${props.containerClassName}`}
         onUpload={(f: any) => {
           // TODO: Validate PGN
 
@@ -80,7 +80,7 @@ export const PgnInputBox: React.FC<PgnInputBoxProps> = ({
           fileData.readAsText(f);
         }}
       >
-        <div className="border p-2 border-dashed rounded-md cursor-pointer">
+        <div className="sborder p-2 sborder-dashed rounded-md cursor-pointer">
           Upload or Drop a PGN or FEN File
         </div>
       </DragAndDrop>
