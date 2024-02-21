@@ -8,6 +8,10 @@ import { useEffect, useState } from 'react';
 import { IceServerRecord } from 'apps/chessroulette-web/providers/PeerToPeerProvider/type';
 import { LearnActivity, LearnActivityProps } from './LearnActivity';
 import { toRidAsObj } from 'movex';
+import {
+  initialActivtityState,
+  initialLearnActivityState,
+} from '../activity/reducer';
 
 type Props = {
   rid: ResourceIdentifier<'room'>;
@@ -65,12 +69,11 @@ export const LearnActivityContainer = ({ iceServers, ...props }: Props) => {
         userId={userId}
         participants={movexResource?.state.participants || {}}
         iceServers={iceServers}
-        // inputState={inputState}
-        // onUpdateInputState={setInputState}
         remoteState={
           movexResource?.state.activity.activityType === 'learn'
-            ? movexResource?.state.activity.activityState
-            : undefined
+            ? movexResource?.state.activity.activityState ??
+              initialLearnActivityState.activityState
+            : initialLearnActivityState.activityState
         }
       />
     </>

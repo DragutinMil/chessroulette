@@ -125,8 +125,17 @@ export default (state = initialRoomState, action: RoomActions): RoomState => {
     action.type === 'createChapter' ||
     action.type === 'deleteChapter' ||
     action.type === 'updateChapter' ||
-    action.type === 'loadChapter'
+    action.type === 'loadChapter' ||
+    action.type === 'loadedChapter:addMove' || 
+    action.type === "loadedChapter:focusHistoryIndex"
   ) {
+
+    console.group('Action', action.type);
+    console.log('payload', (action as any).payload);
+    console.log('prev', state);
+    console.log('');
+    console.groupEnd();
+
     // console.log('heere')
     return {
       ...state,

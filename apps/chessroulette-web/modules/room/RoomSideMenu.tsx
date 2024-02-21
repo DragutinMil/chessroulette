@@ -20,8 +20,11 @@ export const RoomSideMenu = () => {
 
     // TODO: All of these should be somewhere else
     url.searchParams.set('userId', String(nextUserId));
+
+    // TODO: These should actually be cleared and only the ones that are needed added!
     url.searchParams.delete('instructor');
     url.searchParams.delete('edit');
+    url.searchParams.delete('tab');
 
     return url.href;
   }, [url, nextUserId]);

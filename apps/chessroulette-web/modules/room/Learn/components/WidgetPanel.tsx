@@ -10,6 +10,7 @@ import { useLearnActivitySettings } from '../useLearnActivitySettings';
 import { PgnInputBoxProps } from 'apps/chessroulette-web/components/PgnInputBox';
 import { ChaptersTab, ChaptersTabProps } from '../chapters/ChaptersTab';
 import { useUpdateableSearchParams } from 'apps/chessroulette-web/hooks/useSearchParams';
+import { ChapterDisplayView } from '../chapters/ChapterDisplayView';
 
 type Props = {
   chaptersMap: Record<Chapter['id'], Chapter>;
@@ -53,7 +54,7 @@ export const WidgetPanel = ({
       <Tabs
         containerClassName="bg-slate-700 p-3 flex flex-col flex-1 min-h-0 soverflow-hidden rounded-lg shadow-2xl"
         headerContainerClassName="flex gap-3 pb-3"
-        contentClassName="flex-1 flex min-h-0"
+        contentClassName="flex-1 flex min-h-0 pt-2"
         currentIndex={Number(updateableSearchParams.get('tab') || 0)}
         onTabChange={(tabIndex) => {
           updateableSearchParams.set((prev) => ({
@@ -81,6 +82,7 @@ export const WidgetPanel = ({
             ),
             renderContent: () => (
               <div className="flex flex-col flex-1 gap-2 min-h-0">
+                {/* <ChapterDisplayView chapter={currentChapterState} /> */}
                 <FreeBoardNotation
                   history={currentChapterState.notation?.history}
                   focusedIndex={currentChapterState.notation?.focusedIndex}
@@ -147,6 +149,7 @@ export const WidgetPanel = ({
   // Student
   return (
     <div className="bg-slate-700 p-3 flex flex-col flex-1 min-h-0 rounded-lg shadow-2xl">
+      {/* <ChapterDisplayView chapter={currentChapterState} className='pt-2' /> */}
       <FreeBoardNotation
         history={currentChapterState.notation?.history}
         focusedIndex={currentChapterState.notation?.focusedIndex}

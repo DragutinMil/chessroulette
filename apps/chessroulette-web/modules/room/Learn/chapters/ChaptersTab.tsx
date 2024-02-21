@@ -59,24 +59,8 @@ export const ChaptersTab = ({
 
   const [updatingChapterId, setUpdatingChapterId] = useState<Chapter['id']>();
 
-  // TODO: The Tab system needs a refactoring!
-
-  // Call this to cancel or after a submit to clean up the state
-  // Maybe it shouldnt even be here but in the reducer but for now it's good
-  // Not doing it for now b/c I need to do it at the end
-  // const cleanUpAfterInputStateAndNavigation = () => {
-  //   tabsNav.stackBack();
-
-  //   props.onUpdateInputModeState({
-  //     ...props.inputModeState,
-  //     isBoardEditorShown: false,
-  //   });
-
-  //   props.onDeactivateInputMode();
-  // }
-
   return (
-    <div className={`flex flex-col w-full pt-2 ${className}`}>
+    <div className={`flex flex-col w-full ${className}`}>
       {
         [
           <>

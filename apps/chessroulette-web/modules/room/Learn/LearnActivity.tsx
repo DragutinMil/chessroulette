@@ -2,7 +2,7 @@
 
 import movexConfig from 'apps/chessroulette-web/movex.config';
 import { MovexBoundResourceFromConfig } from 'movex-react';
-import { min, noop, swapColor } from '@xmatter/util-kit';
+import { min, noop } from '@xmatter/util-kit';
 import { useEffect, useReducer, useRef, useState } from 'react';
 import { IconButton } from 'apps/chessroulette-web/components/Button';
 import { IceServerRecord } from 'apps/chessroulette-web/providers/PeerToPeerProvider/type';
@@ -10,10 +10,9 @@ import { useLearnActivitySettings } from './useLearnActivitySettings';
 import { useDesktopRoomLayout } from './useDesktopRoomLayout';
 import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
 import {
-  ChapterState,
   LearnActivityState,
-  initialChapterState,
-  initialFreeChapter,
+  findLoadedChapter,
+  initialDefaultChapter,
 } from '../activity/reducer';
 import { WidgetPanel } from './components/WidgetPanel';
 import { UserId } from '../../user/type';
@@ -22,30 +21,14 @@ import { RoomState } from '../movex/reducer';
 import { LearnBoardEditor } from './components/LearnBoardEditor';
 import { LearnBoard } from './components/LearnBoard';
 import inputReducer, { initialInputState } from '../activity/inputReducer';
-
-// export type InputState =
-//   | {
-//       // this means the instructor creates or edits chapters atm
-//       isActive: true;
-//       isBoardEditorShown: boolean;
-//       chapterState: ChapterState; // Create or Update Chapter but it will come here!
-//     }
-//   | {
-//       isActive: false;
-//       isBoardEditorShown?: false;
-//       chapterState: undefined;
-//     };
+import { ChapterDisplayView } from './chapters/ChapterDisplayView';
 
 export type LearnActivityProps = {
   roomId: string;
   userId: UserId;
   iceServers: IceServerRecord[];
   participants: RoomState['participants'];
-
-  // inputState: InputState;
-  // onUpdateInputState: (s: InputState) => void;
-
-  remoteState?: LearnActivityState['activityState'];
+  remoteState: LearnActivityState['activityState'];
   dispatch?: MovexBoundResourceFromConfig<
     (typeof movexConfig)['resources'],
     'room'
@@ -53,13 +36,11 @@ export type LearnActivityProps = {
 };
 
 export const LearnActivity = ({
-  // inputState,
   remoteState,
   userId,
   participants,
   roomId,
   iceServers,
-  // onUpdateInputState,
   dispatch = noop,
 }: LearnActivityProps) => {
   const settings = useLearnActivitySettings();
@@ -79,15 +60,7 @@ export const LearnActivity = ({
     initialInputState
   );
 
-  const currentChapterState =
-    // First do we have an updating input?
-    // inputState.newChapterInput ||
-    // If not do we have a selected chaper?
-    (remoteState?.currentChapterId &&
-      remoteState?.chaptersMap[remoteState?.currentChapterId]) ||
-    // If not the free chapter
-    remoteState?.freeChapter ||
-    initialFreeChapter;
+  const currentChapter = findLoadedChapter(remoteState) || initialDefaultChapter;
 
   return (
     <div
@@ -149,9 +122,10 @@ export const LearnActivity = ({
             // Learn Mode
             <LearnBoard
               sizePx={boardSize}
-              {...currentChapterState}
-              onMove={(move) => {
-                dispatch({ type: 'dropPiece', payload: { move } });
+              {...currentChapter}
+              onMove={(payload) => {
+                // dispatch({ type: 'dropPiece', payload: { move } });
+                dispatch({ type: 'loadedChapter:addMove', payload });
 
                 // TODO: This can be returned from a more internal component
                 return true;
@@ -223,10 +197,11 @@ export const LearnActivity = ({
                 />
               </div>
 
-              {inputState.isActive ? 'active' : 'not active'}
+              {/* {inputState.isActive ? 'active' : 'not active'} */}
+              <ChapterDisplayView chapter={currentChapter} />
               <WidgetPanel
                 // state={activityState}
-                currentChapterState={currentChapterState}
+                currentChapterState={currentChapter}
                 // NOT SURE THIS IS THE NEW CHAPTER OR WHAT?
                 // Should this come from the baordState? I guess?
                 // fen={currentChapterState.displayFen}
@@ -235,7 +210,7 @@ export const LearnActivity = ({
                 chaptersMap={remoteState?.chaptersMap || {}}
                 inputModeState={inputState}
                 chaptersMapIndex={remoteState?.chaptersIndex || 0}
-                currentLoadedChapterId={remoteState?.currentChapterId}
+                currentLoadedChapterId={remoteState?.loadedChapterId}
                 // onToggleBoardEditor={(isBoardEditorShown) => {
                 //   if (inputState.isActive) {
                 //     // Only update if isActive

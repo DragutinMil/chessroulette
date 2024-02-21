@@ -76,12 +76,12 @@ export const EditChapterStateView = ({
             id="turn-white"
             type="radio"
             checked={toShortColor(boardFenState.turn) === 'w'}
-            name="white"
+            name="turn-white"
             className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
             onChange={() => updateFenState({ turn: 'w' })}
           />
           <label
-            htmlFor="white"
+            htmlFor="turn-white"
             className="ml-1 ms-2 text-sm font-medium text-gray-300"
           >
             White
@@ -91,14 +91,13 @@ export const EditChapterStateView = ({
           <input
             id="turn-black"
             type="radio"
-            // value=""
             checked={toShortColor(boardFenState.turn) === 'b'}
-            name="black"
+            name="turn-black"
             className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
             onChange={() => updateFenState({ turn: 'b' })}
           />
           <label
-            htmlFor="black"
+            htmlFor="turn-black"
             className="ml-1 ms-2 text-sm font-medium text-gray-300"
           >
             Black
@@ -113,12 +112,12 @@ export const EditChapterStateView = ({
             id="orientation-white"
             type="radio"
             checked={toShortColor(state.orientation) === 'w'}
-            name="white"
+            name="orientation-white"
             className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
             onChange={() => partialUpdate({ orientation: 'w' })}
           />
           <label
-            htmlFor="white"
+            htmlFor="orientation-white"
             className="ml-1 ms-2 text-sm font-medium text-gray-300"
           >
             White
@@ -128,14 +127,13 @@ export const EditChapterStateView = ({
           <input
             id="orientation-black"
             type="radio"
-            // value=""
             checked={toShortColor(state.orientation) === 'b'}
-            name="black"
+            name="orientation-black"
             className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
             onChange={() => partialUpdate({ orientation: 'b' })}
           />
           <label
-            htmlFor="black"
+            htmlFor="orientation-black"
             className="ml-1 ms-2 text-sm font-medium text-gray-300"
           >
             Black

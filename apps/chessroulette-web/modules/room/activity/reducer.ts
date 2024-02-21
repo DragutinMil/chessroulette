@@ -40,13 +40,13 @@ export type LearnActivityState = {
     //   moves: FBHHistory;
     //   focusedIndex: FBHIndex;
     // };
-    currentChapterId: Chapter['id'] | undefined;
+    loadedChapterId: Chapter['id'];
     chaptersMap: Record<Chapter['id'], Chapter>;
     chaptersIndex: number;
 
     // This is only here when there is no chapter created - kinda like
     // student and instructor just play around
-    freeChapter: ChapterState;
+    // freeChapter: ChapterState;
   };
 };
 
@@ -64,7 +64,7 @@ export const initialActivtityState: ActivityState = {
 
 export type Chapter = {
   id: string;
-  createdAt: number;
+  // createdAt: number;
 } & ChapterState;
 
 export type ChapterState = {
@@ -105,15 +105,23 @@ export const initialChapterState: ChapterState = {
   orientation: 'w',
 };
 
-export const initialFreeChapter = { ...initialChapterState, name: '' };
+// export const initialFreeChapter = { ...initialChapterState, name: '' };
+
+export const initialDefaultChapter: Chapter = {
+  ...initialChapterState,
+  name: 'Chapter 1',
+  id: '0',
+};
 
 export const initialLearnActivityState: LearnActivityState = {
   activityType: 'learn',
   activityState: {
-    currentChapterId: undefined,
-    chaptersMap: {},
-    chaptersIndex: 0,
-    freeChapter: initialFreeChapter,
+    chaptersMap: {
+      [initialDefaultChapter.id]: initialDefaultChapter,
+    },
+    loadedChapterId: initialDefaultChapter.id,
+    chaptersIndex: 1,
+    // freeChapter: initialFreeChapter,
   },
 };
 
@@ -131,8 +139,11 @@ export type ActivityActions =
     >
   | Action<'deleteChapter', { id: Chapter['id'] }>
   | Action<'loadChapter', { id: Chapter['id'] }>
+  | Action<'loadedChapter:addMove', ChessMove>
+  | Action<'loadedChapter:focusHistoryIndex', ChessMove>
 
   // Board
+  // Deprecate
   | Action<
       'dropPiece',
       {
@@ -176,17 +187,17 @@ export type ActivityActions =
 
 const getPrevChapterAndDetails = (
   activityState: LearnActivityState['activityState'],
-  chapterId?: string
+  chapterId: string
 ) => {
-  if (!chapterId) {
-    // if the chapter id isn't present, return freeChapter - but mybe it should throw an error
+  // if (!chapterId) {
+  //   // if the chapter id isn't present, return freeChapter - but mybe it should throw an error
 
-    return {
-      chapterType: 'freeChapter',
-      chapter: activityState.freeChapter,
-      chapterId: undefined,
-    } as const;
-  }
+  //   return {
+  //     chapterType: 'freeChapter',
+  //     chapter: activityState.freeChapter,
+  //     chapterId: undefined,
+  //   } as const;
+  // }
 
   return {
     chapterType: 'identifiable',
@@ -195,38 +206,43 @@ const getPrevChapterAndDetails = (
   } as const;
 };
 
+export const findLoadedChapter = (
+  activityState: LearnActivityState['activityState']
+): Chapter | undefined =>
+  activityState.chaptersMap[activityState.loadedChapterId];
+
 export default (
   prev: ActivityState = initialActivtityState,
   action: ActivityActions
 ): ActivityState => {
-  console.group('Action', action.type);
-  console.log('payload', (action as any).payload);
-  console.log('prev', prev);
-  console.log('');
-  console.groupEnd();
-
   if (prev.activityType === 'learn') {
     // TODO: Should this be split?
-    if (action.type === 'dropPiece') {
+    if (action.type === 'loadedChapter:addMove') {
       // TODO: the logic for this should be in GameHistory class/static  so it can be tested
       try {
-        const { from, to, promoteTo } = action.payload.move;
         // const prevChapter = action.payload.chapterId
         //   ? prev.activityState.chaptersMap[action.payload.chapterId] ||
         //     undefined
         //   : prev.activityState.freeChapter;
 
-        const prevChapterAndDetails = getPrevChapterAndDetails(
-          prev.activityState,
-          action.payload.chapterId
-        );
+        // const prevChapterAndDetails = getPrevChapterAndDetails(
+        //   prev.activityState,
+        //   action.payload.chapterId
+        // );
 
-        if (!prevChapterAndDetails.chapter) {
-          console.error('The chapter wasnt found');
+        // if (!prevChapterAndDetails.chapter) {
+        //   console.error('The chapter wasnt found');
+        //   return prev;
+        // }
+
+        const prevChapter = findLoadedChapter(prev.activityState);
+
+        if (!prevChapter) {
+          console.error('The loaded chapter was not found');
           return prev;
         }
 
-        const prevChapter = prevChapterAndDetails.chapter;
+        const { from, to, promoteTo } = action.payload;
 
         const instance = new ChessFENBoard(prevChapter.displayFen);
         const fenPiece = instance.piece(from);
@@ -330,30 +346,17 @@ export default (
           },
         };
 
-        if (prevChapterAndDetails.chapterType === 'identifiable') {
-          return {
-            ...prev,
-            activityState: {
-              ...prev.activityState,
-              chaptersMap: {
-                ...prev.activityState.chaptersMap,
-                [prevChapterAndDetails.chapterId]: {
-                  ...prev.activityState.chaptersMap[
-                    prevChapterAndDetails.chapterId
-                  ],
-                  ...nextChapterState,
-                },
-              },
-            },
-          };
-        }
-
-        // Otherwise it's a Free chapter
         return {
           ...prev,
           activityState: {
             ...prev.activityState,
-            freeChapter: nextChapterState,
+            chaptersMap: {
+              ...prev.activityState.chaptersMap,
+              [prevChapter.id]: {
+                ...prev.activityState.chaptersMap[prevChapter.id],
+                ...nextChapterState,
+              },
+            },
           },
         };
       } catch (e) {
@@ -410,17 +413,16 @@ export default (
       // const prevChapter = action.payload.chapterId
       //   ? prev.activityState.chaptersMap[action.payload.chapterId] || undefined
       //   : prev.activityState.freeChapter;
-      const prevChapterAndDetails = getPrevChapterAndDetails(
-        prev.activityState,
-        action.payload.chapterId
-      );
+      // const prevChapterAndDetails = getPrevChapterAndDetails(
+      //   prev.activityState,
+      //   action.payload.chapterId
+      // );
+      const prevChapter = findLoadedChapter(prev.activityState);
 
-      if (!prevChapterAndDetails.chapter) {
+      if (!prevChapter) {
         console.error('The chapter wasnt found');
         return prev;
       }
-
-      const prevChapter = prevChapterAndDetails.chapter;
 
       const historyAtFocusedIndex =
         FreeBoardHistory.calculateLinearHistoryToIndex(
@@ -443,30 +445,17 @@ export default (
         },
       };
 
-      if (prevChapterAndDetails.chapterType === 'identifiable') {
-        return {
-          ...prev,
-          activityState: {
-            ...prev.activityState,
-            chaptersMap: {
-              ...prev.activityState.chaptersMap,
-              [prevChapterAndDetails.chapterId]: {
-                ...prev.activityState.chaptersMap[
-                  prevChapterAndDetails.chapterId
-                ],
-                ...nextChapterState,
-              },
-            },
-          },
-        };
-      }
-
-      // Otherwise it's a Free chapter
       return {
         ...prev,
         activityState: {
           ...prev.activityState,
-          freeChapter: nextChapterState,
+          chaptersMap: {
+            ...prev.activityState.chaptersMap,
+            [prevChapter.id]: {
+              ...prev.activityState.chaptersMap[prevChapter.id],
+              ...nextChapterState,
+            },
+          },
         },
       };
     }
@@ -569,11 +558,10 @@ export default (
             ...prev.activityState.chaptersMap,
             [nextChapterId]: {
               id: nextChapterId,
-              createdAt: new Date().getTime(),
               ...action.payload,
             },
           },
-          currentChapterId: nextChapterId,
+          loadedChapterId: nextChapterId,
           chaptersIndex: nextChapterIndex,
         },
       };
@@ -587,17 +575,29 @@ export default (
           ...prev.activityState,
           chaptersMap: {
             ...prev.activityState.chaptersMap,
-            [action.payload.id]: {
+            [prevChapter.id]: {
               ...prevChapter,
               ...action.payload.state,
             },
           },
+          loadedChapterId: prevChapter.id,
         },
       };
     }
     if (action.type === 'deleteChapter') {
-      const { [action.payload.id]: removed, ...nextChapters } =
+      // Remove the current one
+      const { [action.payload.id]: removed, ...restChapters } =
         prev.activityState.chaptersMap;
+
+      // and if it's the last one, add the initial one again
+      // There always needs to be one chapter in
+      const nextChapters =
+        Object.keys(restChapters).length > 0
+          ? restChapters
+          : {
+              [initialDefaultChapter.id]: initialDefaultChapter,
+            };
+
       return {
         ...prev,
         activityState: {
@@ -616,11 +616,7 @@ export default (
         ...prev,
         activityState: {
           ...prev.activityState,
-          currentChapterId: chapter.id,
-          // fen: chapter.fen,
-          // arrows: chapter.arrowsMap || {},
-          // circles: chapter.circlesMap || {},
-          // boardOrientation: chapter.orientation,
+          loadedChapterId: chapter.id,
         },
       };
     }
