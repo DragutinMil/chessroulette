@@ -116,10 +116,10 @@ export default (state = initialRoomState, action: RoomActions): RoomState => {
     // action.type === 'dropPiece' ||
     // action.type === 'importPgn' ||
     // action.type === 'focusHistoryIndex' ||
-    action.type === 'changeBoardOrientation' ||
-    action.type === 'arrowChange' ||
-    action.type === 'drawCircle' ||
-    action.type === 'clearCircles' ||
+    // action.type === 'changeBoardOrientation' ||
+    // action.type === 'arrowChange' ||
+    // action.type === 'drawCircle' ||
+    // action.type === 'clearCircles' ||
     // action.type === 'deleteHistoryMove' ||
     // action.type === 'importFen' ||
     action.type === 'createChapter' ||
@@ -131,7 +131,9 @@ export default (state = initialRoomState, action: RoomActions): RoomState => {
     action.type === 'loadedChapter:deleteHistoryMove' ||
     action.type === 'loadedChapter:clearCircles' ||
     action.type === 'loadedChapter:drawCircle' ||
-    action.type === 'loadedChapter:setArrows'
+    action.type === 'loadedChapter:setArrows' ||
+    action.type === 'loadedChapter:setOrientation' ||
+    action.type === 'loadedChapter:updateFen'
   ) {
     console.group('Action', action.type);
     console.log('payload', (action as any).payload);

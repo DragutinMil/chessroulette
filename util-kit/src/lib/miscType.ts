@@ -14,4 +14,13 @@ type RequiredNotNull<T> = {
   [P in keyof T]: NonNullable<T[P]>;
 };
 
-export type Ensure<T, K extends keyof T> = T & Required<RequiredNotNull<Pick<T, K>>>;
+export type Ensure<T, K extends keyof T> = T &
+  Required<RequiredNotNull<Pick<T, K>>>;
+
+/**
+ * Taken from https://stackoverflow.com/a/67794430/2093626
+ * This ensures the omit doesn't break distributin uniions!
+ */
+export type DistributiveOmit<T, K extends PropertyKey> = T extends any
+  ? Omit<T, K>
+  : never;

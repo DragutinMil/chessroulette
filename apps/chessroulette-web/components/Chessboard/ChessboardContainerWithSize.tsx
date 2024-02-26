@@ -3,9 +3,10 @@ import {
   ChessboardContainerProps,
 } from './ChessboardContainer';
 import { ContainerWithDimensions } from '../ContainerWithDimensions';
-import { max, min } from '@xmatter/util-kit';
+import { DistributiveOmit, min } from '@xmatter/util-kit';
+import { Props } from '../CameraView';
 
-export type ChessboardContainerWithSizeProps = Omit<
+export type ChessboardContainerWithSizeProps = DistributiveOmit<
   ChessboardContainerProps,
   'sizePx'
 > & {
@@ -13,20 +14,21 @@ export type ChessboardContainerWithSizeProps = Omit<
 };
 
 export const ChessboardContainerWithSize = ({
-  sizePx,
+  sizePx = 0,
   ...props
 }: ChessboardContainerWithSizeProps) => {
-  if (sizePx) {
-    return <ChessboardContainer sizePx={sizePx} {...props} />;
-  }
+  // console.log('size', sizePx);
+  // if (sizePx) {
+    return <ChessboardContainer sizePx={sizePx} {...props} containerClassName='w-full h-full' />;
+  // }
 
-  return (
-    <ContainerWithDimensions
-      id="chessboard-container-with-size"
-      className="w-full h-full"
-      render={(d) => (
-        <ChessboardContainer {...props} sizePx={min(d.width, d.height)} />
-      )}
-    />
-  );
+  // return (
+  //   <ContainerWithDimensions
+  //     id="chessboard-container-with-size"
+  //     className="w-full h-full bg-blue-100"
+  //     render={(d) => (
+  //       <ChessboardContainer {...props} sizePx={min(d.width, d.height)} />
+  //     )}
+  //   />
+  // );
 };

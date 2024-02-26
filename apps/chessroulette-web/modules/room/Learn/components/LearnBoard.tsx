@@ -16,6 +16,7 @@ import {
 } from '@xmatter/util-kit';
 import { Square } from 'chess.js';
 import { ChessboardContainerProps } from 'apps/chessroulette-web/components/Chessboard/ChessboardContainer';
+import { IconButton } from 'apps/chessroulette-web/components/Button';
 
 type Props = Required<
   Pick<
@@ -23,9 +24,16 @@ type Props = Required<
     'onMove' | 'onArrowsChange' | 'onCircleDraw' | 'onClearCircles' | 'sizePx'
   >
 > &
+  // Optionals
+  Pick<ChessboardContainerProps, 'rightSideComponent' | 'rightSideClassName'> &
   ChapterBoardState & {
     notation?: ChapterState['notation'];
+    onFlip: () => void;
+    onClearBoard: () => void;
+    onResetBoard: () => void;
   };
+
+const RIGHT_SIDE_SIZE_PX = 32;
 
 export const LearnBoard = ({
   displayFen: fen,
@@ -34,6 +42,11 @@ export const LearnBoard = ({
   circlesMap,
   sizePx,
   notation,
+  rightSideComponent,
+  rightSideClassName,
+  onFlip,
+  onResetBoard,
+  onClearBoard,
   ...chessBoardProps
 }: Props) => {
   const settings = useLearnActivitySettings();
@@ -48,43 +61,64 @@ export const LearnBoard = ({
 
   const Board = settings.canMakeInvalidMoves ? Freeboard : Playboard;
 
+  // console.log('board sizePx', sizePx);
+
   return (
-    <>
-      <Board
-        containerClassName="shadow-2xl"
-        boardOrientation={orientation}
-        playingColor={orientation}
-        sizePx={sizePx}
-        fen={fen}
-        lastMove={lastMove}
-        inCheckSquares={inCheckSquaresMap}
-        arrowsMap={arrowsMap}
-        circlesMap={circlesMap}
-        {...chessBoardProps}
-      />
-      {/* <div className="flex flex-col pt-0 pb-0">
-                        {settings.canFlipBoard && (
-                          <IconButton
-                            icon="ArrowsUpDownIcon"
-                            iconKind="outline"
-                            type="clear"
-                            size="sm"
-                            tooltip="Flip Board"
-                            tooltipPositon="right"
-                            className="mb-2"
-                            onClick={() => {
-                              dispatch({
-                                type: 'changeBoardOrientation',
-                                payload:
-                                  activityState.boardOrientation === 'black'
-                                    ? 'white'
-                                    : 'black',
-                              });
-                            }}
-                          />
-                        )}
-                      </div> */}
-    </>
+    <Board
+      containerClassName="shadow-2xl"
+      boardOrientation={orientation}
+      playingColor={orientation}
+      sizePx={sizePx}
+      fen={fen}
+      lastMove={lastMove}
+      inCheckSquares={inCheckSquaresMap}
+      arrowsMap={arrowsMap}
+      circlesMap={circlesMap}
+      {...chessBoardProps}
+      rightSideSizePx={RIGHT_SIDE_SIZE_PX}
+      rightSideClassName={`flex flex-col ${rightSideClassName}`}
+      rightSideComponent={
+        <>
+          {settings.canFlipBoard && (
+            <IconButton
+              icon="ArrowsUpDownIcon"
+              iconKind="outline"
+              type="clear"
+              size="sm"
+              tooltip="Flip Board"
+              tooltipPositon="left"
+              className="mb-2"
+              onClick={onFlip}
+            />
+          )}
+          {settings.isInstructor && (
+            <>
+              <IconButton
+                icon="TrashIcon"
+                iconKind="outline"
+                type="clear"
+                size="sm"
+                tooltip="Clear Board"
+                tooltipPositon="left"
+                className="mb-2"
+                onClick={onClearBoard}
+              />
+              <IconButton
+                icon="ArrowPathIcon"
+                iconKind="outline"
+                type="clear"
+                size="sm"
+                tooltip="Start Position"
+                tooltipPositon="left"
+                className="mb-2"
+                onClick={onResetBoard}
+              />
+            </>
+          )}
+          {rightSideComponent}
+        </>
+      }
+    />
   );
 };
 

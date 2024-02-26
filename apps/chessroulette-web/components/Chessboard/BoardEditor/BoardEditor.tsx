@@ -35,6 +35,7 @@ export type BoardEditorProps = Pick<
   fen: ChessFEN;
   onUpdated: (fen: ChessFEN) => void;
   onFlipBoard: () => void;
+  onClose: () => void;
   sizePx: number;
 };
 
@@ -46,6 +47,7 @@ export const BoardEditor = ({
   sizePx,
   onUpdated,
   onFlipBoard,
+  onClose,
   ...props
 }: BoardEditorProps) => {
   const fenBoard = useInstance<ChessFENBoard>(new ChessFENBoard(fen));
@@ -240,6 +242,16 @@ export const BoardEditor = ({
           <div className="flex flex-col">
             <div className="flex flex-1 flex-col gap-2">
               <IconButton
+                icon="XCircleIcon"
+                // iconKind="outline"
+                type="custom"
+                tooltip="Close Board Editor"
+                tooltipPositon="right"
+                // iconColor=''
+                size="sm"
+                onClick={onClose}
+              />
+              <IconButton
                 icon="ArrowsUpDownIcon"
                 type="clear"
                 tooltip="Flip Board"
@@ -256,7 +268,7 @@ export const BoardEditor = ({
                 tooltipPositon="right"
                 size="sm"
                 onClick={() => {
-                  onUpdated('4k3/8/8/8/8/8/8/4K3 w - - 0 1');
+                  onUpdated(ChessFENBoard.ONLY_KINGS_FEN);
 
                   resetArrowsAndCircles();
                 }}

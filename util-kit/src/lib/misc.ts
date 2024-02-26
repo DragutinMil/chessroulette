@@ -76,4 +76,15 @@ export const isObject = (m: unknown): m is object =>
   m !== null && typeof m === 'object';
 
 export const max = (a: number, b: number) => (a > b ? a : b);
-export const min = (a: number, b: number) => (a < b ? a : b);
+export const min = (a: number, ...rest: number[]) => {
+  let res = a;
+
+  for (const val of rest) {
+    if (val < res) {
+      res = val;
+    }
+  }
+
+  return res;
+};
+// export const minAll = (a: number, b: number) => (a < b ? a : b);

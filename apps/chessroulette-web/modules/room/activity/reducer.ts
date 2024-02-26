@@ -6,6 +6,7 @@ import {
   ChessMove,
   ChessPGN,
   ChesscircleId,
+  DistributiveOmit,
   FBHHistory,
   FBHIndex,
   FBHMove,
@@ -134,7 +135,7 @@ export type ActivityActions =
       'updateChapter',
       {
         id: Chapter['id'];
-        state: Partial<Omit<ChapterState, 'notation'>>; // The notation is updateable via addMove or history actions only
+        state: Partial<DistributiveOmit<ChapterState, 'notation'>>; // The notation is updateable via addMove or history actions only
       }
     >
   | Action<'deleteChapter', { id: Chapter['id'] }>
@@ -145,13 +146,15 @@ export type ActivityActions =
   | Action<'loadedChapter:drawCircle', CircleDrawTuple>
   | Action<'loadedChapter:clearCircles'>
   | Action<'loadedChapter:setArrows', ArrowsMap>
+  | Action<'loadedChapter:setOrientation', ChessColor>
+  | Action<'loadedChapter:updateFen', ChessFEN>;
 
-  // Board
-  // Deprecate
-  | Action<'changeBoardOrientation', ChessColor>
-  | Action<'arrowChange', ArrowsMap>
-  | Action<'drawCircle', CircleDrawTuple>
-  | Action<'clearCircles'>;
+// Board
+// Deprecate
+// | Action<'changeBoardOrientation', ChessColor>
+// | Action<'arrowChange', ArrowsMap>
+// | Action<'drawCircle', CircleDrawTuple>
+// | Action<'clearCircles'>;
 
 // PART 3: The Reducer – This is where all the logic happens
 
@@ -459,6 +462,29 @@ export default (
     //     },
     //   };
     // }
+    if (action.type === 'loadedChapter:setOrientation') {
+      const prevChapter = findLoadedChapter(prev.activityState);
+
+      if (!prevChapter) {
+        console.error('No loaded chapter');
+        return prev;
+      }
+
+      const nextChapter: Chapter = {
+        ...prevChapter,
+        orientation: action.payload,
+      };
+
+      return {
+        ...prev,
+        activityState: {
+          ...prev.activityState,
+          chaptersMap: {
+            [nextChapter.id]: nextChapter,
+          },
+        },
+      };
+    }
     if (action.type === 'loadedChapter:setArrows') {
       const prevChapter = findLoadedChapter(prev.activityState);
 
@@ -515,7 +541,7 @@ export default (
         },
       };
     }
-    if (action.type === 'clearCircles') {
+    if (action.type === 'loadedChapter:updateFen') {
       const prevChapter = findLoadedChapter(prev.activityState);
 
       if (!prevChapter) {
@@ -525,7 +551,12 @@ export default (
 
       const nextChapter: Chapter = {
         ...prevChapter,
+        displayFen: action.payload,
+        arrowsMap: {},
         circlesMap: {},
+
+        // Ensure the notation resets each time there is an update (the starting fen might change)
+        notation: initialChapterState.notation,
       };
 
       return {
@@ -533,11 +564,36 @@ export default (
         activityState: {
           ...prev.activityState,
           chaptersMap: {
+            ...prev.activityState.chaptersMap,
             [nextChapter.id]: nextChapter,
           },
+          loadedChapterId: nextChapter.id,
         },
       };
     }
+    // if (action.type === 'clearCircles') {
+    //   const prevChapter = findLoadedChapter(prev.activityState);
+
+    //   if (!prevChapter) {
+    //     console.error('No loaded chapter');
+    //     return prev;
+    //   }
+
+    //   const nextChapter: Chapter = {
+    //     ...prevChapter,
+    //     circlesMap: {},
+    //   };
+
+    //   return {
+    //     ...prev,
+    //     activityState: {
+    //       ...prev.activityState,
+    //       chaptersMap: {
+    //         [nextChapter.id]: nextChapter,
+    //       },
+    //     },
+    //   };
+    // }
     if (action.type === 'createChapter') {
       const nextChapterIndex = prev.activityState.chaptersIndex + 1;
       const nextChapterId = String(nextChapterIndex);

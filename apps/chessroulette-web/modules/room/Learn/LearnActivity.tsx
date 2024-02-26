@@ -2,12 +2,10 @@
 
 import movexConfig from 'apps/chessroulette-web/movex.config';
 import { MovexBoundResourceFromConfig } from 'movex-react';
-import { min, noop, swapColor } from '@xmatter/util-kit';
+import { ChessFENBoard, min, noop, swapColor } from '@xmatter/util-kit';
 import { useEffect, useReducer, useRef, useState } from 'react';
-import { IconButton } from 'apps/chessroulette-web/components/Button';
 import { IceServerRecord } from 'apps/chessroulette-web/providers/PeerToPeerProvider/type';
 import { useLearnActivitySettings } from './useLearnActivitySettings';
-import { useDesktopRoomLayout } from './useDesktopRoomLayout';
 import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
 import {
   LearnActivityState,
@@ -22,6 +20,9 @@ import { LearnBoardEditor } from './components/LearnBoardEditor';
 import { LearnBoard } from './components/LearnBoard';
 import inputReducer, { initialInputState } from '../activity/inputReducer';
 import { ChapterDisplayView } from './chapters/ChapterDisplayView';
+import { useContainerDimensions } from 'apps/chessroulette-web/components/ContainerWithDimensions';
+import { Freeboard } from 'apps/chessroulette-web/components/Chessboard/Freeboard';
+import { IconButton } from 'apps/chessroulette-web/components/Button';
 
 export type LearnActivityProps = {
   roomId: string;
@@ -41,19 +42,58 @@ export const LearnActivity = ({
   participants,
   roomId,
   iceServers,
-  dispatch = noop,
+  dispatch: optionalDispatch,
 }: LearnActivityProps) => {
+  const dispatch = optionalDispatch || noop;
+
   const settings = useLearnActivitySettings();
   const containerRef = useRef(null);
-  const desktopLayout = useDesktopRoomLayout(containerRef, undefined, {
-    sideMinWidth: 420,
-  });
-  const [mainPanelRealSize, setMainPanelRealSize] = useState(0);
+  // const desktopLayout = useDesktopRoomLayout(containerRef, undefined, {
+  //   sideMinWidth: 420,
+  // });
+  const [mainPanelPercentageSize, setMainPanelPercentageSize] = useState(0);
   const [boardSize, setBoardSize] = useState(0);
 
+  const containerDimensions = useContainerDimensions(containerRef);
+
   useEffect(() => {
-    setBoardSize(min(desktopLayout.container.height, mainPanelRealSize));
-  }, [desktopLayout.main, mainPanelRealSize]);
+    if (!containerDimensions.updated) {
+      return;
+    }
+
+    const mainPanelSizePx =
+      (mainPanelPercentageSize / 100) * containerDimensions.width;
+
+    // console.log(
+    //   'min',
+    //   min(
+    //     containerDimensions.width,
+    //     containerDimensions.height,
+    //     mainPanelSizePx
+    //   ),
+    //   'cd width:',
+    //   containerDimensions.width,
+    //   'cd height:',
+    //   containerDimensions.height,
+    //   'mainPanelSize:',
+    //   mainPanelSizePx
+    // );
+
+    setBoardSize(min(containerDimensions.height, mainPanelSizePx));
+  }, [containerDimensions, mainPanelPercentageSize]);
+
+  // useEffect(() => {
+  //   // setBoardSize(min(desktopLayout.container.height, mainPanelRealSize));
+  //   console.log('desktopLayout.updated', desktopLayout.updated);
+  // }, [desktopLayout.updated]);
+
+  // useEffect(() => {
+  //   console.log('sizes', {
+  //     containerDimensions,
+  //     mainPanelPercentageSize,
+  //     boardSize,
+  //   });
+  // }, [containerDimensions, mainPanelPercentageSize, boardSize]);
 
   const [inputState, dispatchInputState] = useReducer(
     inputReducer,
@@ -63,8 +103,11 @@ export const LearnActivity = ({
   const currentChapter =
     findLoadedChapter(remoteState) || initialDefaultChapter;
 
+  // const [mainPanelWidth, setMainPanelWidth] = useState(0);
+
   return (
     <div
+      id="learn-activity-container"
       className="flex w-full h-full align-center justify-center"
       ref={containerRef}
     >
@@ -72,18 +115,10 @@ export const LearnActivity = ({
         <Panel
           defaultSize={70}
           className="flex justify-end"
-          onResize={(nextPct) => {
-            if (!desktopLayout.updated) {
-              return;
-            }
-
-            setMainPanelRealSize(
-              (nextPct / 100) * desktopLayout.container.width
-            );
-          }}
+          onResize={setMainPanelPercentageSize}
           tagName="main"
         >
-          {inputState.isActive ? (
+          {settings.isInstructor && inputState.isActive ? (
             // Preparing Mode
             <>
               {inputState.isBoardEditorShown ? (
@@ -111,12 +146,30 @@ export const LearnActivity = ({
                   onClearCircles={() => {
                     dispatchInputState({ type: 'clearCircles' });
                   }}
-                  onFlipBoard={() => {}}
+                  onFlipBoard={() => {
+                    // TODO: Fix this
+                    dispatchInputState({
+                      type: 'updatePartialChapter',
+                      payload: {
+                        orientation: swapColor(
+                          inputState.chapterState.orientation
+                        ),
+                      },
+                    });
+                  }}
+                  onClose={() => {
+                    dispatchInputState({
+                      type: 'update',
+                      payload: { isBoardEditorShown: false },
+                    });
+                  }}
                 />
               ) : (
-                <LearnBoard
+                <Freeboard
                   sizePx={boardSize}
                   {...inputState.chapterState}
+                  fen={inputState.chapterState.displayFen}
+                  boardOrientation={inputState.chapterState.orientation}
                   onMove={(move) => {
                     dispatchInputState({ type: 'move', payload: { move } });
 
@@ -139,6 +192,87 @@ export const LearnActivity = ({
                   onClearCircles={() => {
                     dispatchInputState({ type: 'clearCircles' });
                   }}
+                  rightSideSizePx={32} // TODO: This should come from the same place as the one for LearnBoard
+                  rightSideClassName="flex flex-col"
+                  rightSideComponent={
+                    <>
+                      <div className="flex-1">
+                        <IconButton
+                          icon="ArrowsUpDownIcon"
+                          iconKind="outline"
+                          type="clear"
+                          size="sm"
+                          tooltip="Flip Board"
+                          tooltipPositon="left"
+                          className="mb-2"
+                          onClick={() => {
+                            dispatchInputState({
+                              type: 'updatePartialChapter',
+                              payload: {
+                                orientation: swapColor(
+                                  inputState.chapterState.orientation
+                                ),
+                              },
+                            });
+                          }}
+                        />
+                        <IconButton
+                          icon="TrashIcon"
+                          iconKind="outline"
+                          type="clear"
+                          size="sm"
+                          tooltip="Clear Board"
+                          tooltipPositon="left"
+                          className="mb-2"
+                          onClick={() => {
+                            dispatchInputState({
+                              type: 'updateChapterFen',
+                              payload: { fen: ChessFENBoard.ONLY_KINGS_FEN },
+                            });
+                          }}
+                        />
+                        <IconButton
+                          icon="ArrowPathIcon"
+                          iconKind="outline"
+                          type="clear"
+                          size="sm"
+                          tooltip="Start Position"
+                          tooltipPositon="left"
+                          className="mb-2"
+                          onClick={() => {
+                            dispatchInputState({
+                              type: 'updateChapterFen',
+                              payload: { fen: ChessFENBoard.STARTING_FEN },
+                            });
+                          }}
+                        />
+
+                        <IconButton
+                          icon="PencilSquareIcon"
+                          iconKind="outline"
+                          type="clear"
+                          size="sm"
+                          tooltip="Board Editor"
+                          tooltipPositon="left"
+                          className="mb-2"
+                          onClick={() => {
+                            dispatchInputState({
+                              type: 'update',
+                              payload: { isBoardEditorShown: true },
+                            });
+                          }}
+                        />
+                      </div>
+
+                      <div className="relative flex flex-1 flex-col items-center justify-center">
+                        <PanelResizeHandle
+                          className="w-1 h-20 rounded-lg bg-slate-600"
+                          title="Resize"
+                        />
+                      </div>
+                      <div className="flex-1" />
+                    </>
+                  }
                 />
               )}
             </>
@@ -153,6 +287,12 @@ export const LearnActivity = ({
                   ? swapColor(currentChapter.orientation)
                   : currentChapter.orientation
               }
+              onFlip={() => {
+                dispatch({
+                  type: 'loadedChapter:setOrientation',
+                  payload: swapColor(currentChapter.orientation),
+                });
+              }}
               onMove={(payload) => {
                 // dispatch({ type: 'dropPiece', payload: { move } });
                 dispatch({ type: 'loadedChapter:addMove', payload });
@@ -172,42 +312,43 @@ export const LearnActivity = ({
               onClearCircles={() => {
                 dispatch({ type: 'loadedChapter:clearCircles' });
               }}
+              onClearBoard={() => {
+                dispatch({
+                  type: 'loadedChapter:updateFen',
+                  payload: ChessFENBoard.ONLY_KINGS_FEN,
+                });
+              }}
+              onResetBoard={() => {
+                dispatch({
+                  type: 'loadedChapter:updateFen',
+                  payload: ChessFENBoard.STARTING_FEN,
+                });
+              }}
+              rightSideClassName="flex-1"
+              rightSideComponent={
+                <div className="relative flex flex-1 flex-col items-center justify-center">
+                  <PanelResizeHandle
+                    className="w-1 h-20 rounded-lg bg-slate-600"
+                    title="Resize"
+                  />
+                </div>
+              }
             />
           )}
         </Panel>
-        <div className="w-8 sbg-blue-100 relative flex flex-col items-center justify-center">
-          <div className="flex-1">
-            {/* // TODO: bring it back somethow  */}
-            {/* {settings.canFlipBoard && (
-              <IconButton
-                icon="ArrowsUpDownIcon"
-                iconKind="outline"
-                type="clear"
-                size="sm"
-                tooltip="Flip Board"
-                tooltipPositon="right"
-                className="mb-2"
-                onClick={() => {
-                  // dispatch({
-                  //   type: 'changeBoardOrientation',
-                  //   payload:
-                  //     activityState.boardOrientation === 'black'
-                  //       ? 'white'
-                  //       : 'black',
-                  // });
-                }}
-              />
-            )} */}
-          </div>
-
+        {/* ) : (
+          <Panel defaultSize={70} />
+        )} */}
+        {/* <div className="sbg-blue-100 relative flex flex-col items-center justify-center">
+          <div className="flex-1" />
           <PanelResizeHandle
             className="w-1 h-20 rounded-lg bg-slate-600"
             title="Resize"
           />
           <div className="flex-1" />
-        </div>
+        </div> */}
         <Panel defaultSize={33} minSize={33} maxSize={40} tagName="aside">
-          <div className="flex flex-col space-between w-full relative sbg-red-100 h-full">
+          <div className="flex flex-col space-between w-full relative h-full">
             <div className="flex flex-col flex-1 min-h-0 gap-4">
               <div className="overflow-hidden rounded-lg shadow-2xl">
                 <CameraPanel
@@ -215,12 +356,21 @@ export const LearnActivity = ({
                   userId={userId}
                   peerGroupId={roomId}
                   iceServers={iceServers}
-                  aspectRatio={16/9}
+                  aspectRatio={16 / 9}
                 />
               </div>
 
               {/* {inputState.isActive ? 'active' : 'not active'} */}
-              <ChapterDisplayView chapter={currentChapter} />
+              {inputState.isActive ? (
+                <div className="flex gap-2">
+                  <span className="capitalize">Editing</span>
+                  <span className="font-bold">
+                    "{inputState.chapterState.name}"
+                  </span>
+                </div>
+              ) : (
+                <ChapterDisplayView chapter={currentChapter} />
+              )}
               <WidgetPanel
                 currentChapterState={currentChapter}
                 chaptersMap={remoteState?.chaptersMap || {}}

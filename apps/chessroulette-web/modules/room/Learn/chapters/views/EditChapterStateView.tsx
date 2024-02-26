@@ -279,7 +279,7 @@ export const EditChapterStateView = ({
         />
       </div>
 
-      <div className="flex flex-col gap-3">
+      {/* <div className="flex flex-col gap-3">
         <label className="font-bold text-sm text-gray-400">Board</label>
 
         <div className="flex gap-3 sjustify-between">
@@ -288,9 +288,6 @@ export const EditChapterStateView = ({
             type="secondary"
             onClick={() => {
               partialUpdate({ displayFen: ChessFENBoard.ONLY_KINGS_FEN });
-
-              // TODO: Bring this back
-              // onClearArrowsAndCircles();
             }}
             icon="TrashIcon"
             iconKind="outline"
@@ -302,16 +299,12 @@ export const EditChapterStateView = ({
             type="secondary"
             onClick={() => {
               partialUpdate({ displayFen: ChessFENBoard.STARTING_FEN });
-
-              // TODO: Bring this back as well
-              // onClearArrowsAndCircles();
             }}
             icon="ArrowPathIcon"
             iconKind="outline"
           >
             Start Position
           </Button>
-          {/* <div className="flex-1" /> */}
           {isBoardEditorShown ? (
             <Button
               size="sm"
@@ -334,7 +327,7 @@ export const EditChapterStateView = ({
             </Button>
           )}
         </div>
-      </div>
+      </div> */}
 
       <FenPreview fen={state.displayFen} />
     </div>

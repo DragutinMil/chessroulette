@@ -2,7 +2,6 @@ import {
   BoardEditorProps,
   BoardEditorWithSize,
 } from 'apps/chessroulette-web/components/Chessboard/BoardEditor';
-import { ChessFEN, Ensure, swapColor } from '@xmatter/util-kit';
 import { ChapterBoardState } from '../../activity/reducer';
 
 export type LearnBoardEditorProps = {
@@ -18,6 +17,7 @@ export type LearnBoardEditorProps = {
     | 'onFlipBoard'
     | 'onCircleDraw'
     | 'onArrowsChange'
+    | 'onClose'
   >
 >;
 

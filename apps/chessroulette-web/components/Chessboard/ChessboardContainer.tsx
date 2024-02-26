@@ -22,7 +22,6 @@ import {
   fenBoardPieceSymbolToDetailedChessPiece,
   isPromotableMove,
   pieceSanToPiece,
-  pieceToPieceSan,
 } from 'util-kit/src/lib/ChessFENBoard/chessUtils';
 import {
   ArrowsMap,
@@ -58,7 +57,18 @@ export type ChessboardContainerProps = Omit<
   onArrowsChange?: (arrows: ArrowsMap) => void;
   onCircleDraw?: (circleTuple: CircleDrawTuple) => void;
   onClearCircles?: () => void;
-};
+} & (
+    | {
+        rightSideComponent: React.ReactNode;
+        rightSideSizePx: number;
+        rightSideClassName?: string;
+      }
+    | {
+        rightSideComponent?: undefined;
+        rightSideSizePx?: undefined;
+        rightSideClassName?: undefined;
+      }
+  );
 
 export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
   fen,
@@ -72,6 +82,9 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
   boardOrientation = 'white',
   containerClassName,
   customSquareStyles,
+  rightSideComponent,
+  rightSideSizePx = 0,
+  rightSideClassName,
   ...props
 }) => {
   const boardTheme = useBoardTheme();
@@ -334,73 +347,91 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
 
   return (
     <div
-      className={`relative overflow-hidden rounded-lg ${containerClassName}`}
+      id="chessboard-container"
+      className="flex"
       style={{
         width: props.sizePx,
-        height: props.sizePx,
+        height: props.sizePx - rightSideSizePx,
       }}
     >
-      <Chessboard
-        id="Chessboard" // TODO: should this be unique per instance?
-        position={fen}
-        boardWidth={props.sizePx}
-        showBoardNotation
-        boardOrientation={toLongColor(boardOrientation)}
-        snapToCursor={false}
-        arePiecesDraggable
-        customBoardStyle={customStyles.customBoardStyle}
-        customLightSquareStyle={customStyles.customLightSquareStyle}
-        customDarkSquareStyle={customStyles.customDarkSquareStyle}
-        customSquare={ChessboardSquare}
-        onPieceDrop={(from, to, p) => {
-          onPieceDrop(from, to, p);
-
-          // As long as the on PromotionPieceSelect is present this doesn't get triggered with a pieceSelect
-          return !!onMove({ from, to });
+      <div
+        className={`relative overflow-hidden rounded-lg bg-purple-100 h-full ${containerClassName}`}
+        style={{
+          width: props.sizePx - rightSideSizePx,
         }}
-        onSquareClick={(sq) => {
-          onSquareClick(sq);
+      >
+        <Chessboard
+          id="Chessboard" // TODO: should this be unique per instance?
+          position={fen}
+          boardWidth={props.sizePx - rightSideSizePx}
+          // boardWidth={600}
+          showBoardNotation
+          boardOrientation={toLongColor(boardOrientation)}
+          snapToCursor={false}
+          arePiecesDraggable
+          customBoardStyle={customStyles.customBoardStyle}
+          customLightSquareStyle={customStyles.customLightSquareStyle}
+          customDarkSquareStyle={customStyles.customDarkSquareStyle}
+          customSquare={ChessboardSquare}
+          onPieceDrop={(from, to, p) => {
+            onPieceDrop(from, to, p);
 
-          // Reset the Arrows and Circles if present
-          if (circlesMap && Object.keys(circlesMap).length > 0) {
-            resetCircles();
-          }
+            // As long as the on PromotionPieceSelect is present this doesn't get triggered with a pieceSelect
+            return !!onMove({ from, to });
+          }}
+          onSquareClick={(sq) => {
+            onSquareClick(sq);
 
-          if (props.arrowsMap && Object.keys(props.arrowsMap).length > 0) {
-            resetArrows();
+            // Reset the Arrows and Circles if present
+            if (circlesMap && Object.keys(circlesMap).length > 0) {
+              resetCircles();
+            }
+
+            if (props.arrowsMap && Object.keys(props.arrowsMap).length > 0) {
+              resetArrows();
+            }
+          }}
+          customSquareStyles={mergedCustomSquareStyles}
+          customArrows={arrowsToRender}
+          autoPromoteToQueen={false}
+          onPromotionCheck={(from, to, pieceSan) =>
+            onPromotionCheck(from, to, pieceSanToPiece(pieceSan))
           }
+          onPromotionPieceSelect={(promoteTo) => {
+            if (!promoMove) {
+              return false;
+            }
+
+            if (promoteTo === undefined) {
+              setPromoMove(undefined);
+
+              return false;
+            }
+
+            return !!onMove({
+              ...promoMove,
+              promoteTo,
+            });
+          }}
+          customArrowColor={arrowColor}
+          onArrowsChange={onArrowsChangeAfterMount}
+          onSquareRightClick={onSquareRightClick}
+          customPieces={boardTheme.customPieces}
+          promotionDialogVariant="vertical"
+          promotionToSquare={promoMove?.to}
+          showPromotionDialog={!!promoMove?.to}
+          {...props}
+        />
+      </div>
+      <div
+        className={`w-full relative ${rightSideClassName}`}
+        style={{
+          width: rightSideSizePx,
+          height: '100%',
         }}
-        customSquareStyles={mergedCustomSquareStyles}
-        customArrows={arrowsToRender}
-        autoPromoteToQueen={false}
-        onPromotionCheck={(from, to, pieceSan) =>
-          onPromotionCheck(from, to, pieceSanToPiece(pieceSan))
-        }
-        onPromotionPieceSelect={(promoteTo) => {
-          if (!promoMove) {
-            return false;
-          }
-
-          if (promoteTo === undefined) {
-            setPromoMove(undefined);
-
-            return false;
-          }
-
-          return !!onMove({
-            ...promoMove,
-            promoteTo,
-          });
-        }}
-        customArrowColor={arrowColor}
-        onArrowsChange={onArrowsChangeAfterMount}
-        onSquareRightClick={onSquareRightClick}
-        customPieces={boardTheme.customPieces}
-        promotionDialogVariant="vertical"
-        promotionToSquare={promoMove?.to}
-        showPromotionDialog={!!promoMove?.to}
-        {...props}
-      />
+      >
+        {rightSideComponent}
+      </div>
     </div>
   );
 };
