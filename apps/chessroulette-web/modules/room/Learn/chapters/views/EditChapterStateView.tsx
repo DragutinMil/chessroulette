@@ -267,23 +267,7 @@ export const EditChapterStateView = ({
 
       <div className="flex items-center gap-3">
         <label className="font-bold text-sm text-gray-400">Import</label>
-        <PgnInputBox
-          compact
-          containerClassName="flex-1"
-          onChange={onImport}
-          // onChange={({ type, input }) => {
-          //   if (type === 'FEN') {
-
-          //   }
-
-          //   partialUpdate({
-          //     displayFen:
-          //       type === 'FEN'
-          //         ? fenOrPgn
-          //         : getNewChessGame({ pgn: fenOrPgn }).fen(),
-          //   });
-          // }}
-        />
+        <PgnInputBox compact containerClassName="flex-1" onChange={onImport} />
       </div>
 
       {/* <div className="flex flex-col gap-3">

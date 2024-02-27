@@ -61,6 +61,10 @@ export const WidgetPanel = ({
             ...prev,
             tab: String(tabIndex),
           }));
+
+          // Deactivate the Input Mode aytime the tabs refocuses (NOT SURE IT APPLIES WITH EACH TAB, but so far it works)
+          // Added on Feb 26 2024
+          chapterTabsProps.onDeactivateInputMode();
         }}
         renderContainerHeader={({ tabs }) => (
           <div className="flex flex-row gap-3 pb-3 border-b border-slate-600">
