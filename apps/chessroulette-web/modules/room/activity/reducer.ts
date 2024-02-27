@@ -541,6 +541,29 @@ export default (
         },
       };
     }
+    if (action.type === 'loadedChapter:clearCircles') {
+      const prevChapter = findLoadedChapter(prev.activityState);
+
+      if (!prevChapter) {
+        console.error('No loaded chapter');
+        return prev;
+      }
+
+      const nextChapter: Chapter = {
+        ...prevChapter,
+        circlesMap: {},
+      };
+
+      return {
+        ...prev,
+        activityState: {
+          ...prev.activityState,
+          chaptersMap: {
+            [nextChapter.id]: nextChapter,
+          },
+        },
+      };
+    }
     if (action.type === 'loadedChapter:updateFen') {
       const prevChapter = findLoadedChapter(prev.activityState);
 
