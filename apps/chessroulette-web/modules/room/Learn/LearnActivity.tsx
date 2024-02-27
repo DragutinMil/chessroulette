@@ -355,10 +355,10 @@ export const LearnActivity = ({
           onResize={setRightSidePct}
         >
           <div className="flex flex-col flex-1 min-h-0 gap-4">
-            <div className="overflow-hidden rounded-lg shadow-2xl">
-              {participants && participants[userId] && (
-                // This needs to show only when the user is a participants
-                // otherwise it's too soon and won't connect to the Peers
+            {participants && participants[userId] && (
+              <div className="overflow-hidden rounded-lg shadow-2xl">
+                {/* // This needs to show only when the user is a participants //
+                otherwise it's too soon and won't connect to the Peers */}
                 <CameraPanel
                   participants={participants}
                   userId={userId}
@@ -366,8 +366,8 @@ export const LearnActivity = ({
                   iceServers={iceServers}
                   aspectRatio={16 / 9}
                 />
-              )}
-            </div>
+              </div>
+            )}
 
             {/* {inputState.isActive ? 'active' : 'not active'} */}
             {inputState.isActive ? (
