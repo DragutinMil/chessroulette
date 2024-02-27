@@ -6,6 +6,7 @@ import {
   ChessFEN,
   ChessFENBoard,
   ChessPGN,
+  max,
   noop,
   swapColor,
 } from '@xmatter/util-kit';
@@ -62,6 +63,9 @@ export const LearnActivity = ({
   const [negativeMargin, setNegativeMargin] = useState(0);
   const [rightSidePct, setRightSidePct] = useState(0);
 
+  // TODO: This is a WIP - needs refactoring and clearing
+  //  especially around the negativeMargin, centering and determinging the new board Size with a right side,
+  //  as well as defining the tight side as a constant
   useEffect(() => {
     if (!containerDimensions.updated) {
       return;
@@ -84,7 +88,11 @@ export const LearnActivity = ({
     const rightPanelWidthPx = (rightSidePct / 100) * containerDimensions.width;
 
     setNegativeMargin(
-      (containerDimensions.width - (nextBoardSize + rightPanelWidthPx)) / 2
+      max(
+        (containerDimensions.width - (nextBoardSize + rightPanelWidthPx)) / 2 -
+          8, // TODO: Why 8 here? Need to rework all of this logic once the major bugs are fixed!
+        0
+      )
     );
   }, [containerDimensions, mainPanelPercentageSize, rightSidePct]);
 
@@ -199,7 +207,7 @@ export const LearnActivity = ({
                   onClearCircles={() => {
                     dispatchInputState({ type: 'clearCircles' });
                   }}
-                  rightSideSizePx={32} // TODO: This should come from the same place as the one for LearnBoard
+                  rightSideSizePx={RIGHT_SIDE_SIZE_PX}
                   rightSideClassName="flex flex-col"
                   rightSideComponent={
                     <>

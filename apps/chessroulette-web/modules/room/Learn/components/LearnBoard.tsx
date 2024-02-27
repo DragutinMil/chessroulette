@@ -79,42 +79,44 @@ export const LearnBoard = ({
       rightSideClassName={`flex flex-col ${rightSideClassName}`}
       rightSideComponent={
         <>
-          {settings.canFlipBoard && (
-            <IconButton
-              icon="ArrowsUpDownIcon"
-              iconKind="outline"
-              type="clear"
-              size="sm"
-              tooltip="Flip Board"
-              tooltipPositon="left"
-              className="mb-2"
-              onClick={onFlip}
-            />
-          )}
-          {settings.isInstructor && (
-            <div className='flex-1'>
+          <div className="flex-1">
+            {settings.canFlipBoard && (
               <IconButton
-                icon="TrashIcon"
+                icon="ArrowsUpDownIcon"
                 iconKind="outline"
                 type="clear"
                 size="sm"
-                tooltip="Clear Board"
+                tooltip="Flip Board"
                 tooltipPositon="left"
                 className="mb-2"
-                onClick={onClearBoard}
+                onClick={onFlip}
               />
-              <IconButton
-                icon="ArrowPathIcon"
-                iconKind="outline"
-                type="clear"
-                size="sm"
-                tooltip="Start Position"
-                tooltipPositon="left"
-                className="mb-2"
-                onClick={onResetBoard}
-              />
-            </div>
-          )}
+            )}
+            {settings.isInstructor && (
+              <>
+                <IconButton
+                  icon="TrashIcon"
+                  iconKind="outline"
+                  type="clear"
+                  size="sm"
+                  tooltip="Clear Board"
+                  tooltipPositon="left"
+                  className="mb-2"
+                  onClick={onClearBoard}
+                />
+                <IconButton
+                  icon="ArrowPathIcon"
+                  iconKind="outline"
+                  type="clear"
+                  size="sm"
+                  tooltip="Start Position"
+                  tooltipPositon="left"
+                  className="mb-2"
+                  onClick={onResetBoard}
+                />
+              </>
+            )}
+          </div>
           {rightSideComponent}
         </>
       }
