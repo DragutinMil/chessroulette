@@ -2,7 +2,7 @@
 
 import movexConfig from 'apps/chessroulette-web/movex.config';
 import { MovexBoundResourceFromConfig } from 'movex-react';
-import { ChessFENBoard, min, noop, swapColor } from '@xmatter/util-kit';
+import { ChessFENBoard, noop, swapColor } from '@xmatter/util-kit';
 import { useEffect, useReducer, useRef, useState } from 'react';
 import { IceServerRecord } from 'apps/chessroulette-web/providers/PeerToPeerProvider/type';
 import { useLearnActivitySettings } from './useLearnActivitySettings';
@@ -17,7 +17,7 @@ import { UserId } from '../../user/type';
 import { CameraPanel } from './components/CameraPanel';
 import { RoomState } from '../movex/reducer';
 import { LearnBoardEditor } from './components/LearnBoardEditor';
-import { LearnBoard } from './components/LearnBoard';
+import { LearnBoard, RIGHT_SIDE_SIZE_PX } from './components/LearnBoard';
 import inputReducer, { initialInputState } from '../activity/inputReducer';
 import { ChapterDisplayView } from './chapters/ChapterDisplayView';
 import { useContainerDimensions } from 'apps/chessroulette-web/components/ContainerWithDimensions';
@@ -48,9 +48,6 @@ export const LearnActivity = ({
 
   const settings = useLearnActivitySettings();
   const containerRef = useRef(null);
-  // const desktopLayout = useDesktopRoomLayout(containerRef, undefined, {
-  //   sideMinWidth: 420,
-  // });
   const [mainPanelPercentageSize, setMainPanelPercentageSize] = useState(0);
   const [boardSize, setBoardSize] = useState(0);
 
@@ -61,39 +58,18 @@ export const LearnActivity = ({
       return;
     }
 
-    const mainPanelSizePx =
+    const mainPanelWidthPx =
       (mainPanelPercentageSize / 100) * containerDimensions.width;
 
-    // console.log(
-    //   'min',
-    //   min(
-    //     containerDimensions.width,
-    //     containerDimensions.height,
-    //     mainPanelSizePx
-    //   ),
-    //   'cd width:',
-    //   containerDimensions.width,
-    //   'cd height:',
-    //   containerDimensions.height,
-    //   'mainPanelSize:',
-    //   mainPanelSizePx
-    // );
-
-    setBoardSize(min(containerDimensions.height, mainPanelSizePx));
+    if (containerDimensions.height < mainPanelWidthPx) {
+      // If the height is smaller than the main panel's width, use that
+      setBoardSize(containerDimensions.height);
+    } else {
+      // otherwise use the totality of the main panel - the side (32px)
+      // TODO: Refactor the usage of RIGHT_SIDE_SIZE_PX
+      setBoardSize(mainPanelWidthPx - RIGHT_SIDE_SIZE_PX);
+    }
   }, [containerDimensions, mainPanelPercentageSize]);
-
-  // useEffect(() => {
-  //   // setBoardSize(min(desktopLayout.container.height, mainPanelRealSize));
-  //   console.log('desktopLayout.updated', desktopLayout.updated);
-  // }, [desktopLayout.updated]);
-
-  // useEffect(() => {
-  //   console.log('sizes', {
-  //     containerDimensions,
-  //     mainPanelPercentageSize,
-  //     boardSize,
-  //   });
-  // }, [containerDimensions, mainPanelPercentageSize, boardSize]);
 
   const [inputState, dispatchInputState] = useReducer(
     inputReducer,
@@ -103,20 +79,26 @@ export const LearnActivity = ({
   const currentChapter =
     findLoadedChapter(remoteState) || initialDefaultChapter;
 
-  // const [mainPanelWidth, setMainPanelWidth] = useState(0);
-
   return (
     <div
       id="learn-activity-container"
-      className="flex w-full h-full align-center justify-center"
+      className="flex w-full h-full align-center justify-center sbg-red-100"
       ref={containerRef}
     >
-      <PanelGroup autoSaveId="learn-activity" direction="horizontal">
+      <PanelGroup
+        autoSaveId="learn-activity"
+        direction="horizontal"
+        className="sbg-green-500"
+      >
         <Panel
           defaultSize={70}
-          className="flex justify-end"
+          className="flex sjustify-end justify-center"
           onResize={setMainPanelPercentageSize}
           tagName="main"
+          style={{
+            // refactor this to not have to use RIGHT_SIDE_SIZE_PX in so many places
+            paddingRight: RIGHT_SIDE_SIZE_PX,
+          }}
         >
           {settings.isInstructor && inputState.isActive ? (
             // Preparing Mode
@@ -173,7 +155,6 @@ export const LearnActivity = ({
                   onMove={(move) => {
                     dispatchInputState({ type: 'move', payload: { move } });
 
-                    // onUpdateInputState()
                     // TODO: This can be returned from a more internal component
                     return true;
                   }}
@@ -264,7 +245,7 @@ export const LearnActivity = ({
                         />
                       </div>
 
-                      <div className="relative flex flex-1 flex-col items-center justify-center">
+                      <div className="relative flex flex-col items-center justify-center">
                         <PanelResizeHandle
                           className="w-1 h-20 rounded-lg bg-slate-600"
                           title="Resize"
@@ -326,112 +307,108 @@ export const LearnActivity = ({
               }}
               rightSideClassName="flex-1"
               rightSideComponent={
+                <>
                 <div className="relative flex flex-1 flex-col items-center justify-center">
                   <PanelResizeHandle
                     className="w-1 h-20 rounded-lg bg-slate-600"
                     title="Resize"
                   />
                 </div>
+                <div className='flex-1' />
+                </>
               }
             />
           )}
         </Panel>
-        {/* ) : (
-          <Panel defaultSize={70} />
-        )} */}
-        {/* <div className="sbg-blue-100 relative flex flex-col items-center justify-center">
-          <div className="flex-1" />
-          <PanelResizeHandle
-            className="w-1 h-20 rounded-lg bg-slate-600"
-            title="Resize"
-          />
-          <div className="flex-1" />
-        </div> */}
-        <Panel defaultSize={33} minSize={33} maxSize={40} tagName="aside">
-          <div className="flex flex-col space-between w-full relative h-full">
-            <div className="flex flex-col flex-1 min-h-0 gap-4">
-              <div className="overflow-hidden rounded-lg shadow-2xl">
-                <CameraPanel
-                  participants={participants}
-                  userId={userId}
-                  peerGroupId={roomId}
-                  iceServers={iceServers}
-                  aspectRatio={16 / 9}
-                />
-              </div>
-
-              {/* {inputState.isActive ? 'active' : 'not active'} */}
-              {inputState.isActive ? (
-                <div className="flex gap-2">
-                  <span className="capitalize">Editing</span>
-                  <span className="font-bold">
-                    "{inputState.chapterState.name}"
-                  </span>
-                </div>
-              ) : (
-                <ChapterDisplayView chapter={currentChapter} />
-              )}
-              <WidgetPanel
-                currentChapterState={currentChapter}
-                chaptersMap={remoteState?.chaptersMap || {}}
-                inputModeState={inputState}
-                chaptersMapIndex={remoteState?.chaptersIndex || 0}
-                currentLoadedChapterId={remoteState?.loadedChapterId}
-                onActivateInputMode={(payload) => {
-                  dispatchInputState({ type: 'activate', payload });
-                }}
-                onDeactivateInputMode={() => {
-                  dispatchInputState({ type: 'deactivate' });
-                }}
-                onUpdateInputModeState={(payload) => {
-                  dispatchInputState({ type: 'update', payload });
-                }}
-                onHistoryNotationRefocus={(payload) => {
-                  dispatch({
-                    type: 'loadedChapter:focusHistoryIndex',
-                    payload,
-                  });
-                }}
-                onHistoryNotationDelete={(payload) => {
-                  dispatch({
-                    type: 'loadedChapter:deleteHistoryMove',
-                    payload,
-                  });
-                }}
-                onImport={() => {}}
-                onCreateChapter={() => {
-                  if (inputState.isActive) {
-                    dispatch({
-                      type: 'createChapter',
-                      payload: inputState.chapterState,
-                    });
-                  }
-                }}
-                onUpdateChapter={(id) => {
-                  if (inputState.isActive) {
-                    dispatch({
-                      type: 'updateChapter',
-                      payload: {
-                        id,
-                        state: inputState.chapterState,
-                      },
-                    });
-                  }
-                }}
-                onDeleteChapter={(id) => {
-                  dispatch({
-                    type: 'deleteChapter',
-                    payload: { id },
-                  });
-                }}
-                onLoadChapter={(id) => {
-                  dispatch({
-                    type: 'loadChapter',
-                    payload: { id },
-                  });
-                }}
+        <Panel
+          defaultSize={33}
+          minSize={33}
+          maxSize={40}
+          tagName="aside"
+          className="flex flex-col space-between w-full relative h-full"
+        >
+          <div className="flex flex-col flex-1 min-h-0 gap-4">
+            <div className="overflow-hidden rounded-lg shadow-2xl">
+              <CameraPanel
+                participants={participants}
+                userId={userId}
+                peerGroupId={roomId}
+                iceServers={iceServers}
+                aspectRatio={16 / 9}
               />
             </div>
+
+            {/* {inputState.isActive ? 'active' : 'not active'} */}
+            {inputState.isActive ? (
+              <div className="flex gap-2">
+                <span className="capitalize">Editing</span>
+                <span className="font-bold">
+                  "{inputState.chapterState.name}"
+                </span>
+              </div>
+            ) : (
+              <ChapterDisplayView chapter={currentChapter} />
+            )}
+            <WidgetPanel
+              currentChapterState={currentChapter}
+              chaptersMap={remoteState?.chaptersMap || {}}
+              inputModeState={inputState}
+              chaptersMapIndex={remoteState?.chaptersIndex || 0}
+              currentLoadedChapterId={remoteState?.loadedChapterId}
+              onActivateInputMode={(payload) => {
+                dispatchInputState({ type: 'activate', payload });
+              }}
+              onDeactivateInputMode={() => {
+                dispatchInputState({ type: 'deactivate' });
+              }}
+              onUpdateInputModeState={(payload) => {
+                dispatchInputState({ type: 'update', payload });
+              }}
+              onHistoryNotationRefocus={(payload) => {
+                dispatch({
+                  type: 'loadedChapter:focusHistoryIndex',
+                  payload,
+                });
+              }}
+              onHistoryNotationDelete={(payload) => {
+                dispatch({
+                  type: 'loadedChapter:deleteHistoryMove',
+                  payload,
+                });
+              }}
+              onImport={() => {}}
+              onCreateChapter={() => {
+                if (inputState.isActive) {
+                  dispatch({
+                    type: 'createChapter',
+                    payload: inputState.chapterState,
+                  });
+                }
+              }}
+              onUpdateChapter={(id) => {
+                if (inputState.isActive) {
+                  dispatch({
+                    type: 'updateChapter',
+                    payload: {
+                      id,
+                      state: inputState.chapterState,
+                    },
+                  });
+                }
+              }}
+              onDeleteChapter={(id) => {
+                dispatch({
+                  type: 'deleteChapter',
+                  payload: { id },
+                });
+              }}
+              onLoadChapter={(id) => {
+                dispatch({
+                  type: 'loadChapter',
+                  payload: { id },
+                });
+              }}
+            />
           </div>
         </Panel>
       </PanelGroup>

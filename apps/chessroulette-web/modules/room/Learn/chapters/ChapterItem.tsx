@@ -2,8 +2,6 @@ import { Chapter } from '../../activity/reducer';
 import { IconButton } from 'apps/chessroulette-web/components/Button';
 import { QuickConfirmButton } from 'apps/chessroulette-web/components/Button/QuickConfirmButton';
 import { Icon } from 'apps/chessroulette-web/components/Icon';
-import { PreviewChessboardContainer } from 'apps/chessroulette-web/components/PreviewChessboard/PreviewChessboardContainer';
-import { useState } from 'react';
 
 export type Props = {
   chapter: Chapter;
@@ -27,13 +25,11 @@ export const ChapterItem = ({
   return (
     <div
       key={chapter.id}
-      className={`flex flex-1 gap-2 hover:cursor-pointer hover:bg-slate-600 p-2 py-3 srounded-lg border-b slast:border-0 border-slate-600 ${
+      className={`flex flex-1 gap-2 hover:cursor-pointer hover:bg-slate-600 p-2 py-3 rounded-xl border-b slast:border-0 border-slate-600 ${
         isActive ? 'bg-slate-600 ' : ''
       } ${className}`}
       title={`Load "${chapter.name}"`}
       onClick={onLoadClick}
-      // onMouseEnter={() => setIsHovered(true)}
-      // onMouseLeave={() => setIsHovered(false)}
     >
       <span className="text-sm flex-1 flex items-center group relative">
         {chapter.name}

@@ -345,25 +345,35 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
     pendingMove?.from,
   ]);
 
+  if (props.sizePx === 0) {
+    return null;
+  }
+
   return (
     <div
       id="chessboard-container"
       className="flex"
       style={{
-        width: props.sizePx,
-        height: props.sizePx - rightSideSizePx,
+        // width: props.sizePx,
+        // height: props.sizePx - rightSideSizePx,
+        height: props.sizePx + rightSideSizePx,
+        width: props.sizePx + rightSideSizePx,
+        marginRight: -rightSideSizePx,
+        marginBottom: -rightSideSizePx,
       }}
     >
       <div
-        className={`relative overflow-hidden rounded-lg bg-purple-100 h-full ${containerClassName}`}
+        className={`relative overflow-hidden rounded-lg w-full h-full ${containerClassName}`}
         style={{
-          width: props.sizePx - rightSideSizePx,
+          width: props.sizePx,
+          height: props.sizePx,
         }}
       >
         <Chessboard
           id="Chessboard" // TODO: should this be unique per instance?
           position={fen}
-          boardWidth={props.sizePx - rightSideSizePx}
+          // boardWidth={props.sizePx - rightSideSizePx}
+          boardWidth={props.sizePx}
           // boardWidth={600}
           showBoardNotation
           boardOrientation={toLongColor(boardOrientation)}
@@ -424,10 +434,9 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
         />
       </div>
       <div
-        className={`w-full relative ${rightSideClassName}`}
+        className={`w-full relative h-full ${rightSideClassName}`}
         style={{
           width: rightSideSizePx,
-          height: '100%',
         }}
       >
         {rightSideComponent}

@@ -33,7 +33,7 @@ type Props = Required<
     onResetBoard: () => void;
   };
 
-const RIGHT_SIDE_SIZE_PX = 32;
+export const RIGHT_SIDE_SIZE_PX = 32;
 
 export const LearnBoard = ({
   displayFen: fen,
@@ -92,7 +92,7 @@ export const LearnBoard = ({
             />
           )}
           {settings.isInstructor && (
-            <>
+            <div className='flex-1'>
               <IconButton
                 icon="TrashIcon"
                 iconKind="outline"
@@ -113,7 +113,7 @@ export const LearnBoard = ({
                 className="mb-2"
                 onClick={onResetBoard}
               />
-            </>
+            </div>
           )}
           {rightSideComponent}
         </>
