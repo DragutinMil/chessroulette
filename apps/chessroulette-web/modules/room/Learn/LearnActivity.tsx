@@ -2,14 +2,7 @@
 
 import movexConfig from 'apps/chessroulette-web/movex.config';
 import { MovexBoundResourceFromConfig } from 'movex-react';
-import {
-  ChessFEN,
-  ChessFENBoard,
-  ChessPGN,
-  max,
-  noop,
-  swapColor,
-} from '@xmatter/util-kit';
+import { ChessFENBoard, max, noop, swapColor } from '@xmatter/util-kit';
 import { useEffect, useReducer, useRef, useState } from 'react';
 import { IceServerRecord } from 'apps/chessroulette-web/providers/PeerToPeerProvider/type';
 import { useLearnActivitySettings } from './useLearnActivitySettings';
@@ -35,7 +28,7 @@ export type LearnActivityProps = {
   roomId: string;
   userId: UserId;
   iceServers: IceServerRecord[];
-  participants: RoomState['participants'];
+  participants?: RoomState['participants'];
   remoteState: LearnActivityState['activityState'];
   dispatch?: MovexBoundResourceFromConfig<
     (typeof movexConfig)['resources'],
@@ -363,13 +356,17 @@ export const LearnActivity = ({
         >
           <div className="flex flex-col flex-1 min-h-0 gap-4">
             <div className="overflow-hidden rounded-lg shadow-2xl">
-              <CameraPanel
-                participants={participants}
-                userId={userId}
-                peerGroupId={roomId}
-                iceServers={iceServers}
-                aspectRatio={16 / 9}
-              />
+              {participants && participants[userId] && (
+                // This needs to show only when the user is a participants
+                // otherwise it's too soon and won't connect to the Peers
+                <CameraPanel
+                  participants={participants}
+                  userId={userId}
+                  peerGroupId={roomId}
+                  iceServers={iceServers}
+                  aspectRatio={16 / 9}
+                />
+              )}
             </div>
 
             {/* {inputState.isActive ? 'active' : 'not active'} */}

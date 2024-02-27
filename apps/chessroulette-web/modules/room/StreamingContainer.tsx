@@ -19,11 +19,13 @@ import { config } from 'apps/chessroulette-web/config';
 import { CameraView } from 'apps/chessroulette-web/components/CameraView';
 import { AspectRatio } from 'apps/chessroulette-web/components/AspectRatio';
 import { FaceTimeProps } from 'apps/chessroulette-web/components/FaceTime';
+import { UserId } from '../user/type';
 
 type Props = {
   rid: ResourceIdentifier<'room'>;
   aspectRatio?: FaceTimeProps['aspectRatio'];
   iceServers: IceServerRecord[];
+  userId: UserId;
   fallback?: React.ReactNode;
 };
 
@@ -31,8 +33,8 @@ const hashDemoImgId = (id: string) => {
   return Number(id.match(/\d/)?.[0] || 0);
 };
 
-export default ({ rid, aspectRatio = 16 / 10, iceServers }: Props) => {
-  const userId = useUserId();
+export default ({ rid, aspectRatio, iceServers, userId }: Props) => {
+  // const userId = useUserId();
   const peerUser = useMemo(() => {
     if (userId) {
       return {
