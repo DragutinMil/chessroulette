@@ -73,6 +73,13 @@ export type RoomActions =
 // PART 3: The Reducer – This is where all the logic happens
 
 export default (state = initialRoomState, action: RoomActions): RoomState => {
+  console.group('Movex Room Reducer: Action', action.type);
+  console.log('payload', (action as any).payload);
+  console.log('prev', state);
+  // console.log('next', next);
+  console.log('');
+  console.groupEnd();
+
   // User Joins
   if (action.type === 'join') {
     return {
@@ -94,34 +101,8 @@ export default (state = initialRoomState, action: RoomActions): RoomState => {
     };
   }
 
-  // else if (action.type === 'inc') {
-  //   return {
-  //     ...state,
-  //     counter: state.counter + 1,
-  //   };
-  // }
-
-  // // Message gets submitted
-  // else if (action.type === 'submit') {
-  //   const nextMsg = action.payload;
-
-  //   return {
-  //     ...state,
-  //     messages: [...state.messages, nextMsg],
-  //   };
-  // }
-
   // TODO: This should be done differently!
   if (
-    // action.type === 'dropPiece' ||
-    // action.type === 'importPgn' ||
-    // action.type === 'focusHistoryIndex' ||
-    // action.type === 'changeBoardOrientation' ||
-    // action.type === 'arrowChange' ||
-    // action.type === 'drawCircle' ||
-    // action.type === 'clearCircles' ||
-    // action.type === 'deleteHistoryMove' ||
-    // action.type === 'importFen' ||
     action.type === 'createChapter' ||
     action.type === 'deleteChapter' ||
     action.type === 'updateChapter' ||
@@ -135,12 +116,6 @@ export default (state = initialRoomState, action: RoomActions): RoomState => {
     action.type === 'loadedChapter:setOrientation' ||
     action.type === 'loadedChapter:updateFen'
   ) {
-    console.group('Action', action.type);
-    console.log('payload', (action as any).payload);
-    console.log('prev', state);
-    console.log('');
-    console.groupEnd();
-
     // console.log('heere')
     return {
       ...state,

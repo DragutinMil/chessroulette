@@ -46,6 +46,12 @@ export const CameraPanel = ({
     [participants]
   );
 
+  console.group('Camera Panel')
+  console.log('participants', participants);
+  console.log('peerUserIdsMap', peerUserIdsMap);
+  console.log('roomId', peerGroupId);
+  console.groupEnd();
+
   if (!config.CAMERA_ON) {
     return (
       <AspectRatio aspectRatio={aspectRatio}>

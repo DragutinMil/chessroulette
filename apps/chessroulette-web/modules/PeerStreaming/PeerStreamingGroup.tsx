@@ -75,7 +75,7 @@ type Props = {
 // }
 
 // This is a Memoized/Pure Component
-export const PeerStreamingGroup: React.FC<Props> = React.memo((props) => {
+export const PeerStreamingGroup: React.FC<Props> = (props) => {
   // const dispatch = useDispatch();
   const [state, dispatch] = useReducer(
     peerStreamingReducer,
@@ -134,4 +134,4 @@ export const PeerStreamingGroup: React.FC<Props> = React.memo((props) => {
       </PeersConnection>
     </PeerToPeerProvider>
   );
-});
+};
