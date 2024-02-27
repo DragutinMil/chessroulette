@@ -32,9 +32,15 @@ export const useKeysToRefocusHistory = (
       FreeBoardHistory.getStartingIndex()
     );
 
+    const isDifferentThanCurrent = !FreeBoardHistory.areIndexesEqual(
+      nextIndex,
+      currentIndex
+    );
+
     if (
-      FreeBoardHistory.findMoveAtIndex(history, nextIndex) ||
-      isStartingIndex
+      (FreeBoardHistory.findMoveAtIndex(history, nextIndex) ||
+        isStartingIndex) &&
+      isDifferentThanCurrent
     ) {
       onRefocus(nextIndex);
     }
