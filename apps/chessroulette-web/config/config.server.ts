@@ -12,3 +12,5 @@ export const serverConfig = {
     TWILIO_AUTH_TOKEN: process.env.TWILIO_AUTH_TOKEN as string,
   },
 };
+
+console.log('Server Config', serverConfig);

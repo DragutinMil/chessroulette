@@ -34,17 +34,6 @@ export const CameraPanel = ({
   participants,
   fallback,
 }: Props) => {
-  if (!config.CAMERA_ON) {
-    return (
-      <AspectRatio aspectRatio={aspectRatio}>
-        <CameraView
-          className={`w-full h-full object-covers`}
-          demoImgId={hashDemoImgId(userId) as any}
-        />
-      </AspectRatio>
-    );
-  }
-
   const { [userId]: removedMe, ...peerUserIdsMap } = useMemo(
     () =>
       objectKeys(participants).reduce(
@@ -56,6 +45,17 @@ export const CameraPanel = ({
       ),
     [participants]
   );
+
+  if (!config.CAMERA_ON) {
+    return (
+      <AspectRatio aspectRatio={aspectRatio}>
+        <CameraView
+          className={`w-full h-full object-covers`}
+          demoImgId={hashDemoImgId(userId) as any}
+        />
+      </AspectRatio>
+    );
+  }
 
   return (
     <PeerStreamingGroup
