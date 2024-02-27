@@ -53,6 +53,9 @@ export const LearnActivity = ({
 
   const containerDimensions = useContainerDimensions(containerRef);
 
+  const [negativeMargin, setNegativeMargin] = useState(0);
+  const [rightSidePct, setRightSidePct] = useState(0);
+
   useEffect(() => {
     if (!containerDimensions.updated) {
       return;
@@ -61,15 +64,23 @@ export const LearnActivity = ({
     const mainPanelWidthPx =
       (mainPanelPercentageSize / 100) * containerDimensions.width;
 
-    if (containerDimensions.height < mainPanelWidthPx) {
-      // If the height is smaller than the main panel's width, use that
-      setBoardSize(containerDimensions.height);
-    } else {
-      // otherwise use the totality of the main panel - the side (32px)
-      // TODO: Refactor the usage of RIGHT_SIDE_SIZE_PX
-      setBoardSize(mainPanelWidthPx - RIGHT_SIDE_SIZE_PX);
-    }
-  }, [containerDimensions, mainPanelPercentageSize]);
+    const nextBoardSize =
+      containerDimensions.height < mainPanelWidthPx
+        ? // If the height is smaller than the main panel's width, use that
+          // setNegativeMargin((containerDimensions.height - mainPanelWidthPx) / 2);
+          containerDimensions.height
+        : // otherwise use the totality of the main panel - the side (32px)
+          // TODO: Refactor the usage of RIGHT_SIDE_SIZE_PX
+          mainPanelWidthPx - RIGHT_SIDE_SIZE_PX;
+
+    setBoardSize(nextBoardSize);
+
+    const rightPanelWidthPx = (rightSidePct / 100) * containerDimensions.width;
+
+    setNegativeMargin(
+      (containerDimensions.width - (nextBoardSize + rightPanelWidthPx)) / 2
+    );
+  }, [containerDimensions, mainPanelPercentageSize, rightSidePct]);
 
   const [inputState, dispatchInputState] = useReducer(
     inputReducer,
@@ -84,15 +95,21 @@ export const LearnActivity = ({
       id="learn-activity-container"
       className="flex w-full h-full align-center justify-center sbg-red-100"
       ref={containerRef}
+      style={
+        {
+          marginLeft: -negativeMargin,
+        }
+      }
     >
       <PanelGroup
         autoSaveId="learn-activity"
         direction="horizontal"
-        className="sbg-green-500"
+        className="sbg-green-500 relative"
       >
+        {/* <div className="absolute bg-red-900 p-2" style={{ right: 0, zIndex: 999}}>{negativeMargin}</div> */}
         <Panel
           defaultSize={70}
-          className="flex sjustify-end justify-center"
+          className="flex sjustify-end justify-end"
           onResize={setMainPanelPercentageSize}
           tagName="main"
           style={{
@@ -308,13 +325,13 @@ export const LearnActivity = ({
               rightSideClassName="flex-1"
               rightSideComponent={
                 <>
-                <div className="relative flex flex-1 flex-col items-center justify-center">
-                  <PanelResizeHandle
-                    className="w-1 h-20 rounded-lg bg-slate-600"
-                    title="Resize"
-                  />
-                </div>
-                <div className='flex-1' />
+                  <div className="relative flex flex-1 flex-col items-center justify-center">
+                    <PanelResizeHandle
+                      className="w-1 h-20 rounded-lg bg-slate-600"
+                      title="Resize"
+                    />
+                  </div>
+                  <div className="flex-1" />
                 </>
               }
             />
@@ -326,6 +343,7 @@ export const LearnActivity = ({
           maxSize={40}
           tagName="aside"
           className="flex flex-col space-between w-full relative h-full"
+          onResize={setRightSidePct}
         >
           <div className="flex flex-col flex-1 min-h-0 gap-4">
             <div className="overflow-hidden rounded-lg shadow-2xl">
