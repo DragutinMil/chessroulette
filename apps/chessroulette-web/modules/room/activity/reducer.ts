@@ -4,9 +4,7 @@ import {
   ChessFEN,
   ChessFENBoard,
   ChessMove,
-  ChessPGN,
   ChesscircleId,
-  DistributiveOmit,
   FBHHistory,
   FBHIndex,
   FBHMove,
@@ -18,6 +16,7 @@ import {
   pieceSanToFenBoardPieceSymbol,
   swapColor,
 } from '@xmatter/util-kit';
+import { ImportedInput } from 'apps/chessroulette-web/components/PgnInputBox';
 import { Square } from 'chess.js';
 import { Action, objectKeys } from 'movex-core-util';
 
@@ -133,7 +132,8 @@ export type ActivityActions =
   | Action<'loadedChapter:clearCircles'>
   | Action<'loadedChapter:setArrows', ArrowsMap>
   | Action<'loadedChapter:setOrientation', ChessColor>
-  | Action<'loadedChapter:updateFen', ChessFEN>;
+  | Action<'loadedChapter:updateFen', ChessFEN>
+  | Action<'loadedChapter:import', ImportedInput>;
 
 // PART 3: The Reducer – This is where all the logic happens
 
@@ -322,48 +322,127 @@ export default (
     //   };
     // }
     // }
-    // else if (action.type === 'loadedChapter:importPgn') {
-    //   const prevChapter = findLoadedChapter(prev.activityState);
+    if (action.type === 'loadedChapter:import') {
+      const prevChapter = findLoadedChapter(prev.activityState);
 
-    //   if (!prevChapter) {
-    //     console.error('The chapter wasnt found');
-    //     return prev;
-    //   }
+      if (!prevChapter) {
+        console.error('The chapter wasnt found');
+        return prev;
+      }
 
-    //   if (!isValidPgn(action.payload)) {
-    //     return prev;
-    //   }
+      console.log('going to impotr cahpter', action);
 
-    //   const instance = getNewChessGame({
-    //     pgn: action.payload,
-    //   });
-    //   const nextHistoryMovex = FreeBoardHistory.pgnToHistory(action.payload);
+      if (action.payload.type === 'FEN') {
+        if (!ChessFENBoard.validateFenString(action.payload.input).ok) {
+          console.log('not valid fen');
+          return prev;
+        }
 
-    //   const nextChapterState: ChapterState = {
-    //     ...prevChapter,
-    //     displayFen: instance.fen(),
-    //     notation: {
-    //       startingFen: ChessFENBoard.STARTING_FEN,
-    //       history: nextHistoryMovex,
-    //       focusedIndex:
-    //         FreeBoardHistory.getLastIndexInHistory(nextHistoryMovex),
-    //     },
-    //   };
+        console.log('valid fen');
 
-    //   return {
-    //     ...prev,
-    //     activityState: {
-    //       ...prev.activityState,
-    //       chaptersMap: {
-    //         ...prev.activityState.chaptersMap,
-    //         [prevChapter.id]: {
-    //           ...prev.activityState.chaptersMap[prevChapter.id],
-    //           ...nextChapterState,
-    //         },
-    //       },
-    //     },
-    //   };
-    // }
+        const nextFen = action.payload.input;
+
+        const nextChapterState: ChapterState = {
+          ...prevChapter,
+          displayFen: nextFen,
+
+          // When importing PGNs set the notation from this fen
+          notation: {
+            startingFen: nextFen,
+            history: [],
+            focusedIndex: FreeBoardHistory.getStartingIndex(),
+          },
+        };
+
+        return {
+          ...prev,
+          activityState: {
+            ...prev.activityState,
+            chaptersMap: {
+              ...prev.activityState.chaptersMap,
+              [prevChapter.id]: {
+                ...prev.activityState.chaptersMap[prevChapter.id],
+                ...nextChapterState,
+              },
+            },
+          },
+        };
+      }
+
+      if (action.payload.type === 'PGN') {
+        if (!isValidPgn(action.payload.input)) {
+          console.log('not valid pgn');
+          return prev;
+        }
+
+        console.log('valid pgn');
+
+        const instance = getNewChessGame({
+          pgn: action.payload.input,
+        });
+        const nextHistory = FreeBoardHistory.pgnToHistory(action.payload.input);
+
+        const nextChapterState: ChapterState = {
+          ...prevChapter,
+          displayFen: instance.fen(),
+
+          // When importing PGNs set the notation history as well
+          notation: {
+            startingFen: ChessFENBoard.STARTING_FEN,
+            history: nextHistory,
+            focusedIndex: FreeBoardHistory.getLastIndexInHistory(nextHistory),
+          },
+        };
+
+        return {
+          ...prev,
+          activityState: {
+            ...prev.activityState,
+            chaptersMap: {
+              ...prev.activityState.chaptersMap,
+              [prevChapter.id]: {
+                ...prev.activityState.chaptersMap[prevChapter.id],
+                ...nextChapterState,
+              },
+            },
+          },
+        };
+      }
+
+      // if (!isValidPgn(action.payload)) {
+      //   return prev;
+      // }
+
+      // const instance = getNewChessGame({
+      //   pgn: action.payload,
+      // });
+      // const nextHistoryMovex = FreeBoardHistory.pgnToHistory(action.payload);
+
+      // const nextChapterState: ChapterState = {
+      //   ...prevChapter,
+      //   displayFen: instance.fen(),
+      //   notation: {
+      //     startingFen: ChessFENBoard.STARTING_FEN,
+      //     history: nextHistoryMovex,
+      //     focusedIndex:
+      //       FreeBoardHistory.getLastIndexInHistory(nextHistoryMovex),
+      //   },
+      // };
+
+      // return {
+      //   ...prev,
+      //   activityState: {
+      //     ...prev.activityState,
+      //     chaptersMap: {
+      //       ...prev.activityState.chaptersMap,
+      //       [prevChapter.id]: {
+      //         ...prev.activityState.chaptersMap[prevChapter.id],
+      //         ...nextChapterState,
+      //       },
+      //     },
+      //   },
+      // };
+    }
 
     if (action.type === 'loadedChapter:focusHistoryIndex') {
       const prevChapter = findLoadedChapter(prev.activityState);

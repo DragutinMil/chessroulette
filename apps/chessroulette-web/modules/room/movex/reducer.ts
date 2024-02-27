@@ -114,7 +114,8 @@ export default (state = initialRoomState, action: RoomActions): RoomState => {
     action.type === 'loadedChapter:drawCircle' ||
     action.type === 'loadedChapter:setArrows' ||
     action.type === 'loadedChapter:setOrientation' ||
-    action.type === 'loadedChapter:updateFen'
+    action.type === 'loadedChapter:updateFen' ||
+    action.type === 'loadedChapter:import'
   ) {
     // console.log('heere')
     return {

@@ -11,10 +11,12 @@ import { DragAndDrop } from './DragAndDrop';
 import { Err, Ok, Result } from 'ts-results';
 import useDebouncedEffect from 'use-debounced-effect';
 
+export type ImportedInput =
+  | { type: 'FEN'; input: ChessFEN }
+  | { type: 'PGN'; input: ChessPGN };
+
 export type PgnInputBoxProps = {
-  onChange: (
-    p: { type: 'FEN'; input: ChessFEN } | { type: 'PGN'; input: ChessPGN }
-  ) => void;
+  onChange: (p: ImportedInput) => void;
   value?: string;
   isInvalid?: boolean;
   containerClassName?: string;

@@ -7,7 +7,7 @@ import { Tabs } from 'apps/chessroulette-web/components/Tabs';
 import { Chapter, ChapterState } from '../../activity/reducer';
 import { FenPreview } from './FenPreview';
 import { useLearnActivitySettings } from '../useLearnActivitySettings';
-import { PgnInputBoxProps } from 'apps/chessroulette-web/components/PgnInputBox';
+import { PgnInputBox, PgnInputBoxProps } from 'apps/chessroulette-web/components/PgnInputBox';
 import { ChaptersTab, ChaptersTabProps } from '../chapters/ChaptersTab';
 import { useUpdateableSearchParams } from 'apps/chessroulette-web/hooks/useSearchParams';
 import { ChapterDisplayView } from '../chapters/ChapterDisplayView';
@@ -20,6 +20,7 @@ type Props = {
 
   // Board
   onImport: PgnInputBoxProps['onChange'];
+  onQuickImport: PgnInputBoxProps['onChange'];
 
   onHistoryNotationRefocus: FreeBoardNotationProps['onRefocus'];
   onHistoryNotationDelete: FreeBoardNotationProps['onDelete'];
@@ -41,6 +42,7 @@ export const WidgetPanel = ({
   currentLoadedChapterId,
   currentChapterState,
   onImport,
+  onQuickImport,
   onHistoryNotationDelete,
   onHistoryNotationRefocus,
   ...chapterTabsProps
@@ -86,14 +88,23 @@ export const WidgetPanel = ({
             ),
             renderContent: () => (
               <div className="flex flex-col flex-1 gap-2 min-h-0">
-                {/* <ChapterDisplayView chapter={currentChapterState} /> */}
                 <FreeBoardNotation
                   history={currentChapterState.notation?.history}
                   focusedIndex={currentChapterState.notation?.focusedIndex}
                   onDelete={onHistoryNotationDelete}
                   onRefocus={onHistoryNotationRefocus}
                 />
-                <FenPreview fen={currentChapterState.displayFen} />
+                {/* <FenPreview fen={currentChapterState.displayFen} /> */}
+                <div className="flex flex-col sitems-center gap-3">
+                  <label className="font-bold text-sm text-gray-400">
+                    Quick Import
+                  </label>
+                  <PgnInputBox
+                    compact
+                    containerClassName="flex-1"
+                    onChange={onQuickImport}
+                  />
+                </div>
               </div>
             ),
           },
@@ -161,7 +172,7 @@ export const WidgetPanel = ({
         onDelete={onHistoryNotationDelete}
         onRefocus={onHistoryNotationRefocus}
       />
-      <FenPreview fen={currentChapterState.displayFen} />
+      {/* <FenPreview fen={currentChapterState.displayFen} /> */}
     </div>
   );
 };

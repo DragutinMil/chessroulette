@@ -436,6 +436,12 @@ export const LearnActivity = ({
                   payload: { id },
                 });
               }}
+              onQuickImport={(payload) => {
+                dispatch({
+                  type: 'loadedChapter:import',
+                  payload,
+                });
+              }}
             />
           </div>
         </Panel>

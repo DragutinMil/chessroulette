@@ -1,16 +1,16 @@
 import { Action } from 'movex-core-util';
-import { Chapter, ChapterState, CircleDrawTuple } from './reducer';
+import { ChapterState, CircleDrawTuple } from './reducer';
 import {
   ChessFEN,
   ChessFENBoard,
   ChessMove,
-  ChessPGN,
   FenBoardPromotionalPieceSymbol,
   FreeBoardHistory,
   getNewChessGame,
   isValidPgn,
   pieceSanToFenBoardPieceSymbol,
 } from '@xmatter/util-kit';
+import { ImportedInput } from 'apps/chessroulette-web/components/PgnInputBox';
 
 export type InputState =
   | {
@@ -39,10 +39,7 @@ type InputAction =
   | Action<'updatePartialChapter', Partial<Omit<ChapterState, 'notation'>>>
   | Action<'drawCircle', CircleDrawTuple>
   | Action<'clearCircles'>
-  | Action<
-      'import',
-      { type: 'FEN'; input: ChessFEN } | { type: 'PGN'; input: ChessPGN }
-    >
+  | Action<'import', ImportedInput>
 
   // TODO This maybe is too generericzx
   | Action<
