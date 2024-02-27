@@ -2,7 +2,13 @@
 
 import movexConfig from 'apps/chessroulette-web/movex.config';
 import { MovexBoundResourceFromConfig } from 'movex-react';
-import { ChessFENBoard, noop, swapColor } from '@xmatter/util-kit';
+import {
+  ChessFEN,
+  ChessFENBoard,
+  ChessPGN,
+  noop,
+  swapColor,
+} from '@xmatter/util-kit';
 import { useEffect, useReducer, useRef, useState } from 'react';
 import { IceServerRecord } from 'apps/chessroulette-web/providers/PeerToPeerProvider/type';
 import { useLearnActivitySettings } from './useLearnActivitySettings';
@@ -95,11 +101,9 @@ export const LearnActivity = ({
       id="learn-activity-container"
       className="flex w-full h-full align-center justify-center sbg-red-100"
       ref={containerRef}
-      style={
-        {
-          marginLeft: -negativeMargin,
-        }
-      }
+      style={{
+        marginLeft: -negativeMargin,
+      }}
     >
       <PanelGroup
         autoSaveId="learn-activity"
@@ -292,7 +296,6 @@ export const LearnActivity = ({
                 });
               }}
               onMove={(payload) => {
-                // dispatch({ type: 'dropPiece', payload: { move } });
                 dispatch({ type: 'loadedChapter:addMove', payload });
 
                 // TODO: This can be returned from a more internal component
@@ -394,7 +397,14 @@ export const LearnActivity = ({
                   payload,
                 });
               }}
-              onImport={() => {}}
+              onImport={(payload) => {
+                // TODO: This is retarded - having to check and then send the exact same thing :)
+                if (payload.type === 'FEN') {
+                  dispatchInputState({ type: 'import', payload });
+                } else {
+                  dispatchInputState({ type: 'import', payload });
+                }
+              }}
               onCreateChapter={() => {
                 if (inputState.isActive) {
                   dispatch({

@@ -1,13 +1,20 @@
 import React, { useState } from 'react';
 import { TextArea } from './TextArea';
 import { Button } from './Button';
-import { ChessFENBoard, isValidPgn } from '@xmatter/util-kit';
+import {
+  ChessFEN,
+  ChessFENBoard,
+  ChessPGN,
+  isValidPgn,
+} from '@xmatter/util-kit';
 import { DragAndDrop } from './DragAndDrop';
 import { Err, Ok, Result } from 'ts-results';
 import useDebouncedEffect from 'use-debounced-effect';
 
 export type PgnInputBoxProps = {
-  onChange: (type: 'FEN' | 'PGN', s: string) => void;
+  onChange: (
+    p: { type: 'FEN'; input: ChessFEN } | { type: 'PGN'; input: ChessPGN }
+  ) => void;
   value?: string;
   isInvalid?: boolean;
   containerClassName?: string;
@@ -71,9 +78,9 @@ export const PgnInputBox: React.FC<PgnInputBoxProps> = ({
               }
 
               if (ChessFENBoard.validateFenString(input).ok) {
-                props.onChange('FEN', input);
+                props.onChange({ type: 'FEN', input });
               } else if (isValidPgn(input)) {
-                props.onChange('PGN', input);
+                props.onChange({ type: 'PGN', input });
               }
             }
           };
@@ -132,9 +139,9 @@ export const PgnInputBox: React.FC<PgnInputBoxProps> = ({
             }
 
             if (ChessFENBoard.validateFenString(input).ok) {
-              props.onChange('FEN', input);
+              props.onChange({ type: 'FEN', input });
             } else if (isValidPgn(input)) {
-              props.onChange('PGN', input);
+              props.onChange({ type: 'PGN', input });
             }
           }}
         >

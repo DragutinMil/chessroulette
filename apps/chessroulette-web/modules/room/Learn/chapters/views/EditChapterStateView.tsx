@@ -8,16 +8,19 @@ import {
   toShortColor,
 } from '@xmatter/util-kit';
 import { FenPreview } from '../../components/FenPreview';
-import { PgnInputBox } from 'apps/chessroulette-web/components/PgnInputBox';
+import {
+  PgnInputBox,
+  PgnInputBoxProps,
+} from 'apps/chessroulette-web/components/PgnInputBox';
 import useInstance from '@use-it/instance';
 import { SQUARES, Square } from 'chess.js';
-import { Button } from 'apps/chessroulette-web/components/Button';
 
 export type EditChapterStateViewProps = {
   state: ChapterState;
-  onUpdate: (s: ChapterState) => void;
   isBoardEditorShown: boolean;
+  onUpdate: (s: ChapterState) => void;
   onToggleBoardEditor: (show: boolean) => void;
+  onImport: PgnInputBoxProps['onChange'];
 };
 
 const EN_PASSANT_SQUARES = SQUARES.filter(
@@ -27,8 +30,7 @@ const EN_PASSANT_SQUARES = SQUARES.filter(
 export const EditChapterStateView = ({
   state,
   onUpdate,
-  isBoardEditorShown,
-  onToggleBoardEditor,
+  onImport,
 }: EditChapterStateViewProps) => {
   const fenBoardInstance = useInstance<ChessFENBoard>(
     new ChessFENBoard(state.displayFen)
@@ -268,14 +270,19 @@ export const EditChapterStateView = ({
         <PgnInputBox
           compact
           containerClassName="flex-1"
-          onChange={(type, fenOrPgn) => {
-            partialUpdate({
-              displayFen:
-                type === 'FEN'
-                  ? fenOrPgn
-                  : getNewChessGame({ pgn: fenOrPgn }).fen(),
-            });
-          }}
+          onChange={onImport}
+          // onChange={({ type, input }) => {
+          //   if (type === 'FEN') {
+
+          //   }
+
+          //   partialUpdate({
+          //     displayFen:
+          //       type === 'FEN'
+          //         ? fenOrPgn
+          //         : getNewChessGame({ pgn: fenOrPgn }).fen(),
+          //   });
+          // }}
         />
       </div>
 

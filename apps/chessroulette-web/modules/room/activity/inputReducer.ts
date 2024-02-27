@@ -4,7 +4,11 @@ import {
   ChessFEN,
   ChessFENBoard,
   ChessMove,
+  ChessPGN,
   FenBoardPromotionalPieceSymbol,
+  FreeBoardHistory,
+  getNewChessGame,
+  isValidPgn,
   pieceSanToFenBoardPieceSymbol,
 } from '@xmatter/util-kit';
 
@@ -35,6 +39,10 @@ type InputAction =
   | Action<'updatePartialChapter', Partial<Omit<ChapterState, 'notation'>>>
   | Action<'drawCircle', CircleDrawTuple>
   | Action<'clearCircles'>
+  | Action<
+      'import',
+      { type: 'FEN'; input: ChessFEN } | { type: 'PGN'; input: ChessPGN }
+    >
 
   // TODO This maybe is too generericzx
   | Action<
@@ -206,6 +214,87 @@ export default (
       ...prev,
       ...action.payload,
     };
+  }
+
+  if (action.type === 'import') {
+    if (!prev.isActive) {
+      return prev;
+    }
+
+    if (action.payload.type === 'FEN') {
+      if (!ChessFENBoard.validateFenString(action.payload.input).ok) {
+        return prev;
+      }
+
+      const nextFen = action.payload.input;
+
+      const nextChapterState: ChapterState = {
+        ...prev.chapterState,
+        displayFen: nextFen,
+
+        // When importing PGNs set the notation from this fen
+        notation: {
+          startingFen: nextFen,
+          history: [],
+          focusedIndex: FreeBoardHistory.getStartingIndex(),
+        },
+      };
+
+      return {
+        ...prev,
+        chapterState: nextChapterState,
+      };
+    }
+
+    if (action.payload.type === 'PGN') {
+      if (!isValidPgn(action.payload.input)) {
+        return prev;
+      }
+
+      const instance = getNewChessGame({
+        pgn: action.payload.input,
+      });
+      const nextHistory = FreeBoardHistory.pgnToHistory(action.payload.input);
+
+      const nextChapterState: ChapterState = {
+        ...prev.chapterState,
+        displayFen: instance.fen(),
+
+        // When importing PGNs set the notation history as well
+        notation: {
+          startingFen: ChessFENBoard.STARTING_FEN,
+          history: nextHistory,
+          focusedIndex: FreeBoardHistory.getLastIndexInHistory(nextHistory),
+        },
+      };
+
+      return {
+        ...prev,
+        chapterState: nextChapterState,
+      };
+    }
+
+    return prev;
+
+    // return {
+
+    // }
+
+    // return {
+    //   ...prev,
+    //   activityState: {
+    //     ...prev.activityState,
+    //     fen: instance.fen(),
+    //     circles: {},
+    //     arrows: {},
+    //     history: {
+    //       startingFen: ChessFENBoard.STARTING_FEN,
+    //       moves: nextHistoryMovex,
+    //       focusedIndex:
+    //         FreeBoardHistory.getLastIndexInHistory(nextHistoryMovex),
+    //     },
+    //   },
+    // };
   }
 
   return prev;

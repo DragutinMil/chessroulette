@@ -137,6 +137,7 @@ export const WidgetPanel = ({
                 currentLoadedChapterId={currentLoadedChapterId}
                 className="min-h-0"
                 tabsNav={p.nav}
+                onImportInput={onImport}
                 {...chapterTabsProps}
               />
             ),

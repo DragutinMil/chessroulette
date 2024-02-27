@@ -10,6 +10,7 @@ import { Button, IconButton } from 'apps/chessroulette-web/components/Button';
 import { CreateChapterView } from './views/CreateChapterView';
 import { TabsNav } from 'apps/chessroulette-web/components/Tabs';
 import { UpdateChapterView } from './views/UpdateChapterView';
+import { EditChapterStateViewProps } from './views/EditChapterStateView';
 
 export type ChaptersTabProps = {
   chaptersMap: Record<Chapter['id'], Chapter>;
@@ -30,6 +31,7 @@ export type ChaptersTabProps = {
       isBoardEditorShown?: boolean;
     }>
   ) => void;
+  onImportInput: EditChapterStateViewProps['onImport'];
   inputModeState: { chapterState?: ChapterState; isBoardEditorShown?: boolean };
 
   // Chapters Logistics
@@ -44,6 +46,7 @@ export const ChaptersTab = ({
   onUpdateChapter,
   onDeleteChapter,
   onLoadChapter,
+  onImportInput,
 
   chaptersMapIndex,
   currentLoadedChapterId,
@@ -123,6 +126,7 @@ export const ChaptersTab = ({
                       chapterState: nextChapterState,
                     })
                   }
+                  onImport={onImportInput}
                 />
                 <div className="flex gap-2">
                   <IconButton
@@ -224,6 +228,7 @@ export const ChaptersTab = ({
                       </Button>
                     </div>
                   )}
+                  onImport={onImportInput}
                 />
               )}
           </>,
