@@ -172,7 +172,12 @@ export const LearnActivity = ({
                   sizePx={boardSize}
                   {...inputState.chapterState}
                   fen={inputState.chapterState.displayFen}
-                  boardOrientation={inputState.chapterState.orientation}
+                  // boardOrientation={inputState.chapterState.orientation}
+                  boardOrientation={
+                    settings.isInstructor
+                      ? swapColor(inputState.chapterState.orientation)
+                      : inputState.chapterState.orientation
+                  }
                   onMove={(move) => {
                     dispatchInputState({ type: 'move', payload: { move } });
 
