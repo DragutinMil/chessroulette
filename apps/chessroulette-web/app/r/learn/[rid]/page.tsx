@@ -1,20 +1,17 @@
-import {
-  ResourceIdentifier,
-  isResourceIdentifierOfType,
-  toResourceIdentifierObj,
-} from 'movex-core-util';
-import LearnActivity from 'apps/chessroulette-web/modules/room/Learn/LearnActivity';
 import { Twilio } from 'twilio';
-import { IceServerRecord } from 'apps/chessroulette-web/providers/PeerToPeerProvider/type';
-import RoomTemplate from 'apps/chessroulette-web/templates/RoomTemplate';
-import { config } from 'apps/chessroulette-web/config';
 import { getServerSession } from 'next-auth';
+import { ResourceIdentifier } from 'movex-core-util';
+import { IceServerRecord } from 'apps/chessroulette-web/providers/PeerToPeerProvider/type';
+import { config } from 'apps/chessroulette-web/config';
 import { authOptions } from 'apps/chessroulette-web/services/auth';
+import RoomTemplate from 'apps/chessroulette-web/templates/RoomTemplate';
+import { serverConfig } from 'apps/chessroulette-web/config/config.server';
+import { LearnActivityContainer } from 'apps/chessroulette-web/modules/room/Learn/LearnActivityContainer';
 
-const TWILIO_ACCOUNT_SID = process.env.TWILIO_ACCOUNT_SID as string;
-const TWILIO_AUTH_TOKEN = process.env.TWILIO_AUTH_TOKEN as string;
-
-const twilioClient: any = new Twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
+const twilioClient: any = new Twilio(
+  serverConfig.twilio.TWILIO_ACCOUNT_SID,
+  serverConfig.twilio.TWILIO_AUTH_TOKEN
+);
 
 const twilio = {
   getIceServers: async (): Promise<IceServerRecord[]> => {
@@ -46,52 +43,23 @@ export default async function Page({
   searchParams: Partial<{ theme: string }>;
 }) {
   const session = (await getServerSession(authOptions)) || undefined;
-  // console.log('params', decodeURIComponent(params.slug));
-  // const { rid, slot } = searchParams;
-
-  // If the given "rid" query param isn't an actual rid of type "chat"
-  // if (!isRidOfType('chat', rid)) {
-  //   return <div>Error - Rid not valid</div>;
-  // }
-
-  // console.log('searchParams', searchParams);
-  // const twilioClient = Twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
-
-  // const iceServersResponse = await fetch(`/api/ice-servers`, {
-  //   next: { revalidate: 3600 }, // Will revalidate every 1 hour
-  // });
-
   const id = decodeURIComponent(params.rid);
-
-  // if (!isResourceIdentifierOfType('room', slug)) {
-  //   return null;
-  // }
-
-  // const rid: ResourceIdentifier<'room'> = `room:${
-  //   toResourceIdentifierObj(slug).resourceId
-  // }`;
-
   const rid: ResourceIdentifier<'room'> = `room:${id}`;
 
-  // TODO: make it better
-  const iceServers = await twilio.getIceServers();
+  // // TODO: make it better
+  const iceServers = (await twilio.getIceServers()) || [
+    // DEFAULT
+    {
+      url: 'stun:stun.ideasip.com',
+      urls: 'stun:stun.ideasip.com',
+      credential: undefined,
+      username: undefined,
+    },
+  ];
 
   return (
     <RoomTemplate themeName={searchParams.theme} session={session}>
-      <LearnActivity
-        rid={rid}
-        iceServers={
-          iceServers || [
-            // DEFAULT
-            {
-              url: 'stun:stun.ideasip.com',
-              urls: 'stun:stun.ideasip.com',
-              credential: undefined,
-              username: undefined,
-            },
-          ]
-        }
-      />
+      <LearnActivityContainer rid={rid} iceServers={iceServers} />
     </RoomTemplate>
   );
 }

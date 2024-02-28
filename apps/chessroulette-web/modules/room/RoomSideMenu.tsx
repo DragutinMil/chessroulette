@@ -3,10 +3,8 @@
 import { ClipboardCopyButton } from 'apps/chessroulette-web/components/ClipboardCopyButton';
 import { useMemo, useState } from 'react';
 import { useUrl } from 'nextjs-current-url';
-import { useLearnActivitySettings } from './useLearnActivitySettings';
-import { IconButton } from 'apps/chessroulette-web/components/Button';
+import { useLearnActivitySettings } from './Learn/useLearnActivitySettings';
 import { useRouter, usePathname } from 'next/navigation';
-import { useUpdateableSearchParams } from 'apps/chessroulette-web/hooks/useSearchParams';
 import { generateUserId } from 'apps/chessroulette-web/util';
 
 export const RoomSideMenu = () => {
@@ -22,14 +20,16 @@ export const RoomSideMenu = () => {
 
     // TODO: All of these should be somewhere else
     url.searchParams.set('userId', String(nextUserId));
+
+    // TODO: These should actually be cleared and only the ones that are needed added!
     url.searchParams.delete('instructor');
     url.searchParams.delete('edit');
+    url.searchParams.delete('tab');
 
     return url.href;
   }, [url, nextUserId]);
 
   const settings = useLearnActivitySettings();
-  const searchParams = useUpdateableSearchParams();
 
   return (
     <div className="flex flex-col items-center gap-4">
@@ -48,8 +48,8 @@ export const RoomSideMenu = () => {
             onCopiedIcon="CheckIcon"
             tooltip="Invite Student"
           />
-          <IconButton
-            tooltip="Edit Lesson"
+          {/* <IconButton
+            tooltip="Edit Board"
             onClick={() => {
               const nextSearchParams = searchParams.set((prev) => ({
                 ...prev,
@@ -60,7 +60,7 @@ export const RoomSideMenu = () => {
             }}
             size="sm"
             icon="PencilSquareIcon"
-          />
+          /> */}
         </>
       )}
     </div>

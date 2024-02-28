@@ -26,6 +26,7 @@ export const ClipboardCopyButton: React.FC<Props> = ({
   buttonComponentType = 'Button',
   icon,
   onCopiedIcon = icon,
+  render,
   ...buttonProps
 }) => {
   const [copied, setCopied] = useState(false);
@@ -56,7 +57,7 @@ export const ClipboardCopyButton: React.FC<Props> = ({
 
   return (
     <Button onClick={copy} {...buttonProps}>
-      {buttonProps.render?.(copied)}
+      {render?.(copied)}
     </Button>
   );
 };

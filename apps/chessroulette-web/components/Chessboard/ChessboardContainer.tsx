@@ -22,7 +22,6 @@ import {
   fenBoardPieceSymbolToDetailedChessPiece,
   isPromotableMove,
   pieceSanToPiece,
-  pieceToPieceSan,
 } from 'util-kit/src/lib/ChessFENBoard/chessUtils';
 import {
   ArrowsMap,
@@ -58,7 +57,18 @@ export type ChessboardContainerProps = Omit<
   onArrowsChange?: (arrows: ArrowsMap) => void;
   onCircleDraw?: (circleTuple: CircleDrawTuple) => void;
   onClearCircles?: () => void;
-};
+} & (
+    | {
+        rightSideComponent: React.ReactNode;
+        rightSideSizePx: number;
+        rightSideClassName?: string;
+      }
+    | {
+        rightSideComponent?: undefined;
+        rightSideSizePx?: undefined;
+        rightSideClassName?: undefined;
+      }
+  );
 
 export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
   fen,
@@ -72,6 +82,9 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
   boardOrientation = 'white',
   containerClassName,
   customSquareStyles,
+  rightSideComponent,
+  rightSideSizePx = 0,
+  rightSideClassName,
   ...props
 }) => {
   const boardTheme = useBoardTheme();
@@ -205,6 +218,8 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
 
     // If there is an existent Pending Move ('from' set), but no to set
     if (!pendingMove?.to) {
+      // setPromoMove(undefined);
+
       // Return early if the from and to square are the same
       if (square === pendingMove.from) {
         setPendingMove(undefined);
@@ -220,12 +235,13 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
         return;
       }
 
-      if (onPromotionCheck(pendingMove.from, square, pendingMove.piece)) {
+      if (
+        isPromotableMove(
+          { from: pendingMove.from, to: square },
+          pendingMove.piece
+        )
+      ) {
         // Set the Promotion Move
-        // setPendingMove({
-        //   ...pendingMove,
-        //   to: square,
-        // });
         setPromoMove({
           ...pendingMove,
           to: square,
@@ -247,9 +263,7 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
   const onPromotionCheck = (from: Square, to: Square, piece: Piece) => {
     const isPromoMove = isPromotableMove({ from, to }, piece);
 
-    if (isPromoMove) {
-      setPromoMove({ from, to });
-    }
+    setPromoMove(isPromoMove ? { from, to } : undefined);
 
     return isPromoMove;
   };
@@ -331,71 +345,102 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
     pendingMove?.from,
   ]);
 
+  if (props.sizePx === 0) {
+    return null;
+  }
+
   return (
     <div
-      className={`relative overflow-hidden rounded-lg ${containerClassName}`}
+      id="chessboard-container"
+      className="flex"
+      style={{
+        // width: props.sizePx,
+        // height: props.sizePx - rightSideSizePx,
+        height: props.sizePx + rightSideSizePx,
+        width: props.sizePx + rightSideSizePx,
+        marginRight: -rightSideSizePx,
+        marginBottom: -rightSideSizePx,
+      }}
     >
-      <Chessboard
-        id="Chessboard" // TODO: should this be unique per instance?
-        position={fen}
-        boardWidth={props.sizePx}
-        showBoardNotation
-        boardOrientation={toLongColor(boardOrientation)}
-        snapToCursor={false}
-        arePiecesDraggable
-        customBoardStyle={customStyles.customBoardStyle}
-        customLightSquareStyle={customStyles.customLightSquareStyle}
-        customDarkSquareStyle={customStyles.customDarkSquareStyle}
-        customSquare={ChessboardSquare}
-        onPieceDrop={(from, to, p) => {
-          onPieceDrop(from, to, p);
-
-          // As long as the on PromotionPieceSelect is present this doesn't get triggered with a pieceSelect
-          return !!onMove({ from, to });
+      <div
+        className={`relative overflow-hidden rounded-lg w-full h-full ${containerClassName}`}
+        style={{
+          width: props.sizePx,
+          height: props.sizePx,
         }}
-        onSquareClick={(sq) => {
-          onSquareClick(sq);
+      >
+        <Chessboard
+          id="Chessboard" // TODO: should this be unique per instance?
+          position={fen}
+          // boardWidth={props.sizePx - rightSideSizePx}
+          boardWidth={props.sizePx}
+          // boardWidth={600}
+          showBoardNotation
+          boardOrientation={toLongColor(boardOrientation)}
+          snapToCursor={false}
+          arePiecesDraggable
+          customBoardStyle={customStyles.customBoardStyle}
+          customLightSquareStyle={customStyles.customLightSquareStyle}
+          customDarkSquareStyle={customStyles.customDarkSquareStyle}
+          customSquare={ChessboardSquare}
+          onPieceDrop={(from, to, p) => {
+            onPieceDrop(from, to, p);
 
-          // Reset the Arrows and Circles if present
-          if (circlesMap && Object.keys(circlesMap).length > 0) {
-            resetCircles();
-          }
+            // As long as the on PromotionPieceSelect is present this doesn't get triggered with a pieceSelect
+            return !!onMove({ from, to });
+          }}
+          onSquareClick={(sq) => {
+            onSquareClick(sq);
 
-          if (props.arrowsMap && Object.keys(props.arrowsMap).length > 0) {
-            resetArrows();
+            // Reset the Arrows and Circles if present
+            if (circlesMap && Object.keys(circlesMap).length > 0) {
+              resetCircles();
+            }
+
+            if (props.arrowsMap && Object.keys(props.arrowsMap).length > 0) {
+              resetArrows();
+            }
+          }}
+          customSquareStyles={mergedCustomSquareStyles}
+          customArrows={arrowsToRender}
+          autoPromoteToQueen={false}
+          onPromotionCheck={(from, to, pieceSan) =>
+            onPromotionCheck(from, to, pieceSanToPiece(pieceSan))
           }
+          onPromotionPieceSelect={(promoteTo) => {
+            if (!promoMove) {
+              return false;
+            }
+
+            if (promoteTo === undefined) {
+              setPromoMove(undefined);
+
+              return false;
+            }
+
+            return !!onMove({
+              ...promoMove,
+              promoteTo,
+            });
+          }}
+          customArrowColor={arrowColor}
+          onArrowsChange={onArrowsChangeAfterMount}
+          onSquareRightClick={onSquareRightClick}
+          customPieces={boardTheme.customPieces}
+          promotionDialogVariant="vertical"
+          promotionToSquare={promoMove?.to}
+          showPromotionDialog={!!promoMove?.to}
+          {...props}
+        />
+      </div>
+      <div
+        className={`w-full relative h-full ${rightSideClassName}`}
+        style={{
+          width: rightSideSizePx,
         }}
-        customSquareStyles={mergedCustomSquareStyles}
-        customArrows={arrowsToRender}
-        autoPromoteToQueen={false}
-        onPromotionCheck={(from, to, pieceSan) =>
-          onPromotionCheck(from, to, pieceSanToPiece(pieceSan))
-        }
-        onPromotionPieceSelect={(promoteTo) => {
-          if (!promoMove) {
-            return false;
-          }
-
-          if (promoteTo === undefined) {
-            setPromoMove(undefined);
-
-            return false;
-          }
-
-          return !!onMove({
-            ...promoMove,
-            promoteTo,
-          });
-        }}
-        customArrowColor={arrowColor}
-        onArrowsChange={onArrowsChangeAfterMount}
-        onSquareRightClick={onSquareRightClick}
-        customPieces={boardTheme.customPieces}
-        promotionDialogVariant="vertical"
-        promotionToSquare={promoMove?.to}
-        showPromotionDialog={!!promoMove?.to}
-        {...props}
-      />
+      >
+        {rightSideComponent}
+      </div>
     </div>
   );
 };

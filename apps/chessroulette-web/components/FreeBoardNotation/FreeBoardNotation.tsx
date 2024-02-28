@@ -3,9 +3,9 @@ import { List, ListProps } from './components/List';
 import { useKeysToRefocusHistory } from './hooks';
 import { FBHHistory, FreeBoardHistory } from '@xmatter/util-kit';
 
-export type GameHistoryProps = {
-  history: FBHHistory;
-  focusedIndex: ListProps['focusedIndex'];
+export type FreeBoardNotationProps = {
+  history?: FBHHistory;
+  focusedIndex?: ListProps['focusedIndex'];
   onRefocus: ListProps['onRefocus'];
   onDelete: ListProps['onDelete'];
   emptyContent?: string | React.ReactNode;
@@ -19,9 +19,9 @@ export type GameHistoryProps = {
  * @param param0
  * @returns
  */
-export const FreeBoardNotation: React.FC<GameHistoryProps> = ({
+export const FreeBoardNotation: React.FC<FreeBoardNotationProps> = ({
   history = [],
-  emptyContent = 'Wow, so empty!',
+  emptyContent = 'Wow, So Empty!',
   focusedIndex = FreeBoardHistory.getStartingIndex(),
   onRefocus,
   onDelete,
@@ -42,7 +42,7 @@ export const FreeBoardNotation: React.FC<GameHistoryProps> = ({
           rowClassName="border-b border-slate-600"
         />
       ) : (
-        <div className="flex-1 flex items-center justify-center">
+        <div className="flex-1 flex items-center justify-center text-slate-500">
           {emptyContent}
         </div>
       )}

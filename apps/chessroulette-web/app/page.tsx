@@ -5,7 +5,8 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '../services/auth';
 
 export const metadata: Metadata = {
-  title: 'Chessroulette',
+  title: 'Chessroulette | Moves That Matter Lessons That Last',
+  description: 'Moves That Matter Lessons That Last',
 };
 
 export default async function Home() {

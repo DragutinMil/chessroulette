@@ -7,4 +7,10 @@ export const serverConfig = {
     EMAIL_SERVER_PORT: Number(process.env.AUTH_EMAIL_SERVER_PORT as string),
     EMAIL_FROM: process.env.AUTH_EMAIL_FROM as string,
   },
+  twilio: {
+    TWILIO_ACCOUNT_SID: process.env.TWILIO_ACCOUNT_SID as string,
+    TWILIO_AUTH_TOKEN: process.env.TWILIO_AUTH_TOKEN as string,
+  },
 };
+
+console.log('Server Config', serverConfig);

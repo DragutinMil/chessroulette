@@ -706,9 +706,21 @@ export namespace FreeBoardHistory {
         ? FreeBoardHistory.incrementIndex(index)
         : FreeBoardHistory.decrementIndex(index);
 
-    const nextMove = FreeBoardHistory.findMoveAtIndex(history, nextIndex);
+    const foundMove = FreeBoardHistory.findMoveAtIndex(history, nextIndex);
 
-    if (!nextMove || nextMove .isNonMove) {
+    if (!foundMove || foundMove.isNonMove) {
+      const startingIndex = FreeBoardHistory.getStartingIndex();
+      const lastHistoryIndex = getLastIndexInHistory(history);
+
+      // If the index is at the beginning or at the end of the history don't search anymore
+      if (isIndexLowerThan(nextIndex, startingIndex)) {
+        return startingIndex;
+      }
+
+      if (areIndexesEqual(nextIndex, incrementIndex(lastHistoryIndex))) {
+        return lastHistoryIndex;
+      }
+
       return findNextValidMoveIndex(history, nextIndex, dir);
     }
 

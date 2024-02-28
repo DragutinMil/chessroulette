@@ -1,4 +1,4 @@
-import { PieceSan, invoke } from '@xmatter/util-kit';
+import { PieceSan } from '@xmatter/util-kit';
 import { Square } from 'chess.js';
 import { useMemo, useRef } from 'react';
 import { Rect, useContainerRect } from '../../ContainerWithDimensions';
@@ -9,31 +9,7 @@ import {
   getSquareSize,
 } from './util';
 import { useDrop } from 'react-dnd';
-import { AbsoluteCoord, DndItem } from './types';
-
-// export const getMouseCoords = (
-//   // e: MouseEvent,
-//   rect: Rect,
-//   flipped = false
-// ): AbsoluteCoord => {
-//   // const rect = (e.target as any).getBoundingClientRect();
-
-//   const absolutePos = {
-//     x: e.clientX - rect.left, // x position within the element.,
-//     y: e.clientY - rect.top, // y position within the element.,
-//   };
-
-//   if (flipped) {
-//     const next = {
-//       x: rect.width - absolutePos.x,
-//       y: rect.height - absolutePos.y,
-//     };
-
-//     return next;
-//   }
-
-//   return absolutePos;
-// };
+import { DndItem } from './types';
 
 const getAbsoluteCoords = (
   rect: Rect,

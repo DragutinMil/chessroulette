@@ -16,7 +16,12 @@ export type IconProps = React.DetailedHTMLProps<
   className?: string;
 };
 
-export const Icon = ({ name: icon, kind = 'solid', className, ...props }: IconProps) => {
+export const Icon = ({
+  name: icon,
+  kind = 'solid',
+  className,
+  ...props
+}: IconProps) => {
   const x = iconKinds[kind];
   if (!keyInObject(x, icon)) {
     return null;

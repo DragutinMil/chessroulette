@@ -51,6 +51,12 @@ export const DesktopRoomLayout: React.FC<DesktopRoomLayoutProps> = ({
   const containerRef = useRef(null);
   const containerDimensions = useContainerDimensions(containerRef);
 
+  // useEffect(() => {
+  //   console.log('container dimensions changed', containerDimensions);
+  // }, [containerDimensions]);
+
+  const s = useMemo(() => {}, []);
+
   // TODO: Add this
   // useBodyClass([cls.disableBodyScroll]);
 
@@ -194,7 +200,8 @@ export const DesktopRoomLayout: React.FC<DesktopRoomLayoutProps> = ({
   // );
 
   return (
-    <div className={`w-full h-full flex flex-col ${className}`}>
+    <div className={`flex flex-col sitems-stretch ${className} sbg-green-100`}>
+      {/* in desktop room layout */}
       {/* <div className='fixed p-4' style={{
         top: 10,
         left: 10,
@@ -204,16 +211,20 @@ export const DesktopRoomLayout: React.FC<DesktopRoomLayoutProps> = ({
       </div> */}
       {/* <div style={{ height: props.topHeight }}>{renderedTop}</div> */}
       <div
-        className={'flex flex-col items-end'}
+        className={
+          'flex flex-col ≥sitems-stretch sitems-end w-full h-full smax-h-full smax-w-full sbg-blue-100'
+        }
         ref={containerRef}
-        style={{
-          // This is needed so the flex works correctly on the content children
-          height: `calc(100% - ${props.topHeight + props.bottomHeight}px)`,
-        }}
+        style={
+          {
+            // This is needed so the flex works correctly on the content children
+            // height: `calc(100% - ${props.topHeight + props.bottomHeight}px)`,
+          }
+        }
       >
-        <div className="flex self-end">
+        <div className="flex flex-1 sbg-yellow-500">
           <main
-            className="flex content-end"
+            className="flex scontent-end"
             style={{
               width: `${
                 extendedDimensions.main.width +
@@ -239,10 +250,11 @@ export const DesktopRoomLayout: React.FC<DesktopRoomLayoutProps> = ({
               // This is a hack to go above the top & bottom components
               //  But ideally it could be done better!
               // height: `calc(100% + ${props.topHeight + props.bottomHeight}px)`,
-              height:
-                props.topHeight + props.bottomHeight > 0
-                  ? `calc(100% + ${props.topHeight + props.bottomHeight}px)`
-                  : '100%',
+              // height:
+              //   props.topHeight + props.bottomHeight > 0
+              //     ? `calc(100% + ${props.topHeight + props.bottomHeight}px)`
+              //     : '100%',
+              background: 'red',
               marginTop: -props.topHeight,
               position: 'relative',
             }}

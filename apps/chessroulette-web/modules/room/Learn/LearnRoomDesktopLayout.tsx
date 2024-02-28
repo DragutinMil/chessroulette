@@ -15,21 +15,21 @@ const LAYOUT_RATIOS = {
   rightSide: 2.5,
 };
 
-export const LearnTemplate = ({
+export const LearnRoomDesktopLayout = ({
   mainComponent,
-  mainContainerClass = '',
   rightSideComponent,
   containerClassName,
-}: Props) => {
-  return (
+}: Props) => (
+  <>
+    {/* here on server on room desktop layout */}
     <DesktopRoomLayout
       ratios={LAYOUT_RATIOS}
-      className={containerClassName}
+      className={`absolute inset-0 overflow-scroll ${containerClassName}`}
       renderMainComponent={mainComponent}
       renderRightSideComponent={rightSideComponent}
       topHeight={0}
       minSpaceBetween={16}
       bottomHeight={0}
     />
-  );
-};
+  </>
+);

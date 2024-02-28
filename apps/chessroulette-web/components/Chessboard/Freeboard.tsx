@@ -1,12 +1,12 @@
 import { ChessFENBoard } from '@xmatter/util-kit';
 import {
-  ChessboardContainer,
-  ChessboardContainerProps,
-} from './ChessboardContainer';
+  ChessboardContainerWithSize,
+  ChessboardContainerWithSizeProps,
+} from './ChessboardContainerWithSize';
 
-type Props = ChessboardContainerProps;
+type Props = ChessboardContainerWithSizeProps;
 
 export const Freeboard = ({
   fen = ChessFENBoard.STARTING_FEN,
   ...props
-}: Props) => <ChessboardContainer fen={fen} {...props} />;
+}: Props) => <ChessboardContainerWithSize fen={fen} {...props} />;

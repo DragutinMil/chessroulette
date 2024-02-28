@@ -1,569 +1,461 @@
 'use client';
 
 import movexConfig from 'apps/chessroulette-web/movex.config';
-import { ResourceIdentifier } from 'movex-core-util';
-import { MovexBoundResource } from 'movex-react';
-import { LearnTemplate } from './LearnTemplate';
-import {
-  ChessColor,
-  ChessFEN,
-  ChessFENBoard,
-  FreeBoardHistory as FBH,
-  getNewChessGame,
-  invoke,
-  swapColor,
-  toDictIndexedBy,
-} from '@xmatter/util-kit';
-import { useUserId } from 'apps/chessroulette-web/hooks/useUserId/useUserId';
-import { useCallback, useEffect, useState } from 'react';
-import Streaming from '../Streaming';
-import { PgnInputBox } from 'apps/chessroulette-web/components/PgnInputBox';
-import { Button } from 'apps/chessroulette-web/components/Button';
-import { Tabs } from 'apps/chessroulette-web/components/Tabs';
-import { Square } from 'react-chessboard/dist/chessboard/types';
-import {
-  SquareMap,
-  ArrowsMap,
-  CirclesMap,
-  ChapterState,
-} from '../activity/reducer';
+import { MovexBoundResourceFromConfig } from 'movex-react';
+import { ChessFENBoard, max, noop, swapColor } from '@xmatter/util-kit';
+import { useEffect, useReducer, useRef, useState } from 'react';
 import { IceServerRecord } from 'apps/chessroulette-web/providers/PeerToPeerProvider/type';
-import { BoardEditor } from 'apps/chessroulette-web/components/Chessboard/BoardEditor';
-import { FreeBoardNotation } from 'apps/chessroulette-web/components/FreeBoardNotation';
 import { useLearnActivitySettings } from './useLearnActivitySettings';
+import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
+import {
+  LearnActivityState,
+  findLoadedChapter,
+  initialDefaultChapter,
+} from '../activity/reducer';
+import { WidgetPanel } from './components/WidgetPanel';
+import { UserId } from '../../user/type';
+import { CameraPanel } from './components/CameraPanel';
+import { RoomState } from '../movex/reducer';
+import { LearnBoardEditor } from './components/LearnBoardEditor';
+import { LearnBoard, RIGHT_SIDE_SIZE_PX } from './components/LearnBoard';
+import inputReducer, { initialInputState } from '../activity/inputReducer';
+import { ChapterDisplayView } from './chapters/ChapterDisplayView';
+import { useContainerDimensions } from 'apps/chessroulette-web/components/ContainerWithDimensions';
 import { Freeboard } from 'apps/chessroulette-web/components/Chessboard/Freeboard';
-import { Playboard } from 'apps/chessroulette-web/components/Chessboard/Playboard';
-import { FenPreview } from './components/FenPreview';
-import { ChaptersTab } from './chapters/ChaptersTab';
-import { Icon } from 'apps/chessroulette-web/components/Icon';
-import { usePathname, useSearchParams } from 'next/navigation';
-import { useRouter } from 'next/navigation';
-import { useUpdateableSearchParams } from 'apps/chessroulette-web/hooks/useSearchParams';
-import { EditChaptersWidget } from './chapters/EditChaptersWidget';
+import { IconButton } from 'apps/chessroulette-web/components/Button';
 
-// type ChessColor = 'white' | 'black';
-
-type Props = {
-  rid: ResourceIdentifier<'room'>;
-  fen?: ChessFEN;
-  playingColor?: ChessColor;
+export type LearnActivityProps = {
+  roomId: string;
+  userId: UserId;
   iceServers: IceServerRecord[];
+  participants?: RoomState['participants'];
+  remoteState: LearnActivityState['activityState'];
+  dispatch?: MovexBoundResourceFromConfig<
+    (typeof movexConfig)['resources'],
+    'room'
+  >['dispatch'];
 };
 
-type Tabs = 'history' | 'import';
+export const LearnActivity = ({
+  remoteState,
+  userId,
+  participants,
+  roomId,
+  iceServers,
+  dispatch: optionalDispatch,
+}: LearnActivityProps) => {
+  const dispatch = optionalDispatch || noop;
 
-export default ({ playingColor = 'white', iceServers, ...props }: Props) => {
-  const router = useRouter();
-  const currentPathName = usePathname();
-  const updatedableSearchParams = useUpdateableSearchParams();
-
-  const userId = useUserId();
   const settings = useLearnActivitySettings();
+  const containerRef = useRef(null);
+  const [mainPanelPercentageSize, setMainPanelPercentageSize] = useState(0);
+  const [boardSize, setBoardSize] = useState(0);
 
-  const searchParams = useSearchParams();
+  const containerDimensions = useContainerDimensions(containerRef);
 
-  const isEditParamsSet = searchParams.get('edit') === '1';
+  const [negativeMargin, setNegativeMargin] = useState(0);
+  const [rightSidePct, setRightSidePct] = useState(0);
 
-  const [editMode, setEditMode] = useState<{
-    isActive: boolean;
-    state: Pick<ChapterState, 'fen' | 'arrowsMap' | 'circlesMap'>;
-  }>({
-    isActive: isEditParamsSet,
-    state: {
-      fen: ChessFENBoard.STARTING_FEN,
-    },
-  });
-
-  const Board = settings.canMakeInvalidMoves ? Freeboard : Playboard;
-
-  const updateEditedFen = useCallback((nextFen: ChessFEN) => {
-    setEditMode((prev) => ({
-      ...prev,
-      state: {
-        ...prev.state,
-        fen: nextFen,
-      },
-    }));
-  }, []);
-
+  // TODO: This is a WIP - needs refactoring and clearing
+  //  especially around the negativeMargin, centering and determinging the new board Size with a right side,
+  //  as well as defining the tight side as a constant
   useEffect(() => {
-    // console.log('Edit Mode State Updated', editMode);
-    setEditMode((prev) => ({
-      ...prev,
-      isActive: isEditParamsSet,
-    }));
-  }, [isEditParamsSet]);
+    if (!containerDimensions.updated) {
+      return;
+    }
+
+    const mainPanelWidthPx =
+      (mainPanelPercentageSize / 100) * containerDimensions.width;
+
+    const nextBoardSize =
+      containerDimensions.height < mainPanelWidthPx
+        ? // If the height is smaller than the main panel's width, use that
+          // setNegativeMargin((containerDimensions.height - mainPanelWidthPx) / 2);
+          containerDimensions.height
+        : // otherwise use the totality of the main panel - the side (32px)
+          // TODO: Refactor the usage of RIGHT_SIDE_SIZE_PX
+          mainPanelWidthPx - RIGHT_SIDE_SIZE_PX;
+
+    setBoardSize(nextBoardSize);
+
+    const rightPanelWidthPx = (rightSidePct / 100) * containerDimensions.width;
+
+    setNegativeMargin(
+      max(
+        (containerDimensions.width - (nextBoardSize + rightPanelWidthPx)) / 2 -
+          8, // TODO: Why 8 here? Need to rework all of this logic once the major bugs are fixed!
+        0
+      )
+    );
+  }, [containerDimensions, mainPanelPercentageSize, rightSidePct]);
+
+  const [inputState, dispatchInputState] = useReducer(
+    inputReducer,
+    initialInputState
+  );
+
+  const currentChapter =
+    findLoadedChapter(remoteState) || initialDefaultChapter;
 
   return (
-    <LearnTemplate
-      mainComponent={(p) => (
-        <>
-          {userId && (
-            <MovexBoundResource
-              movexDefinition={movexConfig}
-              rid={props.rid}
-              onReady={({ boundResource }) => {
-                boundResource.dispatch({
-                  type: 'join',
-                  payload: { userId },
-                });
-              }}
-              onComponentWillUnmount={(s) => {
-                if (s.init) {
-                  s.boundResource.dispatch({
-                    type: 'leave',
-                    payload: { userId },
-                  });
-                }
-              }}
-              render={({ boundResource: { state, dispatch } }) => {
-                if (state.activity.activityType !== 'learn') {
-                  return null;
-                }
-
-                const { activityState } = state.activity;
-
-                console.group('Learn Activity Rerender');
-                console.log('Activity State', activityState);
-                console.log('History', activityState.history.moves);
-                console.log(
-                  'Focused Index',
-                  FBH.renderIndex(activityState.history.focusedIndex)
-                );
-                console.groupEnd();
-
-                const { history } = activityState;
-
-                const lm = FBH.findMoveAtIndex(
-                  history.moves,
-                  history.focusedIndex
-                );
-                const lastMove = lm?.isNonMove ? undefined : lm;
-
-                // Don't leave this here as it's not optimal
-                const inCheckSquaresMap = invoke((): SquareMap => {
-                  let result: Square[] = [];
-
-                  const fenBoardInstance = new ChessFENBoard(activityState.fen);
-
-                  fenBoardInstance.setFenNotation({
-                    fromState: { turn: 'w', enPassant: undefined },
-                  });
-
-                  const fenAsWhiteTurn = fenBoardInstance.fen;
-
-                  fenBoardInstance.setFenNotation({
-                    fromState: { turn: 'b', enPassant: undefined },
-                  });
-
-                  const fenAsBlackTurn = fenBoardInstance.fen;
-
-                  const chessInstanceAsWhite = getNewChessGame({
-                    fen: fenAsWhiteTurn,
-                  });
-
-                  if (chessInstanceAsWhite.isCheck()) {
-                    const whiteKingSquare = fenBoardInstance.getKingSquare('w');
-
-                    if (whiteKingSquare) {
-                      result = [whiteKingSquare];
-                    }
-                  }
-
-                  const chessInstanceAsBlack = getNewChessGame({
-                    fen: fenAsBlackTurn,
-                  });
-
-                  if (chessInstanceAsBlack.isCheck()) {
-                    const blackKingSquare = fenBoardInstance.getKingSquare('b');
-
-                    if (blackKingSquare) {
-                      result = [...result, blackKingSquare];
-                    }
-                  }
-
-                  return toDictIndexedBy(
-                    result,
-                    (sq) => sq,
-                    () => undefined
-                  ) as SquareMap;
-                });
-
-                const playingColor = settings.isBoardFlipped
-                  ? swapColor(activityState.boardOrientation)
-                  : activityState.boardOrientation;
-
-                // console.log('playing color', playingColor);
-
-                return (
-                  <div className="flex border-slate-900">
-                    {editMode.isActive ? (
-                      <BoardEditor
-                        fen={editMode.state.fen}
-                        sizePx={p.center.width}
-                        onUpdated={updateEditedFen}
-                        boardOrientation={playingColor}
-                        onArrowsChange={(arrowsMap) => {
-                          // console.log('on arrow change?');
-                          // dispatch({ type: 'arrowChange', payload });
-                          setEditMode((prev) => ({
-                            ...prev,
-                            state: {
-                              ...prev.state,
-                              arrowsMap,
-                            },
-                          }));
-                        }}
-                        arrowsMap={editMode.state.arrowsMap}
-                        circlesMap={editMode.state.circlesMap}
-                        onCircleDraw={(circleTuple) => {
-                          setEditMode((prev) => {
-                            const [at] = circleTuple;
-
-                            const circleId = `${at}`;
-
-                            const { [circleId]: existent, ...restOfCirles } =
-                              prev.state.circlesMap || {};
-
-                            return {
-                              ...prev,
-                              state: {
-                                ...prev.state,
-                                circlesMap: {
-                                  ...restOfCirles,
-                                  ...(!!existent
-                                    ? undefined // Set it to undefined if same
-                                    : { [circleId]: circleTuple }),
-                                },
-                              },
-                            };
-                          });
-                        }}
-                        onClearCircles={() => {
-                          setEditMode((prev) => ({
-                            ...prev,
-                            state: {
-                              ...prev.state,
-                              circlesMap: {},
-                            },
-                          }));
-                        }}
-                        onFlipBoard={() => {
-                          // setEditMode((prev) => ({
-                          //   ...prev,
-                          //   orientation: swapColor(prev.orientation),
-                          // }));
-                          // dispatch({
-                          //   type: 'changeBoardOrientation',
-                          //   payload:
-                          //     activityState.boardOrientation === 'black'
-                          //       ? 'white'
-                          //       : 'black',
-                          // });
-                        }}
-                      />
-                    ) : (
-                      <Board
-                        containerClassName="shadow-2xl"
-                        boardOrientation={playingColor}
-                        playingColor={playingColor}
-                        sizePx={p.center.width}
-                        fen={activityState.fen}
-                        lastMove={lastMove}
-                        inCheckSquares={inCheckSquaresMap}
-                        onMove={(payload) => {
-                          dispatch({ type: 'dropPiece', payload });
-
-                          // TODO: This can be returned from a more internal component
-                          return true;
-                        }}
-                        onArrowsChange={(payload) => {
-                          dispatch({ type: 'arrowChange', payload });
-                        }}
-                        arrowsMap={activityState.arrows}
-                        onCircleDraw={(tuple) => {
-                          dispatch({
-                            type: 'drawCircle',
-                            payload: tuple,
-                          });
-                        }}
-                        onClearCircles={() => {
-                          dispatch({ type: 'clearCircles' });
-                        }}
-                        circlesMap={activityState.circles}
-                      />
-                    )}
-
-                    <div className="flex flex-col p-1 pt-0 pb-0">
-                      {!editMode.isActive && settings.canFlipBoard && (
-                        <div className="mb-2">
-                          <Icon
-                            name="ArrowsUpDownIcon"
-                            kind="outline"
-                            className=" h-6 w-6 hover:bg-slate-300 hover:cursor-pointer hover:text-black hover:rounded-lg"
-                            title="Flip Board"
-                            onClick={() => {
-                              dispatch({
-                                type: 'changeBoardOrientation',
-                                payload:
-                                  activityState.boardOrientation === 'black'
-                                    ? 'white'
-                                    : 'black',
-                              });
-                            }}
-                          />
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                );
-              }}
-            />
-          )}
-        </>
-      )}
-      rightSideComponent={(p) => (
-        <div
-          className="flex flex-col space-between w-full relative"
-          style={{ height: p.center.height }}
+    <div
+      id="learn-activity-container"
+      className="flex w-full h-full align-center justify-center sbg-red-100"
+      ref={containerRef}
+      style={{
+        marginLeft: -negativeMargin,
+      }}
+    >
+      <PanelGroup
+        autoSaveId="learn-activity"
+        direction="horizontal"
+        className="sbg-green-500 relative"
+      >
+        {/* <div className="absolute bg-red-900 p-2" style={{ right: 0, zIndex: 999}}>{negativeMargin}</div> */}
+        <Panel
+          defaultSize={70}
+          className="flex sjustify-end justify-end"
+          onResize={setMainPanelPercentageSize}
+          tagName="main"
+          style={{
+            // refactor this to not have to use RIGHT_SIDE_SIZE_PX in so many places
+            paddingRight: RIGHT_SIDE_SIZE_PX,
+          }}
         >
-          <div className="flex flex-col flex-1 min-h-0 gap-4">
-            <div className="overflow-hidden rounded-lg shadow-2xl">
-              <Streaming
-                rid={props.rid}
-                iceServers={iceServers}
-                aspectRatio={16 / 9}
-              />
-            </div>
-
-            <MovexBoundResource
-              movexDefinition={movexConfig}
-              rid={props.rid}
-              render={({ boundResource: { state, dispatch } }) => {
-                if (state.activity.activityType !== 'learn') {
-                  return null;
-                }
-
-                const { activityState } = state.activity;
-
-                if (editMode.isActive) {
-                  return (
-                    <EditChaptersWidget
-                      boardState={editMode.state}
-                      chaptersMap={activityState.chaptersMap}
-                      onCreate={(s) => {
-                        dispatch({
-                          type: 'createChapter',
-                          payload: {
-                            name: s.name,
-                            fen: s.fen,
-                            arrowsMap: editMode.state.arrowsMap,
-                            circlesMap: editMode.state.circlesMap,
-                          },
-                        });
-                      }}
-                      onDeleteChapter={(id) => {
-                        dispatch({
-                          type: 'deleteChapter',
-                          payload: { id },
-                        });
-                      }}
-                      onUpdateChapter={(id, state) => {
-                        dispatch({
-                          type: 'updateChapter',
-                          payload: { id, state },
-                        });
-                      }}
-                      onUpdateFen={(fen) => {
-                        setEditMode((prev) => ({
-                          ...prev,
-                          state: {
-                            ...prev.state,
-                            fen,
-                          },
-                        }));
-                      }}
-                      onExitEditMode={() => {
-                        router.push(
-                          `${currentPathName}?${updatedableSearchParams.set(
-                            (prev) => ({
-                              ...prev,
-                              edit: undefined,
-                            })
-                          )}`
-                        );
-                      }}
-                      onUseChapter={(id) => {
-                        const nextChapter = activityState.chaptersMap[id];
-
-                        setEditMode((prev) => ({
-                          ...prev,
-                          state: {
-                            ...prev.state,
-                            fen: nextChapter.fen,
-                            arrowsMap: nextChapter.arrowsMap,
-                            circlesMap: nextChapter.circlesMap,
-                          },
-                        }));
-                      }}
-                      onUseCurrentBoard={() => {
-                        dispatch({
-                          type: 'importFen',
-                          payload: editMode.state.fen,
-                        });
-
-                        router.push(
-                          `${currentPathName}?${updatedableSearchParams.set(
-                            (prev) => ({
-                              ...prev,
-                              edit: undefined,
-                            })
-                          )}`
-                        );
-                      }}
-                      onClearArrowsAndCircles={() => {
-                        setEditMode((prev) => ({
-                          ...prev,
-                          state: {
-                            ...prev.state,
-                            arrowsMap: undefined,
-                            circlesMap: undefined,
-                          },
-                        }));
-                      }}
-                    />
-                  );
-                }
-
-                return (
-                  <Tabs
-                    containerClassName="bg-slate-700 p-3 flex flex-col flex-1 min-h-0 soverflow-hidden rounded-lg shadow-2xl"
-                    headerContainerClassName="flex gap-3 pb-3 border-b border-slate-500"
-                    contentClassName="flex-1 flex min-h-0"
-                    currentIndex={0}
-                    renderContainerHeader={({ tabs, focus }) => (
-                      <div className="flex flex-row gap-3 pb-3 border-b border-slate-500">
-                        {tabs.map((c) => c)}
-                      </div>
-                    )}
-                    tabs={[
-                      {
-                        renderHeader: (p) => (
-                          <Button
-                            onClick={p.focus}
-                            size="sm"
-                            className={`bg-slate-600 font-bold hover:bg-slate-800 ${
-                              p.isFocused && 'bg-slate-800'
-                            }`}
-                          >
-                            Notation
-                          </Button>
-                        ),
-                        renderContent: () => (
-                          <div className="flex flex-col flex-1 gap-2 bg-slate-700 min-h-0">
-                            <FreeBoardNotation
-                              history={activityState.history.moves}
-                              // containerClassName="overflow-scroll bg-red-200 sh-full"
-                              focusedIndex={activityState.history.focusedIndex}
-                              onRefocus={(index) => {
-                                dispatch({
-                                  type: 'focusHistoryIndex',
-                                  payload: { index },
-                                });
-                              }}
-                              onDelete={(atIndex) => {
-                                dispatch({
-                                  type: 'deleteHistoryMove',
-                                  payload: { atIndex },
-                                });
-                              }}
-                            />
-                            <FenPreview fen={activityState.fen} />
-                          </div>
+          {settings.isInstructor && inputState.isActive ? (
+            // Preparing Mode
+            <>
+              {inputState.isBoardEditorShown ? (
+                <LearnBoardEditor
+                  state={inputState.chapterState}
+                  boardSizePx={boardSize}
+                  onUpdated={(fen) => {
+                    dispatchInputState({
+                      type: 'updateChapterFen',
+                      payload: { fen },
+                    });
+                  }}
+                  onArrowsChange={(arrowsMap) => {
+                    dispatchInputState({
+                      type: 'updatePartialChapter',
+                      payload: { arrowsMap },
+                    });
+                  }}
+                  onCircleDraw={(payload) => {
+                    dispatchInputState({
+                      type: 'drawCircle',
+                      payload,
+                    });
+                  }}
+                  onClearCircles={() => {
+                    dispatchInputState({ type: 'clearCircles' });
+                  }}
+                  onFlipBoard={() => {
+                    // TODO: Fix this
+                    dispatchInputState({
+                      type: 'updatePartialChapter',
+                      payload: {
+                        orientation: swapColor(
+                          inputState.chapterState.orientation
                         ),
                       },
-                      settings.isInstructor
-                        ? {
-                            renderHeader: (p) => (
-                              <Button
-                                onClick={p.focus}
-                                size="sm"
-                                className={`bg-slate-600 font-bold hover:bg-slate-800 ${
-                                  p.isFocused && 'bg-slate-800'
-                                }`}
-                              >
-                                Chapters (
-                                {Object.keys(activityState.chaptersMap).length})
-                              </Button>
-                            ),
-                            renderContent: () => (
-                              <ChaptersTab
-                                boardFen={editMode.state.fen}
-                                chaptersMap={activityState.chaptersMap}
-                                className="min-h-0"
-                                onUseChapter={(id) => {
-                                  dispatch({
-                                    type: 'playChapter',
-                                    payload: { id },
-                                  });
-                                }}
-                              />
-                            ),
-                          }
-                        : undefined,
-                      settings.canImport
-                        ? {
-                            renderHeader: (p) => (
-                              <Button
-                                onClick={p.focus}
-                                size="sm"
-                                className={`bg-slate-600 font-bold hover:bg-slate-800 ${
-                                  p.isFocused && 'bg-slate-800'
-                                }`}
-                              >
-                                Import
-                              </Button>
-                            ),
-                            renderContent: (p) => (
-                              <PgnInputBox
-                                containerClassName="flex-1 h-full"
-                                contentClassName="p-3 bg-slate-600 rounded-b-lg"
-                                onChange={(inputType, nextInput) => {
-                                  if (inputType === 'FEN') {
-                                    dispatch({
-                                      type: 'importFen',
-                                      payload: nextInput,
-                                    });
-                                  } else if (inputType === 'PGN') {
-                                    dispatch({
-                                      type: 'importPgn',
-                                      payload: nextInput,
-                                    });
-                                  }
+                    });
+                  }}
+                  onClose={() => {
+                    dispatchInputState({
+                      type: 'update',
+                      payload: { isBoardEditorShown: false },
+                    });
+                  }}
+                />
+              ) : (
+                <Freeboard
+                  sizePx={boardSize}
+                  {...inputState.chapterState}
+                  fen={inputState.chapterState.displayFen}
+                  // boardOrientation={inputState.chapterState.orientation}
+                  boardOrientation={
+                    settings.isInstructor
+                      ? swapColor(inputState.chapterState.orientation)
+                      : inputState.chapterState.orientation
+                  }
+                  onMove={(move) => {
+                    dispatchInputState({ type: 'move', payload: { move } });
 
-                                  // setTimeout(() => {
-                                  setEditMode((prev) => ({
-                                    ...prev,
-                                    state: {
-                                      ...prev.state,
-                                      fen: ChessFENBoard.STARTING_FEN,
-                                    },
-                                  }));
-                                  // }, 1000);
-                                  p.focus(0);
-                                }}
-                              />
-                            ),
-                          }
-                        : undefined,
-                    ]}
-                  />
-                );
+                    // TODO: This can be returned from a more internal component
+                    return true;
+                  }}
+                  onArrowsChange={(arrowsMap) => {
+                    dispatchInputState({
+                      type: 'updatePartialChapter',
+                      payload: { arrowsMap },
+                    });
+                  }}
+                  onCircleDraw={(payload) => {
+                    dispatchInputState({
+                      type: 'drawCircle',
+                      payload,
+                    });
+                  }}
+                  onClearCircles={() => {
+                    dispatchInputState({ type: 'clearCircles' });
+                  }}
+                  rightSideSizePx={RIGHT_SIDE_SIZE_PX}
+                  rightSideClassName="flex flex-col"
+                  rightSideComponent={
+                    <>
+                      <div className="flex-1">
+                        <IconButton
+                          icon="ArrowsUpDownIcon"
+                          iconKind="outline"
+                          type="clear"
+                          size="sm"
+                          tooltip="Flip Board"
+                          tooltipPositon="left"
+                          className="mb-2"
+                          onClick={() => {
+                            dispatchInputState({
+                              type: 'updatePartialChapter',
+                              payload: {
+                                orientation: swapColor(
+                                  inputState.chapterState.orientation
+                                ),
+                              },
+                            });
+                          }}
+                        />
+                        <IconButton
+                          icon="TrashIcon"
+                          iconKind="outline"
+                          type="clear"
+                          size="sm"
+                          tooltip="Clear Board"
+                          tooltipPositon="left"
+                          className="mb-2"
+                          onClick={() => {
+                            dispatchInputState({
+                              type: 'updateChapterFen',
+                              payload: { fen: ChessFENBoard.ONLY_KINGS_FEN },
+                            });
+                          }}
+                        />
+                        <IconButton
+                          icon="ArrowPathIcon"
+                          iconKind="outline"
+                          type="clear"
+                          size="sm"
+                          tooltip="Start Position"
+                          tooltipPositon="left"
+                          className="mb-2"
+                          onClick={() => {
+                            dispatchInputState({
+                              type: 'updateChapterFen',
+                              payload: { fen: ChessFENBoard.STARTING_FEN },
+                            });
+                          }}
+                        />
+
+                        <IconButton
+                          icon="PencilSquareIcon"
+                          iconKind="outline"
+                          type="clear"
+                          size="sm"
+                          tooltip="Board Editor"
+                          tooltipPositon="left"
+                          className="mb-2"
+                          onClick={() => {
+                            dispatchInputState({
+                              type: 'update',
+                              payload: { isBoardEditorShown: true },
+                            });
+                          }}
+                        />
+                      </div>
+
+                      <div className="relative flex flex-col items-center justify-center">
+                        <PanelResizeHandle
+                          className="w-1 h-20 rounded-lg bg-slate-600"
+                          title="Resize"
+                        />
+                      </div>
+                      <div className="flex-1" />
+                    </>
+                  }
+                />
+              )}
+            </>
+          ) : (
+            // Learn Mode
+            <LearnBoard
+              sizePx={boardSize}
+              {...currentChapter}
+              orientation={
+                // The instructor gets the opposite side as the student (so they can play together)
+                settings.isInstructor
+                  ? swapColor(currentChapter.orientation)
+                  : currentChapter.orientation
+              }
+              onFlip={() => {
+                dispatch({
+                  type: 'loadedChapter:setOrientation',
+                  payload: swapColor(currentChapter.orientation),
+                });
+              }}
+              onMove={(payload) => {
+                dispatch({ type: 'loadedChapter:addMove', payload });
+
+                // TODO: This can be returned from a more internal component
+                return true;
+              }}
+              onArrowsChange={(payload) => {
+                dispatch({ type: 'loadedChapter:setArrows', payload });
+              }}
+              onCircleDraw={(tuple) => {
+                dispatch({
+                  type: 'loadedChapter:drawCircle',
+                  payload: tuple,
+                });
+              }}
+              onClearCircles={() => {
+                dispatch({ type: 'loadedChapter:clearCircles' });
+              }}
+              onClearBoard={() => {
+                dispatch({
+                  type: 'loadedChapter:updateFen',
+                  payload: ChessFENBoard.ONLY_KINGS_FEN,
+                });
+              }}
+              onResetBoard={() => {
+                dispatch({
+                  type: 'loadedChapter:updateFen',
+                  payload: ChessFENBoard.STARTING_FEN,
+                });
+              }}
+              rightSideClassName="flex-1"
+              rightSideComponent={
+                <>
+                  <div className="relative flex flex-1 flex-col items-center justify-center">
+                    <PanelResizeHandle
+                      className="w-1 h-20 rounded-lg bg-slate-600"
+                      title="Resize"
+                    />
+                  </div>
+                  <div className="flex-1" />
+                </>
+              }
+            />
+          )}
+        </Panel>
+        <Panel
+          defaultSize={33}
+          minSize={33}
+          maxSize={40}
+          tagName="aside"
+          className="flex flex-col space-between w-full relative h-full"
+          onResize={setRightSidePct}
+        >
+          <div className="flex flex-col flex-1 min-h-0 gap-4">
+            {participants && participants[userId] && (
+              <div className="overflow-hidden rounded-lg shadow-2xl">
+                {/* // This needs to show only when the user is a participants //
+                otherwise it's too soon and won't connect to the Peers */}
+                <CameraPanel
+                  participants={participants}
+                  userId={userId}
+                  peerGroupId={roomId}
+                  iceServers={iceServers}
+                  aspectRatio={16 / 9}
+                />
+              </div>
+            )}
+
+            {/* {inputState.isActive ? 'active' : 'not active'} */}
+            {inputState.isActive ? (
+              <div className="flex gap-2">
+                <span className="capitalize">Editing</span>
+                <span className="font-bold">
+                  "{inputState.chapterState.name}"
+                </span>
+              </div>
+            ) : (
+              <ChapterDisplayView chapter={currentChapter} />
+            )}
+            <WidgetPanel
+              currentChapterState={currentChapter}
+              chaptersMap={remoteState?.chaptersMap || {}}
+              inputModeState={inputState}
+              chaptersMapIndex={remoteState?.chaptersIndex || 0}
+              currentLoadedChapterId={remoteState?.loadedChapterId}
+              onActivateInputMode={(payload) => {
+                dispatchInputState({ type: 'activate', payload });
+              }}
+              onDeactivateInputMode={() => {
+                dispatchInputState({ type: 'deactivate' });
+              }}
+              onUpdateInputModeState={(payload) => {
+                dispatchInputState({ type: 'update', payload });
+              }}
+              onHistoryNotationRefocus={(payload) => {
+                dispatch({
+                  type: 'loadedChapter:focusHistoryIndex',
+                  payload,
+                });
+              }}
+              onHistoryNotationDelete={(payload) => {
+                dispatch({
+                  type: 'loadedChapter:deleteHistoryMove',
+                  payload,
+                });
+              }}
+              onImport={(payload) => {
+                // TODO: This is retarded - having to check and then send the exact same thing :)
+                if (payload.type === 'FEN') {
+                  dispatchInputState({ type: 'import', payload });
+                } else {
+                  dispatchInputState({ type: 'import', payload });
+                }
+              }}
+              onCreateChapter={() => {
+                if (inputState.isActive) {
+                  dispatch({
+                    type: 'createChapter',
+                    payload: inputState.chapterState,
+                  });
+                }
+              }}
+              onUpdateChapter={(id) => {
+                if (inputState.isActive) {
+                  dispatch({
+                    type: 'updateChapter',
+                    payload: {
+                      id,
+                      state: inputState.chapterState,
+                    },
+                  });
+                }
+              }}
+              onDeleteChapter={(id) => {
+                dispatch({
+                  type: 'deleteChapter',
+                  payload: { id },
+                });
+              }}
+              onLoadChapter={(id) => {
+                dispatch({
+                  type: 'loadChapter',
+                  payload: { id },
+                });
+              }}
+              onQuickImport={(payload) => {
+                dispatch({
+                  type: 'loadedChapter:import',
+                  payload,
+                });
               }}
             />
           </div>
-        </div>
-      )}
-    />
+        </Panel>
+      </PanelGroup>
+    </div>
   );
 };

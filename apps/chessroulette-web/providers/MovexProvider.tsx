@@ -8,8 +8,6 @@ import { config } from '../config';
 export default (props: React.PropsWithChildren) => {
   const userId = useUserId();
 
-  console.log('config', config);
-
   if (!userId) {
     return null;
   }
@@ -21,7 +19,7 @@ export default (props: React.PropsWithChildren) => {
       clientId={userId || undefined}
       // socketUrl={config.MOVEX_URL}
       onConnected={(instance) => {
-        console.log('Movex Connected', instance.getClientId());
+        // console.log('Movex Connected', instance.getClientId());
 
         // if (!counterRid) {
         //   instance

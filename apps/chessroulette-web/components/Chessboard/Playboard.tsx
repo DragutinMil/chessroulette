@@ -1,13 +1,18 @@
 import { useEffect } from 'react';
 import useInstance from '@use-it/instance';
 import { Chess } from 'chess.js';
-import { ChessColor, ChessFENBoard, getNewChessGame, toShortColor } from '@xmatter/util-kit';
 import {
-  ChessboardContainer,
-  ChessboardContainerProps,
-} from './ChessboardContainer';
+  ChessColor,
+  ChessFENBoard,
+  getNewChessGame,
+  toShortColor,
+} from '@xmatter/util-kit';
+import {
+  ChessboardContainerWithSize,
+  ChessboardContainerWithSizeProps,
+} from './ChessboardContainerWithSize';
 
-type Props = ChessboardContainerProps & {
+type Props = ChessboardContainerWithSizeProps & {
   playingColor?: ChessColor;
 };
 
@@ -29,7 +34,7 @@ export const Playboard = ({
   }, [fen]);
 
   return (
-    <ChessboardContainer
+    <ChessboardContainerWithSize
       fen={fen}
       boardOrientation={playingColor || boardOrientation}
       onMove={(m) => {

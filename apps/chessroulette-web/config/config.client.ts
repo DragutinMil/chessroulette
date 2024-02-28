@@ -21,3 +21,5 @@ export const config = {
   CAMERA_ON,
   DEV_MODE,
 };
+
+console.log('Client Config', config);

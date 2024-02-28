@@ -13,7 +13,6 @@ export default function Page() {
           {/* <div className="bg-blue-100 aspect-video" /> */}
         </div>
         <div className="flex-1" />
-
       </div>
     </RoomTemplate>
   );

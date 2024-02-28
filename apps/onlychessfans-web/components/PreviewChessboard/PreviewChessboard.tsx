@@ -47,7 +47,8 @@ export const PreviewChessboard = React.memo(
               return;
             }
 
-            const { color, piece } = fenBoardPieceSymbolToDetailedChessPiece(p);
+            const { color, type: piece } =
+              fenBoardPieceSymbolToDetailedChessPiece(p);
 
             const img =
               pieces[`${color}${piece.toUpperCase()}` as keyof typeof pieces];

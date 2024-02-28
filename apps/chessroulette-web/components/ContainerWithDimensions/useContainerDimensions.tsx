@@ -1,6 +1,5 @@
-import debounce from 'debounce';
 import React, { useEffect, useState } from 'react';
-import { isDeepStrictEqual } from 'util';
+import debounce from 'debounce';
 
 export type ContainerDimensions = {
   width: number;

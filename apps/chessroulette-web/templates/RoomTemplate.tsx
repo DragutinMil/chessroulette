@@ -1,11 +1,10 @@
 import Header from '../components/Header';
-import { Avatar } from '../components/Avatar';
-import { RoomSideMenu } from '../modules/room/Learn/RoomSideMenu';
+import { RoomSideMenu } from '../modules/room/RoomSideMenu';
 import { toImgPath } from '../lib/misc';
-import bkg_2 from 'apps/chessroulette-web/templates/bkg_2.svg';
 import { CSSProperties } from 'react';
 import { Session } from 'next-auth';
 import { OnboardingWidget } from '../modules/Onboarding';
+import bkg_2 from 'apps/chessroulette-web/templates/bkg_2.svg';
 
 type Props = React.PropsWithChildren & {
   contentClassname?: string;
@@ -18,18 +17,25 @@ export default function RoomTemplate(props: Props) {
     props.themeName === 'kids'
       ? {
           backgroundImage: `url(${toImgPath(bkg_2)})`,
-          backgroundSize: 'cover',
+          backgroundSize: '50%',
           position: 'relative',
           overflow: 'hidden',
         }
       : undefined;
 
   return (
-    <div className="flex h-screen" style={style}>
-      <div className="flex flex-col flex-1 gap-2 pl-[max(env(safe-area-inset-left),1.5rem)] pr-[max(env(safe-area-inset-right),1.5rem)] pb-10">
+    <div className="flex h-screen w-screen" style={style}>
+      <div className="flex flex-col flex-1">
         <Header themeName={props.themeName} />
-        <div className={`w-full h-full ${props.contentClassname}`}>
-          {props.children}
+        <div
+          className={`
+             ml-[max(env(safe-area-inset-left),1.5rem)]
+             mr-[max(env(safe-area-inset-right),1.5rem)]
+             mb-[max(env(safe-area-inset-right),2rem)]
+             mt-2
+             flex-1 relative overflow-hidden ${props.contentClassname}`}
+        >
+          <div className="absolute inset-0">{props.children}</div>
         </div>
       </div>
       <menu className="bg-slate-700 flex-0 flex flex-col p-2">

@@ -4,7 +4,7 @@ import MovexProvider from '../providers/MovexProvider';
 
 export const metadata: Metadata = {
   title: 'Home | Chessroulette',
-  description: 'Welcome to Chessroulette',
+  description: 'Moves That Matter Lessons That Last',
 };
 
 export default function RootLayout({
