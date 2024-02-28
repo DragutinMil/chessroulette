@@ -42,3 +42,15 @@ Thumbs.db
 
 # Next.js
 .next
+
+# Yalc
+.yalc
+yalc.lock
+
+# Movex
+.movex
+
+.env
+.env*
+
+*.tsbuildinfo

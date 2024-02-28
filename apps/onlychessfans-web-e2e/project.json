@@ -1,0 +1,29 @@
+{
+  "name": "onlychessfans-web-e2e",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/onlychessfans-web-e2e/src",
+  "targets": {
+    "e2e": {
+      "executor": "@nx/cypress:cypress",
+      "options": {
+        "cypressConfig": "apps/onlychessfans-web-e2e/cypress.config.ts",
+        "testingType": "e2e",
+        "devServerTarget": "onlychessfans-web:serve"
+      },
+      "configurations": {
+        "production": {
+          "devServerTarget": "onlychessfans-web:serve:production"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["apps/onlychessfans-web-e2e/**/*.{js,ts}"]
+      }
+    }
+  },
+  "tags": [],
+  "implicitDependencies": ["onlychessfans-web"]
+}
