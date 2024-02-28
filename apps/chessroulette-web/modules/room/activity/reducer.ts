@@ -18,7 +18,7 @@ import {
 } from '@xmatter/util-kit';
 import { ImportedInput } from 'apps/chessroulette-web/components/PgnInputBox';
 import { Square } from 'chess.js';
-import { Action, objectKeys } from 'movex-core-util';
+import { Action } from 'movex-core-util';
 
 export type ArrowDrawTuple = [from: Square, to: Square, hex?: string];
 export type ArrowsMap = Record<ChessArrowId, ArrowDrawTuple>;
@@ -247,7 +247,7 @@ export default (
           );
         });
 
-        const nextChapterState: ChapterState = {
+        const nextChapter: Chapter = {
           ...prevChapter,
           displayFen: instance.fen,
           circlesMap: {},
@@ -259,16 +259,14 @@ export default (
           },
         };
 
+
         return {
           ...prev,
           activityState: {
             ...prev.activityState,
             chaptersMap: {
               ...prev.activityState.chaptersMap,
-              [prevChapter.id]: {
-                ...prev.activityState.chaptersMap[prevChapter.id],
-                ...nextChapterState,
-              },
+              [prevChapter.id]: nextChapter,
             },
           },
         };
@@ -277,51 +275,6 @@ export default (
         return prev;
       }
     }
-    // // TODO: Bring all of these back
-    // else if (action.type === 'importFen') {
-    //   if (!ChessFENBoard.validateFenString(action.payload).ok) {
-    //     return prev;
-    //   }
-    //   const nextMoves: FBHHistory = [];
-    //   return {
-    //     ...prev,
-    //     activityState: {
-    //       ...prev.activityState,
-    //       fen: action.payload,
-    //       circles: {},
-    //       arrows: {},
-    //       history: {
-    //         startingFen: ChessFENBoard.STARTING_FEN,
-    //         moves: nextMoves,
-    //         focusedIndex: FreeBoardHistory.getLastIndexInHistory(nextMoves),
-    //       },
-    //     },
-    //   };
-    // } else if (action.type === 'importPgn') {
-    //   if (!isValidPgn(action.payload)) {
-    //     return prev;
-    //   }
-    //   const instance = getNewChessGame({
-    //     pgn: action.payload,
-    //   });
-    //   const nextHistoryMovex = FreeBoardHistory.pgnToHistory(action.payload);
-    //   return {
-    //     ...prev,
-    //     activityState: {
-    //       ...prev.activityState,
-    //       fen: instance.fen(),
-    //       circles: {},
-    //       arrows: {},
-    //       history: {
-    //         startingFen: ChessFENBoard.STARTING_FEN,
-    //         moves: nextHistoryMovex,
-    //         focusedIndex:
-    //           FreeBoardHistory.getLastIndexInHistory(nextHistoryMovex),
-    //       },
-    //     },
-    //   };
-    // }
-    // }
     if (action.type === 'loadedChapter:import') {
       const prevChapter = findLoadedChapter(prev.activityState);
 
@@ -330,18 +283,13 @@ export default (
         return prev;
       }
 
-      console.log('going to impotr cahpter', action);
-
       if (action.payload.type === 'FEN') {
         if (!ChessFENBoard.validateFenString(action.payload.input).ok) {
           console.log('not valid fen');
           return prev;
         }
 
-        console.log('valid fen');
-
         const nextFen = action.payload.input;
-
         const nextChapterState: ChapterState = {
           ...prevChapter,
           displayFen: nextFen,
@@ -374,8 +322,6 @@ export default (
           console.log('not valid pgn');
           return prev;
         }
-
-        console.log('valid pgn');
 
         const instance = getNewChessGame({
           pgn: action.payload.input,
@@ -560,6 +506,7 @@ export default (
         activityState: {
           ...prev.activityState,
           chaptersMap: {
+            ...prev.activityState.chaptersMap,
             [nextChapter.id]: nextChapter,
           },
         },
@@ -583,6 +530,7 @@ export default (
         activityState: {
           ...prev.activityState,
           chaptersMap: {
+            ...prev.activityState.chaptersMap,
             [nextChapter.id]: nextChapter,
           },
         },
@@ -616,6 +564,7 @@ export default (
         activityState: {
           ...prev.activityState,
           chaptersMap: {
+            ...prev.activityState.chaptersMap,
             [nextChapter.id]: nextChapter,
           },
         },
@@ -639,6 +588,7 @@ export default (
         activityState: {
           ...prev.activityState,
           chaptersMap: {
+            ...prev.activityState.chaptersMap,
             [nextChapter.id]: nextChapter,
           },
         },
@@ -670,7 +620,6 @@ export default (
             ...prev.activityState.chaptersMap,
             [nextChapter.id]: nextChapter,
           },
-          loadedChapterId: nextChapter.id,
         },
       };
     }
@@ -741,6 +690,7 @@ export default (
         },
       };
     }
+
     if (action.type === 'loadChapter') {
       const { [action.payload.id]: chapter } = prev.activityState.chaptersMap;
       if (!chapter) {
