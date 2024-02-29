@@ -161,7 +161,13 @@ export const LearnActivity = ({
                       },
                     });
                   }}
-                  onClose={() => {
+                  onCancel={() => {
+                    dispatchInputState({
+                      type: 'update',
+                      payload: { isBoardEditorShown: false },
+                    });
+                  }}
+                  onSave={() => {
                     dispatchInputState({
                       type: 'update',
                       payload: { isBoardEditorShown: false },
@@ -334,6 +340,29 @@ export const LearnActivity = ({
               rightSideClassName="flex-1"
               rightSideComponent={
                 <>
+                  <IconButton
+                    icon="PencilSquareIcon"
+                    iconKind="outline"
+                    type="clear"
+                    size="sm"
+                    tooltip="Board Editor"
+                    tooltipPositon="left"
+                    className="mb-2"
+                    onClick={() => {
+                      dispatchInputState({
+                        type: 'activate',
+                        payload: {
+                          isBoardEditorShown: true,
+                          chapterState: currentChapter,
+                        },
+                      });
+
+                      // dispatchInputState({
+                      //   type: 'update',
+                      //   payload: { isBoardEditorShown: true },
+                      // });
+                    }}
+                  />
                   <div className="relative flex flex-1 flex-col items-center justify-center">
                     <PanelResizeHandle
                       className="w-1 h-20 rounded-lg bg-slate-600"

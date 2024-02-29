@@ -5,12 +5,14 @@ import { Button, ButtonProps, buttonIconClasses } from './Button';
 
 export type IconButtonProps = Ensure<Omit<ButtonProps, 'children'>, 'icon'> & {
   iconColor?: IconProps['color'];
+  iconClassName?: string;
 };
 
 export const IconButton: React.FC<IconButtonProps> = ({
   icon,
   iconKind,
   iconColor,
+  iconClassName = '',
   size = 'md',
   ...props
 }) => {
@@ -19,7 +21,7 @@ export const IconButton: React.FC<IconButtonProps> = ({
       <Icon
         name={icon}
         kind={iconKind}
-        className={buttonIconClasses[size]}
+        className={`${buttonIconClasses[size]} ${iconClassName}`}
         color={iconColor}
       />
     </Button>

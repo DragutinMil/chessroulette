@@ -4,7 +4,6 @@ import {
   ChessFENBoard,
   PieceSan,
   isBlackColor,
-  isWhiteColor,
   objectKeys,
   pieceSanToFenBoardPieceSymbol,
   toShortColor,
@@ -35,7 +34,8 @@ export type BoardEditorProps = Pick<
   fen: ChessFEN;
   onUpdated: (fen: ChessFEN) => void;
   onFlipBoard: () => void;
-  onClose: () => void;
+  onCancel: () => void;
+  onSave: () => void;
   sizePx: number;
 };
 
@@ -47,7 +47,8 @@ export const BoardEditor = ({
   sizePx,
   onUpdated,
   onFlipBoard,
-  onClose,
+  onCancel,
+  onSave,
   ...props
 }: BoardEditorProps) => {
   const fenBoard = useInstance<ChessFENBoard>(new ChessFENBoard(fen));
@@ -241,51 +242,72 @@ export const BoardEditor = ({
 
           <div className="flex flex-col">
             <div className="flex flex-1 flex-col gap-2">
-              <IconButton
-                icon="XCircleIcon"
-                // iconKind="outline"
-                type="custom"
-                tooltip="Close Board Editor"
-                tooltipPositon="right"
-                // iconColor=''
-                size="sm"
-                onClick={onClose}
-              />
-              <IconButton
-                icon="ArrowsUpDownIcon"
-                type="clear"
-                tooltip="Flip Board"
-                tooltipPositon="right"
-                iconKind="outline"
-                size="sm"
-                onClick={onFlipBoard}
-              />
-              <IconButton
-                icon="TrashIcon"
-                iconKind="outline"
-                type="clear"
-                tooltip="Clear Board"
-                tooltipPositon="right"
-                size="sm"
-                onClick={() => {
-                  onUpdated(ChessFENBoard.ONLY_KINGS_FEN);
+              <div>
+                <IconButton
+                  icon="XCircleIcon"
+                  // iconKind="outline"
+                  type="custom"
+                  tooltip="Cancel"
+                  tooltipPositon="right"
+                  className="text-slate-400 hover:text-white"
+                  iconClassName="w-5 h-5"
+                  // iconColor=''
+                  size="sm"
+                  onClick={onCancel}
+                />
+                <IconButton
+                  icon="CheckCircleIcon"
+                  // iconKind="outline"
+                  type="custom"
+                  tooltip="Use Position"
+                  tooltipPositon="right"
+                  className="text-slate-400 hover:text-white"
+                  iconClassName="w-5 h-5"
+                  // iconColor=''
+                  size="sm"
+                  onClick={onSave}
+                />
+              </div>
+              {/* <div className="flex items-center justify-center">
+                <div className='flex.5 border-b border-slate-600' />
+              </div> */}
+              <div className="flex flex-1 flex-col">
+                <IconButton
+                  icon="ArrowsUpDownIcon"
+                  type="clear"
+                  tooltip="Flip Board"
+                  tooltipPositon="right"
+                  iconKind="outline"
+                  size="sm"
+                  onClick={onFlipBoard}
+                />
+                <IconButton
+                  icon="TrashIcon"
+                  iconKind="outline"
+                  type="clear"
+                  tooltip="Clear Board"
+                  tooltipPositon="right"
+                  size="sm"
+                  onClick={() => {
+                    onUpdated(ChessFENBoard.ONLY_KINGS_FEN);
 
-                  resetArrowsAndCircles();
-                }}
-              />
-              <IconButton
-                icon="ArrowPathIcon"
-                iconKind="outline"
-                type="clear"
-                tooltip="Starting Position"
-                tooltipPositon="right"
-                size="sm"
-                onClick={() => {
-                  onUpdated(ChessFENBoard.STARTING_FEN);
+                    resetArrowsAndCircles();
+                  }}
+                />
+                <IconButton
+                  icon="ArrowPathIcon"
+                  iconKind="outline"
+                  type="clear"
+                  tooltip="Starting Position"
+                  tooltipPositon="right"
+                  size="sm"
+                  onClick={() => {
+                    onUpdated(ChessFENBoard.STARTING_FEN);
 
-                  resetArrowsAndCircles();
-                }}
-              />
+                    resetArrowsAndCircles();
+                  }}
+                />
+              </div>
             </div>
 
             <div className="flex-1" />
