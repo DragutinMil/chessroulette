@@ -108,23 +108,28 @@ export const ChaptersTab = ({
           // CREATE CHAPTER TAB
           <div className="flex-1 flex overflow-scroll">
             {props.inputModeState.chapterState && (
-              <div className="flex flex-1 flex-col gap-3 overflow-scroll">
-                <CreateChapterView
-                  onToggleBoardEditor={(show) =>
-                    props.onUpdateInputModeState({
-                      isBoardEditorShown: show,
-                    })
-                  }
-                  isBoardEditorShown={!!props.inputModeState.isBoardEditorShown}
-                  state={props.inputModeState.chapterState}
-                  onUpdate={(nextChapterState) =>
-                    props.onUpdateInputModeState({
-                      chapterState: nextChapterState,
-                    })
-                  }
-                  onImport={onImportInput}
-                />
-                <div className="flex gap-2">
+              <div className="flex flex-col">
+                <div className="flex flex-1 flex-col gap-3 overflow-scroll">
+                  <CreateChapterView
+                    onToggleBoardEditor={(show) =>
+                      props.onUpdateInputModeState({
+                        isBoardEditorShown: show,
+                      })
+                    }
+                    isBoardEditorShown={
+                      !!props.inputModeState.isBoardEditorShown
+                    }
+                    state={props.inputModeState.chapterState}
+                    onUpdate={(nextChapterState) =>
+                      props.onUpdateInputModeState({
+                        chapterState: nextChapterState,
+                      })
+                    }
+                    onImport={onImportInput}
+                  />
+                </div>
+
+                <div className="flex gap-2 mt-4">
                   <IconButton
                     // size="sm"
                     type="secondary"
@@ -159,7 +164,7 @@ export const ChaptersTab = ({
             )}
           </div>,
           // UPDATE CHAPTER TAB
-          <>
+          <div className="flex-1 flex overflow-scroll">
             {props.inputModeState.chapterState && (
               <UpdateChapterView
                 onToggleBoardEditor={(show) =>
@@ -175,7 +180,7 @@ export const ChaptersTab = ({
                   })
                 }
                 renderSubmit={({ hasInputChanged }) => (
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 mt-4">
                     <IconButton
                       // size="sm"
                       type="secondary"
@@ -211,7 +216,7 @@ export const ChaptersTab = ({
                 onImport={onImportInput}
               />
             )}
-          </>,
+          </div>,
         ][tabsNav.stackIndex]
       }
     </div>

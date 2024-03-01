@@ -25,8 +25,10 @@ export const UpdateChapterView = ({
   }, [editChapterStateViewProps.state]);
 
   return (
-    <div className="flex flex-1 flex-col gap-3 overflow-scroll">
-      <EditChapterStateView {...editChapterStateViewProps} />
+    <div className="flex flex-1 flex-col">
+      <div className="flex flex-1 flex-col gap-3 overflow-scroll">
+        <EditChapterStateView {...editChapterStateViewProps} />
+      </div>
       {renderSubmit({ hasInputChanged })}
     </div>
   );
