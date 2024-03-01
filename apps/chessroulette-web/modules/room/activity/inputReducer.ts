@@ -1,5 +1,5 @@
 import { Action } from 'movex-core-util';
-import { ChapterState, CircleDrawTuple } from './reducer';
+import { Chapter, ChapterState, CircleDrawTuple } from './reducer';
 import {
   ChessFEN,
   ChessFENBoard,
@@ -17,7 +17,7 @@ export type InputState =
       // this means the instructor creates or edits chapters atm
       isActive: true;
       isBoardEditorShown: boolean;
-      chapterState: ChapterState; // Create or Update Chapter but it will come here!
+      chapterState: ChapterState | Chapter; // Create or Update Chapter but it will come here!
     }
   | {
       isActive: false;

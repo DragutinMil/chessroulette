@@ -51,6 +51,8 @@ export const BoardEditor = ({
   onSave,
   ...props
 }: BoardEditorProps) => {
+  const [initialFen] = useState(fen);
+
   const fenBoard = useInstance<ChessFENBoard>(new ChessFENBoard(fen));
   // const [editedFen, setEditedFen] = useState(fenBoard.fen);
   const [draggingPieces, setDraggingPieces] = useState<
@@ -182,7 +184,6 @@ export const BoardEditor = ({
           >
             <ChessboardContainer
               fen={fen}
-              id="board-editor"
               {...props}
               onMove={(p) => {
                 fenBoard.move(p.from, p.to);
@@ -253,7 +254,12 @@ export const BoardEditor = ({
                   iconClassName="w-5 h-5"
                   // iconColor=''
                   size="sm"
-                  onClick={onCancel}
+                  onClick={() => {
+                    // Reset to the initial fen
+                    onUpdated(initialFen);
+                    // and then cancel
+                    onCancel();
+                  }}
                 />
                 <IconButton
                   icon="CheckCircleIcon"

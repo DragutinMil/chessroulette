@@ -31,6 +31,7 @@ type Props = Required<
     onFlip: () => void;
     onClearBoard: () => void;
     onResetBoard: () => void;
+    onBoardEditor: () => void;
   };
 
 export const RIGHT_SIDE_SIZE_PX = 32;
@@ -47,6 +48,7 @@ export const LearnBoard = ({
   onFlip,
   onResetBoard,
   onClearBoard,
+  onBoardEditor,
   ...chessBoardProps
 }: Props) => {
   const settings = useLearnActivitySettings();
@@ -113,6 +115,16 @@ export const LearnBoard = ({
                   tooltipPositon="left"
                   className="mb-2"
                   onClick={onResetBoard}
+                />
+                <IconButton
+                  icon="PencilSquareIcon"
+                  iconKind="outline"
+                  type="clear"
+                  size="sm"
+                  tooltip="Board Editor"
+                  tooltipPositon="left"
+                  className="mb-2"
+                  onClick={onBoardEditor}
                 />
               </>
             )}

@@ -23,6 +23,7 @@ import { ChapterDisplayView } from './chapters/ChapterDisplayView';
 import { useContainerDimensions } from 'apps/chessroulette-web/components/ContainerWithDimensions';
 import { Freeboard } from 'apps/chessroulette-web/components/Chessboard/Freeboard';
 import { IconButton } from 'apps/chessroulette-web/components/Button';
+import { TabsRef } from 'apps/chessroulette-web/components/Tabs';
 
 export type LearnActivityProps = {
   roomId: string;
@@ -97,6 +98,8 @@ export const LearnActivity = ({
   const currentChapter =
     findLoadedChapter(remoteState) || initialDefaultChapter;
 
+  const tabsRef = useRef<TabsRef>(null);
+
   return (
     <div
       id="learn-activity-container"
@@ -129,6 +132,9 @@ export const LearnActivity = ({
                 <LearnBoardEditor
                   state={inputState.chapterState}
                   boardSizePx={boardSize}
+                  boardOrientation={swapColor(
+                    inputState.chapterState.orientation
+                  )}
                   onUpdated={(fen) => {
                     dispatchInputState({
                       type: 'updateChapterFen',
@@ -179,12 +185,9 @@ export const LearnActivity = ({
                   sizePx={boardSize}
                   {...inputState.chapterState}
                   fen={inputState.chapterState.displayFen}
-                  // boardOrientation={inputState.chapterState.orientation}
-                  boardOrientation={
-                    settings.isInstructor
-                      ? swapColor(inputState.chapterState.orientation)
-                      : inputState.chapterState.orientation
-                  }
+                  boardOrientation={swapColor(
+                    inputState.chapterState.orientation
+                  )}
                   onMove={(move) => {
                     dispatchInputState({ type: 'move', payload: { move } });
 
@@ -337,32 +340,21 @@ export const LearnActivity = ({
                   payload: ChessFENBoard.STARTING_FEN,
                 });
               }}
+              onBoardEditor={() => {
+                dispatchInputState({
+                  type: 'activate',
+                  payload: {
+                    isBoardEditorShown: true,
+                    chapterState: currentChapter,
+                  },
+                });
+
+                // 2 is the update stack - this should be done much more explicit in the future!
+                tabsRef.current?.focusByTabId('chapters', 2);
+              }}
               rightSideClassName="flex-1"
               rightSideComponent={
                 <>
-                  <IconButton
-                    icon="PencilSquareIcon"
-                    iconKind="outline"
-                    type="clear"
-                    size="sm"
-                    tooltip="Board Editor"
-                    tooltipPositon="left"
-                    className="mb-2"
-                    onClick={() => {
-                      dispatchInputState({
-                        type: 'activate',
-                        payload: {
-                          isBoardEditorShown: true,
-                          chapterState: currentChapter,
-                        },
-                      });
-
-                      // dispatchInputState({
-                      //   type: 'update',
-                      //   payload: { isBoardEditorShown: true },
-                      // });
-                    }}
-                  />
                   <div className="relative flex flex-1 flex-col items-center justify-center">
                     <PanelResizeHandle
                       className="w-1 h-20 rounded-lg bg-slate-600"
@@ -415,10 +407,14 @@ export const LearnActivity = ({
               inputModeState={inputState}
               chaptersMapIndex={remoteState?.chaptersIndex || 0}
               currentLoadedChapterId={remoteState?.loadedChapterId}
+              ref={tabsRef}
+              // currentUpdatingChapterId={inputState.chapterState}
               onActivateInputMode={(payload) => {
                 dispatchInputState({ type: 'activate', payload });
               }}
               onDeactivateInputMode={() => {
+                // console.trace('who this?')
+
                 dispatchInputState({ type: 'deactivate' });
               }}
               onUpdateInputModeState={(payload) => {

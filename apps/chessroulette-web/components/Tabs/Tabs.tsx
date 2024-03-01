@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useImperativeHandle, useState } from 'react';
 
 export type TabsNav = {
   stackPush: () => void;
@@ -9,28 +9,43 @@ export type TabsNav = {
 };
 
 type Tab = {
+  id: string;
   renderHeader: (p: {
     focus: () => void;
     isFocused: boolean;
+    tabId: Tab['id'];
+    tabIndex: number;
   }) => React.ReactNode;
-  renderContent: (p: {
-    focus: (tabIndex: number) => void;
-    isFocused: boolean;
-    nav: TabsNav;
-  }) => React.ReactNode;
+  renderContent:
+    | ((p: {
+        focus: (tabIndex: number, tabStackIndex?: number) => void;
+        isFocused: boolean;
+        nav: TabsNav;
+        tabId: Tab['id'];
+        tabIndex: number;
+      }) => React.ReactNode)
+    | React.ReactNode;
 };
 
 type Props = {
   tabs: (Tab | undefined)[];
   renderContainerHeader?: (p: {
     tabs: React.ReactNode[];
-    focus: (tabIndex: number) => void;
+    focus: (tabIndex: number, tabStackIndex?: number) => void;
+    focusByTabId: (tabId: Tab['id'], tabStackIndex?: number) => void;
   }) => React.ReactNode;
   currentIndex?: number;
+  currentTabId?: Tab['id'];
+  currentTabStackIndex?: number;
   containerClassName?: string;
   headerContainerClassName?: string;
   contentClassName?: string;
-  onTabChange?: (tabIndex: number) => void;
+  onTabChange?: (p: { tabId: Tab['id']; tabIndex: number }) => void;
+  onTabStackIndexChanged?: (p: {
+    tabId: Tab['id'];
+    tabIndex: number;
+    stackIndex: number;
+  }) => void;
 };
 
 const isInBoundariesOr = (i: number, tabs: unknown[], or: number): number =>
@@ -41,12 +56,42 @@ type TabIndex = {
   stackindex: number; // This is the deeper layer
 };
 
-export const Tabs = (props: Props) => {
+const tabIdToIndex = (tabs: (Tab | undefined)[], id: Tab['id']) =>
+  tabs.findIndex((t) => t?.id === id);
+
+export type TabsRef = {
+  nav: TabsNav;
+  focus: (tabIndex: number, tabStackIndex?: number) => void;
+  focusByTabId: (tabId: string, tabStackIndex?: number) => void;
+  currentTabIndex: number;
+};
+
+export const Tabs = React.forwardRef<TabsRef, Props>((props, ref) => {
+  // const currentIndex = props.currentIndex || tabIdToIndex(tabs, props.currentTabId)
+
   const [currentTabIndex, setCurrentTabIndex] = useState(
     isInBoundariesOr(props.currentIndex || 0, props.tabs, 0)
   );
 
-  const [currentStackIndex, setCurrentStackIndex] = useState(0);
+  const [currentStackIndex, setCurrentStackIndex] = useState(
+    props.currentTabStackIndex || 0
+  );
+
+  const currentTab = props.tabs[currentTabIndex];
+
+  const changeStackIndex = (toStackIndex: number) => {
+    if (!currentTab) {
+      return;
+    }
+
+    setCurrentStackIndex(toStackIndex);
+
+    props.onTabStackIndexChanged?.({
+      tabId: currentTab.id,
+      tabIndex: currentTabIndex,
+      stackIndex: toStackIndex,
+    });
+  };
 
   useEffect(() => {
     setCurrentTabIndex(
@@ -54,36 +99,59 @@ export const Tabs = (props: Props) => {
     );
   }, [props.currentIndex]);
 
-  const focus = (i: number) => {
-    setCurrentTabIndex(i);
-    props.onTabChange?.(i);
+  useEffect(() => {
+    if (props.currentTabId) {
+      const tabIndex = tabIdToIndex(props.tabs, props.currentTabId);
+
+      if (tabIndex > -1) {
+        setCurrentTabIndex(tabIndex);
+      }
+      // Otherwise don't do anything?
+    }
+  }, [props.currentTabId]);
+
+  const focus = (tabIndex: number, tabStackIndex?: number) => {
+    setCurrentTabIndex(tabIndex);
+
+    const currentTab = props.tabs[tabIndex];
+    if (currentTab) {
+      console.log('Tabs.focus() calling onTabChange');
+      props.onTabChange?.({ tabId: currentTab.id, tabIndex });
+    }
 
     // Reset the stack index each time
-    setCurrentStackIndex(0);
+
+    // TODO: Look into this - is it still needed to be reset to 0 or to the set one?
+    setCurrentStackIndex(tabStackIndex || 0);
   };
 
-  const headerComponent = useMemo(() => {
-    const tabs = props.tabs
-      // .filter((m) => !!m)
-      .map((p, i) => {
-        // if (!p) {
-        //   return null;
-        // }
+  useEffect(() => {
+    const ct = props.tabs[currentTabIndex];
+    if (ct) {
+      // console.log('Tabs.useEffect() calling onTabChange')
+      props.onTabChange?.({ tabId: ct.id, tabIndex: currentTabIndex });
+    }
+  }, [currentTabIndex, props.onTabChange]);
 
-        return (
-          <div key={i}>
-            {p?.renderHeader({
-              focus: () => focus(i),
-              isFocused: i === currentTabIndex,
-            })}
-          </div>
-        );
-      });
+  const renderHeaderComponent = () => {
+    const tabs = props.tabs.map((tab, i) => {
+      return (
+        <div key={i}>
+          {tab?.renderHeader({
+            focus: () => focus(i),
+            isFocused: i === currentTabIndex,
+            tabId: tab.id,
+            tabIndex: i,
+          })}
+        </div>
+      );
+    });
 
     if (props.renderContainerHeader) {
       return props.renderContainerHeader({
         tabs,
         focus,
+        focusByTabId: (tabId) => focus(tabIdToIndex(props.tabs, tabId) || 0),
       });
     }
 
@@ -92,30 +160,67 @@ export const Tabs = (props: Props) => {
         {tabs.map((c) => c)}
       </div>
     );
-  }, [currentTabIndex, props.renderContainerHeader, focus]);
+  };
+
+  // The internal Stack Navigation
+  const nav = {
+    stackPush: () => {
+      changeStackIndex(currentStackIndex + 1);
+    },
+    stackBack: () => {
+      changeStackIndex(
+        currentStackIndex > 0 ? currentStackIndex - 1 : currentStackIndex
+      );
+    },
+    stackPop: () => {
+      changeStackIndex(0);
+      // setCurrentStackIndex(0);
+    },
+    // stackTo: setCurrentStackIndex,
+    stackTo: changeStackIndex,
+    stackIndex: currentStackIndex,
+
+    // stackToRoute:
+    // TODO: The chapters are done in the simplest/easiest way now - don't use stack routes,
+    // just mapping ot an index,. b/c atm we only have one use case so let's not complicate things.
+    // stackRoot: 'list',
+    // stackRoutes: {
+    //   list: () => {},
+    //   create: () => {},
+    //   edit: () => {},
+    // }
+  };
+
+  // This sets the Ref
+  useImperativeHandle(
+    ref,
+    () => ({
+      focus,
+      focusByTabId: (tabId, tabStackIndex) =>
+        focus(tabIdToIndex(props.tabs, tabId) || 0, tabStackIndex),
+      nav,
+      currentTabIndex,
+    }),
+    [focus, nav, currentTabIndex]
+  );
+
+  const contentComponent =
+    typeof currentTab?.renderContent === 'function'
+      ? currentTab.renderContent({
+          focus: () => focus(currentTabIndex),
+          isFocused: true,
+          tabId: currentTab.id,
+          tabIndex: currentTabIndex,
+          nav,
+        })
+      : currentTab?.renderContent;
 
   return (
     <div className={props.containerClassName}>
-      {headerComponent}
+      {renderHeaderComponent()}
       <div className={`flex-1 ${props.contentClassName}`}>
-        {props.tabs[currentTabIndex]?.renderContent({
-          focus: () => focus(currentTabIndex),
-          isFocused: true,
-          nav: {
-            stackPush: () => {
-              setCurrentStackIndex((prev) => prev + 1);
-            },
-            stackBack: () => {
-              setCurrentStackIndex((prev) => (prev > 0 ? prev - 1 : prev));
-            },
-            stackPop: () => {
-              setCurrentStackIndex(0);
-            },
-            stackTo: setCurrentStackIndex,
-            stackIndex: currentStackIndex,
-          },
-        })}
+        {contentComponent}
       </div>
     </div>
   );
-};
+});
