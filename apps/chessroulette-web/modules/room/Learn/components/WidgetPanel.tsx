@@ -155,24 +155,6 @@ export const WidgetPanel = React.forwardRef<TabsRef, Props>(
                 />
               ),
             },
-            {
-              id: 'test',
-              renderHeader: (p) => (
-                <Button
-                  onClick={() => {
-                    p.focus();
-                    chapterTabsProps.onDeactivateInputMode();
-                  }}
-                  size="sm"
-                  className={`bg-slate-600 font-bold hover:bg-slate-800 ${
-                    p.isFocused && 'bg-slate-800'
-                  }`}
-                >
-                  Test
-                </Button>
-              ),
-              renderContent: <div>Teeeest</div>,
-            },
           ]}
         />
       );
