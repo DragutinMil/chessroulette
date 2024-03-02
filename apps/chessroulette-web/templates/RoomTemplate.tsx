@@ -7,6 +7,7 @@ import { OnboardingWidget } from '../modules/Onboarding';
 import bkg_2 from 'apps/chessroulette-web/templates/bkg_2.svg';
 
 type Props = React.PropsWithChildren & {
+  roomId?: string;
   contentClassname?: string;
   themeName?: string;
   session?: Session;
@@ -26,7 +27,7 @@ export default function RoomTemplate(props: Props) {
   return (
     <div className="flex h-screen w-screen" style={style}>
       <div className="flex flex-col flex-1">
-        <Header themeName={props.themeName} />
+        <Header themeName={props.themeName} roomId={props.roomId} />
         <div
           className={`
              ml-[max(env(safe-area-inset-left),1.5rem)]
@@ -41,7 +42,7 @@ export default function RoomTemplate(props: Props) {
       <menu className="bg-slate-700 flex-0 flex flex-col p-2">
         <OnboardingWidget session={props.session} />
         <div className="pb-6 border-b border-slate-500 mb-4" />
-        <RoomSideMenu />
+        {props.roomId && <RoomSideMenu roomId={props.roomId} />}
       </menu>
     </div>
   );

@@ -1,3 +1,5 @@
+'use client';
+
 import { useUpdateableSearchParams } from 'apps/chessroulette-web/hooks/useSearchParams';
 
 export type LearnActivitySettings = {

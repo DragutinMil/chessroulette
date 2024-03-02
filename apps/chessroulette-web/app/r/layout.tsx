@@ -1,9 +1,8 @@
 import { Metadata } from 'next';
-import '../styles.css';
-import MovexProvider from '../providers/MovexProvider';
+import MovexProvider from '../../providers/MovexProvider';
 
 export const metadata: Metadata = {
-  title: 'Home | Chessroulette',
+  title: 'Room | Chessroulette',
   description: 'Moves That Matter Lessons That Last',
 };
 
@@ -14,12 +13,5 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return (
-    <html lang="en">
-      <body>
-        {/* <MovexProvider>{children}</MovexProvider> */}
-        {children}
-      </body>
-    </html>
-  );
+  return <MovexProvider>{children}</MovexProvider>;
 }

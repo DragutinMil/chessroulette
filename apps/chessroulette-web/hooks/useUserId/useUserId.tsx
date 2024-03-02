@@ -6,4 +6,5 @@ export const useUserId = () => {
   const params = useSearchParams();
 
   return params.get('userId') || `guest-${getRandomStr(5)}`;
+  // return params.get('userId') || undefined;
 };

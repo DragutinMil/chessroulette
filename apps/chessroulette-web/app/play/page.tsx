@@ -1,4 +1,3 @@
-import RoomTemplate from 'apps/chessroulette-web/templates/RoomTemplate';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {

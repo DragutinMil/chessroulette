@@ -4,14 +4,11 @@ import movexConfig from 'apps/chessroulette-web/movex.config';
 import { ResourceIdentifier } from 'movex-core-util';
 import { MovexBoundResource, useMovexBoundResourceFromRid } from 'movex-react';
 import { useUserId } from 'apps/chessroulette-web/hooks/useUserId/useUserId';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { IceServerRecord } from 'apps/chessroulette-web/providers/PeerToPeerProvider/type';
-import { LearnActivity, LearnActivityProps } from './LearnActivity';
+import { LearnActivity } from './LearnActivity';
 import { toRidAsObj } from 'movex';
-import {
-  initialActivtityState,
-  initialLearnActivityState,
-} from '../activity/reducer';
+import { initialLearnActivityState } from '../activity/reducer';
 
 type Props = {
   rid: ResourceIdentifier<'room'>;
@@ -21,14 +18,6 @@ type Props = {
 export const LearnActivityContainer = ({ iceServers, ...props }: Props) => {
   const userId = useUserId();
   const movexResource = useMovexBoundResourceFromRid(movexConfig, props.rid);
-
-  // const [inputState, setInputState] = useState<
-  //   LearnActivityProps['inputState']
-  // >({
-  //   isActive: false,
-  //   chapterState: undefined,
-  //   isBoardEditorShown: false,
-  // });
 
   useEffect(() => {
     if (!movexResource) {
@@ -41,13 +30,20 @@ export const LearnActivityContainer = ({ iceServers, ...props }: Props) => {
     console.groupEnd();
   }, [movexResource?.state]);
 
+  // Wait for the user!
+  // if (!userId) {
+  //   return null;
+  // }
+
   return (
     <>
       {/* TODO: remove this in favor of the hook once I figure out how to call onComponentWillUnmount */}
       <MovexBoundResource
         movexDefinition={movexConfig}
         rid={props.rid}
-        onReady={({ boundResource }) => {
+        onReady={({ boundResource, clientId }) => {
+          console.log('on ready', clientId);
+
           boundResource.dispatch({
             type: 'join',
             payload: { userId },

@@ -1,10 +1,12 @@
 import { objectKeys, toDictIndexedBy } from '@xmatter/util-kit';
+import { ActivityState } from './activity/reducer';
+
+export type RoomActivityType = ActivityState['activityType'];
 
 export type RoomLinkParams = {
   instructor?: boolean;
-  edit?: boolean;
   theme?: string;
-} & Record<string, string | boolean | number>;
+} & Record<string, string | boolean | number | undefined>;
 
 export const links = {
   getRoomLink: (
@@ -14,7 +16,7 @@ export const links = {
       ...params
     }: {
       id: string;
-      activity: 'learn'; // Add more
+      activity: RoomActivityType;
     } & RoomLinkParams,
     nav?: {
       origin: string;
@@ -29,12 +31,27 @@ export const links = {
       ...params
     }: {
       id?: string;
-      activity: 'learn'; // Add more
+      activity: RoomActivityType;
     } & RoomLinkParams,
     nav?: {
       origin: string;
     }
-  ) => `${nav?.origin ?? ''}/r/new/${id ? id : ''}?${toSearchParams(params).toString()}`,
+  ) =>
+    `${nav?.origin ?? ''}/r/new/${id ? id : ''}?${toSearchParams(
+      params
+    ).toString()}`,
+  getJoinRoomLink: (
+    {
+      id,
+      ...params
+    }: {
+      id: string;
+      activity: RoomActivityType;
+    } & RoomLinkParams,
+    nav?: {
+      origin: string;
+    }
+  ) => `${nav?.origin ?? ''}/r/join/${id}?${toSearchParams(params).toString()}`,
 };
 
 const toSearchParams = ({

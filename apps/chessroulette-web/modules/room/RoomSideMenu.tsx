@@ -1,67 +1,64 @@
 'use client';
 
 import { ClipboardCopyButton } from 'apps/chessroulette-web/components/ClipboardCopyButton';
-import { useMemo, useState } from 'react';
 import { useUrl } from 'nextjs-current-url';
 import { useLearnActivitySettings } from './Learn/useLearnActivitySettings';
-import { useRouter, usePathname } from 'next/navigation';
-import { generateUserId } from 'apps/chessroulette-web/util';
+import { links } from './links';
+import Link from 'next/link';
+import { Icon } from 'apps/chessroulette-web/components/Icon';
+import { useMemo } from 'react';
+import { useRoomSettings } from './hooks/useRoomSettings';
 
-export const RoomSideMenu = () => {
-  const router = useRouter();
-  const pathName = usePathname();
+type Props = {
+  roomId: string;
+};
 
+export const RoomSideMenu = ({ roomId }: Props) => {
   const url = useUrl();
-  const [nextUserId, setNextUserId] = useState(generateUserId());
-  const inviteUrl = useMemo(() => {
-    if (!url) {
-      return '';
+  const activitySettings = useLearnActivitySettings();
+  const roomSettings = useRoomSettings();
+
+  const joinRoomLink = useMemo(() => {
+    if (!(activitySettings.isInstructor && url)) {
+      return undefined;
     }
 
-    // TODO: All of these should be somewhere else
-    url.searchParams.set('userId', String(nextUserId));
-
-    // TODO: These should actually be cleared and only the ones that are needed added!
-    url.searchParams.delete('instructor');
-    url.searchParams.delete('edit');
-    url.searchParams.delete('tab');
-
-    return url.href;
-  }, [url, nextUserId]);
-
-  const settings = useLearnActivitySettings();
+    return links.getJoinRoomLink(
+      {
+        id: roomId,
+        activity: 'learn',
+        theme: roomSettings.theme,
+      },
+      url
+    );
+  }, [activitySettings.isInstructor, url?.origin]);
 
   return (
     <div className="flex flex-col items-center gap-4">
-      {settings.isInstructor && (
-        <>
-          <ClipboardCopyButton
-            buttonComponentType="IconButton"
-            value={inviteUrl}
-            bgColor="green"
-            onCopied={() => {
-              setNextUserId(generateUserId());
-            }}
-            type="custom"
-            size="sm"
-            icon="PaperAirplaneIcon"
-            onCopiedIcon="CheckIcon"
-            tooltip="Invite Student"
-          />
-          {/* <IconButton
-            tooltip="Edit Board"
-            onClick={() => {
-              const nextSearchParams = searchParams.set((prev) => ({
-                ...prev,
-                edit: '1',
-              }));
-
-              router.push(`${pathName}?${nextSearchParams}`);
-            }}
-            size="sm"
-            icon="PencilSquareIcon"
-          /> */}
-        </>
+      {joinRoomLink && (
+        <ClipboardCopyButton
+          buttonComponentType="Button"
+          value={joinRoomLink}
+          render={(copied) => (
+            <>
+              {copied ? (
+                <Link
+                  href={joinRoomLink}
+                  target="_blank"
+                  onClick={(e) => e.preventDefault()}
+                >
+                  <Icon name="CheckIcon" className="w-4 h-4" />
+                </Link>
+              ) : (
+                <Icon name="PaperAirplaneIcon" className="w-4 h-4" />
+              )}
+            </>
+          )}
+          bgColor="green"
+          type="custom"
+          size="sm"
+          tooltip="Invite Student"
+        />
       )}
     </div>
   );

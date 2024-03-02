@@ -7,6 +7,7 @@ export const metadata: Metadata = {
 };
 
 const paramsSchema = z.object({
+  id: z.string(), // room id
   // client: z.string(), // Outpost // TODO: this can be used later when they hit the api, now just the op prefixed id
   activity: z.literal('learn'), // This will be more in the future like play or others
   instructor: z
@@ -27,14 +28,10 @@ export default function Page({
   );
 
   if (!result.success) {
-    return (
-      <>
-        {JSON.stringify({ error: result.error, searchParams, params }, null, 2)}
-      </>
-    );
+    return <>{JSON.stringify(result.error)}</>;
   }
 
-  const { activity, ...nextParamsObj } = result.data;
+  const { activity, id, ...nextParamsObj } = result.data;
 
   const nextParams = new URLSearchParams();
 
@@ -44,7 +41,23 @@ export default function Page({
     }
   });
 
-  return <JoinOrCreateRoom mode="create" activity={activity} />;
+  // TODO: Here the room can be created on demand via the API
+
+  // const formattedId = `${client}${id}`;
+  // return (
+  //   <div>
+  //     works {activity} {id}
+  //   </div>
+  // )
+
+  return (
+    <JoinOrCreateRoom
+      mode="join"
+      id={id}
+      activity={activity}
+      // forwardSearchParamsString={nextParams.toString()}
+    />
+  );
 }
 
 // http://localhost:4200/r/new?activity=learn&id=[:id]

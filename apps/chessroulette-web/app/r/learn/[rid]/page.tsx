@@ -7,6 +7,12 @@ import { authOptions } from 'apps/chessroulette-web/services/auth';
 import RoomTemplate from 'apps/chessroulette-web/templates/RoomTemplate';
 import { serverConfig } from 'apps/chessroulette-web/config/config.server';
 import { LearnActivityContainer } from 'apps/chessroulette-web/modules/room/Learn/LearnActivityContainer';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Learn | Chessroulette',
+  description: 'Moves That Matter Lessons That Last',
+};
 
 const twilioClient: any = new Twilio(
   serverConfig.twilio.TWILIO_ACCOUNT_SID,
@@ -58,7 +64,7 @@ export default async function Page({
   ];
 
   return (
-    <RoomTemplate themeName={searchParams.theme} session={session}>
+    <RoomTemplate themeName={searchParams.theme} session={session} roomId={id}>
       <LearnActivityContainer rid={rid} iceServers={iceServers} />
     </RoomTemplate>
   );

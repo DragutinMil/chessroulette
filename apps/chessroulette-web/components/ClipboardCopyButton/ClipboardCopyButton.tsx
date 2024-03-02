@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState } from 'react';
 import { Button, ButtonProps, IconButton } from '../Button';
 import { noop } from '@xmatter/util-kit';

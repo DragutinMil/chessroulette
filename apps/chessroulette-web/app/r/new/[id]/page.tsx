@@ -41,17 +41,9 @@ export default function Page({
     }
   });
 
-  // TODO: Here the room can be created on demand via the API
-
-  // const formattedId = `${client}${id}`;
-  // return (
-  //   <div>
-  //     works {activity} {id}
-  //   </div>
-  // )
-
   return (
     <JoinOrCreateRoom
+      mode="joinOrCreate"
       id={id}
       activity={activity}
       // forwardSearchParamsString={nextParams.toString()}
