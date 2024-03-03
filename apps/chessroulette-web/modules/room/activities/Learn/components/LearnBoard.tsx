@@ -1,19 +1,10 @@
 import { ChapterBoardState, ChapterState } from '../movex';
-import { useMemo } from 'react';
 import { useLearnActivitySettings } from '../hooks/useLearnActivitySettings';
 import { Freeboard } from 'apps/chessroulette-web/components/Chessboard/Freeboard';
 import { Playboard } from 'apps/chessroulette-web/components/Chessboard/Playboard';
-import {
-  ChessFEN,
-  ChessFENBoard,
-  FreeBoardHistory,
-  getNewChessGame,
-  toDictIndexedBy,
-} from '@xmatter/util-kit';
-import { Square } from 'chess.js';
+import { FreeBoardHistory } from '@xmatter/util-kit';
 import { ChessboardContainerProps } from 'apps/chessroulette-web/components/Chessboard/ChessboardContainer';
 import { IconButton } from 'apps/chessroulette-web/components/Button';
-import { SquareMap } from 'apps/chessroulette-web/components/Chessboard/types';
 
 type Props = Required<
   Pick<
@@ -54,13 +45,7 @@ export const LearnBoard = ({
     FreeBoardHistory.findMoveAtIndex(notation.history, notation.focusedIndex);
   const lastMove = lm?.isNonMove ? undefined : lm;
 
-  // Don't leave this here as it's not optimal
-  // TODO: Move this lower level
-  const inCheckSquaresMap = useMemo(() => getInCheckSquareMap(fen), [fen]);
-
   const Board = settings.canMakeInvalidMoves ? Freeboard : Playboard;
-
-  // console.log('board sizePx', sizePx);
 
   return (
     <Board
@@ -70,7 +55,6 @@ export const LearnBoard = ({
       sizePx={sizePx}
       fen={fen}
       lastMove={lastMove}
-      inCheckSquares={inCheckSquaresMap}
       arrowsMap={arrowsMap}
       circlesMap={circlesMap}
       {...chessBoardProps}
@@ -131,53 +115,4 @@ export const LearnBoard = ({
       }
     />
   );
-};
-
-// TODO: This can be doner at the history level
-const getInCheckSquareMap = (fen: ChessFEN): SquareMap => {
-  let result: Square[] = [];
-
-  const fenBoardInstance = new ChessFENBoard(fen);
-
-  fenBoardInstance.setFenNotation({
-    fromState: { turn: 'w', enPassant: undefined },
-  });
-
-  const fenAsWhiteTurn = fenBoardInstance.fen;
-
-  fenBoardInstance.setFenNotation({
-    fromState: { turn: 'b', enPassant: undefined },
-  });
-
-  const fenAsBlackTurn = fenBoardInstance.fen;
-
-  const chessInstanceAsWhite = getNewChessGame({
-    fen: fenAsWhiteTurn,
-  });
-
-  if (chessInstanceAsWhite.isCheck()) {
-    const whiteKingSquare = fenBoardInstance.getKingSquare('w');
-
-    if (whiteKingSquare) {
-      result = [whiteKingSquare];
-    }
-  }
-
-  const chessInstanceAsBlack = getNewChessGame({
-    fen: fenAsBlackTurn,
-  });
-
-  if (chessInstanceAsBlack.isCheck()) {
-    const blackKingSquare = fenBoardInstance.getKingSquare('b');
-
-    if (blackKingSquare) {
-      result = [...result, blackKingSquare];
-    }
-  }
-
-  return toDictIndexedBy(
-    result,
-    (sq) => sq,
-    () => undefined
-  ) as SquareMap;
 };

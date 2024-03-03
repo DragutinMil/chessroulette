@@ -22,17 +22,17 @@ export type LearnActivityState = {
   };
 };
 
-export type OtherActivities = {
-  activityType: 'play' | 'meetup' | 'none';
-  activityState: {};
-};
+// export type OtherActivities = {
+//   activityType: 'play' | 'meetup' | 'none';
+//   activityState: {};
+// };
 
-export type ActivityState = LearnActivityState | OtherActivities;
+// export type ActivityState = LearnActivityState | OtherActivities;
 
-export const initialActivtityState: ActivityState = {
-  activityType: 'none',
-  activityState: {},
-};
+// export const initialActivtityState: ActivityState = {
+//   activityType: 'none',
+//   activityState: {},
+// };
 
 export type Chapter = {
   id: string;
@@ -56,7 +56,6 @@ export type ChapterBoardState = {
   // Board State
   displayFen: ChessFEN; // This could be strtingPGN as well especially for puzzles but not necessarily
 
-  // fen: ChessFEN;
   arrowsMap: ArrowsMap;
   circlesMap: CirclesMap;
 

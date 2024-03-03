@@ -9,15 +9,13 @@ import {
   pieceSanToFenBoardPieceSymbol,
   swapColor,
 } from '@xmatter/util-kit';
-import {
-  LearnActivityActions,
-  ActivityState,
-  Chapter,
-  ChapterState,
-  LearnActivityState,
-  initialActivtityState,
-} from './types';
+import { Chapter, ChapterState, LearnActivityState } from './types';
 import { initialChapterState, initialDefaultChapter } from './state';
+import {
+  ActivityActions,
+  ActivityState,
+  initialActivtityState,
+} from '../../movex';
 
 export const findLoadedChapter = (
   activityState: LearnActivityState['activityState']
@@ -26,7 +24,7 @@ export const findLoadedChapter = (
 
 export const reducer = (
   prev: ActivityState = initialActivtityState,
-  action: LearnActivityActions
+  action: ActivityActions
 ): ActivityState => {
   if (prev.activityType === 'learn') {
     // TODO: Should this be split?

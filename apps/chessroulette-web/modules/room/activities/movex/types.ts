@@ -1,7 +1,15 @@
-import type * as LearnActivity from '../Learn/movex';
+import type { LearnActivityState, LearnActivityActions } from '../Learn/movex';
+import type {
+  MeetupActivityState,
+  MeetupActivityActions,
+} from '../Meetup/movex';
 
-export type ActivityState =
-  | LearnActivity.LearnActivityState
-  | LearnActivity.OtherActivities;
+// Remove this as the other activities are going to be implemented
+export type UNIMPLEMENTED_Activities = {
+  activityType: 'play' | 'none';
+  activityState: {};
+};
 
-export type ActivityActions = LearnActivity.LearnActivityActions; // add more
+export type ActivityState = LearnActivityState | MeetupActivityState | UNIMPLEMENTED_Activities;
+
+export type ActivityActions = LearnActivityActions | MeetupActivityActions;

@@ -65,7 +65,7 @@ export default async function Page({
 
   return (
     <RoomTemplate themeName={searchParams.theme} session={session} roomId={id}>
-      <RoomContainer rid={rid} iceServers={iceServers} activity="learn" />
+      <RoomContainer rid={rid} iceServers={iceServers} activity="meetup" />
     </RoomTemplate>
   );
 }

@@ -21,7 +21,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Chessboard } from 'react-chessboard';
 import { Arrow } from 'react-chessboard/dist/chessboard/types';
 import { useArrowColor } from './useArrowColor';
-import { ArrowsMap, CircleDrawTuple, CirclesMap, SquareMap } from './types';
+import { ArrowsMap, CircleDrawTuple, CirclesMap } from './types';
 import useDeepCompareEffect from 'use-deep-compare-effect';
 import { noop } from 'movex-core-util';
 import { shallowEqualObjects } from 'shallow-equal';
@@ -29,6 +29,7 @@ import { deepmerge } from 'deepmerge-ts';
 import { ChessboardSquare } from './ChessboardSquare';
 import { useBoardTheme } from './useBoardTheme';
 import useInstance from '@use-it/instance';
+import { getInCheckSquareMap } from './util';
 
 export type ChessBoardProps = GetComponentProps<typeof Chessboard>;
 
@@ -42,7 +43,6 @@ export type ChessboardContainerProps = Omit<
   circlesMap?: CirclesMap;
   arrowColor?: string;
   lastMove?: ShortChessMove;
-  inCheckSquares?: SquareMap;
   boardOrientation?: ChessColor;
   containerClassName?: string;
   onMove?: (m: ShortChessMove) => boolean;
@@ -71,7 +71,6 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
   onCircleDraw = noop,
   onPieceDrop = noop,
   onMove = noop,
-  inCheckSquares,
   boardOrientation = 'white',
   containerClassName,
   customSquareStyles,
@@ -81,6 +80,7 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
   ...props
 }) => {
   const boardTheme = useBoardTheme();
+  const inCheckSquares = useMemo(() => getInCheckSquareMap(fen), [fen]);
 
   const customStyles = useMemo(
     () => ({
@@ -347,8 +347,6 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
       id="chessboard-container"
       className="flex"
       style={{
-        // width: props.sizePx,
-        // height: props.sizePx - rightSideSizePx,
         height: props.sizePx + rightSideSizePx,
         width: props.sizePx + rightSideSizePx,
         marginRight: -rightSideSizePx,
@@ -365,9 +363,7 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
         <Chessboard
           id="Chessboard" // TODO: should this be unique per instance?
           position={fen}
-          // boardWidth={props.sizePx - rightSideSizePx}
           boardWidth={props.sizePx}
-          // boardWidth={600}
           showBoardNotation
           boardOrientation={toLongColor(boardOrientation)}
           snapToCursor={false}
@@ -428,9 +424,7 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
       </div>
       <div
         className={`w-full relative h-full ${rightSideClassName}`}
-        style={{
-          width: rightSideSizePx,
-        }}
+        style={{ width: rightSideSizePx }}
       >
         {rightSideComponent}
       </div>

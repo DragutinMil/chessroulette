@@ -11,7 +11,7 @@ import {
   PeerUserIdsMap,
 } from 'apps/chessroulette-web/providers/PeerToPeerProvider/type';
 import { useMemo } from 'react';
-import { RoomState } from '../../../movex/reducer';
+import { RoomState } from '../movex/reducer';
 
 type Props = {
   userId: UserId;
