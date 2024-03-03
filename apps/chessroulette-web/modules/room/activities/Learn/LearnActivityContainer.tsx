@@ -8,7 +8,7 @@ import { useEffect } from 'react';
 import { IceServerRecord } from 'apps/chessroulette-web/providers/PeerToPeerProvider/type';
 import { LearnActivity } from './LearnActivity';
 import { toRidAsObj } from 'movex';
-import { initialLearnActivityState } from '../activity/reducer';
+import { initialLearnActivityState } from './movex';
 
 type Props = {
   rid: ResourceIdentifier<'room'>;

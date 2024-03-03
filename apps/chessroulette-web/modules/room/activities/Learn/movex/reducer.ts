@@ -1,12 +1,5 @@
 import {
-  ChessArrowId,
-  ChessColor,
-  ChessFEN,
   ChessFENBoard,
-  ChessMove,
-  ChesscircleId,
-  FBHHistory,
-  FBHIndex,
   FBHMove,
   FenBoardPromotionalPieceSymbol,
   FreeBoardHistory,
@@ -16,135 +9,24 @@ import {
   pieceSanToFenBoardPieceSymbol,
   swapColor,
 } from '@xmatter/util-kit';
-import { ImportedInput } from 'apps/chessroulette-web/components/PgnInputBox';
-import { Square } from 'chess.js';
-import { Action } from 'movex-core-util';
-
-export type ArrowDrawTuple = [from: Square, to: Square, hex?: string];
-export type ArrowsMap = Record<ChessArrowId, ArrowDrawTuple>;
-
-export type CircleDrawTuple = [at: Square, hex: string];
-export type CirclesMap = Record<ChesscircleId, CircleDrawTuple>;
-
-export type SquareMap = Record<Square, undefined>;
-
-export type LearnActivityState = {
-  activityType: 'learn';
-  activityState: {
-    loadedChapterId: Chapter['id'];
-    chaptersMap: Record<Chapter['id'], Chapter>;
-    chaptersIndex: number;
-  };
-};
-
-export type OtherActivities = {
-  activityType: 'play' | 'meetup' | 'none';
-  activityState: {};
-};
-
-export type ActivityState = LearnActivityState | OtherActivities;
-
-export const initialActivtityState: ActivityState = {
-  activityType: 'none',
-  activityState: {},
-};
-
-export type Chapter = {
-  id: string;
-  // createdAt: number;
-} & ChapterState;
-
-export type ChapterState = {
-  name: string;
-
-  // Also the chapter might get a type: position, or puzzle (containing next correct moves)
-
-  notation: {
-    // The starting fen is the chapter fen
-    history: FBHHistory;
-    focusedIndex: FBHIndex;
-    startingFen: ChessFEN; // This could be strtingPGN as well especially for puzzles but not necessarily
-  };
-} & ChapterBoardState;
-
-export type ChapterBoardState = {
-  // Board State
-  displayFen: ChessFEN; // This could be strtingPGN as well especially for puzzles but not necessarily
-
-  // fen: ChessFEN;
-  arrowsMap: ArrowsMap;
-  circlesMap: CirclesMap;
-
-  // TODO: This make required once refactored
-  orientation: ChessColor;
-};
-
-export const initialChapterState: ChapterState = {
-  name: 'New Chapter', // TODO: Should it have a name?
-  displayFen: ChessFENBoard.STARTING_FEN,
-  arrowsMap: {},
-  circlesMap: {},
-  notation: {
-    history: [],
-    focusedIndex: FreeBoardHistory.getStartingIndex(),
-    startingFen: ChessFENBoard.STARTING_FEN,
-  },
-  orientation: 'w',
-};
-
-// export const initialFreeChapter = { ...initialChapterState, name: '' };
-
-export const initialDefaultChapter: Chapter = {
-  ...initialChapterState,
-  name: 'Chapter 1',
-  id: '0',
-};
-
-export const initialLearnActivityState: LearnActivityState = {
-  activityType: 'learn',
-  activityState: {
-    chaptersMap: {
-      [initialDefaultChapter.id]: initialDefaultChapter,
-    },
-    loadedChapterId: initialDefaultChapter.id,
-    chaptersIndex: 1,
-  },
-};
-
-// PART 2: Action Types
-
-export type ActivityActions =
-  // Chapter Logistcs
-  | Action<'createChapter', ChapterState>
-  | Action<
-      'updateChapter',
-      {
-        id: Chapter['id'];
-        state: Partial<ChapterState>; // The notation is updateable via addMove or history actions only
-      }
-    >
-  | Action<'deleteChapter', { id: Chapter['id'] }>
-  | Action<'loadChapter', { id: Chapter['id'] }>
-  | Action<'loadedChapter:addMove', ChessMove>
-  | Action<'loadedChapter:focusHistoryIndex', FBHIndex>
-  | Action<'loadedChapter:deleteHistoryMove', FBHIndex>
-  | Action<'loadedChapter:drawCircle', CircleDrawTuple>
-  | Action<'loadedChapter:clearCircles'>
-  | Action<'loadedChapter:setArrows', ArrowsMap>
-  | Action<'loadedChapter:setOrientation', ChessColor>
-  | Action<'loadedChapter:updateFen', ChessFEN>
-  | Action<'loadedChapter:import', ImportedInput>;
-
-// PART 3: The Reducer – This is where all the logic happens
+import {
+  LearnActivityActions,
+  ActivityState,
+  Chapter,
+  ChapterState,
+  LearnActivityState,
+  initialActivtityState,
+} from './types';
+import { initialChapterState, initialDefaultChapter } from './state';
 
 export const findLoadedChapter = (
   activityState: LearnActivityState['activityState']
 ): Chapter | undefined =>
   activityState.chaptersMap[activityState.loadedChapterId];
 
-export default (
+export const reducer = (
   prev: ActivityState = initialActivtityState,
-  action: ActivityActions
+  action: LearnActivityActions
 ): ActivityState => {
   if (prev.activityType === 'learn') {
     // TODO: Should this be split?
@@ -259,7 +141,6 @@ export default (
           },
         };
 
-
         return {
           ...prev,
           activityState: {
@@ -354,40 +235,6 @@ export default (
           },
         };
       }
-
-      // if (!isValidPgn(action.payload)) {
-      //   return prev;
-      // }
-
-      // const instance = getNewChessGame({
-      //   pgn: action.payload,
-      // });
-      // const nextHistoryMovex = FreeBoardHistory.pgnToHistory(action.payload);
-
-      // const nextChapterState: ChapterState = {
-      //   ...prevChapter,
-      //   displayFen: instance.fen(),
-      //   notation: {
-      //     startingFen: ChessFENBoard.STARTING_FEN,
-      //     history: nextHistoryMovex,
-      //     focusedIndex:
-      //       FreeBoardHistory.getLastIndexInHistory(nextHistoryMovex),
-      //   },
-      // };
-
-      // return {
-      //   ...prev,
-      //   activityState: {
-      //     ...prev.activityState,
-      //     chaptersMap: {
-      //       ...prev.activityState.chaptersMap,
-      //       [prevChapter.id]: {
-      //         ...prev.activityState.chaptersMap[prevChapter.id],
-      //         ...nextChapterState,
-      //       },
-      //     },
-      //   },
-      // };
     }
 
     if (action.type === 'loadedChapter:focusHistoryIndex') {

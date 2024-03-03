@@ -1,8 +1,4 @@
-import {
-  ChapterBoardState,
-  ChapterState,
-  SquareMap,
-} from '../../activity/reducer';
+import { ChapterBoardState, ChapterState } from '../movex';
 import { useMemo } from 'react';
 import { useLearnActivitySettings } from '../useLearnActivitySettings';
 import { Freeboard } from 'apps/chessroulette-web/components/Chessboard/Freeboard';
@@ -17,6 +13,7 @@ import {
 import { Square } from 'chess.js';
 import { ChessboardContainerProps } from 'apps/chessroulette-web/components/Chessboard/ChessboardContainer';
 import { IconButton } from 'apps/chessroulette-web/components/Button';
+import { SquareMap } from 'apps/chessroulette-web/components/Chessboard/types';
 
 type Props = Required<
   Pick<

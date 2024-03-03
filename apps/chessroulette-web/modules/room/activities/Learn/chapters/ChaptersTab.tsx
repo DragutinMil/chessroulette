@@ -1,8 +1,3 @@
-import {
-  Chapter,
-  ChapterState,
-  initialChapterState,
-} from '../../activity/reducer';
 import { useMemo } from 'react';
 import { objectKeys } from 'movex-core-util';
 import { ChapterItem } from './ChapterItem';
@@ -11,6 +6,7 @@ import { CreateChapterView } from './views/CreateChapterView';
 import { TabsNav } from 'apps/chessroulette-web/components/Tabs';
 import { UpdateChapterView } from './views/UpdateChapterView';
 import { EditChapterStateViewProps } from './views/EditChapterStateView';
+import { Chapter, ChapterState, initialChapterState } from '../movex';
 
 export type ChaptersTabProps = {
   chaptersMap: Record<Chapter['id'], Chapter>;

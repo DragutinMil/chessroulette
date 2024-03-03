@@ -11,19 +11,19 @@ import {
   LearnActivityState,
   findLoadedChapter,
   initialDefaultChapter,
-} from '../activity/reducer';
+} from './movex';
 import { WidgetPanel } from './components/WidgetPanel';
-import { UserId } from '../../user/type';
 import { CameraPanel } from './components/CameraPanel';
-import { RoomState } from '../movex/reducer';
+import { RoomState } from '../../movex/reducer';
 import { LearnBoardEditor } from './components/LearnBoardEditor';
 import { LearnBoard, RIGHT_SIDE_SIZE_PX } from './components/LearnBoard';
-import inputReducer, { initialInputState } from '../activity/inputReducer';
+import inputReducer, { initialInputState } from './reducers/inputReducer';
 import { ChapterDisplayView } from './chapters/ChapterDisplayView';
 import { useContainerDimensions } from 'apps/chessroulette-web/components/ContainerWithDimensions';
 import { Freeboard } from 'apps/chessroulette-web/components/Chessboard/Freeboard';
 import { IconButton } from 'apps/chessroulette-web/components/Button';
 import { TabsRef } from 'apps/chessroulette-web/components/Tabs';
+import { UserId } from 'apps/chessroulette-web/modules/user/type';
 
 export type LearnActivityProps = {
   roomId: string;

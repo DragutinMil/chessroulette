@@ -6,8 +6,8 @@ import { config } from 'apps/chessroulette-web/config';
 import { authOptions } from 'apps/chessroulette-web/services/auth';
 import RoomTemplate from 'apps/chessroulette-web/templates/RoomTemplate';
 import { serverConfig } from 'apps/chessroulette-web/config/config.server';
-import { LearnActivityContainer } from 'apps/chessroulette-web/modules/room/Learn/LearnActivityContainer';
 import { Metadata } from 'next';
+import { LearnActivityContainer } from 'apps/chessroulette-web/modules/room/activities/Learn/LearnActivityContainer';
 
 export const metadata: Metadata = {
   title: 'Learn | Chessroulette',

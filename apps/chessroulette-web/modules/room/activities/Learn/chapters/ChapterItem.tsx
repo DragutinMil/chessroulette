@@ -1,7 +1,7 @@
-import { Chapter } from '../../activity/reducer';
 import { IconButton } from 'apps/chessroulette-web/components/Button';
 import { QuickConfirmButton } from 'apps/chessroulette-web/components/Button/QuickConfirmButton';
 import { Icon } from 'apps/chessroulette-web/components/Icon';
+import { Chapter } from '../movex';
 
 export type Props = {
   chapter: Chapter;

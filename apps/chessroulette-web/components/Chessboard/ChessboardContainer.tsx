@@ -12,23 +12,16 @@ import {
   toDictIndexedBy,
   toLongColor,
   useCallbackIf,
+  fenBoardPieceSymbolToDetailedChessPiece,
+  isPromotableMove,
+  pieceSanToPiece,
 } from '@xmatter/util-kit';
 import { Piece, Square } from 'chess.js';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Chessboard } from 'react-chessboard';
 import { Arrow } from 'react-chessboard/dist/chessboard/types';
 import { useArrowColor } from './useArrowColor';
-import {
-  fenBoardPieceSymbolToDetailedChessPiece,
-  isPromotableMove,
-  pieceSanToPiece,
-} from 'util-kit/src/lib/ChessFENBoard/chessUtils';
-import {
-  ArrowsMap,
-  CircleDrawTuple,
-  CirclesMap,
-  SquareMap,
-} from 'apps/chessroulette-web/modules/room/activity/reducer';
+import { ArrowsMap, CircleDrawTuple, CirclesMap, SquareMap } from './types';
 import useDeepCompareEffect from 'use-deep-compare-effect';
 import { noop } from 'movex-core-util';
 import { shallowEqualObjects } from 'shallow-equal';

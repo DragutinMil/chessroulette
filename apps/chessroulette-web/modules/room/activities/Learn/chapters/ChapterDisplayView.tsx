@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
-import { ChapterState } from '../../activity/reducer';
 import { ChessFENBoard, toLongColor } from '@xmatter/util-kit';
+import { ChapterState } from '../movex';
 
 type Props = {
   chapter: ChapterState;

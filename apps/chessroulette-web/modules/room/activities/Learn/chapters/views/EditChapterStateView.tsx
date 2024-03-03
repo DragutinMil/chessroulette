@@ -1,10 +1,8 @@
 import { useEffect, useState } from 'react';
-import { ChapterState } from '../../../activity/reducer';
 import {
   ChessFENBoard,
   DeepPartial,
   FenState,
-  getNewChessGame,
   toShortColor,
 } from '@xmatter/util-kit';
 import { FenPreview } from '../../components/FenPreview';
@@ -14,6 +12,7 @@ import {
 } from 'apps/chessroulette-web/components/PgnInputBox';
 import useInstance from '@use-it/instance';
 import { SQUARES, Square } from 'chess.js';
+import { ChapterState } from '../../movex';
 
 export type EditChapterStateViewProps = {
   state: ChapterState;

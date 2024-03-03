@@ -1,4 +1,4 @@
-import { JoinOrCreateRoom } from 'apps/chessroulette-web/modules/room/JoinOrCreateRoom';
+import { JoinOrCreateRoom } from 'apps/chessroulette-web/modules/room/components/JoinOrCreateRoom';
 import { Metadata } from 'next';
 import z from 'zod';
 

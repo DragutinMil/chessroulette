@@ -4,7 +4,7 @@ import {
   FreeBoardNotationProps,
 } from 'apps/chessroulette-web/components/FreeBoardNotation';
 import { Tabs, TabsRef } from 'apps/chessroulette-web/components/Tabs';
-import { Chapter, ChapterState } from '../../activity/reducer';
+import { Chapter, ChapterState } from '../movex';
 import { useLearnActivitySettings } from '../useLearnActivitySettings';
 import {
   PgnInputBox,
@@ -12,7 +12,7 @@ import {
 } from 'apps/chessroulette-web/components/PgnInputBox';
 import { ChaptersTab, ChaptersTabProps } from '../chapters/ChaptersTab';
 import { useWidgetPanelTabsNavAsSearchParams } from './useWidgetPanelTabsNav';
-import React, { useCallback, useEffect, useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 
 type Props = {
   chaptersMap: Record<Chapter['id'], Chapter>;

@@ -2,12 +2,12 @@
 
 import { ClipboardCopyButton } from 'apps/chessroulette-web/components/ClipboardCopyButton';
 import { useUrl } from 'nextjs-current-url';
-import { useLearnActivitySettings } from './Learn/useLearnActivitySettings';
-import { links } from './links';
+import { links } from '../links';
 import Link from 'next/link';
 import { Icon } from 'apps/chessroulette-web/components/Icon';
 import { useMemo } from 'react';
-import { useRoomSettings } from './hooks/useRoomSettings';
+import { useRoomSettings } from '../hooks/useRoomSettings';
+import { useLearnActivitySettings } from '../activities/Learn/useLearnActivitySettings';
 
 type Props = {
   roomId: string;

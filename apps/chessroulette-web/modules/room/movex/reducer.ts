@@ -1,37 +1,11 @@
 import { Action } from 'movex-core-util';
-import activityReducer, {
-  ActivityActions,
-  ActivityState,
-} from '../activity/reducer';
 import { User } from '../../user/type';
-
-// export const userSlots = {
-//   pink: true,
-//   red: true,
-//   blue: true,
-//   purple: true,
-//   green: true,
-//   orange: true,
-// };
-
-// export type UserSlot = keyof typeof userSlots;
-
-// export type ChatMsg = {
-//   content: string;
-//   atTimestamp: number;
-//   userSlot: UserSlot;
-// };
-
-type ParticipantId = string;
+import { LearnActivityActions } from '../activities/Learn/movex';
+import { ActivityState, roomActivityReducer } from '../activities/movex';
 
 export type RoomState = {
-  // userSlots: {
-  //   [slot in UserSlot]: boolean;
-  // };
   participants: Record<User['id'], { userId: User['id'] }>;
   activity: ActivityState;
-  counter: number;
-  // messages: ChatMsg[];
 };
 
 export const initialRoomState: RoomState = {
@@ -40,11 +14,7 @@ export const initialRoomState: RoomState = {
     activityType: 'none',
     activityState: {},
   },
-  counter: 0,
-  // messages: [],
 };
-
-// PART 2: Action Types
 
 export type RoomActions =
   | Action<
@@ -59,27 +29,12 @@ export type RoomActions =
         userId: User['id'];
       }
     >
-  // | Action<'inc'>
-  | ActivityActions;
-// | Action<
-//     'submit',
-//     {
-//       userSlot: UserSlot;
-//       content: string;
-//       atTimestamp: number;
-//     }
-//   >;
+  | LearnActivityActions;
 
-// PART 3: The Reducer – This is where all the logic happens
-
-export default (state = initialRoomState, action: RoomActions): RoomState => {
-  console.group('Movex Room Reducer: Action', action.type);
-  console.log('payload', (action as any).payload);
-  console.log('prev', state);
-  // console.log('next', next);
-  console.log('');
-  console.groupEnd();
-
+const roomReducer = (
+  state = initialRoomState,
+  action: RoomActions
+): RoomState => {
   // User Joins
   if (action.type === 'join') {
     return {
@@ -101,28 +56,17 @@ export default (state = initialRoomState, action: RoomActions): RoomState => {
     };
   }
 
-  // TODO: This should be done differently!
-  if (
-    action.type === 'createChapter' ||
-    action.type === 'deleteChapter' ||
-    action.type === 'updateChapter' ||
-    action.type === 'loadChapter' ||
-    action.type === 'loadedChapter:addMove' ||
-    action.type === 'loadedChapter:focusHistoryIndex' ||
-    action.type === 'loadedChapter:deleteHistoryMove' ||
-    action.type === 'loadedChapter:clearCircles' ||
-    action.type === 'loadedChapter:drawCircle' ||
-    action.type === 'loadedChapter:setArrows' ||
-    action.type === 'loadedChapter:setOrientation' ||
-    action.type === 'loadedChapter:updateFen' ||
-    action.type === 'loadedChapter:import'
-  ) {
-    // console.log('heere')
-    return {
-      ...state,
-      activity: activityReducer(state.activity, action),
-    };
-  }
-
   return state;
+};
+
+export default (state = initialRoomState, action: RoomActions): RoomState => {
+  const nextRoomState = roomReducer(state, action);
+
+  return {
+    ...nextRoomState,
+    activity: roomActivityReducer(
+      nextRoomState.activity,
+      action as LearnActivityActions
+    ),
+  };
 };

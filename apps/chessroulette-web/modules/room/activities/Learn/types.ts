@@ -1,5 +1,8 @@
 import { ChessColor, ChessFEN } from '@xmatter/util-kit';
-import { ArrowsMap, ChapterState, CirclesMap } from '../activity/reducer';
+import {
+  ArrowsMap,
+  CirclesMap,
+} from 'apps/chessroulette-web/components/Chessboard/types';
 
 export type LayoutContainerDimensions = {
   width: number;

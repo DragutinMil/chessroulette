@@ -1,5 +1,5 @@
 import { Action } from 'movex-core-util';
-import { Chapter, ChapterState, CircleDrawTuple } from './reducer';
+import { Chapter, ChapterState } from '../movex';
 import {
   ChessFEN,
   ChessFENBoard,
@@ -11,6 +11,7 @@ import {
   pieceSanToFenBoardPieceSymbol,
 } from '@xmatter/util-kit';
 import { ImportedInput } from 'apps/chessroulette-web/components/PgnInputBox';
+import { CircleDrawTuple } from 'apps/chessroulette-web/components/Chessboard/types';
 
 export type InputState =
   | {

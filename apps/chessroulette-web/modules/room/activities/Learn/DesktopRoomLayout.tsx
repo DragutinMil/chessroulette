@@ -1,10 +1,4 @@
-import React, {
-  ReactNode,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-} from 'react';
+import React, { ReactNode, useCallback, useMemo, useRef } from 'react';
 import { GenericLayoutExtendedDimensions } from './types';
 import { useContainerDimensions } from 'apps/chessroulette-web/components/ContainerWithDimensions';
 import { getLayoutSizes, isMobile as getIsMobile, Ratios } from './util';

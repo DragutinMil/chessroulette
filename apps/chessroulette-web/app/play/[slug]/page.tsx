@@ -2,17 +2,12 @@ import { Metadata } from 'next';
 import Template from './PlayTemplate';
 import { NoSSR } from 'apps/chessroulette-web/components/NoSSR';
 import { PlayerBox } from 'apps/chessroulette-web/components/PlayerBox';
-// import { ChessGame } from 'apps/chessroulette-web/modules/ChessGame/ChessGame';
-import { MovexBoundResource } from 'movex-react';
-import movexConfig from 'apps/chessroulette-web/movex.config';
 import MainActivity from 'apps/chessroulette-web/modules/room/PlayActivity';
-import { useRouter, useSearchParams } from 'next/navigation';
 import {
   ResourceIdentifier,
   isResourceIdentifierOfType,
   toResourceIdentifierObj,
 } from 'movex-core-util';
-import RoomParticipants from 'apps/chessroulette-web/modules/room/RoomParticipants';
 
 export const metadata: Metadata = {
   title: 'Chessroulette | Room',

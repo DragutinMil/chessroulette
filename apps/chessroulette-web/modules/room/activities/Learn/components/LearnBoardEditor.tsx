@@ -2,8 +2,7 @@ import {
   BoardEditor,
   BoardEditorProps,
 } from 'apps/chessroulette-web/components/Chessboard/BoardEditor';
-import { ChapterBoardState } from '../../activity/reducer';
-import { swapColor } from '@xmatter/util-kit';
+import { ChapterBoardState } from '../movex';
 
 export type LearnBoardEditorProps = {
   boardSizePx: number;

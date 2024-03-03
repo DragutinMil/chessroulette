@@ -15,6 +15,8 @@ const LAYOUT_RATIOS = {
   rightSide: 2.5,
 };
 
+
+// @Deprecate since it isn't used anymore
 export const LearnRoomDesktopLayout = ({
   mainComponent,
   rightSideComponent,

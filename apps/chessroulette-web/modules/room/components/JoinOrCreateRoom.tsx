@@ -4,17 +4,17 @@ import React, { useEffect, useState } from 'react';
 import movexConfig from 'apps/chessroulette-web/movex.config';
 import { useMovexResourceType } from 'movex-react';
 import { useRouter } from 'next/navigation';
-import { initialRoomState } from './movex/reducer';
-import { initialLearnActivityState } from './activity/reducer';
+import { initialRoomState } from '../movex/reducer';
 import {
   toResourceIdentifierObj,
   toResourceIdentifierStr,
 } from 'movex-core-util';
 import { useUpdateableSearchParams } from 'apps/chessroulette-web/hooks/useSearchParams';
 import { generateUserId, getRandomStr } from 'apps/chessroulette-web/util';
-import { links } from './links';
+import { links } from '../links';
 import { AsyncErr } from 'ts-async-results';
 import { invoke } from '@xmatter/util-kit';
+import { initialLearnActivityState } from '../activities/Learn/movex';
 
 type Props = {
   activity: 'learn'; // To expand in the future
@@ -117,7 +117,7 @@ export const JoinOrCreateRoom: React.FC<Props> = ({
       <div className="flex flex-1 items-center justify-center h-screen w-screen text-lg  divide-x">
         {/* <div className='flex- items-center'> */}
         <h1 className="text-2xl pr-2">404</h1>
-        <h1 className='pl-2'>Room not found.</h1>
+        <h1 className="pl-2">Room not found.</h1>
         {/* </div> */}
       </div>
     );

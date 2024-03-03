@@ -1,4 +1,4 @@
-import { ChapterState } from '../../activity/reducer';
+import { ChapterState } from '../movex';
 
 // TODO: Ensure this is enough for proper equality
 export const areChapterStatesEqual = (a: ChapterState, b: ChapterState) =>
