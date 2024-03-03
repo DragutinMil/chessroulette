@@ -88,3 +88,17 @@ export const min = (a: number, ...rest: number[]) => {
   return res;
 };
 // export const minAll = (a: number, b: number) => (a < b ? a : b);
+
+export const pluralize = (
+  condition: boolean,
+  wordSingular: string,
+  pluralForm: { by: 'append' | 'replace'; str: string } = {
+    by: 'append',
+    str: 's',
+  }
+) =>
+  condition
+    ? pluralForm.by === 'append'
+      ? wordSingular + pluralForm.str
+      : pluralForm.str
+    : wordSingular;
