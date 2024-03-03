@@ -1,1 +1,2 @@
-export * from './LearnActivity';
+export * from './LearnActivityContainer';
+export * from './hooks';

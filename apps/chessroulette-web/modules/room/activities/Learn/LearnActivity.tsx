@@ -5,7 +5,7 @@ import { MovexBoundResourceFromConfig } from 'movex-react';
 import { ChessFENBoard, max, noop, swapColor } from '@xmatter/util-kit';
 import { useEffect, useReducer, useRef, useState } from 'react';
 import { IceServerRecord } from 'apps/chessroulette-web/providers/PeerToPeerProvider/type';
-import { useLearnActivitySettings } from './useLearnActivitySettings';
+import { useLearnActivitySettings } from './hooks/useLearnActivitySettings';
 import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
 import {
   LearnActivityState,

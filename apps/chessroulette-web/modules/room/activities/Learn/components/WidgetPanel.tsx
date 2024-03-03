@@ -5,7 +5,7 @@ import {
 } from 'apps/chessroulette-web/components/FreeBoardNotation';
 import { Tabs, TabsRef } from 'apps/chessroulette-web/components/Tabs';
 import { Chapter, ChapterState } from '../movex';
-import { useLearnActivitySettings } from '../useLearnActivitySettings';
+import { useLearnActivitySettings } from '../hooks/useLearnActivitySettings';
 import {
   PgnInputBox,
   PgnInputBoxProps,

@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { Icon } from 'apps/chessroulette-web/components/Icon';
 import { useMemo } from 'react';
 import { useRoomSettings } from '../hooks/useRoomSettings';
-import { useLearnActivitySettings } from '../activities/Learn/useLearnActivitySettings';
+import { useLearnActivitySettings } from '../activities/Learn/hooks/useLearnActivitySettings';
 
 type Props = {
   roomId: string;

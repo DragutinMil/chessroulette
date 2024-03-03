@@ -1,6 +1,6 @@
 import { ChapterBoardState, ChapterState } from '../movex';
 import { useMemo } from 'react';
-import { useLearnActivitySettings } from '../useLearnActivitySettings';
+import { useLearnActivitySettings } from '../hooks/useLearnActivitySettings';
 import { Freeboard } from 'apps/chessroulette-web/components/Chessboard/Freeboard';
 import { Playboard } from 'apps/chessroulette-web/components/Chessboard/Playboard';
 import {
