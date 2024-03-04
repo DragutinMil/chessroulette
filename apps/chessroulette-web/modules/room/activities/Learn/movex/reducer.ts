@@ -387,14 +387,21 @@ export const reducer = (
       return prev;
     }
 
+    const nextFen = action.payload;
+
     const nextChapter: Chapter = {
       ...prevChapter,
-      displayFen: action.payload,
+      displayFen: nextFen,
       arrowsMap: {},
       circlesMap: {},
 
       // Ensure the notation resets each time there is an update (the starting fen might change)
-      notation: initialChapterState.notation,
+      notation: {
+        ...initialChapterState.notation,
+
+        // this needs to always start from the given fen, otherwise issues may arise
+        startingFen: nextFen,
+      },
     };
 
     return {
