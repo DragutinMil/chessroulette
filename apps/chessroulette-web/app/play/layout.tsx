@@ -1,7 +1,5 @@
 import { Metadata } from 'next';
 import '../../styles.css';
-import Header from '../../components/Header';
-import { Avatar } from 'apps/chessroulette-web/components/Avatar';
 import RoomTemplate from 'apps/chessroulette-web/templates/RoomTemplate';
 
 export const metadata: Metadata = {
@@ -16,5 +14,5 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <RoomTemplate>{children}</RoomTemplate>;
+  return <RoomTemplate activity="none">{children}</RoomTemplate>;
 }

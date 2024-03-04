@@ -1,7 +1,11 @@
 import { Action } from 'movex-core-util';
 import { User } from '../../user/type';
-import { LearnActivityActions } from '../activities/Learn/movex';
-import { ActivityState, roomActivityReducer } from '../activities/movex';
+import {
+  ActivityActions,
+  ActivityState,
+  initialActivityState,
+  roomActivityReducer,
+} from '../activities/movex';
 
 export type RoomState = {
   participants: Record<User['id'], { userId: User['id'] }>;
@@ -10,10 +14,7 @@ export type RoomState = {
 
 export const initialRoomState: RoomState = {
   participants: {},
-  activity: {
-    activityType: 'none',
-    activityState: {},
-  },
+  activity: initialActivityState,
 };
 
 export type RoomActions =
@@ -29,7 +30,7 @@ export type RoomActions =
         userId: User['id'];
       }
     >
-  | LearnActivityActions;
+  | ActivityActions;
 
 const roomReducer = (
   state = initialRoomState,
@@ -66,7 +67,7 @@ export default (state = initialRoomState, action: RoomActions): RoomState => {
     ...nextRoomState,
     activity: roomActivityReducer(
       nextRoomState.activity,
-      action as LearnActivityActions
+      action as ActivityActions
     ),
   };
 };

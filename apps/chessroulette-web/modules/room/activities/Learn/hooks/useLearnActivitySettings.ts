@@ -9,6 +9,7 @@ export type LearnActivitySettings = {
   canEditBoard: boolean;
   canMakeInvalidMoves: boolean;
   canImport: boolean;
+  showJoinRoomLink: boolean;
 };
 
 export const useLearnActivitySettings = (): LearnActivitySettings => {
@@ -26,5 +27,6 @@ export const useLearnActivitySettings = (): LearnActivitySettings => {
     canMakeInvalidMoves:
       isInstructor || updateableSearchParams.get('canMakeInvalidMoves') === '1',
     canImport: isInstructor || updateableSearchParams.get('canImport') === '1',
+    showJoinRoomLink: isInstructor,
   };
 };

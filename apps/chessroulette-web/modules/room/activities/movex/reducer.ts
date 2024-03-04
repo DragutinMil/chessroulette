@@ -1,12 +1,12 @@
 // The composition of all activity reducers
 
 import * as LearnActivity from '../Learn/movex';
-import { initialActivtityState } from './state';
+import { initialActivityState } from './state';
 import { ActivityActions, ActivityState } from './types';
 import * as MeetupActivity from '../Meetup/movex';
 
 export const roomActivityReducer = (
-  state: ActivityState = initialActivtityState,
+  state: ActivityState = initialActivityState,
   action: ActivityActions
 ): ActivityState => {
   // Return Use a composer function

@@ -42,6 +42,16 @@ export const MainHomeSection: React.FC<Props> = ({ session }) => {
             Start Class as Kids Instructor
           </Button>
         </Link>
+        <br />
+        <Link
+          href={links.getOnDemandRoomCreationLink({
+            activity: 'meetup',
+          })}
+        >
+          <Button type="custom" bgColor="blue" className="font-bold w-full">
+            Start Meetup
+          </Button>
+        </Link>
       </div>
     </main>
   );

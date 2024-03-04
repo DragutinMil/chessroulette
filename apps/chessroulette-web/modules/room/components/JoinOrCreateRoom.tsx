@@ -6,6 +6,7 @@ import { useMovexResourceType } from 'movex-react';
 import { useRouter } from 'next/navigation';
 import { initialRoomState } from '../movex/reducer';
 import {
+  objectKeys,
   toResourceIdentifierObj,
   toResourceIdentifierStr,
 } from 'movex-core-util';
@@ -13,11 +14,15 @@ import { useUpdateableSearchParams } from 'apps/chessroulette-web/hooks/useSearc
 import { generateUserId, getRandomStr } from 'apps/chessroulette-web/util';
 import { links } from '../links';
 import { AsyncErr } from 'ts-async-results';
-import { invoke } from '@xmatter/util-kit';
+import { invoke, isOneOf } from '@xmatter/util-kit';
 import { initialLearnActivityState } from '../activities/Learn/movex';
+import {
+  ActivityState,
+  initialActivityStatesByActivityType,
+} from '../activities/movex';
 
 type Props = {
-  activity: 'learn'; // To expand in the future
+  activity: ActivityState['activityType']; // To expand in the future
 } & (
   | {
       mode: 'join';
@@ -53,7 +58,12 @@ export const JoinOrCreateRoom: React.FC<Props> = ({
   const [error, setError] = useState<ErrorType>();
 
   useEffect(() => {
-    if (!(roomResource && activity === 'learn')) {
+    if (
+      !(
+        roomResource &&
+        isOneOf(activity, objectKeys(initialActivityStatesByActivityType))
+      )
+    ) {
       return;
     }
 
@@ -87,7 +97,7 @@ export const JoinOrCreateRoom: React.FC<Props> = ({
           return roomResource.create(
             {
               ...initialRoomState,
-              activity: initialLearnActivityState,
+              activity: initialActivityStatesByActivityType[activity],
             },
             id
           );
@@ -98,27 +108,24 @@ export const JoinOrCreateRoom: React.FC<Props> = ({
           links.getRoomLink({
             ...updateableSearchParams.toObject(),
             id: toResourceIdentifierObj(r.rid).resourceId,
-            activity: 'learn',
+            activity,
             userId: updateableSearchParams.get('userId') || generateUserId(),
           })
         );
       })
       .mapErr((e) => {
-        console.log('e', e);
-        // if (e === 'RoomInexistent') {
+        // TODO: support the other reasons it might fail
         setError('RoomInexistent');
-        // }
-        // else if ()
+        console.error('JoinOrCreateRoom Error', e);
       });
   }, [roomResource, activity, id]);
 
+  // TODO: Use the built in error page˝
   if (error === 'RoomInexistent') {
     return (
       <div className="flex flex-1 items-center justify-center h-screen w-screen text-lg  divide-x">
-        {/* <div className='flex- items-center'> */}
         <h1 className="text-2xl pr-2">404</h1>
         <h1 className="pl-2">Room not found.</h1>
-        {/* </div> */}
       </div>
     );
   }

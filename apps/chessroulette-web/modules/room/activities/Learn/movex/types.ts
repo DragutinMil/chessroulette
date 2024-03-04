@@ -22,18 +22,6 @@ export type LearnActivityState = {
   };
 };
 
-// export type OtherActivities = {
-//   activityType: 'play' | 'meetup' | 'none';
-//   activityState: {};
-// };
-
-// export type ActivityState = LearnActivityState | OtherActivities;
-
-// export const initialActivtityState: ActivityState = {
-//   activityType: 'none',
-//   activityState: {},
-// };
-
 export type Chapter = {
   id: string;
   // createdAt: number;

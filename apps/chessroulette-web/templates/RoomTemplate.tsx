@@ -5,8 +5,10 @@ import { CSSProperties } from 'react';
 import { Session } from 'next-auth';
 import { OnboardingWidget } from '../modules/Onboarding';
 import bkg_2 from 'apps/chessroulette-web/templates/bkg_2.svg';
+import { ActivityState } from '../modules/room/activities/movex';
 
 type Props = React.PropsWithChildren & {
+  activity: ActivityState['activityType'];
   roomId?: string;
   contentClassname?: string;
   themeName?: string;
@@ -42,7 +44,9 @@ export default function RoomTemplate(props: Props) {
       <menu className="bg-slate-700 flex-0 flex flex-col p-2">
         <OnboardingWidget session={props.session} />
         <div className="pb-6 border-b border-slate-500 mb-4" />
-        {props.roomId && <RoomSideMenu roomId={props.roomId} />}
+        {props.roomId && (
+          <RoomSideMenu roomId={props.roomId} activity={props.activity} />
+        )}
       </menu>
     </div>
   );

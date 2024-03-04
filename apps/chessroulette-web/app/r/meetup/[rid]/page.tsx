@@ -4,11 +4,11 @@ import { authOptions } from 'apps/chessroulette-web/services/auth';
 import RoomTemplate from 'apps/chessroulette-web/templates/RoomTemplate';
 import { Metadata } from 'next';
 import { RoomContainer } from 'apps/chessroulette-web/modules/room/RoomContainer';
-import { metadata as rootMetadata } from '../../../page';
 import { twilio } from 'apps/chessroulette-web/services/twiliio';
+import { metadata as rootMetadata } from '../../../page';
 
 export const metadata: Metadata = {
-  title: `Learn | ${rootMetadata.title}`,
+  title: `Meetup | ${rootMetadata.title}`,
 };
 
 export default async function Page({
@@ -29,9 +29,9 @@ export default async function Page({
       themeName={searchParams.theme}
       session={session}
       roomId={id}
-      activity="learn"
+      activity="meetup"
     >
-      <RoomContainer rid={rid} iceServers={iceServers} activity="learn" />
+      <RoomContainer rid={rid} iceServers={iceServers} activity="meetup" />
     </RoomTemplate>
   );
 }

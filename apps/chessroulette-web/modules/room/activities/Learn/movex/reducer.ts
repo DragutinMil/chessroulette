@@ -14,7 +14,7 @@ import { initialChapterState, initialDefaultChapter } from './state';
 import {
   ActivityActions,
   ActivityState,
-  initialActivtityState,
+  initialActivityState,
 } from '../../movex';
 
 export const findLoadedChapter = (
@@ -23,7 +23,7 @@ export const findLoadedChapter = (
   activityState.chaptersMap[activityState.loadedChapterId];
 
 export const reducer = (
-  prev: ActivityState = initialActivtityState,
+  prev: ActivityState = initialActivityState,
   action: ActivityActions
 ): ActivityState => {
   if (prev.activityType === 'learn') {

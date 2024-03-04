@@ -2,36 +2,37 @@
 
 import { ClipboardCopyButton } from 'apps/chessroulette-web/components/ClipboardCopyButton';
 import { useUrl } from 'nextjs-current-url';
-import { links } from '../links';
+import { RoomActivityType, links } from '../links';
 import Link from 'next/link';
 import { Icon } from 'apps/chessroulette-web/components/Icon';
 import { useMemo } from 'react';
 import { useRoomSettings } from '../hooks/useRoomSettings';
-import { useLearnActivitySettings } from '../activities/Learn/hooks/useLearnActivitySettings';
 
 type Props = {
   roomId: string;
+  activity: RoomActivityType;
 };
 
-export const RoomSideMenu = ({ roomId }: Props) => {
+export const RoomSideMenu = ({ roomId, activity }: Props) => {
   const url = useUrl();
-  const activitySettings = useLearnActivitySettings();
-  const roomSettings = useRoomSettings();
+  const roomSettings = useRoomSettings(activity);
 
   const joinRoomLink = useMemo(() => {
-    if (!(activitySettings.isInstructor && url)) {
+    if (!(roomSettings.showJoinRoomLink && url)) {
       return undefined;
     }
 
     return links.getJoinRoomLink(
       {
         id: roomId,
-        activity: 'learn',
+        activity,
         theme: roomSettings.theme,
       },
-      url
+      {
+        origin: url.origin,
+      }
     );
-  }, [activitySettings.isInstructor, url?.origin]);
+  }, [roomSettings.showJoinRoomLink, activity, url?.origin]);
 
   return (
     <div className="flex flex-col items-center gap-4">

@@ -4,12 +4,14 @@ import type {
   MeetupActivityActions,
 } from '../Meetup/movex';
 
-// Remove this as the other activities are going to be implemented
-export type UNIMPLEMENTED_Activities = {
-  activityType: 'play' | 'none';
+export type NoneActivityState = {
+  activityType: 'none';
   activityState: {};
 };
 
-export type ActivityState = LearnActivityState | MeetupActivityState | UNIMPLEMENTED_Activities;
+export type ActivityState =
+  | LearnActivityState
+  | MeetupActivityState
+  | NoneActivityState;
 
 export type ActivityActions = LearnActivityActions | MeetupActivityActions;

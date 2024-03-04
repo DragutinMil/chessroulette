@@ -1,8 +1,8 @@
-import { ActivityActions, ActivityState, initialActivtityState } from '../../movex';
+import { ActivityActions, ActivityState, initialActivityState } from '../../movex';
 import { MeetupActivityActions } from './types';
 
 export const reducer = (
-  prev: ActivityState = initialActivtityState,
+  prev: ActivityState = initialActivityState,
   action: ActivityActions
 ): ActivityState => {
   return prev;

@@ -1,20 +1,11 @@
 import { JoinOrCreateRoom } from 'apps/chessroulette-web/modules/room/components/JoinOrCreateRoom';
 import { Metadata } from 'next';
-import z from 'zod';
+import { metadata as rootMetadata } from '../../../page';
+import { identifiableActivityParamsSchema } from 'apps/chessroulette-web/modules/room/io/paramsSchema';
 
 export const metadata: Metadata = {
-  title: 'Chessroulette',
+  title: `Join Room | ${rootMetadata.title}`,
 };
-
-const paramsSchema = z.object({
-  id: z.string(), // room id
-  // client: z.string(), // Outpost // TODO: this can be used later when they hit the api, now just the op prefixed id
-  activity: z.literal('learn'), // This will be more in the future like play or others
-  instructor: z
-    .union([z.literal('1').or(z.literal(1)), z.literal('0').or(z.literal(0))])
-    .optional(), // optional whether the user is an instructor
-  theme: z.string().optional(),
-});
 
 export default function Page({
   searchParams,
@@ -23,12 +14,12 @@ export default function Page({
   searchParams: Record<string, string>;
   params: Record<string, string>;
 }) {
-  const result = paramsSchema.safeParse(
+  const result = identifiableActivityParamsSchema.safeParse(
     Object.fromEntries(new URLSearchParams({ ...searchParams, ...params }))
   );
 
   if (!result.success) {
-    return <>{JSON.stringify(result.error)}</>;
+    throw result.error;
   }
 
   const { activity, id, ...nextParamsObj } = result.data;
@@ -41,23 +32,5 @@ export default function Page({
     }
   });
 
-  // TODO: Here the room can be created on demand via the API
-
-  // const formattedId = `${client}${id}`;
-  // return (
-  //   <div>
-  //     works {activity} {id}
-  //   </div>
-  // )
-
-  return (
-    <JoinOrCreateRoom
-      mode="join"
-      id={id}
-      activity={activity}
-      // forwardSearchParamsString={nextParams.toString()}
-    />
-  );
+  return <JoinOrCreateRoom mode="join" id={id} activity={activity} />;
 }
-
-// http://localhost:4200/r/new?activity=learn&id=[:id]
