@@ -15,7 +15,6 @@ import { generateUserId, getRandomStr } from 'apps/chessroulette-web/util';
 import { links } from '../links';
 import { AsyncErr } from 'ts-async-results';
 import { invoke, isOneOf } from '@xmatter/util-kit';
-import { initialLearnActivityState } from '../activities/Learn/movex';
 import {
   ActivityState,
   initialActivityStatesByActivityType,

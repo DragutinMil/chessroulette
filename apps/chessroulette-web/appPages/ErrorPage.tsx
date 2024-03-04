@@ -1,5 +1,3 @@
-import { config } from '../config';
-
 type Props = {
   error?: Error & { digest?: string };
   extra?: any;

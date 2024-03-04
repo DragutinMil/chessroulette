@@ -23,7 +23,8 @@ export const links = {
       origin: string;
     }
   ) =>
-    `${nav?.origin ?? ''}/r/${activity}/${id}?${toSearchParams(
+    // TODO: this can be refaactored to /room/{id} only and leaving the activity as part of the state
+    `${nav?.origin ?? ''}/room/a/${activity}/${id}?${toSearchParams(
       params
     ).toString()}`,
   getOnDemandRoomCreationLink: (
@@ -38,7 +39,7 @@ export const links = {
       origin: string;
     }
   ) =>
-    `${nav?.origin ?? ''}/r/new/${id ? id : ''}?${toSearchParams(
+    `${nav?.origin ?? ''}/room/new/${id ? id : ''}?${toSearchParams(
       params
     ).toString()}`,
   getJoinRoomLink: (
@@ -52,7 +53,8 @@ export const links = {
     nav?: {
       origin: string;
     }
-  ) => `${nav?.origin ?? ''}/r/join/${id}?${toSearchParams(params).toString()}`,
+  ) =>
+    `${nav?.origin ?? ''}/room/join/${id}?${toSearchParams(params).toString()}`,
 };
 
 const toSearchParams = ({
@@ -71,10 +73,6 @@ const toSearchParams = ({
 
   if (instructor) {
     searchParams.set('instructor', '1');
-  }
-
-  if (edit) {
-    searchParams.set('edit', '1');
   }
 
   if (theme) {

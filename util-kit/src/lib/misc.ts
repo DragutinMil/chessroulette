@@ -1,5 +1,7 @@
 // import fastDeepEquals from 'fast-deep-equal/es6';
 
+import { DistributiveOmit } from './miscType';
+
 /**
  * https://stackoverflow.com/questions/1527803/generating-random-whole-numbers-in-javascript-in-a-specific-range
  *
@@ -102,3 +104,19 @@ export const pluralize = (
       ? wordSingular + pluralForm.str
       : pluralForm.str
     : wordSingular;
+
+export const objectOmit = <O extends Object, ToOmit extends (keyof O)[]>(
+  o: O,
+  toOmit: ToOmit
+) => {
+  return objectKeys(o).reduce((prev, nextKey) => {
+    if (toOmit.indexOf(nextKey) > -1) {
+      return prev;
+    }
+
+    return {
+      ...prev,
+      [nextKey]: o[nextKey],
+    };
+  }, {} as DistributiveOmit<O, TupleToUnionType<typeof toOmit>>);
+};

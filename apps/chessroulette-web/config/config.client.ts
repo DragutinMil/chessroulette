@@ -22,4 +22,6 @@ export const config = {
   DEV_MODE,
 };
 
-console.log('Client Config', config);
+if (DEV_MODE) {
+  console.log('Client Config', config);
+}

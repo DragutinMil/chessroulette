@@ -24,3 +24,10 @@ export type Ensure<T, K extends keyof T> = T &
 export type DistributiveOmit<T, K extends PropertyKey> = T extends any
   ? Omit<T, K>
   : never;
+
+export type UnknownRecord = Record<string, unknown>;
+
+export type StringKeys<TRecord extends UnknownRecord> = Extract<
+  keyof TRecord,
+  string
+>;

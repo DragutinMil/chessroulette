@@ -1,3 +1,5 @@
+import { config } from './config.client';
+
 export const serverConfig = {
   auth: {
     JWT_SECRET: process.env.AUTH_JWT_SECRET as string,
@@ -13,4 +15,6 @@ export const serverConfig = {
   },
 };
 
-console.log('Server Config', serverConfig);
+if (config.DEV_MODE) {
+  console.log('Server Config', serverConfig);
+}

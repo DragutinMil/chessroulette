@@ -1,13 +1,16 @@
+import { objectOmit } from '@xmatter/util-kit';
+import { activityParamsSchema } from 'apps/chessroulette-web/modules/room/io/paramsSchema';
 import { links } from 'apps/chessroulette-web/modules/room/links';
 import { getRandomStr } from 'apps/chessroulette-web/util';
 import { NextRequest, NextResponse } from 'next/server';
 import z from 'zod';
 
-const paramsSchema = z.object({
-  client: z.string(), // Outpost // TODO: this can be used later when they hit the api, now just the op prefixed id
-  activity: z.literal('learn'), // This will be more in the future like play or others
-  theme: z.string().optional(),
-});
+const paramsSchema = z
+  .object({
+    // TODO: this can be used later when they hit the api, now just the op prefixed id
+    client: z.string(), // Outpost
+  })
+  .and(activityParamsSchema);
 
 export function GET(request: NextRequest) {
   const params = new URLSearchParams(request.nextUrl.search);
@@ -17,41 +20,63 @@ export function GET(request: NextRequest) {
     return NextResponse.json(result.error, { status: 400 });
   }
 
-  const { activity, client, ...nextParamsObj } = result.data;
+  const activityParams = result.data;
+  const roomId = activityParams.client.slice(0, 3) + getRandomStr(7);
 
-  const nextParams = new URLSearchParams();
+  if (activityParams.activity === 'learn') {
+    const instructor = links.getOnDemandRoomCreationLink(
+      {
+        ...objectOmit(activityParams, ['client']),
+        id: roomId,
+        instructor: true,
+      },
+      request.nextUrl
+    );
 
-  Object.entries(nextParamsObj).forEach(([k, v]) => {
-    if (v) {
-      nextParams.set(k, String(v));
-    }
-  });
+    const student = links.getOnDemandRoomCreationLink(
+      {
+        ...objectOmit(activityParams, ['client']),
+        id: roomId,
+        instructor: false,
+      },
+      request.nextUrl
+    );
 
-  const roomId = client.slice(0, 3) + getRandomStr(7);
+    return NextResponse.json({
+      links: [
+        {
+          userRole: 'instructor',
+          url: instructor,
+        },
+        {
+          userRole: 'student',
+          url: student,
+        },
+      ],
+    });
+  }
 
-  const instructor = links.getOnDemandRoomCreationLink(
+  if (activityParams.activity === 'meetup') {
+    return NextResponse.json({
+      links: [
+        {
+          userRole: 'participant',
+          url: links.getOnDemandRoomCreationLink(
+            {
+              ...objectOmit(activityParams, ['client']),
+              id: roomId,
+            },
+            request.nextUrl
+          ),
+        },
+      ],
+    });
+  }
+
+  return NextResponse.json(
     {
-      id: roomId,
-      activity,
-      instructor: true,
-      ...nextParamsObj,
+      Error: `Ooops! this shouldn't happen.`,
     },
-    request.nextUrl
+    { status: 500 }
   );
-
-  const student = links.getOnDemandRoomCreationLink(
-    {
-      id: roomId,
-      activity,
-      ...nextParamsObj,
-    },
-    request.nextUrl
-  );
-
-  return NextResponse.json({
-    links: {
-      instructor,
-      student,
-    },
-  });
 }
