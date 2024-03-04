@@ -1,4 +1,4 @@
-import { ChessFEN, ChessMove, FBHHistory, FBHIndex } from '@xmatter/util-kit';
+import { ChessColor, ChessMove, ChessPGN } from '@xmatter/util-kit';
 import {
   ArrowsMap,
   CirclesMap,
@@ -9,22 +9,14 @@ export type MeetupActivityState = {
   activityType: 'meetup';
   activityState: {
     game: {
-      // Board State
-      displayFen: ChessFEN; // This could be strtingPGN as well especially for puzzles but not necessarily
-
       arrowsMap: ArrowsMap;
       circlesMap: CirclesMap;
-
-      // TODO: This make required once refactored
-      // orientation: ChessColor;
-      notation: {
-        // The starting fen is the chapter fen
-        history: FBHHistory;
-        focusedIndex: FBHIndex;
-        startingFen: ChessFEN; // This could be strtingPGN as well especially for puzzles but not necessarily
-      };
+      pgn: ChessPGN;
+      orientation: ChessColor;
     };
   };
 };
 
-export type MeetupActivityActions = Action<'meetup:move', ChessMove>;
+export type MeetupActivityActions =
+  | Action<'meetup:move', ChessMove>
+  | Action<'meetup:startNewGame'>;

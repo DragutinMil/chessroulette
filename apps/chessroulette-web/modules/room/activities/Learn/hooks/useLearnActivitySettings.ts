@@ -2,6 +2,16 @@
 
 import { useUpdateableSearchParams } from 'apps/chessroulette-web/hooks/useSearchParams';
 
+export type JoinRoomLinkProps =
+  | {
+      showJoinRoomLink: true;
+      joinRoomLinkParams: Record<string, string>;
+    }
+  | {
+      showJoinRoomLink: false;
+      joinRoomLinkParams?: {} | undefined;
+    };
+
 export type LearnActivitySettings = {
   isInstructor: boolean;
   canFlipBoard: boolean;
@@ -9,8 +19,7 @@ export type LearnActivitySettings = {
   canEditBoard: boolean;
   canMakeInvalidMoves: boolean;
   canImport: boolean;
-  showJoinRoomLink: boolean;
-};
+} & JoinRoomLinkProps;
 
 export const useLearnActivitySettings = (): LearnActivitySettings => {
   const updateableSearchParams = useUpdateableSearchParams();
@@ -28,5 +37,6 @@ export const useLearnActivitySettings = (): LearnActivitySettings => {
       isInstructor || updateableSearchParams.get('canMakeInvalidMoves') === '1',
     canImport: isInstructor || updateableSearchParams.get('canImport') === '1',
     showJoinRoomLink: isInstructor,
+    joinRoomLinkParams: {},
   };
 };

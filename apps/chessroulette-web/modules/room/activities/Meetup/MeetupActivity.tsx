@@ -1,6 +1,6 @@
 import movexConfig from 'apps/chessroulette-web/movex.config';
 import { MovexBoundResourceFromConfig } from 'movex-react';
-import { noop } from '@xmatter/util-kit';
+import { FreeBoardHistory, noop, pgnToFen, swapColor } from '@xmatter/util-kit';
 import { IceServerRecord } from 'apps/chessroulette-web/providers/PeerToPeerProvider/type';
 import { MeetupActivityState } from './movex';
 import { RoomState } from '../../movex/reducer';
@@ -10,6 +10,11 @@ import { RIGHT_SIDE_SIZE_PX } from '../Learn/components/LearnBoard';
 import { Playboard } from 'apps/chessroulette-web/components/Chessboard/Playboard';
 import { CameraPanel } from '../../components/CameraPanel';
 import { FreeBoardNotation } from 'apps/chessroulette-web/components/FreeBoardNotation';
+import { useMemo } from 'react';
+import { useMeetupActivitySettings } from './useMeetupActivitySettings';
+import { IconButton } from 'apps/chessroulette-web/components/Button';
+import { PanelResizeHandle } from 'react-resizable-panels';
+import { GameDisplayView } from './components/GameDisplayView';
 
 export type Props = {
   roomId: string;
@@ -31,9 +36,29 @@ export const MeetupActivity = ({
   iceServers,
   dispatch: optionalDispatch,
 }: Props) => {
+  const activitySettings = useMeetupActivitySettings();
   const dispatch = optionalDispatch || noop;
 
   const { game } = remoteState;
+  const { fen, notation } = useMemo(() => {
+    const nextHistory = FreeBoardHistory.pgnToHistory(game.pgn);
+
+    return {
+      fen: pgnToFen(game.pgn),
+      notation: {
+        history: nextHistory,
+        focusedIndex: FreeBoardHistory.getLastIndexInHistory(nextHistory),
+      },
+    };
+  }, [game.pgn]);
+
+  const orientation = useMemo(
+    () =>
+      activitySettings.isBoardFlipped
+        ? swapColor(game.orientation)
+        : game.orientation,
+    [activitySettings.isBoardFlipped, game.orientation]
+  );
 
   return (
     <DesktopRoomLayout
@@ -41,9 +66,10 @@ export const MeetupActivity = ({
       mainComponent={({ boardSize }) => (
         <Playboard
           sizePx={boardSize}
-          fen={game.displayFen}
+          fen={fen}
           // {...currentChapter}
-          // orientation={}
+          // boardOrientation={orientation}
+          playingColor={orientation}
           // onFlip={() => {
           //   dispatch({
           //     type: 'loadedChapter:setOrientation',
@@ -51,6 +77,10 @@ export const MeetupActivity = ({
           //   });
           // }}
           onMove={(payload) => {
+            dispatch({
+              type: 'meetup:move',
+              payload,
+            });
             // dispatch({ type: 'loadedChapter:addMove', payload });
 
             // TODO: This can be returned from a more internal component
@@ -68,6 +98,34 @@ export const MeetupActivity = ({
           onClearCircles={() => {
             // dispatch({ type: 'loadedChapter:clearCircles' });
           }}
+          rightSideSizePx={RIGHT_SIDE_SIZE_PX}
+          rightSideClassName="flex flex-col"
+          rightSideComponent={
+            <>
+              <div className="flex-1">
+                <IconButton
+                  icon="ArrowPathIcon"
+                  iconKind="outline"
+                  type="clear"
+                  size="sm"
+                  tooltip="Restart Game"
+                  tooltipPositon="left"
+                  className="mb-2"
+                  onClick={() => {
+                    dispatch({ type: 'meetup:startNewGame' });
+                  }}
+                />
+              </div>
+
+              <div className="relative flex flex-col items-center justify-center">
+                <PanelResizeHandle
+                  className="w-1 h-20 rounded-lg bg-slate-600"
+                  title="Resize"
+                />
+              </div>
+              <div className="flex-1" />
+            </>
+          }
         />
       )}
       rightComponent={
@@ -97,10 +155,15 @@ export const MeetupActivity = ({
           ) : (
             <ChapterDisplayView chapter={currentChapter} />
           )} */}
+          {/* <div className="flex gap-2">
+            <span className="capitalize">Editing</span>
+            <span className="font-bold">"{game.orientation}"</span>
+          </div> */}
+          <GameDisplayView game={game} />
           <div className="bg-slate-700 p-3 flex flex-col flex-1 min-h-0 rounded-lg shadow-2xl">
             <FreeBoardNotation
-              history={game.notation.history}
-              focusedIndex={game.notation.focusedIndex}
+              history={notation.history}
+              focusedIndex={notation.focusedIndex}
               onDelete={() => {}}
               onRefocus={() => {}}
             />

@@ -27,6 +27,7 @@ export const RoomSideMenu = ({ roomId, activity }: Props) => {
         id: roomId,
         activity,
         theme: roomSettings.theme,
+        ...roomSettings.joinRoomLinkParams,
       },
       {
         origin: url.origin,

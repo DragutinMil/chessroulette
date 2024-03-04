@@ -72,7 +72,7 @@ export const JoinOrCreateRoom: React.FC<Props> = ({
         return roomResource.create(
           {
             ...initialRoomState,
-            activity: initialLearnActivityState,
+            activity: initialActivityStatesByActivityType[activity],
           },
           getRandomStr(7) // the new room id
         );

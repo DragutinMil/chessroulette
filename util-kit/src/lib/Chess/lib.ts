@@ -104,3 +104,6 @@ export const isValidFen = (s: string): s is ChessFEN => {
     return false;
   }
 };
+
+export const pgnToFen = (pgn: ChessPGN): ChessFEN =>
+  getNewChessGame({ pgn }).fen();

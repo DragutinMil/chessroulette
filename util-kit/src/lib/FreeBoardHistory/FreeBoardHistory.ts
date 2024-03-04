@@ -6,6 +6,8 @@ import {
   isWhiteColor,
   toShortColor,
   invoke,
+  swapColor,
+  ChessMove,
 } from '@xmatter/util-kit';
 import type {
   FBHIndex,
@@ -748,5 +750,82 @@ export namespace FreeBoardHistory {
     // TODO: This doesn't take care of the branches
 
     return `[${turn}, ${move}${nested}]`;
+  };
+
+  /**
+   * This adds magical(invalid) moves as well
+   *
+   * @param prevHistoryMoves
+   * @param prevFocusedIndex
+   * @param nextMove
+   * @returns
+   */
+  export const addMoveAndCalculateIndex = (
+    {
+      history: prevHistoryMoves,
+      focusedIndex: prevFocusedIndex,
+    }: {
+      history: FBHRecursiveHistory;
+      focusedIndex: FBHIndex;
+    },
+    nextMove: FBHMove
+  ) => {
+    const prevMove = FreeBoardHistory.findMoveAtIndex(
+      prevHistoryMoves,
+      prevFocusedIndex
+    );
+
+    const isFocusedIndexLastInBranch =
+      FreeBoardHistory.isLastIndexInHistoryBranch(
+        prevHistoryMoves,
+        prevFocusedIndex
+      );
+    const [_, __, prevFocusRecursiveIndexes] = prevFocusedIndex;
+    if (prevFocusRecursiveIndexes) {
+      const addAtIndex = FreeBoardHistory.incrementIndex(prevFocusedIndex);
+      if (prevMove?.color === nextMove.color) {
+        const [nextHistory, addedAtIndex] = FreeBoardHistory.addMove(
+          prevHistoryMoves,
+          FreeBoardHistory.getNonMove(swapColor(nextMove.color)),
+          addAtIndex
+        );
+        return FreeBoardHistory.addMove(
+          nextHistory,
+          nextMove,
+          FreeBoardHistory.incrementIndex(addedAtIndex)
+        );
+      }
+      return FreeBoardHistory.addMove(prevHistoryMoves, nextMove, addAtIndex);
+    }
+    const addAtIndex = isFocusedIndexLastInBranch
+      ? FreeBoardHistory.incrementIndex(prevFocusedIndex)
+      : prevFocusedIndex;
+    // if 1st move is black add a non move
+    if (prevHistoryMoves.length === 0 && nextMove.color === 'b') {
+      const [nextHistory] = FreeBoardHistory.addMove(
+        prevHistoryMoves,
+        FreeBoardHistory.getNonMove(swapColor(nextMove.color))
+      );
+      return FreeBoardHistory.addMove(nextHistory, nextMove);
+    }
+    // If it's not the last branch
+    if (!isFocusedIndexLastInBranch) {
+      return FreeBoardHistory.addMove(
+        prevHistoryMoves,
+        nextMove,
+        prevFocusedIndex
+      );
+    }
+    // Add nonMoves for skipping one
+    if (prevMove?.color === nextMove.color) {
+      const [nextHistory] = FreeBoardHistory.addMove(
+        prevHistoryMoves,
+        FreeBoardHistory.getNonMove(swapColor(nextMove.color)),
+        addAtIndex
+      );
+      return FreeBoardHistory.addMove(nextHistory, nextMove);
+    }
+
+    return FreeBoardHistory.addMove(prevHistoryMoves, nextMove);
   };
 }
