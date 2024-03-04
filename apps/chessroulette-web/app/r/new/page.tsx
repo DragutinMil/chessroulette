@@ -16,13 +16,26 @@ export default function Page({
   params: Record<string, string>;
 }) {
 
+  const allParams = { ...searchParams, ...params };
   const result = activityParamsSchema.safeParse(
-    Object.fromEntries(new URLSearchParams({ ...searchParams, ...params }))
+    Object.fromEntries(new URLSearchParams(allParams))
   );
 
   if (!result.success) {
-    return <ErrorPage error={result.error} />;
+    return <ErrorPage error={result.error} extra={allParams} />;
   }
+
+
+  if (1 === 1) {
+    return (
+      <div>
+      <div>of course it works</div>
+      {allParams && <pre>Exra: {JSON.stringify(allParams, null, 2)}</pre>}
+      </div>
+      
+    )
+  }
+
 
   const { activity, ...nextParamsObj } = result.data;
 

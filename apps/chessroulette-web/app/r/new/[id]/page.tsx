@@ -15,12 +15,19 @@ export default function Page({
   searchParams: Record<string, string>;
   params: Record<string, string>;
 }) {
+  const allParams = { ...searchParams, ...params };
   const result = identifiableActivityParamsSchema.safeParse(
-    Object.fromEntries(new URLSearchParams({ ...searchParams, ...params }))
+    Object.fromEntries(new URLSearchParams(allParams))
   );
 
   if (!result.success) {
-    return <ErrorPage error={result.error} />
+    return <ErrorPage error={result.error} extra={allParams} />
+  }
+
+  if (1 === 1) {
+    return (
+      <div>of course it works</div>
+    )
   }
 
   const { activity, id, ...nextParamsObj } = result.data;
