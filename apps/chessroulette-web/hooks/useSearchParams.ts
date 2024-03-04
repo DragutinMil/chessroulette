@@ -5,7 +5,7 @@ import {
   useRouter,
   useSearchParams,
 } from 'next/navigation';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useMemo } from 'react';
 
 export type SearchParamsRecord = Record<string, string | number | undefined>;
 

@@ -2,6 +2,7 @@ import { JoinOrCreateRoom } from 'apps/chessroulette-web/modules/room/components
 import { Metadata } from 'next';
 import { metadata as rootMetadata } from '../../../page';
 import { identifiableActivityParamsSchema } from 'apps/chessroulette-web/modules/room/io/paramsSchema';
+import { ErrorPage } from 'apps/chessroulette-web/appPages/ErrorPage';
 
 export const metadata: Metadata = {
   title: `Join Room | ${rootMetadata.title}`,
@@ -19,7 +20,7 @@ export default function Page({
   );
 
   if (!result.success) {
-    throw result.error;
+    return <ErrorPage error={result.error} />
   }
 
   const { activity, id, ...nextParamsObj } = result.data;
