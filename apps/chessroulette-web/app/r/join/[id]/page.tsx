@@ -20,7 +20,7 @@ export default function Page({
   );
 
   if (!result.success) {
-    return <ErrorPage error={result.error} />
+    return <ErrorPage error={result.error} />;
   }
 
   const { activity, id, ...nextParamsObj } = result.data;

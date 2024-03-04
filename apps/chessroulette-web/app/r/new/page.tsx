@@ -15,6 +15,7 @@ export default function Page({
   searchParams: Record<string, string>;
   params: Record<string, string>;
 }) {
+
   const result = activityParamsSchema.safeParse(
     Object.fromEntries(new URLSearchParams({ ...searchParams, ...params }))
   );
