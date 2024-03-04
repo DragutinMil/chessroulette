@@ -10,50 +10,34 @@ const truthyParam = z
 
 const idParamsSchema = z.object({ id: z.string() }); // room id,;
 
-const themeParamsSchema = z
-  .object({
-    theme: z.string(),
-  })
-  .partial();
+const themeParamsSchema = z.object({
+  theme: z.string(),
+});
 
-const learnActivitySettingParamsSchema = z
-  .object({
-    instructor: truthyParam,
-  })
-  .partial();
+const generalActivityParamsSchema = themeParamsSchema.partial(); // can add more here
 
-export const learnActivityParamsSchema = z
-  .object({
-    activity: z.literal('learn'), // This will be more in the future like play or others
-  })
-  .and(learnActivitySettingParamsSchema)
-  .and(themeParamsSchema);
+export const learnActivityParamsSchema = z.object({
+  activity: z.literal('learn'), // This will be more in the future like play or others
 
-type LearnActivityParamsSchema = z.TypeOf<typeof learnActivityParamsSchema>;
+  // Learn Actibity Settings
+  instructor: truthyParam.optional(),
+});
 
-export const identifiableLearnActivityParamsScheme = idParamsSchema.and(
-  learnActivityParamsSchema
-);
-
-type IdentifiableLearnActivityParamsScheme = z.TypeOf<
-  typeof identifiableLearnActivityParamsScheme
+export type LearnActivityParamsSchema = z.TypeOf<
+  typeof learnActivityParamsSchema
 >;
 
-export const meetupActivityParamsSchema = z
-  .object({
-    activity: z.literal('meetup'), // This will be more in the future like play or others
-  })
-  // .and(learnActivitySettingParamsSchema)
-  .and(themeParamsSchema);
+export const meetupActivityParamsSchema = z.object({
+  activity: z.literal('meetup'), // This will be more in the future like play or others
+  // Add the specific settings here
+});
 
-export const identifiableMeetupActivityParamsSchema = idParamsSchema.and(
-  meetupActivityParamsSchema
-);
-
-export const activityParamsSchema = z.union([
-  learnActivityParamsSchema,
-  meetupActivityParamsSchema,
-]);
+export const activityParamsSchema = z
+  .discriminatedUnion('activity', [
+    learnActivityParamsSchema,
+    meetupActivityParamsSchema,
+  ])
+  .and(generalActivityParamsSchema);
 
 export const identifiableActivityParamsSchema =
   activityParamsSchema.and(idParamsSchema);
