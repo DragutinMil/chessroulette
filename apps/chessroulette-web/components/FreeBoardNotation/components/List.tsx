@@ -11,6 +11,7 @@ export type ListProps = {
   focusedIndex?: FBHIndex;
   className?: string;
   rowClassName?: string;
+  // showVariantMenuAt?: FBHIndex;
 } & (
   | {
       isNested: true;
@@ -77,7 +78,7 @@ export const List: React.FC<ListProps> = ({
     }, 100);
   }, []);
 
-  const [focusedTurnIndex, focusedMovePosition, recusriveFocusedIndexes] =
+  const [focusedTurnIndex, focusedMovePosition, recursiveFocusedIndexes] =
     focusedIndex || [];
 
   return (
@@ -106,7 +107,7 @@ export const List: React.FC<ListProps> = ({
             }
             focusedOnRecursiveIndexes={
               historyTurnIndex === focusedTurnIndex
-                ? recusriveFocusedIndexes
+                ? recursiveFocusedIndexes
                 : undefined
             }
             containerClassName={rowClassName}

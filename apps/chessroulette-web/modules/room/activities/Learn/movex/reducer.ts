@@ -4,10 +4,8 @@ import {
   FenBoardPromotionalPieceSymbol,
   FreeBoardHistory,
   getNewChessGame,
-  invoke,
   isValidPgn,
   pieceSanToFenBoardPieceSymbol,
-  swapColor,
 } from '@xmatter/util-kit';
 import { Chapter, ChapterState, LearnActivityState } from './types';
 import { initialChapterState, initialDefaultChapter } from './state';
@@ -63,11 +61,13 @@ export const reducer = (
       ) as FBHMove;
 
       // If the moves are the same introduce a non move
-      const [nextHistory, addedAtIndex] =
-        FreeBoardHistory.addMoveAndCalculateIndex(
-          prevChapter.notation,
-          nextMove
-        );
+      const [nextHistory, addedAtIndex] = FreeBoardHistory.addMagicMove(
+        {
+          history: prevChapter.notation.history,
+          atIndex: prevChapter.notation.focusedIndex,
+        },
+        nextMove
+      );
 
       const nextChapter: Chapter = {
         ...prevChapter,

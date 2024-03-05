@@ -100,7 +100,9 @@ export namespace FreeBoardHistory {
       return [
         turn,
         move,
-        [incrementIndex(recursiveIndexes[0]), recursiveIndexes[1]],
+        recursiveIndexes[1] !== undefined
+          ? [incrementIndex(recursiveIndexes[0]), recursiveIndexes[1]]
+          : [incrementIndex(recursiveIndexes[0])], // don't add undefined for the 2nd position
       ];
     }
 
@@ -258,6 +260,159 @@ export namespace FreeBoardHistory {
     }
 
     return [history.length - 1, isHalfTurn(lastTurn) ? 0 : 1];
+  };
+
+  /**
+   * This adds any invalid/magic moves
+   * Meaning pieces can jump from any square to any, move back as well as move in a row for the same color
+   *
+   * TODO: TEST same color moves in a row
+   *
+   * @param history
+   * @param atIndex
+   * @param move
+   * @returns
+   */
+  export const addMagicMove = (
+    {
+      history,
+      atIndex,
+    }: {
+      history: FBHRecursiveHistory;
+      atIndex: FBHIndex;
+    },
+    move: FBHMove
+  ) => {
+    const [_, __, recursiveIndexes] = atIndex;
+    const prevMove = findMoveAtIndex(history, atIndex);
+
+    // Is nested
+    if (recursiveIndexes) {
+      const atIncrementedIndex = incrementIndex(atIndex);
+      const foundFollowingMove = findMoveAtIndex(history, atIncrementedIndex);
+
+      // const isNotLast = !foundFollowingMove;
+
+      // console.log('atIndex', atIndex);
+      // console.log('history', JSON.stringify(history, null, 2));
+      // console.log('prevMove', findMoveAtIndex(history, atIndex));
+      // console.log('nextMove', move);
+      // // console.log('prevNestedHistory', prevNestedHistory);
+      // // console.log('prevFocusRecursiveIndexes', prevFocusRecursiveIndexes);
+      // console.log(
+      //   'isFocusedIndexLastInNestedBranch',
+      //   isFocusedIndexLastInNestedBranch
+      // );
+      // console.log('incremented atIndex', atIncrementedIndex);
+
+      // If it's not the last branch
+      // It means we need to go deeper
+      // TODO: What happens when adding magic moves??
+      if (!foundFollowingMove) {
+        return addMove(history, move, atIndex);
+        // return addMoveWithNonMove({ history, move, atIndex, prevMove });
+      }
+      
+      return addMove(history, move, atIncrementedIndex);
+      // return addMoveWithNonMove({
+      //   history,
+      //   move,
+      //   atIndex: atIncrementedIndex,
+      //   prevMove,
+      // });
+
+      // const moveAtIndex = findMoveAtIndex(history, atIndex);
+
+      // // // Add a NonMove if same color as prev
+      // if (moveAtIndex?.color === nextMove.color) {
+      //   return addMoveWithNonMove(history, nextMove, atIncrementedIndex);
+      // }
+
+      // return addMove(history, nextMove, atIncrementedIndex);
+    }
+
+    // if 1st move is black add a non move
+    if (history.length === 0 && move.color === 'b') {
+      const [nextHistory] = addMove(history, getNonMove(swapColor(move.color)));
+      return addMove(nextHistory, move);
+    }
+
+    const isLastIndex = isLastIndexInHistoryBranch(history, atIndex);
+
+    // // If it's not the last branch
+    if (!isLastIndex) {
+      // Add a nested move then!
+      // TODO: How does this work with same color adds
+      return addMove(history, move, atIndex);
+      // return addMoveWithNonMove({
+      //   history,
+      //   move,
+      //   atIndex,
+      //   prevMove,
+      // });
+    }
+
+    console.log('yep linear');
+    // Append moves at the end of the linear hisory
+    return addMoveWithNonMove({
+      history,
+      move,
+      atIndex: incrementIndex(atIndex),
+      // atIndex: incrementIndex(atIndex),
+      // atIndex:, // don't give the atIndex if its appending
+      prevMove,
+    });
+  };
+
+  const addMoveWithNonMove = ({
+    history,
+    move,
+    atIndex,
+    prevMove,
+  }: {
+    history: FBHHistory;
+    move: FBHMove;
+    atIndex: FBHIndex;
+    prevMove?: FBHMove;
+  }) => {
+    // const currentMove = findMoveAtIndex(history, atIndex);
+
+    // console.log('current move', currentMove);
+
+    // Add nonMoves for skipping one
+    if (prevMove?.color === move.color) {
+      console.log('same color what to doooo', history, move, atIndex, prevMove);
+      const [nextHistory, nextIndex] = addMove(
+        history,
+        getNonMove(swapColor(move.color)),
+        atIndex
+      );
+      return addMove(nextHistory, move, incrementIndex(nextIndex));
+    }
+
+    return addMove(history, move, atIndex);
+  };
+
+  const addNestedMoveWithNonMove = (
+    history: FBHHistory,
+    move: FBHMove,
+    atIndex: FBHIndex
+  ) => {
+    const currentMove = findMoveAtIndex(history, atIndex);
+
+    console.log('current move', currentMove);
+
+    // Add nonMoves for skipping one
+    if (currentMove?.color === move.color) {
+      const [nextHistory, nextIndex] = addMove(
+        history,
+        getNonMove(swapColor(move.color)),
+        atIndex
+      );
+      return addMove(nextHistory, move, nextIndex);
+    }
+
+    return addMove(history, move, atIndex);
   };
 
   /**
@@ -749,82 +904,5 @@ export namespace FreeBoardHistory {
     // TODO: This doesn't take care of the branches
 
     return `[${turn}, ${move}${nested}]`;
-  };
-
-  /**
-   * This adds magical(invalid) moves as well
-   *
-   * @param prevHistoryMoves
-   * @param prevFocusedIndex
-   * @param nextMove
-   * @returns
-   */
-  export const addMoveAndCalculateIndex = (
-    {
-      history: prevHistoryMoves,
-      focusedIndex: prevFocusedIndex,
-    }: {
-      history: FBHRecursiveHistory;
-      focusedIndex: FBHIndex;
-    },
-    nextMove: FBHMove
-  ) => {
-    const prevMove = FreeBoardHistory.findMoveAtIndex(
-      prevHistoryMoves,
-      prevFocusedIndex
-    );
-
-    const isFocusedIndexLastInBranch =
-      FreeBoardHistory.isLastIndexInHistoryBranch(
-        prevHistoryMoves,
-        prevFocusedIndex
-      );
-    const [_, __, prevFocusRecursiveIndexes] = prevFocusedIndex;
-    if (prevFocusRecursiveIndexes) {
-      const addAtIndex = FreeBoardHistory.incrementIndex(prevFocusedIndex);
-      if (prevMove?.color === nextMove.color) {
-        const [nextHistory, addedAtIndex] = FreeBoardHistory.addMove(
-          prevHistoryMoves,
-          FreeBoardHistory.getNonMove(swapColor(nextMove.color)),
-          addAtIndex
-        );
-        return FreeBoardHistory.addMove(
-          nextHistory,
-          nextMove,
-          FreeBoardHistory.incrementIndex(addedAtIndex)
-        );
-      }
-      return FreeBoardHistory.addMove(prevHistoryMoves, nextMove, addAtIndex);
-    }
-    const addAtIndex = isFocusedIndexLastInBranch
-      ? FreeBoardHistory.incrementIndex(prevFocusedIndex)
-      : prevFocusedIndex;
-    // if 1st move is black add a non move
-    if (prevHistoryMoves.length === 0 && nextMove.color === 'b') {
-      const [nextHistory] = FreeBoardHistory.addMove(
-        prevHistoryMoves,
-        FreeBoardHistory.getNonMove(swapColor(nextMove.color))
-      );
-      return FreeBoardHistory.addMove(nextHistory, nextMove);
-    }
-    // If it's not the last branch
-    if (!isFocusedIndexLastInBranch) {
-      return FreeBoardHistory.addMove(
-        prevHistoryMoves,
-        nextMove,
-        prevFocusedIndex
-      );
-    }
-    // Add nonMoves for skipping one
-    if (prevMove?.color === nextMove.color) {
-      const [nextHistory] = FreeBoardHistory.addMove(
-        prevHistoryMoves,
-        FreeBoardHistory.getNonMove(swapColor(nextMove.color)),
-        addAtIndex
-      );
-      return FreeBoardHistory.addMove(nextHistory, nextMove);
-    }
-
-    return FreeBoardHistory.addMove(prevHistoryMoves, nextMove);
   };
 }

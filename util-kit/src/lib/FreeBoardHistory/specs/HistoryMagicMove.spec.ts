@@ -16,89 +16,9 @@ import {
   FBHBlackMove,
   FBHMove,
 } from '../types';
-import { FreeBoardHistory as FBH } from '../FreeBoardHistory';
+import { FreeBoardHistory as FBH, FreeBoardHistory } from '../FreeBoardHistory';
 
-describe('Find', () => {
-  test('Gets an existent move', () => {
-    const actual = FBH.findMoveAtIndex(HISTORY_WITH_HALF_LAST_TURN, [0, 1]);
-
-    expect(actual).toEqual({
-      from: 'e7',
-      to: 'e6',
-      san: 'e6',
-      color: 'b',
-    });
-  });
-
-  test('Returns "undefined" when no move', () => {
-    const actual = FBH.findMoveAtIndex(HISTORY_WITH_HALF_LAST_TURN, [4, 0]);
-
-    expect(actual).toBe(undefined);
-  });
-
-  test('finds the correct nested Move', () => {
-    const nestedHistory = [
-      [
-        {
-          from: 'd2',
-          to: 'd4',
-          san: 'd4',
-          color: 'w',
-          branchedHistories: [
-            [
-              [
-                {
-                  isNonMove: true,
-                  san: '...',
-                  color: 'w',
-                },
-                {
-                  from: 'b7',
-                  to: 'b5',
-                  color: 'b',
-                  san: 'b5',
-                  branchedHistories: [
-                    [
-                      [
-                        {
-                          from: 'b2',
-                          to: 'b4',
-                          color: 'w',
-                          san: 'b4',
-                        },
-                      ],
-                    ],
-                  ],
-                },
-              ],
-            ],
-          ],
-        },
-        {
-          from: 'd7',
-          to: 'd5',
-          san: 'd5',
-          color: 'b',
-        },
-      ],
-    ] as FBHHistory;
-
-    const actual = FBH.findMoveAtIndex(nestedHistory, [
-      0,
-      0,
-      [[0, 1, [[0, 0]]]], // should be b7
-    ]);
-
-    expect(actual).toEqual({
-      from: 'b2',
-      to: 'b4',
-      color: 'w',
-      san: 'b4',
-    });
-  });
-});
-
-describe('Addition', () => {
+describe('addMagicMove', () => {
   test('adds a white move at the end of history', () => {
     const history = HISTORY_WITH_FULL_LAST_TURN;
 
@@ -109,7 +29,17 @@ describe('Addition', () => {
       san: 'a3',
     };
 
-    const actual = FBH.addMove(history, newMove);
+    const lastIndexInHistory = FBH.getLastIndexInHistory(
+      HISTORY_WITH_FULL_LAST_TURN
+    );
+
+    const actual = FBH.addMagicMove(
+      {
+        history,
+        atIndex: lastIndexInHistory,
+      },
+      newMove
+    );
 
     const expectedHistory = [...history, [newMove]];
     const expectedIndex = [1, 0];
@@ -126,7 +56,13 @@ describe('Addition', () => {
       san: 'a6',
     };
 
-    const actual = FBH.addMove(HISTORY_WITH_HALF_LAST_TURN, newMove);
+    const actual = FBH.addMagicMove(
+      {
+        history: HISTORY_WITH_HALF_LAST_TURN,
+        atIndex: FBH.getLastIndexInHistory(HISTORY_WITH_HALF_LAST_TURN),
+      },
+      newMove
+    );
 
     const expectedHistory = [
       HISTORY_WITH_HALF_LAST_TURN[0],
@@ -156,10 +92,12 @@ describe('Addition', () => {
         san: 'f6',
       };
 
-      const actual = FBH.addMove(
-        LONG_HISTORY_WITH_FULL_LAST_TURN,
-        move,
-        [1, 0]
+      const actual = FBH.addMagicMove(
+        {
+          history: LONG_HISTORY_WITH_FULL_LAST_TURN,
+          atIndex: [1, 0],
+        },
+        move
       );
 
       const expectedTurn: FBHRecursiveFullTurn = [FBH.getWhiteNonMove(), move];
@@ -196,10 +134,12 @@ describe('Addition', () => {
         san: 'f3',
       };
 
-      const actual = FBH.addMove(
-        LONG_HISTORY_WITH_FULL_LAST_TURN,
-        move,
-        [1, 1]
+      const actual = FBH.addMagicMove(
+        {
+          history: LONG_HISTORY_WITH_FULL_LAST_TURN,
+          atIndex: [1, 1],
+        },
+        move
       );
 
       const expectedTurn: FBHRecursiveHalfTurn = [move];
@@ -257,11 +197,13 @@ describe('Addition', () => {
         san: 'h2',
       };
 
-      const actual = FBH.addMove(historyWithBranches, move, [
-        1,
-        1,
-        [-1], // [-1] is same as [-1, 0], meaning: -1 = append to the end of the history branch, 0 = implicit first history branch
-      ]);
+      const actual = FBH.addMagicMove(
+        {
+          history: historyWithBranches,
+          atIndex: [1, 1, [[0, 1]]],
+        },
+        move
+      );
 
       const expectedTurn: FBHRecursiveHalfTurn = [move];
       const expectedHistory = [
@@ -297,11 +239,13 @@ describe('Addition', () => {
         san: 'h2',
       };
 
-      const actual = FBH.addMove(LONG_HISTORY_WITH_PARALEL_HISTORIES, move, [
-        1,
-        1,
-        [-1, 1], // [-1] is same as [-1, 0], meaning: -1 = append to the end of the history branch, 0 = implicit first history branch
-      ]);
+      const actual = FBH.addMagicMove(
+        {
+          history: LONG_HISTORY_WITH_PARALEL_HISTORIES,
+          atIndex: [1, 1, [[0, 1], 1]],
+        },
+        move
+      );
 
       const expectedTurn: FBHRecursiveHalfTurn = [move];
       const expectedHistory = [
@@ -341,11 +285,13 @@ describe('Addition', () => {
         to: 'h5',
       };
 
-      const actual = FBH.addMove(LONG_HISTORY_WITH_PARALEL_HISTORIES, move, [
-        1,
-        1,
-        [-1, 0], // [-1] is same as [-1, 0], meaning: -1 = append to the end of the history branch, 0 = implicit first history branch
-      ]);
+      const actual = FBH.addMagicMove(
+        {
+          history: LONG_HISTORY_WITH_PARALEL_HISTORIES,
+          atIndex: [1, 1, [[1, 0], 0]],
+        },
+        move
+      );
 
       const expectedTurn: FBHRecursiveFullTurn = [
         PARALEL_BRANCHED_HISTORIES[0][1][0],
@@ -409,7 +355,13 @@ describe('Addition', () => {
         to: 'f4',
       };
 
-      const actual = FBH.addMove(historyWithBranches, move, [1, 1]);
+      const actual = FBH.addMagicMove(
+        {
+          history: historyWithBranches,
+          atIndex: [1, 1],
+        },
+        move
+      );
 
       const expectedTurn: FBHRecursiveHalfTurn = [move];
       const expectedNewBranchedHistory: FBHHistory = [expectedTurn];
@@ -438,37 +390,39 @@ describe('Addition', () => {
       expect(actual).toEqual(expected);
     });
 
-    test('Adds multiple moves to nested branches ', () => {
+    test('Adds multiple sequential moves to nested branches ', () => {
       const move1: FBHMove = {
-        color: 'b',
-        from: 'h7',
-        to: 'h5',
-        san: 'h5',
+        color: 'w',
+        from: 'g2',
+        to: 'g3',
+        san: 'g3:tested-move1',
       };
 
       // Added black move to branched history
-      const afterMove1 = FBH.addMove(
-        LONG_HISTORY_WITH_PARALEL_HISTORIES,
-        move1,
-        [
-          1,
-          1,
-          [[0, 1], 1], // [-1] is same as [-1, 0], meaning: -1 = append to the end of the history branch, 0 = implicit first history branch
-        ]
+      const afterMove1 = FBH.addMagicMove(
+        {
+          history: LONG_HISTORY_WITH_PARALEL_HISTORIES,
+          atIndex: [1, 1, [[0, 1], 1]],
+        },
+        move1
       );
-
-      // console.log('move 1 actual', JSON.stringify(afterMove1, null, 2));
 
       const [addedMove1History, addedMove1AtIndex] = afterMove1;
 
       const move2: FBHMove = {
-        color: 'w',
-        from: 'h2',
-        to: 'h4',
-        san: 'h4',
+        color: 'b',
+        from: 'g7',
+        to: 'g6',
+        san: 'g6:tested-move2',
       };
 
-      const actual = FBH.addMove(addedMove1History, move2, addedMove1AtIndex);
+      const actual = FBH.addMagicMove(
+        {
+          history: addedMove1History,
+          atIndex: addedMove1AtIndex,
+        },
+        move2
+      );
 
       const expectedHistory = [
         ...LONG_HISTORY_WITH_FULL_LAST_TURN.slice(0, 1),
@@ -485,27 +439,8 @@ describe('Addition', () => {
             san: 'd5',
             color: 'b',
             branchedHistories: [
-              // [...BRANCHED_HISTORY_1.slice(0, 1), expectedTurn],
               BRANCHED_HISTORY_1,
-              [
-                [
-                  BRANCHED_HISTORY_2[0][0],
-                  {
-                    ...BRANCHED_HISTORY_2[0][1],
-                    branchedHistories: [
-                      [
-                        [
-                          FBH.getWhiteNonMove(),
-                          {
-                            ...move1,
-                            branchedHistories: [[[move2]]],
-                          },
-                        ],
-                      ],
-                    ],
-                  },
-                ],
-              ],
+              [...BRANCHED_HISTORY_2, [move1, move2]],
               BRANCHED_HISTORY_3,
             ],
           },
@@ -513,11 +448,7 @@ describe('Addition', () => {
         ...LONG_HISTORY_WITH_FULL_LAST_TURN.slice(2),
       ] as FBHHistory;
 
-      const expectedIndex: FBHIndex = [
-        1,
-        1,
-        [[0, 1, [[0, 1, [[0, 0], 0]], 0]], 1],
-      ];
+      const expectedIndex: FBHIndex = [1, 1, [[1, 1], 1]];
       const expected = [expectedHistory, expectedIndex];
 
       expect(actual).toEqual(expected);
@@ -529,6 +460,7 @@ describe('Addition', () => {
       [
         {
           color: 'w',
+          // piece: 'k',
           san: 'Ke2',
           to: 'e2',
           from: 'e1',
@@ -542,6 +474,7 @@ describe('Addition', () => {
                 },
                 {
                   color: 'b',
+                  // piece: 'k',
                   san: 'Kd7',
                   to: 'd7',
                   from: 'e8',
@@ -550,12 +483,14 @@ describe('Addition', () => {
               [
                 {
                   color: 'w',
+                  // piece: 'k',
                   san: 'Kd3',
                   to: 'd3',
                   from: 'e2',
                 },
                 {
                   color: 'b',
+                  // piece: 'k',
                   san: 'Kd6',
                   to: 'd6',
                   from: 'd7',
@@ -566,6 +501,7 @@ describe('Addition', () => {
         },
         {
           color: 'b',
+          // piece: 'k',
           san: 'Ke7',
           to: 'e7',
           from: 'e8',
@@ -573,17 +509,20 @@ describe('Addition', () => {
       ],
     ];
 
-    const atIndex: FBHIndex = [0, 0, [[1, 0]]];
-    const actual = FBH.addMove(
-      history,
-      { from: 'd7', to: 'e7', color: 'b', san: 'Ke7' },
-      atIndex
+    const focusedIndex: FBHIndex = [0, 0, [[1, 0]]];
+    const actual = FBH.addMagicMove(
+      {
+        history,
+        atIndex: focusedIndex,
+      },
+      { from: 'd7', to: 'e7', color: 'b', san: 'Ke7' }
     );
 
     const expectedHistory: FBHHistory = [
       [
         {
           color: 'w',
+          // piece: 'k',
           san: 'Ke2',
           to: 'e2',
           from: 'e1',
@@ -597,6 +536,7 @@ describe('Addition', () => {
                 },
                 {
                   color: 'b',
+                  // piece: 'k',
                   san: 'Kd7',
                   to: 'd7',
                   from: 'e8',
@@ -605,12 +545,14 @@ describe('Addition', () => {
               [
                 {
                   color: 'w',
+                  // piece: 'k',
                   san: 'Kd3',
                   to: 'd3',
                   from: 'e2',
                   branchedHistories: [
                     [
                       [
+                        // {  },
                         {
                           isNonMove: true,
                           color: 'w',
@@ -625,6 +567,7 @@ describe('Addition', () => {
                 },
                 {
                   color: 'b',
+                  // piece: 'k',
                   san: 'Kd6',
                   to: 'd6',
                   from: 'd7',
@@ -635,6 +578,7 @@ describe('Addition', () => {
         },
         {
           color: 'b',
+          // piece: 'k',
           san: 'Ke7',
           to: 'e7',
           from: 'e8',
@@ -645,5 +589,42 @@ describe('Addition', () => {
     const expectedIndex: FBHIndex = [0, 0, [[1, 0, [[0, 1], 0]], 0]];
 
     expect(actual).toEqual([expectedHistory, expectedIndex]);
+  });
+});
+
+describe('Same color moves', () => {
+  describe('linear history', () => {
+    test('white moves in a row 1 time from the start', () => {
+      const history: FBHHistory = [
+        [
+          {
+            color: 'w',
+            san: 'Ke7',
+            to: 'e7',
+            from: 'e8',
+          },
+        ],
+      ];
+
+      const nextMove: FBHMove = {
+        color: 'w',
+        san: 'Ke7',
+        to: 'e8',
+        from: 'f7',
+      };
+      const actual = FBH.addMagicMove(
+        {
+          history,
+          atIndex: [0, 0],
+        },
+        nextMove
+      );
+
+      console.log('actual', JSON.stringify(actual, null, 2));
+
+      const expectedMove = [[...history[0], nextMove]];
+
+      expect(actual).toEqual([expectedMove, [1, 0]]);
+    });
   });
 });

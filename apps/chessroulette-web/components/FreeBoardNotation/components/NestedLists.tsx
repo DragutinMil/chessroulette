@@ -47,12 +47,12 @@ export const NestedLists = ({
   return (
     <>
       <span
-        className=""
+        className="bg-red-900 p-1"
         style={{
           fontSize: 9,
         }}
       >
-        {/* NHI: {FreeBoardHistory.renderIndex(rootHistoryIndex)} */}
+        Nested HI: {FreeBoardHistory.renderIndex(rootHistoryIndex)}
       </span>
       {branchedHistories.map((branchedHistory, branchIndex) => {
         return (

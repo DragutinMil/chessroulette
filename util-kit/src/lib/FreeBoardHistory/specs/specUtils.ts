@@ -112,16 +112,16 @@ export const BRANCHED_HISTORY_1: FBHHistory = [
 export const BRANCHED_HISTORY_2: FBHHistory = [
   [
     {
-      from: 'b2',
-      to: 'b4',
+      from: 'h2',
+      to: 'h4',
       color: 'w',
-      san: 'b4',
+      san: 'h4',
     },
     {
-      from: 'b7',
-      to: 'b5',
+      from: 'h7',
+      to: 'h5',
       color: 'b',
-      san: 'b5',
+      san: 'h5',
     },
   ],
 ];

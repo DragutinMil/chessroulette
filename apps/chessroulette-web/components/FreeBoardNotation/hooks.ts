@@ -2,6 +2,7 @@ import useEventListener from '@use-it/event-listener';
 import {
   FBHHistory,
   FBHIndex,
+  FBHRecursiveMove,
   FreeBoardHistory,
   keyInObject,
 } from '@xmatter/util-kit';
@@ -9,7 +10,8 @@ import {
 export const useKeysToRefocusHistory = (
   history: FBHHistory,
   currentIndex: FBHIndex,
-  onRefocus: (i: FBHIndex) => void
+  onRefocus: (i: FBHIndex, move?: FBHRecursiveMove) => void
+  // onChooseVariant: () => void,
 ) => {
   useEventListener('keydown', (event: object) => {
     if (
@@ -37,12 +39,12 @@ export const useKeysToRefocusHistory = (
       currentIndex
     );
 
-    if (
-      (FreeBoardHistory.findMoveAtIndex(history, nextIndex) ||
-        isStartingIndex) &&
-      isDifferentThanCurrent
-    ) {
-      onRefocus(nextIndex);
+    const foundMove = FreeBoardHistory.findMoveAtIndex(history, nextIndex);
+
+    if ((foundMove || isStartingIndex) && isDifferentThanCurrent) {
+      onRefocus(nextIndex, foundMove);
     }
   });
+
+  // TODO: might need to optimize the onRefocus callback updates
 };

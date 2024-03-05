@@ -132,6 +132,7 @@ export class ChessFENBoard {
     const piece = promoteTo || this.piece(from);
 
     if (!piece) {
+      console.log('Error', { from, to, fen: this.fen, piece })
       throw new Error(`Move Error: the from square (${from}) was empty!`);
     }
 

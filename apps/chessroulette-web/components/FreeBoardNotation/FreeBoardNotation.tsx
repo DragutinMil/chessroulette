@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { List, ListProps } from './components/List';
 import { useKeysToRefocusHistory } from './hooks';
-import { FBHHistory, FreeBoardHistory } from '@xmatter/util-kit';
+import { FBHHistory, FBHIndex, FreeBoardHistory } from '@xmatter/util-kit';
 
 export type FreeBoardNotationProps = {
   history?: FBHHistory;
@@ -28,10 +28,20 @@ export const FreeBoardNotation: React.FC<FreeBoardNotationProps> = ({
   containerClassName = '',
   className = '',
 }) => {
+  // const [showVariantMenuAt, setShowVariantMenuAt] = useState<FBHIndex>();
   useKeysToRefocusHistory(history, focusedIndex, onRefocus);
 
+  useEffect(() => {
+    console.log('FocusedIndex updated', focusedIndex);
+  }, [focusedIndex])
+
   return (
-    <div className={`flex flex-1 min-h-0 min-w-0 ${containerClassName} `}>
+    <div
+      className={`flex flex-col flex-1 min-h-0 min-w-0 ${containerClassName} `}
+    >
+      <div className="bg-purple-800 p-1 text-xs">
+        {FreeBoardHistory.renderIndex(focusedIndex)}
+      </div>
       {history.length > 0 ? (
         <List
           history={history}
@@ -40,13 +50,13 @@ export const FreeBoardNotation: React.FC<FreeBoardNotationProps> = ({
           onDelete={onDelete}
           className={`flex flex-1 flex-col overflow-scroll ${className}`}
           rowClassName="border-b border-slate-600"
+          // showVariantMenuAt={showVariantMenuAt}
         />
       ) : (
         <div className="flex-1 flex items-center justify-center text-slate-500">
           {emptyContent}
         </div>
       )}
-      {/* {FreeBoardHistory.renderIndex(focusedIndex)} */}
     </div>
   );
 };
