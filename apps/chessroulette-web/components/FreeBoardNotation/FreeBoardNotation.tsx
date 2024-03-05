@@ -39,9 +39,9 @@ export const FreeBoardNotation: React.FC<FreeBoardNotationProps> = ({
     <div
       className={`flex flex-col flex-1 min-h-0 min-w-0 ${containerClassName} `}
     >
-      <div className="bg-purple-800 p-1 text-xs">
+      {/* <div className="bg-purple-800 p-1 text-xs">
         {FreeBoardHistory.renderIndex(focusedIndex)}
-      </div>
+      </div> */}
       {history.length > 0 ? (
         <List
           history={history}

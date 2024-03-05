@@ -44,14 +44,14 @@ export const NestedLists = ({
 
   return (
     <>
-      <span
+      {/* <span
         className="bg-red-900 p-1"
         style={{
           fontSize: 9,
         }}
       >
         Nested HI: {FreeBoardHistory.renderIndex(rootHistoryIndex)}
-      </span>
+      </span> */}
       {branchedHistories.map((branchedHistory, branchIndex) => {
         return (
           <List

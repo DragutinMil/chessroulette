@@ -78,14 +78,14 @@ export const HistoryRow = React.forwardRef<HTMLDivElement | null, RowProps>(
         }}
         onContextMenu={(event) => show({ event, props: { color: 'black' } })}
       >
-        <Text
+        {/* <Text
           className="bg-slate-900 text-white mr-1 p-1"
           style={{
             fontSize: 11,
           }}
         >
           [{historyTurnIndex}, 1]
-        </Text>
+        </Text> */}
         {blackMove.san}
       </Text>
     ) : (
@@ -113,14 +113,14 @@ export const HistoryRow = React.forwardRef<HTMLDivElement | null, RowProps>(
                 }
               }}
             >
-              <Text
+              {/* <Text
                 className="bg-slate-200 text-black mr-1 p-1"
                 style={{
                   fontSize: 11,
                 }}
               >
                 [{historyTurnIndex}, 0]
-              </Text>
+              </Text> */}
               {whiteMove.san}
             </Text>
 

@@ -1,7 +1,11 @@
 import { AnyAction, MovexReducer } from 'movex-core-util';
 import roomReducer from './modules/room/movex/reducer';
+import { config } from './config';
 
-const reducerLogger = <S, A extends AnyAction>(reducer: MovexReducer<S, A>, name = '') => {
+const reducerLogger = <S, A extends AnyAction>(
+  reducer: MovexReducer<S, A>,
+  name = ''
+) => {
   return (s: S, a: A) => {
     const next = reducer(s, a);
 
@@ -18,6 +22,6 @@ const reducerLogger = <S, A extends AnyAction>(reducer: MovexReducer<S, A>, name
 
 export default {
   resources: {
-    room: reducerLogger(roomReducer, 'Room'),
+    room: config.DEV_MODE ? reducerLogger(roomReducer, 'Room') : roomReducer,
   },
 };
