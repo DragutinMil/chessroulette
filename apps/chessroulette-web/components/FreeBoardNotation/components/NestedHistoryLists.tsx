@@ -1,7 +1,12 @@
 import { useMemo } from 'react';
 import { List } from './HistoryList';
 import { RowProps } from './HistoryRow';
-import { FBHHistory, FBHIndex, FBHRecursiveIndexes, FreeBoardHistory } from '@xmatter/util-kit';
+import {
+  FBHHistory,
+  FBHIndex,
+  FBHRecursiveIndexes,
+  FreeBoardHistory,
+} from '@xmatter/util-kit';
 
 type Props = {
   branchedHistories: FBHHistory[];
@@ -29,20 +34,13 @@ export const NestedLists = ({
   const [rootTurnIndex, rootMovePosition] = rootHistoryIndexWithoutNested;
 
   const constructNestedIndex = (
-    [nestedHistoryTurnIndex, nestedHistoryMovePosition]: FBHIndex,
+    nestedIndex: FBHIndex,
     paralelBranchIndex: number
-  ): FBHIndex => {
-    return [
-      rootTurnIndex,
-      rootMovePosition,
-      [
-        // Substract the upper turnIndex from the nested one
-        // [nestedHistoryTurnIndex - turnIndex, nestedHistoryMovePosition],
-        [nestedHistoryTurnIndex, nestedHistoryMovePosition],
-        paralelBranchIndex,
-      ],
-    ];
-  };
+  ): FBHIndex => [
+    rootTurnIndex,
+    rootMovePosition,
+    [nestedIndex, paralelBranchIndex],
+  ];
 
   return (
     <>

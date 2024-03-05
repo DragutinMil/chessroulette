@@ -32,7 +32,7 @@ export const FreeBoardNotation: React.FC<FreeBoardNotationProps> = ({
   useKeysToRefocusHistory(history, focusedIndex, onRefocus);
 
   useEffect(() => {
-    console.log('FocusedIndex updated', focusedIndex);
+    console.log('FocusedIndex updated', FreeBoardHistory.renderIndex(focusedIndex));
   }, [focusedIndex])
 
   return (
