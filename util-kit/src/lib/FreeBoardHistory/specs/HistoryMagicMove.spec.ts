@@ -622,7 +622,10 @@ describe('Same color moves', () => {
 
       console.log('actual', JSON.stringify(actual, null, 2));
 
-      const expectedMove = [[...history[0], nextMove]];
+      const expectedMove = [
+        [...history[0], FBH.getNonMove('black')],
+        [nextMove],
+      ];
 
       expect(actual).toEqual([expectedMove, [1, 0]]);
     });
