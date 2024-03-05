@@ -710,19 +710,18 @@ export namespace FreeBoardHistory {
 
     const foundMove = FreeBoardHistory.findMoveAtIndex(history, nextIndex);
 
-    if (!foundMove || foundMove.isNonMove) {
-      const startingIndex = FreeBoardHistory.getStartingIndex();
-      const lastHistoryIndex = getLastIndexInHistory(history);
-
-      // If the index is at the beginning or at the end of the history don't search anymore
-      if (isIndexLowerThan(nextIndex, startingIndex)) {
-        return startingIndex;
+    // If there is no move at the next index it means it's out of boundaries,
+    //  and it's safe to stop
+    if (!foundMove) {
+      // If going backwards, return the next (starting) index
+      if (dir === 'left') {
+        return nextIndex;
       }
 
-      if (areIndexesEqual(nextIndex, incrementIndex(lastHistoryIndex))) {
-        return lastHistoryIndex;
-      }
+      return index;
+    }
 
+    if (foundMove.isNonMove) {
       return findNextValidMoveIndex(history, nextIndex, dir);
     }
 

@@ -1,8 +1,10 @@
 import {
   HISTORY_WITH_FULL_LAST_TURN,
   HISTORY_WITH_HALF_LAST_TURN,
+  LONG_HISTORY_WITH_FULL_LAST_TURN,
+  LONG_HISTORY_WITH_PARALEL_HISTORIES,
 } from './specUtils';
-import { FBHIndex } from '../types';
+import { FBHHistory, FBHIndex } from '../types';
 import { FreeBoardHistory as FBH } from '../FreeBoardHistory';
 
 test('starting index', () => {
@@ -115,5 +117,119 @@ describe('Check Equality', () => {
     expect(FBH.areIndexesEqual([0, 1, [[0, 1], 1]], [0, 1, [[0, 1], 0]])).toBe(
       false
     );
+  });
+});
+
+describe('findNextValidMoveIndex', () => {
+  describe('root history line', () => {
+    test('finds the next valid move from starting position', () => {
+      const actual = FBH.findNextValidMoveIndex(
+        LONG_HISTORY_WITH_FULL_LAST_TURN,
+        [0, 0],
+        'right'
+      );
+      expect(actual).toEqual([0, 1]);
+    });
+
+    test('returns starting index when going back from the beginning', () => {
+      const actual = FBH.findNextValidMoveIndex(
+        LONG_HISTORY_WITH_FULL_LAST_TURN,
+        [0, 0],
+        'left'
+      );
+      expect(actual).toEqual([-1, 1]);
+    });
+
+    test('returns same (last) index when going further and already at the end', () => {
+      const actual = FBH.findNextValidMoveIndex(
+        LONG_HISTORY_WITH_FULL_LAST_TURN,
+        [2, 1],
+        'right'
+      );
+      expect(actual).toEqual([2, 1]);
+    });
+  });
+
+  describe('nested', () => {
+    const nestdHistoryOnBlackMove: FBHHistory = [
+      [
+        {
+          from: 'e2',
+          to: 'e4',
+          color: 'w',
+          san: 'e4',
+        },
+        {
+          from: 'e7',
+          to: 'e6',
+          color: 'b',
+          san: 'e6',
+          branchedHistories: [
+            [
+              [
+                {
+                  from: 'a2',
+                  to: 'a3',
+                  color: 'w',
+                  san: 'a3',
+                },
+                {
+                  from: 'a7',
+                  to: 'a5',
+                  color: 'b',
+                  san: 'a5',
+                },
+              ],
+              [
+                {
+                  from: 'a3',
+                  to: 'a4',
+                  color: 'w',
+                  san: 'a4',
+                },
+              ],
+            ],
+          ],
+        },
+      ],
+      [
+        {
+          from: 'a2',
+          to: 'a3',
+          color: 'w',
+          san: 'a3',
+        },
+      ],
+    ];
+
+    test('finds the next valid move from 1st nested move', () => {
+      const actual = FBH.findNextValidMoveIndex(
+        nestdHistoryOnBlackMove,
+        [0, 1, [[0, 0]]],
+        'right'
+      );
+
+      expect(actual).toEqual([0, 1, [[0, 1]]]);
+    });
+
+    test('jumps back to the ancestor line when 1st move', () => {
+      const actual = FBH.findNextValidMoveIndex(
+        nestdHistoryOnBlackMove,
+        [0, 1, [[0, 0]]],
+        'left'
+      );
+
+      expect(actual).toEqual([0, 1]);
+    });
+
+    test('returns same (last) index when going further and already at the end of the nested branch', () => {
+      const actual = FBH.findNextValidMoveIndex(
+        nestdHistoryOnBlackMove,
+        [0, 1, [[1, 0]]],
+        'right'
+      );
+
+      expect(actual).toEqual([0, 1, [[1, 0]]]);
+    });
   });
 });
