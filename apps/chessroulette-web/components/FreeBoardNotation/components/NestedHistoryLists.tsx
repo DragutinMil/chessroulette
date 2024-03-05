@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
-import { List } from './List';
-import { RowProps } from './Row';
+import { List } from './HistoryList';
+import { RowProps } from './HistoryRow';
 import { FBHHistory, FBHIndex, FBHRecursiveIndexes, FreeBoardHistory } from '@xmatter/util-kit';
 
 type Props = {

@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import debounce from 'debounce';
 import useDebouncedEffect from 'use-debounced-effect';
-import { HistoryRow } from './Row';
+import { HistoryRow } from './HistoryRow';
 import { FBHHistory, FBHIndex } from '@xmatter/util-kit';
 
 export type ListProps = {

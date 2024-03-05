@@ -3,7 +3,7 @@ import { Menu, Item, useContextMenu, ItemParams } from 'react-contexify';
 import 'react-contexify/dist/ReactContexify.css';
 import { FBHIndex, FBHRecursiveIndexes, FBHTurn } from '@xmatter/util-kit';
 import { Text } from '../../Text';
-import { NestedLists } from './NestedLists';
+import { NestedLists } from './NestedHistoryLists';
 
 export type RowProps = {
   rowId: string;

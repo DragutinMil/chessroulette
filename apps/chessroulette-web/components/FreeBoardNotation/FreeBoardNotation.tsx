@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { List, ListProps } from './components/List';
+import { List, ListProps } from './components/HistoryList';
 import { useKeysToRefocusHistory } from './hooks';
 import { FBHHistory, FBHIndex, FreeBoardHistory } from '@xmatter/util-kit';
 
