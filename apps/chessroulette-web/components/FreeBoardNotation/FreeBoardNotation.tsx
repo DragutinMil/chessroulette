@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { List, ListProps } from './components/HistoryList';
 import { useKeysToRefocusHistory } from './hooks';
-import { FBHHistory, FBHIndex, FreeBoardHistory } from '@xmatter/util-kit';
+import { FBHHistory, FreeBoardHistory } from '@xmatter/util-kit';
 
 export type FreeBoardNotationProps = {
   history?: FBHHistory;
@@ -30,10 +30,6 @@ export const FreeBoardNotation: React.FC<FreeBoardNotationProps> = ({
 }) => {
   // const [showVariantMenuAt, setShowVariantMenuAt] = useState<FBHIndex>();
   useKeysToRefocusHistory(history, focusedIndex, onRefocus);
-
-  useEffect(() => {
-    console.log('FocusedIndex updated', FreeBoardHistory.renderIndex(focusedIndex));
-  }, [focusedIndex])
 
   return (
     <div

@@ -7,7 +7,8 @@ import {
   toShortColor,
   invoke,
   swapColor,
-  ChessMove,
+  ChessFEN,
+  ChessFENBoard,
 } from '@xmatter/util-kit';
 import type {
   FBHIndex,
@@ -714,6 +715,24 @@ export namespace FreeBoardHistory {
    */
   export const pgnToHistory = (pgn: ChessPGN): FBHHistory =>
     linearToTurnHistory(getNewChessGame({ pgn }).history({ verbose: true }));
+
+  export const historyToFen = (
+    h: FBHHistory,
+    startingFen = ChessFENBoard.STARTING_FEN
+  ): ChessFEN => {
+    const instance = new ChessFENBoard(startingFen);
+    h.forEach(([wM, bM]) => {
+      if (!wM.isNonMove) {
+        instance.move(wM.from, wM.to);
+      }
+
+      if (bM && !bM.isNonMove) {
+        instance.move(bM.from, bM.to);
+      }
+    });
+
+    return instance.fen;
+  };
 
   const linearToTurnHistory = (
     linearHistory: DetailedChessMove[]
