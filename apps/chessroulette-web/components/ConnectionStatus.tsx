@@ -23,9 +23,9 @@ export default (props: Props) => {
                   <MovexBoundResource
                     movexDefinition={movexConfig}
                     rid={`room:${props.roomId}`}
-                    render={({ boundResource: { state } }) => {
+                    render={({ boundResource: { subscribers } }) => {
                       const participantsCount = Object.keys(
-                        state.participants
+                        subscribers,
                       ).length;
 
                       return (

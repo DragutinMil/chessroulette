@@ -1,6 +1,5 @@
 import { Metadata } from 'next';
 import '../styles.css';
-import MovexProvider from '../providers/MovexProvider';
 
 export const metadata: Metadata = {
   title: 'Home | Chessroulette',
@@ -16,10 +15,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>
-        {/* <MovexProvider>{children}</MovexProvider> */}
-        {children}
-      </body>
+      <body>{children}</body>
     </html>
   );
 }

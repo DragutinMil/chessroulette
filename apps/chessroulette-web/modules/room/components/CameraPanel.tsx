@@ -5,18 +5,17 @@ import { FaceTimeProps } from 'apps/chessroulette-web/components/FaceTime';
 import { MultiFaceTimeCompact } from 'apps/chessroulette-web/components/FaceTime/MultiFaceTimeCompact';
 import { config } from 'apps/chessroulette-web/config';
 import { PeerStreamingGroup } from 'apps/chessroulette-web/modules/PeerStreaming';
-import { UserId } from 'apps/chessroulette-web/modules/user/type';
+import { UserId, UsersMap } from 'apps/chessroulette-web/modules/user/type';
 import {
   IceServerRecord,
   PeerUserIdsMap,
 } from 'apps/chessroulette-web/providers/PeerToPeerProvider/type';
 import { useMemo } from 'react';
-import { RoomState } from '../movex/reducer';
 
 type Props = {
   userId: UserId;
   peerGroupId: string;
-  participants: RoomState['participants'];
+  participants: UsersMap;
   iceServers: IceServerRecord[];
   aspectRatio?: FaceTimeProps['aspectRatio'];
   fallback?: React.ReactNode;

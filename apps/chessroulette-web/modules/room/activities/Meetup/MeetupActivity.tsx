@@ -1,15 +1,13 @@
 import movexConfig from 'apps/chessroulette-web/movex.config';
 import { MovexBoundResourceFromConfig } from 'movex-react';
-import { FreeBoardHistory, noop, pgnToFen, swapColor } from '@xmatter/util-kit';
+import { noop, pgnToFen, swapColor } from '@xmatter/util-kit';
 import { IceServerRecord } from 'apps/chessroulette-web/providers/PeerToPeerProvider/type';
 import { MeetupActivityState } from './movex';
-import { RoomState } from '../../movex/reducer';
-import { UserId } from 'apps/chessroulette-web/modules/user/type';
+import { UserId, UsersMap } from 'apps/chessroulette-web/modules/user/type';
 import { DesktopRoomLayout } from '../../components/DesktopRoomLayout';
 import { RIGHT_SIDE_SIZE_PX } from '../Learn/components/LearnBoard';
 import { Playboard } from 'apps/chessroulette-web/components/Chessboard/Playboard';
 import { CameraPanel } from '../../components/CameraPanel';
-import { FreeBoardNotation } from 'apps/chessroulette-web/components/FreeBoardNotation';
 import { useMemo, useState } from 'react';
 import { useMeetupActivitySettings } from './useMeetupActivitySettings';
 import { IconButton } from 'apps/chessroulette-web/components/Button';
@@ -21,7 +19,7 @@ export type Props = {
   roomId: string;
   userId: UserId;
   iceServers: IceServerRecord[];
-  participants?: RoomState['participants'];
+  participants?: UsersMap;
   remoteState: MeetupActivityState['activityState'];
   dispatch?: MovexBoundResourceFromConfig<
     (typeof movexConfig)['resources'],
