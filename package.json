@@ -3,7 +3,10 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
-    "seed": "node -r dotenv/config ./scripts/seed.js"
+    "seed": "node -r dotenv/config ./scripts/seed.js",
+    "deploy-movex-preview": "flyctl deploy -c ./fly.movex-preview.toml --dockerfile ./Dockerfile.movex --local-only",
+    "deploy-movex-staging": "flyctl deploy -c ./fly.movex-staging.toml --dockerfile ./Dockerfile.movex --local-only",
+    "deploy-movex-prod": "flyctl deploy -c ./fly.movex-prod.toml --dockerfile ./Dockerfile.movex --local-only"
   },
   "private": true,
   "dependencies": {
