@@ -1,9 +1,9 @@
-# fly.toml app configuration file generated for chessroulette-movex-staging on 2023-11-04T15:24:29-06:00
+# fly.toml app configuration file generated for chessroulette-movex-preview on 2024-04-04T15:24:29-06:00
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = "chessroulette-movex-staging"
+app = "chessroulette-movex-preview"
 primary_region = "mia"
 kill_signal = "SIGINT"
 kill_timeout = 5
