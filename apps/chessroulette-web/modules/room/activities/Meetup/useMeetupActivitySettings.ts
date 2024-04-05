@@ -16,5 +16,6 @@ export const useMeetupActivitySettings = (): MeetupActivitySettings => {
     joinRoomLinkParams: {
       flipped: '1',
     },
+    joinRoomLinkTooltip: 'Invite Friend',
   };
 };

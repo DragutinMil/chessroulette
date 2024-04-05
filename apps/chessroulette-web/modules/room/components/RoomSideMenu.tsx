@@ -22,17 +22,20 @@ export const RoomSideMenu = ({ roomId, activity }: Props) => {
       return undefined;
     }
 
-    return links.getJoinRoomLink(
-      {
-        id: roomId,
-        activity,
-        theme: roomSettings.theme,
-        ...roomSettings.joinRoomLinkParams,
-      },
-      {
-        origin: url.origin,
-      }
-    );
+    return {
+      url: links.getJoinRoomLink(
+        {
+          id: roomId,
+          activity,
+          theme: roomSettings.theme,
+          ...roomSettings.joinRoomLinkParams,
+        },
+        {
+          origin: url.origin,
+        }
+      ),
+      tooltip: roomSettings.joinRoomLinkTooltip,
+    };
   }, [roomSettings.showJoinRoomLink, activity, url?.origin]);
 
   return (
@@ -40,12 +43,12 @@ export const RoomSideMenu = ({ roomId, activity }: Props) => {
       {joinRoomLink && (
         <ClipboardCopyButton
           buttonComponentType="Button"
-          value={joinRoomLink}
+          value={joinRoomLink.url}
           render={(copied) => (
             <>
               {copied ? (
                 <Link
-                  href={joinRoomLink}
+                  href={joinRoomLink.url}
                   target="_blank"
                   onClick={(e) => e.preventDefault()}
                 >
@@ -59,7 +62,7 @@ export const RoomSideMenu = ({ roomId, activity }: Props) => {
           bgColor="green"
           type="custom"
           size="sm"
-          tooltip="Invite Student"
+          tooltip={joinRoomLink.tooltip}
         />
       )}
     </div>
