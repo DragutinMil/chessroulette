@@ -1,6 +1,14 @@
 import movexConfig from 'apps/chessroulette-web/movex.config';
 import { MovexBoundResourceFromConfig } from 'movex-react';
-import { noop, pgnToFen, swapColor } from '@xmatter/util-kit';
+import {
+  ChessPGN,
+  FBHHistory,
+  FBHIndex,
+  FreeBoardHistory,
+  noop,
+  pgnToFen,
+  swapColor,
+} from '@xmatter/util-kit';
 import { IceServerRecord } from 'apps/chessroulette-web/providers/PeerToPeerProvider/type';
 import { MeetupActivityState } from './movex';
 import { UserId, UsersMap } from 'apps/chessroulette-web/modules/user/type';
@@ -8,12 +16,12 @@ import { DesktopRoomLayout } from '../../components/DesktopRoomLayout';
 import { RIGHT_SIDE_SIZE_PX } from '../Learn/components/LearnBoard';
 import { Playboard } from 'apps/chessroulette-web/components/Chessboard/Playboard';
 import { CameraPanel } from '../../components/CameraPanel';
-import { useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useMeetupActivitySettings } from './useMeetupActivitySettings';
 import { PanelResizeHandle } from 'react-resizable-panels';
 import { GameDisplayView } from './components/GameDisplayView';
-import { GameNotation } from './components/GameNotation';
 import { StartPositionIconButton } from 'apps/chessroulette-web/components/Chessboard';
+import { FreeBoardNotation } from 'apps/chessroulette-web/components/FreeBoardNotation';
 
 export type Props = {
   roomId: string;
@@ -25,6 +33,39 @@ export type Props = {
     (typeof movexConfig)['resources'],
     'room'
   >['dispatch'];
+};
+
+const getDisplayStateFromPgn = (pgn: ChessPGN, focusedIndex?: FBHIndex) => {
+  const allHistory = FreeBoardHistory.pgnToHistory(pgn);
+
+  if (!focusedIndex) {
+    const lastFocusedIndex = FreeBoardHistory.getLastIndexInHistory(allHistory);
+
+    return {
+      fen: pgnToFen(pgn),
+      history: allHistory,
+      focusedIndex: FreeBoardHistory.getLastIndexInHistory(allHistory),
+      lastMove: getLastMove(allHistory, lastFocusedIndex),
+    } as const;
+  }
+
+  const [historyAtIndex, lastFocusedIndex] = FreeBoardHistory.sliceHistory(
+    allHistory,
+    FreeBoardHistory.incrementIndex(focusedIndex)
+  );
+
+  return {
+    fen: FreeBoardHistory.historyToFen(historyAtIndex),
+    history: allHistory,
+    focusedIndex: lastFocusedIndex,
+    lastMove: getLastMove(historyAtIndex, lastFocusedIndex),
+  };
+};
+
+const getLastMove = (history: FBHHistory, atIndex: FBHIndex) => {
+  const lm = FreeBoardHistory.findMoveAtIndex(history, atIndex);
+
+  return lm?.isNonMove ? undefined : lm;
 };
 
 export const MeetupActivity = ({
@@ -39,7 +80,10 @@ export const MeetupActivity = ({
   const dispatch = optionalDispatch || noop;
   const { game } = remoteState;
 
-  const [fen, setFen] = useState(pgnToFen(game.pgn));
+  const [displayState, setDisplayState] = useState(
+    getDisplayStateFromPgn(game.pgn)
+  );
+
   const orientation = useMemo(
     () =>
       activitySettings.isBoardFlipped
@@ -48,14 +92,25 @@ export const MeetupActivity = ({
     [activitySettings.isBoardFlipped, game.orientation]
   );
 
+  useEffect(() => {
+    // Reset it when the pgn updates from outside
+    setDisplayState(getDisplayStateFromPgn(game.pgn));
+  }, [game.pgn]);
+
+  const onRefocus = useCallback(
+    (i: FBHIndex) => setDisplayState(getDisplayStateFromPgn(game.pgn, i)),
+    [game.pgn, setDisplayState]
+  );
+
   return (
     <DesktopRoomLayout
       rightSideSize={RIGHT_SIDE_SIZE_PX}
       mainComponent={({ boardSize }) => (
         <Playboard
           sizePx={boardSize}
-          fen={fen}
+          fen={displayState.fen}
           boardOrientation={orientation}
+          lastMove={displayState.lastMove}
           playingColor={orientation}
           onMove={(payload) => {
             dispatch({
@@ -108,7 +163,12 @@ export const MeetupActivity = ({
           )}
           <GameDisplayView game={game} />
           <div className="bg-slate-700 p-3 flex flex-col flex-1 min-h-0 rounded-lg shadow-2xl">
-            <GameNotation pgn={game.pgn} onUpdateFen={setFen} />
+            <FreeBoardNotation
+              history={displayState.history}
+              focusedIndex={displayState.focusedIndex}
+              onDelete={() => {}}
+              onRefocus={onRefocus}
+            />
           </div>
         </div>
       }
