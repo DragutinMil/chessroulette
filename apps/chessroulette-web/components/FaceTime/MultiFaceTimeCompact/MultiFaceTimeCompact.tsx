@@ -118,7 +118,7 @@ export const MultiFaceTimeCompact: React.FC<MultiFaceTimeCompactProps> = ({
         <FaceTime
           // streamConfig={reel.focusedStreamingPeer.connection.channels.streaming}
           streamConfig={reel.focusedStreamingPeer.connection.channels.streaming}
-          label={label}
+          // label={label} //TODO: This was taken out for now, as it shows the randomly generate id. Apirl 5th 2024
           labelPosition="bottom-left"
           {...faceTimeProps}
         />

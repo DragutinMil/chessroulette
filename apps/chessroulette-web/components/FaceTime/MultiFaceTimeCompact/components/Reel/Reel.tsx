@@ -45,7 +45,7 @@ export const Reel: React.FC<Props> = (props) => {
               className="absolute inset-0 z-50 border border-white"
               aspectRatio={4 / 3}
               // label={getUserDisplayName(peer.user)}
-              label={peer.userId}
+              // label={peer.userId} //TODO: This was taken out for now, as it shows the randomly generate id. Apirl 5th 2024
               // label={'Fix: User Name'}
               // labelClassName={cls.smallFacetimeLabel}
             />
