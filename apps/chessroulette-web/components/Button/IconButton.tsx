@@ -3,10 +3,13 @@ import { Ensure } from '@xmatter/util-kit';
 import { Icon, IconProps } from '../Icon';
 import { Button, ButtonProps, buttonIconClasses } from './Button';
 
-export type IconButtonProps = Ensure<Omit<ButtonProps, 'children'>, 'icon'> & {
+export type IconButtonSpecificProps = {
   iconColor?: IconProps['color'];
   iconClassName?: string;
 };
+
+export type IconButtonProps = Ensure<Omit<ButtonProps, 'children'>, 'icon'> &
+  IconButtonSpecificProps;
 
 export const IconButton: React.FC<IconButtonProps> = ({
   icon,

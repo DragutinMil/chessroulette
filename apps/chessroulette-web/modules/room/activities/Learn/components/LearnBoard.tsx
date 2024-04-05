@@ -4,7 +4,12 @@ import { Freeboard } from 'apps/chessroulette-web/components/Chessboard/Freeboar
 import { Playboard } from 'apps/chessroulette-web/components/Chessboard/Playboard';
 import { FreeBoardHistory } from '@xmatter/util-kit';
 import { ChessboardContainerProps } from 'apps/chessroulette-web/components/Chessboard/ChessboardContainer';
-import { IconButton } from 'apps/chessroulette-web/components/Button';
+import {
+  BoardEditorIconButton,
+  ClearBoardIconButton,
+  FlipBoardIconButton,
+  StartPositionIconButton,
+} from 'apps/chessroulette-web/components/Chessboard';
 
 type Props = Required<
   Pick<
@@ -64,46 +69,16 @@ export const LearnBoard = ({
         <>
           <div className="flex-1">
             {settings.canFlipBoard && (
-              <IconButton
-                icon="ArrowsUpDownIcon"
-                iconKind="outline"
-                type="clear"
-                size="sm"
-                tooltip="Flip Board"
-                tooltipPositon="left"
-                className="mb-2"
-                onClick={onFlip}
-              />
+              <FlipBoardIconButton className="mb-2" onClick={onFlip} />
             )}
             {settings.isInstructor && (
               <>
-                <IconButton
-                  icon="TrashIcon"
-                  iconKind="outline"
-                  type="clear"
-                  size="sm"
-                  tooltip="Clear Board"
-                  tooltipPositon="left"
-                  className="mb-2"
-                  onClick={onClearBoard}
-                />
-                <IconButton
-                  icon="ArrowPathIcon"
-                  iconKind="outline"
-                  type="clear"
-                  size="sm"
-                  tooltip="Start Position"
-                  tooltipPositon="left"
+                <StartPositionIconButton
                   className="mb-2"
                   onClick={onResetBoard}
                 />
-                <IconButton
-                  icon="PencilSquareIcon"
-                  iconKind="outline"
-                  type="clear"
-                  size="sm"
-                  tooltip="Board Editor"
-                  tooltipPositon="left"
+                <ClearBoardIconButton className="mb-2" onClick={onClearBoard} />
+                <BoardEditorIconButton
                   className="mb-2"
                   onClick={onBoardEditor}
                 />

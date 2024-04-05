@@ -10,10 +10,10 @@ import { Playboard } from 'apps/chessroulette-web/components/Chessboard/Playboar
 import { CameraPanel } from '../../components/CameraPanel';
 import { useMemo, useState } from 'react';
 import { useMeetupActivitySettings } from './useMeetupActivitySettings';
-import { IconButton } from 'apps/chessroulette-web/components/Button';
 import { PanelResizeHandle } from 'react-resizable-panels';
 import { GameDisplayView } from './components/GameDisplayView';
 import { GameNotation } from './components/GameNotation';
+import { StartPositionIconButton } from 'apps/chessroulette-web/components/Chessboard';
 
 export type Props = {
   roomId: string;
@@ -55,49 +55,23 @@ export const MeetupActivity = ({
         <Playboard
           sizePx={boardSize}
           fen={fen}
-          // {...currentChapter}
-          // boardOrientation={orientation}
+          boardOrientation={orientation}
           playingColor={orientation}
-          // onFlip={() => {
-          //   dispatch({
-          //     type: 'loadedChapter:setOrientation',
-          //     payload: swapColor(currentChapter.orientation),
-          //   });
-          // }}
           onMove={(payload) => {
             dispatch({
               type: 'meetup:move',
               payload,
             });
-            // dispatch({ type: 'loadedChapter:addMove', payload });
 
             // TODO: This can be returned from a more internal component
             return true;
-          }}
-          onArrowsChange={(payload) => {
-            // dispatch({ type: 'loadedChapter:setArrows', payload });
-          }}
-          onCircleDraw={(tuple) => {
-            // dispatch({
-            //   type: 'loadedChapter:drawCircle',
-            //   payload: tuple,
-            // });
-          }}
-          onClearCircles={() => {
-            // dispatch({ type: 'loadedChapter:clearCircles' });
           }}
           rightSideSizePx={RIGHT_SIDE_SIZE_PX}
           rightSideClassName="flex flex-col"
           rightSideComponent={
             <>
               <div className="flex-1">
-                <IconButton
-                  icon="ArrowPathIcon"
-                  iconKind="outline"
-                  type="clear"
-                  size="sm"
-                  tooltip="Restart Game"
-                  tooltipPositon="left"
+                <StartPositionIconButton
                   className="mb-2"
                   onClick={() => {
                     dispatch({ type: 'meetup:startNewGame' });
@@ -122,6 +96,7 @@ export const MeetupActivity = ({
             <div className="overflow-hidden rounded-lg shadow-2xl">
               {/* // This needs to show only when the user is a participants //
                   otherwise it's too soon and won't connect to the Peers */}
+              {/* // TODO: Is this still the case with the new movex subscribers updates? */}
               <CameraPanel
                 participants={participants}
                 userId={userId}
@@ -131,22 +106,6 @@ export const MeetupActivity = ({
               />
             </div>
           )}
-
-          {/* {inputState.isActive ? 'active' : 'not active'} */}
-          {/* {inputState.isActive ? (
-            <div className="flex gap-2">
-              <span className="capitalize">Editing</span>
-              <span className="font-bold">
-                "{inputState.chapterState.name}"
-              </span>
-            </div>
-          ) : (
-            <ChapterDisplayView chapter={currentChapter} />
-          )} */}
-          {/* <div className="flex gap-2">
-            <span className="capitalize">Editing</span>
-            <span className="font-bold">"{game.orientation}"</span>
-          </div> */}
           <GameDisplayView game={game} />
           <div className="bg-slate-700 p-3 flex flex-col flex-1 min-h-0 rounded-lg shadow-2xl">
             <GameNotation pgn={game.pgn} onUpdateFen={setFen} />

@@ -21,6 +21,12 @@ import { getSquareSize } from './util';
 import { DropContainer } from './DropContainer';
 import { DraggableItem } from './DraggableItem';
 import { IconButton } from '../../Button';
+import {
+  ClearBoardIconButton,
+  FlipBoardIconButton,
+  StartPositionIconButton,
+} from '../SideIconButtons';
+import { ConfirmButton } from '../../Button/ConfirmButton';
 
 export type BoardEditorProps = Pick<
   ChessboardContainerProps,
@@ -244,7 +250,8 @@ export const BoardEditor = ({
           <div className="flex flex-col">
             <div className="flex flex-1 flex-col gap-2">
               <div>
-                <IconButton
+                <ConfirmButton
+                  iconButton
                   icon="XCircleIcon"
                   // iconKind="outline"
                   type="custom"
@@ -252,7 +259,8 @@ export const BoardEditor = ({
                   tooltipPositon="right"
                   className="text-slate-400 hover:text-white"
                   iconClassName="w-5 h-5"
-                  // iconColor=''
+                  confirmModalTitle="Cancel Changes"
+                  confirmModalContent="You're about to cancel the changes. Are you sure?"
                   size="sm"
                   onClick={() => {
                     // Reset to the initial fen
@@ -278,37 +286,22 @@ export const BoardEditor = ({
                 <div className='flex.5 border-b border-slate-600' />
               </div> */}
               <div className="flex flex-1 flex-col">
-                <IconButton
-                  icon="ArrowsUpDownIcon"
-                  type="clear"
-                  tooltip="Flip Board"
-                  tooltipPositon="right"
-                  iconKind="outline"
-                  size="sm"
+                <FlipBoardIconButton
                   onClick={onFlipBoard}
-                />
-                <IconButton
-                  icon="TrashIcon"
-                  iconKind="outline"
-                  type="clear"
-                  tooltip="Clear Board"
                   tooltipPositon="right"
-                  size="sm"
+                />
+                <StartPositionIconButton
+                  tooltipPositon="right"
                   onClick={() => {
-                    onUpdated(ChessFENBoard.ONLY_KINGS_FEN);
+                    onUpdated(ChessFENBoard.STARTING_FEN);
 
                     resetArrowsAndCircles();
                   }}
                 />
-                <IconButton
-                  icon="ArrowPathIcon"
-                  iconKind="outline"
-                  type="clear"
-                  tooltip="Starting Position"
+                <ClearBoardIconButton
                   tooltipPositon="right"
-                  size="sm"
                   onClick={() => {
-                    onUpdated(ChessFENBoard.STARTING_FEN);
+                    onUpdated(ChessFENBoard.ONLY_KINGS_FEN);
 
                     resetArrowsAndCircles();
                   }}

@@ -1,23 +1,44 @@
 import React, { useState } from 'react';
 import { Button, ButtonProps } from './Button';
+import { IconButton, IconButtonProps } from './IconButton';
 
-type Props = ButtonProps & {
+export type ConfirmButtonProps = ButtonProps & {
   // confirmationContent: React.ReactNode;
-  confirmModalTitle?: string;
-  confirmModalContent?: string | React.ReactNode;
-};
+  confirmModalTitle: string;
+  confirmModalContent: string | React.ReactNode;
+} & (
+    | {
+        iconButton: true;
+        icon: IconButtonProps['icon'];
+        iconColor?: IconButtonProps['color'];
+        iconClassName?: string;
+      }
+    | {
+        iconButton?: false;
+        icon: IconButtonProps['icon'];
+        iconColor?: IconButtonProps['color'];
+        iconClassName?: string;
+      }
+  );
 
-export const ConfirmButton: React.FC<Props> = ({
+export const ConfirmButton: React.FC<ConfirmButtonProps> = ({
   onClick,
   confirmModalTitle,
   confirmModalContent,
+  iconButton,
   ...props
 }) => {
   const [showModal, setShowModal] = useState(false);
 
+  const renderButton = iconButton ? (
+    <IconButton {...props} onClick={() => setShowModal(true)} />
+  ) : (
+    <Button {...props} onClick={() => setShowModal(true)} />
+  );
+
   return (
     <>
-      <Button {...props} onClick={() => setShowModal(true)} />
+      {renderButton}
 
       {showModal && (
         <>
@@ -31,22 +52,14 @@ export const ConfirmButton: React.FC<Props> = ({
               {/*content*/}
               <div className="sborder-0 rounded-lg shadow-lg relative flex flex-col w-full bg-slate-600 outline-none focus:outline-none">
                 {/*header*/}
-                <div className="flex items-start justify-between p-3 rounded-t">
-                  <h3 className="text-xl font-semibold text-center text-slate-400">
+                <div className="flex flex-1  bg-slate-500 sitems-start justify-between p-3 rounded-t-lg text-center justify-center content-center items-center">
+                  <h3 className="text-xl font-semibold text-center text-slate-300 sbg-red-100">
                     {confirmModalTitle}
                   </h3>
-                  {/* <button
-                    className="p-1 ml-auto bg-transparent border-0 text-black opacity-5 float-right text-3xl leading-none font-semibold outline-none focus:outline-none"
-                    onClick={() => setShowModal(false)}
-                  >
-                    <span className="bg-transparent text-black opacity-5 h-6 w-6 text-2xl block outline-none focus:outline-none">
-                      ×
-                    </span>
-                  </button> */}
                 </div>
                 {/*body*/}
                 {confirmModalContent && (
-                  <div className="relative p-4 flex-auto">
+                  <div className="relative p-4 flex-auto text-slate-300">
                     {confirmModalContent}
                   </div>
                 )}

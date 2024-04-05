@@ -36,7 +36,7 @@ export const Playboard = ({
   return (
     <ChessboardContainerWithSize
       fen={fen}
-      boardOrientation={playingColor || boardOrientation}
+      boardOrientation={boardOrientation}
       onMove={(m) => {
         if (chessInstance.turn() !== toShortColor(playingColor)) {
           return false;
