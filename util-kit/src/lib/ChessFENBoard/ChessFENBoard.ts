@@ -20,7 +20,7 @@ import {
 import { SQUARES, type Color, type PieceSymbol, type Square } from 'chess.js';
 import { Err, Ok, Result } from 'ts-results';
 import { DeepPartial } from '../miscType';
-import { matrixFind } from '../matrix';
+import { matrixFind, printMatrix } from '../matrix';
 
 export type FenState = {
   turn: Color;
@@ -132,7 +132,6 @@ export class ChessFENBoard {
     const piece = promoteTo || this.piece(from);
 
     if (!piece) {
-      console.log('Error', { from, to, fen: this.fen, piece })
       throw new Error(`Move Error: the from square (${from}) was empty!`);
     }
 
@@ -169,29 +168,6 @@ export class ChessFENBoard {
 
     const detailedPiece = fenBoardPieceSymbolToDetailedChessPiece(piece);
 
-    const sanPiece =
-      detailedPiece.type === 'p'
-        ? ''
-        : detailedPiece.type.toLocaleUpperCase();
-    const sanCaptured = invoke(() => {
-      if (!captured) {
-        return '';
-      }
-
-      if (detailedPiece.type === 'p') {
-        return `${from[0]}x`;
-      }
-
-      return 'x';
-    });
-
-    const san = invoke(() => {
-      if (castlingMove) {
-        return castlingMove.side === 'k' ? '0-0' : '0-0-0';
-      }
-
-      return `${sanPiece}${sanCaptured}${to}`;
-    });
     const prevFenState = this._state.fenState;
 
     // Refresh the Fen State
@@ -230,6 +206,49 @@ export class ChessFENBoard {
         fullMoves:
           prevFenState.fullMoves + (detailedPiece.color === 'b' ? 1 : 0),
       },
+    });
+
+    const san = invoke(() => {
+      const getSuffix = () => {
+        const chessGame = getNewChessGame({ fen: this.fen });
+
+        if (chessGame.isGameOver()) {
+          return '#';
+        }
+
+        if (chessGame.inCheck()) {
+          return '+';
+        }
+
+        return '';
+      };
+
+      if (castlingMove) {
+        return castlingMove.side === 'k' ? '0-0' : '0-0-0';
+      }
+
+      if (promoteTo) {
+        return `${to}=${detailedPiece.type.toLocaleUpperCase()}${getSuffix()}`;
+      }
+
+      const sanPiece =
+        detailedPiece.type === 'p'
+          ? ''
+          : detailedPiece.type.toLocaleUpperCase();
+
+      const sanCaptured = invoke(() => {
+        if (!captured) {
+          return '';
+        }
+
+        if (detailedPiece.type === 'p') {
+          return `${from[0]}x`;
+        }
+
+        return 'x';
+      });
+
+      return `${sanPiece}${sanCaptured}${to}${getSuffix()}`;
     });
 
     return {
@@ -682,8 +701,6 @@ export class ChessFENBoard {
 
       return new Ok(str as ChessFEN);
     } catch (e) {
-      console.log('eeee', e);
-
       return new Err(e);
     }
   }
@@ -808,4 +825,8 @@ export class ChessFENBoard {
   private static getPiece = (board: FENBoard, file: number, rank: number) => {
     return board[rank][file];
   };
+
+  print() {
+    printMatrix(this.board);
+  }
 }
