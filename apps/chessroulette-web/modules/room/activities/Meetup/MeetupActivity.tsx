@@ -14,7 +14,7 @@ import { MeetupActivityState } from './movex';
 import { UserId, UsersMap } from 'apps/chessroulette-web/modules/user/type';
 import { DesktopRoomLayout } from '../../components/DesktopRoomLayout';
 import { RIGHT_SIDE_SIZE_PX } from '../Learn/components/LearnBoard';
-import { Playboard } from 'apps/chessroulette-web/components/Chessboard/Playboard';
+import { Playboard } from 'apps/chessroulette-web/components/Boards';
 import { CameraPanel } from '../../components/CameraPanel';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useMeetupActivitySettings } from './useMeetupActivitySettings';

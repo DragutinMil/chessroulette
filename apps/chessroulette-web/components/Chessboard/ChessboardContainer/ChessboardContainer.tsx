@@ -20,8 +20,8 @@ import { Piece, Square } from 'chess.js';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Chessboard } from 'react-chessboard';
 import { Arrow } from 'react-chessboard/dist/chessboard/types';
-import { useArrowColor } from './useArrowColor';
-import { ArrowsMap, CircleDrawTuple, CirclesMap } from './types';
+import { useArrowColor } from '../hooks/useArrowColor';
+import { ArrowsMap, CircleDrawTuple, CirclesMap } from '../types';
 import useDeepCompareEffect from 'use-deep-compare-effect';
 import { noop } from 'movex-core-util';
 import { shallowEqualObjects } from 'shallow-equal';
@@ -393,6 +393,13 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
           }}
           customSquareStyles={mergedCustomSquareStyles}
           customArrows={arrowsToRender}
+          customArrowColor={arrowColor}
+          onArrowsChange={onArrowsChangeAfterMount}
+          onSquareRightClick={onSquareRightClick}
+          customPieces={boardTheme.customPieces}
+          promotionDialogVariant="vertical"
+          promotionToSquare={promoMove?.to}
+          showPromotionDialog={!!promoMove?.to}
           autoPromoteToQueen={false}
           onPromotionCheck={(from, to, pieceSan) =>
             onPromotionCheck(from, to, pieceSanToPiece(pieceSan))
@@ -413,13 +420,6 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
               promoteTo,
             });
           }}
-          customArrowColor={arrowColor}
-          onArrowsChange={onArrowsChangeAfterMount}
-          onSquareRightClick={onSquareRightClick}
-          customPieces={boardTheme.customPieces}
-          promotionDialogVariant="vertical"
-          promotionToSquare={promoMove?.to}
-          showPromotionDialog={!!promoMove?.to}
           {...props}
         />
       </div>

@@ -1,14 +1,13 @@
 import { ChapterBoardState, ChapterState } from '../movex';
 import { useLearnActivitySettings } from '../hooks/useLearnActivitySettings';
-import { Freeboard } from 'apps/chessroulette-web/components/Chessboard/Freeboard';
-import { Playboard } from 'apps/chessroulette-web/components/Chessboard/Playboard';
+import { Freeboard, Playboard } from 'apps/chessroulette-web/components/Boards';
 import { FreeBoardHistory } from '@xmatter/util-kit';
-import { ChessboardContainerProps } from 'apps/chessroulette-web/components/Chessboard/ChessboardContainer';
 import {
   BoardEditorIconButton,
   ClearBoardIconButton,
   FlipBoardIconButton,
   StartPositionIconButton,
+  ChessboardContainerProps,
 } from 'apps/chessroulette-web/components/Chessboard';
 
 type Props = Required<

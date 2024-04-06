@@ -10,23 +10,21 @@ import {
 } from '@xmatter/util-kit';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
-import {
-  ChessboardContainer,
-  ChessboardContainerProps,
-} from '../ChessboardContainer';
 import { Square } from 'chess.js';
 import useInstance from '@use-it/instance';
-import { useBoardTheme } from '../useBoardTheme';
 import { getSquareSize } from './util';
 import { DropContainer } from './DropContainer';
 import { DraggableItem } from './DraggableItem';
-import { IconButton } from '../../Button';
+import { IconButton } from '../Button';
 import {
+  ChessboardContainer,
+  ChessboardContainerProps,
   ClearBoardIconButton,
   FlipBoardIconButton,
   StartPositionIconButton,
-} from '../SideIconButtons';
-import { ConfirmButton } from '../../Button/ConfirmButton';
+  useBoardTheme,
+} from '../Chessboard';
+import { ConfirmButton } from '../Button/ConfirmButton';
 
 export type BoardEditorProps = Pick<
   ChessboardContainerProps,

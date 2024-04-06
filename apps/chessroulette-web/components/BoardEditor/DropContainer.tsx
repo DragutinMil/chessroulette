@@ -1,7 +1,7 @@
 import { PieceSan } from '@xmatter/util-kit';
 import { Square } from 'chess.js';
 import { useMemo, useRef } from 'react';
-import { Rect, useContainerRect } from '../../ContainerWithDimensions';
+import { Rect, useContainerRect } from '../ContainerWithDimensions';
 import {
   absoluteCoordsToSquare,
   boardCoordsToSquare,

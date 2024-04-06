@@ -11,8 +11,8 @@ import {
 import {
   ChessboardContainer,
   ChessboardContainerProps,
-} from './ChessboardContainer';
-import { useBoardTheme } from './useBoardTheme';
+  useBoardTheme,
+} from '../Chessboard';
 
 type Props = DistributiveOmit<ChessboardContainerProps, 'boardTheme'> & {
   playingColor?: ChessColor;
