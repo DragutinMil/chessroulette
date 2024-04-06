@@ -1,5 +1,5 @@
 import { min } from '@xmatter/util-kit';
-import { ContainerWithDimensions } from '../../ContainerWithDimensions';
+import { ContainerWithDimensions } from '../ContainerWithDimensions';
 import { BoardEditor, BoardEditorProps } from './BoardEditor';
 
 type Props = Omit<BoardEditorProps, 'sizePx'> & {
