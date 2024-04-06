@@ -89,6 +89,12 @@ const outpostTheme: Theme = {
     hoveredSquare: 'rgba(134, 583, 255, .5)',
     clickedPieceSquare: 'rgba(134, 583, 255, .5)',
     renderPiece: renderRCHPiece,
+    customPieces: toDictIndexedBy(
+      objectKeys(MahaPieces),
+      (pieceSan) => pieceSan,
+      (pieceSan) => (p: { squareWidth: number }) =>
+        renderRCHPiece({ pieceSan, squareWidth: p.squareWidth })
+    ),
   },
 };
 
