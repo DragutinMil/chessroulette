@@ -3,6 +3,7 @@ import {
   ChessFEN,
   ChessFENBoard,
   PieceSan,
+  getSquareSize,
   isBlackColor,
   objectKeys,
   pieceSanToFenBoardPieceSymbol,
@@ -12,7 +13,6 @@ import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { Square } from 'chess.js';
 import useInstance from '@use-it/instance';
-import { getSquareSize } from './util';
 import { DropContainer } from './DropContainer';
 import { DraggableItem } from './DraggableItem';
 import { IconButton } from '../Button';
