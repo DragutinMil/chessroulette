@@ -11,22 +11,24 @@ import { pieces as RegularPieces } from 'apps/chessroulette-web/components/Chess
 
 export type ChessBoardProps = GetComponentProps<typeof Chessboard>;
 
+export type BoardTheme = {
+  darkSquare: string;
+  lightSquare: string;
+  arrowColors: [string, string, string];
+  lastMoveToSquare: string;
+  lastMoveFromSquare: string;
+  hoveredSquare: string;
+  clickedPieceSquare: string;
+  customPieces?: ChessBoardProps['customPieces'];
+  renderPiece: (p: {
+    pieceSan: PieceSan;
+    squareWidth: number;
+  }) => React.ReactElement;
+};
+
 type Theme = {
   name: string;
-  board: {
-    darkSquare: string;
-    lightSquare: string;
-    arrowColors: [string, string, string];
-    lastMoveToSquare: string;
-    lastMoveFromSquare: string;
-    hoveredSquare: string;
-    clickedPieceSquare: string;
-    customPieces?: ChessBoardProps['customPieces'];
-    renderPiece: (p: {
-      pieceSan: PieceSan;
-      squareWidth: number;
-    }) => React.ReactElement;
-  };
+  board: BoardTheme;
 };
 
 const renderKidsThemePiece: Theme['board']['renderPiece'] = ({

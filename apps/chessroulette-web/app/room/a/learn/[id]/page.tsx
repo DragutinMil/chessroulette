@@ -24,9 +24,6 @@ export default async function Page({
   const id = decodeURIComponent(params.id);
   const rid: ResourceIdentifier<'room'> = `room:${id}`;
 
-  console.log('learn rid', rid)
-  console.log('learn params', params)
-
   return (
     <RoomTemplate
       themeName={searchParams.theme}

@@ -4,10 +4,10 @@ import {
   getNewChessGame,
   toDictIndexedBy,
 } from '@xmatter/util-kit';
-import { SquareMap } from './types';
+import { SquareMap } from '../types';
 import { Square } from 'chess.js';
 
-// TODO: This can be doner at the history level
+// TODO: This can be done at the history level
 export const getInCheckSquareMap = (fen: ChessFEN): SquareMap => {
   let result: Square[] = [];
 

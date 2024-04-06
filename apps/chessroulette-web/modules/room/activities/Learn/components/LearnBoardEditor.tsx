@@ -1,7 +1,7 @@
 import {
   BoardEditor,
   BoardEditorProps,
-} from 'apps/chessroulette-web/components/Chessboard/BoardEditor';
+} from 'apps/chessroulette-web/components/BoardEditor';
 import { ChapterBoardState } from '../movex';
 
 export type LearnBoardEditorProps = {

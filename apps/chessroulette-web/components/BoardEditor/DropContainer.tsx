@@ -1,13 +1,13 @@
-import { PieceSan } from '@xmatter/util-kit';
-import { Square } from 'chess.js';
-import { useMemo, useRef } from 'react';
-import { Rect, useContainerRect } from '../../ContainerWithDimensions';
 import {
+  PieceSan,
   absoluteCoordsToSquare,
   boardCoordsToSquare,
   getBoardCoordsFromAbsoluteCoords,
   getSquareSize,
-} from './util';
+} from '@xmatter/util-kit';
+import { Square } from 'chess.js';
+import { useMemo, useRef } from 'react';
+import { Rect, useContainerRect } from '../ContainerWithDimensions';
 import { useDrop } from 'react-dnd';
 import { DndItem } from './types';
 
@@ -62,24 +62,6 @@ export const DropContainer = (
           props.isFlipped
         );
 
-        // const absoluteCoords = invoke(() => {
-        //   const absolute = {
-        //     x: offsets.x - rect.left,
-        //     y: offsets.y - rect.top,
-        //   };
-
-        //   if (props.isFlipped) {
-        //     return {
-        //       x: rect.width - absolute.x,
-        //       y: rect.height - absolute.y,
-        //     };
-        //   }
-
-        //   return absolute;
-
-        // return next;
-        // });
-
         const droppedOnSquare = absoluteCoordsToSquare({
           absoluteCoords,
           squareSize,
@@ -96,11 +78,6 @@ export const DropContainer = (
           if (!offsets) {
             return;
           }
-
-          // const absoluteCoords = {
-          //   x: offsets.x - rect.left,
-          //   y: offsets.y - rect.top,
-          // };
 
           const absoluteCoords = getAbsoluteCoords(
             rect,
@@ -120,13 +97,6 @@ export const DropContainer = (
           }
         },
       }),
-      // collect: (monitor) => ({
-      //   isOver: monitor.isOver(),
-      //   canDrop: monitor.canDrop(),
-      //   item: monitor.getItem(),
-      //   res: monitor.getDropResult(),
-      //   offset: monitor.getDifferenceFromInitialOffset(),
-      // }),
     }),
     [rect, squareSize, props.isFlipped]
   );

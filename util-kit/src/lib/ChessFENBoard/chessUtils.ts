@@ -1,16 +1,24 @@
-import type { Color, PieceSymbol, Square, Move, Piece } from 'chess.js';
-import { Chess } from 'chess.js';
+import type { Color, PieceSymbol, Square, Piece } from 'chess.js';
 import { Matrix, MatrixIndex, matrixMap } from '../matrix';
 import {
   BlackColor,
   ChessColor,
   ChessMove,
-  ChessPGN,
   PieceSan,
   ShortChessColor,
   WhiteColor,
 } from '../Chess/types';
 import { toShortColor } from '../Chess/lib';
+
+export type AbsoluteCoord = {
+  x: number;
+  y: number;
+};
+
+export type RelativeCoord = {
+  row: number;
+  col: number;
+};
 
 export const ranks = { 1: 7, 2: 6, 3: 5, 4: 4, 5: 3, 6: 2, 7: 1, 8: 0 };
 export const files = { a: 0, b: 1, c: 2, d: 3, e: 4, f: 5, g: 6, h: 7 };
@@ -57,6 +65,54 @@ const fileToIndex = {
   g: 6,
   h: 7,
 };
+
+export const squareToBoardCoards = (sq: Square): RelativeCoord => ({
+  row: indexedRanks.length - Number(sq[1]),
+  col: fileToIndex[sq[0] as keyof typeof fileToIndex],
+});
+
+/**
+ * This is needed when the orientation is black
+ *
+ * @param c
+ * @returns
+ */
+export const flipBoardCoords = (c: RelativeCoord) => ({
+  ...c,
+  col: 7 - c.col, // The col are index based
+});
+
+export const boardCoordsToSquare = ({
+  row,
+  col,
+}: RelativeCoord): Square | null => {
+  const rank = indexedRanks[row];
+  const file = indexedFiles[col];
+
+  if (!(rank && file)) {
+    return null;
+  }
+
+  return `${file}${rank}`;
+};
+
+export const getBoardCoordsFromAbsoluteCoords = ({
+  absoluteCoords,
+  squareSize,
+}: {
+  absoluteCoords: AbsoluteCoord;
+  squareSize: number;
+}): RelativeCoord => ({
+  row: Math.floor(absoluteCoords.y / squareSize),
+  col: Math.floor(absoluteCoords.x / squareSize),
+});
+
+export const getSquareSize = (sizePx: number) => sizePx / 8;
+
+export const absoluteCoordsToSquare = (p: {
+  absoluteCoords: AbsoluteCoord;
+  squareSize: number;
+}) => boardCoordsToSquare(getBoardCoordsFromAbsoluteCoords(p));
 
 export const squareToMatrixIndex = (sq: Square): MatrixIndex => {
   const file = fileToIndex[sq[0] as keyof typeof fileToIndex];
@@ -144,12 +200,10 @@ export const pieceSanToFenBoardPieceSymbol = (
   ) as FenBoardPieceSymbol;
 };
 
-export const pieceSanToPiece = (p: PieceSan): Piece => {
-  const color = p[0] as ShortChessColor;
-  const type = p[1].toLowerCase() as PieceSymbol;
-
-  return { color, type };
-};
+export const pieceSanToPiece = (p: PieceSan): Piece => ({
+  color: p[0] as ShortChessColor,
+  type: p[1].toLowerCase() as PieceSymbol,
+});
 
 export const pieceToPieceSan = (p: Piece): PieceSan =>
   `${p.color[0]}${p.type.toLocaleUpperCase()}}` as PieceSan;

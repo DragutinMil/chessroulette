@@ -16,7 +16,7 @@ import { LearnBoardEditor } from './components/LearnBoardEditor';
 import { LearnBoard, RIGHT_SIDE_SIZE_PX } from './components/LearnBoard';
 import inputReducer, { initialInputState } from './reducers/inputReducer';
 import { ChapterDisplayView } from './chapters/ChapterDisplayView';
-import { Freeboard } from 'apps/chessroulette-web/components/Chessboard/Freeboard';
+import { Freeboard } from 'apps/chessroulette-web/components/Boards';
 import { IconButton } from 'apps/chessroulette-web/components/Button';
 import { TabsRef } from 'apps/chessroulette-web/components/Tabs';
 import { UserId, UsersMap } from 'apps/chessroulette-web/modules/user/type';
