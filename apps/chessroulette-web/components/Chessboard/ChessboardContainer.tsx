@@ -27,9 +27,9 @@ import { noop } from 'movex-core-util';
 import { shallowEqualObjects } from 'shallow-equal';
 import { deepmerge } from 'deepmerge-ts';
 import { ChessboardSquare } from './ChessboardSquare';
-import { useBoardTheme } from './useBoardTheme';
 import useInstance from '@use-it/instance';
 import { getInCheckSquareMap } from './util';
+import { BoardTheme } from 'apps/chessroulette-web/hooks/useTheme/defaultTheme';
 
 export type ChessBoardProps = GetComponentProps<typeof Chessboard>;
 
@@ -50,6 +50,7 @@ export type ChessboardContainerProps = Omit<
   onArrowsChange?: (arrows: ArrowsMap) => void;
   onCircleDraw?: (circleTuple: CircleDrawTuple) => void;
   onClearCircles?: () => void;
+  boardTheme: BoardTheme;
 } & (
     | {
         rightSideComponent: React.ReactNode;
@@ -77,9 +78,9 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
   rightSideComponent,
   rightSideSizePx = 0,
   rightSideClassName,
+  boardTheme,
   ...props
 }) => {
-  const boardTheme = useBoardTheme();
   const inCheckSquares = useMemo(() => getInCheckSquareMap(fen), [fen]);
 
   const customStyles = useMemo(

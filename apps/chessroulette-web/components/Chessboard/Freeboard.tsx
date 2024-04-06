@@ -1,12 +1,15 @@
-import { ChessFENBoard } from '@xmatter/util-kit';
+import { ChessFENBoard, DistributiveOmit } from '@xmatter/util-kit';
 import {
-  ChessboardContainerWithSize,
-  ChessboardContainerWithSizeProps,
-} from './ChessboardContainerWithSize';
+  ChessboardContainer,
+  ChessboardContainerProps,
+} from './ChessboardContainer';
+import { useBoardTheme } from './useBoardTheme';
 
-type Props = ChessboardContainerWithSizeProps;
+type Props = DistributiveOmit<ChessboardContainerProps, 'boardTheme'>;
 
 export const Freeboard = ({
   fen = ChessFENBoard.STARTING_FEN,
   ...props
-}: Props) => <ChessboardContainerWithSize fen={fen} {...props} />;
+}: Props) => (
+  <ChessboardContainer fen={fen} boardTheme={useBoardTheme()} {...props} />
+);

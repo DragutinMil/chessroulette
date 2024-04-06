@@ -190,6 +190,7 @@ export const BoardEditor = ({
           >
             <ChessboardContainer
               fen={fen}
+              boardTheme={boardTheme}
               {...props}
               onMove={(p) => {
                 fenBoard.move(p.from, p.to);

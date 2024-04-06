@@ -4,15 +4,17 @@ import { Chess } from 'chess.js';
 import {
   ChessColor,
   ChessFENBoard,
+  DistributiveOmit,
   getNewChessGame,
   toShortColor,
 } from '@xmatter/util-kit';
 import {
-  ChessboardContainerWithSize,
-  ChessboardContainerWithSizeProps,
-} from './ChessboardContainerWithSize';
+  ChessboardContainer,
+  ChessboardContainerProps,
+} from './ChessboardContainer';
+import { useBoardTheme } from './useBoardTheme';
 
-type Props = ChessboardContainerWithSizeProps & {
+type Props = DistributiveOmit<ChessboardContainerProps, 'boardTheme'> & {
   playingColor?: ChessColor;
 };
 
@@ -23,6 +25,7 @@ export const Playboard = ({
   onMove,
   ...props
 }: Props) => {
+  const boardTheme = useBoardTheme();
   const chessInstance = useInstance<Chess>(getNewChessGame({ fen }));
 
   useEffect(() => {
@@ -34,9 +37,10 @@ export const Playboard = ({
   }, [fen]);
 
   return (
-    <ChessboardContainerWithSize
+    <ChessboardContainer
       fen={fen}
       boardOrientation={boardOrientation}
+      boardTheme={boardTheme}
       onMove={(m) => {
         if (chessInstance.turn() !== toShortColor(playingColor)) {
           return false;
