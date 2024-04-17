@@ -38,7 +38,7 @@ export const PlayActivity = ({
 }: Props) => {
   const activitySettings = usePlayActivitySettings();
   const dispatch = optionalDispatch || noop;
-  const { game } = remoteState;
+  const { game, gameState } = remoteState;
 
   const [fen, setFen] = useState(pgnToFen(game.pgn));
   const orientation = useMemo(
@@ -50,10 +50,6 @@ export const PlayActivity = ({
   );
 
   // const gameType = useMemo(() => activitySettings.gameType, []);
-  const gameState = useMemo(
-    () => activitySettings.gameState,
-    [activitySettings.gameState]
-  );
 
   return (
     <DesktopRoomLayout
@@ -73,7 +69,7 @@ export const PlayActivity = ({
           // }}
           onMove={(payload) => {
             dispatch({
-              type: 'meetup:move',
+              type: 'play:move',
               payload,
             });
             // dispatch({ type: 'loadedChapter:addMove', payload });
@@ -107,7 +103,7 @@ export const PlayActivity = ({
                   tooltipPositon="left"
                   className="mb-2"
                   onClick={() => {
-                    dispatch({ type: 'meetup:startNewGame' });
+                    dispatch({ type: 'play:startNewGame' });
                   }}
                 />
               </div>

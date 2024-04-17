@@ -5,12 +5,10 @@ import {
   CirclesMap,
 } from 'apps/chessroulette-web/components/Chessboard/types';
 import { Action } from 'movex-core-util';
-import { GameState } from '../types';
+import { GameState, GameType } from '../types';
 
 export type PlayActivityState = {
   activityType: 'play';
-  gameState: GameState;
-  gameType: GameType;
   activityState: {
     game: {
       arrowsMap: ArrowsMap;
@@ -18,6 +16,7 @@ export type PlayActivityState = {
       orientation: ChessColor;
       pgn: ChessPGN;
     };
+    gameState: GameState;
   };
 };
 
