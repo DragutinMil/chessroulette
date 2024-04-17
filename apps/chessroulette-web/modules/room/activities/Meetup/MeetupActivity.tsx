@@ -126,12 +126,14 @@ export const MeetupActivity = ({
           rightSideComponent={
             <>
               <div className="flex-1">
-                <StartPositionIconButton
-                  className="mb-2"
-                  onClick={() => {
-                    dispatch({ type: 'meetup:startNewGame' });
-                  }}
-                />
+                {activitySettings.canResetBoard && (
+                  <StartPositionIconButton
+                    className="mb-2"
+                    onClick={() => {
+                      dispatch({ type: 'meetup:startNewGame' });
+                    }}
+                  />
+                )}
               </div>
 
               <div className="relative flex flex-col items-center justify-center">

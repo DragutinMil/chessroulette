@@ -64,6 +64,7 @@ export function GET(request: NextRequest) {
           url: links.getOnDemandRoomCreationLink(
             {
               ...objectOmit(activityParams, ['client']),
+              star: '1',
               id: roomId,
             },
             request.nextUrl
@@ -75,7 +76,6 @@ export function GET(request: NextRequest) {
             {
               ...objectOmit(activityParams, ['client']),
               id: roomId,
-              flipped: 1,
             },
             request.nextUrl
           ),
