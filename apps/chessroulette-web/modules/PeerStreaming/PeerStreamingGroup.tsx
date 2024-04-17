@@ -1,10 +1,5 @@
 import React, { useCallback, useEffect, useReducer } from 'react';
-// import {
-//   PeerToPeerProvider,
-//   usePeerToPeerConnections,
-// } from '../PeerToPeerProvider';
 import { useWillUnmount } from 'apps/chessroulette-web/hooks/useWillUnmount';
-// import { Peer } from '../PeerToPeerProvider/type';
 import { P2PCommunicationType } from 'apps/chessroulette-web/modules/room/type';
 import {
   PeerToPeerProvider,
@@ -12,28 +7,20 @@ import {
 } from 'apps/chessroulette-web/providers/PeerToPeerProvider';
 import {
   IceServerRecord,
-  PeerUserId,
   PeerUserIdsMap,
-  // PeerUser,
-  PeersMap,
+  PeerUsersMap,
 } from 'apps/chessroulette-web/providers/PeerToPeerProvider/type';
 import { initialPeerStreamingState, peerStreamingReducer } from './reducer';
-import { User, UserId } from '../user/type';
+import { UserId } from '../user/type';
 import { Reel } from 'apps/chessroulette-web/components/FaceTime/MultiFaceTimeCompact';
 import { useReel } from './hooks';
 import { config } from 'apps/chessroulette-web/config';
-// import { useDispatch } from 'react-redux';
-// import { useWillUnmount } from 'src/lib/hooks/useWillUnmount';
-// import { Peer } from 'src/providers/PeerConnectionProvider';
-// import { PeerToPeerProvider, usePeerToPeerConnections } from 'src/providers/PeerToPeerProvider';
-// import { updateRoomPeerConnectionChannels } from '../../redux/actions';
-// import { JoinedRoom } from '../../types';
+import { peerUsersMapToPeerIdsMap } from 'apps/chessroulette-web/providers/PeerToPeerProvider/util';
 
 type PeersConnectionProps = React.PropsWithChildren<{
   id: string;
   p2pCommunicationType: P2PCommunicationType;
-  peerUserIdsMap: PeerUserIdsMap;
-  // room: Room;
+  peerUsersMap: PeerUsersMap;
 }>;
 
 const PeersConnection: React.FC<PeersConnectionProps> = (props) => {
@@ -42,8 +29,11 @@ const PeersConnection: React.FC<PeersConnectionProps> = (props) => {
   // Once joined connect to all the peers in the room
   const connectToAllPeersInRoom = useCallback(() => {
     if (p2pConnections.ready && props.p2pCommunicationType === 'audioVideo') {
-      p2pConnections.connectToPeers(props.peerUserIdsMap);
+      p2pConnections.connectToPeers(
+        peerUsersMapToPeerIdsMap(props.peerUsersMap)
+      );
     }
+    // TODO: Does this need to depend on the props.peerUsersMap and p2pCommunicationType
   }, [p2pConnections.ready, props.id]);
 
   const disconnectFromAllPeersInRoom = useCallback(() => {
@@ -64,17 +54,13 @@ const PeersConnection: React.FC<PeersConnectionProps> = (props) => {
 type Props = {
   groupId: string;
   clientUserId: UserId;
-  peerUserIdsMap: PeerUserIdsMap; // This excludes the Local Client Peer (Me)
+  peerUsersMap: PeerUsersMap; // This excludes the Local Client Peer (Me)
   p2pCommunicationType: P2PCommunicationType;
   iceServers: IceServerRecord[];
   render: (p: { reel: Reel | undefined }) => React.ReactNode;
 };
 
-// const peersMapToReel = (peers: PeersMap): Reel => {
-
-// }
-
-// This is a Memoized/Pure Component
+// This should be a Memoized/Pure Component
 export const PeerStreamingGroup: React.FC<Props> = (props) => {
   // const dispatch = useDispatch();
   const [state, dispatch] = useReducer(
@@ -86,38 +72,25 @@ export const PeerStreamingGroup: React.FC<Props> = (props) => {
     dispatch({
       type: 'updatePeers',
       payload: {
-        peerUserIdsMap: props.peerUserIdsMap,
+        peerUsersMap: props.peerUsersMap,
       },
     });
-  }, [props.peerUserIdsMap, dispatch]);
-
-  // console.log('PeerStreamingGroup state', state);
-
-  // const reel = useMemo<Reel>(() => ({
-
-  // }), state.peers)
-
-  // const reel = useMemo<Reel>(() => {
-  //   return {
-  //     streamingPeers: state.peers,
-  //     // myStreamingPeerId: room.me.userId,
-  //     focusedStreamingPeer: state.inFocus,
-  //   }
-  // }, [state.peers]);
+  }, [props.peerUsersMap, dispatch]);
 
   const reel = useReel({
     peersMap: state.peers,
     clientUserId: props.clientUserId,
   });
 
+  console.log('reel', reel, state.peers);
+
   if (!config.CAMERA_ON) {
     return <>{props.render({ reel })}</>;
   }
 
   return (
-    // TODO: Ensure this doesn't get rendered multiple times (ths opening the peerjs connection multiple times)
+    // TODO: Ensure this doesn't get rendered multiple times (thus opening the peerjs connection multiple times)
     <PeerToPeerProvider
-      // user={props.peerUser}
       clientUserId={props.clientUserId}
       iceServers={props.iceServers}
       uniqId={props.groupId}
@@ -128,7 +101,7 @@ export const PeerStreamingGroup: React.FC<Props> = (props) => {
       <PeersConnection
         id={props.groupId}
         p2pCommunicationType={props.p2pCommunicationType}
-        peerUserIdsMap={props.peerUserIdsMap}
+        peerUsersMap={props.peerUsersMap}
       >
         {props.render({ reel })}
       </PeersConnection>

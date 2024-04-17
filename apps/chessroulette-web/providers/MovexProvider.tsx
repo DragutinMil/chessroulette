@@ -2,17 +2,32 @@
 
 import { MovexProvider } from 'movex-react';
 import movexConfig from '../movex.config';
-import { useExistentUserIdOr } from '../hooks/useUserId/useUserId';
 import { config } from '../config';
+import { useUser } from '../modules/user/hooks';
+
+export type MovexClientInfo = {
+  displayName: string;
+}
 
 export default (props: React.PropsWithChildren) => {
-  const userId = useExistentUserIdOr();
+  const user = useUser();
 
   return (
     <MovexProvider
       movexDefinition={movexConfig}
       endpointUrl={config.MOVEX_ENDPOINT_URL}
-      clientId={userId}
+      clientId={user.id}
+      clientInfo={{
+        displayName: user.displayName,
+      }}
+      logger={{
+        onLog(event) {
+          console[event.method](
+            `${event.prefix} ${event.message}`,
+            event.payload
+          );
+        },
+      }}
     >
       {props.children}
     </MovexProvider>

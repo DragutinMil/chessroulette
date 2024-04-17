@@ -60,7 +60,18 @@ export function GET(request: NextRequest) {
     return NextResponse.json({
       links: [
         {
-          userRole: 'participant',
+          userRole: 'star',
+          url: links.getOnDemandRoomCreationLink(
+            {
+              ...objectOmit(activityParams, ['client']),
+              star: '1',
+              id: roomId,
+            },
+            request.nextUrl
+          ),
+        },
+        {
+          userRole: 'fan',
           url: links.getOnDemandRoomCreationLink(
             {
               ...objectOmit(activityParams, ['client']),

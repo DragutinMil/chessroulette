@@ -1,4 +1,4 @@
-import { objectKeys } from '@xmatter/util-kit';
+import { toDictIndexedBy } from '@xmatter/util-kit';
 import { AspectRatio } from 'apps/chessroulette-web/components/AspectRatio';
 import { CameraView } from 'apps/chessroulette-web/components/CameraView';
 import { FaceTimeProps } from 'apps/chessroulette-web/components/FaceTime';
@@ -8,7 +8,7 @@ import { PeerStreamingGroup } from 'apps/chessroulette-web/modules/PeerStreaming
 import { UserId, UsersMap } from 'apps/chessroulette-web/modules/user/type';
 import {
   IceServerRecord,
-  PeerUserIdsMap,
+  PeerUsersMap,
 } from 'apps/chessroulette-web/providers/PeerToPeerProvider/type';
 import { useMemo } from 'react';
 
@@ -33,14 +33,15 @@ export const CameraPanel = ({
   participants,
   fallback,
 }: Props) => {
-  const { [userId]: removedMe, ...peerUserIdsMap } = useMemo(
+  const { [userId]: removedMe, ...peerUsersMap } = useMemo<PeerUsersMap>(
     () =>
-      objectKeys(participants).reduce(
-        (prev, nextUserId) => ({
-          ...prev,
-          [nextUserId]: nextUserId,
-        }),
-        {} as PeerUserIdsMap
+      toDictIndexedBy(
+        Object.values(participants),
+        (p) => p.id,
+        (p) => ({
+          userId: p.id,
+          userDisplayName: p.displayName,
+        })
       ),
     [participants]
   );
@@ -61,14 +62,14 @@ export const CameraPanel = ({
       groupId={peerGroupId}
       clientUserId={userId}
       p2pCommunicationType="audioVideo"
-      peerUserIdsMap={peerUserIdsMap}
+      peerUsersMap={peerUsersMap}
       iceServers={iceServers}
       render={({ reel }) => (
         <MultiFaceTimeCompact
           reel={reel}
           aspectRatio={aspectRatio}
           onFocus={() => {
-            console.log('on focus');
+            // console.log('on focus');
           }}
 
           // onReady={() => setCamerasReady(true)}

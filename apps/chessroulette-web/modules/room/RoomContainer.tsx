@@ -12,6 +12,7 @@ import { initialMeetupActivityState } from './activities/Meetup/movex';
 import { useMemo } from 'react';
 import { objectKeys } from '@xmatter/util-kit';
 import { UsersMap } from '../user/type';
+import { MovexClientInfo } from 'apps/chessroulette-web/providers/MovexProvider';
 
 type Props = {
   rid: ResourceIdentifier<'room'>;
@@ -22,17 +23,24 @@ type Props = {
 export const RoomContainer = ({ iceServers, rid, activity }: Props) => {
   const movexResource = useMovexBoundResourceFromRid(movexConfig, rid);
   const userId = useMovexClientId(movexConfig);
-  const participants = useMemo(
-    () =>
-      objectKeys(movexResource?.subscribers || {}).reduce(
-        (prev, nextSubscriberId) => ({
-          ...prev,
-          [nextSubscriberId]: { userId: nextSubscriberId },
-        }),
-        {} as UsersMap
-      ),
-    [movexResource?.subscribers]
-  );
+  const participants = useMemo(() => {
+    if (!movexResource) {
+      return {};
+    }
+
+    return objectKeys(movexResource.subscribers).reduce(
+      (prev, nextSubscriberId) => ({
+        ...prev,
+        [nextSubscriberId]: {
+          id: nextSubscriberId,
+          displayName: (
+            movexResource.subscribers[nextSubscriberId].info as MovexClientInfo
+          ).displayName,
+        },
+      }),
+      {} as UsersMap
+    );
+  }, [movexResource?.subscribers]);
 
   // This shouldn't really happen
   if (!userId) {

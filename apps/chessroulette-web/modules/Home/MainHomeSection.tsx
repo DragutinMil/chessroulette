@@ -46,10 +46,11 @@ export const MainHomeSection: React.FC<Props> = () => {
         <Link
           href={links.getOnDemandRoomCreationLink({
             activity: 'meetup',
+            star: '1', // TODO: Would be better to type it
           })}
         >
           <Button type="custom" bgColor="blue" className="font-bold w-full">
-            Start Meetup
+            Host Meetup
           </Button>
         </Link>
       </div>

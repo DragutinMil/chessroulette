@@ -25,7 +25,10 @@ export type Reel = {
   streamingPeers: StreamingPeer[];
   // TODO: Add these back
   myStreamingPeerUserId: StreamingPeer['userId'];
-  focusedStreamingPeer: Pick<StreamingPeer, 'connection' | 'userId'>; // TODO: Bring back
+  focusedStreamingPeer: Pick<
+    StreamingPeer,
+    'connection' | 'userId' | 'userDisplayName'
+  >; // TODO: Bring back
 };
 
 export type MultiFaceTimeCompactProps = {
@@ -71,7 +74,7 @@ export const MultiFaceTimeCompact: React.FC<MultiFaceTimeCompactProps> = ({
       return '';
     }
 
-    return reel.focusedStreamingPeer.userId;
+    return reel.focusedStreamingPeer.userDisplayName || '';
 
     // return reel.focusedStreamingPeer.userId === reel.myStreamingPeerUserId
     //   ? // ? getUserDisplayName(reel.focusedStreamingPeer.user)
@@ -109,16 +112,11 @@ export const MultiFaceTimeCompact: React.FC<MultiFaceTimeCompactProps> = ({
       : VideoCameraIcon;
 
   return (
-    <div
-      // className={cx(cls.container, containerClassName)}
-      className={`relative ${containerClassName}`}
-      style={containerStyles}
-    >
+    <div className={`relative ${containerClassName}`} style={containerStyles}>
       {reel ? (
         <FaceTime
-          // streamConfig={reel.focusedStreamingPeer.connection.channels.streaming}
           streamConfig={reel.focusedStreamingPeer.connection.channels.streaming}
-          // label={label} //TODO: This was taken out for now, as it shows the randomly generate id. Apirl 5th 2024
+          label={label}
           labelPosition="bottom-left"
           {...faceTimeProps}
         />
@@ -126,15 +124,12 @@ export const MultiFaceTimeCompact: React.FC<MultiFaceTimeCompactProps> = ({
         <MyFaceTime
           {...faceTimeProps}
           constraints={myFaceTimeConstraints}
-          // label={label}
+          label={label}
           labelPosition="bottom-left"
           onReady={() => setIsReady(true)}
         />
       )}
-      <div
-        // className={cls.overlayedContainer}
-        className="absolute inset-0 flex flex-col"
-      >
+      <div className="absolute inset-0 flex flex-col">
         <div
           // className={cls.headerWrapper}
           className=""

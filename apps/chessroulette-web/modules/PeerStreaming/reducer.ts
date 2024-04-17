@@ -1,14 +1,11 @@
 import {
   Peer,
-  PeerRecord,
+  PeerUserRecord,
   PeerUserIdsMap,
   PeersMap,
-  StreamingPeer,
+  PeerUsersMap,
 } from 'apps/chessroulette-web/providers/PeerToPeerProvider/type';
 import { Action } from 'movex-core-util';
-import { ReducerAction } from 'react';
-
-// type Actions = ReducerAction<'asd'>
 
 export type PeerStreamingState = {
   peers: PeersMap;
@@ -22,13 +19,13 @@ export type PeerStreamingActions =
         channels: Partial<Peer['connection']['channels']>;
       }
     >
-  | Action<'updatePeers', { peerUserIdsMap: PeerUserIdsMap }>;
+  | Action<'updatePeers', { peerUsersMap: PeerUsersMap }>;
 
 export const initialPeerStreamingState: PeerStreamingState = {
   peers: {},
 };
 
-const peerRecordToPeer = (peer: PeerRecord): Peer => {
+const peerRecordToPeer = (peer: PeerUserRecord): Peer => {
   return {
     ...peer,
     // isMe,
@@ -49,15 +46,15 @@ export const peerStreamingReducer = (
 ) => {
   if (action.type === 'updatePeers') {
     return {
-      peers: Object.values(action.payload.peerUserIdsMap)
-        .map((peerUserId) => {
+      peers: Object.values(action.payload.peerUsersMap)
+        .map((peerUser) => {
           // If already present use it
-          if (state.peers[peerUserId]) {
-            return state.peers[peerUserId];
+          if (state.peers[peerUser.userId]) {
+            return state.peers[peerUser.userId];
           }
 
           // Otherwise add the new one
-          return peerRecordToPeer({ userId: peerUserId });
+          return peerRecordToPeer(peerUser);
         })
         .reduce(
           (prev, next) => ({
