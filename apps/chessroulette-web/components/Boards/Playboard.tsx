@@ -16,6 +16,7 @@ import {
 
 type Props = DistributiveOmit<ChessboardContainerProps, 'boardTheme'> & {
   playingColor?: ChessColor;
+  canPlay?: boolean;
 };
 
 export const Playboard = ({
@@ -23,6 +24,7 @@ export const Playboard = ({
   playingColor = 'white',
   boardOrientation = playingColor,
   onMove,
+  canPlay = true,
   ...props
 }: Props) => {
   const boardTheme = useBoardTheme();
@@ -42,6 +44,9 @@ export const Playboard = ({
       boardOrientation={boardOrientation}
       boardTheme={boardTheme}
       onMove={(m) => {
+        if (!canPlay) {
+          return false;
+        }
         if (chessInstance.turn() !== toShortColor(playingColor)) {
           return false;
         }

@@ -1,13 +1,13 @@
 import movexConfig from 'apps/chessroulette-web/movex.config';
 import { MovexBoundResourceFromConfig } from 'movex-react';
-import { noop, pgnToFen, swapColor } from '@xmatter/util-kit';
+import { noop, objectKeys, pgnToFen, swapColor } from '@xmatter/util-kit';
 import { IceServerRecord } from 'apps/chessroulette-web/providers/PeerToPeerProvider/type';
 import { UserId, UsersMap } from 'apps/chessroulette-web/modules/user/type';
 import { DesktopRoomLayout } from '../../components/DesktopRoomLayout';
 import { RIGHT_SIDE_SIZE_PX } from '../Learn/components/LearnBoard';
 import { Playboard } from 'apps/chessroulette-web/components/Chessboard/Playboard';
 import { CameraPanel } from '../../components/CameraPanel';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import { IconButton } from 'apps/chessroulette-web/components/Button';
 import { PanelResizeHandle } from 'react-resizable-panels';
 import { PlayActivityState } from './movex';
@@ -39,6 +39,9 @@ export const PlayActivity = ({
   const activitySettings = usePlayActivitySettings();
   const dispatch = optionalDispatch || noop;
   const { game, gameState } = remoteState;
+  const canPlay = useRef(false);
+  //TODO - remove this, improve logic
+  const [_, rerender] = useReducer((s) => s + 1, 0);
 
   const [fen, setFen] = useState(pgnToFen(game.pgn));
   const orientation = useMemo(
@@ -49,7 +52,23 @@ export const PlayActivity = ({
     [activitySettings.isBoardFlipped, game.orientation]
   );
 
-  // const gameType = useMemo(() => activitySettings.gameType, []);
+  const gameType = useMemo(() => activitySettings.gameType, []);
+  useEffect(() => {
+    //TODO - improve logic here, to messy
+    if (!canPlay.current) {
+      if (participants && objectKeys(participants).length > 1) {
+        canPlay.current = true;
+        rerender();
+      }
+    }
+  }, [participants]);
+
+  useEffect(() => {
+    dispatch({
+      type: 'play:setGameType',
+      payload: { gameType },
+    });
+  }, []);
 
   return (
     <DesktopRoomLayout
@@ -58,6 +77,7 @@ export const PlayActivity = ({
         <Playboard
           sizePx={boardSize}
           fen={fen}
+          canPlay={canPlay.current}
           // {...currentChapter}
           // boardOrientation={orientation}
           playingColor={orientation}
@@ -151,13 +171,13 @@ export const PlayActivity = ({
             <span className="font-bold">"{game.orientation}"</span>
           </div> */}
           <GameDisplayView game={game} />
-          {/*<div className="flex flex-row gap-5">
+          <div className="flex flex-row gap-5">
             <div className="capitalize">{gameType}</div>
             <Countdown
               active={gameState === 'ongoing'}
               gameTimeClass={gameType}
             />
-          </div>*/}
+          </div>
           <div className="bg-slate-700 p-3 flex flex-col flex-1 min-h-0 rounded-lg shadow-2xl">
             <GameNotation pgn={game.pgn} onUpdateFen={setFen} />
           </div>

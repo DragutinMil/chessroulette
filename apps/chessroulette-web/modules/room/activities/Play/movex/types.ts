@@ -9,6 +9,7 @@ import { GameState, GameType } from '../types';
 
 export type PlayActivityState = {
   activityType: 'play';
+  gameType: GameType;
   activityState: {
     game: {
       arrowsMap: ArrowsMap;
@@ -22,6 +23,7 @@ export type PlayActivityState = {
 
 export type PlayActivityActions =
   | Action<'play:move', ChessMove>
+  | Action<'play:setGameType', { gameType: GameType }>
   | Action<'play:startNewGame'>
   | Action<'play:drawCircle', CircleDrawTuple>
   | Action<'play:clearCircles'>
