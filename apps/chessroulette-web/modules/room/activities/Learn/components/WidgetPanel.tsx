@@ -13,6 +13,9 @@ import {
 import { ChaptersTab, ChaptersTabProps } from '../chapters/ChaptersTab';
 import { useWidgetPanelTabsNavAsSearchParams } from './useWidgetPanelTabsNav';
 import React, { useCallback, useMemo } from 'react';
+import { EngineData } from '../engine';
+import { ChessEngineProvider } from 'apps/chessroulette-web/modules/ChessEngine/ChessEngineProvider';
+import { ChessEngineDisplay } from 'apps/chessroulette-web/modules/ChessEngine/components/ChessEngineDisplay';
 
 type Props = {
   chaptersMap: Record<Chapter['id'], Chapter>;
@@ -25,6 +28,9 @@ type Props = {
 
   onHistoryNotationRefocus: FreeBoardNotationProps['onRefocus'];
   onHistoryNotationDelete: FreeBoardNotationProps['onDelete'];
+
+  // Engine
+  engine?: EngineData;
 } & Pick<
   ChaptersTabProps,
   | 'onLoadChapter'
@@ -45,6 +51,7 @@ export const WidgetPanel = React.forwardRef<TabsRef, Props>(
       chaptersMapIndex,
       currentLoadedChapterId,
       currentChapterState,
+      engine,
       onImport,
       onQuickImport,
       onHistoryNotationDelete,
@@ -107,6 +114,10 @@ export const WidgetPanel = React.forwardRef<TabsRef, Props>(
               ),
               renderContent: () => (
                 <div className="flex flex-col flex-1 gap-2 min-h-0">
+                  <ChessEngineDisplay
+                    gameId={currentLoadedChapterId}
+                    fen={currentChapterState.displayFen}
+                  />
                   <FreeBoardNotation
                     history={currentChapterState.notation?.history}
                     focusedIndex={currentChapterState.notation?.focusedIndex}

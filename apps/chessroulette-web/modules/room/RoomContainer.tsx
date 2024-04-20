@@ -13,6 +13,7 @@ import { useMemo } from 'react';
 import { objectKeys } from '@xmatter/util-kit';
 import { UsersMap } from '../user/type';
 import { MovexClientInfo } from 'apps/chessroulette-web/providers/MovexProvider';
+import { ChessEngineProvider } from '../ChessEngine/ChessEngineProvider';
 
 type Props = {
   rid: ResourceIdentifier<'room'>;
@@ -49,19 +50,22 @@ export const RoomContainer = ({ iceServers, rid, activity }: Props) => {
 
   if (activity === 'learn') {
     return (
-      <LearnActivity
-        userId={userId}
-        roomId={toResourceIdentifierObj(rid).resourceId}
-        dispatch={movexResource?.dispatch}
-        participants={participants}
-        iceServers={iceServers}
-        remoteState={
-          movexResource?.state.activity.activityType === 'learn'
-            ? movexResource?.state.activity.activityState ??
-              initialLearnActivityState.activityState
-            : initialLearnActivityState.activityState
-        }
-      />
+      // TODO: Should this be here??
+      <ChessEngineProvider uciUrl="ws://localhost:5353/senduci">
+        <LearnActivity
+          userId={userId}
+          roomId={toResourceIdentifierObj(rid).resourceId}
+          dispatch={movexResource?.dispatch}
+          participants={participants}
+          iceServers={iceServers}
+          remoteState={
+            movexResource?.state.activity.activityType === 'learn'
+              ? movexResource?.state.activity.activityState ??
+                initialLearnActivityState.activityState
+              : initialLearnActivityState.activityState
+          }
+        />
+      </ChessEngineProvider>
     );
   }
 
