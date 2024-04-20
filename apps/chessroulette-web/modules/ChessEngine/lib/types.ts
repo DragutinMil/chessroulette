@@ -21,6 +21,22 @@ export type BestMoveUCIResponse = {
   ponder?: string;
 };
 
+export type BestLine = {
+  depth: number;
+  score: {
+    unit: string; // 'cp' | 'mate'
+    value: number;
+  };
+  pv?: string[];
+  evaluation: {
+    heightsPct: {
+      w: number;
+      b: number;
+    };
+    evalAsStr: string;
+  };
+};
+
 export type IdUCIResponse = {
   name: string;
   author: string;

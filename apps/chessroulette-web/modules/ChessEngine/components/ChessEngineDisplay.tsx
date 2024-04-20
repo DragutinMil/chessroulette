@@ -19,26 +19,28 @@ export type EngineState = {
       value: number;
     };
     pv?: string;
-    evaluation: {
-      heightsPct: {
-        w: number;
-        b: number;
-      };
-      evalAsStr: string;
-    };
+    // evaluation: {
+    //   heightsPct: {
+    //     w: number;
+    //     b: number;
+    //   };
+    //   evalAsStr: string;
+    // };
   };
 };
 
 export const ChessEngineDisplay = ({ gameId, fen }: Props) => {
-  const engine = useChessEngineFromFen(gameId, fen, { depth: 12 });
-
-  const { bestLine, bestMove, ...engineProps } = engine;
+  const { bestLine, bestMove, ...engineProps } = useChessEngineFromFen(
+    gameId,
+    fen,
+    { depth: 12 }
+  );
 
   return (
-    <div className="text-sm sbg-slate-800 srounded-lg sp-1 pb-2 spx-2 border-b border-slate-600 overflow-hidden">
+    <div className="text-sm pb-2 spx-2 border-b border-slate-600 soverflow-hidden">
       {bestLine ? (
         <>
-          <p className="flex justify-between pb-2">
+          <p className="flex justify-between pb-2 items-center">
             <span>
               <span className="text-lg font-bold">
                 {bestLine.evaluation.evalAsStr}{' '}
@@ -55,7 +57,19 @@ export const ChessEngineDisplay = ({ gameId, fen }: Props) => {
 
             <span className="font-bold italic">{engineProps.id?.name}</span>
           </p>
-          <span className="truncate overflow-hidden">{bestLine?.pv}</span>
+          <p className="wrap inline-block">
+            {bestLine.pv?.map((move, i) => (
+              <span
+                key={`${i}-${move}`}
+                className="inline-block sp-1 hover:bg-slate-600 hover:cursor-pointer rounded-sm"
+                style={{
+                  padding: '.1em',
+                }}
+              >
+                {move}
+              </span>
+            ))}
+          </p>
         </>
       ) : (
         <span>Loading Engine...</span>

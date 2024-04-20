@@ -3,23 +3,7 @@ import { ChessEngineContext } from '../ChessEngineContext';
 import { ChessFEN, ChessFENBoard, invoke } from '@xmatter/util-kit';
 import { engineLineSchema } from '../../room/activities/Learn/engine';
 import { evaluate } from '../lib';
-import { IdUCIResponse } from '../lib/types';
-
-export type BestLine = {
-  depth: number;
-  score: {
-    unit: string; // 'cp' | 'mate'
-    value: number;
-  };
-  pv?: string;
-  evaluation: {
-    heightsPct: {
-      w: number;
-      b: number;
-    };
-    evalAsStr: string;
-  };
-};
+import { BestLine, IdUCIResponse } from '../lib/types';
 
 export const useChessEngineClient = () => useContext(ChessEngineContext);
 
@@ -91,6 +75,7 @@ export const useChessEngineFromFen = (
               ...prev,
               bestLine: {
                 ...nextLine,
+                pv: nextLine.pv?.split(' '),
                 evaluation: nextEvaluation,
               },
             };

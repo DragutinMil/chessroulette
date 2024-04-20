@@ -51,7 +51,10 @@ export const RoomContainer = ({ iceServers, rid, activity }: Props) => {
   if (activity === 'learn') {
     return (
       // TODO: Should this be here??
-      <ChessEngineProvider uciUrl="ws://localhost:5353/senduci">
+      <ChessEngineProvider
+        // uciUrl="ws://localhost:5222/senduci"
+        uciUrl="wss://chessroulette-engine.fly.dev/senduci"
+      >
         <LearnActivity
           userId={userId}
           roomId={toResourceIdentifierObj(rid).resourceId}

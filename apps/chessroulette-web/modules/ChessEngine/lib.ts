@@ -18,7 +18,7 @@ export const evaluate = (
       b: 100 - h,
     };
 
-    console.log('setWhiteHeight', h, heightsPct);
+    // console.log('setWhiteHeight', h, heightsPct);
   };
 
   if (event.data.startsWith('info depth')) {
