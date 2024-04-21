@@ -48,12 +48,17 @@ export const reducer = (
       return prev;
     }
 
+    const isCheckMate = instance.isCheckmate();
+
     const nextGameState =
       prevActivityState.game.state === 'pending' && pgn.length === 0
         ? 'ongoing'
-        : prevActivityState.gameType !== 'untimed' &&
-          prevActivityState.game.state !== 'pending' &&
-          nextTimeLeft < 0
+        : (prevActivityState.gameType !== 'untimed' &&
+            prevActivityState.game.state !== 'pending' &&
+            (nextTimeLeft < 0 || isCheckMate)) ||
+          (prevActivityState.gameType === 'untimed' &&
+            prevActivityState.game.state === 'ongoing' &&
+            isCheckMate)
         ? 'complete'
         : 'ongoing';
     const turn = toOtherLongChessColor(lastMoveBy);
@@ -72,6 +77,9 @@ export const reducer = (
           lastMoveBy: turn,
           lastMoveAt: moveAt,
           state: nextGameState,
+          ...(isCheckMate && {
+            winner: turn,
+          }),
         },
       },
     };
