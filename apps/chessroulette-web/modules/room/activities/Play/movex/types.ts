@@ -40,7 +40,8 @@ export type PlayActivityActions =
   | Action<'play:move', ChessMoveWithTime>
   | Action<'play:setGameType', { gameType: GameType }>
   | Action<'play:setGameComplete', { result: GameFinishResult }>
-  | Action<'play:startNewGame'>
+  | Action<'play:startNewGame', { gameType: GameType }>
+  | Action<'play:resignGame', { color: ChessColor }>
   | Action<'play:drawCircle', CircleDrawTuple>
   | Action<'play:clearCircles'>
   | Action<'play:setArrows', ArrowsMap>;

@@ -8,7 +8,7 @@ import { RIGHT_SIDE_SIZE_PX } from '../Learn/components/LearnBoard';
 import { Playboard } from 'apps/chessroulette-web/components/Chessboard/Playboard';
 import { CameraPanel } from '../../components/CameraPanel';
 import { useEffect, useMemo, useReducer, useRef, useState } from 'react';
-import { IconButton } from 'apps/chessroulette-web/components/Button';
+import { Button, IconButton } from 'apps/chessroulette-web/components/Button';
 import { PanelResizeHandle } from 'react-resizable-panels';
 import { PlayActivityState } from './movex';
 import { usePlayActivitySettings } from './usePlayActivitySettings';
@@ -80,6 +80,11 @@ export const PlayActivity = ({
       }
       setGameFinished(true);
     }
+    //TODO - improve logic, make the game state the only source of truth
+    if (game.state !== 'complete' && gameFinished) {
+      setGameFinished(false);
+      canPlay.current = true;
+    }
   }, [game.state]);
 
   useEffect(() => {
@@ -96,7 +101,17 @@ export const PlayActivity = ({
   const overlayComponent = useMemo(() => {
     //TODO - find a way to pass the participants to the dialog
     if (gameInPendingMode || gameFinished) {
-      return <GameStateDialog gameState={game} />;
+      return (
+        <GameStateDialog
+          gameState={game}
+          onRematch={() => {
+            dispatch({
+              type: 'play:startNewGame',
+              payload: { gameType },
+            });
+          }}
+        />
+      );
     }
     return null;
   }, [gameInPendingMode, gameFinished]);
@@ -136,21 +151,7 @@ export const PlayActivity = ({
             rightSideClassName="flex flex-col"
             rightSideComponent={
               <>
-                <div className="flex-1">
-                  <IconButton
-                    icon="ArrowPathIcon"
-                    iconKind="outline"
-                    type="clear"
-                    size="sm"
-                    tooltip="Restart Game"
-                    tooltipPositon="left"
-                    className="mb-2"
-                    onClick={() => {
-                      dispatch({ type: 'play:startNewGame' });
-                    }}
-                  />
-                </div>
-
+                <div className="flex-1" />
                 <div className="relative flex flex-col items-center justify-center">
                   <PanelResizeHandle
                     className="w-1 h-20 rounded-lg bg-slate-600"
@@ -192,7 +193,18 @@ export const PlayActivity = ({
               });
             }}
           />
-
+          <div className="flex flex-row gap-4">
+            <Button
+              size="sm"
+              bgColor="blue"
+              disabled={game.state !== 'ongoing'}
+            >
+              Offer Draw
+            </Button>
+            <Button size="sm" bgColor="red" disabled={game.state !== 'ongoing'}>
+              Resign
+            </Button>
+          </div>
           <div className="bg-slate-700 p-3 flex flex-col flex-1 min-h-0 rounded-lg shadow-2xl">
             <GameNotation pgn={game.pgn} onUpdateFen={setFen} />
           </div>

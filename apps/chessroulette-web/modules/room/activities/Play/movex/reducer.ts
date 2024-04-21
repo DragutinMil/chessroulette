@@ -104,14 +104,20 @@ export const reducer = (
   }
 
   if (action.type === 'play:startNewGame') {
+    const timeLeft = chessGameTimeLimitMsMap[action.payload.gameType];
     return {
       ...prev,
       activityState: {
         ...prev.activityState,
+        gameType: action.payload.gameType,
         game: {
           ...initialPlayActivityState.activityState.game,
           orientation: swapColor(prev.activityState.game.orientation),
           state: 'pending',
+          timeLeft: {
+            white: timeLeft,
+            black: timeLeft,
+          },
         },
       },
     };

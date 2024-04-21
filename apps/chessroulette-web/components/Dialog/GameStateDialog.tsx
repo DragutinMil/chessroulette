@@ -5,10 +5,10 @@ import { Text } from '../Text';
 
 type Props = {
   gameState: PlayActivityState['activityState']['game'];
-  // onClose: () => void;
+  onRematch: () => void;
 };
 
-export const GameStateDialog: React.FC<Props> = ({ gameState }) => {
+export const GameStateDialog: React.FC<Props> = ({ gameState, onRematch }) => {
   const [gameResultSeen, setGameResultSeen] = useState(false);
 
   useEffect(() => {
@@ -37,8 +37,15 @@ export const GameStateDialog: React.FC<Props> = ({ gameState }) => {
           hasCloseButton
           onClose={() => {
             setGameResultSeen(true);
-            // onClose();
           }}
+          buttons={[
+            {
+              children: 'Rematch',
+              onClick: () => onRematch(),
+              type: 'primary',
+              bgColor: 'blue',
+            },
+          ]}
         />
       );
     }
