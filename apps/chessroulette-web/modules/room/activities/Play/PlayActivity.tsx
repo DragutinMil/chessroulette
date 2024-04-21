@@ -128,22 +128,9 @@ export const PlayActivity = ({
                   moveAt: new Date().getTime(),
                 },
               });
-              // dispatch({ type: 'loadedChapter:addMove', payload });
 
               // TODO: This can be returned from a more internal component
               return true;
-            }}
-            onArrowsChange={(payload) => {
-              // dispatch({ type: 'loadedChapter:setArrows', payload });
-            }}
-            onCircleDraw={(tuple) => {
-              // dispatch({
-              //   type: 'loadedChapter:drawCircle',
-              //   payload: tuple,
-              // });
-            }}
-            onClearCircles={() => {
-              // dispatch({ type: 'loadedChapter:clearCircles' });
             }}
             rightSideSizePx={RIGHT_SIDE_SIZE_PX}
             rightSideClassName="flex flex-col"
@@ -191,23 +178,6 @@ export const PlayActivity = ({
               />
             </div>
           )}
-
-          {/* {inputState.isActive ? 'active' : 'not active'} */}
-          {/* {inputState.isActive ? (
-            <div className="flex gap-2">
-              <span className="capitalize">Editing</span>
-              <span className="font-bold">
-                "{inputState.chapterState.name}"
-              </span>
-            </div>
-          ) : (
-            <ChapterDisplayView chapter={currentChapter} />
-          )} */}
-          {/* <div className="flex gap-2">
-            <span className="capitalize">Editing</span>
-            <span className="font-bold">"{game.orientation}"</span>
-          </div> */}
-
           <GameStateWidget
             game={game}
             gameType={gameType}
@@ -222,26 +192,7 @@ export const PlayActivity = ({
               });
             }}
           />
-          {/*<GameDisplayView game={game} />
-          <div className="flex flex-row gap-5">
-            <div className="capitalize">{gameType}</div>
 
-            <PlayerBox
-              key={`${roomId}-white`}
-              color="white"
-              active={game.state === 'ongoing' && game.lastMoveBy !== 'white'}
-              gameType={gameType}
-              timeLeft={game.timeLeft['white']}
-            />
-            <PlayerBox
-              key={`${roomId}-black`}
-              color="black"
-              active={game.state === 'ongoing' && game.lastMoveBy !== 'black'}
-              gameType={gameType}
-              timeLeft={game.timeLeft['black']}
-            />
-          </div>
-          */}
           <div className="bg-slate-700 p-3 flex flex-col flex-1 min-h-0 rounded-lg shadow-2xl">
             <GameNotation pgn={game.pgn} onUpdateFen={setFen} />
           </div>
