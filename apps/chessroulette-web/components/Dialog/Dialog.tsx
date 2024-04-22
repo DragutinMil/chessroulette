@@ -23,10 +23,10 @@ export const Dialog: React.FC<Props> = (props) => {
           </div>
         </div>
       )}
-      {props.title && <div className="flex">{props.title}</div>}
+      {props.title && <div className="flex justify-center">{props.title}</div>}
       <div className="flex flex-col gap-2">{props.content}</div>
       {props.buttons && (
-        <div className="flex flex-row gap-3">
+        <div className="flex flex-row justify-center gap-3">
           {props.buttons.map((buttonProps, i) => {
             if (typeof buttonProps !== 'object') {
               return null;

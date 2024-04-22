@@ -16,6 +16,7 @@ export const initialPlayActivityState: PlayActivityState = {
       lastMoveAt: 0,
       state: 'pending',
     },
+    offers: [],
     gameType: 'untimed',
   },
 };

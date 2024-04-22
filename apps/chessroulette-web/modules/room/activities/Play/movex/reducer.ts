@@ -10,6 +10,8 @@ import {
 } from '@xmatter/util-kit';
 import { initialPlayActivityState } from './state';
 import { chessGameTimeLimitMsMap } from '../components/Countdown/types';
+import { Offer } from './types';
+import { generateUserId } from 'apps/chessroulette-web/util';
 
 export const reducer = (
   prev: ActivityState = initialActivityState,
@@ -139,6 +141,70 @@ export const reducer = (
               ? prev.activityState.game.lastMoveBy
               : '1/2',
         },
+      },
+    };
+  }
+
+  if (action.type === 'play:sendOffer') {
+    const { byParticipant, offerType } = action.payload;
+    const offers: Offer[] = [
+      ...prevActivityState.offers,
+      {
+        byParticipant,
+        id: generateUserId(), // TODO -maybe use different random generator
+        offerType,
+        status: 'pending',
+      },
+    ];
+
+    return {
+      ...prev,
+      activityState: {
+        ...prev.activityState,
+        offers,
+      },
+    };
+  }
+
+  if (action.type === 'play:acceptOffer') {
+    const lastOffer: Offer = {
+      ...prevActivityState.offers[prevActivityState.offers.length - 1],
+      status: 'accepted',
+    };
+    console.log('new offers => ', [
+      ...prevActivityState.offers.slice(0, -1),
+      lastOffer,
+    ]);
+    return {
+      ...prev,
+      activityState: {
+        ...prev.activityState,
+        offers: [...prevActivityState.offers.slice(0, -1), lastOffer],
+        ...(lastOffer.offerType === 'rematch' && {
+          game: {
+            ...prev.activityState.game,
+            orientation: swapColor(prev.activityState.game.orientation),
+            state: 'pending',
+            timeLeft: {
+              white: chessGameTimeLimitMsMap[prevActivityState.gameType],
+              black: chessGameTimeLimitMsMap[prevActivityState.gameType],
+            },
+          },
+        }),
+      },
+    };
+  }
+
+  if (action.type === 'play:denyOffer') {
+    const lastOffer: Offer = {
+      ...prevActivityState.offers[prevActivityState.offers.length - 1],
+      status: 'denied',
+    };
+    return {
+      ...prev,
+      activityState: {
+        ...prev.activityState,
+        offers: [...prevActivityState.offers.slice(0, -1), lastOffer],
       },
     };
   }
