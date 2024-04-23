@@ -1,7 +1,7 @@
-name: Fly Deploy Movex (Staging)
+name: Fly Deploy Movex (Prod)
 on:
   pull_request:
-    branches: ['staging']
+    branches: ['main']
 jobs:
   ci:
     uses: ./.github/workflows/ci.yml
@@ -15,6 +15,6 @@ jobs:
       - uses: superfly/flyctl-actions/setup-flyctl@master
       - run: yarn install
       - run: yarn build-movex-chessroulette
-      - run: flyctl deploy -c ./fly.movex-staging.toml --dockerfile ./Dockerfile.movex --remote-only
+      - run: flyctl deploy -c ./fly.movex-prod.toml --dockerfile ./Dockerfile.movex --remote-only
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
