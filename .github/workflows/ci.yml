@@ -21,6 +21,8 @@ jobs:
       - name: Install Dependencies
         run: yarn install
 
+      - name: Tsc Check (Chessroulette)
+        run: yarn tsc-chessroulette
+
       - name: Test
-        run: echo finished!
-        # run: yarn test
+        run: yarn test
