@@ -25,4 +25,4 @@ jobs:
         run: yarn install
 
       - name: TypeScript Compilation
-        run: yarn tsc-all-libs
+        run: yarn tsc-chessroulette
