@@ -1,6 +1,6 @@
 name: Fly Deploy Movex (Prod)
 on:
-  pull_request:
+  push:
     branches: ['main']
 jobs:
   ci:

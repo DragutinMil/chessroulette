@@ -1,6 +1,6 @@
 name: CI for Preview Branches
 on:
-  pull_request:
+  push:
     branches-ignore: ['main', 'staging']
 jobs:
   ci:

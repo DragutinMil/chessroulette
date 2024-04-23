@@ -1,6 +1,6 @@
 name: Fly Deploy Movex (Staging)
 on:
-  pull_request:
+  push:
     branches: ['staging']
 jobs:
   ci:
