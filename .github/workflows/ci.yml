@@ -1,6 +1,5 @@
 name: ci
 on: [workflow_call]
-  # pull_request:
 
 jobs:
   build:
@@ -17,7 +16,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
-      # - run: yarn install
+        # - run: yarn install
       
       - name: TypeScript Check (Chessroulette only)
         # run: yarn tsc-chessroulette
