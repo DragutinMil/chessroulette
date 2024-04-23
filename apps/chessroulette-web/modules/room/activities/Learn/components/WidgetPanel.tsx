@@ -13,9 +13,12 @@ import {
 import { ChaptersTab, ChaptersTabProps } from '../chapters/ChaptersTab';
 import { useWidgetPanelTabsNavAsSearchParams } from './useWidgetPanelTabsNav';
 import React, { useCallback, useMemo } from 'react';
-import { EngineData } from '../engine';
-import { ChessEngineProvider } from 'apps/chessroulette-web/modules/ChessEngine/ChessEngineProvider';
-import { ChessEngineDisplay } from 'apps/chessroulette-web/modules/ChessEngine/components/ChessEngineDisplay';
+import { EngineData } from '../../../../ChessEngine/lib/io';
+// import { ChessEngineDisplay } from 'apps/chessroulette-web/modules/ChessEngine/components/ChessEngineAnalysisDisplay';
+// import { Switch } from 'apps/chessroulette-web/components/Switch';
+import { useUpdateableSearchParams } from 'apps/chessroulette-web/hooks/useSearchParams';
+import { ChessEngineWithProvider } from 'apps/chessroulette-web/modules/ChessEngine/ChesEngineWithProvider';
+import { Switch } from 'apps/chessroulette-web/components/Switch';
 
 type Props = {
   chaptersMap: Record<Chapter['id'], Chapter>;
@@ -62,6 +65,7 @@ export const WidgetPanel = React.forwardRef<TabsRef, Props>(
   ) => {
     const settings = useLearnActivitySettings();
     const widgetPanelTabsNav = useWidgetPanelTabsNavAsSearchParams();
+    const updateableSearchParams = useUpdateableSearchParams();
 
     const currentTabIndex = useMemo(
       () => widgetPanelTabsNav.getCurrentTabIndex(),
@@ -84,7 +88,7 @@ export const WidgetPanel = React.forwardRef<TabsRef, Props>(
     if (settings.isInstructor) {
       return (
         <Tabs
-          containerClassName="bg-slate-700 p-3 flex flex-col flex-1 min-h-0 soverflow-hidden rounded-lg shadow-2xl"
+          containerClassName="bg-slate-700 p-3 flex flex-col flex-1 min-h-0 rounded-lg shadow-2xl"
           headerContainerClassName="flex gap-3 pb-3"
           contentClassName="flex-1 flex min-h-0 pt-2"
           currentIndex={currentTabIndex}
@@ -92,6 +96,18 @@ export const WidgetPanel = React.forwardRef<TabsRef, Props>(
           renderContainerHeader={({ tabs }) => (
             <div className="flex flex-row gap-3 pb-3 border-b border-slate-600">
               {tabs}
+              <span className="flex-1 flex justify-end">
+                <Switch
+                  label="Engine"
+                  labelPosition="left"
+                  labelClassName="text-slate-400"
+                  title="Stockfish 15 Engine"
+                  value={settings.showEngine}
+                  onUpdate={(s) =>
+                    updateableSearchParams.set({ engine: Number(s) })
+                  }
+                />
+              </span>
             </div>
           )}
           ref={tabsRef}
@@ -114,10 +130,16 @@ export const WidgetPanel = React.forwardRef<TabsRef, Props>(
               ),
               renderContent: () => (
                 <div className="flex flex-col flex-1 gap-2 min-h-0">
-                  <ChessEngineDisplay
-                    gameId={currentLoadedChapterId}
-                    fen={currentChapterState.displayFen}
-                  />
+                  {settings.isInstructor && (
+                    <ChessEngineWithProvider
+                      gameId={currentLoadedChapterId}
+                      fen={currentChapterState.displayFen}
+                      canAnalyze={settings.showEngine}
+                      onToggle={(s) =>
+                        updateableSearchParams.set({ engine: Number(s) })
+                      }
+                    />
+                  )}
                   <FreeBoardNotation
                     history={currentChapterState.notation?.history}
                     focusedIndex={currentChapterState.notation?.focusedIndex}

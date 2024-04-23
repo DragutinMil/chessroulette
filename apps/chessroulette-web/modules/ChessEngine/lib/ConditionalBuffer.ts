@@ -1,13 +1,6 @@
 import { UnsubscribeFn } from 'movex-core-util';
 import { Pubsy } from 'ts-pubsy';
 
-// export const bufferUntil = <T>(
-//   list: T[],
-//   untilCondition: (item: T) => boolean
-// ) => {
-//   list.push();
-// };
-
 export class ConditionalBuffer<T> {
   private backlog: T[] = [];
 
@@ -19,14 +12,14 @@ export class ConditionalBuffer<T> {
    *
    * @param untilCondition when the untilConition returns TRUE it stop and get is called
    */
-  constructor(private untilCondition: (item: T) => boolean) {}
+  constructor(private props: { until: (item: T) => boolean }) {}
 
   // until() {}
 
   push(item: T) {
     this.backlog.push(item);
 
-    if (this.untilCondition(item)) {
+    if (this.props.until(item)) {
       this.pubsy.publish('onFinished', this.backlog);
 
       // Reset the backlog

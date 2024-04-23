@@ -21,6 +21,7 @@ export type LearnActivitySettings = {
   canEditBoard: boolean;
   canMakeInvalidMoves: boolean;
   canImport: boolean;
+  showEngine: boolean;
 } & JoinRoomLinkProps;
 
 export const useLearnActivitySettings = (): LearnActivitySettings => {
@@ -39,6 +40,7 @@ export const useLearnActivitySettings = (): LearnActivitySettings => {
       isInstructor || updateableSearchParams.get('canMakeInvalidMoves') === '1',
     canImport: isInstructor || updateableSearchParams.get('canImport') === '1',
     showJoinRoomLink: isInstructor,
+    showEngine: isInstructor && updateableSearchParams.get('engine') === '1',
     joinRoomLinkParams: {},
     joinRoomLinkTooltip: 'Invite Student',
   };

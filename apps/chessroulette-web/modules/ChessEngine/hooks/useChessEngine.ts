@@ -1,26 +1,21 @@
 import { useContext, useEffect, useState } from 'react';
 import { ChessEngineContext } from '../ChessEngineContext';
 import { ChessFEN, ChessFENBoard, invoke } from '@xmatter/util-kit';
-import { engineLineSchema } from '../../room/activities/Learn/engine';
-import { evaluate } from '../lib';
-import { BestLine, IdUCIResponse } from '../lib/types';
+import { evaluate } from '../lib/util';
+import { EngineResultState } from '../lib/types';
 
 export const useChessEngineClient = () => useContext(ChessEngineContext);
+
+type SearchOpts = { depth: number };
 
 export const useChessEngineFromFen = (
   gameId: string,
   fen: ChessFEN,
-  searchOpts: { depth: number } = { depth: 10 }
+  searchOpts: SearchOpts = { depth: 10 }
 ) => {
   const engine = useChessEngineClient();
 
-  const [state, setState] = useState<{
-    canSearch: boolean;
-    id?: IdUCIResponse;
-    bestMove?: string;
-    bestLine?: BestLine;
-    fen: ChessFEN;
-  }>({
+  const [state, setState] = useState<EngineResultState>({
     canSearch: false,
     fen,
   });
@@ -49,44 +44,31 @@ export const useChessEngineFromFen = (
           canSearch: true,
         }));
       }),
-      engine.client.on('info', (msg) => {
-        // TODO: This should be inside the client parser
-        const r = engineLineSchema.safeParse(msg);
+      engine.client.on('infoLine', (nextLine) => {
+        setState((prev) => {
+          // if it's deeper don't update it
+          if (prev.bestLine?.depth && prev.bestLine.depth > nextLine.depth) {
+            return prev;
+          }
 
-        if (r.success) {
-          setState((prev) => {
-            const nextLine = r.data;
+          const fenState = new ChessFENBoard(prev.fen).getFenState();
 
-            // if it's deeper don't update it
-            if (prev.bestLine?.depth && prev.bestLine.depth > nextLine.depth) {
-              return prev;
-            }
+          const nextEvaluation = evaluate(
+            {
+              data: `info depth ${nextLine.score.unit} ${nextLine.score.value}`,
+            },
+            fenState.turn
+          );
 
-            const fenState = new ChessFENBoard(prev.fen).getFenState();
-
-            const nextEvaluation = evaluate(
-              {
-                data: `info depth ${nextLine.score.unit} ${nextLine.score.value}`,
-              },
-              fenState.turn
-            );
-
-            return {
-              ...prev,
-              bestLine: {
-                ...nextLine,
-                pv: nextLine.pv?.split(' '),
-                evaluation: nextEvaluation,
-              },
-            };
-          });
-        }
-      }),
-      engine.client.on('bestmove', (msg) => {
-        setState((prev) => ({
-          ...prev,
-          bestMove: msg.bestmove,
-        }));
+          return {
+            ...prev,
+            bestLine: {
+              ...nextLine,
+              pv: nextLine.pv,
+              evaluation: nextEvaluation,
+            },
+          };
+        });
       }),
     ];
 
@@ -113,8 +95,12 @@ export const useChessEngineFromFen = (
       bestMove: undefined,
     }));
 
-    engine.client.searchPosition(fen);
-    engine.client.go(searchOpts);
+    engine.client.search(fen, 12).then(({ bestMove }) => {
+      setState((prev) => ({
+        ...prev,
+        bestMove: bestMove.bestmove,
+      }));
+    });
   }, [engine.ready, state.canSearch, fen, searchOpts.depth]);
 
   useEffect(() => {

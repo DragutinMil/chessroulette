@@ -19,7 +19,7 @@ export type EngineData = {
   };
 };
 
-export const engineLineSchema = z.object({
+export const infoLineSchema = z.object({
   depth: z.number(),
   pv: z.string().optional(),
   score: z.object({
@@ -29,11 +29,11 @@ export const engineLineSchema = z.object({
   }),
 });
 
-export type EngineLine = z.TypeOf<typeof engineLineSchema>;
+export type InfoLine = z.TypeOf<typeof infoLineSchema>;
 
 export const engineResult = z.object({
   bestmove: z.string(),
-  info: z.array(engineLineSchema.or(z.object({ string: z.string() }))),
+  info: z.array(infoLineSchema.or(z.object({ string: z.string() }))),
 });
 
 export type EngineResult = z.TypeOf<typeof engineResult>;

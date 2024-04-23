@@ -1,4 +1,8 @@
+import { ChessFEN } from '@xmatter/util-kit';
 import { REGEX } from './constants';
+import { InfoLine } from './io';
+
+export type { InfoLine } from './io';
 
 /**
  * Inspired from https://gist.github.com/DOBRO/2592c6dad754ba67e6dcaec8c90165bf#file-uci-protocol-specification-txt
@@ -16,18 +20,10 @@ export type UCI_Commands =
 export type BestMoveUCIResponse = {
   // bestmove: ChessMove;
   // ponder?: ChessMove;
-  // x: boolean;
   bestmove: string;
   ponder?: string;
 };
-
-export type BestLine = {
-  depth: number;
-  score: {
-    unit: string; // 'cp' | 'mate'
-    value: number;
-  };
-  pv?: string[];
+export type EvaluatedInfoLine = InfoLine & {
   evaluation: {
     heightsPct: {
       w: number;
@@ -58,4 +54,12 @@ export type UCIResponsesMap = {
   bestmove: BestMoveUCIResponse;
   info: Partial<Record<keyof typeof REGEX.info, any>>; //TODO Fix
   registration: unknown;
+};
+
+export type EngineResultState = {
+  canSearch: boolean;
+  id?: IdUCIResponse;
+  bestMove?: string;
+  bestLine?: EvaluatedInfoLine;
+  fen: ChessFEN;
 };

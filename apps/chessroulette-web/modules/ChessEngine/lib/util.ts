@@ -1,5 +1,7 @@
-import { ShortChessColor } from '@xmatter/util-kit';
+import { ShortChessColor, keyInObject } from '@xmatter/util-kit';
+import { BestMoveUCIResponse } from './types';
 
+// TODO: Fix this
 export const evaluate = (
   event: { data: string },
   // fen: ChessFEN,
@@ -124,4 +126,9 @@ const evaluateFunc = (x: number) => {
   } else {
     return (8 * x) / 145 + 5881 / 145;
   }
+};
+
+export const isBestMoveUCIResponse = (r: object): r is BestMoveUCIResponse => {
+  // TODO: here can add the move as stirng or parse with zod
+  return keyInObject(r, 'bestmove') && typeof r.bestmove === 'string';
 };
