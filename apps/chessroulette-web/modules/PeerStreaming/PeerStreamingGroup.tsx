@@ -7,7 +7,6 @@ import {
 } from 'apps/chessroulette-web/providers/PeerToPeerProvider';
 import {
   IceServerRecord,
-  PeerUserIdsMap,
   PeerUsersMap,
 } from 'apps/chessroulette-web/providers/PeerToPeerProvider/type';
 import { initialPeerStreamingState, peerStreamingReducer } from './reducer';
