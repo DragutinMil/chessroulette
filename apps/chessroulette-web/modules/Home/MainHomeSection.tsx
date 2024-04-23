@@ -8,7 +8,7 @@ type Props = {
   session?: Session;
 };
 
-export const MainHomeSection: React.FC<Props> = ({ session }) => {
+export const MainHomeSection: React.FC<Props> = () => {
   return (
     <main className="flex flex-1 justify-center mt-32">
       <div className="flex gap-3 flex-col">
@@ -46,10 +46,11 @@ export const MainHomeSection: React.FC<Props> = ({ session }) => {
         <Link
           href={links.getOnDemandRoomCreationLink({
             activity: 'meetup',
+            star: '1', // TODO: Would be better to type it
           })}
         >
           <Button type="custom" bgColor="blue" className="font-bold w-full">
-            Start Meetup
+            Host Meetup
           </Button>
         </Link>
       </div>

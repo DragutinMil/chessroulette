@@ -1,6 +1,6 @@
-import { generateUserId, getRandomStr } from 'apps/chessroulette-web/util';
-import { useSearchParams } from 'next/navigation';
-import { useUpdateableSearchParams } from '../useSearchParams';
+import { generateUserId } from 'apps/chessroulette-web/util';
+import { User } from 'apps/chessroulette-web/modules/user/type';
+import { useUpdateableSearchParams } from 'apps/chessroulette-web/hooks/useSearchParams';
 
 // I don't want to use this anymore, as the guest doesn't make sense - I want to use the same clientId the Movex uses at all times
 // export const useUserId = () => {
@@ -27,4 +27,14 @@ export const useExistentUserIdOr = (newUserId?: string): string => {
   }
 
   return current;
+};
+
+export const useUser = (idIfInexistent?: string): User => {
+  const userId = useExistentUserIdOr(idIfInexistent);
+  const params = useUpdateableSearchParams();
+
+  return {
+    id: userId,
+    displayName: params.get('userDisplayName') || undefined,
+  };
 };

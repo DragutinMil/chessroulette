@@ -20,15 +20,15 @@ export const OnboardingMenuContainer: React.FC<Props> = (props) => {
   return (
     <div className="hover:cursor-pointer" onClick={(event) => show({ event })}>
       {props.children}
-      <Menu id={ONBOARDING_MENU_ID}>
-        <Item
+      {/* <Menu id={ONBOARDING_MENU_ID}> */}
+        {/* <Item
           id="delete"
           onClick={() => signOut()}
           className="hover:cursor-pointer"
         >
           Sign Out
-        </Item>
-      </Menu>
+        </Item> */}
+      {/* </Menu> */}
     </div>
   );
 };

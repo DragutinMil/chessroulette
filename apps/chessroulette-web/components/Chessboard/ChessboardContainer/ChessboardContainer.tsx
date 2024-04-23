@@ -20,16 +20,17 @@ import { Piece, Square } from 'chess.js';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Chessboard } from 'react-chessboard';
 import { Arrow } from 'react-chessboard/dist/chessboard/types';
-import { useArrowColor } from './useArrowColor';
-import { ArrowsMap, CircleDrawTuple, CirclesMap } from './types';
+import { useArrowColor } from '../hooks/useArrowColor';
+import { ArrowsMap, CircleDrawTuple, CirclesMap } from '../types';
 import useDeepCompareEffect from 'use-deep-compare-effect';
 import { noop } from 'movex-core-util';
 import { shallowEqualObjects } from 'shallow-equal';
 import { deepmerge } from 'deepmerge-ts';
 import { ChessboardSquare } from './ChessboardSquare';
-import { useBoardTheme } from './useBoardTheme';
 import useInstance from '@use-it/instance';
 import { getInCheckSquareMap } from './util';
+import { BoardTheme } from 'apps/chessroulette-web/hooks/useTheme/defaultTheme';
+import { PromotionDialogLayer } from './PromotionDialogLayer';
 
 export type ChessBoardProps = GetComponentProps<typeof Chessboard>;
 
@@ -50,6 +51,7 @@ export type ChessboardContainerProps = Omit<
   onArrowsChange?: (arrows: ArrowsMap) => void;
   onCircleDraw?: (circleTuple: CircleDrawTuple) => void;
   onClearCircles?: () => void;
+  boardTheme: BoardTheme;
 } & (
     | {
         rightSideComponent: React.ReactNode;
@@ -77,9 +79,10 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
   rightSideComponent,
   rightSideSizePx = 0,
   rightSideClassName,
+  boardTheme,
+  sizePx,
   ...props
 }) => {
-  const boardTheme = useBoardTheme();
   const inCheckSquares = useMemo(() => getInCheckSquareMap(fen), [fen]);
 
   const customStyles = useMemo(
@@ -188,6 +191,7 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
   }, [fen]);
 
   const onSquareClick = (square: Square) => {
+    // TODO: Remove this as now the board natively supports the piece
     const piece = invoke(() => {
       const _pieceSan = fenBoardInstance.piece(square);
 
@@ -251,14 +255,6 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
         setPendingMove(undefined);
       }
     }
-  };
-
-  const onPromotionCheck = (from: Square, to: Square, piece: Piece) => {
-    const isPromoMove = isPromotableMove({ from, to }, piece);
-
-    setPromoMove(isPromoMove ? { from, to } : undefined);
-
-    return isPromoMove;
   };
 
   const mergedCustomSquareStyles = useMemo(() => {
@@ -331,14 +327,14 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
   }, [
     lastMove,
     circlesMap,
-    props.sizePx,
+    sizePx,
     inCheckSquares,
     customSquareStyles,
     boardTheme,
     pendingMove?.from,
   ]);
 
-  if (props.sizePx === 0) {
+  if (sizePx === 0) {
     return null;
   }
 
@@ -347,8 +343,8 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
       id="chessboard-container"
       className="flex"
       style={{
-        height: props.sizePx + rightSideSizePx,
-        width: props.sizePx + rightSideSizePx,
+        height: sizePx + rightSideSizePx,
+        width: sizePx + rightSideSizePx,
         marginRight: -rightSideSizePx,
         marginBottom: -rightSideSizePx,
       }}
@@ -356,14 +352,14 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
       <div
         className={`relative overflow-hidden rounded-lg w-full h-full ${containerClassName}`}
         style={{
-          width: props.sizePx,
-          height: props.sizePx,
+          width: sizePx,
+          height: sizePx,
         }}
       >
         <Chessboard
           id="Chessboard" // TODO: should this be unique per instance?
           position={fen}
-          boardWidth={props.sizePx}
+          boardWidth={sizePx}
           showBoardNotation
           boardOrientation={toLongColor(boardOrientation)}
           snapToCursor={false}
@@ -372,11 +368,20 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
           customLightSquareStyle={customStyles.customLightSquareStyle}
           customDarkSquareStyle={customStyles.customDarkSquareStyle}
           customSquare={ChessboardSquare}
-          onPieceDrop={(from, to, p) => {
-            onPieceDrop(from, to, p);
+          onPieceDrop={(from, to, pieceSan) => {
+            onPieceDrop(from, to, pieceSan);
 
-            // As long as the on PromotionPieceSelect is present this doesn't get triggered with a pieceSelect
-            return !!onMove({ from, to });
+            if (isPromotableMove({ from, to }, pieceSanToPiece(pieceSan))) {
+              // Set the Promotion Move
+              setPromoMove({
+                from,
+                to,
+                // piece: pieceSan,
+              });
+              return true;
+            } else {
+              return !!onMove({ from, to });
+            }
           }}
           onSquareClick={(sq) => {
             onSquareClick(sq);
@@ -392,35 +397,32 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
           }}
           customSquareStyles={mergedCustomSquareStyles}
           customArrows={arrowsToRender}
-          autoPromoteToQueen={false}
-          onPromotionCheck={(from, to, pieceSan) =>
-            onPromotionCheck(from, to, pieceSanToPiece(pieceSan))
-          }
-          onPromotionPieceSelect={(promoteTo) => {
-            if (!promoMove) {
-              return false;
-            }
-
-            if (promoteTo === undefined) {
-              setPromoMove(undefined);
-
-              return false;
-            }
-
-            return !!onMove({
-              ...promoMove,
-              promoteTo,
-            });
-          }}
           customArrowColor={arrowColor}
           onArrowsChange={onArrowsChangeAfterMount}
           onSquareRightClick={onSquareRightClick}
           customPieces={boardTheme.customPieces}
-          promotionDialogVariant="vertical"
-          promotionToSquare={promoMove?.to}
-          showPromotionDialog={!!promoMove?.to}
           {...props}
+          // Take out the native promotion dialog in favor of the custom FUNCTIONING one
+          autoPromoteToQueen={false}
+          onPromotionCheck={() => false}
         />
+
+        {promoMove && (
+          <PromotionDialogLayer
+            boardSizePx={sizePx}
+            promotionSquare={promoMove.to}
+            boardOrientation={boardOrientation}
+            renderPromotablePiece={boardTheme.renderPiece}
+            onCancel={() => {
+              setPromoMove(undefined);
+            }}
+            onPromotePiece={(promoteTo) => {
+              onMove({ ...promoMove, promoteTo });
+
+              setPromoMove(undefined);
+            }}
+          />
+        )}
       </div>
       <div
         className={`w-full relative h-full ${rightSideClassName}`}

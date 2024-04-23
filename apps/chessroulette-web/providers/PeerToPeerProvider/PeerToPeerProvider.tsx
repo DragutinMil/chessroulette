@@ -10,12 +10,10 @@ import {
   PeerConnectionsState,
   PeerConnectionsStateProps,
 } from './PeerConnectionsHandler';
-import { getIceURLS } from './resources';
 import { PeerConnectionsErrors } from './PeerConnections';
 import {
   IceServerRecord,
   Peer,
-  PeerRecord,
   PeerUserId,
   PeerUserIdsMap,
 } from './type';
@@ -71,7 +69,7 @@ export class PeerToPeerProvider extends React.Component<Props, State> {
   }
 
   componentDidMount() {
-    console.log('Peer2PeerProvder Ice Servers:', this.props.iceServers);
+    // console.log('Peer2PeerProvder Ice Servers:', this.props.iceServers);
     // TODO: This could be cached localy
     // getIceURLS().map((iceServers) => {
     //   this.setState({ iceServers });

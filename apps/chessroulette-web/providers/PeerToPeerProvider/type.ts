@@ -4,8 +4,9 @@ export type PeerUserId = string;
 //   id: string;
 // };
 
-export type PeerRecord = {
+export type PeerUserRecord = {
   userId: PeerUserId;
+  userDisplayName?: string;
   // user: PeerUser;
 };
 
@@ -34,7 +35,7 @@ export type PeerStreamingConfig =
   | PeerStreamingConfigOn
   | PeerStreamingConfigOff;
 
-export type Peer = PeerRecord & {
+export type Peer = PeerUserRecord & {
   // isMe: boolean; // TODO: Why do we need this? A Peer is always a Peer is not me!
   // userId: string;
   connection: PeerStreamingConnection;
@@ -51,6 +52,7 @@ export type PeerStreamingConnection = {
 
 export type PeersMap = Record<Peer['userId'], Peer>;
 export type PeerUserIdsMap = Record<Peer['userId'], Peer['userId']>;
+export type PeerUsersMap = Record<Peer['userId'], PeerUserRecord>;
 
 export type StreamingPeer = Peer & { connection: PeerStreamingConnectionOn };
 

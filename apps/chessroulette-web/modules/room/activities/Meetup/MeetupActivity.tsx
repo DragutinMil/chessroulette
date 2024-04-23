@@ -1,19 +1,27 @@
 import movexConfig from 'apps/chessroulette-web/movex.config';
 import { MovexBoundResourceFromConfig } from 'movex-react';
-import { noop, pgnToFen, swapColor } from '@xmatter/util-kit';
+import {
+  ChessPGN,
+  FBHHistory,
+  FBHIndex,
+  FreeBoardHistory,
+  noop,
+  pgnToFen,
+  swapColor,
+} from '@xmatter/util-kit';
 import { IceServerRecord } from 'apps/chessroulette-web/providers/PeerToPeerProvider/type';
 import { MeetupActivityState } from './movex';
 import { UserId, UsersMap } from 'apps/chessroulette-web/modules/user/type';
 import { DesktopRoomLayout } from '../../components/DesktopRoomLayout';
 import { RIGHT_SIDE_SIZE_PX } from '../Learn/components/LearnBoard';
-import { Playboard } from 'apps/chessroulette-web/components/Chessboard/Playboard';
+import { Playboard } from 'apps/chessroulette-web/components/Boards';
 import { CameraPanel } from '../../components/CameraPanel';
-import { useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useMeetupActivitySettings } from './useMeetupActivitySettings';
-import { IconButton } from 'apps/chessroulette-web/components/Button';
 import { PanelResizeHandle } from 'react-resizable-panels';
 import { GameDisplayView } from './components/GameDisplayView';
-import { GameNotation } from './components/GameNotation';
+import { StartPositionIconButton } from 'apps/chessroulette-web/components/Chessboard';
+import { FreeBoardNotation } from 'apps/chessroulette-web/components/FreeBoardNotation';
 
 export type Props = {
   roomId: string;
@@ -25,6 +33,39 @@ export type Props = {
     (typeof movexConfig)['resources'],
     'room'
   >['dispatch'];
+};
+
+const getDisplayStateFromPgn = (pgn: ChessPGN, focusedIndex?: FBHIndex) => {
+  const allHistory = FreeBoardHistory.pgnToHistory(pgn);
+
+  if (!focusedIndex) {
+    const lastFocusedIndex = FreeBoardHistory.getLastIndexInHistory(allHistory);
+
+    return {
+      fen: pgnToFen(pgn),
+      history: allHistory,
+      focusedIndex: FreeBoardHistory.getLastIndexInHistory(allHistory),
+      lastMove: getLastMove(allHistory, lastFocusedIndex),
+    } as const;
+  }
+
+  const [historyAtIndex, lastFocusedIndex] = FreeBoardHistory.sliceHistory(
+    allHistory,
+    FreeBoardHistory.incrementIndex(focusedIndex)
+  );
+
+  return {
+    fen: FreeBoardHistory.historyToFen(historyAtIndex),
+    history: allHistory,
+    focusedIndex: lastFocusedIndex,
+    lastMove: getLastMove(historyAtIndex, lastFocusedIndex),
+  };
+};
+
+const getLastMove = (history: FBHHistory, atIndex: FBHIndex) => {
+  const lm = FreeBoardHistory.findMoveAtIndex(history, atIndex);
+
+  return lm?.isNonMove ? undefined : lm;
 };
 
 export const MeetupActivity = ({
@@ -39,7 +80,10 @@ export const MeetupActivity = ({
   const dispatch = optionalDispatch || noop;
   const { game } = remoteState;
 
-  const [fen, setFen] = useState(pgnToFen(game.pgn));
+  const [displayState, setDisplayState] = useState(
+    getDisplayStateFromPgn(game.pgn)
+  );
+
   const orientation = useMemo(
     () =>
       activitySettings.isBoardFlipped
@@ -48,61 +92,48 @@ export const MeetupActivity = ({
     [activitySettings.isBoardFlipped, game.orientation]
   );
 
+  useEffect(() => {
+    // Reset it when the pgn updates from outside
+    setDisplayState(getDisplayStateFromPgn(game.pgn));
+  }, [game.pgn]);
+
+  const onRefocus = useCallback(
+    (i: FBHIndex) => setDisplayState(getDisplayStateFromPgn(game.pgn, i)),
+    [game.pgn, setDisplayState]
+  );
+
   return (
     <DesktopRoomLayout
       rightSideSize={RIGHT_SIDE_SIZE_PX}
       mainComponent={({ boardSize }) => (
         <Playboard
           sizePx={boardSize}
-          fen={fen}
-          // {...currentChapter}
-          // boardOrientation={orientation}
+          fen={displayState.fen}
+          boardOrientation={orientation}
+          lastMove={displayState.lastMove}
           playingColor={orientation}
-          // onFlip={() => {
-          //   dispatch({
-          //     type: 'loadedChapter:setOrientation',
-          //     payload: swapColor(currentChapter.orientation),
-          //   });
-          // }}
           onMove={(payload) => {
             dispatch({
               type: 'meetup:move',
               payload,
             });
-            // dispatch({ type: 'loadedChapter:addMove', payload });
 
             // TODO: This can be returned from a more internal component
             return true;
-          }}
-          onArrowsChange={(payload) => {
-            // dispatch({ type: 'loadedChapter:setArrows', payload });
-          }}
-          onCircleDraw={(tuple) => {
-            // dispatch({
-            //   type: 'loadedChapter:drawCircle',
-            //   payload: tuple,
-            // });
-          }}
-          onClearCircles={() => {
-            // dispatch({ type: 'loadedChapter:clearCircles' });
           }}
           rightSideSizePx={RIGHT_SIDE_SIZE_PX}
           rightSideClassName="flex flex-col"
           rightSideComponent={
             <>
               <div className="flex-1">
-                <IconButton
-                  icon="ArrowPathIcon"
-                  iconKind="outline"
-                  type="clear"
-                  size="sm"
-                  tooltip="Restart Game"
-                  tooltipPositon="left"
-                  className="mb-2"
-                  onClick={() => {
-                    dispatch({ type: 'meetup:startNewGame' });
-                  }}
-                />
+                {activitySettings.canResetBoard && (
+                  <StartPositionIconButton
+                    className="mb-2"
+                    onClick={() => {
+                      dispatch({ type: 'meetup:startNewGame' });
+                    }}
+                  />
+                )}
               </div>
 
               <div className="relative flex flex-col items-center justify-center">
@@ -122,6 +153,7 @@ export const MeetupActivity = ({
             <div className="overflow-hidden rounded-lg shadow-2xl">
               {/* // This needs to show only when the user is a participants //
                   otherwise it's too soon and won't connect to the Peers */}
+              {/* // TODO: Is this still the case with the new movex subscribers updates? */}
               <CameraPanel
                 participants={participants}
                 userId={userId}
@@ -131,25 +163,14 @@ export const MeetupActivity = ({
               />
             </div>
           )}
-
-          {/* {inputState.isActive ? 'active' : 'not active'} */}
-          {/* {inputState.isActive ? (
-            <div className="flex gap-2">
-              <span className="capitalize">Editing</span>
-              <span className="font-bold">
-                "{inputState.chapterState.name}"
-              </span>
-            </div>
-          ) : (
-            <ChapterDisplayView chapter={currentChapter} />
-          )} */}
-          {/* <div className="flex gap-2">
-            <span className="capitalize">Editing</span>
-            <span className="font-bold">"{game.orientation}"</span>
-          </div> */}
           <GameDisplayView game={game} />
           <div className="bg-slate-700 p-3 flex flex-col flex-1 min-h-0 rounded-lg shadow-2xl">
-            <GameNotation pgn={game.pgn} onUpdateFen={setFen} />
+            <FreeBoardNotation
+              history={displayState.history}
+              focusedIndex={displayState.focusedIndex}
+              onDelete={() => {}}
+              onRefocus={onRefocus}
+            />
           </div>
         </div>
       }

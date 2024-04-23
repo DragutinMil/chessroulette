@@ -6,10 +6,12 @@ export type JoinRoomLinkProps =
   | {
       showJoinRoomLink: true;
       joinRoomLinkParams: Record<string, string>;
+      joinRoomLinkTooltip: string;
     }
   | {
       showJoinRoomLink: false;
       joinRoomLinkParams?: {} | undefined;
+      joinRoomLinkTooltip?: string | undefined;
     };
 
 export type LearnActivitySettings = {
@@ -38,5 +40,6 @@ export const useLearnActivitySettings = (): LearnActivitySettings => {
     canImport: isInstructor || updateableSearchParams.get('canImport') === '1',
     showJoinRoomLink: isInstructor,
     joinRoomLinkParams: {},
+    joinRoomLinkTooltip: 'Invite Student',
   };
 };

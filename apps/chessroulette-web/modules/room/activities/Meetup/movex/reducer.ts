@@ -58,5 +58,9 @@ export const reducer = (
     };
   }
 
+  if (action.type === 'meetup:setArrows') {
+    
+  }
+
   return prev;
 };

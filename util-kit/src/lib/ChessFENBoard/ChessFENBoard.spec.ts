@@ -1,3 +1,4 @@
+import { printMatrix } from '../matrix';
 import { ChessFENBoard } from './ChessFENBoard';
 
 const STARTING_BOARD = [
@@ -549,7 +550,6 @@ describe('Castling Move', () => {
     const chessFenBoard = new ChessFENBoard(
       'r3k2r/pppppppp/1nbq1bn1/8/8/1NBQ1BN1/PPPPPPPP/R3K2R w KQkq - 10 6'
     );
-
     const actualMove = chessFenBoard.move('e1', 'c1');
 
     expect(actualMove).toEqual({
@@ -571,7 +571,6 @@ describe('Castling Move', () => {
     const chessFenBoard = new ChessFENBoard(
       'r3k2r/pppppppp/1nbq1bn1/8/8/1NBQ1BN1/PPPPPPPP/R3K2R b KQkq - 10 6'
     );
-
     const actualMove = chessFenBoard.move('e8', 'g8');
 
     expect(actualMove).toEqual({
@@ -593,7 +592,6 @@ describe('Castling Move', () => {
     const chessFenBoard = new ChessFENBoard(
       'r3k2r/pppppppp/1nbq1bn1/8/8/1NBQ1BN1/PPPPPPPP/R3K2R b KQkq - 10 6'
     );
-
     const actualMove = chessFenBoard.move('e8', 'c8');
 
     expect(actualMove).toEqual({
@@ -609,6 +607,74 @@ describe('Castling Move', () => {
     expect(actualFen).toBe(
       '2kr3r/pppppppp/1nbq1bn1/8/8/1NBQ1BN1/PPPPPPPP/R3K2R w KQ - 11 7'
     );
+  });
+
+  describe('Move San', () => {
+    // Ensure the moves have the correct san notation
+
+    test('Basic Pawn Move', () => {
+      const chessFenBoard = new ChessFENBoard(ChessFENBoard.STARTING_FEN);
+
+      const actual = chessFenBoard.move('e2', 'e4');
+
+      expect(actual.san).toBe('e4');
+    });
+
+    test('Basic Piece (Knight) Move', () => {
+      const chessFenBoard = new ChessFENBoard(ChessFENBoard.STARTING_FEN);
+      const actual = chessFenBoard.move('b1', 'c3');
+
+      expect(actual.san).toBe('Nc3');
+    });
+
+    test('Pawn Captures', () => {
+      const chessFenBoard = new ChessFENBoard(
+        'rnbqkb1r/ppp1pppp/4n3/3P4/8/8/PPPP1PPP/RNBQKBNR w KQkq - 1 3'
+      );
+      const actual = chessFenBoard.move('d5', 'e6');
+
+      expect(actual.san).toBe('dxe6');
+    });
+
+    test('King put in Check Move', () => {
+      const chessFenBoard = new ChessFENBoard(
+        'rnbqkbnr/ppppp1pp/5p2/8/8/4P3/PPPP1PPP/RNBQKBNR w KQkq - 0 2'
+      );
+      const actual = chessFenBoard.move('d1', 'h5');
+
+      expect(actual.san).toBe('Qh5+');
+    });
+
+    test('King Mated Move', () => {
+      const chessFenBoard = new ChessFENBoard(
+        'rnbqkbnr/pppp1ppp/4p3/8/6P1/5P2/PPPPP2P/RNBQKBNR b KQkq g3 0 2'
+      );
+
+      const actual = chessFenBoard.move('d8', 'h4');
+
+      expect(actual.san).toBe('Qh4#');
+    });
+
+    test('Promo Move', () => {
+      const chessFenBoard = new ChessFENBoard('4k3/8/8/8/8/8/5K1p/8 b - - 1 1');
+      const actual = chessFenBoard.move('h2', 'h1', 'Q');
+
+      expect(actual.san).toBe('h1=Q');
+    });
+
+    test('Promo Move results in Check', () => {
+      const chessFenBoard = new ChessFENBoard('4k3/8/8/8/8/8/7p/4K3 b - - 0 1');
+      const actual = chessFenBoard.move('h2', 'h1', 'q');
+
+      expect(actual.san).toBe('h1=Q+');
+    });
+
+    test('Promo Move results in CheckMate', () => {
+      const chessFenBoard = new ChessFENBoard('8/8/8/8/8/7k/4p3/7K b - - 2 2');
+      const actual = chessFenBoard.move('e2', 'e1', 'q');
+
+      expect(actual.san).toBe('e1=Q#');
+    });
   });
 
   describe('en passant', () => {
