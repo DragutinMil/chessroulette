@@ -1,29 +1,15 @@
-name: Deploy Movex to Staging
-
+name: Fly Deploy Movex (Staging)
 on:
   pull_request:
     branches: ['staging', 'add-github-actions']
-
 jobs:
-  build:
+  deploy:
+    name: Deploy Movex
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node-version: [18.x]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
-
+    concurrency: deploy-group # optional: ensure only one action runs at a time
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ matrix.node-version }}
-
-      - name: Install Dependencies
-        run: yarn install
-
-      - name: Deploy Movex
-        run: yarn deploy-movex-staging
+      - uses: actions/checkout@v4
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+      - run: flyctl deploy -c ./fly.movex-staging.toml --dockerfile ./Dockerfile.movex --remote-only
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
