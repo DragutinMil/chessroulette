@@ -4,8 +4,8 @@
   "license": "MIT",
   "scripts": {
     "seed": "node -r dotenv/config ./scripts/seed.js",
-    "test-chessroulette": "npx nx test chessroulette-web",
     "tsc-chessroulette": "npx tsc -b apps/chessroulette-web",
+    "test": "jest",
     "build-movex-chessroulette": "npx movex build --path ./apps/chessroulette-web/movex.config.ts",
     "deploy-movex-preview": "yarn build-movex-chessroulette && flyctl deploy -c ./fly.movex-preview.toml --dockerfile ./Dockerfile.movex --local-only",
     "deploy-movex-staging": "yarn build-movex-chessroulette && flyctl deploy -c ./fly.movex-staging.toml --dockerfile ./Dockerfile.movex --local-only",

@@ -1,4 +1,4 @@
-name: Tests
+name: Compile & Test
 
 on:
   pull_request:
@@ -19,4 +19,10 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - run: yarn install
-      - run: yarn test-chessroulette
+      
+      - name: TypeScript Check (Chessroulette only)
+        run: yarn tsc-chessroulette
+      
+      - name: Test
+        run: yarn test
+      
