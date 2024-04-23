@@ -95,7 +95,7 @@ export const useChessEngineFromFen = (
       bestMove: undefined,
     }));
 
-    engine.client.search(fen, 12).then(({ bestMove }) => {
+    engine.client.search(fen, 10).then(({ bestMove }) => {
       setState((prev) => ({
         ...prev,
         bestMove: bestMove.bestmove,

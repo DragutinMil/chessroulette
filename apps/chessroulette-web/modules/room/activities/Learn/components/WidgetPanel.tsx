@@ -14,8 +14,6 @@ import { ChaptersTab, ChaptersTabProps } from '../chapters/ChaptersTab';
 import { useWidgetPanelTabsNavAsSearchParams } from './useWidgetPanelTabsNav';
 import React, { useCallback, useMemo } from 'react';
 import { EngineData } from '../../../../ChessEngine/lib/io';
-// import { ChessEngineDisplay } from 'apps/chessroulette-web/modules/ChessEngine/components/ChessEngineAnalysisDisplay';
-// import { Switch } from 'apps/chessroulette-web/components/Switch';
 import { useUpdateableSearchParams } from 'apps/chessroulette-web/hooks/useSearchParams';
 import { ChessEngineWithProvider } from 'apps/chessroulette-web/modules/ChessEngine/ChesEngineWithProvider';
 import { Switch } from 'apps/chessroulette-web/components/Switch';

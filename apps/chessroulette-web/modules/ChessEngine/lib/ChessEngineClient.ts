@@ -42,8 +42,6 @@ export class ChessEngineClient {
       const splitted = raw.split(' ');
       const msgType = splitted[0] as keyof UCIResponsesMap;
 
-      // console.log('[Engine] res', raw);
-
       if (msgType === 'info') {
         const r = infoLineSchema.safeParse(this.parseInfo(raw));
 
@@ -68,8 +66,6 @@ export class ChessEngineClient {
       );
     });
 
-    // const offInfo = this.pubsy.subscribe('infoLine', () => {});
-
     this.unsubscribers.push(offMsg);
   }
 
@@ -90,7 +86,7 @@ export class ChessEngineClient {
         buffer.push(data);
       };
 
-      const unsubscribe = this.uciEmitter.onMsg(msgHandler);
+      const offMsg = this.uciEmitter.onMsg(msgHandler);
 
       buffer.get().then((lines) => {
         // TODO: Do something with the id and options
@@ -129,8 +125,7 @@ export class ChessEngineClient {
         this.id = id;
 
         // Remove the listener once finished
-        // this.uciEmitter.offMessage(msgHandler);
-        unsubscribe();
+        offMsg();
 
         this.isInit = true;
 
@@ -275,7 +270,7 @@ export class ChessEngineClient {
     this.cmd('go', `depth ${String(opts.depth)}`);
   }
 
-  async search(fen: ChessFEN, depth: number = 15) {
+  async search(fen: ChessFEN, depth: number = 6) {
     const hash: SearchHash = `${fen}-${depth}`;
     const cachedSearch = this.cachedSearches[hash];
 

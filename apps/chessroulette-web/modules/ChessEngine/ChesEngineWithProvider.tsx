@@ -2,9 +2,6 @@ import { ChessFEN } from '@xmatter/util-kit';
 import { ChessEngineProvider } from './ChessEngineProvider';
 import { config } from 'apps/chessroulette-web/config';
 import { ChessEngineAnalysisDisplay } from './components/ChessEngineAnalysisDisplay';
-import { Switch } from 'apps/chessroulette-web/components/Switch';
-import { useState } from 'react';
-import { EngineResultState } from './lib/types';
 
 type Props = {
   /**
@@ -22,33 +19,13 @@ export const ChessEngineWithProvider = ({
   onToggle,
   ...props
 }: Props) => {
-  const [bestLine, setBestLine] = useState<EngineResultState['bestLine']>();
+  if (!canAnalyze) {
+    return null;
+  }
 
   return (
-    <div>
-      {/* <div className="mb-2 gap-2 flex sjustify-between wbg-red-100 justify-end"> */}
-        {/* <span className="text-lg font-bold">
-          {canAnalyze && bestLine?.evaluation && (
-            <>{bestLine.evaluation.evalAsStr} </>
-          )} */}
-        {/* </span> */}
-        {/* <Switch
-          label="Stockfish 15"
-          value={canAnalyze}
-          labelPosition="left"
-          onUpdate={onToggle}
-        /> */}
-      {/* </div> */}
-      {canAnalyze && (
-        <ChessEngineProvider uciUrl={config.ENGINE_URL}>
-          <ChessEngineAnalysisDisplay
-            {...props}
-            onUpdate={(state) => {
-              setBestLine(state.bestLine);
-            }}
-          />
-        </ChessEngineProvider>
-      )}
-    </div>
+    <ChessEngineProvider uciUrl={config.ENGINE_URL}>
+      <ChessEngineAnalysisDisplay {...props} />
+    </ChessEngineProvider>
   );
 };
