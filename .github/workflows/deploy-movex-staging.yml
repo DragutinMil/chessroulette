@@ -3,8 +3,11 @@ on:
   pull_request:
     branches: ['staging', 'add-github-actions']
 jobs:
+  ci:
+    uses: ./.github/workflows/ci.yml
   deploy:
     name: Deploy Movex
+    needs: [Compile & Test]
     runs-on: ubuntu-latest
     concurrency: deploy-group # optional: ensure only one action runs at a time
     steps:
