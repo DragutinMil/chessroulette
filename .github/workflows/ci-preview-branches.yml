@@ -1,0 +1,9 @@
+name: CI for Preview Branches
+on:
+  pull_request:
+    branches-ignore: ['main', 'staging']
+jobs:
+  ci:
+    uses: ./.github/workflows/ci.yml
+  checks:
+    needs: [ci]
