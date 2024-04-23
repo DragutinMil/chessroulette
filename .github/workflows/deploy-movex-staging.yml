@@ -13,7 +13,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: superfly/flyctl-actions/setup-flyctl@master
-      - run: yarn install
+      # - run: yarn install // this is already installed in the ci step
       - run: yarn build-movex-chessroulette
       - run: flyctl deploy -c ./fly.movex-staging.toml --dockerfile ./Dockerfile.movex --remote-only
         env:
