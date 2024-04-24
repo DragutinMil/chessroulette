@@ -1,7 +1,7 @@
 import { ShortChessColor, keyInObject } from '@xmatter/util-kit';
 import { BestMoveUCIResponse } from './types';
 
-// TODO: Fix this
+// TODO: Fix thisg
 export const evaluate = (
   event: { data: string },
   // fen: ChessFEN,

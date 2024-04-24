@@ -22,6 +22,6 @@ const reducerLogger = <S, A extends AnyAction>(
 
 export default {
   resources: {
-    room: config.DEV_MODE ? reducerLogger(roomReducer, 'Room') : roomReducer,
+    room: config.DEBUG_MODE ? reducerLogger(roomReducer, 'Room') : roomReducer,
   },
 };

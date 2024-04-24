@@ -30,6 +30,7 @@ module.exports = withSentryConfig(
     silent: true,
     org: 'chessroulette-16',
     project: 'chessroulette-web-v2',
+    authToken: process.env.SENTRY_AUTH_TOKEN,
   },
   {
     // For all available options, see:

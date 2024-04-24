@@ -15,6 +15,6 @@ export const serverConfig = {
   },
 };
 
-if (config.DEV_MODE) {
+if (config.DEBUG_MODE) {
   console.log('Server Config', serverConfig);
 }

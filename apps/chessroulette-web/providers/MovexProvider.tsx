@@ -31,7 +31,7 @@ export default (props: React.PropsWithChildren) => {
       }}
       logger={{
         onLog(event) {
-          if (config.DEV_MODE) {
+          if (config.DEBUG_MODE) {
             console[event.method](event.prefix, event.message, event.payload);
           }
 
@@ -41,7 +41,7 @@ export default (props: React.PropsWithChildren) => {
               message: event.prefix + ' | ' + String(event.message),
 
               // TODO: Add the staging env
-              environment: config.DEV_MODE ? 'dev' : 'staging', // TODO: Change this from the env file
+              environment: config.DEBUG_MODE ? 'dev' : 'staging', // TODO: Change this from the env file
             });
           }
         },

@@ -47,7 +47,7 @@ export default (props: Props) => {
             )}
           </div>
 
-          {config.DEV_MODE && <div>Movex Client: {clientId}</div>}
+          {config.DEBUG_MODE && <div>Movex Client: {clientId}</div>}
           {/* </div> */}
         </div>
       )}
