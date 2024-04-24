@@ -27,7 +27,9 @@
     "**/*.js",
     "**/*.jsx",
     "next-env.d.ts",
-    "../../apps/chessroulette-web/.next/types/**/*.ts"
+    "../../apps/chessroulette-web/.next/types/**/*.ts",
+    "../../dist/apps/chessroulette-web/.next/types/**/*.ts",
+    ".next/types/**/*.ts"
   ],
   "exclude": [
     ".next",

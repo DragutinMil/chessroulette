@@ -17,6 +17,7 @@
     "@heroicons/react": "^2.1.1",
     "@jitsi/react-sdk": "^1.4.0",
     "@next-auth/prisma-adapter": "^1.0.7",
+    "@next/bundle-analyzer": "^14.2.3",
     "@nx/next": "17.0.3",
     "@prisma/client": "^5.9.1",
     "@sentry/nextjs": "^7.105.0",
