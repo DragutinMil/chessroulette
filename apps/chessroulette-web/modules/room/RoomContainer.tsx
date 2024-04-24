@@ -9,7 +9,7 @@ import { LearnActivity } from './activities/Learn';
 import { initialLearnActivityState } from './activities/Learn/movex';
 import { MeetupActivity } from './activities/Meetup/MeetupActivity';
 import { initialMeetupActivityState } from './activities/Meetup/movex';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { objectKeys } from '@xmatter/util-kit';
 import { UsersMap } from '../user/type';
 import { MovexClientInfo } from 'apps/chessroulette-web/providers/MovexProvider';

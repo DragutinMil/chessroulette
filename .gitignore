@@ -54,3 +54,5 @@ yalc.lock
 .env*
 
 *.tsbuildinfo
+# Sentry Config File
+.sentryclirc

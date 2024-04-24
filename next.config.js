@@ -1,32 +1,18 @@
-//@ts-check
+const { withSentryConfig } = require("@sentry/nextjs");
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const { composePlugins, withNx } = require('@nx/next');
-const { withSentryConfig } = require('@sentry/nextjs');
-
-/**
- * @type {import('@nx/next/plugins/with-nx').WithNxOptions}
- **/
-const nextConfig = {
-  nx: {
-    // Set this to true if you would like to to use SVGR
-    // See: https://github.com/gregberge/svgr
-    svgr: false,
-  },
-  reactStrictMode: false,
-};
-
+/** @type {import('next').NextConfig} */
+const nextConfig = {};
 
 module.exports = withSentryConfig(
-  withNx(nextConfig),
+  nextConfig,
   {
     // For all available options, see:
     // https://github.com/getsentry/sentry-webpack-plugin#options
 
     // Suppresses source map uploading logs during build
     silent: true,
-    org: 'chessroulette-16',
-    project: 'chessroulette-web-v2',
+    org: "chessroulette-16",
+    project: "chessroulette-web-v2",
   },
   {
     // For all available options, see:
@@ -41,7 +27,7 @@ module.exports = withSentryConfig(
     // Routes browser requests to Sentry through a Next.js rewrite to circumvent ad-blockers. (increases server load)
     // Note: Check that the configured route will not match with your Next.js middleware, otherwise reporting of client-
     // side errors will fail.
-    tunnelRoute: '/monitoring',
+    tunnelRoute: "/monitoring",
 
     // Hides source maps from generated client bundles
     hideSourceMaps: true,
@@ -56,8 +42,3 @@ module.exports = withSentryConfig(
     automaticVercelMonitors: true,
   }
 );
-
-// const plugins = [
-//   // Add more Next.js plugins to this list if needed.
-//   withNx,
-// ];
