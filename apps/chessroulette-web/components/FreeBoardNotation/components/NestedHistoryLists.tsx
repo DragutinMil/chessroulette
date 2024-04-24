@@ -1,12 +1,7 @@
 import { useMemo } from 'react';
 import { List } from './HistoryList';
 import { RowProps } from './HistoryRow';
-import {
-  FBHHistory,
-  FBHIndex,
-  FBHRecursiveIndexes,
-  FreeBoardHistory,
-} from '@xmatter/util-kit';
+import { FBHHistory, FBHIndex, FBHRecursiveIndexes } from '@xmatter/util-kit';
 
 type Props = {
   branchedHistories: FBHHistory[];
@@ -52,30 +47,24 @@ export const NestedLists = ({
       >
         Nested HI: {FreeBoardHistory.renderIndex(rootHistoryIndex)}
       </span> */}
-      {branchedHistories.map((branchedHistory, branchIndex) => {
-        return (
-          <List
-            key={`${rootTurnIndex}-${rootMovePosition}--${branchIndex}`}
-            history={branchedHistory}
-            onRefocus={(nestedIndex) => {
-              onFocus(constructNestedIndex(nestedIndex, branchIndex));
-            }}
-            onDelete={(nestedIndex) => {
-              onDelete(constructNestedIndex(nestedIndex, branchIndex));
-            }}
-            className={className}
-            rowClassName={rowClassName}
-            isNested
-            rootHistoryIndex={rootHistoryIndexWithoutNested}
-            focusedIndex={
-              focusedRecursiveIndexes?.[0] !== -1 &&
-              focusedRecursiveIndexes?.[1] === branchIndex
-                ? focusedRecursiveIndexes[0]
-                : undefined
-            }
-          />
-        );
-      })}
+      {branchedHistories.map((branchedHistory, branchIndex) => (
+        <List
+          key={`${rootTurnIndex}-${rootMovePosition}--${branchIndex}`}
+          history={branchedHistory}
+          onRefocus={(ni) => onFocus(constructNestedIndex(ni, branchIndex))}
+          onDelete={(ni) => onDelete(constructNestedIndex(ni, branchIndex))}
+          className={className}
+          rowClassName={rowClassName}
+          isNested
+          rootHistoryIndex={rootHistoryIndexWithoutNested}
+          focusedIndex={
+            focusedRecursiveIndexes?.[0] !== -1 &&
+            focusedRecursiveIndexes?.[1] === branchIndex
+              ? focusedRecursiveIndexes[0]
+              : undefined
+          }
+        />
+      ))}
     </>
   );
 };
