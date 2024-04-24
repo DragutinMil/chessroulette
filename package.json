@@ -4,9 +4,12 @@
   "license": "MIT",
   "scripts": {
     "seed": "node -r dotenv/config ./scripts/seed.js",
-    "deploy-movex-preview": "flyctl deploy -c ./fly.movex-preview.toml --dockerfile ./Dockerfile.movex --local-only",
-    "deploy-movex-staging": "flyctl deploy -c ./fly.movex-staging.toml --dockerfile ./Dockerfile.movex --local-only",
-    "deploy-movex-prod": "flyctl deploy -c ./fly.movex-prod.toml --dockerfile ./Dockerfile.movex --local-only"
+    "tsc-chessroulette": "npx tsc -b apps/chessroulette-web",
+    "test": "jest",
+    "build-movex-chessroulette": "npx movex build --path ./apps/chessroulette-web/movex.config.ts",
+    "deploy-movex-preview": "yarn build-movex-chessroulette && flyctl deploy -c ./fly.movex-preview.toml --dockerfile ./Dockerfile.movex --local-only",
+    "deploy-movex-staging": "yarn build-movex-chessroulette && flyctl deploy -c ./fly.movex-staging.toml --dockerfile ./Dockerfile.movex --local-only",
+    "deploy-movex-prod": "yarn build-movex-chessroulette && flyctl deploy -c ./fly.movex-prod.toml --dockerfile ./Dockerfile.movex --local-only"
   },
   "private": true,
   "dependencies": {

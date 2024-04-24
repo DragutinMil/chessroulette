@@ -1,0 +1,20 @@
+name: Fly Deploy Movex (Prod)
+on:
+  push:
+    branches: ['main']
+jobs:
+  ci:
+    uses: ./.github/workflows/ci.yml
+  deploy:
+    name: Build & Deploy
+    needs: [ci]
+    runs-on: ubuntu-latest
+    concurrency: deploy-group # optional: ensure only one action runs at a time
+    steps:
+      - uses: actions/checkout@v4
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+      - run: yarn install
+      - run: yarn build-movex-chessroulette
+      - run: flyctl deploy -c ./fly.movex-prod.toml --dockerfile ./Dockerfile.movex --remote-only
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN_PROD }}
