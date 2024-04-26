@@ -25,6 +25,8 @@ export const VariantMenuContainer = ({ items }: VariantMenuProps) => {
         setItemIndex((prev) => prev - 1);
       } else if (k === 'Enter') {
         items[itemIndex].onSelect();
+      } else if (k === 'Escape') {
+        setShow(false);
       }
     }
   });
