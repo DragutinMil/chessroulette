@@ -23,7 +23,7 @@ export const VariantMenuContainer = ({ items }: VariantMenuProps) => {
         setItemIndex((prev) => prev + 1);
       } else if (k === 'ArrowUp' && itemIndex > 0) {
         setItemIndex((prev) => prev - 1);
-      } else if (k === 'Enter') {
+      } else if (k === 'Enter' || k === 'ArrowRight') {
         items[itemIndex].onSelect();
       } else if (k === 'Escape') {
         setShow(false);
@@ -37,18 +37,15 @@ export const VariantMenuContainer = ({ items }: VariantMenuProps) => {
 
   return (
     <div
-      className="hover:cursor-pointer absolute bg-slate-200 p-2 text-black flex flex-col font-normal"
-      style={{
-        right: 0,
-        top: 0,
-        zIndex: 9999,
-        // bottom: 0,
-      }}
+      className="
+      bg-slate-200 text-black hover:cursor-pointer
+      flex flex-col font-normal rounded-md overflow-hidden
+      absolute top-0 right-0 z-50"
     >
       {items.map((v, i) => (
         <div
           key={v.value + i}
-          className={`hover:bg-slate-300 ${
+          className={`hover:bg-slate-300 px-2 p-1 ${
             i === itemIndex ? 'bg-slate-400' : ''
           }`}
           onClick={v.onSelect}

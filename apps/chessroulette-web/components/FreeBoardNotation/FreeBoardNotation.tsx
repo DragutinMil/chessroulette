@@ -28,7 +28,6 @@ export const FreeBoardNotation: React.FC<FreeBoardNotationProps> = ({
   containerClassName = '',
   className = '',
 }) => {
-  const [showVariantMenuAt, setShowVariantMenuAt] = useState<FBHIndex>();
   useKeysToRefocusHistory(history, focusedIndex, onRefocus);
 
   return (

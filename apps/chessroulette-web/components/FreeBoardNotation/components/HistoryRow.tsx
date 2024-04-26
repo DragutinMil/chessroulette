@@ -3,6 +3,7 @@ import { Menu, Item, useContextMenu, ItemParams } from 'react-contexify';
 import 'react-contexify/dist/ReactContexify.css';
 import {
   FBHIndex,
+  FBHMove,
   FBHRecursiveIndexes,
   FBHRecursiveMove,
   FBHTurn,
@@ -22,7 +23,7 @@ export type RowProps = {
   className?: string;
   containerClassName?: string;
   moveCount?: number;
-  nextValidMove?: FBHRecursiveMove;
+  nextValidMoveAndIndex?: [FBHMove, FBHIndex];
 } & (
   | {
       isNested: true;
@@ -47,6 +48,7 @@ export const HistoryRow = React.forwardRef<HTMLDivElement | null, RowProps>(
       moveCount = historyTurnIndex + 1,
       focusedOnMovePosition,
       focusedOnRecursiveIndexes,
+      nextValidMoveAndIndex,
       isNested = false,
     },
     ref
@@ -66,6 +68,7 @@ export const HistoryRow = React.forwardRef<HTMLDivElement | null, RowProps>(
         onContextMenu={(event) => show({ event, props: { color: 'black' } })}
         onFocus={onFocus}
         rootHistoryIndex={blackMoveIndex}
+        nextValidMoveAndIndex={nextValidMoveAndIndex}
       />
     );
 
@@ -95,6 +98,7 @@ export const HistoryRow = React.forwardRef<HTMLDivElement | null, RowProps>(
                 show({ event, props: { color: 'white' } })
               }
               rootHistoryIndex={whiteMoveIndex}
+              nextValidMoveAndIndex={nextValidMoveAndIndex}
             />
             {shouldSplit ? (
               <Text

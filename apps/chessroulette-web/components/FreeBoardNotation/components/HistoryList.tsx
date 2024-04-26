@@ -1,8 +1,13 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import debounce from 'debounce';
 import useDebouncedEffect from 'use-debounced-effect';
 import { HistoryRow } from './HistoryRow';
-import { FBHHistory, FBHIndex } from '@xmatter/util-kit';
+import {
+  FBHHistory,
+  FBHIndex,
+  FBHMove,
+  FreeBoardHistory,
+} from '@xmatter/util-kit';
 
 export type ListProps = {
   history: FBHHistory;
@@ -11,7 +16,6 @@ export type ListProps = {
   focusedIndex?: FBHIndex;
   className?: string;
   rowClassName?: string;
-  // showVariantMenuAt?: FBHIndex;
 } & (
   | {
       isNested: true;
@@ -81,6 +85,26 @@ export const List: React.FC<ListProps> = ({
   const [focusedTurnIndex, focusedMovePosition, recursiveFocusedIndexes] =
     focusedIndex || [];
 
+  const nextValidMoveAndIndex = useMemo<[FBHMove, FBHIndex] | undefined>(() => {
+    if (!focusedIndex) {
+      return undefined;
+    }
+
+    const index = FreeBoardHistory.findNextValidMoveIndex(
+      history,
+      focusedIndex,
+      'right'
+    );
+
+    const move = FreeBoardHistory.findMoveAtIndex(history, index);
+
+    if (!move) {
+      return undefined;
+    }
+
+    return [move, index];
+  }, [history, focusedIndex]);
+
   return (
     <div className={className} ref={(e) => (containerElementRef.current = e)}>
       {history.map((historyTurn, historyTurnIndex) => {
@@ -111,6 +135,7 @@ export const List: React.FC<ListProps> = ({
                 : undefined
             }
             containerClassName={rowClassName}
+            nextValidMoveAndIndex={nextValidMoveAndIndex}
             {...(isNested
               ? {
                   isNested: true,
