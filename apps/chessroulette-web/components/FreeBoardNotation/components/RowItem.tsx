@@ -25,8 +25,9 @@ export const RowItem = ({
       isFocused && 'font-black bg-slate-600'
     }`}
     onClick={onClick}
+    onContextMenu={onContextMenu}
   >
-    <Text onContextMenu={onContextMenu}>{san}</Text>
+    <Text>{san}</Text>
     {variantMenu && <VariantMenuContainer {...variantMenu} />}
   </div>
 );
