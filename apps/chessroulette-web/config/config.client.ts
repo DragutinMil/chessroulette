@@ -1,5 +1,10 @@
 // Env
-const ENV = process.env.NEXT_PUBLIC_ENV as 'prod' | 'staging' | 'dev';
+const ENV = process.env.NEXT_PUBLIC_ENV as
+  | 'prod'
+  | 'staging'
+  | 'dev'
+  | 'local-dev'
+  | 'vercel-dev';
 const DEBUG_MODE = process.env.NEXT_PUBLIC_DEBUG_MODE === 'true';
 
 // Endpoints
@@ -14,7 +19,7 @@ const MOVEX_ENDPOINT_URL = process.env.NEXT_PUBLIC_MOVEX_ENDPOINT_URL as string;
 const ENGINE_URL = process.env.NEXT_PUBLIC_ENGINE_URL as string;
 
 // Services
-const SENTRY_DSN = process.env.NEXT_PUBLIC_SENTRY_DSN as string;
+const SENTRY_DSN = process.env.NEXT_PUBLIC_SENTRY_DSN as string | undefined;
 
 // App
 const CAMERA_ON = process.env.NEXT_PUBLIC_CAMERA_ON === 'true' || !DEBUG_MODE;

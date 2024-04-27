@@ -16,6 +16,7 @@ export default (props: React.PropsWithChildren) => {
   const user = useUser();
 
   useEffect(() => {
+    console.log('setting sentry user', Sentry);
     Sentry.setUser({
       id: user.id,
     });
