@@ -184,11 +184,7 @@ export const chessBoardToFenBoard = (chessBoard: ChessBoard): FENBoard =>
 
 export const fenBoardPieceSymbolToPieceSymbol = (
   p: FenBoardPieceSymbol
-): PieceSymbol => {
-  const { color, type: piece } = fenBoardPieceSymbolToDetailedChessPiece(p);
-
-  return `${color}${piece.toUpperCase()}` as PieceSymbol;
-};
+): PieceSymbol => p.toLowerCase() as PieceSymbol;
 
 export const pieceSanToFenBoardPieceSymbol = (
   p: PieceSan
@@ -199,6 +195,9 @@ export const pieceSanToFenBoardPieceSymbol = (
     color === 'b' ? type.toLowerCase() : type.toUpperCase()
   ) as FenBoardPieceSymbol;
 };
+
+export const pieceSanToPieceSymbol = (p: PieceSan): PieceSymbol =>
+  fenBoardPieceSymbolToPieceSymbol(pieceSanToFenBoardPieceSymbol(p));
 
 export const pieceSanToPiece = (p: PieceSan): Piece => ({
   color: p[0] as ShortChessColor,

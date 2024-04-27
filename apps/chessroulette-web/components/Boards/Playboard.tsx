@@ -3,9 +3,13 @@ import useInstance from '@use-it/instance';
 import { Chess } from 'chess.js';
 import {
   ChessColor,
+  ChessFEN,
   ChessFENBoard,
+  ChessMove,
   DistributiveOmit,
+  ShortChessMove,
   getNewChessGame,
+  localChessMoveToChessLibraryMove,
   toShortColor,
 } from '@xmatter/util-kit';
 import {
@@ -14,8 +18,12 @@ import {
   useBoardTheme,
 } from '../Chessboard';
 
-type Props = DistributiveOmit<ChessboardContainerProps, 'boardTheme'> & {
+type Props = DistributiveOmit<
+  ChessboardContainerProps,
+  'boardTheme' | 'onMove'
+> & {
   playingColor?: ChessColor;
+  onMove: (m: ShortChessMove, nextFen: ChessFEN) => void;
 };
 
 export const Playboard = ({
@@ -48,12 +56,12 @@ export const Playboard = ({
 
         // Validate move
         try {
-          chessInstance.move(m);
+          chessInstance.move(localChessMoveToChessLibraryMove(m));
 
-          onMove?.(m);
+          onMove?.(m, chessInstance.fen());
 
           return true;
-        } catch {
+        } catch (e) {
           return false;
         }
       }}
