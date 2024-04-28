@@ -2,7 +2,7 @@ import { Color, Piece, PieceSymbol } from 'chess.js';
 import {
   FenBoardPieceSymbol,
   FenBoardPromotionalPieceSymbol,
-  FreeBoardDetailedChessMove,
+  FenBoardDetailedChessMove,
 } from '../types';
 import {
   DetailedChessMove,
@@ -88,7 +88,7 @@ export const isFenBoardPromotionalPieceSymbol = (
 
 export const detailedChessMoveToFreeBoardDetailedChessMove = (
   m: DetailedChessMove
-): FreeBoardDetailedChessMove => ({
+): FenBoardDetailedChessMove => ({
   from: m.from,
   to: m.to,
   san: m.san,

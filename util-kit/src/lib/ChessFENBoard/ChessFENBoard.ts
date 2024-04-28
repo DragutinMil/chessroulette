@@ -9,7 +9,7 @@ import type {
   FENBoard,
   FenBoardPieceSymbol,
   FenBoardPromotionalPieceSymbol,
-  FreeBoardDetailedChessMove,
+  FenBoardDetailedChessMove,
 } from './types';
 import { invoke, isOneOf } from '../misc';
 import {
@@ -131,7 +131,7 @@ export class ChessFENBoard {
     from: Square,
     to: Square,
     promoteTo?: FenBoardPromotionalPieceSymbol
-  ): FreeBoardDetailedChessMove {
+  ): FenBoardDetailedChessMove {
     const piece = promoteTo || this.piece(from);
 
     if (!piece) {

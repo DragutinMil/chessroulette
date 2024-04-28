@@ -3,7 +3,6 @@ import type { Matrix } from '../matrix';
 import {
   BlackColor,
   ChessColor,
-  ShortChessColor,
   ShortChessMove,
   WhiteColor,
 } from '../Chess/types';
@@ -32,21 +31,21 @@ export type ChessBoard = Matrix<{
   color: Color;
 } | null>;
 
-export type BaseFreeBoardDetailedChessMove = ShortChessMove & {
+export type BaseFenBoardDetailedChessMove = ShortChessMove & {
   color: ChessColor;
   piece: FenBoardPieceSymbol;
   captured?: FenBoardPieceSymbol;
   san: string;
 };
 
-export type WhiteFreeBoardDetailedChessMove = BaseFreeBoardDetailedChessMove & {
+export type WhiteFenBoardDetailedChessMove = BaseFenBoardDetailedChessMove & {
   color: WhiteColor;
 };
 
-export type BlackFreeBoardDetailedChessMove = BaseFreeBoardDetailedChessMove & {
+export type BlackFenBoardDetailedChessMove = BaseFenBoardDetailedChessMove & {
   color: BlackColor;
 };
 
-export type FreeBoardDetailedChessMove =
-  | WhiteFreeBoardDetailedChessMove
-  | BlackFreeBoardDetailedChessMove;
+export type FenBoardDetailedChessMove =
+  | WhiteFenBoardDetailedChessMove
+  | BlackFenBoardDetailedChessMove;
