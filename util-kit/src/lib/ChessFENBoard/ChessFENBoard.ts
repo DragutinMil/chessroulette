@@ -1,15 +1,17 @@
 import { deepmerge } from 'deepmerge-ts';
 import { getNewChessGame, isShortChessColor, toShortColor } from '../Chess/lib';
-import {
+import type {
   ChessFEN,
   ChessFENStateNotation,
   DetailedChessMove,
 } from '../Chess/types';
-import { invoke, isOneOf } from '../misc';
-import {
+import type {
   FENBoard,
   FenBoardPieceSymbol,
   FenBoardPromotionalPieceSymbol,
+} from './types';
+import { invoke, isOneOf } from '../misc';
+import {
   emptyBoard,
   fenBoardPieceSymbolToDetailedChessPiece,
   fenBoardPieceSymbolToPieceSymbol,
@@ -19,7 +21,7 @@ import {
 } from './util';
 import { SQUARES, type Color, type PieceSymbol, type Square } from 'chess.js';
 import { Err, Ok, Result } from 'ts-results';
-import { DeepPartial } from '../miscType';
+import type { DeepPartial } from '../miscType';
 import { matrixFind, printMatrix } from '../matrix';
 
 export type FenState = {

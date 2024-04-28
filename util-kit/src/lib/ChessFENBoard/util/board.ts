@@ -1,23 +1,7 @@
-import type { Color, PieceSymbol, Square, Piece } from 'chess.js';
-import { Matrix, MatrixIndex, matrixMap } from '../../matrix';
-import {
-  BlackColor,
-  ChessColor,
-  ChessMove,
-  WhiteColor,
-} from '../../Chess/types';
-import { toShortColor } from '../../Chess/lib';
+import type { PieceSymbol, Square } from 'chess.js';
+import { MatrixIndex, matrixMap } from '../../matrix';
 import { fenBoardPieceSymbolToDetailedChessPiece } from './pieceTransforms';
-
-export type AbsoluteCoord = {
-  x: number;
-  y: number;
-};
-
-export type RelativeCoord = {
-  row: number;
-  col: number;
-};
+import { AbsoluteCoord, ChessBoard, FENBoard, RelativeCoord } from '../types';
 
 export const ranks = { 1: 7, 2: 6, 3: 5, 4: 4, 5: 3, 6: 2, 7: 1, 8: 0 };
 export const files = { a: 0, b: 1, c: 2, d: 3, e: 4, f: 5, g: 6, h: 7 };
@@ -134,20 +118,6 @@ export const matrixIndexToSquare = ([row, col]: MatrixIndex): Square => {
   return `${file}${rank}` as Square;
 };
 
-export type FenBoardPieceSymbol = PieceSymbol | Uppercase<PieceSymbol>;
-export type FenBoardPromotionalPieceSymbol = Exclude<
-  FenBoardPieceSymbol,
-  'K' | 'k' | 'p' | 'P'
->;
-
-export type FENBoard = Matrix<FenBoardPieceSymbol | ''>;
-
-export type ChessBoard = Matrix<{
-  square: Square;
-  type: PieceSymbol;
-  color: Color;
-} | null>;
-
 export const fenBoardToChessBoard = (fenBoard: FENBoard): ChessBoard =>
   matrixMap(fenBoard, (m, index) => {
     if (!m) {
@@ -171,7 +141,6 @@ export const chessBoardToFenBoard = (chessBoard: ChessBoard): FENBoard =>
 
     return (p.color === 'b' ? p.type : p.type.toUpperCase()) as PieceSymbol;
   });
-
 
 // export const pgnToFen = (pgn: ChessPGN) => {
 //   const instance = new Chess();

@@ -1,5 +1,5 @@
 import { Piece, PieceSymbol } from 'chess.js';
-import { FenBoardPieceSymbol } from './board';
+import { FenBoardPieceSymbol } from '../types';
 import { PieceSan, ShortChessColor } from '../../Chess/types';
 
 const isUpperCase = (s: string) => s === s.toUpperCase();
