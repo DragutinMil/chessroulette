@@ -62,7 +62,6 @@ export const pieceSanToPiece = (p: PieceSan): Piece => ({
   type: p[1].toLowerCase() as PieceSymbol,
 });
 
-
 // Checks
 
 export const isFenBoardPromotionalPieceSymbol = (
@@ -87,14 +86,16 @@ export const isFenBoardPromotionalPieceSymbol = (
 //   }),
 // });
 
-// export const detailedChessMoveToFreeBoardDetailedChessMove = (m: DetailedChessMove): FreeBoardDetailedChessMove => ({
-//   from: m.from,
-//   to: m.to,
-//   san: m.san,
-//   piece: fenBoardPieceSymbolToPieceSymbol(m.piece),
-//   color: m.color,
-//   ...(m.captured && { captured: fenBoardPieceSymbolToPieceSymbol(m.captured) }),
-//   // ...(m.promoteTo && {
-//   //   promotion: fenBoardPieceSymbolToPieceSymbol(m.promoteTo),
-//   // }),
-// })
+export const detailedChessMoveToFreeBoardDetailedChessMove = (
+  m: DetailedChessMove
+): FreeBoardDetailedChessMove => ({
+  from: m.from,
+  to: m.to,
+  san: m.san,
+  piece: fenBoardPieceSymbolToPieceSymbol(m.piece),
+  color: m.color,
+  ...(m.captured && { captured: fenBoardPieceSymbolToPieceSymbol(m.captured) }),
+  ...(m.promotion && {
+    promotion: fenBoardPieceSymbolToPieceSymbol(m.promotion),
+  }),
+});

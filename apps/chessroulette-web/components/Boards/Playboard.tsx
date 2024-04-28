@@ -49,19 +49,22 @@ export const Playboard = ({
       fen={fen}
       boardOrientation={boardOrientation}
       boardTheme={boardTheme}
-      onMove={(m) => {
+      onMove={(move) => {
+        console.log('on move', move);
+
         if (chessInstance.turn() !== toShortColor(playingColor)) {
           return false;
         }
 
         // Validate move
         try {
-          chessInstance.move(localChessMoveToChessLibraryMove(m));
+          chessInstance.move(localChessMoveToChessLibraryMove(move));
 
-          onMove?.(m, chessInstance.fen());
+          onMove?.(move, chessInstance.fen());
 
           return true;
         } catch (e) {
+          console.error('[Playboard Error] onMove()', e, { move });
           return false;
         }
       }}

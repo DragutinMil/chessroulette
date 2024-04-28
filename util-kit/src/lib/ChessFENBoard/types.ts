@@ -1,6 +1,12 @@
 import type { Color, PieceSymbol, Square } from 'chess.js';
 import type { Matrix } from '../matrix';
-import { ShortChessColor, ShortChessMove } from '../Chess/types';
+import {
+  BlackColor,
+  ChessColor,
+  ShortChessColor,
+  ShortChessMove,
+  WhiteColor,
+} from '../Chess/types';
 
 export type AbsoluteCoord = {
   x: number;
@@ -26,9 +32,21 @@ export type ChessBoard = Matrix<{
   color: Color;
 } | null>;
 
-export type FreeBoardDetailedChessMove = ShortChessMove & {
-  color: ShortChessColor;
+export type BaseFreeBoardDetailedChessMove = ShortChessMove & {
+  color: ChessColor;
   piece: FenBoardPieceSymbol;
   captured?: FenBoardPieceSymbol;
   san: string;
 };
+
+export type WhiteFreeBoardDetailedChessMove = BaseFreeBoardDetailedChessMove & {
+  color: WhiteColor;
+};
+
+export type BlackFreeBoardDetailedChessMove = BaseFreeBoardDetailedChessMove & {
+  color: BlackColor;
+};
+
+export type FreeBoardDetailedChessMove =
+  | WhiteFreeBoardDetailedChessMove
+  | BlackFreeBoardDetailedChessMove;

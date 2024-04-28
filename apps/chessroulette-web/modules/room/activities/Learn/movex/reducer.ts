@@ -52,11 +52,7 @@ export const reducer = (
         throw new Error(`No Piece at ${move.from}`);
       }
 
-      const nextMove = fenBoard.move(
-        move.from,
-        move.to,
-        move.promoteTo
-      ) as FBHMove; // TODO: Why does it need the casting?
+      const nextMove = fenBoard.move(move.from, move.to, move.promoteTo);
 
       // If the moves are the same introduce a non move
       const [nextHistory, addedAtIndex] = FreeBoardHistory.addMagicMove(

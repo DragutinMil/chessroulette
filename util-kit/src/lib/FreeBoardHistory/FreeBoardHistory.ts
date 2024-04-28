@@ -9,6 +9,7 @@ import {
   swapColor,
   ChessFEN,
   ChessFENBoard,
+  detailedChessMoveToFreeBoardDetailedChessMove,
 } from '@xmatter/util-kit';
 import type {
   FBHIndex,
@@ -720,18 +721,18 @@ export namespace FreeBoardHistory {
     h: FBHHistory,
     startingFen = ChessFENBoard.STARTING_FEN
   ): ChessFEN => {
-    const instance = new ChessFENBoard(startingFen);
+    const fenBoard = new ChessFENBoard(startingFen);
     h.forEach(([wM, bM]) => {
       if (!wM.isNonMove) {
-        instance.move(wM.from, wM.to);
+        fenBoard.move(wM.from, wM.to, wM.promoteTo);
       }
 
       if (bM && !bM.isNonMove) {
-        instance.move(bM.from, bM.to);
+        fenBoard.move(bM.from, bM.to, bM.promoteTo);
       }
     });
 
-    return instance.fen;
+    return fenBoard.fen;
   };
 
   const linearToTurnHistory = (
@@ -744,34 +745,37 @@ export namespace FreeBoardHistory {
 
     // TODO: This is the most ridiculous thing, I have to recast to U each time
     //  otherwise the reducer thinks it's not the right one
-    const { turns, cached } = linearHistory.reduce<U>(
-      (prev, nextMove, i) => {
-        // On Every half turn
-        if (i % 2 === 0) {
-          if (nextMove.color === 'w') {
-            return {
-              ...prev,
-              cached: nextMove as FBHWhiteMove,
-            };
-          } else {
-            // TODO: If the next move is not white this is an error
-            // TODO: This is actually not an error but a thing in FBH, so it can simply add a non move and go with it
-            throw new Error(
-              `LinearToTurnHistory Error: Move (${i}) ${nextMove.from} ${nextMove.to} is not of correct color!`
-            );
+    const { turns, cached } = linearHistory
+      // This step is super important in order to transform the detailedMoves into FreeBoardDetailedChessMove
+      .map(detailedChessMoveToFreeBoardDetailedChessMove)
+      .reduce<U>(
+        (prev, nextMove, i) => {
+          // On Every half turn
+          if (i % 2 === 0) {
+            if (nextMove.color === 'w') {
+              return {
+                ...prev,
+                cached: nextMove,
+              };
+            } else {
+              // TODO: If the next move is not white this is an error
+              // TODO: This is actually not an error but a thing in FBH, so it can simply add a non move and go with it
+              throw new Error(
+                `LinearToTurnHistory Error: Move (${i}) ${nextMove.from} ${nextMove.to} is not of correct color!`
+              );
+            }
           }
-        }
 
-        // On Every Full Turn
-        const nextTurn = [prev.cached, nextMove];
+          // On Every Full Turn
+          const nextTurn = [prev.cached, nextMove];
 
-        return {
-          cached: undefined,
-          turns: [...prev.turns, nextTurn],
-        } as U;
-      },
-      { turns: [], cached: undefined }
-    );
+          return {
+            cached: undefined,
+            turns: [...prev.turns, nextTurn],
+          } as U;
+        },
+        { turns: [], cached: undefined }
+      );
 
     return cached ? ([...turns, [cached]] as FBHHistory) : turns;
   };
