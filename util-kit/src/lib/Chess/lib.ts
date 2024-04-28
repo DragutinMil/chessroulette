@@ -9,7 +9,11 @@ import {
   ShortChessColor,
   WhiteColor,
 } from './types';
-import { ChessFEN, ChessPGN, pieceSanToPieceSymbol } from '@xmatter/util-kit';
+import {
+  ChessFEN,
+  ChessPGN,
+  fenBoardPieceSymbolToPieceSymbol,
+} from '@xmatter/util-kit';
 import { Chess } from 'chess.js';
 
 export const isShortChessColor = (s: string): s is ShortChessColor =>
@@ -116,6 +120,8 @@ export const pgnToFen = (pgn: ChessPGN): ChessFEN =>
 /**
  * This is an adapter for now but it should be removed in favor of using that directly
  *
+ * @deprecate
+ *
  * @param m
  * @returns
  */
@@ -126,5 +132,5 @@ export const localChessMoveToChessLibraryMove = ({
 }: ChessMove): ChessLibraryMove => ({
   from,
   to,
-  ...(promoteTo && { promotion: pieceSanToPieceSymbol(promoteTo) }),
+  ...(promoteTo && { promotion: fenBoardPieceSymbolToPieceSymbol(promoteTo) }),
 });

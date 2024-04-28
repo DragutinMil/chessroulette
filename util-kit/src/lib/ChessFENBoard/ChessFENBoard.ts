@@ -9,6 +9,7 @@ import type {
   FENBoard,
   FenBoardPieceSymbol,
   FenBoardPromotionalPieceSymbol,
+  FreeBoardDetailedChessMove,
 } from './types';
 import { invoke, isOneOf } from '../misc';
 import {
@@ -130,7 +131,7 @@ export class ChessFENBoard {
     from: Square,
     to: Square,
     promoteTo?: FenBoardPromotionalPieceSymbol
-  ): DetailedChessMove {
+  ): FreeBoardDetailedChessMove {
     const piece = promoteTo || this.piece(from);
 
     if (!piece) {
@@ -151,10 +152,7 @@ export class ChessFENBoard {
       this.clear(capturedPieceViaEnPassant.square);
     }
 
-    const targetPiece = this.piece(to) || capturedPieceViaEnPassant?.piece;
-    const captured: PieceSymbol | undefined = targetPiece
-      ? fenBoardPieceSymbolToPieceSymbol(targetPiece)
-      : undefined;
+    const captured = this.piece(to) || capturedPieceViaEnPassant?.piece;
 
     // TODO: here the fen gets recalculate 2 times (one for put one for clear)
     this.put(to, piece);
@@ -260,6 +258,7 @@ export class ChessFENBoard {
       san,
       to,
       from,
+      promoteTo,
     };
   }
 

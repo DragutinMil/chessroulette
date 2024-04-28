@@ -1,6 +1,6 @@
 import type { PieceSymbol, Square } from 'chess.js';
 import { MatrixIndex, matrixMap } from '../../matrix';
-import { fenBoardPieceSymbolToDetailedChessPiece } from './pieceTransforms';
+import { fenBoardPieceSymbolToDetailedChessPiece } from './piece';
 import { AbsoluteCoord, ChessBoard, FENBoard, RelativeCoord } from '../types';
 
 export const ranks = { 1: 7, 2: 6, 3: 5, 4: 4, 5: 3, 6: 2, 7: 1, 8: 0 };

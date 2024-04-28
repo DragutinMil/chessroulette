@@ -55,15 +55,7 @@ export const Main: Story = {
         fen={fen}
         onMove={(m) => {
           try {
-            chessFenBoardInstance.move(
-              m.from,
-              m.to,
-              m.promoteTo
-                ? (pieceSanToFenBoardPieceSymbol(
-                    m.promoteTo
-                  ) as FenBoardPromotionalPieceSymbol)
-                : undefined
-            );
+            chessFenBoardInstance.move(m.from, m.to, m.promoteTo);
 
             setFen(chessFenBoardInstance.fen);
 

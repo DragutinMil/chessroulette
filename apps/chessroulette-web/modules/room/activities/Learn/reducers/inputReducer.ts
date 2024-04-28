@@ -89,24 +89,16 @@ export default (
 
     const { move } = action.payload;
 
-    const instance = new ChessFENBoard(prev.chapterState.displayFen);
-    const fenPiece = instance.piece(move.from);
+    const fenBoard = new ChessFENBoard(prev.chapterState.displayFen);
+    const fenPiece = fenBoard.piece(move.from);
     if (!fenPiece) {
-      console.error('Err', instance.board);
+      console.error('Err', fenBoard.board);
       throw new Error(`No Piece at ${move.from}`);
     }
 
-    const promoteToFenBoardPiecesymbol:
-      | FenBoardPromotionalPieceSymbol
-      | undefined = move.promoteTo
-      ? (pieceSanToFenBoardPieceSymbol(
-          move.promoteTo
-        ) as FenBoardPromotionalPieceSymbol)
-      : undefined;
+    fenBoard.move(move.from, move.to, move.promoteTo);
 
-    instance.move(move.from, move.to, promoteToFenBoardPiecesymbol);
-
-    const nextFen = instance.fen;
+    const nextFen = fenBoard.fen;
 
     const nextChapterState: ChapterState = {
       ...prev.chapterState,

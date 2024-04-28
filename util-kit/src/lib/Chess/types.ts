@@ -1,16 +1,17 @@
 import type { Square, Move, PieceSymbol } from 'chess.js';
+import { FenBoardPromotionalPieceSymbol } from '../ChessFENBoard';
 
 // Remove in favor of ShortChessMove
 export type ChessMove = {
   from: Square;
   to: Square;
-  promoteTo?: PromotionalPieceSan;
+  promoteTo?: FenBoardPromotionalPieceSymbol;
 };
 
 export type ShortChessMove = {
   from: Square;
   to: Square;
-  promoteTo?: PromotionalPieceSan;
+  promoteTo?: FenBoardPromotionalPieceSymbol;
 };
 
 export type DetailedChessMove = Pick<

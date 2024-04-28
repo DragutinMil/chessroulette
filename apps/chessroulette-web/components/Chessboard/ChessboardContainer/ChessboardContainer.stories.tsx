@@ -44,18 +44,8 @@ export const Freeboard: Story = {
         {...args}
         fen={fen}
         onMove={(m) => {
-          // setState((prev) => prev + 1);
-
           try {
-            chessFenBoardInstance.move(
-              m.from,
-              m.to,
-              m.promoteTo
-                ? (pieceSanToFenBoardPieceSymbol(
-                    m.promoteTo
-                  ) as FenBoardPromotionalPieceSymbol)
-                : undefined
-            );
+            chessFenBoardInstance.move(m.from, m.to, m.promoteTo);
 
             setFen(chessFenBoardInstance.fen);
 

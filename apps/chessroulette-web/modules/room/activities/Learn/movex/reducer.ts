@@ -4,8 +4,12 @@ import {
   FenBoardPromotionalPieceSymbol,
   FreeBoardHistory,
   getNewChessGame,
+  invoke,
+  isFenBoardPromotionalPieceSymbol,
+  isPromotableMove,
   isValidPgn,
   pieceSanToFenBoardPieceSymbol,
+  pieceToFenBoardPieceSymbol,
 } from '@xmatter/util-kit';
 import { Chapter, ChapterState, LearnActivityState } from './types';
 import { initialChapterState, initialDefaultChapter } from './state';
@@ -39,26 +43,20 @@ export const reducer = (
         return prev;
       }
 
-      const { from, to, promoteTo } = action.payload;
+      const move = action.payload;
 
       const fenBoard = new ChessFENBoard(prevChapter.displayFen);
-      const fenPiece = fenBoard.piece(from);
+      const fenPiece = fenBoard.piece(move.from);
       if (!fenPiece) {
         console.error('Action Err', action, prev, fenBoard.board);
-        throw new Error(`No Piece at ${from}`);
+        throw new Error(`No Piece at ${move.from}`);
       }
-      const promoteToFenBoardPiecesymbol:
-        | FenBoardPromotionalPieceSymbol
-        | undefined = promoteTo
-        ? (pieceSanToFenBoardPieceSymbol(
-            promoteTo
-          ) as FenBoardPromotionalPieceSymbol)
-        : undefined;
+
       const nextMove = fenBoard.move(
-        from,
-        to,
-        promoteToFenBoardPiecesymbol
-      ) as FBHMove;
+        move.from,
+        move.to,
+        move.promoteTo
+      ) as FBHMove; // TODO: Why does it need the casting?
 
       // If the moves are the same introduce a non move
       const [nextHistory, addedAtIndex] = FreeBoardHistory.addMagicMove(
@@ -190,10 +188,12 @@ export const reducer = (
         prevChapter.notation.history,
         action.payload
       );
+
+    // TODO: Here this can be abstracted
     const fenBoard = new ChessFENBoard(prevChapter.notation.startingFen);
     historyAtFocusedIndex.forEach((m) => {
       if (!m.isNonMove) {
-        fenBoard.move(m.from, m.to);
+        fenBoard.move(m.from, m.to, m.promoteTo);
       }
     });
 
@@ -240,13 +240,15 @@ export const reducer = (
       FreeBoardHistory.incrementIndex(lastIndexInSlicedHistory),
       'left'
     );
+
+    // TODO: Here this can be abstracted
     const fenBoard = new ChessFENBoard(prevChapter.notation.startingFen);
     nextHistory.forEach((turn, i) => {
       turn.forEach((m) => {
         if (m.isNonMove) {
           return;
         }
-        fenBoard.move(m.from, m.to);
+        fenBoard.move(m.from, m.to, m.promoteTo);
       });
     });
     const nextFen = fenBoard.fen;

@@ -15,6 +15,8 @@ import {
   fenBoardPieceSymbolToDetailedChessPiece,
   isPromotableMove,
   pieceSanToPiece,
+  pieceSanToFenBoardPieceSymbol,
+  promotionalPieceSanToFenBoardPromotionalPieceSymbol,
 } from '@xmatter/util-kit';
 import { Piece, Square } from 'chess.js';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
@@ -416,8 +418,12 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
             onCancel={() => {
               setPromoMove(undefined);
             }}
-            onPromotePiece={(promoteTo) => {
-              onMove({ ...promoMove, promoteTo });
+            onPromotePiece={(p) => {
+              onMove({
+                ...promoMove,
+                promoteTo:
+                  promotionalPieceSanToFenBoardPromotionalPieceSymbol(p),
+              });
 
               setPromoMove(undefined);
             }}
