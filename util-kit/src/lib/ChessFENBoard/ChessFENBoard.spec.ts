@@ -744,12 +744,13 @@ describe('Castling Move', () => {
         const actualFen = chessFenBoard.fen;
 
         expect(actualMove).toEqual({
-          captured: 'bP',
+          captured: 'p',
           color: 'w',
           from: 'f5',
           piece: 'p',
           san: 'fxe6',
           to: 'e6',
+          promoteTo: undefined,
         });
         expect(actualFen).toBe(
           'rnbqkbnr/pppp1ppp/4P3/8/8/8/PPPPP1PP/RNBQKBNR b KQkq - 0 2'
@@ -765,12 +766,13 @@ describe('Castling Move', () => {
         const actualFen = chessFenBoard.fen;
 
         expect(actualMove).toEqual({
-          captured: 'wP',
+          captured: 'P',
           color: 'b',
           from: 'd4',
           piece: 'p',
           san: 'dxe3',
           to: 'e3',
+          promoteTo: undefined,
         });
         expect(actualFen).toBe(
           'rnbqkbnr/ppp1pppp/8/8/8/4p3/PPPP1PPP/RNBQKBNR w KQkq - 0 3'
