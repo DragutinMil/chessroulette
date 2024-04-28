@@ -16,7 +16,7 @@ import {
   getFileRank,
   matrixIndexToSquare,
   swapColor,
-} from './chessUtils';
+} from './util';
 import { SQUARES, type Color, type PieceSymbol, type Square } from 'chess.js';
 import { Err, Ok, Result } from 'ts-results';
 import { DeepPartial } from '../miscType';

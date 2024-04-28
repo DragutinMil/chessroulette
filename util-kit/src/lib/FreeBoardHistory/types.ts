@@ -15,7 +15,7 @@ export type FBHBaseNonMove = {
 
 export type FBHBaseRealMove = {
   isNonMove?: false;
-} & Pick<DetailedChessMove, 'from' | 'to' | 'color' | 'san'>; // TODO: This can expand later on
+} & Pick<DetailedChessMove, 'from' | 'to' | 'color' | 'san' | 'promotion'>; // TODO: This can expand later on
 
 export type FBHBaseMove = FBHBaseRealMove | FBHBaseNonMove;
 

@@ -1,14 +1,13 @@
 import type { Color, PieceSymbol, Square, Piece } from 'chess.js';
-import { Matrix, MatrixIndex, matrixMap } from '../matrix';
+import { Matrix, MatrixIndex, matrixMap } from '../../matrix';
 import {
   BlackColor,
   ChessColor,
   ChessMove,
-  PieceSan,
-  ShortChessColor,
   WhiteColor,
-} from '../Chess/types';
-import { toShortColor } from '../Chess/lib';
+} from '../../Chess/types';
+import { toShortColor } from '../../Chess/lib';
+import { fenBoardPieceSymbolToDetailedChessPiece } from './pieceTransforms';
 
 export type AbsoluteCoord = {
   x: number;
@@ -164,15 +163,6 @@ export const fenBoardToChessBoard = (fenBoard: FENBoard): ChessBoard =>
     };
   });
 
-export const fenBoardPieceSymbolToDetailedChessPiece = (
-  p: FenBoardPieceSymbol
-): Piece => ({
-  type: p.toLowerCase() as PieceSymbol,
-  color: isUpperCase(p) ? 'w' : 'b',
-});
-
-const isUpperCase = (s: string) => s === s.toUpperCase();
-
 export const chessBoardToFenBoard = (chessBoard: ChessBoard): FENBoard =>
   matrixMap(chessBoard, (p) => {
     if (!p) {
@@ -182,50 +172,6 @@ export const chessBoardToFenBoard = (chessBoard: ChessBoard): FENBoard =>
     return (p.color === 'b' ? p.type : p.type.toUpperCase()) as PieceSymbol;
   });
 
-export const fenBoardPieceSymbolToPieceSymbol = (
-  p: FenBoardPieceSymbol
-): PieceSymbol => p.toLowerCase() as PieceSymbol;
-
-export const pieceSanToFenBoardPieceSymbol = (
-  p: PieceSan
-): FenBoardPieceSymbol => {
-  const { color, type } = pieceSanToPiece(p);
-
-  return (
-    color === 'b' ? type.toLowerCase() : type.toUpperCase()
-  ) as FenBoardPieceSymbol;
-};
-
-export const pieceSanToPieceSymbol = (p: PieceSan): PieceSymbol =>
-  fenBoardPieceSymbolToPieceSymbol(pieceSanToFenBoardPieceSymbol(p));
-
-export const pieceSanToPiece = (p: PieceSan): Piece => ({
-  color: p[0] as ShortChessColor,
-  type: p[1].toLowerCase() as PieceSymbol,
-});
-
-export const pieceToPieceSan = (p: Piece): PieceSan =>
-  `${p.color[0]}${p.type.toLocaleUpperCase()}}` as PieceSan;
-
-export const detailedPieceToPieceSymbol = () => {};
-
-export const isPromotableMove = (m: ChessMove, piece: Piece) => {
-  return (
-    piece.type === 'p' && // is pawn
-    ((piece.color === 'w' && m.to[1] === '8') || // when white is on the 8th rank
-      (piece.color === 'b' && m.to[1] === '1')) // when black is on the 1st rank
-  );
-};
-
-// I don't know why this needs to be typed like this
-//  with a function declaration but if it's declared
-//  as an anonymous function it throws a tsc error
-export function swapColor<C extends ChessColor>(
-  c: C
-): C extends WhiteColor ? BlackColor : WhiteColor;
-export function swapColor<C extends ChessColor>(c: C) {
-  return toShortColor(c) === 'w' ? 'black' : 'white';
-}
 
 // export const pgnToFen = (pgn: ChessPGN) => {
 //   const instance = new Chess();

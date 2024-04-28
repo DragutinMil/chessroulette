@@ -1,2 +1,2 @@
 export * from './ChessFENBoard';
-export * from './chessUtils';
+export * from './util';
