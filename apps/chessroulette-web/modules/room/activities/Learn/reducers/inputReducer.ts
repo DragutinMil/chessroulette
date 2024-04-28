@@ -96,7 +96,7 @@ export default (
       throw new Error(`No Piece at ${move.from}`);
     }
 
-    fenBoard.move(move.from, move.to, move.promoteTo);
+    fenBoard.move(move);
 
     const nextFen = fenBoard.fen;
 

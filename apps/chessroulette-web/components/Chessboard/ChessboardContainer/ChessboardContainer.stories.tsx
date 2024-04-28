@@ -45,7 +45,7 @@ export const Freeboard: Story = {
         fen={fen}
         onMove={(m) => {
           try {
-            chessFenBoardInstance.move(m.from, m.to, m.promoteTo);
+            chessFenBoardInstance.move(m);
 
             setFen(chessFenBoardInstance.fen);
 

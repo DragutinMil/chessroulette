@@ -127,11 +127,15 @@ export class ChessFENBoard {
    * @param {string} from - The square to move from. Eg: "a2"
    * @param {string} to - The square to move to. Eg: "a3"
    */
-  move(
-    from: Square,
-    to: Square,
-    promoteTo?: FenBoardPromotionalPieceSymbol
-  ): FenBoardDetailedChessMove {
+  move({
+    from,
+    to,
+    promoteTo,
+  }: {
+    from: Square;
+    to: Square;
+    promoteTo?: FenBoardPromotionalPieceSymbol;
+  }): FenBoardDetailedChessMove {
     const piece = promoteTo || this.piece(from);
 
     if (!piece) {

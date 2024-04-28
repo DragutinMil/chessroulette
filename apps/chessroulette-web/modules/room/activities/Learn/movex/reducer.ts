@@ -52,7 +52,7 @@ export const reducer = (
         throw new Error(`No Piece at ${move.from}`);
       }
 
-      const nextMove = fenBoard.move(move.from, move.to, move.promoteTo);
+      const nextMove = fenBoard.move(move);
 
       // If the moves are the same introduce a non move
       const [nextHistory, addedAtIndex] = FreeBoardHistory.addMagicMove(
@@ -189,7 +189,7 @@ export const reducer = (
     const fenBoard = new ChessFENBoard(prevChapter.notation.startingFen);
     historyAtFocusedIndex.forEach((m) => {
       if (!m.isNonMove) {
-        fenBoard.move(m.from, m.to, m.promoteTo);
+        fenBoard.move(m);
       }
     });
 
@@ -244,7 +244,7 @@ export const reducer = (
         if (m.isNonMove) {
           return;
         }
-        fenBoard.move(m.from, m.to, m.promoteTo);
+        fenBoard.move(m);
       });
     });
     const nextFen = fenBoard.fen;

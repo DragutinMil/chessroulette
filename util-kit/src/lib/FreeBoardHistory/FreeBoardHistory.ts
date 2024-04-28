@@ -724,11 +724,11 @@ export namespace FreeBoardHistory {
     const fenBoard = new ChessFENBoard(startingFen);
     h.forEach(([wM, bM]) => {
       if (!wM.isNonMove) {
-        fenBoard.move(wM.from, wM.to, wM.promoteTo);
+        fenBoard.move(wM);
       }
 
       if (bM && !bM.isNonMove) {
-        fenBoard.move(bM.from, bM.to, bM.promoteTo);
+        fenBoard.move(bM);
       }
     });
 

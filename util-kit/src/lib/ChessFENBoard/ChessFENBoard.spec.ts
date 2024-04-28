@@ -402,9 +402,9 @@ describe('move', () => {
   test('moves any existent piece to any square', () => {
     const chessFenBoard = new ChessFENBoard();
 
-    chessFenBoard.move('a2', 'a5');
-    chessFenBoard.move('h1', 'c4');
-    chessFenBoard.move('e8', 'd1');
+    chessFenBoard.move({ from: 'a2', to: 'a5' });
+    chessFenBoard.move({ from: 'h1', to: 'c4' });
+    chessFenBoard.move({ from: 'e8', to: 'd1' });
 
     expect(chessFenBoard.fen).toBe(
       'rnbq1bnr/pppppppp/8/P7/2R5/8/1PPPPPPP/RNBkKBN1 w KQkq - 0 2'
@@ -428,7 +428,7 @@ describe('move', () => {
     );
 
     const actual = () => {
-      chessFenBoard.move('a2', 'a3');
+      chessFenBoard.move({ from: 'a2', to: 'a3' });
     };
 
     expect(actual).toThrow('Move Error: the from square (a2) was empty!');
@@ -440,7 +440,7 @@ describe('move', () => {
     );
 
     const actual = () => {
-      chessFenBoard.move('a2', 'a3');
+      chessFenBoard.move({ from: 'a2', to: 'a3' });
     };
 
     expect(actual).toThrow('Move Error: the from square (a2) was empty!');
@@ -449,7 +449,7 @@ describe('move', () => {
   test('moves with promotion', () => {
     const chessFenBoard = new ChessFENBoard();
 
-    chessFenBoard.move('a2', 'a8', 'Q');
+    chessFenBoard.move({ from: 'a2', to: 'a8', promoteTo: 'Q' });
 
     const actual = chessFenBoard.fen;
 
@@ -465,41 +465,41 @@ describe('move', () => {
       'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
     );
 
-    chessFenBoard.move('e2', 'e4');
+    chessFenBoard.move({ from: 'e2', to: 'e4' });
 
     expect(chessFenBoard.fen).toBe(
       'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1'
     );
 
-    chessFenBoard.move('d7', 'd6');
+    chessFenBoard.move({ from: 'd7', to: 'd6' });
 
     // Increments Full Move
     expect(chessFenBoard.fen).toBe(
       'rnbqkbnr/ppp1pppp/3p4/8/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2'
     );
 
-    chessFenBoard.move('d1', 'g4');
+    chessFenBoard.move({ from: 'd1', to: 'g4' });
 
     // Increments Full Move & Half Move b/c it's not a pawn move
     expect(chessFenBoard.fen).toBe(
       'rnbqkbnr/ppp1pppp/3p4/8/4P1Q1/8/PPPP1PPP/RNB1KBNR b KQkq - 1 2'
     );
 
-    chessFenBoard.move('g8', 'f6');
+    chessFenBoard.move({ from: 'g8', to: 'f6' });
 
     // Increments Full Move & Half Move b/c it's not a pawn move
     expect(chessFenBoard.fen).toBe(
       'rnbqkb1r/ppp1pppp/3p1n2/8/4P1Q1/8/PPPP1PPP/RNB1KBNR w KQkq - 2 3'
     );
 
-    chessFenBoard.move('a2', 'a3');
+    chessFenBoard.move({ from: 'a2', to: 'a3' });
 
     // Resets Half Move b/c it's a pawn move, and does not increment Full Move b/c it's not black
     expect(chessFenBoard.fen).toBe(
       'rnbqkb1r/ppp1pppp/3p1n2/8/4P1Q1/P7/1PPP1PPP/RNB1KBNR b KQkq - 0 3'
     );
 
-    chessFenBoard.move('c8', 'g4');
+    chessFenBoard.move({ from: 'c8', to: 'g4' });
 
     // Increments Full Move & Half Move b/c it's not a pawn move
     expect(chessFenBoard.fen).toBe(
@@ -507,17 +507,17 @@ describe('move', () => {
     );
 
     // More moves
-    chessFenBoard.move('f1', 'c4');
-    chessFenBoard.move('b8', 'c6');
-    chessFenBoard.move('g1', 'f3');
-    chessFenBoard.move('d8', 'd7');
+    chessFenBoard.move({ from: 'f1', to: 'c4' });
+    chessFenBoard.move({ from: 'b8', to: 'c6' });
+    chessFenBoard.move({ from: 'g1', to: 'f3' });
+    chessFenBoard.move({ from: 'd8', to: 'd7' });
 
     expect(chessFenBoard.fen).toBe(
       'r3kb1r/pppqpppp/2np1n2/8/2B1P1b1/P4N2/1PPP1PPP/RNB1K2R w KQkq - 4 6'
     );
 
     // Castle Move
-    chessFenBoard.move('e1', 'g1');
+    chessFenBoard.move({ from: 'e1', to: 'g1' });
     expect(chessFenBoard.fen).toBe(
       'r3kb1r/pppqpppp/2np1n2/8/2B1P1b1/P4N2/1PPP1PPP/RNB2RK1 b kq - 5 6'
     );
@@ -530,7 +530,7 @@ describe('Castling Move', () => {
       'rnbqkb1r/5ppp/p2ppn2/1p6/3NP3/1BN5/PPP2PPP/R1BQK2R w KQkq - 0 1'
     );
 
-    const actualMove = chessFenBoard.move('e1', 'g1');
+    const actualMove = chessFenBoard.move({ from: 'e1', to: 'g1' });
     const actualFen = chessFenBoard.fen;
 
     expect(actualMove).toEqual({
@@ -550,7 +550,7 @@ describe('Castling Move', () => {
     const chessFenBoard = new ChessFENBoard(
       'r3k2r/pppppppp/1nbq1bn1/8/8/1NBQ1BN1/PPPPPPPP/R3K2R w KQkq - 10 6'
     );
-    const actualMove = chessFenBoard.move('e1', 'c1');
+    const actualMove = chessFenBoard.move({ from: 'e1', to: 'c1' });
 
     expect(actualMove).toEqual({
       captured: undefined,
@@ -571,7 +571,7 @@ describe('Castling Move', () => {
     const chessFenBoard = new ChessFENBoard(
       'r3k2r/pppppppp/1nbq1bn1/8/8/1NBQ1BN1/PPPPPPPP/R3K2R b KQkq - 10 6'
     );
-    const actualMove = chessFenBoard.move('e8', 'g8');
+    const actualMove = chessFenBoard.move({ from: 'e8', to: 'g8' });
 
     expect(actualMove).toEqual({
       captured: undefined,
@@ -592,7 +592,7 @@ describe('Castling Move', () => {
     const chessFenBoard = new ChessFENBoard(
       'r3k2r/pppppppp/1nbq1bn1/8/8/1NBQ1BN1/PPPPPPPP/R3K2R b KQkq - 10 6'
     );
-    const actualMove = chessFenBoard.move('e8', 'c8');
+    const actualMove = chessFenBoard.move({ from: 'e8', to: 'c8' });
 
     expect(actualMove).toEqual({
       captured: undefined,
@@ -615,14 +615,14 @@ describe('Castling Move', () => {
     test('Basic Pawn Move', () => {
       const chessFenBoard = new ChessFENBoard(ChessFENBoard.STARTING_FEN);
 
-      const actual = chessFenBoard.move('e2', 'e4');
+      const actual = chessFenBoard.move({ from: 'e2', to: 'e4' });
 
       expect(actual.san).toBe('e4');
     });
 
     test('Basic Piece (Knight) Move', () => {
       const chessFenBoard = new ChessFENBoard(ChessFENBoard.STARTING_FEN);
-      const actual = chessFenBoard.move('b1', 'c3');
+      const actual = chessFenBoard.move({ from: 'b1', to: 'c3' });
 
       expect(actual.san).toBe('Nc3');
     });
@@ -631,7 +631,7 @@ describe('Castling Move', () => {
       const chessFenBoard = new ChessFENBoard(
         'rnbqkb1r/ppp1pppp/4n3/3P4/8/8/PPPP1PPP/RNBQKBNR w KQkq - 1 3'
       );
-      const actual = chessFenBoard.move('d5', 'e6');
+      const actual = chessFenBoard.move({ from: 'd5', to: 'e6' });
 
       expect(actual.san).toBe('dxe6');
     });
@@ -640,7 +640,7 @@ describe('Castling Move', () => {
       const chessFenBoard = new ChessFENBoard(
         'rnbqkbnr/ppppp1pp/5p2/8/8/4P3/PPPP1PPP/RNBQKBNR w KQkq - 0 2'
       );
-      const actual = chessFenBoard.move('d1', 'h5');
+      const actual = chessFenBoard.move({ from: 'd1', to: 'h5' });
 
       expect(actual.san).toBe('Qh5+');
     });
@@ -650,28 +650,40 @@ describe('Castling Move', () => {
         'rnbqkbnr/pppp1ppp/4p3/8/6P1/5P2/PPPPP2P/RNBQKBNR b KQkq g3 0 2'
       );
 
-      const actual = chessFenBoard.move('d8', 'h4');
+      const actual = chessFenBoard.move({ from: 'd8', to: 'h4' });
 
       expect(actual.san).toBe('Qh4#');
     });
 
     test('Promo Move', () => {
       const chessFenBoard = new ChessFENBoard('4k3/8/8/8/8/8/5K1p/8 b - - 1 1');
-      const actual = chessFenBoard.move('h2', 'h1', 'Q');
+      const actual = chessFenBoard.move({
+        from: 'h2',
+        to: 'h1',
+        promoteTo: 'Q',
+      });
 
       expect(actual.san).toBe('h1=Q');
     });
 
     test('Promo Move results in Check', () => {
       const chessFenBoard = new ChessFENBoard('4k3/8/8/8/8/8/7p/4K3 b - - 0 1');
-      const actual = chessFenBoard.move('h2', 'h1', 'q');
+      const actual = chessFenBoard.move({
+        from: 'h2',
+        to: 'h1',
+        promoteTo: 'q',
+      });
 
       expect(actual.san).toBe('h1=Q+');
     });
 
     test('Promo Move results in CheckMate', () => {
       const chessFenBoard = new ChessFENBoard('8/8/8/8/8/7k/4p3/7K b - - 2 2');
-      const actual = chessFenBoard.move('e2', 'e1', 'q');
+      const actual = chessFenBoard.move({
+        from: 'e2',
+        to: 'e1',
+        promoteTo: 'q',
+      });
 
       expect(actual.san).toBe('e1=Q#');
     });
@@ -683,7 +695,7 @@ describe('Castling Move', () => {
         'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
       );
 
-      chessFenBoard.move('e2', 'e4');
+      chessFenBoard.move({ from: 'e2', to: 'e4' });
 
       const actualFen = chessFenBoard.fen;
 
@@ -697,7 +709,7 @@ describe('Castling Move', () => {
         'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1'
       );
 
-      chessFenBoard.move('d7', 'd5');
+      chessFenBoard.move({ from: 'd7', to: 'd5' });
 
       const actualFen = chessFenBoard.fen;
 
@@ -711,7 +723,7 @@ describe('Castling Move', () => {
         'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1'
       );
 
-      chessFenBoard.move('d2', 'd3');
+      chessFenBoard.move({ from: 'd2', to: 'd3' });
 
       const actualFen = chessFenBoard.fen;
 
@@ -725,7 +737,7 @@ describe('Castling Move', () => {
         'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1'
       );
 
-      chessFenBoard.move('d2', 'e4');
+      chessFenBoard.move({ from: 'd2', to: 'e4' });
 
       const actualFen = chessFenBoard.fen;
 
@@ -740,7 +752,7 @@ describe('Castling Move', () => {
           'rnbqkbnr/pppp1ppp/8/4pP2/8/8/PPPPP1PP/RNBQKBNR w KQkq e6 0 2'
         );
 
-        const actualMove = chessFenBoard.move('f5', 'e6');
+        const actualMove = chessFenBoard.move({ from: 'f5', to: 'e6' });
         const actualFen = chessFenBoard.fen;
 
         expect(actualMove).toEqual({
@@ -762,7 +774,7 @@ describe('Castling Move', () => {
           'rnbqkbnr/ppp1pppp/8/8/3pP3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 2'
         );
 
-        const actualMove = chessFenBoard.move('d4', 'e3');
+        const actualMove = chessFenBoard.move({ from: 'd4', to: 'e3' });
         const actualFen = chessFenBoard.fen;
 
         expect(actualMove).toEqual({
