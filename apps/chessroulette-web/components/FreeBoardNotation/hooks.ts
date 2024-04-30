@@ -56,7 +56,6 @@ export const useKeysToRefocusHistory = (
       FreeBoardHistory.findMoveAtIndex(history, currentIndex)?.branchedHistories
     ) {
       // If the current move needs to show the branches histories stop!
-      console.log('needs to select');
       return;
     }
 

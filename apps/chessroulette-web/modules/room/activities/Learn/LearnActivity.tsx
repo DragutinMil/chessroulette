@@ -55,8 +55,6 @@ export const LearnActivity = ({
 
   const tabsRef = useRef<TabsRef>(null);
 
-  console.log('currentChapter', currentChapter.notation.history)
-
   return (
     <DesktopRoomLayout
       rightSideSize={RIGHT_SIDE_SIZE_PX}

@@ -72,7 +72,6 @@ export const WidgetPanel = React.forwardRef<TabsRef, Props>(
 
     const onTabChange = useCallback(
       (p: { tabIndex: number }) => {
-        console.log('tab changed', p);
         widgetPanelTabsNav.setTabIndex(p.tabIndex);
       },
       [widgetPanelTabsNav.setTabIndex]
