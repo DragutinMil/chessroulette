@@ -19,7 +19,7 @@ type Props = DistributiveOmit<
   ChessboardContainerProps,
   'boardTheme' | 'onMove'
 > & {
-  playingColor?: ChessColor;
+  playingColor: ChessColor;
   onMove: (m: ShortChessMove, nextFen: ChessFEN) => void;
 };
 
@@ -61,7 +61,7 @@ const canMove = (
 
 export const Playboard = ({
   fen = ChessFENBoard.STARTING_FEN,
-  playingColor = 'white',
+  playingColor,
   boardOrientation = playingColor,
   onMove,
   ...props
@@ -74,7 +74,7 @@ export const Playboard = ({
       boardOrientation={boardOrientation}
       boardTheme={boardTheme}
       strict
-      canMove={(m) => canMove(m, fen, playingColor).valid}
+      canMove={(move) => canMove(move, fen, playingColor).valid}
       onMove={(move) => {
         const res = canMove(move, fen, playingColor);
 
