@@ -1,6 +1,3 @@
-import { useEffect } from 'react';
-import useInstance from '@use-it/instance';
-import { Chess } from 'chess.js';
 import {
   ChessColor,
   ChessFEN,
@@ -26,6 +23,42 @@ type Props = DistributiveOmit<
   onMove: (m: ShortChessMove, nextFen: ChessFEN) => void;
 };
 
+const canMove = (
+  move: ChessMove,
+  fen: ChessFEN,
+  playingColor: ChessColor
+):
+  | {
+      valid: false;
+    }
+  | {
+      valid: true;
+      fen: ChessFEN;
+    } => {
+  const chess = getNewChessGame({ fen });
+
+  if (chess.turn() !== toShortColor(playingColor)) {
+    return {
+      valid: false,
+    };
+  }
+
+  // Validate move
+  try {
+    chess.move(localChessMoveToChessLibraryMove(move));
+
+    return {
+      valid: true,
+      fen: chess.fen(),
+    };
+  } catch (e) {
+    console.debug('[Playboard Error] onMove()', e, { move });
+    return {
+      valid: false,
+    };
+  }
+};
+
 export const Playboard = ({
   fen = ChessFENBoard.STARTING_FEN,
   playingColor = 'white',
@@ -34,15 +67,6 @@ export const Playboard = ({
   ...props
 }: Props) => {
   const boardTheme = useBoardTheme();
-  const chessInstance = useInstance<Chess>(getNewChessGame({ fen }));
-
-  useEffect(() => {
-    try {
-      chessInstance.load(fen);
-    } catch (e) {
-      console.error(e);
-    }
-  }, [fen]);
 
   return (
     <ChessboardContainer
@@ -50,24 +74,17 @@ export const Playboard = ({
       boardOrientation={boardOrientation}
       boardTheme={boardTheme}
       strict
+      canMove={(m) => canMove(m, fen, playingColor).valid}
       onMove={(move) => {
-        console.log('on move', move);
+        const res = canMove(move, fen, playingColor);
 
-        if (chessInstance.turn() !== toShortColor(playingColor)) {
+        if (!res.valid) {
           return false;
         }
 
-        // Validate move
-        try {
-          chessInstance.move(localChessMoveToChessLibraryMove(move));
+        onMove?.(move, res.fen);
 
-          onMove?.(move, chessInstance.fen());
-
-          return true;
-        } catch (e) {
-          console.error('[Playboard Error] onMove()', e, { move });
-          return false;
-        }
+        return true;
       }}
       {...props}
     />
