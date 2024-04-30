@@ -49,6 +49,7 @@ export const Playboard = ({
       fen={fen}
       boardOrientation={boardOrientation}
       boardTheme={boardTheme}
+      strict
       onMove={(move) => {
         console.log('on move', move);
 

@@ -17,6 +17,7 @@ import {
   pieceSanToPiece,
   pieceSanToFenBoardPieceSymbol,
   promotionalPieceSanToFenBoardPromotionalPieceSymbol,
+  toShortColor,
 } from '@xmatter/util-kit';
 import { Piece, Square } from 'chess.js';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
@@ -42,6 +43,9 @@ export type ChessboardContainerProps = Omit<
 > & {
   fen: ChessFEN;
   sizePx: number;
+  boardTheme: BoardTheme;
+  // When this is true the player can only touch the pieces on her side
+  strict?: boolean;
   arrowsMap?: ArrowsMap;
   circlesMap?: CirclesMap;
   arrowColor?: string;
@@ -53,7 +57,6 @@ export type ChessboardContainerProps = Omit<
   onArrowsChange?: (arrows: ArrowsMap) => void;
   onCircleDraw?: (circleTuple: CircleDrawTuple) => void;
   onClearCircles?: () => void;
-  boardTheme: BoardTheme;
 } & (
     | {
         rightSideComponent: React.ReactNode;
@@ -70,6 +73,7 @@ export type ChessboardContainerProps = Omit<
 export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
   fen,
   lastMove,
+  strict,
   circlesMap,
   onArrowsChange = noop,
   onCircleDraw = noop,
@@ -203,6 +207,15 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
 
       return fenBoardPieceSymbolToDetailedChessPiece(_pieceSan);
     });
+
+    // Only allow the pieces of the same color as the board orientation to be touched
+    if (
+      strict &&
+      piece &&
+      toShortColor(piece.color) !== toShortColor(boardOrientation)
+    ) {
+      return;
+    }
 
     // If there is no existent Pending Move ('from' set)
     if (!pendingMove?.from) {
