@@ -6,7 +6,7 @@ import { GameType } from '../../types';
 type Props = {
   color: ChessColor; //TODO - here replace with Player name from User record once we start using them
   active: boolean;
-  turn: ChessColor; //TODO - not sure if the right place
+  turn: ChessColor | undefined; // TODO maybe improve logic
   gameType: GameType;
   timeLeft: number;
   onTimerFinished: () => void;
@@ -17,7 +17,9 @@ export const PlayerBox: React.FC<Props> = (props) => {
     <div className="flex flex-row gap-3 items-center content-center">
       <div
         className={`capitalize w-12 ${
-          props.turn === toLongColor(props.color) && 'text-purple-400 font-bold'
+          props.turn &&
+          props.turn === toLongColor(props.color) &&
+          'text-purple-400 font-bold'
         }`}
       >
         {props.color}

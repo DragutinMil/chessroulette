@@ -34,7 +34,7 @@ export const GameStateWidget: React.FC<Props> = (props) => {
           <PlayerBox
             key={`${props.id}-white`}
             color="white"
-            turn={turn}
+            turn={props.game.state !== 'complete' ? turn : undefined}
             active={
               props.game.state === 'ongoing' &&
               props.game.lastMoveBy !== 'white' &&
@@ -47,7 +47,7 @@ export const GameStateWidget: React.FC<Props> = (props) => {
           <PlayerBox
             key={`${props.id}-black`}
             color="black"
-            turn={turn}
+            turn={props.game.state !== 'complete' ? turn : undefined}
             active={
               props.game.state === 'ongoing' &&
               props.game.lastMoveBy !== 'black' &&
