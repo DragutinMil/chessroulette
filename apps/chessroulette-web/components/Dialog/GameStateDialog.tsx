@@ -58,7 +58,7 @@ export const GameStateDialog: React.FC<Props> = ({
           }}
           buttons={[
             {
-              children: 'Rematch',
+              children: 'Offer Rematch',
               onClick: () => onRematchRequest(),
               type: 'primary',
               bgColor: 'blue',
@@ -69,6 +69,9 @@ export const GameStateDialog: React.FC<Props> = ({
     }
 
     if (currentActiveOffer) {
+      if (gameState.state === 'complete' && !gameResultSeen) {
+        setGameResultSeen(true);
+      }
       if (currentActiveOffer.offerType === 'rematch') {
         if (currentActiveOffer.status === 'pending') {
           if (currentActiveOffer.byParticipant === clientUserId) {
@@ -213,7 +216,9 @@ export const GameStateDialog: React.FC<Props> = ({
 
   return (
     <div className="absolute w-full h-full top-0 left-0 z-50 flex justify-center content-center items-center">
-      <div className="flex bg-black rounded-lg p-2 shadow-2xl">{content}</div>
+      <div className="flex bg-black rounded-lg p-2 shadow-2xl shadow-black">
+        {content}
+      </div>
     </div>
   );
 };

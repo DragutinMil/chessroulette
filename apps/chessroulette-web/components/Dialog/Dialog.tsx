@@ -17,25 +17,32 @@ export const Dialog: React.FC<Props> = (props) => {
         <div className="flex flex-row justify-end w-full">
           <div
             onClick={() => props.onClose && props.onClose()}
-            className="flex"
+            className="flex group hover:cursor-pointer"
           >
-            <Icon name="XCircleIcon" className="w-4 h-4" />
+            <Icon
+              name="XCircleIcon"
+              className="w-4 h-4 group-hover:text-red-400"
+            />
           </div>
         </div>
       )}
-      {props.title && <div className="flex justify-center">{props.title}</div>}
-      <div className="flex flex-col gap-2">{props.content}</div>
-      {props.buttons && (
-        <div className="flex flex-row justify-center gap-3">
-          {props.buttons.map((buttonProps, i) => {
-            if (typeof buttonProps !== 'object') {
-              return null;
-            }
+      <div className="p-2 gap-4 flex flex-col">
+        {props.title && (
+          <div className="flex justify-center capitalize">{props.title}</div>
+        )}
+        <div className="flex flex-col gap-2">{props.content}</div>
+        {props.buttons && (
+          <div className="flex flex-row justify-center gap-3">
+            {props.buttons.map((buttonProps, i) => {
+              if (typeof buttonProps !== 'object') {
+                return null;
+              }
 
-            return <Button key={i} {...buttonProps} />;
-          })}
-        </div>
-      )}
+              return <Button key={i} {...buttonProps} />;
+            })}
+          </div>
+        )}
+      </div>
     </div>
   );
 };

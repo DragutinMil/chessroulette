@@ -139,10 +139,16 @@ export const reducer = (
 
   if (action.type === 'play:timeout') {
     //clear any pending offer leftover
-    const lastOffer: Offer = {
-      ...prevActivityState.offers[prevActivityState.offers.length - 1],
-      status: 'cancelled',
-    };
+    const lastOffer =
+      prevActivityState.offers.length > 0 &&
+      (prevActivityState.offers[prevActivityState.offers.length - 1] as Offer)
+        .status === 'pending'
+        ? ({
+            ...prevActivityState.offers[prevActivityState.offers.length - 1],
+            status: 'cancelled',
+          } as Offer)
+        : undefined;
+
     return {
       ...prev,
       activityState: {
@@ -156,7 +162,9 @@ export const reducer = (
             [swapColor(prev.activityState.game.lastMoveBy)]: 0,
           },
         },
-        offers: [...prevActivityState.offers.slice(0, -1), lastOffer],
+        ...(lastOffer && {
+          offers: [...prevActivityState.offers.slice(0, -1), lastOffer],
+        }),
       },
     };
   }

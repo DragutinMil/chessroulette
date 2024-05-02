@@ -26,7 +26,7 @@ export const CountdownDisplay: React.FC<Props> = ({
         <Text
           className={`${
             Number(major) < 1 && Number(minor) < 30
-              ? 'text-red-300'
+              ? 'text-red-400 animate-pulse'
               : 'text-white'
           }`}
         >
