@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useGameActions } from '../../providers/useGameActions';
 import { ChessColor, toLongColor } from '@xmatter/util-kit';
 import { ActionButton } from 'apps/chessroulette-web/components/Button/ActionButton';
@@ -17,11 +17,23 @@ export const GameActions: React.FC<Props> = ({
   buttonOrientation = 'vertical',
 }) => {
   const { currentActiveOffer, gameState } = useGameActions();
-  const [offerAlreadySend, setOfferAlreadySent] = useState(false);
+  const offerAlreadySend = useRef(false);
+
+  const setOfferSent = useCallback(() => {
+    if (!offerAlreadySend.current) {
+      offerAlreadySend.current = true;
+    }
+  }, []);
+
+  const resetOfferSent = useCallback(() => {
+    if (offerAlreadySend.current) {
+      offerAlreadySend.current = false;
+    }
+  }, []);
 
   useEffect(() => {
     if (offerAlreadySend) {
-      setOfferAlreadySent(false);
+      resetOfferSent();
     }
   }, [gameState.lastMoveBy]);
 
@@ -40,14 +52,15 @@ export const GameActions: React.FC<Props> = ({
         hideLabelUntilHover
         onSubmit={() => {
           onOfferDraw();
-          setOfferAlreadySent(true);
+          setOfferSent();
         }}
         icon="FlagIcon"
         color="blue"
         disabled={
           gameState.state !== 'ongoing' ||
           !!currentActiveOffer ||
-          toLongColor(orientation) === gameState.lastMoveBy
+          toLongColor(orientation) === gameState.lastMoveBy ||
+          offerAlreadySend.current
         }
       />
       <ActionButton
