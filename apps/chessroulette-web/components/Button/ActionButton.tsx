@@ -98,18 +98,24 @@ export const ActionButton: React.FC<ActionButtonProps> = ({
   return (
     <button
       ref={wrapperRef}
-      className={`flex justify-end items-center content-center flex-row gap-3 rounded-xl ${toStringColors(
-        getButtonColors(props.color || 'indigo')
-      )}`}
+      className={`flex justify-end items-center content-center flex-row gap-3 rounded-xl ${
+        props.disabled
+          ? 'bg-gray-200'
+          : toStringColors(getButtonColors(props.color || 'indigo'))
+      }`}
       disabled={props.disabled}
       type="submit"
-      onMouseEnter={() => setHovered(true)}
+      onMouseEnter={() => {
+        if (!props.disabled) {
+          setHovered(true);
+        }
+      }}
       onMouseLeave={() => {
         setFocused(false);
         setHovered(!hideLabelUntilHover);
       }}
       onClick={() => {
-        if (isLoading) {
+        if (isLoading || props.disabled) {
           return;
         }
 
@@ -146,7 +152,7 @@ export const ActionButton: React.FC<ActionButtonProps> = ({
               }),
             }}
           >
-            {focused ? `Confirm ${props.label}?` : props.label}
+            {focused ? `Confirm?` : props.label}
           </Text>
           {isLoading && (
             <div className="absolute top-0 bottom-0-0 right-0 left-0">

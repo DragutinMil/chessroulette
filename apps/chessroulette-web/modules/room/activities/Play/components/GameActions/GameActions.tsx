@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useGameActions } from '../../providers/useGameActions';
 import { ChessColor, toLongColor } from '@xmatter/util-kit';
 import { ActionButton } from 'apps/chessroulette-web/components/Button/ActionButton';
@@ -17,6 +17,14 @@ export const GameActions: React.FC<Props> = ({
   buttonOrientation = 'vertical',
 }) => {
   const { currentActiveOffer, gameState } = useGameActions();
+  const [offerAlreadySend, setOfferAlreadySent] = useState(false);
+
+  useEffect(() => {
+    if (offerAlreadySend) {
+      setOfferAlreadySent(false);
+    }
+  }, [gameState.lastMoveBy]);
+
   return (
     <div
       className={`${
@@ -27,10 +35,13 @@ export const GameActions: React.FC<Props> = ({
     >
       <ActionButton
         actionType="positive"
-        label="Offer Draw"
+        label="Draw"
         type="primary"
         hideLabelUntilHover
-        onSubmit={onOfferDraw}
+        onSubmit={() => {
+          onOfferDraw();
+          setOfferAlreadySent(true);
+        }}
         icon="FlagIcon"
         color="blue"
         disabled={
