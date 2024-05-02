@@ -231,32 +231,37 @@ export const PlayActivity = ({
                 />
               </div>
             )}
-            <GameStateWidget
-              game={game}
-              gameType={remoteState.gameType}
-              id={roomId}
-              key={`${roomId}`}
-              onTimerFinished={() => {
-                dispatch({
-                  type: 'play:timeout',
-                });
-              }}
-            />
-            <GameActions
-              orientation={orientation}
-              onOfferDraw={() => {
-                dispatch({
-                  type: 'play:sendOffer',
-                  payload: { byParticipant: userId, offerType: 'draw' },
-                });
-              }}
-              onResign={() => {
-                dispatch({
-                  type: 'play:resignGame',
-                  payload: { color: orientation },
-                });
-              }}
-            />
+            <div className="flex flex-row w-full">
+              <div className="flex-1">
+                <GameActions
+                  orientation={orientation}
+                  onOfferDraw={() => {
+                    dispatch({
+                      type: 'play:sendOffer',
+                      payload: { byParticipant: userId, offerType: 'draw' },
+                    });
+                  }}
+                  onResign={() => {
+                    dispatch({
+                      type: 'play:resignGame',
+                      payload: { color: orientation },
+                    });
+                  }}
+                  buttonOrientation="vertical"
+                />
+              </div>
+              <GameStateWidget
+                game={game}
+                gameType={remoteState.gameType}
+                id={roomId}
+                key={`${roomId}`}
+                onTimerFinished={() => {
+                  dispatch({
+                    type: 'play:timeout',
+                  });
+                }}
+              />
+            </div>
             <div className="bg-slate-700 p-3 flex flex-col flex-1 min-h-0 rounded-lg shadow-2xl">
               <GameNotation pgn={game.pgn} onUpdateFen={setFen} />
             </div>

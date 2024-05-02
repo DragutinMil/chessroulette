@@ -21,15 +21,23 @@ export const CountdownDisplay: React.FC<Props> = ({
   if (timeLeft > 0) {
     return (
       <Text className="">
-        <Text className="">{major}</Text>
+        <Text className="font-bold">{major}</Text>
         <Text className="">:</Text>
-        <Text className="">{minor}</Text>
+        <Text
+          className={`${
+            Number(major) < 1 && Number(minor) < 30
+              ? 'text-red-300'
+              : 'text-white'
+          }`}
+        >
+          {minor}
+        </Text>
       </Text>
     );
   }
 
   return (
-    <Text className="">
+    <Text className="text-red-500">
       <Text className="">00:</Text>
       <Text className="">00</Text>
     </Text>

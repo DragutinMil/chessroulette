@@ -32,7 +32,7 @@ export type ButtonProps = Omit<
     tooltipPositon?: 'left' | 'top' | 'right' | 'bottom';
   }>;
 
-type BgColor =
+export type BgColor =
   | 'purple'
   | 'green'
   | 'blue'
@@ -43,13 +43,16 @@ type BgColor =
   | 'gray'
   | 'red'; // Add more colors
 
-const getButtonColors = (color: BgColor, cssProp: 'bg' | 'text' = 'bg') => ({
+export const getButtonColors = (
+  color: BgColor,
+  cssProp: 'bg' | 'text' = 'bg'
+) => ({
   initial: `${cssProp}-${color}-500`,
   hover: `${cssProp}-${color}-600`,
   active: `${cssProp}-${color}-800`,
 });
 
-const toStringColors = (p: {
+export const toStringColors = (p: {
   initial: string;
   hover: string;
   active: string;
