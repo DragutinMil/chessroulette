@@ -1,5 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
-import { GameDisplayView } from '../Game/GameDisplayView';
+import React, { useMemo } from 'react';
 import { PlayerBox } from '../PlayerBox/PlayerBox';
 import { PlayActivityState } from '../../movex';
 import { GameType } from '../../types';
@@ -26,7 +25,6 @@ export const GameStateWidget: React.FC<Props> = (props) => {
 
   return (
     <div className="flex flex-col gap-2">
-      {/*<GameDisplayView game={props.game} />*/}
       <div className="flex flex-row justify-end gap-2">
         <div className="font-bold">Game Type: </div>
         <div className="capitalize">{props.gameType}</div>

@@ -41,11 +41,9 @@ export const PlayActivity = ({
   const dispatch = optionalDispatch || noop;
   const { game } = remoteState;
 
-  const [gameInPendingMode, setGameInPendingMode] = useState(true);
   const [gameFinished, setGameFinished] = useState(false);
 
   const canPlay = useRef(false);
-  // const gameSetupComplete = useRef(false);
 
   //TODO - remove this, improve logic
   const [_, rerender] = useReducer((s) => s + 1, 0);
@@ -59,14 +57,11 @@ export const PlayActivity = ({
     [activitySettings.isBoardFlipped, game.orientation]
   );
 
-  // const gameType = useMemo(() => activitySettings.gameType, []);
-
   useEffect(() => {
     //TODO - improve logic here, to messy
     if (!canPlay.current) {
       if (participants && objectKeys(participants).length > 1) {
         canPlay.current = true;
-        setGameInPendingMode(false);
         rerender();
       }
     }
@@ -87,49 +82,6 @@ export const PlayActivity = ({
       canPlay.current = true;
     }
   }, [game.state]);
-
-  // useEffect(() => {
-  //   if (!gameSetupComplete.current) {
-  //     console.log('dispatch');
-  //     dispatch({
-  //       type: 'play:setGameType',
-  //       payload: { gameType },
-  //     });
-  //     gameSetupComplete.current = true;
-  //   }
-  // }, [remoteState.gameType, participants, gameSetupComplete.current]);
-
-  // useEffect(() => {
-  //   console.log('remote state changed on server', remoteState);
-  // }, [remoteState]);
-
-  // const overlayComponent = useMemo(() => {
-  //   if (gameInPendingMode || gameFinished) {
-  //     return (
-  //       <GameStateDialog
-  //         onRematchRequest={() => {
-  //           dispatch({
-  //             type: 'play:sendOffer',
-  //             payload: { byParticipant: userId, offerType: 'rematch' },
-  //           });
-  //         }}
-  //         onAcceptOffer={({ id }) => {
-  //           dispatch({
-  //             type: 'play:acceptOffer',
-  //             payload: { id }, //TODO - currently not using it, only 1 offer at a time
-  //           });
-  //         }}
-  //         onDenyOffer={({ id }) => {
-  //           dispatch({
-  //             type: 'play:denyOffer',
-  //             payload: { id }, //TODO - currently not using it, only 1 offer at a time
-  //           });
-  //         }}
-  //       />
-  //     );
-  //   }
-  //   return null;
-  // }, [gameInPendingMode, gameFinished, remoteState]);
 
   return (
     <GameActionsProvider
@@ -178,15 +130,7 @@ export const PlayActivity = ({
                   }}
                 />
               }
-              // {...currentChapter}
-              // boardOrientation={orientation}
               playingColor={orientation}
-              // onFlip={() => {
-              //   dispatch({
-              //     type: 'loadedChapter:setOrientation',
-              //     payload: swapColor(currentChapter.orientation),
-              //   });
-              // }}
               onMove={(payload) => {
                 dispatch({
                   type: 'play:move',
