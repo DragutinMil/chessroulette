@@ -116,6 +116,11 @@ export const PlayActivity = ({
                         type: 'play:acceptOfferRematch',
                       });
                     }
+                    if (offer === 'takeback') {
+                      dispatch({
+                        type: 'play:acceptTakeBack',
+                      });
+                    }
                   }}
                   //TODO - at the moment nothing happens, later can decide if extra notifications when offer is cancelled
                   onCancelOffer={() => {
@@ -183,6 +188,12 @@ export const PlayActivity = ({
                     dispatch({
                       type: 'play:sendOffer',
                       payload: { byParticipant: userId, offerType: 'draw' },
+                    });
+                  }}
+                  onTakeback={() => {
+                    dispatch({
+                      type: 'play:sendOffer',
+                      payload: { byParticipant: userId, offerType: 'takeback' },
                     });
                   }}
                   onResign={() => {

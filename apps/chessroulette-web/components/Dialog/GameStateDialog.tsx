@@ -205,6 +205,84 @@ export const GameStateDialog: React.FC<Props> = ({
           />
         );
       }
+
+      if (currentActiveOffer.offerType === 'takeback') {
+        if (currentActiveOffer.status === 'pending') {
+          if (currentActiveOffer.byParticipant === clientUserId) {
+            return (
+              <Dialog
+                title="Takeback ?"
+                content={
+                  <div className="flex justify-center content-center">
+                    Waiting for the other player to respond.
+                  </div>
+                }
+                buttons={[
+                  {
+                    children: 'Cancel',
+                    bgColor: 'red',
+                    onClick: () => {
+                      onCancelOffer();
+                      setGameResultSeen(true);
+                    },
+                  },
+                ]}
+              />
+            );
+          }
+          return (
+            <Dialog
+              title="Takeback ?"
+              content={
+                <div className="flex justify-center content-center">
+                  You have asked to approve a takeback.
+                </div>
+              }
+              buttons={[
+                {
+                  children: 'Accept',
+                  bgColor: 'green',
+                  onClick: () => {
+                    onAcceptOffer({ offer: 'takeback' });
+                    setGameResultSeen(true);
+                  },
+                },
+                {
+                  children: 'Deny',
+                  bgColor: 'red',
+                  onClick: () => {
+                    onDenyOffer();
+                    setGameResultSeen(true);
+                  },
+                },
+              ]}
+            />
+          );
+        }
+        if (currentActiveOffer.status === 'denied') {
+          if (currentActiveOffer.byParticipant === clientUserId) {
+            return (
+              <Dialog
+                title="Offer Denied"
+                content={
+                  <div className="flex justify-center content-center">
+                    Rematch offer has been denied.
+                  </div>
+                }
+                buttons={[
+                  {
+                    children: 'Ok',
+                    bgColor: 'blue',
+                    onClick: () => {
+                      setGameResultSeen(true);
+                    },
+                  },
+                ]}
+              />
+            );
+          }
+        }
+      }
     }
 
     return null;

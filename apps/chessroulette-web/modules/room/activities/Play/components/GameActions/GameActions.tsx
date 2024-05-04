@@ -6,6 +6,7 @@ import { ActionButton } from 'apps/chessroulette-web/components/Button/ActionBut
 type Props = {
   onOfferDraw: () => void;
   onResign: () => void;
+  onTakeback: () => void;
   orientation: ChessColor;
   buttonOrientation?: 'horizontal' | 'vertical';
 };
@@ -13,6 +14,7 @@ type Props = {
 export const GameActions: React.FC<Props> = ({
   onResign,
   onOfferDraw,
+  onTakeback,
   orientation,
   buttonOrientation = 'vertical',
 }) => {
@@ -61,6 +63,24 @@ export const GameActions: React.FC<Props> = ({
           !!currentActiveOffer ||
           toLongColor(orientation) === gameState.lastMoveBy ||
           offerAlreadySend.current
+        }
+      />
+      <ActionButton
+        actionType="positive"
+        label="Takeback"
+        type="primary"
+        hideLabelUntilHover
+        onSubmit={() => {
+          onTakeback();
+          setOfferSent();
+        }}
+        icon="ArrowUturnLeftIcon"
+        color="indigo"
+        disabled={
+          gameState.state !== 'ongoing' ||
+          !!currentActiveOffer ||
+          !!offerAlreadySend ||
+          toLongColor(orientation) !== gameState.lastMoveBy
         }
       />
       <ActionButton

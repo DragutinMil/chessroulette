@@ -14,7 +14,6 @@ import { GameState, GameType } from '../types';
 import { User } from 'apps/chessroulette-web/modules/user/type';
 
 type GameStateWinner = 'white' | 'black' | '1/2';
-type GameFinishResult = 'timeout' | 'mate' | 'resign' | 'draw';
 export type OfferType = 'takeback' | 'draw' | 'rematch';
 export type OfferStatus = 'pending' | 'accepted' | 'denied' | 'cancelled';
 export type Offer = {
@@ -61,6 +60,7 @@ export type PlayActivityActions =
     >
   | Action<'play:acceptOfferDraw'>
   | Action<'play:acceptOfferRematch'>
+  | Action<'play:acceptTakeBack'>
   | Action<'play:denyOffer'>
   | Action<'play:cancelOffer'>
   | Action<'play:drawCircle', CircleDrawTuple>
