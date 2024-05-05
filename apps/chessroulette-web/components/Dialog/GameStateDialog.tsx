@@ -1,52 +1,43 @@
-import {
-  Offer,
-  PlayActivityState,
-} from 'apps/chessroulette-web/modules/room/activities/Play/movex';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Dialog } from './Dialog';
 import { Text } from '../Text';
 import { useGameActions } from 'apps/chessroulette-web/modules/room/activities/Play/providers/useGameActions';
+import { objectKeys } from '@xmatter/util-kit';
+import { OfferType } from 'apps/chessroulette-web/modules/room/activities/Play/movex';
 
 type Props = {
-  gameState: PlayActivityState['activityState']['game'];
-  onAcceptOffer: (payload: Pick<Offer, 'id'>) => void;
-  onDenyOffer: (payload: Pick<Offer, 'id'>) => void;
+  onAcceptOffer: ({ offer }: { offer: OfferType }) => void;
+  onDenyOffer: () => void;
   onRematchRequest: () => void;
+  onCancelOffer: () => void;
 };
 
 export const GameStateDialog: React.FC<Props> = ({
-  gameState,
   onRematchRequest,
   onAcceptOffer,
   onDenyOffer,
+  onCancelOffer,
 }) => {
   const [gameResultSeen, setGameResultSeen] = useState(false);
-  const gameActions = useGameActions();
-
-  const currentActiveOffer = useMemo(
-    () => gameActions?.currentActiveOffer,
-    [gameActions]
-  );
+  const { currentActiveOffer, gameState, participants, clientUserId } =
+    useGameActions();
 
   useEffect(() => {
     // Everytime the game state changes, reset the seen!
     setGameResultSeen(false);
   }, [gameState.state]);
 
-  useEffect(() => {
-    console.log('currentActiveOffer changed ==> ', currentActiveOffer);
-  }, [currentActiveOffer]);
-
   const content = (() => {
-    console.log('currentActiveOffer => ', currentActiveOffer);
-
-    if (gameState.state === 'pending') {
+    if (
+      gameState.state === 'pending' &&
+      objectKeys(participants || {}).length < 2
+    ) {
       return <Dialog title="Waiting for Opponent" content={<div></div>} />;
     }
     if (
       gameState.state === 'complete' &&
       !gameResultSeen &&
-      !currentActiveOffer
+      (!currentActiveOffer || currentActiveOffer.status !== 'pending')
     ) {
       return (
         <Dialog
@@ -78,18 +69,116 @@ export const GameStateDialog: React.FC<Props> = ({
     }
 
     if (currentActiveOffer) {
-      console.log('YES OFFER AVAILABLE!');
-      const { id } = currentActiveOffer; //TODO -currently not using it, only 1 active offer at a time
+      if (currentActiveOffer.offerType === 'rematch') {
+        if (currentActiveOffer.status === 'pending') {
+          if (currentActiveOffer.byParticipant === clientUserId) {
+            return (
+              <Dialog
+                title="Rematch ?"
+                content={
+                  <div className="flex justify-center content-center">
+                    Waiting for the other player to respond.
+                  </div>
+                }
+                buttons={[
+                  {
+                    children: 'Cancel',
+                    bgColor: 'red',
+                    onClick: () => {
+                      onCancelOffer();
+                      setGameResultSeen(true);
+                    },
+                  },
+                ]}
+              />
+            );
+          }
+          return (
+            <Dialog
+              title="Rematch ?"
+              content={
+                <div className="flex justify-center content-center">
+                  You have been invited for a rematch.
+                </div>
+              }
+              buttons={[
+                {
+                  children: 'Accept',
+                  bgColor: 'green',
+                  onClick: () => {
+                    onAcceptOffer({ offer: 'rematch' });
+                    setGameResultSeen(true);
+                  },
+                },
+                {
+                  children: 'Deny',
+                  bgColor: 'red',
+                  onClick: () => {
+                    onDenyOffer();
+                    setGameResultSeen(true);
+                  },
+                },
+              ]}
+            />
+          );
+        }
+        if (currentActiveOffer.status === 'denied') {
+          if (currentActiveOffer.byParticipant === clientUserId) {
+            return (
+              <Dialog
+                title="Offer Denied"
+                content={
+                  <div className="flex justify-center content-center">
+                    Rematch offer has been denied.
+                  </div>
+                }
+                buttons={[
+                  {
+                    children: 'Ok',
+                    bgColor: 'blue',
+                    onClick: () => {
+                      setGameResultSeen(true);
+                    },
+                  },
+                ]}
+              />
+            );
+          }
+        }
+      }
+
       if (
-        currentActiveOffer.offerType === 'rematch' &&
+        currentActiveOffer.offerType === 'draw' &&
         currentActiveOffer.status === 'pending'
       ) {
+        if (currentActiveOffer.byParticipant === clientUserId) {
+          return (
+            <Dialog
+              title="Draw ?"
+              content={
+                <div className="flex justify-center content-center">
+                  Waiting for the other player to respond.
+                </div>
+              }
+              buttons={[
+                {
+                  children: 'Cancel',
+                  bgColor: 'red',
+                  onClick: () => {
+                    onCancelOffer();
+                    setGameResultSeen(true);
+                  },
+                },
+              ]}
+            />
+          );
+        }
         return (
           <Dialog
-            title="Rematch ?"
+            title="Draw ?"
             content={
               <div className="flex justify-center content-center">
-                You have been invited for a rematch.
+                You've been send an offer for a draw ?
               </div>
             }
             buttons={[
@@ -97,7 +186,7 @@ export const GameStateDialog: React.FC<Props> = ({
                 children: 'Accept',
                 bgColor: 'green',
                 onClick: () => {
-                  onAcceptOffer({ id });
+                  onAcceptOffer({ offer: 'draw' });
                   setGameResultSeen(true);
                 },
               },
@@ -105,7 +194,7 @@ export const GameStateDialog: React.FC<Props> = ({
                 children: 'Deny',
                 bgColor: 'red',
                 onClick: () => {
-                  onDenyOffer({ id });
+                  onDenyOffer();
                   setGameResultSeen(true);
                 },
               },
@@ -123,6 +212,8 @@ export const GameStateDialog: React.FC<Props> = ({
   }
 
   return (
-    <div className="flex bg-black rounded-lg p-2 shadow-2xl">{content}</div>
+    <div className="absolute w-full h-full top-0 left-0 z-50 flex justify-center content-center items-center">
+      <div className="flex bg-black rounded-lg p-2 shadow-2xl">{content}</div>
+    </div>
   );
 };

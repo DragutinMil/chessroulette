@@ -4,16 +4,26 @@ import {
   GameActionsContextProps,
 } from './GameActionsContext';
 import { PlayActivityState } from '../movex';
+import { UserId, UsersMap } from 'apps/chessroulette-web/modules/user/type';
 
 type Props = PropsWithChildren & {
   remoteState: PlayActivityState['activityState'];
+  participants: UsersMap | undefined;
+  clientUserId: UserId;
 };
 
 export const GameActionsProvider: React.FC<Props> = ({
   remoteState,
+  participants,
+  clientUserId,
   children,
 }) => {
-  const [value, setValue] = useState<GameActionsContextProps>(undefined);
+  const [value, setValue] = useState<GameActionsContextProps>({
+    currentActiveOffer: undefined,
+    gameState: remoteState.game,
+    participants,
+    clientUserId,
+  });
 
   useEffect(() => {
     const lastOffer =
@@ -21,17 +31,15 @@ export const GameActionsProvider: React.FC<Props> = ({
         ? remoteState.offers[remoteState.offers.length - 1]
         : undefined;
 
-    console.log('last offer in Provider -> ', lastOffer);
-
-    if (lastOffer && lastOffer.status === 'pending') {
-      setValue({
-        currentActiveOffer: lastOffer,
-      });
-    }
-    if (lastOffer && lastOffer.status !== 'pending') {
-      setValue(undefined);
-    }
-  }, [remoteState.offers]);
+    setValue((prev) => ({
+      ...prev,
+      participants,
+      gameState: remoteState.game,
+      currentActiveOffer:
+        //TODO - maybe improve logic here
+        lastOffer && lastOffer.status === 'pending' ? lastOffer : undefined,
+    }));
+  }, [remoteState, participants]);
 
   return (
     <GameActionsContext.Provider value={value}>

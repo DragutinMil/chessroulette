@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { Menu, Item, useContextMenu } from 'react-contexify';
 import { chessGameTimeLimitMsMap } from '../room/activities/Play/components/Countdown/types';
 import { objectKeys } from '@xmatter/util-kit';
+import { chessGameTypeTimeDisplay } from 'apps/chessroulette-web/lib/util';
 
 type Props = {
   session?: Session;
@@ -67,7 +68,9 @@ export const MainHomeSection: React.FC<Props> = ({ session }) => {
               <Item id={gameType} className="hover:cursor-pointer">
                 <div>{`${gameType} ${
                   gameType !== 'untimed'
-                    ? `- ${chessGameTimeLimitMsMap[gameType]} min`
+                    ? `- ${chessGameTypeTimeDisplay(
+                        chessGameTimeLimitMsMap[gameType]
+                      )}`
                     : ''
                 }`}</div>
               </Item>

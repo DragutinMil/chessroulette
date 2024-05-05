@@ -4,14 +4,31 @@ import {
   initialActivityState,
 } from '../../movex';
 import {
+  ChessColor,
   getNewChessGame,
   swapColor,
   toOtherLongChessColor,
 } from '@xmatter/util-kit';
 import { initialPlayActivityState } from './state';
 import { chessGameTimeLimitMsMap } from '../components/Countdown/types';
-import { Offer } from './types';
-import { generateUserId } from 'apps/chessroulette-web/util';
+import { Offer, PlayActivityState } from './types';
+import { GameType } from '../types';
+
+const setupNewGame = (
+  gameType: GameType,
+  color: ChessColor
+): PlayActivityState['activityState']['game'] => {
+  const timeLeft = chessGameTimeLimitMsMap[gameType];
+  return {
+    ...initialPlayActivityState.activityState.game,
+    orientation: color,
+    state: 'pending',
+    timeLeft: {
+      white: timeLeft,
+      black: timeLeft,
+    },
+  };
+};
 
 export const reducer = (
   prev: ActivityState = initialActivityState,
@@ -106,28 +123,26 @@ export const reducer = (
   }
 
   if (action.type === 'play:startNewGame') {
-    const timeLeft = chessGameTimeLimitMsMap[action.payload.gameType];
+    const game = setupNewGame(
+      action.payload.gameType,
+      swapColor(prev.activityState.game.orientation)
+    );
     return {
       ...prev,
       activityState: {
         ...prev.activityState,
         gameType: action.payload.gameType,
-        game: {
-          ...initialPlayActivityState.activityState.game,
-          orientation: swapColor(prev.activityState.game.orientation),
-          state: 'pending',
-          timeLeft: {
-            white: timeLeft,
-            black: timeLeft,
-          },
-        },
+        game,
       },
     };
   }
 
-  if (action.type === 'play:setGameComplete') {
-    const { result } = action.payload;
-
+  if (action.type === 'play:timeout') {
+    //clear any pending offer leftover
+    const lastOffer: Offer = {
+      ...prevActivityState.offers[prevActivityState.offers.length - 1],
+      status: 'cancelled',
+    };
     return {
       ...prev,
       activityState: {
@@ -135,11 +150,26 @@ export const reducer = (
         game: {
           ...prev.activityState.game,
           state: 'complete',
-          // TODO - result = 'mate' is dealt with in "move" action as it happens after a move. Maybe improve logic here and have 1 point of truth
-          winner:
-            result === 'timeout' || result === 'resign'
-              ? prev.activityState.game.lastMoveBy
-              : '1/2',
+          winner: prev.activityState.game.lastMoveBy,
+          timeLeft: {
+            ...prev.activityState.game.timeLeft,
+            [swapColor(prev.activityState.game.lastMoveBy)]: 0,
+          },
+        },
+        offers: [...prevActivityState.offers.slice(0, -1), lastOffer],
+      },
+    };
+  }
+
+  if (action.type === 'play:resignGame') {
+    return {
+      ...prev,
+      activityState: {
+        ...prev.activityState,
+        game: {
+          ...prev.activityState.game,
+          state: 'complete',
+          winner: prev.activityState.game.lastMoveBy,
         },
       },
     };
@@ -151,7 +181,6 @@ export const reducer = (
       ...prevActivityState.offers,
       {
         byParticipant,
-        id: generateUserId(), // TODO -maybe use different random generator
         offerType,
         status: 'pending',
       },
@@ -166,31 +195,43 @@ export const reducer = (
     };
   }
 
-  if (action.type === 'play:acceptOffer') {
+  if (action.type === 'play:acceptOfferRematch') {
     const lastOffer: Offer = {
       ...prevActivityState.offers[prevActivityState.offers.length - 1],
       status: 'accepted',
     };
-    console.log('new offers => ', [
-      ...prevActivityState.offers.slice(0, -1),
-      lastOffer,
-    ]);
+
+    const game = setupNewGame(
+      prevActivityState.gameType,
+      swapColor(prev.activityState.game.orientation)
+    );
+
     return {
       ...prev,
       activityState: {
         ...prev.activityState,
         offers: [...prevActivityState.offers.slice(0, -1), lastOffer],
-        ...(lastOffer.offerType === 'rematch' && {
-          game: {
-            ...prev.activityState.game,
-            orientation: swapColor(prev.activityState.game.orientation),
-            state: 'pending',
-            timeLeft: {
-              white: chessGameTimeLimitMsMap[prevActivityState.gameType],
-              black: chessGameTimeLimitMsMap[prevActivityState.gameType],
-            },
-          },
-        }),
+        game,
+      },
+    };
+  }
+
+  if (action.type === 'play:acceptOfferDraw') {
+    const lastOffer: Offer = {
+      ...prevActivityState.offers[prevActivityState.offers.length - 1],
+      status: 'accepted',
+    };
+
+    return {
+      ...prev,
+      activityState: {
+        ...prevActivityState,
+        offers: [...prevActivityState.offers.slice(0, -1), lastOffer],
+        game: {
+          ...prevActivityState.game,
+          state: 'complete',
+          winner: '1/2',
+        },
       },
     };
   }
@@ -199,6 +240,20 @@ export const reducer = (
     const lastOffer: Offer = {
       ...prevActivityState.offers[prevActivityState.offers.length - 1],
       status: 'denied',
+    };
+    return {
+      ...prev,
+      activityState: {
+        ...prev.activityState,
+        offers: [...prevActivityState.offers.slice(0, -1), lastOffer],
+      },
+    };
+  }
+
+  if (action.type === 'play:cancelOffer') {
+    const lastOffer: Offer = {
+      ...prevActivityState.offers[prevActivityState.offers.length - 1],
+      status: 'cancelled',
     };
     return {
       ...prev,

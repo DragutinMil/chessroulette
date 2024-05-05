@@ -31,8 +31,6 @@ export const Countdown: React.FC<Props> = ({
     setGameTimeClassInMs(chessGameTimeLimitMsMap[gameTimeClass]);
   }, [gameTimeClass]);
 
-  useEffect(() => {}, [finished, props.active]);
-
   useInterval(
     () => {
       setTimeLeft((prev) => prev - interval);

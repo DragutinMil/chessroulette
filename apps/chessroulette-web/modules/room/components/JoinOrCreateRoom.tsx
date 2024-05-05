@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import movexConfig from 'apps/chessroulette-web/movex.config';
 import { useMovexResourceType } from 'movex-react';
 import { useRouter } from 'next/navigation';
-import { initialRoomState } from '../movex/reducer';
+import { RoomState, initialRoomState } from '../movex/reducer';
 import {
   objectKeys,
   toResourceIdentifierObj,
@@ -17,8 +17,11 @@ import { AsyncErr } from 'ts-async-results';
 import { invoke, isOneOf } from '@xmatter/util-kit';
 import {
   ActivityState,
+  initialActivityState,
   initialActivityStatesByActivityType,
 } from '../activities/movex';
+import { chessGameTimeLimitMsMap } from '../activities/Play/components/Countdown/types';
+import { GameType } from '../activities/Play/types';
 
 type Props = {
   activity: ActivityState['activityType']; // To expand in the future
@@ -71,7 +74,33 @@ export const JoinOrCreateRoom: React.FC<Props> = ({
         return roomResource.create(
           {
             ...initialRoomState,
-            activity: initialActivityStatesByActivityType[activity],
+            activity: {
+              ...initialActivityStatesByActivityType[activity],
+              ...(activity === 'play' &&
+                updateableSearchParams.toObject().gameType && {
+                  activityState: {
+                    ...initialActivityStatesByActivityType[activity]
+                      .activityState,
+                    gameType: updateableSearchParams.toObject().gameType,
+                    game: {
+                      ...initialActivityStatesByActivityType[activity]
+                        .activityState.game,
+                      timeLeft: {
+                        white:
+                          chessGameTimeLimitMsMap[
+                            updateableSearchParams.toObject()
+                              .gameType as GameType
+                          ],
+                        black:
+                          chessGameTimeLimitMsMap[
+                            updateableSearchParams.toObject()
+                              .gameType as GameType
+                          ],
+                      },
+                    },
+                  },
+                }),
+            } as unknown as RoomState['activity'],
           },
           getRandomStr(7) // the new room id
         );
@@ -96,7 +125,34 @@ export const JoinOrCreateRoom: React.FC<Props> = ({
           return roomResource.create(
             {
               ...initialRoomState,
-              activity: initialActivityStatesByActivityType[activity],
+              activity: {
+                ...initialActivityStatesByActivityType[activity],
+                //TODO - this works but definitely not the prettiest & no typesafety -> find better way
+                ...(activity === 'play' &&
+                  updateableSearchParams.toObject().gameType && {
+                    activityState: {
+                      ...initialActivityStatesByActivityType[activity]
+                        .activityState,
+                      gameType: updateableSearchParams.toObject().gameType,
+                      game: {
+                        ...initialActivityStatesByActivityType[activity]
+                          .activityState.game,
+                        timeLeft: {
+                          white:
+                            chessGameTimeLimitMsMap[
+                              updateableSearchParams.toObject()
+                                .gameType as GameType
+                            ],
+                          black:
+                            chessGameTimeLimitMsMap[
+                              updateableSearchParams.toObject()
+                                .gameType as GameType
+                            ],
+                        },
+                      },
+                    },
+                  }),
+              } as unknown as RoomState['activity'],
             },
             id
           );

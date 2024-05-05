@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { GameDisplayView } from '../Game/GameDisplayView';
 import { PlayerBox } from '../PlayerBox/PlayerBox';
 import { PlayActivityState } from '../../movex';
@@ -15,7 +15,7 @@ type Props = {
 
 export const GameStateWidget: React.FC<Props> = (props) => {
   const timeLeft = useGameTimeLeft(props.game);
-  console.log('game->>>', props.game);
+
   return (
     <div className="">
       <GameDisplayView game={props.game} />
@@ -26,7 +26,9 @@ export const GameStateWidget: React.FC<Props> = (props) => {
           key={`${props.id}-white`}
           color="white"
           active={
-            props.game.state === 'ongoing' && props.game.lastMoveBy !== 'white'
+            props.game.state === 'ongoing' &&
+            props.game.lastMoveBy !== 'white' &&
+            timeLeft['white'] > 0
           }
           gameType={props.gameType}
           timeLeft={timeLeft['white']}
@@ -36,7 +38,9 @@ export const GameStateWidget: React.FC<Props> = (props) => {
           key={`${props.id}-black`}
           color="black"
           active={
-            props.game.state === 'ongoing' && props.game.lastMoveBy !== 'black'
+            props.game.state === 'ongoing' &&
+            props.game.lastMoveBy !== 'black' &&
+            timeLeft['black'] > 0
           }
           gameType={props.gameType}
           timeLeft={timeLeft['black']}

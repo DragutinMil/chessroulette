@@ -28,3 +28,11 @@ export const formatURLSearchParams = (
 
   return url.href;
 };
+
+export const chessGameTypeTimeDisplay = (time: number) => {
+  if (time < 60000) {
+    return `${Math.floor(time / 1000)} seconds`;
+  }
+  const result = Math.floor(time / 60000);
+  return `${result} ${result === 1 ? 'minute' : 'minutes'}`;
+};

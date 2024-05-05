@@ -8,7 +8,6 @@ import { RIGHT_SIDE_SIZE_PX } from '../Learn/components/LearnBoard';
 import { Playboard } from 'apps/chessroulette-web/components/Chessboard/Playboard';
 import { CameraPanel } from '../../components/CameraPanel';
 import { useEffect, useMemo, useReducer, useRef, useState } from 'react';
-import { Button } from 'apps/chessroulette-web/components/Button';
 import { PanelResizeHandle } from 'react-resizable-panels';
 import { PlayActivityState } from './movex';
 import { usePlayActivitySettings } from './usePlayActivitySettings';
@@ -16,6 +15,7 @@ import { GameNotation } from '../Meetup/components/GameNotation';
 import { GameStateWidget } from './components/GameStateWidget/GameStateWidget';
 import { GameStateDialog } from 'apps/chessroulette-web/components/Dialog/GameStateDialog';
 import { GameActionsProvider } from './providers/GameActionsProvider';
+import { GameActions } from './components/GameActions/GameActions';
 
 export type Props = {
   roomId: string;
@@ -45,7 +45,7 @@ export const PlayActivity = ({
   const [gameFinished, setGameFinished] = useState(false);
 
   const canPlay = useRef(false);
-  const gameSetupComplete = useRef(false);
+  // const gameSetupComplete = useRef(false);
 
   //TODO - remove this, improve logic
   const [_, rerender] = useReducer((s) => s + 1, 0);
@@ -59,7 +59,7 @@ export const PlayActivity = ({
     [activitySettings.isBoardFlipped, game.orientation]
   );
 
-  const gameType = useMemo(() => activitySettings.gameType, []);
+  // const gameType = useMemo(() => activitySettings.gameType, []);
 
   useEffect(() => {
     //TODO - improve logic here, to messy
@@ -88,30 +88,55 @@ export const PlayActivity = ({
     }
   }, [game.state]);
 
-  useEffect(() => {
-    console.log('dispatch');
-    dispatch({
-      type: 'play:setGameType',
-      payload: { gameType },
-    });
-    if (!gameSetupComplete.current) {
-      gameSetupComplete.current = true;
-    }
-  }, [gameType, participants]);
+  // useEffect(() => {
+  //   if (!gameSetupComplete.current) {
+  //     console.log('dispatch');
+  //     dispatch({
+  //       type: 'play:setGameType',
+  //       payload: { gameType },
+  //     });
+  //     gameSetupComplete.current = true;
+  //   }
+  // }, [remoteState.gameType, participants, gameSetupComplete.current]);
+
+  // useEffect(() => {
+  //   console.log('remote state changed on server', remoteState);
+  // }, [remoteState]);
 
   // const overlayComponent = useMemo(() => {
-  //   console.log('RERENDER OVERLAY COMPONENT');
-  //   //TODO - find a way to pass the participants to the dialog
   //   if (gameInPendingMode || gameFinished) {
   //     return (
-
+  //       <GameStateDialog
+  //         onRematchRequest={() => {
+  //           dispatch({
+  //             type: 'play:sendOffer',
+  //             payload: { byParticipant: userId, offerType: 'rematch' },
+  //           });
+  //         }}
+  //         onAcceptOffer={({ id }) => {
+  //           dispatch({
+  //             type: 'play:acceptOffer',
+  //             payload: { id }, //TODO - currently not using it, only 1 offer at a time
+  //           });
+  //         }}
+  //         onDenyOffer={({ id }) => {
+  //           dispatch({
+  //             type: 'play:denyOffer',
+  //             payload: { id }, //TODO - currently not using it, only 1 offer at a time
+  //           });
+  //         }}
+  //       />
   //     );
   //   }
   //   return null;
   // }, [gameInPendingMode, gameFinished, remoteState]);
 
   return (
-    <GameActionsProvider remoteState={remoteState}>
+    <GameActionsProvider
+      remoteState={remoteState}
+      participants={participants}
+      clientUserId={userId}
+    >
       <DesktopRoomLayout
         rightSideSize={RIGHT_SIDE_SIZE_PX}
         mainComponent={({ boardSize }) => (
@@ -122,23 +147,33 @@ export const PlayActivity = ({
               canPlay={canPlay.current}
               overlayComponent={
                 <GameStateDialog
-                  gameState={game}
                   onRematchRequest={() => {
                     dispatch({
                       type: 'play:sendOffer',
                       payload: { byParticipant: userId, offerType: 'rematch' },
                     });
                   }}
-                  onAcceptOffer={({ id }) => {
+                  onAcceptOffer={({ offer }) => {
+                    if (offer === 'draw') {
+                      dispatch({
+                        type: 'play:acceptOfferDraw',
+                      });
+                    }
+                    if (offer === 'rematch') {
+                      dispatch({
+                        type: 'play:acceptOfferRematch',
+                      });
+                    }
+                  }}
+                  //TODO - at the moment nothing happens, later can decide if extra notifications when offer is cancelled
+                  onCancelOffer={() => {
                     dispatch({
-                      type: 'play:acceptOffer',
-                      payload: { id }, //TODO - currently not using it, only 1 offer at a time
+                      type: 'play:cancelOffer',
                     });
                   }}
-                  onDenyOffer={({ id }) => {
+                  onDenyOffer={() => {
                     dispatch({
                       type: 'play:denyOffer',
-                      payload: { id }, //TODO - currently not using it, only 1 offer at a time
                     });
                   }}
                 />
@@ -198,34 +233,30 @@ export const PlayActivity = ({
             )}
             <GameStateWidget
               game={game}
-              gameType={gameType}
+              gameType={remoteState.gameType}
               id={roomId}
               key={`${roomId}`}
               onTimerFinished={() => {
                 dispatch({
-                  type: 'play:setGameComplete',
-                  payload: {
-                    result: 'timeout',
-                  },
+                  type: 'play:timeout',
                 });
               }}
             />
-            <div className="flex flex-row gap-4">
-              <Button
-                size="sm"
-                bgColor="blue"
-                disabled={game.state !== 'ongoing'}
-              >
-                Offer Draw
-              </Button>
-              <Button
-                size="sm"
-                bgColor="red"
-                disabled={game.state !== 'ongoing'}
-              >
-                Resign
-              </Button>
-            </div>
+            <GameActions
+              orientation={orientation}
+              onOfferDraw={() => {
+                dispatch({
+                  type: 'play:sendOffer',
+                  payload: { byParticipant: userId, offerType: 'draw' },
+                });
+              }}
+              onResign={() => {
+                dispatch({
+                  type: 'play:resignGame',
+                  payload: { color: orientation },
+                });
+              }}
+            />
             <div className="bg-slate-700 p-3 flex flex-col flex-1 min-h-0 rounded-lg shadow-2xl">
               <GameNotation pgn={game.pgn} onUpdateFen={setFen} />
             </div>

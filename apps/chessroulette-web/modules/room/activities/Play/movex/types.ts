@@ -16,9 +16,8 @@ import { User } from 'apps/chessroulette-web/modules/user/type';
 type GameStateWinner = 'white' | 'black' | '1/2';
 type GameFinishResult = 'timeout' | 'mate' | 'resign' | 'draw';
 export type OfferType = 'takeback' | 'draw' | 'rematch';
-export type OfferStatus = 'pending' | 'accepted' | 'denied';
+export type OfferStatus = 'pending' | 'accepted' | 'denied' | 'cancelled';
 export type Offer = {
-  id: string;
   byParticipant: User['id'];
   //TODO - probably need toParticipant as well, but not sure how to get it now
   offerType: OfferType;
@@ -50,7 +49,7 @@ export type PlayActivityState = {
 export type PlayActivityActions =
   | Action<'play:move', ChessMoveWithTime>
   | Action<'play:setGameType', { gameType: GameType }>
-  | Action<'play:setGameComplete', { result: GameFinishResult }>
+  | Action<'play:timeout'>
   | Action<'play:startNewGame', { gameType: GameType }>
   | Action<'play:resignGame', { color: ChessColor }>
   | Action<
@@ -60,19 +59,10 @@ export type PlayActivityActions =
         offerType: OfferType;
       }
     >
-  | Action<
-      'play:acceptOffer',
-      {
-        id: string;
-      }
-    >
-  | Action<
-      'play:denyOffer',
-      {
-        id: string;
-      }
-    >
-  | Action<'play:acceptDraw'>
+  | Action<'play:acceptOfferDraw'>
+  | Action<'play:acceptOfferRematch'>
+  | Action<'play:denyOffer'>
+  | Action<'play:cancelOffer'>
   | Action<'play:drawCircle', CircleDrawTuple>
   | Action<'play:clearCircles'>
   | Action<'play:setArrows', ArrowsMap>;
