@@ -1,4 +1,4 @@
-import { noop } from 'movex-core-util';
+import { noop } from '@xmatter/util-kit';
 import { useEffect, useRef } from 'react';
 
 export const useInterval = (callback: () => void, delay?: number) => {

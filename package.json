@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
+    "tsc-web": "tsc -b apps/chessroulette-web",
     "seed": "node -r dotenv/config ./scripts/seed.js",
     "tsc-chessroulette": "npx tsc -b apps/chessroulette-web",
     "test": "jest",

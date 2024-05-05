@@ -8,9 +8,10 @@ type Props = {
   buttons?: ButtonProps[];
   onClose?: () => void;
   hasCloseButton?: boolean;
+  withModal?: boolean;
 };
 
-export const Dialog: React.FC<Props> = (props) => {
+export const Dialog: React.FC<Props> = ({ withModal = false, ...props }) => {
   return (
     <div className="flex flex-col gap-4">
       {props.hasCloseButton && (

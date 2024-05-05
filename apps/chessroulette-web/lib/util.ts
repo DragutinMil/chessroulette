@@ -1,8 +1,5 @@
-import { invoke, toDictIndexedBy } from '@xmatter/util-kit';
 import { isLeft, Either } from 'fp-ts/lib/Either';
 import { objectKeys } from 'movex-core-util';
-import { usePathname, useSearchParams } from 'next/navigation';
-import { useMemo } from 'react';
 import { Err, Ok, Result } from 'ts-results';
 
 // TODO: This might not need to use Eithe
@@ -27,12 +24,4 @@ export const formatURLSearchParams = (
   }
 
   return url.href;
-};
-
-export const chessGameTypeTimeDisplay = (time: number) => {
-  if (time < 60000) {
-    return `${Math.floor(time / 1000)} seconds`;
-  }
-  const result = Math.floor(time / 60000);
-  return `${result} ${result === 1 ? 'minute' : 'minutes'}`;
 };

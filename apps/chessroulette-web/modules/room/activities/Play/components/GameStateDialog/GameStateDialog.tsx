@@ -1,15 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import { Dialog } from './Dialog';
-import { Text } from '../Text';
 import { useGameActions } from 'apps/chessroulette-web/modules/room/activities/Play/providers/useGameActions';
 import { objectKeys } from '@xmatter/util-kit';
 import { OfferType } from 'apps/chessroulette-web/modules/room/activities/Play/movex';
+import { Dialog } from 'apps/chessroulette-web/components/Dialog/Dialog';
+import { Text } from 'apps/chessroulette-web/components/Text';
+import { RoomSideMenu } from 'apps/chessroulette-web/modules/room/components/RoomSideMenu';
 
 type Props = {
   onAcceptOffer: ({ offer }: { offer: OfferType }) => void;
   onDenyOffer: () => void;
   onRematchRequest: () => void;
   onCancelOffer: () => void;
+  roomId: string;
 };
 
 export const GameStateDialog: React.FC<Props> = ({
@@ -17,9 +19,10 @@ export const GameStateDialog: React.FC<Props> = ({
   onAcceptOffer,
   onDenyOffer,
   onCancelOffer,
+  roomId,
 }) => {
   const [gameResultSeen, setGameResultSeen] = useState(false);
-  const { currentActiveOffer, gameState, participants, clientUserId } =
+  const { currentActiveOffer, gameState, players, clientUserId } =
     useGameActions();
 
   useEffect(() => {
@@ -28,11 +31,17 @@ export const GameStateDialog: React.FC<Props> = ({
   }, [gameState.state]);
 
   const content = (() => {
-    if (
-      gameState.state === 'pending' &&
-      objectKeys(participants || {}).length < 2
-    ) {
-      return <Dialog title="Waiting for Opponent" content={<div></div>} />;
+    if (gameState.state === 'pending' && objectKeys(players || {}).length < 2) {
+      return (
+        <Dialog
+          title="Waiting for Opponent"
+          content={
+            <div>
+              <RoomSideMenu activity="play" roomId={roomId} />
+            </div>
+          }
+        />
+      );
     }
     if (
       gameState.state === 'complete' &&
@@ -52,7 +61,6 @@ export const GameStateDialog: React.FC<Props> = ({
                 ))}
             </div>
           }
-          hasCloseButton
           onClose={() => {
             setGameResultSeen(true);
           }}
@@ -74,7 +82,7 @@ export const GameStateDialog: React.FC<Props> = ({
       }
       if (currentActiveOffer.offerType === 'rematch') {
         if (currentActiveOffer.status === 'pending') {
-          if (currentActiveOffer.byParticipant === clientUserId) {
+          if (currentActiveOffer.byPlayer === clientUserId) {
             return (
               <Dialog
                 title="Rematch ?"
@@ -126,7 +134,7 @@ export const GameStateDialog: React.FC<Props> = ({
           );
         }
         if (currentActiveOffer.status === 'denied') {
-          if (currentActiveOffer.byParticipant === clientUserId) {
+          if (currentActiveOffer.byPlayer === clientUserId) {
             return (
               <Dialog
                 title="Offer Denied"
@@ -154,7 +162,7 @@ export const GameStateDialog: React.FC<Props> = ({
         currentActiveOffer.offerType === 'draw' &&
         currentActiveOffer.status === 'pending'
       ) {
-        if (currentActiveOffer.byParticipant === clientUserId) {
+        if (currentActiveOffer.byPlayer === clientUserId) {
           return (
             <Dialog
               title="Draw ?"
@@ -208,7 +216,7 @@ export const GameStateDialog: React.FC<Props> = ({
 
       if (currentActiveOffer.offerType === 'takeback') {
         if (currentActiveOffer.status === 'pending') {
-          if (currentActiveOffer.byParticipant === clientUserId) {
+          if (currentActiveOffer.byPlayer === clientUserId) {
             return (
               <Dialog
                 title="Takeback ?"
@@ -260,7 +268,7 @@ export const GameStateDialog: React.FC<Props> = ({
           );
         }
         if (currentActiveOffer.status === 'denied') {
-          if (currentActiveOffer.byParticipant === clientUserId) {
+          if (currentActiveOffer.byPlayer === clientUserId) {
             return (
               <Dialog
                 title="Offer Denied"

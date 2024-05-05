@@ -5,9 +5,9 @@ import React, { useState } from 'react';
 import { links } from '../room/links';
 import Link from 'next/link';
 import { Menu, Item, useContextMenu } from 'react-contexify';
-import { chessGameTimeLimitMsMap } from '../room/activities/Play/components/Countdown/types';
 import { objectKeys } from '@xmatter/util-kit';
-import { chessGameTypeTimeDisplay } from 'apps/chessroulette-web/lib/util';
+import { chessGameTypeTimeDisplay } from '../room/activities/Play/lib/utils';
+import { chessGameTimeLimitMsMap } from '../room/activities/Play/types';
 
 type Props = {
   session?: Session;

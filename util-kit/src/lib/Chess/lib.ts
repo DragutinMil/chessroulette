@@ -39,18 +39,6 @@ export const isDarkSquare = (s: Square): boolean => {
 
 export const isLightSquare = (s: Square): boolean => !isDarkSquare(s);
 
-export const toOtherChessColor = (c: ChessColor): ChessColor => {
-  return c === 'w' ? 'b' : c === 'white' ? 'black' : c === 'b' ? 'w' : 'white';
-};
-
-export const toOtherShortChessColor = (c: ShortChessColor): ShortChessColor => {
-  return c === 'w' ? 'b' : 'w';
-};
-
-export const toOtherLongChessColor = (c: LongChessColor): LongChessColor => {
-  return c === 'white' ? 'black' : 'white';
-};
-
 export const toChessArrowId = ([from, to, color]: Arrow): ChessArrowId =>
   `${from}${to}-${color}`;
 

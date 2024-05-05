@@ -20,8 +20,11 @@ import {
   initialActivityState,
   initialActivityStatesByActivityType,
 } from '../activities/movex';
-import { chessGameTimeLimitMsMap } from '../activities/Play/components/Countdown/types';
-import { GameType } from '../activities/Play/types';
+import {
+  GameType,
+  chessGameTimeLimitMsMap,
+  gameTypeRecord,
+} from '../activities/Play/types';
 
 type Props = {
   activity: ActivityState['activityType']; // To expand in the future
@@ -70,36 +73,35 @@ export const JoinOrCreateRoom: React.FC<Props> = ({
     }
 
     invoke(() => {
+      const updateableSearchParamsObject = updateableSearchParams.toObject();
+      const parsedGameType = gameTypeRecord.safeParse(
+        updateableSearchParamsObject.gameType
+      );
+      const gameType: GameType = parsedGameType.success
+        ? parsedGameType.data
+        : 'untimed';
+
       if (mode === 'create') {
         return roomResource.create(
           {
             ...initialRoomState,
             activity: {
               ...initialActivityStatesByActivityType[activity],
-              ...(activity === 'play' &&
-                updateableSearchParams.toObject().gameType && {
-                  activityState: {
+              ...(activity === 'play' && {
+                activityState: {
+                  ...initialActivityStatesByActivityType[activity]
+                    .activityState,
+                  gameType,
+                  game: {
                     ...initialActivityStatesByActivityType[activity]
-                      .activityState,
-                    gameType: updateableSearchParams.toObject().gameType,
-                    game: {
-                      ...initialActivityStatesByActivityType[activity]
-                        .activityState.game,
-                      timeLeft: {
-                        white:
-                          chessGameTimeLimitMsMap[
-                            updateableSearchParams.toObject()
-                              .gameType as GameType
-                          ],
-                        black:
-                          chessGameTimeLimitMsMap[
-                            updateableSearchParams.toObject()
-                              .gameType as GameType
-                          ],
-                      },
+                      .activityState.game,
+                    timeLeft: {
+                      white: chessGameTimeLimitMsMap[gameType],
+                      black: chessGameTimeLimitMsMap[gameType],
                     },
                   },
-                }),
+                },
+              }),
             } as unknown as RoomState['activity'],
           },
           getRandomStr(7) // the new room id
@@ -128,30 +130,21 @@ export const JoinOrCreateRoom: React.FC<Props> = ({
               activity: {
                 ...initialActivityStatesByActivityType[activity],
                 //TODO - this works but definitely not the prettiest & no typesafety -> find better way
-                ...(activity === 'play' &&
-                  updateableSearchParams.toObject().gameType && {
-                    activityState: {
+                ...(activity === 'play' && {
+                  activityState: {
+                    ...initialActivityStatesByActivityType[activity]
+                      .activityState,
+                    gameType,
+                    game: {
                       ...initialActivityStatesByActivityType[activity]
-                        .activityState,
-                      gameType: updateableSearchParams.toObject().gameType,
-                      game: {
-                        ...initialActivityStatesByActivityType[activity]
-                          .activityState.game,
-                        timeLeft: {
-                          white:
-                            chessGameTimeLimitMsMap[
-                              updateableSearchParams.toObject()
-                                .gameType as GameType
-                            ],
-                          black:
-                            chessGameTimeLimitMsMap[
-                              updateableSearchParams.toObject()
-                                .gameType as GameType
-                            ],
-                        },
+                        .activityState.game,
+                      timeLeft: {
+                        white: chessGameTimeLimitMsMap[gameType],
+                        black: chessGameTimeLimitMsMap[gameType],
                       },
                     },
-                  }),
+                  },
+                }),
               } as unknown as RoomState['activity'],
             },
             id

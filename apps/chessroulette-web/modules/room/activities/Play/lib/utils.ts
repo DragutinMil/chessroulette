@@ -37,3 +37,11 @@ export const lpad = function (digit: number, length = 2, padding = '0') {
   }
   return res;
 };
+
+export const chessGameTypeTimeDisplay = (time: number) => {
+  if (time < 60000) {
+    return `${Math.floor(time / 1000)} seconds`;
+  }
+  const result = Math.floor(time / 60000);
+  return `${result} ${result === 1 ? 'minute' : 'minutes'}`;
+};

@@ -30,7 +30,7 @@ export type Props = {
   participants?: UsersMap;
   remoteState: MeetupActivityState['activityState'];
   dispatch?: MovexBoundResourceFromConfig<
-    (typeof movexConfig)['resources'],
+    typeof movexConfig['resources'],
     'room'
   >['dispatch'];
 };
@@ -155,7 +155,7 @@ export const MeetupActivity = ({
                   otherwise it's too soon and won't connect to the Peers */}
               {/* // TODO: Is this still the case with the new movex subscribers updates? */}
               <CameraPanel
-                participants={participants}
+                players={participants}
                 userId={userId}
                 peerGroupId={roomId}
                 iceServers={iceServers}

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Countdown } from '../Countdown/Countdown';
-import { ChessColor, toLongColor } from '@xmatter/util-kit';
+import { ChessColor, toShortColor } from '@xmatter/util-kit';
 import { GameType } from '../../types';
 
 type Props = {
@@ -18,7 +18,7 @@ export const PlayerBox: React.FC<Props> = (props) => {
       <div
         className={`capitalize w-12 ${
           props.turn &&
-          props.turn === toLongColor(props.color) &&
+          toShortColor(props.turn) === toShortColor(props.color) &&
           'text-purple-400 font-bold'
         }`}
       >

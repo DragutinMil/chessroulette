@@ -98,7 +98,7 @@ export const RoomContainer = ({ iceServers, rid, activity }: Props) => {
         userId={userId}
         roomId={toResourceIdentifierObj(rid).resourceId}
         dispatch={movexResource?.dispatch}
-        participants={participants}
+        players={participants}
         iceServers={iceServers}
         remoteState={
           movexResource?.state.activity.activityType === 'play'

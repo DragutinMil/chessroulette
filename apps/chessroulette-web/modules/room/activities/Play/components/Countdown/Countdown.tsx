@@ -1,10 +1,9 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { lpad, timeLeftToInterval, timeLeftToTimeUnits } from './util';
 import { CountdownDisplay } from './CountdownDisplay';
-import { chessGameTimeLimitMsMap } from './types';
 import { noop } from 'movex-core-util';
 import { useInterval } from 'apps/chessroulette-web/hooks/useInterval';
-import { GameType } from '../../types';
+import { GameType, chessGameTimeLimitMsMap } from '../../types';
+import { lpad, timeLeftToInterval, timeLeftToTimeUnits } from '../../lib/utils';
 
 type Props = {
   gameTimeClass: GameType;
@@ -20,7 +19,7 @@ export const Countdown: React.FC<Props> = ({
   gameTimeClass,
   ...props
 }) => {
-  const [finished, setFinished] = useState(false as boolean);
+  const [finished, setFinished] = useState(false);
   const [timeLeft, setTimeLeft] = useState(props.timeLeft);
   const [interval, setInterval] = useState(timeLeftToInterval(props.timeLeft));
   const [gameTimeClassInMs, setGameTimeClassInMs] = useState(

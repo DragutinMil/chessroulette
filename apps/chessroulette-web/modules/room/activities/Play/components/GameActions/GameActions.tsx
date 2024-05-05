@@ -1,7 +1,8 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useGameActions } from '../../providers/useGameActions';
 import { ChessColor, toLongColor } from '@xmatter/util-kit';
-import { ActionButton } from 'apps/chessroulette-web/components/Button/ActionButton';
+import { Icon } from 'apps/chessroulette-web/components/Icon';
+import { QuickConfirmButton } from 'apps/chessroulette-web/components/Button/QuickConfirmButton';
 
 type Props = {
   onOfferDraw: () => void;
@@ -47,7 +48,7 @@ export const GameActions: React.FC<Props> = ({
           : 'flex flex-col h-full gap-2 justify-end items-start content-start'
       }`}
     >
-      <ActionButton
+      {/* <ActionButton
         actionType="positive"
         label="Draw"
         type="primary"
@@ -64,8 +65,25 @@ export const GameActions: React.FC<Props> = ({
           toLongColor(orientation) === gameState.lastMoveBy ||
           offerAlreadySend.current
         }
-      />
-      <ActionButton
+      />*/}
+      <QuickConfirmButton
+        size="sm"
+        confirmationBgcolor="blue"
+        confirmationMessage="Invite to Draw?"
+        onClick={() => {
+          onOfferDraw();
+          setOfferSent();
+        }}
+        disabled={
+          gameState.state !== 'ongoing' ||
+          !!currentActiveOffer ||
+          toLongColor(orientation) === gameState.lastMoveBy ||
+          offerAlreadySend.current
+        }
+      >
+        <Icon name="FlagIcon" className="h-4 w-4" color="white" />
+      </QuickConfirmButton>
+      {/*<ActionButton
         actionType="positive"
         label="Takeback"
         type="primary"
@@ -82,8 +100,25 @@ export const GameActions: React.FC<Props> = ({
           !!offerAlreadySend ||
           toLongColor(orientation) !== gameState.lastMoveBy
         }
-      />
-      <ActionButton
+      />*/}
+      <QuickConfirmButton
+        size="sm"
+        confirmationBgcolor="indigo"
+        confirmationMessage="Ask for Takeback?"
+        onClick={() => {
+          onTakeback();
+          setOfferSent();
+        }}
+        disabled={
+          gameState.state !== 'ongoing' ||
+          !!currentActiveOffer ||
+          !!offerAlreadySend ||
+          toLongColor(orientation) !== gameState.lastMoveBy
+        }
+      >
+        <Icon name="ArrowUturnLeftIcon" className="h-4 w-4" color="white" />
+      </QuickConfirmButton>
+      {/*<ActionButton
         actionType="negative"
         label="Resign"
         type="primary"
@@ -92,7 +127,16 @@ export const GameActions: React.FC<Props> = ({
         icon="XCircleIcon"
         color="red"
         disabled={gameState.state !== 'ongoing' || !!currentActiveOffer}
-      />
+      />*/}
+      <QuickConfirmButton
+        size="sm"
+        confirmationBgcolor="red"
+        confirmationMessage="Confirm Resign?"
+        onClick={onResign}
+        disabled={gameState.state !== 'ongoing' || !!currentActiveOffer}
+      >
+        <Icon name="XCircleIcon" className="h-4 w-4" color="white" />
+      </QuickConfirmButton>
     </div>
   );
 };

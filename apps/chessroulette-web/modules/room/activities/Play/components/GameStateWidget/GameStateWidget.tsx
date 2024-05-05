@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { PlayerBox } from '../PlayerBox/PlayerBox';
 import { PlayActivityState } from '../../movex';
 import { GameType } from '../../types';
-import { useGameTimeLeft } from '../../hooks/useGameState';
+import { useGameTimeLeft } from '../../hooks/useGameTimeLeft';
 import { ChessFENBoard, pgnToFen, toLongColor } from '@xmatter/util-kit';
 
 type Props = {
@@ -25,10 +25,6 @@ export const GameStateWidget: React.FC<Props> = (props) => {
 
   return (
     <div className="flex flex-col gap-2">
-      <div className="flex flex-row justify-end gap-2">
-        <div className="font-bold">Game Type: </div>
-        <div className="capitalize">{props.gameType}</div>
-      </div>
       <div className="flex flex-row w-full justify-end">
         <div className="flex flex-col gap-1">
           <PlayerBox

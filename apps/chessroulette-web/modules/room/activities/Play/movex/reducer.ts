@@ -7,12 +7,11 @@ import {
   ChessColor,
   getNewChessGame,
   swapColor,
-  toOtherLongChessColor,
+  toLongColor,
 } from '@xmatter/util-kit';
 import { initialPlayActivityState } from './state';
-import { chessGameTimeLimitMsMap } from '../components/Countdown/types';
 import { Offer, PlayActivityState } from './types';
-import { GameType } from '../types';
+import { GameType, chessGameTimeLimitMsMap } from '../types';
 
 const setupNewGame = (
   gameType: GameType,
@@ -80,7 +79,7 @@ export const reducer = (
             isCheckMate)
         ? 'complete'
         : 'ongoing';
-    const turn = toOtherLongChessColor(lastMoveBy);
+    const turn = toLongColor(swapColor(lastMoveBy));
 
     return {
       ...prev,
@@ -122,22 +121,10 @@ export const reducer = (
     };
   }
 
-  if (action.type === 'play:startNewGame') {
-    const game = setupNewGame(
-      action.payload.gameType,
-      swapColor(prev.activityState.game.orientation)
-    );
-    return {
-      ...prev,
-      activityState: {
-        ...prev.activityState,
-        gameType: action.payload.gameType,
-        game,
-      },
-    };
-  }
-
   if (action.type === 'play:timeout') {
+    if (prevActivityState.game.state !== 'ongoing') {
+      return prev;
+    }
     //clear any pending offer leftover
     const lastOffer =
       prevActivityState.offers.length > 0 &&
@@ -184,11 +171,11 @@ export const reducer = (
   }
 
   if (action.type === 'play:sendOffer') {
-    const { byParticipant, offerType } = action.payload;
+    const { byPlayer, offerType } = action.payload;
     const offers: Offer[] = [
       ...prevActivityState.offers,
       {
-        byParticipant,
+        byPlayer,
         offerType,
         status: 'pending',
       },
@@ -271,8 +258,7 @@ export const reducer = (
       prevActivityState.game.timeLeft[prevActivityState.game.lastMoveBy] -
       elapsedTime;
 
-    const turn = toOtherLongChessColor(prev.activityState.game.lastMoveBy);
-
+    const turn = toLongColor(swapColor(prev.activityState.game.lastMoveBy));
     return {
       ...prev,
       activityState: {
