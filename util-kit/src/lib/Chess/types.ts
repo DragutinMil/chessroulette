@@ -13,6 +13,10 @@ export type ShortChessMove = {
   promoteTo?: PromotionalPieceSan;
 };
 
+export type ChessMoveWithTime = ChessMove & {
+  moveAt: number;
+};
+
 export type DetailedChessMove = Pick<
   Move,
   'color' | 'san' | 'to' | 'from' | 'piece' | 'captured' | 'promotion'

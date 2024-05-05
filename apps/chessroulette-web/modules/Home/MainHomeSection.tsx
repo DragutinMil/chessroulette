@@ -75,7 +75,7 @@ export const MainHomeSection: React.FC<Props> = ({ session }) => {
           ))}
         </Menu>
         <Button
-          onClick={(event) => show({ event })}
+          onClick={(event) => show({ event })} //TODO - transform into div
           type="custom"
           bgColor="orange"
           className="font-bold w-full"

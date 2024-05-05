@@ -52,6 +52,7 @@ export type ChessboardContainerProps = Omit<
   onCircleDraw?: (circleTuple: CircleDrawTuple) => void;
   onClearCircles?: () => void;
   boardTheme: BoardTheme;
+  overlayComponent?: React.ReactNode;
 } & (
     | {
         rightSideComponent: React.ReactNode;
@@ -422,6 +423,11 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
               setPromoMove(undefined);
             }}
           />
+        )}
+        {props.overlayComponent && (
+          <div className="absolute w-full h-full top-0 left-0 z-50 flex justify-center content-center items-center">
+            <div>{props.overlayComponent}</div>
+          </div>
         )}
       </div>
       <div

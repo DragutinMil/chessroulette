@@ -8,6 +8,7 @@ import { Icon } from 'apps/chessroulette-web/components/Icon';
 import { useMemo } from 'react';
 import { useRoomSettings } from '../hooks/useRoomSettings';
 import { roomSettingsIsPlay } from '../utils';
+import { GameType } from '../activities/Play/types';
 
 type Props = {
   roomId: string;

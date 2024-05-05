@@ -1,4 +1,9 @@
-import { ChessColor, ChessMove, ChessPGN } from '@xmatter/util-kit';
+import {
+  ChessColor,
+  ChessMoveWithTime,
+  ChessPGN,
+  LongChessColor,
+} from '@xmatter/util-kit';
 import {
   ArrowsMap,
   CircleDrawTuple,
@@ -7,23 +12,34 @@ import {
 import { Action } from 'movex-core-util';
 import { GameState, GameType } from '../types';
 
+type GameStateWinner = 'white' | 'black' | '1/2';
+type GameFinishResult = 'timeout' | 'mate' | 'resign' | 'draw';
+
 export type PlayActivityState = {
   activityType: 'play';
-  gameType: GameType;
   activityState: {
     game: {
       arrowsMap: ArrowsMap;
       circlesMap: CirclesMap;
       orientation: ChessColor;
       pgn: ChessPGN;
+      timeLeft: {
+        white: number;
+        black: number;
+      };
+      lastMoveBy: LongChessColor;
+      lastMoveAt: number;
+      state: GameState;
+      winner?: GameStateWinner;
     };
-    gameState: GameState;
+    gameType: GameType;
   };
 };
 
 export type PlayActivityActions =
-  | Action<'play:move', ChessMove>
+  | Action<'play:move', ChessMoveWithTime>
   | Action<'play:setGameType', { gameType: GameType }>
+  | Action<'play:setGameComplete', { result: GameFinishResult }>
   | Action<'play:startNewGame'>
   | Action<'play:drawCircle', CircleDrawTuple>
   | Action<'play:clearCircles'>

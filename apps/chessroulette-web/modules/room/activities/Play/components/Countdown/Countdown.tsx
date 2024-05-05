@@ -31,6 +31,8 @@ export const Countdown: React.FC<Props> = ({
     setGameTimeClassInMs(chessGameTimeLimitMsMap[gameTimeClass]);
   }, [gameTimeClass]);
 
+  useEffect(() => {}, [finished, props.active]);
+
   useInterval(
     () => {
       setTimeLeft((prev) => prev - interval);
@@ -45,7 +47,7 @@ export const Countdown: React.FC<Props> = ({
   useEffect(() => {
     setInterval(timeLeftToInterval(timeLeft));
 
-    if (timeLeft <= 0) {
+    if (timeLeft <= 0 && props.active) {
       setFinished(true);
     }
   }, [timeLeft]);
@@ -65,7 +67,6 @@ export const Countdown: React.FC<Props> = ({
         canShowMilliseconds: false,
       };
     }
-
     return {
       major: lpad(times.minutes),
       minor: lpad(times.seconds),

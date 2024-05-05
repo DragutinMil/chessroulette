@@ -5,7 +5,8 @@ export type ChessGameTimeMap = {
 };
 
 export const chessGameTimeLimitMsMap: ChessGameTimeMap = {
-  blitz: 1,
-  rapid: 5,
-  untimed: 0,
+  flash: 10000,
+  blitz: 60000,
+  rapid: 300000,
+  untimed: -1,
 };

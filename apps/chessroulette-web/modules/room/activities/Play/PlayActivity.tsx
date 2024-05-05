@@ -12,9 +12,9 @@ import { IconButton } from 'apps/chessroulette-web/components/Button';
 import { PanelResizeHandle } from 'react-resizable-panels';
 import { PlayActivityState } from './movex';
 import { usePlayActivitySettings } from './usePlayActivitySettings';
-import { GameDisplayView } from './components/Game/GameDisplayView';
 import { GameNotation } from '../Meetup/components/GameNotation';
-import { Countdown } from './components/Countdown/Countdown';
+import { GameStateWidget } from './components/GameStateWidget/GameStateWidget';
+import { GameStateDialog } from 'apps/chessroulette-web/components/Dialog/GameStateDialog';
 
 export type Props = {
   roomId: string;
@@ -38,8 +38,14 @@ export const PlayActivity = ({
 }: Props) => {
   const activitySettings = usePlayActivitySettings();
   const dispatch = optionalDispatch || noop;
-  const { game, gameState } = remoteState;
+  const { game } = remoteState;
+
+  const [gameInPendingMode, setGameInPendingMode] = useState(true);
+  const [gameFinished, setGameFinished] = useState(false);
+
   const canPlay = useRef(false);
+  const gameSetupComplete = useRef(false);
+
   //TODO - remove this, improve logic
   const [_, rerender] = useReducer((s) => s + 1, 0);
 
@@ -53,91 +59,122 @@ export const PlayActivity = ({
   );
 
   const gameType = useMemo(() => activitySettings.gameType, []);
+
   useEffect(() => {
     //TODO - improve logic here, to messy
     if (!canPlay.current) {
       if (participants && objectKeys(participants).length > 1) {
         canPlay.current = true;
+        setGameInPendingMode(false);
         rerender();
       }
     }
   }, [participants]);
 
   useEffect(() => {
+    if (game.state === 'complete') {
+      if (canPlay.current) {
+        //TODO - again improve logic
+        canPlay.current = false;
+        // rerender();
+      }
+      setGameFinished(true);
+    }
+  }, [game.state]);
+
+  useEffect(() => {
+    console.log('dispatch');
     dispatch({
       type: 'play:setGameType',
       payload: { gameType },
     });
-  }, []);
+    if (!gameSetupComplete.current) {
+      gameSetupComplete.current = true;
+    }
+  }, [gameType, participants]);
+
+  const overlayComponent = useMemo(() => {
+    //TODO - find a way to pass the participants to the dialog
+    if (gameInPendingMode || gameFinished) {
+      return <GameStateDialog gameState={game} />;
+    }
+    return null;
+  }, [gameInPendingMode, gameFinished]);
 
   return (
     <DesktopRoomLayout
       rightSideSize={RIGHT_SIDE_SIZE_PX}
       mainComponent={({ boardSize }) => (
-        <Playboard
-          sizePx={boardSize}
-          fen={fen}
-          canPlay={canPlay.current}
-          // {...currentChapter}
-          // boardOrientation={orientation}
-          playingColor={orientation}
-          // onFlip={() => {
-          //   dispatch({
-          //     type: 'loadedChapter:setOrientation',
-          //     payload: swapColor(currentChapter.orientation),
-          //   });
-          // }}
-          onMove={(payload) => {
-            dispatch({
-              type: 'play:move',
-              payload,
-            });
-            // dispatch({ type: 'loadedChapter:addMove', payload });
+        <>
+          <Playboard
+            sizePx={boardSize}
+            fen={fen}
+            canPlay={canPlay.current}
+            overlayComponent={overlayComponent}
+            // {...currentChapter}
+            // boardOrientation={orientation}
+            playingColor={orientation}
+            // onFlip={() => {
+            //   dispatch({
+            //     type: 'loadedChapter:setOrientation',
+            //     payload: swapColor(currentChapter.orientation),
+            //   });
+            // }}
+            onMove={(payload) => {
+              dispatch({
+                type: 'play:move',
+                payload: {
+                  ...payload,
+                  moveAt: new Date().getTime(),
+                },
+              });
+              // dispatch({ type: 'loadedChapter:addMove', payload });
 
-            // TODO: This can be returned from a more internal component
-            return true;
-          }}
-          onArrowsChange={(payload) => {
-            // dispatch({ type: 'loadedChapter:setArrows', payload });
-          }}
-          onCircleDraw={(tuple) => {
-            // dispatch({
-            //   type: 'loadedChapter:drawCircle',
-            //   payload: tuple,
-            // });
-          }}
-          onClearCircles={() => {
-            // dispatch({ type: 'loadedChapter:clearCircles' });
-          }}
-          rightSideSizePx={RIGHT_SIDE_SIZE_PX}
-          rightSideClassName="flex flex-col"
-          rightSideComponent={
-            <>
-              <div className="flex-1">
-                <IconButton
-                  icon="ArrowPathIcon"
-                  iconKind="outline"
-                  type="clear"
-                  size="sm"
-                  tooltip="Restart Game"
-                  tooltipPositon="left"
-                  className="mb-2"
-                  onClick={() => {
-                    dispatch({ type: 'play:startNewGame' });
-                  }}
-                />
-              </div>
+              // TODO: This can be returned from a more internal component
+              return true;
+            }}
+            onArrowsChange={(payload) => {
+              // dispatch({ type: 'loadedChapter:setArrows', payload });
+            }}
+            onCircleDraw={(tuple) => {
+              // dispatch({
+              //   type: 'loadedChapter:drawCircle',
+              //   payload: tuple,
+              // });
+            }}
+            onClearCircles={() => {
+              // dispatch({ type: 'loadedChapter:clearCircles' });
+            }}
+            rightSideSizePx={RIGHT_SIDE_SIZE_PX}
+            rightSideClassName="flex flex-col"
+            rightSideComponent={
+              <>
+                <div className="flex-1">
+                  <IconButton
+                    icon="ArrowPathIcon"
+                    iconKind="outline"
+                    type="clear"
+                    size="sm"
+                    tooltip="Restart Game"
+                    tooltipPositon="left"
+                    className="mb-2"
+                    onClick={() => {
+                      dispatch({ type: 'play:startNewGame' });
+                    }}
+                  />
+                </div>
 
-              <div className="relative flex flex-col items-center justify-center">
-                <PanelResizeHandle
-                  className="w-1 h-20 rounded-lg bg-slate-600"
-                  title="Resize"
-                />
-              </div>
-              <div className="flex-1" />
-            </>
-          }
-        />
+                <div className="relative flex flex-col items-center justify-center">
+                  <PanelResizeHandle
+                    className="w-1 h-20 rounded-lg bg-slate-600"
+                    title="Resize"
+                  />
+                </div>
+                <div className="flex-1" />
+              </>
+            }
+          />
+        </>
       )}
       rightComponent={
         <div className="flex flex-col flex-1 min-h-0 gap-4">
@@ -170,14 +207,41 @@ export const PlayActivity = ({
             <span className="capitalize">Editing</span>
             <span className="font-bold">"{game.orientation}"</span>
           </div> */}
-          <GameDisplayView game={game} />
+
+          <GameStateWidget
+            game={game}
+            gameType={gameType}
+            id={roomId}
+            key={`${roomId}`}
+            onTimerFinished={() => {
+              dispatch({
+                type: 'play:setGameComplete',
+                payload: {
+                  result: 'timeout',
+                },
+              });
+            }}
+          />
+          {/*<GameDisplayView game={game} />
           <div className="flex flex-row gap-5">
             <div className="capitalize">{gameType}</div>
-            <Countdown
-              active={gameState === 'ongoing'}
-              gameTimeClass={gameType}
+
+            <PlayerBox
+              key={`${roomId}-white`}
+              color="white"
+              active={game.state === 'ongoing' && game.lastMoveBy !== 'white'}
+              gameType={gameType}
+              timeLeft={game.timeLeft['white']}
+            />
+            <PlayerBox
+              key={`${roomId}-black`}
+              color="black"
+              active={game.state === 'ongoing' && game.lastMoveBy !== 'black'}
+              gameType={gameType}
+              timeLeft={game.timeLeft['black']}
             />
           </div>
+          */}
           <div className="bg-slate-700 p-3 flex flex-col flex-1 min-h-0 rounded-lg shadow-2xl">
             <GameNotation pgn={game.pgn} onUpdateFen={setFen} />
           </div>

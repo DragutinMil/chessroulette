@@ -17,6 +17,7 @@ import {
 type Props = DistributiveOmit<ChessboardContainerProps, 'boardTheme'> & {
   playingColor?: ChessColor;
   canPlay?: boolean;
+  overlayComponent: React.ReactNode;
 };
 
 export const Playboard = ({
