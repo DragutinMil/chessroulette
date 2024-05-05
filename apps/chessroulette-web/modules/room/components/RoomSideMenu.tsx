@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { Icon } from 'apps/chessroulette-web/components/Icon';
 import { useMemo } from 'react';
 import { useRoomSettings } from '../hooks/useRoomSettings';
+import { roomSettingsIsPlay } from '../utils';
 
 type Props = {
   roomId: string;
@@ -21,21 +22,21 @@ export const RoomSideMenu = ({ roomId, activity }: Props) => {
     if (!(roomSettings.showJoinRoomLink && url)) {
       return undefined;
     }
-
-    return {
-      url: links.getJoinRoomLink(
-        {
-          id: roomId,
-          activity,
-          theme: roomSettings.theme,
-          ...roomSettings.joinRoomLinkParams,
-        },
-        {
-          origin: url.origin,
-        }
-      ),
-      tooltip: roomSettings.joinRoomLinkTooltip,
-    };
+    return links.getJoinRoomLink(
+      {
+        id: roomId,
+        activity,
+        ...(activity === 'play' &&
+          roomSettingsIsPlay(roomSettings) && {
+            gameType: roomSettings.gameType,
+          }),
+        theme: roomSettings.theme,
+        ...roomSettings.joinRoomLinkParams,
+      },
+      {
+        origin: url.origin,
+      }
+    );
   }, [roomSettings.showJoinRoomLink, activity, url?.origin]);
 
   return (
@@ -43,12 +44,12 @@ export const RoomSideMenu = ({ roomId, activity }: Props) => {
       {joinRoomLink && (
         <ClipboardCopyButton
           buttonComponentType="Button"
-          value={joinRoomLink.url}
+          value={joinRoomLink}
           render={(copied) => (
             <>
               {copied ? (
                 <Link
-                  href={joinRoomLink.url}
+                  href={joinRoomLink}
                   target="_blank"
                   onClick={(e) => e.preventDefault()}
                 >
@@ -62,7 +63,7 @@ export const RoomSideMenu = ({ roomId, activity }: Props) => {
           bgColor="green"
           type="custom"
           size="sm"
-          tooltip={joinRoomLink.tooltip}
+          tooltip={activity === 'play' ? 'Invite Player' : 'Invite Student'}
         />
       )}
     </div>

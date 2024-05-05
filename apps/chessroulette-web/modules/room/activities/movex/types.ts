@@ -3,6 +3,7 @@ import type {
   MeetupActivityState,
   MeetupActivityActions,
 } from '../Meetup/movex';
+import { PlayActivityState } from '../Play/movex';
 
 export type NoneActivityState = {
   activityType: 'none';
@@ -12,6 +13,7 @@ export type NoneActivityState = {
 export type ActivityState =
   | LearnActivityState
   | MeetupActivityState
-  | NoneActivityState;
+  | NoneActivityState
+  | PlayActivityState;
 
 export type ActivityActions = LearnActivityActions | MeetupActivityActions;

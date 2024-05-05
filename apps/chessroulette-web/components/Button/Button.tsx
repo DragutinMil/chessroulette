@@ -83,10 +83,7 @@ export const buttonIconClasses = {
   xs: 'h-3 w-3',
 };
 
-export const Button = React.forwardRef<
-  HTMLButtonElement | null,
-  ButtonProps
->(
+export const Button = React.forwardRef<HTMLButtonElement | null, ButtonProps>(
   (
     {
       children,

@@ -84,6 +84,23 @@ export function GET(request: NextRequest) {
     });
   }
 
+  if (activityParams.activity === 'play') {
+    return NextResponse.json({
+      links: [
+        {
+          userRole: 'participant',
+          url: links.getOnDemandRoomCreationLink(
+            {
+              ...objectOmit(activityParams, ['client']),
+              id: roomId,
+            },
+            request.nextUrl
+          ),
+        },
+      ],
+    });
+  }
+
   return NextResponse.json(
     {
       Error: `Ooops! this shouldn't happen.`,

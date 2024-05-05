@@ -14,6 +14,8 @@ import { objectKeys } from '@xmatter/util-kit';
 import { UsersMap } from '../user/type';
 import { MovexClientInfo } from 'apps/chessroulette-web/providers/MovexProvider';
 import { ChessEngineProvider } from '../ChessEngine/ChessEngineProvider';
+import { PlayActivity } from './activities/Play/PlayActivity';
+import { initialPlayActivityState } from './activities/Play/movex/state';
 
 type Props = {
   rid: ResourceIdentifier<'room'>;
@@ -55,19 +57,19 @@ export const RoomContainer = ({ iceServers, rid, activity }: Props) => {
       //   // uciUrl="ws://localhost:5222/senduci"
       //   uciUrl="wss://chessroulette-engine.fly.dev/senduci"
       // >
-        <LearnActivity
-          userId={userId}
-          roomId={toResourceIdentifierObj(rid).resourceId}
-          dispatch={movexResource?.dispatch}
-          participants={participants}
-          iceServers={iceServers}
-          remoteState={
-            movexResource?.state.activity.activityType === 'learn'
-              ? movexResource?.state.activity.activityState ??
-                initialLearnActivityState.activityState
-              : initialLearnActivityState.activityState
-          }
-        />
+      <LearnActivity
+        userId={userId}
+        roomId={toResourceIdentifierObj(rid).resourceId}
+        dispatch={movexResource?.dispatch}
+        participants={participants}
+        iceServers={iceServers}
+        remoteState={
+          movexResource?.state.activity.activityType === 'learn'
+            ? movexResource?.state.activity.activityState ??
+              initialLearnActivityState.activityState
+            : initialLearnActivityState.activityState
+        }
+      />
       // </ChessEngineProvider>
     );
   }
@@ -85,6 +87,24 @@ export const RoomContainer = ({ iceServers, rid, activity }: Props) => {
             ? movexResource?.state.activity.activityState ??
               initialMeetupActivityState.activityState
             : initialMeetupActivityState.activityState
+        }
+      />
+    );
+  }
+
+  if (activity === 'play') {
+    return (
+      <PlayActivity
+        userId={userId}
+        roomId={toResourceIdentifierObj(rid).resourceId}
+        dispatch={movexResource?.dispatch}
+        participants={participants}
+        iceServers={iceServers}
+        remoteState={
+          movexResource?.state.activity.activityType === 'play'
+            ? movexResource?.state.activity.activityState ??
+              initialPlayActivityState.activityState
+            : initialPlayActivityState.activityState
         }
       />
     );

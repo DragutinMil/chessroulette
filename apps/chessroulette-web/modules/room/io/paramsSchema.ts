@@ -32,10 +32,15 @@ export const meetupActivityParamsSchema = z.object({
   // Add the specific settings here
 });
 
+export const playActivityParamsSchema = z.object({
+  activity: z.literal('play'),
+});
+
 export const activityParamsSchema = z
   .discriminatedUnion('activity', [
     learnActivityParamsSchema,
     meetupActivityParamsSchema,
+    playActivityParamsSchema,
   ])
   .and(generalActivityParamsSchema);
 

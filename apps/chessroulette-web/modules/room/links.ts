@@ -1,5 +1,6 @@
 import { objectKeys, toDictIndexedBy } from '@xmatter/util-kit';
 import { ActivityState } from './activities/movex';
+import { GameType } from './activities/Play/types';
 // import { ActivityState } from './activity/reducer';
 
 export type RoomActivityType = ActivityState['activityType'];
@@ -7,6 +8,7 @@ export type RoomActivityType = ActivityState['activityType'];
 export type RoomLinkParams = {
   instructor?: boolean;
   theme?: string;
+  gameType?: GameType;
 } & Record<string, string | boolean | number | undefined>;
 
 export const links = {
