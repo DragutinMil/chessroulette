@@ -5,7 +5,6 @@ import { IceServerRecord } from 'apps/chessroulette-web/providers/PeerToPeerProv
 import { UserId, UsersMap } from 'apps/chessroulette-web/modules/user/type';
 import { DesktopRoomLayout } from '../../components/DesktopRoomLayout';
 import { RIGHT_SIDE_SIZE_PX } from '../Learn/components/LearnBoard';
-import { Playboard } from 'apps/chessroulette-web/components/Chessboard/Playboard';
 import { CameraPanel } from '../../components/CameraPanel';
 import { useEffect, useMemo, useState } from 'react';
 import { PanelResizeHandle } from 'react-resizable-panels';
@@ -16,6 +15,7 @@ import { GameStateWidget } from './components/GameStateWidget/GameStateWidget';
 import { GameActionsProvider } from './providers/GameActionsProvider';
 import { GameActions } from './components/GameActions/GameActions';
 import { GameStateDialog } from './components/GameStateDialog/GameStateDialog';
+import { Playboard } from 'apps/chessroulette-web/components/Boards';
 
 export type Props = {
   roomId: string;
