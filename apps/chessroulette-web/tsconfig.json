@@ -29,6 +29,7 @@
     "next-env.d.ts",
     "../../apps/chessroulette-web/.next/types/**/*.ts",
     "../../dist/apps/chessroulette-web/.next/types/**/*.ts",
+    "../../util-kit/**/*.ts",
     ".next/types/**/*.ts"
   ],
   "exclude": [

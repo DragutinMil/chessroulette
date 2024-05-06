@@ -1,13 +1,20 @@
-import { Square } from 'chess.js';
+import { PieceSymbol, Square } from 'chess.js';
+import { Arrow } from 'react-chessboard/dist/chessboard/types';
 import {
   BlackColor,
   ChessArrowId,
   ChessColor,
+  ChessMove,
   LongChessColor,
   ShortChessColor,
   WhiteColor,
 } from './types';
-import { Arrow } from 'react-chessboard/dist/chessboard/types';
+import {
+  ChessFEN,
+  ChessPGN,
+  fenBoardPieceSymbolToPieceSymbol,
+} from '@xmatter/util-kit';
+import { Chess } from 'chess.js';
 
 export const isShortChessColor = (s: string): s is ShortChessColor =>
   s === 'b' || s === 'w';
@@ -50,10 +57,6 @@ export const toChessArrowFromId = (aid: ChessArrowId): Arrow => {
   return [from, to, color];
 };
 
-import { ChessFEN, ChessPGN } from '@xmatter/util-kit';
-import { Chess } from 'chess.js';
-// import { ChessFEN, ChessPGN } from '../components/Chessboard/type';
-
 export const getNewChessGame = (
   props?:
     | { pgn: ChessPGN; fen?: undefined }
@@ -93,6 +96,12 @@ export const isValidPgn = (s: string): s is ChessPGN => {
   }
 };
 
+type ChessLibraryMove = {
+  from: Square;
+  to: Square;
+  promotion?: PieceSymbol;
+};
+
 export const isValidFen = (s: string): s is ChessFEN => {
   const instance = new Chess();
 
@@ -107,3 +116,21 @@ export const isValidFen = (s: string): s is ChessFEN => {
 
 export const pgnToFen = (pgn: ChessPGN): ChessFEN =>
   getNewChessGame({ pgn }).fen();
+
+/**
+ * This is an adapter for now but it should be removed in favor of using that directly
+ *
+ * @deprecate
+ *
+ * @param m
+ * @returns
+ */
+export const localChessMoveToChessLibraryMove = ({
+  from,
+  to,
+  promoteTo,
+}: ChessMove): ChessLibraryMove => ({
+  from,
+  to,
+  ...(promoteTo && { promotion: fenBoardPieceSymbolToPieceSymbol(promoteTo) }),
+});

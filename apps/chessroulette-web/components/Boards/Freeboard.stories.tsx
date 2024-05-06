@@ -1,17 +1,27 @@
-import type { Meta, StoryObj, StoryFn } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react';
 import {
   ChessFENBoard,
   FenBoardPromotionalPieceSymbol,
   pieceSanToFenBoardPieceSymbol,
 } from '@xmatter/util-kit';
-import { ChessboardContainer } from './ChessboardContainer';
-import { themes } from 'apps/chessroulette-web/hooks/useTheme/defaultTheme';
 import { useEffect, useState } from 'react';
 import useInstance from '@use-it/instance';
+import { Freeboard } from './Freeboard';
 
-const meta: Meta<typeof ChessboardContainer> = {
-  component: ChessboardContainer,
-  title: 'ChessboardContainer',
+const meta: Meta<typeof Freeboard> = {
+  component: Freeboard,
+  title: 'Freeboard',
+  parameters: {
+    nextjs: {
+      appDirectory: true,
+      navigation: {
+        // pathname: '/profile',
+        // query: {
+        //   theme: 'op',
+        // },
+      },
+    },
+  },
   // args: {
   //   //👇 Now all Button stories will be primary.
   //   sizePx: 500,
@@ -20,13 +30,13 @@ const meta: Meta<typeof ChessboardContainer> = {
 };
 
 export default meta;
-type Story = StoryObj<typeof ChessboardContainer>;
+type Story = StoryObj<typeof Freeboard>;
 
-export const Freeboard: Story = {
+export const Main: Story = {
   args: {
     sizePx: 500,
     fen: ChessFENBoard.STARTING_FEN,
-    boardTheme: themes.chessroulette.board,
+    // boardTheme: themes.chessroulette.board,
     boardOrientation: 'b',
   },
   render: ({ fen: argFen, ...args }) => {
@@ -40,7 +50,7 @@ export const Freeboard: Story = {
     }, [argFen]);
 
     return (
-      <ChessboardContainer
+      <Freeboard
         {...args}
         fen={fen}
         onMove={(m) => {

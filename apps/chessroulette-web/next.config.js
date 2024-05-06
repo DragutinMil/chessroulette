@@ -3,9 +3,10 @@
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { composePlugins, withNx } = require('@nx/next');
 const { withSentryConfig } = require('@sentry/nextjs');
+
 const withBundleAnalyzer = require('@next/bundle-analyzer')({
   enabled: process.env.ANALYZE === 'true',
-})
+});
 
 /**
  * @type {import('@nx/next/plugins/with-nx').WithNxOptions}
@@ -19,9 +20,10 @@ const nextConfig = {
   reactStrictMode: false,
 };
 
+const withPlugins = composePlugins(withNx, withBundleAnalyzer)(nextConfig);
 
 module.exports = withSentryConfig(
-  withBundleAnalyzer(withNx(nextConfig)),
+  withPlugins,
   {
     // For all available options, see:
     // https://github.com/getsentry/sentry-webpack-plugin#options

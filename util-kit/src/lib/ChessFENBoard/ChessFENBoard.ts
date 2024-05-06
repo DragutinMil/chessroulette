@@ -1,25 +1,28 @@
 import { deepmerge } from 'deepmerge-ts';
 import { getNewChessGame, isShortChessColor, toShortColor } from '../Chess/lib';
-import {
+import type {
   ChessFEN,
   ChessFENStateNotation,
   DetailedChessMove,
 } from '../Chess/types';
-import { invoke, isOneOf } from '../misc';
-import {
+import type {
   FENBoard,
   FenBoardPieceSymbol,
   FenBoardPromotionalPieceSymbol,
+  FenBoardDetailedChessMove,
+} from './types';
+import { invoke, isOneOf } from '../misc';
+import {
   emptyBoard,
   fenBoardPieceSymbolToDetailedChessPiece,
   fenBoardPieceSymbolToPieceSymbol,
   getFileRank,
   matrixIndexToSquare,
   swapColor,
-} from './chessUtils';
+} from './util';
 import { SQUARES, type Color, type PieceSymbol, type Square } from 'chess.js';
 import { Err, Ok, Result } from 'ts-results';
-import { DeepPartial } from '../miscType';
+import type { DeepPartial } from '../miscType';
 import { matrixFind, printMatrix } from '../matrix';
 
 export type FenState = {
@@ -124,11 +127,15 @@ export class ChessFENBoard {
    * @param {string} from - The square to move from. Eg: "a2"
    * @param {string} to - The square to move to. Eg: "a3"
    */
-  move(
-    from: Square,
-    to: Square,
-    promoteTo?: FenBoardPromotionalPieceSymbol
-  ): DetailedChessMove {
+  move({
+    from,
+    to,
+    promoteTo,
+  }: {
+    from: Square;
+    to: Square;
+    promoteTo?: FenBoardPromotionalPieceSymbol;
+  }): FenBoardDetailedChessMove {
     const piece = promoteTo || this.piece(from);
 
     if (!piece) {
@@ -149,10 +156,7 @@ export class ChessFENBoard {
       this.clear(capturedPieceViaEnPassant.square);
     }
 
-    const targetPiece = this.piece(to) || capturedPieceViaEnPassant?.piece;
-    const captured: PieceSymbol | undefined = targetPiece
-      ? fenBoardPieceSymbolToPieceSymbol(targetPiece)
-      : undefined;
+    const captured = this.piece(to) || capturedPieceViaEnPassant?.piece;
 
     // TODO: here the fen gets recalculate 2 times (one for put one for clear)
     this.put(to, piece);
@@ -258,6 +262,7 @@ export class ChessFENBoard {
       san,
       to,
       from,
+      promoteTo,
     };
   }
 

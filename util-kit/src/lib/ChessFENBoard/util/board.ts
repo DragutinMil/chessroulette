@@ -1,24 +1,7 @@
-import type { Color, PieceSymbol, Square, Piece } from 'chess.js';
-import { Matrix, MatrixIndex, matrixMap } from '../matrix';
-import {
-  BlackColor,
-  ChessColor,
-  ChessMove,
-  PieceSan,
-  ShortChessColor,
-  WhiteColor,
-} from '../Chess/types';
-import { toShortColor } from '../Chess/lib';
-
-export type AbsoluteCoord = {
-  x: number;
-  y: number;
-};
-
-export type RelativeCoord = {
-  row: number;
-  col: number;
-};
+import type { PieceSymbol, Square } from 'chess.js';
+import { MatrixIndex, matrixMap } from '../../matrix';
+import { fenBoardPieceSymbolToDetailedChessPiece } from './piece';
+import { AbsoluteCoord, ChessBoard, FENBoard, RelativeCoord } from '../types';
 
 export const ranks = { 1: 7, 2: 6, 3: 5, 4: 4, 5: 3, 6: 2, 7: 1, 8: 0 };
 export const files = { a: 0, b: 1, c: 2, d: 3, e: 4, f: 5, g: 6, h: 7 };
@@ -135,20 +118,6 @@ export const matrixIndexToSquare = ([row, col]: MatrixIndex): Square => {
   return `${file}${rank}` as Square;
 };
 
-export type FenBoardPieceSymbol = PieceSymbol | Uppercase<PieceSymbol>;
-export type FenBoardPromotionalPieceSymbol = Exclude<
-  FenBoardPieceSymbol,
-  'K' | 'k' | 'p' | 'P'
->;
-
-export type FENBoard = Matrix<FenBoardPieceSymbol | ''>;
-
-export type ChessBoard = Matrix<{
-  square: Square;
-  type: PieceSymbol;
-  color: Color;
-} | null>;
-
 export const fenBoardToChessBoard = (fenBoard: FENBoard): ChessBoard =>
   matrixMap(fenBoard, (m, index) => {
     if (!m) {
@@ -164,15 +133,6 @@ export const fenBoardToChessBoard = (fenBoard: FENBoard): ChessBoard =>
     };
   });
 
-export const fenBoardPieceSymbolToDetailedChessPiece = (
-  p: FenBoardPieceSymbol
-): Piece => ({
-  type: p.toLowerCase() as PieceSymbol,
-  color: isUpperCase(p) ? 'w' : 'b',
-});
-
-const isUpperCase = (s: string) => s === s.toUpperCase();
-
 export const chessBoardToFenBoard = (chessBoard: ChessBoard): FENBoard =>
   matrixMap(chessBoard, (p) => {
     if (!p) {
@@ -181,52 +141,6 @@ export const chessBoardToFenBoard = (chessBoard: ChessBoard): FENBoard =>
 
     return (p.color === 'b' ? p.type : p.type.toUpperCase()) as PieceSymbol;
   });
-
-export const fenBoardPieceSymbolToPieceSymbol = (
-  p: FenBoardPieceSymbol
-): PieceSymbol => {
-  const { color, type: piece } = fenBoardPieceSymbolToDetailedChessPiece(p);
-
-  return `${color}${piece.toUpperCase()}` as PieceSymbol;
-};
-
-export const pieceSanToFenBoardPieceSymbol = (
-  p: PieceSan
-): FenBoardPieceSymbol => {
-  const { color, type } = pieceSanToPiece(p);
-
-  return (
-    color === 'b' ? type.toLowerCase() : type.toUpperCase()
-  ) as FenBoardPieceSymbol;
-};
-
-export const pieceSanToPiece = (p: PieceSan): Piece => ({
-  color: p[0] as ShortChessColor,
-  type: p[1].toLowerCase() as PieceSymbol,
-});
-
-export const pieceToPieceSan = (p: Piece): PieceSan =>
-  `${p.color[0]}${p.type.toLocaleUpperCase()}}` as PieceSan;
-
-export const detailedPieceToPieceSymbol = () => {};
-
-export const isPromotableMove = (m: ChessMove, piece: Piece) => {
-  return (
-    piece.type === 'p' && // is pawn
-    ((piece.color === 'w' && m.to[1] === '8') || // when white is on the 8th rank
-      (piece.color === 'b' && m.to[1] === '1')) // when black is on the 1st rank
-  );
-};
-
-// I don't know why this needs to be typed like this
-//  with a function declaration but if it's declared
-//  as an anonymous function it throws a tsc error
-export function swapColor<C extends ChessColor>(
-  c: C
-): C extends WhiteColor ? BlackColor : WhiteColor;
-export function swapColor<C extends ChessColor>(c: C) {
-  return toShortColor(c) === 'w' ? 'black' : 'white';
-}
 
 // export const pgnToFen = (pgn: ChessPGN) => {
 //   const instance = new Chess();

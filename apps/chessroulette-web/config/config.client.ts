@@ -35,5 +35,5 @@ export const config = {
 };
 
 if (DEBUG_MODE) {
-  console.log('Client Config', config);
+  console.debug('Client Config', config);
 }
