@@ -424,16 +424,6 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
             }}
           />
         )}
-        {props.overlayComponent && (
-          <div className="absolute w-full h-full top-0 left-0 z-50 flex justify-center content-center items-center">
-            <div>{props.overlayComponent}</div>
-          </div>
-        )}
-        {props.overlayComponent && (
-          <div className="absolute w-full h-full top-0 left-0 z-50 flex justify-center content-center items-center">
-            <div>{props.overlayComponent}</div>
-          </div>
-        )}
         {props.overlayComponent && props.overlayComponent}
       </div>
       <div
