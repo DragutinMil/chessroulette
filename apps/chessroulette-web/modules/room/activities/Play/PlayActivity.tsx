@@ -67,6 +67,13 @@ export const PlayActivity = ({
     if (game.state === 'complete' && canPlayGame) {
       setCanPlayGame(false);
     }
+    if (
+      game.state === 'pending' &&
+      objectKeys(players || {}).length === 2 &&
+      !canPlayGame
+    ) {
+      setCanPlayGame(true);
+    }
   }, [game.state]);
 
   return (
