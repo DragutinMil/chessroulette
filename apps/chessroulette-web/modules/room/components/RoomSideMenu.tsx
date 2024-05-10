@@ -63,7 +63,7 @@ export const RoomSideMenu = ({ roomId, activity }: Props) => {
           bgColor="green"
           type="custom"
           size="sm"
-          tooltip={activity === 'play' ? 'Invite Player' : 'Invite Student'}
+          tooltip={roomSettings.joinRoomLinkTooltip || 'Invite Opponent'}
         />
       )}
     </div>

@@ -11,19 +11,22 @@ export type PlayActivitySettings = {
 
 export const usePlayActivitySettings = (): PlayActivitySettings => {
   const updateableSearchParams = useUpdateableSearchParams();
+  const isHost = updateableSearchParams.get('host') === '1';
 
   const getGameType = (): GameType => {
     if (!updateableSearchParams) {
       return 'untimed';
     }
+
     const gameType = updateableSearchParams.get('gameType');
     const parser = gameTypeRecord.safeParse(gameType);
     return parser.success ? parser.data : 'untimed';
   };
   return {
     isBoardFlipped: updateableSearchParams.get('flipped') === '1',
+    joinRoomLinkTooltip: 'Invite Player',
     gameType: getGameType(),
-    showJoinRoomLink: true,
+    showJoinRoomLink: isHost,
     joinRoomLinkParams: {
       flipped: '1',
     },

@@ -63,6 +63,7 @@ export const MainHomeSection: React.FC<Props> = ({ session }) => {
               href={links.getOnDemandRoomCreationLink({
                 activity: 'play',
                 gameType,
+                host: true,
               })}
             >
               <Item id={gameType} className="hover:cursor-pointer">

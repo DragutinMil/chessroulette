@@ -17,7 +17,6 @@ import { AsyncErr } from 'ts-async-results';
 import { invoke, isOneOf } from '@xmatter/util-kit';
 import {
   ActivityState,
-  initialActivityState,
   initialActivityStatesByActivityType,
 } from '../activities/movex';
 import {
@@ -74,6 +73,7 @@ export const JoinOrCreateRoom: React.FC<Props> = ({
 
     invoke(() => {
       const updateableSearchParamsObject = updateableSearchParams.toObject();
+
       const parsedGameType = gameTypeRecord.safeParse(
         updateableSearchParamsObject.gameType
       );

@@ -88,14 +88,22 @@ export function GET(request: NextRequest) {
     return NextResponse.json({
       links: [
         {
-          userRole: 'participant',
+          userRole: 'host',
           url: links.getOnDemandRoomCreationLink(
             {
               ...objectOmit(activityParams, ['client']),
               id: roomId,
+              host: true,
             },
             request.nextUrl
           ),
+        },
+        {
+          userRole: 'player',
+          url: links.getOnDemandRoomCreationLink({
+            ...objectOmit(activityParams, ['client']),
+            id: roomId,
+          }),
         },
       ],
     });

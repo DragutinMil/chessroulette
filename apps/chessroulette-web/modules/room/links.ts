@@ -7,6 +7,7 @@ export type RoomActivityType = ActivityState['activityType'];
 
 export type RoomLinkParams = {
   instructor?: boolean;
+  host?: boolean;
   theme?: string;
   gameType?: GameType;
 } & Record<string, string | boolean | number | undefined>;
@@ -63,6 +64,7 @@ const toSearchParams = ({
   instructor,
   edit,
   theme,
+  host,
   ...params
 }: RoomLinkParams) => {
   const searchParams = new URLSearchParams(
@@ -75,6 +77,10 @@ const toSearchParams = ({
 
   if (instructor) {
     searchParams.set('instructor', '1');
+  }
+
+  if (host) {
+    searchParams.set('host', '1');
   }
 
   if (theme) {
