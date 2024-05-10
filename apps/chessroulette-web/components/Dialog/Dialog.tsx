@@ -8,11 +8,16 @@ type Props = {
   buttons?: ButtonProps[];
   onClose?: () => void;
   hasCloseButton?: boolean;
+  modalBG?: 'dark' | 'light';
 };
 
-export const Dialog: React.FC<Props> = (props) => {
+export const Dialog: React.FC<Props> = ({ modalBG = 'dark', ...props }) => {
   return (
-    <div className="absolute w-full h-full top-0 left-0 z-50 flex justify-center content-center items-center bg-black bg-opacity-30">
+    <div
+      className={`absolute w-full h-full top-0 left-0 z-50 flex justify-center content-center items-center bg-opacity-30 ${
+        modalBG === 'dark' ? 'bg-black' : 'bg-white'
+      }`}
+    >
       <div className="flex bg-black rounded-lg p-2 shadow-2xl shadow-black">
         <div className="flex flex-col gap-4">
           {props.hasCloseButton && (

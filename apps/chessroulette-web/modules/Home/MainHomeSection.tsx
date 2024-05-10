@@ -4,19 +4,16 @@ import { Session } from 'next-auth';
 import React, { useState } from 'react';
 import { links } from '../room/links';
 import Link from 'next/link';
-import { Menu, Item, useContextMenu } from 'react-contexify';
-import { objectKeys } from '@xmatter/util-kit';
-import { chessGameTypeTimeDisplay } from '../room/activities/Play/lib/utils';
-import { chessGameTimeLimitMsMap } from '../room/activities/Play/types';
+import { GameSelectDialog } from '../room/activities/Play/components/GameSelectDialog';
+import { useRouter } from 'next/navigation';
 
 type Props = {
   session?: Session;
 };
 
-const GAME_TYPE = 'gameType';
-
 export const MainHomeSection: React.FC<Props> = ({ session }) => {
-  const { show, hideAll } = useContextMenu({ id: GAME_TYPE });
+  const [playModeDialog, showPlayModeDialog] = useState(false);
+  const router = useRouter();
 
   return (
     <main className="flex flex-1 justify-center mt-32">
@@ -52,34 +49,8 @@ export const MainHomeSection: React.FC<Props> = ({ session }) => {
           </Button>
         </Link>
         <br />
-        {/* TODO 
-            This can either be moved inside the PlayActivity so you choose your game after
-            you already entered the room.
-            Or we can make the GameType types available global so then they are synched.
-        */}
-        <Menu id={GAME_TYPE}>
-          {objectKeys(chessGameTimeLimitMsMap).map((gameType) => (
-            <Link
-              href={links.getOnDemandRoomCreationLink({
-                activity: 'play',
-                gameType,
-                host: true,
-              })}
-            >
-              <Item id={gameType} className="hover:cursor-pointer">
-                <div>{`${gameType} ${
-                  gameType !== 'untimed'
-                    ? `- ${chessGameTypeTimeDisplay(
-                        chessGameTimeLimitMsMap[gameType]
-                      )}`
-                    : ''
-                }`}</div>
-              </Item>
-            </Link>
-          ))}
-        </Menu>
         <Button
-          onClick={(event) => show({ event })} //TODO - transform into div
+          onClick={() => showPlayModeDialog(true)}
           type="custom"
           bgColor="orange"
           className="font-bold w-full"
@@ -98,6 +69,21 @@ export const MainHomeSection: React.FC<Props> = ({ session }) => {
           </Button>
         </Link>
       </div>
+      {playModeDialog && (
+        <GameSelectDialog
+          onSelect={({ gameType }) => {
+            router.push(
+              links.getOnDemandRoomCreationLink({
+                activity: 'play',
+                gameType,
+                host: true,
+              })
+            );
+            showPlayModeDialog(false);
+          }}
+          onCancel={() => showPlayModeDialog(false)}
+        />
+      )}
     </main>
   );
 };
