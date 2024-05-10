@@ -19,7 +19,7 @@ export const GameActionsProvider: React.FC<Props> = ({
   children,
 }) => {
   const [value, setValue] = useState<GameActionsContextProps>({
-    currentActiveOffer: undefined,
+    lastOffer: undefined,
     gameState: remoteState.game,
     players,
     clientUserId,
@@ -34,9 +34,7 @@ export const GameActionsProvider: React.FC<Props> = ({
       ...prev,
       players,
       gameState: remoteState.game,
-      currentActiveOffer:
-        //TODO - maybe improve logic here
-        lastOffer && lastOffer.status === 'pending' ? lastOffer : undefined,
+      lastOffer,
     }));
   }, [remoteState, players]);
 

@@ -22,8 +22,7 @@ export const GameStateDialog: React.FC<Props> = ({
   roomId,
 }) => {
   const [gameResultSeen, setGameResultSeen] = useState(false);
-  const { currentActiveOffer, gameState, players, clientUserId } =
-    useGameActions();
+  const { lastOffer, gameState, players, clientUserId } = useGameActions();
 
   useEffect(() => {
     // Everytime the game state changes, reset the seen!
@@ -46,7 +45,7 @@ export const GameStateDialog: React.FC<Props> = ({
     if (
       gameState.state === 'complete' &&
       !gameResultSeen &&
-      (!currentActiveOffer || currentActiveOffer.status !== 'pending')
+      (!lastOffer || lastOffer.status !== 'pending')
     ) {
       return (
         <Dialog
@@ -76,13 +75,13 @@ export const GameStateDialog: React.FC<Props> = ({
       );
     }
 
-    if (currentActiveOffer) {
+    if (lastOffer) {
       if (gameState.state === 'complete' && !gameResultSeen) {
         setGameResultSeen(true);
       }
-      if (currentActiveOffer.offerType === 'rematch') {
-        if (currentActiveOffer.status === 'pending') {
-          if (currentActiveOffer.byPlayer === clientUserId) {
+      if (lastOffer.offerType === 'rematch') {
+        if (lastOffer.status === 'pending') {
+          if (lastOffer.byPlayer === clientUserId) {
             return (
               <Dialog
                 title="Rematch ?"
@@ -133,8 +132,8 @@ export const GameStateDialog: React.FC<Props> = ({
             />
           );
         }
-        if (currentActiveOffer.status === 'denied') {
-          if (currentActiveOffer.byPlayer === clientUserId) {
+        if (lastOffer.status === 'denied') {
+          if (lastOffer.byPlayer === clientUserId) {
             return (
               <Dialog
                 title="Offer Denied"
@@ -158,11 +157,8 @@ export const GameStateDialog: React.FC<Props> = ({
         }
       }
 
-      if (
-        currentActiveOffer.offerType === 'draw' &&
-        currentActiveOffer.status === 'pending'
-      ) {
-        if (currentActiveOffer.byPlayer === clientUserId) {
+      if (lastOffer.offerType === 'draw' && lastOffer.status === 'pending') {
+        if (lastOffer.byPlayer === clientUserId) {
           return (
             <Dialog
               title="Draw ?"
@@ -214,9 +210,9 @@ export const GameStateDialog: React.FC<Props> = ({
         );
       }
 
-      if (currentActiveOffer.offerType === 'takeback') {
-        if (currentActiveOffer.status === 'pending') {
-          if (currentActiveOffer.byPlayer === clientUserId) {
+      if (lastOffer.offerType === 'takeback') {
+        if (lastOffer.status === 'pending') {
+          if (lastOffer.byPlayer === clientUserId) {
             return (
               <Dialog
                 title="Takeback ?"
@@ -267,8 +263,8 @@ export const GameStateDialog: React.FC<Props> = ({
             />
           );
         }
-        if (currentActiveOffer.status === 'denied') {
-          if (currentActiveOffer.byPlayer === clientUserId) {
+        if (lastOffer.status === 'denied') {
+          if (lastOffer.byPlayer === clientUserId) {
             return (
               <Dialog
                 title="Offer Denied"

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { useGameActions } from '../../providers/useGameActions';
 import { ChessColor, toLongColor } from '@xmatter/util-kit';
 import { Icon } from 'apps/chessroulette-web/components/Icon';
@@ -19,7 +19,7 @@ export const GameActions: React.FC<Props> = ({
   orientation,
   buttonOrientation = 'vertical',
 }) => {
-  const { currentActiveOffer, gameState } = useGameActions();
+  const { lastOffer, gameState } = useGameActions();
   const offerAlreadySend = useRef(false);
 
   const setOfferSent = useCallback(() => {
@@ -58,7 +58,7 @@ export const GameActions: React.FC<Props> = ({
         }}
         disabled={
           gameState.state !== 'ongoing' ||
-          !!currentActiveOffer ||
+          lastOffer?.status === 'pending' ||
           toLongColor(orientation) === gameState.lastMoveBy ||
           offerAlreadySend.current
         }
@@ -75,8 +75,9 @@ export const GameActions: React.FC<Props> = ({
         }}
         disabled={
           gameState.state !== 'ongoing' ||
-          !!currentActiveOffer ||
-          !!offerAlreadySend.current ||
+          lastOffer?.status === 'pending' ||
+          lastOffer?.offerType === 'takeback' || //TODO - currently can only send takeback offer 1 time per game.
+          offerAlreadySend.current ||
           toLongColor(orientation) !== gameState.lastMoveBy
         }
       >
@@ -87,7 +88,9 @@ export const GameActions: React.FC<Props> = ({
         confirmationBgcolor="red"
         confirmationMessage="Confirm Resign?"
         onClick={onResign}
-        disabled={gameState.state !== 'ongoing' || !!currentActiveOffer}
+        disabled={
+          gameState.state !== 'ongoing' || lastOffer?.status === 'pending'
+        }
       >
         <Icon name="XCircleIcon" className="h-4 w-4" color="white" />
       </QuickConfirmButton>

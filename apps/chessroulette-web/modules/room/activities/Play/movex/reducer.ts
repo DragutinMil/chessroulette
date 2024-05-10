@@ -251,11 +251,7 @@ export const reducer = (
       prevActivityState.offers[prevActivityState.offers.length - 1].timestamp ||
       new Date().getTime();
 
-    console.log('takebackAt', takebackAt);
-
     const elapsedTime = takebackAt - prevActivityState.game.lastMoveAt;
-
-    console.log('elapsedTime', new Date(elapsedTime).getSeconds());
 
     const nextTimeLeft =
       prevActivityState.game.timeLeft[prevActivityState.game.lastMoveBy] -
