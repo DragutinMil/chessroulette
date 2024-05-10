@@ -297,7 +297,7 @@ export const GameStateDialog: React.FC<Props> = ({
   }
 
   return (
-    <div className="absolute w-full h-full top-0 left-0 z-50 flex justify-center content-center items-center">
+    <div className="absolute w-full h-full top-0 left-0 z-50 flex justify-center content-center items-center bg-black bg-opacity-30">
       <div className="flex bg-black rounded-lg p-2 shadow-2xl shadow-black">
         {content}
       </div>
