@@ -55,6 +55,7 @@ export const LearnBoard = ({
     <Board
       containerClassName="shadow-2xl"
       boardOrientation={orientation}
+      playingColor={orientation}
       sizePx={sizePx}
       fen={fen}
       lastMove={lastMove}

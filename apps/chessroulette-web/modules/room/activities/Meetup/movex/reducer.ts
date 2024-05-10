@@ -3,7 +3,11 @@ import {
   ActivityState,
   initialActivityState,
 } from '../../movex';
-import { getNewChessGame, swapColor } from '@xmatter/util-kit';
+import {
+  getNewChessGame,
+  localChessMoveToChessLibraryMove,
+  swapColor,
+} from '@xmatter/util-kit';
 import { initialMeetupActivityState } from './state';
 
 export const reducer = (
@@ -17,10 +21,10 @@ export const reducer = (
   const prevActivityState = prev.activityState;
 
   if (action.type === 'meetup:move') {
-    const instance = getNewChessGame({ pgn: prevActivityState.game.pgn });
+    const instance = getNewChessGame(prevActivityState.game);
 
     try {
-      instance.move(action.payload);
+      instance.move(localChessMoveToChessLibraryMove(action.payload));
     } catch (e) {
       console.error(
         'Action Error:',
@@ -56,10 +60,6 @@ export const reducer = (
         },
       },
     };
-  }
-
-  if (action.type === 'meetup:setArrows') {
-    
   }
 
   return prev;

@@ -1,11 +1,12 @@
-import { useEffect } from 'react';
-import useInstance from '@use-it/instance';
-import { Chess } from 'chess.js';
 import {
   ChessColor,
+  ChessFEN,
   ChessFENBoard,
+  ChessMove,
   DistributiveOmit,
+  ShortChessMove,
   getNewChessGame,
+  localChessMoveToChessLibraryMove,
   toShortColor,
 } from '@xmatter/util-kit';
 import {
@@ -16,52 +17,87 @@ import {
 
 type Props = DistributiveOmit<ChessboardContainerProps, 'boardTheme'> & {
   playingColor?: ChessColor;
+  
+type Props = DistributiveOmit<
+  ChessboardContainerProps,
+  'boardTheme' | 'onMove'
+> & {
+  playingColor: ChessColor;
+  onMove: (m: ShortChessMove, nextFen: ChessFEN) => void;
   canPlay?: boolean;
   overlayComponent?: React.ReactNode;
 };
 
+const canMove = (
+  move: ChessMove,
+  fen: ChessFEN,
+  playingColor: ChessColor
+):
+  | {
+      valid: false;
+    }
+  | {
+      valid: true;
+      fen: ChessFEN;
+    } => {
+  const chess = getNewChessGame({ fen });
+
+  if (chess.turn() !== toShortColor(playingColor)) {
+    return {
+      valid: false,
+    };
+  }
+
+  // Validate move
+  try {
+    chess.move(localChessMoveToChessLibraryMove(move));
+
+    return {
+      valid: true,
+      fen: chess.fen(),
+    };
+  } catch (e) {
+    console.debug('[Playboard Error] onMove()', e, { move });
+    return {
+      valid: false,
+    };
+  }
+};
+
 export const Playboard = ({
   fen = ChessFENBoard.STARTING_FEN,
-  playingColor = 'white',
+  playingColor,
   boardOrientation = playingColor,
   onMove,
   canPlay = true,
   ...props
 }: Props) => {
   const boardTheme = useBoardTheme();
-  const chessInstance = useInstance<Chess>(getNewChessGame({ fen }));
-
-  useEffect(() => {
-    try {
-      chessInstance.load(fen);
-    } catch (e) {
-      console.error(e);
-    }
-  }, [fen]);
 
   return (
     <ChessboardContainer
       fen={fen}
       boardOrientation={boardOrientation}
       boardTheme={boardTheme}
-      onMove={(m) => {
+      strict
+      canMove={(move) => canMove(move, fen, playingColor).valid}
+      onMove={(move) => {
         if (!canPlay) {
           return false;
         }
         if (chessInstance.turn() !== toShortColor(playingColor)) {
           return false;
         }
+      
+        const res = canMove(move, fen, playingColor);
 
-        // Validate move
-        try {
-          chessInstance.move(m);
-
-          onMove?.(m);
-
-          return true;
-        } catch {
+        if (!res.valid) {
           return false;
         }
+
+        onMove?.(move, res.fen);
+
+        return true;
       }}
       {...props}
     />

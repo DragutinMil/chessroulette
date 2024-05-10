@@ -109,9 +109,8 @@ export const MeetupActivity = ({
         <Playboard
           sizePx={boardSize}
           fen={displayState.fen}
-          boardOrientation={orientation}
-          lastMove={displayState.lastMove}
           playingColor={orientation}
+          lastMove={displayState.lastMove}
           onMove={(payload) => {
             dispatch({
               type: 'meetup:move',

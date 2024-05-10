@@ -15,6 +15,9 @@ import {
   fenBoardPieceSymbolToDetailedChessPiece,
   isPromotableMove,
   pieceSanToPiece,
+  pieceSanToFenBoardPieceSymbol,
+  promotionalPieceSanToFenBoardPromotionalPieceSymbol,
+  toShortColor,
 } from '@xmatter/util-kit';
 import { Piece, Square } from 'chess.js';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
@@ -40,12 +43,17 @@ export type ChessboardContainerProps = Omit<
 > & {
   fen: ChessFEN;
   sizePx: number;
+  boardTheme: BoardTheme;
+  // When this is true the player can only touch the pieces on her side
+  strict?: boolean;
   arrowsMap?: ArrowsMap;
   circlesMap?: CirclesMap;
   arrowColor?: string;
   lastMove?: ShortChessMove;
   boardOrientation?: ChessColor;
   containerClassName?: string;
+  canMove?: (m: ShortChessMove) => boolean;
+  // If canMove is present, only then the onMove gets called
   onMove?: (m: ShortChessMove) => boolean;
   onPieceDrop?: (from: Square, to: Square, piece: PieceSan) => void;
   onArrowsChange?: (arrows: ArrowsMap) => void;
@@ -69,11 +77,13 @@ export type ChessboardContainerProps = Omit<
 export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
   fen,
   lastMove,
+  strict,
   circlesMap,
   onArrowsChange = noop,
   onCircleDraw = noop,
   onPieceDrop = noop,
   onMove = noop,
+  canMove = () => true, // Defaults to always be able to move
   boardOrientation = 'white',
   containerClassName,
   customSquareStyles,
@@ -203,6 +213,16 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
       return fenBoardPieceSymbolToDetailedChessPiece(_pieceSan);
     });
 
+    // Only allow the pieces of the same color as the board orientation to be touched
+    if (
+      strict &&
+      !pendingMove &&
+      piece &&
+      toShortColor(piece.color) !== toShortColor(boardOrientation)
+    ) {
+      return;
+    }
+
     // If there is no existent Pending Move ('from' set)
     if (!pendingMove?.from) {
       // If the square isn't a piece return early
@@ -214,7 +234,7 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
       return;
     }
 
-    // If there is an existent Pending Move ('from' set), but no to set
+    // If there is an existent Pending Move ('from' set), but no '`to' set
     if (!pendingMove?.to) {
       // setPromoMove(undefined);
 
@@ -237,13 +257,24 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
         isPromotableMove(
           { from: pendingMove.from, to: square },
           pendingMove.piece
-        )
+        ) &&
+        canMove({ from: pendingMove.from, to: square, promoteTo: 'q' })
       ) {
         // Set the Promotion Move
         setPromoMove({
           ...pendingMove,
           to: square,
         });
+        return;
+      }
+
+      // onMove can only be called if canMove returns true!
+      if (
+        !canMove({
+          from: pendingMove.from,
+          to: square,
+        })
+      ) {
         return;
       }
 
@@ -417,8 +448,12 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
             onCancel={() => {
               setPromoMove(undefined);
             }}
-            onPromotePiece={(promoteTo) => {
-              onMove({ ...promoMove, promoteTo });
+            onPromotePiece={(p) => {
+              onMove({
+                ...promoMove,
+                promoteTo:
+                  promotionalPieceSanToFenBoardPromotionalPieceSymbol(p),
+              });
 
               setPromoMove(undefined);
             }}
