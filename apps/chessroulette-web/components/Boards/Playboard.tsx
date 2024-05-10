@@ -15,9 +15,6 @@ import {
   useBoardTheme,
 } from '../Chessboard';
 
-type Props = DistributiveOmit<ChessboardContainerProps, 'boardTheme'> & {
-  playingColor?: ChessColor;
-  
 type Props = DistributiveOmit<
   ChessboardContainerProps,
   'boardTheme' | 'onMove'
@@ -85,10 +82,12 @@ export const Playboard = ({
         if (!canPlay) {
           return false;
         }
+        const chessInstance = getNewChessGame({ fen });
+
         if (chessInstance.turn() !== toShortColor(playingColor)) {
           return false;
         }
-      
+
         const res = canMove(move, fen, playingColor);
 
         if (!res.valid) {
