@@ -48,24 +48,6 @@ export const GameActions: React.FC<Props> = ({
           : 'flex flex-col h-full gap-2 justify-end items-start content-start'
       }`}
     >
-      {/* <ActionButton
-        actionType="positive"
-        label="Draw"
-        type="primary"
-        hideLabelUntilHover
-        onSubmit={() => {
-          onOfferDraw();
-          setOfferSent();
-        }}
-        icon="FlagIcon"
-        color="blue"
-        disabled={
-          gameState.state !== 'ongoing' ||
-          !!currentActiveOffer ||
-          toLongColor(orientation) === gameState.lastMoveBy ||
-          offerAlreadySend.current
-        }
-      />*/}
       <QuickConfirmButton
         size="sm"
         confirmationBgcolor="blue"
@@ -83,24 +65,6 @@ export const GameActions: React.FC<Props> = ({
       >
         <Icon name="FlagIcon" className="h-4 w-4" color="white" />
       </QuickConfirmButton>
-      {/*<ActionButton
-        actionType="positive"
-        label="Takeback"
-        type="primary"
-        hideLabelUntilHover
-        onSubmit={() => {
-          onTakeback();
-          setOfferSent();
-        }}
-        icon="ArrowUturnLeftIcon"
-        color="indigo"
-        disabled={
-          gameState.state !== 'ongoing' ||
-          !!currentActiveOffer ||
-          !!offerAlreadySend ||
-          toLongColor(orientation) !== gameState.lastMoveBy
-        }
-      />*/}
       <QuickConfirmButton
         size="sm"
         confirmationBgcolor="indigo"
@@ -112,22 +76,12 @@ export const GameActions: React.FC<Props> = ({
         disabled={
           gameState.state !== 'ongoing' ||
           !!currentActiveOffer ||
-          !!offerAlreadySend ||
+          !!offerAlreadySend.current ||
           toLongColor(orientation) !== gameState.lastMoveBy
         }
       >
         <Icon name="ArrowUturnLeftIcon" className="h-4 w-4" color="white" />
       </QuickConfirmButton>
-      {/*<ActionButton
-        actionType="negative"
-        label="Resign"
-        type="primary"
-        hideLabelUntilHover
-        onSubmit={onResign}
-        icon="XCircleIcon"
-        color="red"
-        disabled={gameState.state !== 'ongoing' || !!currentActiveOffer}
-      />*/}
       <QuickConfirmButton
         size="sm"
         confirmationBgcolor="red"

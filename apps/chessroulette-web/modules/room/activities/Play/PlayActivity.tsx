@@ -186,7 +186,11 @@ export const PlayActivity = ({
                     onTakeback={() => {
                       dispatch({
                         type: 'play:sendOffer',
-                        payload: { byPlayer: userId, offerType: 'takeback' },
+                        payload: {
+                          byPlayer: userId,
+                          offerType: 'takeback',
+                          timestamp: new Date().getTime(),
+                        },
                       });
                     }}
                     onResign={() => {

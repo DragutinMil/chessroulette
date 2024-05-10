@@ -16,6 +16,7 @@ export type Offer = {
   //TODO - probably need toParticipant as well, but not sure how to get it now
   offerType: OfferType;
   status: OfferStatus;
+  timestamp?: number;
 };
 
 export type PlayActivityState = {
@@ -53,6 +54,7 @@ export type PlayActivityActions =
       {
         byPlayer: User['id'];
         offerType: OfferType;
+        timestamp?: number;
       }
     >
   | Action<'play:acceptOfferDraw'>

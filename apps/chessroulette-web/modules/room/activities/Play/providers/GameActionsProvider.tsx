@@ -26,6 +26,8 @@ export const GameActionsProvider: React.FC<Props> = ({
   });
 
   useEffect(() => {
+    console.log('remoteState', remoteState);
+
     const lastOffer = remoteState.offers?.slice(-1)[0];
 
     setValue((prev) => ({

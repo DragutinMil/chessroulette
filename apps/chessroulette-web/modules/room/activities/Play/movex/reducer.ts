@@ -178,6 +178,9 @@ export const reducer = (
         byPlayer,
         offerType,
         status: 'pending',
+        ...(action.payload.timestamp && {
+          timestamp: action.payload.timestamp,
+        }),
       },
     ];
 
@@ -237,28 +240,29 @@ export const reducer = (
       status: 'accepted',
     };
 
-    const instance = getNewChessGame({ pgn: prevActivityState.game.pgn });
-    try {
-      instance.undo()?.before;
-    } catch (e) {
-      console.error('Action Error:', action.type, 'Invalid Takeback', prev, e);
-      return prev;
-    }
+    const pgn = prevActivityState.game.pgn.slice(
+      0,
+      prevActivityState.game.pgn.length - 1
+    );
 
-    const before = instance.undo()?.before;
-    const newGame = before ? getNewChessGame({ pgn: before }) : instance;
-    const takebackAt = new Date();
-    const lastMoveAtAsDate =
-      prevActivityState.game.state === 'pending'
-        ? takebackAt
-        : new Date(prevActivityState.game.lastMoveAt);
+    const newGame = getNewChessGame({ pgn });
 
-    const elapsedTime = takebackAt.getTime() - lastMoveAtAsDate.getTime();
+    const takebackAt =
+      prevActivityState.offers[prevActivityState.offers.length - 1].timestamp ||
+      new Date().getTime();
+
+    console.log('takebackAt', takebackAt);
+
+    const elapsedTime = takebackAt - prevActivityState.game.lastMoveAt;
+
+    console.log('elapsedTime', new Date(elapsedTime).getSeconds());
+
     const nextTimeLeft =
       prevActivityState.game.timeLeft[prevActivityState.game.lastMoveBy] -
       elapsedTime;
 
     const turn = toLongColor(swapColor(prev.activityState.game.lastMoveBy));
+
     return {
       ...prev,
       activityState: {
@@ -269,7 +273,7 @@ export const reducer = (
           lastMoveBy: turn,
           timeLeft: {
             ...prev.activityState.game.timeLeft,
-            [turn]: nextTimeLeft,
+            [prev.activityState.game.lastMoveBy]: nextTimeLeft,
           },
         },
         offers: [...prevActivityState.offers.slice(0, -1), lastOffer],
