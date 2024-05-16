@@ -6,6 +6,7 @@ import {
 import {
   ChessColor,
   getNewChessGame,
+  localChessMoveToChessLibraryMove,
   swapColor,
   toLongColor,
 } from '@xmatter/util-kit';
@@ -40,7 +41,6 @@ export const reducer = (
   const prevActivityState = prev.activityState;
 
   if (action.type === 'play:move') {
-    const instance = getNewChessGame({ pgn: prevActivityState.game.pgn });
     const { lastMoveAt, lastMoveBy, timeLeft, pgn } = prevActivityState.game;
     const { moveAt } = action.payload;
     const movedAtAsDate = new Date(moveAt);
@@ -49,11 +49,12 @@ export const reducer = (
         ? movedAtAsDate
         : new Date(lastMoveAt);
 
+    const instance = getNewChessGame({ pgn });
     const elapsedTime = movedAtAsDate.getTime() - lastMoveAtAsDate.getTime();
     const nextTimeLeft = timeLeft[lastMoveBy] - elapsedTime;
 
     try {
-      instance.move(action.payload);
+      instance.move(localChessMoveToChessLibraryMove(action.payload));
     } catch (e) {
       console.error(
         'Action Error:',
