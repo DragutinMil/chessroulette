@@ -190,8 +190,8 @@ export const BoardEditor = ({
               fen={fen}
               boardTheme={boardTheme}
               {...props}
-              onMove={(p) => {
-                fenBoard.move(p.from, p.to);
+              onMove={(m) => {
+                fenBoard.move(m);
 
                 onUpdated(fenBoard.fen);
 

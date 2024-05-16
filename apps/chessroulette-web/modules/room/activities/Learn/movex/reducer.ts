@@ -4,8 +4,12 @@ import {
   FenBoardPromotionalPieceSymbol,
   FreeBoardHistory,
   getNewChessGame,
+  invoke,
+  isFenBoardPromotionalPieceSymbol,
+  isPromotableMove,
   isValidPgn,
   pieceSanToFenBoardPieceSymbol,
+  pieceToFenBoardPieceSymbol,
 } from '@xmatter/util-kit';
 import { Chapter, ChapterState, LearnActivityState } from './types';
 import { initialChapterState, initialDefaultChapter } from './state';
@@ -39,26 +43,16 @@ export const reducer = (
         return prev;
       }
 
-      const { from, to, promoteTo } = action.payload;
+      const move = action.payload;
 
-      const instance = new ChessFENBoard(prevChapter.displayFen);
-      const fenPiece = instance.piece(from);
+      const fenBoard = new ChessFENBoard(prevChapter.displayFen);
+      const fenPiece = fenBoard.piece(move.from);
       if (!fenPiece) {
-        console.error('Action Err', action, prev, instance.board);
-        throw new Error(`No Piece at ${from}`);
+        console.error('Action Err', action, prev, fenBoard.board);
+        throw new Error(`No Piece at ${move.from}`);
       }
-      const promoteToFenBoardPiecesymbol:
-        | FenBoardPromotionalPieceSymbol
-        | undefined = promoteTo
-        ? (pieceSanToFenBoardPieceSymbol(
-            promoteTo
-          ) as FenBoardPromotionalPieceSymbol)
-        : undefined;
-      const nextMove = instance.move(
-        from,
-        to,
-        promoteToFenBoardPiecesymbol
-      ) as FBHMove;
+
+      const nextMove = fenBoard.move(move);
 
       // If the moves are the same introduce a non move
       const [nextHistory, addedAtIndex] = FreeBoardHistory.addMagicMove(
@@ -71,7 +65,7 @@ export const reducer = (
 
       const nextChapter: Chapter = {
         ...prevChapter,
-        displayFen: instance.fen,
+        displayFen: fenBoard.fen,
         circlesMap: {},
         arrowsMap: {},
         notation: {
@@ -144,14 +138,14 @@ export const reducer = (
         return prev;
       }
 
-      const instance = getNewChessGame({
+      const chessGame = getNewChessGame({
         pgn: action.payload.input,
       });
       const nextHistory = FreeBoardHistory.pgnToHistory(action.payload.input);
 
       const nextChapterState: ChapterState = {
         ...prevChapter,
-        displayFen: instance.fen(),
+        displayFen: chessGame.fen(),
 
         // When importing PGNs set the notation history as well
         notation: {
@@ -190,16 +184,18 @@ export const reducer = (
         prevChapter.notation.history,
         action.payload
       );
-    const instance = new ChessFENBoard(prevChapter.notation.startingFen);
+
+    // TODO: Here this can be abstracted
+    const fenBoard = new ChessFENBoard(prevChapter.notation.startingFen);
     historyAtFocusedIndex.forEach((m) => {
       if (!m.isNonMove) {
-        instance.move(m.from, m.to);
+        fenBoard.move(m);
       }
     });
 
     const nextChapterState: ChapterState = {
       ...prevChapter,
-      displayFen: instance.fen,
+      displayFen: fenBoard.fen,
       notation: {
         ...prevChapter.notation,
         focusedIndex: action.payload,
@@ -240,16 +236,18 @@ export const reducer = (
       FreeBoardHistory.incrementIndex(lastIndexInSlicedHistory),
       'left'
     );
-    const instance = new ChessFENBoard(prevChapter.notation.startingFen);
+
+    // TODO: Here this can be abstracted
+    const fenBoard = new ChessFENBoard(prevChapter.notation.startingFen);
     nextHistory.forEach((turn, i) => {
       turn.forEach((m) => {
         if (m.isNonMove) {
           return;
         }
-        instance.move(m.from, m.to);
+        fenBoard.move(m);
       });
     });
-    const nextFen = instance.fen;
+    const nextFen = fenBoard.fen;
 
     const nextChapter: Chapter = {
       ...prevChapter,
