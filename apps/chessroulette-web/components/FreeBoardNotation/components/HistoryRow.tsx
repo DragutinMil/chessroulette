@@ -1,9 +1,16 @@
 import React from 'react';
 import { Menu, Item, useContextMenu, ItemParams } from 'react-contexify';
 import 'react-contexify/dist/ReactContexify.css';
-import { FBHIndex, FBHRecursiveIndexes, FBHTurn } from '@xmatter/util-kit';
+import {
+  FBHIndex,
+  FBHMove,
+  FBHRecursiveIndexes,
+  FBHRecursiveMove,
+  FBHTurn,
+} from '@xmatter/util-kit';
 import { Text } from '../../Text';
 import { NestedLists } from './NestedHistoryLists';
+import { HistoryMove } from './HistoryMove';
 
 export type RowProps = {
   rowId: string;
@@ -16,7 +23,7 @@ export type RowProps = {
   className?: string;
   containerClassName?: string;
   moveCount?: number;
-  // showVariantMenuAt?: FBHIndex;
+  nextValidMoveAndIndex?: [FBHMove, FBHIndex];
 } & (
   | {
       isNested: true;
@@ -41,15 +48,29 @@ export const HistoryRow = React.forwardRef<HTMLDivElement | null, RowProps>(
       moveCount = historyTurnIndex + 1,
       focusedOnMovePosition,
       focusedOnRecursiveIndexes,
-      // showVariantMenuAt,
+      nextValidMoveAndIndex,
       isNested = false,
     },
     ref
   ) => {
+    const { show } = useContextMenu({ id: rowId });
+
     const whiteMoveIndex: FBHIndex = [historyTurnIndex, 0];
     const blackMoveIndex: FBHIndex = [historyTurnIndex, 1];
 
-    const { show } = useContextMenu({ id: rowId });
+    const shouldSplit = !!whiteMove.branchedHistories;
+
+    const blackMoveRender = (
+      <HistoryMove
+        move={blackMove}
+        color="b"
+        isFocused={!focusedOnRecursiveIndexes && focusedOnMovePosition === 1}
+        onContextMenu={(event) => show({ event, props: { color: 'black' } })}
+        onFocus={onFocus}
+        rootHistoryIndex={blackMoveIndex}
+        nextValidMoveAndIndex={nextValidMoveAndIndex}
+      />
+    );
 
     const handleOnDelete = ({ props }: ItemParams) => {
       if (props.color === 'white') {
@@ -61,69 +82,24 @@ export const HistoryRow = React.forwardRef<HTMLDivElement | null, RowProps>(
       }
     };
 
-    const shouldSplit = !!whiteMove.branchedHistories;
-
-    const blackMoveRender = blackMove ? (
-      <Text
-        className={`flex-1 cursor-pointer p-1 hover:bg-slate-500 ${
-          // focus === 1 && 'font-black bg-slate-600'
-          !focusedOnRecursiveIndexes &&
-          focusedOnMovePosition === 1 &&
-          'font-black bg-slate-600'
-        }`}
-        onClick={() => {
-          if (!blackMove.isNonMove) {
-            onFocus(blackMoveIndex);
-          }
-        }}
-        onContextMenu={(event) => show({ event, props: { color: 'black' } })}
-      >
-        {/* <Text
-          className="bg-slate-900 text-white mr-1 p-1"
-          style={{
-            fontSize: 11,
-          }}
-        >
-          [{historyTurnIndex}, 1]
-        </Text> */}
-        {blackMove.san}
-      </Text>
-    ) : (
-      <div className="flex-1" />
-    );
-
     return (
       <div className={containerClassName} ref={isNested ? undefined : ref}>
         <div className={`flex ${className} ${shouldSplit && 'flex-col'}`}>
-          <div id="header" className="flex flex-1">
+          <div id="header" className="flex flex-1 relative">
             <Text className="flex-0 p-1 pr-2 cursor-pointer">{moveCount}.</Text>
-            <Text
-              className={`flex-1 cursor-pointer p-1 sbg-slate-600 hover:bg-slate-500 ${
-                // focus === 0 && 'font-black bg-slate-600'
-                !focusedOnRecursiveIndexes &&
-                focusedOnMovePosition === 0 &&
-                'font-black bg-slate-600'
-              }`}
+            <HistoryMove
+              move={whiteMove}
+              color="w"
+              isFocused={
+                !focusedOnRecursiveIndexes && focusedOnMovePosition === 0
+              }
+              onFocus={onFocus}
               onContextMenu={(event) =>
                 show({ event, props: { color: 'white' } })
               }
-              onClick={() => {
-                if (!whiteMove.isNonMove) {
-                  onFocus(whiteMoveIndex);
-                }
-              }}
-            >
-              {/* <Text
-                className="bg-slate-200 text-black mr-1 p-1"
-                style={{
-                  fontSize: 11,
-                }}
-              >
-                [{historyTurnIndex}, 0]
-              </Text> */}
-              {whiteMove.san}
-            </Text>
-
+              rootHistoryIndex={whiteMoveIndex}
+              nextValidMoveAndIndex={nextValidMoveAndIndex}
+            />
             {shouldSplit ? (
               <Text
                 className={`flex-1 cursor-pointer p-1 hover:bg-slate-500`}
@@ -140,13 +116,12 @@ export const HistoryRow = React.forwardRef<HTMLDivElement | null, RowProps>(
           {whiteMove.branchedHistories && (
             <NestedLists
               branchedHistories={whiteMove.branchedHistories}
-              rootHistoryIndex={[historyTurnIndex, 0]}
+              rootHistoryIndex={whiteMoveIndex}
               onFocus={onFocus}
               onDelete={onDelete}
               className="pl-2 mt-2 border-l border-slate-500 ml-1 sbg-red-500"
               rowClassName={containerClassName}
               focusedRecursiveIndexes={focusedOnRecursiveIndexes}
-              // focusedRecursiveIndexes={focusedNestedIndex}
             />
           )}
           {shouldSplit && (
@@ -166,17 +141,15 @@ export const HistoryRow = React.forwardRef<HTMLDivElement | null, RowProps>(
             </div>
           )}
         </div>
-
         {blackMove?.branchedHistories && (
           <NestedLists
             branchedHistories={blackMove.branchedHistories}
-            rootHistoryIndex={[historyTurnIndex, 1]}
+            rootHistoryIndex={blackMoveIndex}
             onFocus={onFocus}
             onDelete={onDelete}
             className="pl-2 mt-2 border-l border-slate-500 ml-1 sbg-blue-500"
             rowClassName={containerClassName}
             focusedRecursiveIndexes={focusedOnRecursiveIndexes}
-            // focusedRecursiveIndexes={focusedNestedIndex}
           />
         )}
         <Menu id={rowId}>

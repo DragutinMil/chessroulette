@@ -115,7 +115,6 @@ export const Tabs = React.forwardRef<TabsRef, Props>((props, ref) => {
 
     const currentTab = props.tabs[tabIndex];
     if (currentTab) {
-      console.log('Tabs.focus() calling onTabChange');
       props.onTabChange?.({ tabId: currentTab.id, tabIndex });
     }
 

@@ -103,3 +103,138 @@ export const NestedHistory: Story = {
     );
   },
 };
+
+const bugMultipleFocusesHistory: FBHHistory = [
+  [
+    {
+      color: 'w',
+      // piece: 'p',
+      san: 'e3',
+      to: 'e3',
+      from: 'e2',
+      branchedHistories: [
+        [
+          [
+            {
+              color: 'w',
+              san: '...',
+              isNonMove: true,
+            },
+            {
+              color: 'b',
+              // piece: 'p',
+              san: 'c6',
+              to: 'c6',
+              from: 'c7',
+            },
+          ],
+        ],
+      ],
+    },
+    {
+      color: 'b',
+      // piece: 'p',
+      san: 'e6',
+      to: 'e6',
+      from: 'e7',
+      branchedHistories: [
+        [
+          [
+            {
+              color: 'w',
+              // piece: 'p',
+              san: 'd3',
+              to: 'd3',
+              from: 'd2',
+            },
+            {
+              color: 'b',
+              // piece: 'p',
+              san: 'f6',
+              to: 'f6',
+              from: 'f7',
+            },
+          ],
+          [
+            {
+              color: 'w',
+              // piece: 'p',
+              san: 'f3',
+              to: 'f3',
+              from: 'f2',
+            },
+          ],
+        ],
+        [
+          [
+            {
+              color: 'w',
+              // piece: 'p',
+              san: 'c3',
+              to: 'c3',
+              from: 'c2',
+            },
+            {
+              color: 'b',
+              // piece: 'p',
+              san: 'd5',
+              to: 'd5',
+              from: 'd7',
+            },
+          ],
+          [
+            {
+              color: 'w',
+              // piece: 'p',
+              san: 'd4',
+              to: 'd4',
+              from: 'd2',
+            },
+          ],
+        ],
+      ],
+    },
+  ],
+  [
+    {
+      color: 'w',
+      // piece: 'p',
+      san: 'f4',
+      to: 'f4',
+      from: 'f2',
+    },
+  ],
+];
+
+export const BugMultipleFocuses: Story = {
+  render: () => {
+    const [currentIndex, setCurrentIndex] = useState<FBHIndex>([0, 1]);
+
+    return (
+      <>
+        <div className="text-gray-500">
+          Note! To see this working press on "c6"
+        </div>
+        <div className="p-2 border border-slate-600" style={{ width: '400px' }}>
+          <FreeBoardNotation
+            history={bugMultipleFocusesHistory}
+            onDelete={(p) => {
+              console.log('on delete', p);
+
+              action('OnDelete')(p);
+            }}
+            onRefocus={(p) => {
+              console.log('on focus', FBH.renderIndex(p));
+
+              setCurrentIndex(p);
+              action('OnRefocus')(p);
+            }}
+            focusedIndex={currentIndex}
+          />
+        </div>
+        {FBH.renderIndex(currentIndex)}
+        {/* {currentIndex.join(' ')} */}
+      </>
+    );
+  },
+};

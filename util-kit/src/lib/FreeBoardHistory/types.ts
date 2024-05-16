@@ -1,7 +1,8 @@
 import {
   BlackColor,
   ChessColor,
-  DetailedChessMove,
+  FenBoardDetailedChessMove,
+  ShortChessMove,
   WhiteColor,
 } from '@xmatter/util-kit';
 
@@ -15,7 +16,8 @@ export type FBHBaseNonMove = {
 
 export type FBHBaseRealMove = {
   isNonMove?: false;
-} & Pick<DetailedChessMove, 'from' | 'to' | 'color' | 'san'>; // TODO: This can expand later on
+  san: FenBoardDetailedChessMove['san'];
+} & ShortChessMove; // TODO: This can expand later on
 
 export type FBHBaseMove = FBHBaseRealMove | FBHBaseNonMove;
 
