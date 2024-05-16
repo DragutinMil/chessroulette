@@ -15,7 +15,6 @@ import {
   fenBoardPieceSymbolToDetailedChessPiece,
   isPromotableMove,
   pieceSanToPiece,
-  pieceSanToFenBoardPieceSymbol,
   promotionalPieceSanToFenBoardPromotionalPieceSymbol,
   toShortColor,
 } from '@xmatter/util-kit';
@@ -43,7 +42,6 @@ export type ChessboardContainerProps = Omit<
 > & {
   fen: ChessFEN;
   sizePx: number;
-  boardTheme: BoardTheme;
   // When this is true the player can only touch the pieces on her side
   strict?: boolean;
   arrowsMap?: ArrowsMap;
