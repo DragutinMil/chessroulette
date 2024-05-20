@@ -1,21 +1,22 @@
 import movexConfig from 'apps/chessroulette-web/movex.config';
 import { MovexBoundResourceFromConfig } from 'movex-react';
-import { noop, objectKeys, pgnToFen, swapColor } from '@xmatter/util-kit';
+import { FBHIndex, noop, objectKeys, swapColor } from '@xmatter/util-kit';
 import { IceServerRecord } from 'apps/chessroulette-web/providers/PeerToPeerProvider/type';
 import { UserId, UsersMap } from 'apps/chessroulette-web/modules/user/type';
 import { DesktopRoomLayout } from '../../components/DesktopRoomLayout';
 import { RIGHT_SIDE_SIZE_PX } from '../Learn/components/LearnBoard';
 import { CameraPanel } from '../../components/CameraPanel';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { PanelResizeHandle } from 'react-resizable-panels';
 import { PlayActivityState } from './movex';
 import { usePlayActivitySettings } from './usePlayActivitySettings';
-import { GameNotation } from '../Meetup/components/GameNotation';
 import { GameStateWidget } from './components/GameStateWidget/GameStateWidget';
 import { GameActionsProvider } from './providers/GameActionsProvider';
 import { GameActions } from './components/GameActions/GameActions';
 import { GameStateDialog } from './components/GameStateDialog/GameStateDialog';
 import { Playboard } from 'apps/chessroulette-web/components/Boards';
+import { getDisplayStateFromPgn } from '../Meetup/utils';
+import { FreeBoardNotation } from 'apps/chessroulette-web/components/FreeBoardNotation';
 
 export type Props = {
   roomId: string;
@@ -41,7 +42,10 @@ export const PlayActivity = ({
   const dispatch = optionalDispatch || noop;
   const { game } = remoteState;
 
-  const [fen, setFen] = useState(pgnToFen(game.pgn));
+  const [displayState, setDisplayState] = useState(
+    getDisplayStateFromPgn(game.pgn)
+  );
+
   const orientation = useMemo(
     () =>
       activitySettings.isBoardFlipped
@@ -76,6 +80,15 @@ export const PlayActivity = ({
     }
   }, [game.state]);
 
+  useEffect(() => {
+    setDisplayState(getDisplayStateFromPgn(game.pgn));
+  }, [game.pgn]);
+
+  const onRefocus = useCallback(
+    (i: FBHIndex) => setDisplayState(getDisplayStateFromPgn(game.pgn, i)),
+    [game.pgn, setDisplayState]
+  );
+
   return (
     <GameActionsProvider
       remoteState={remoteState}
@@ -87,7 +100,8 @@ export const PlayActivity = ({
         mainComponent={({ boardSize }) => (
           <Playboard
             sizePx={boardSize}
-            fen={fen}
+            fen={displayState.fen}
+            lastMove={displayState.lastMove}
             canPlay={canPlayGame}
             overlayComponent={
               <GameStateDialog
@@ -216,7 +230,12 @@ export const PlayActivity = ({
               />
             </div>
             <div className="bg-slate-700 p-3 flex flex-col flex-1 min-h-0 rounded-lg shadow-2xl">
-              <GameNotation pgn={game.pgn} onUpdateFen={setFen} />
+              <FreeBoardNotation
+                history={displayState.history}
+                focusedIndex={displayState.focusedIndex}
+                onDelete={() => {}}
+                onRefocus={onRefocus}
+              />
             </div>
           </div>
         }

@@ -53,17 +53,11 @@ yalc.lock
 .env
 .env*
 
-<<<<<<< HEAD
-*.tsbuildinfo
 # Sentry Config File
 .sentryclirc
-||||||| parent of 5d2c142 (Add basic PlayActivity, Play Button and Menu for multiple game modes)
-*.tsbuildinfo
-=======
 *.tsbuildinfo
 
 #Local
 TODO.md
 xmatter.sublime-project
 xmatter.sublime-workspace
->>>>>>> 5d2c142 (Add basic PlayActivity, Play Button and Menu for multiple game modes)

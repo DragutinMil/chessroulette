@@ -1,7 +1,6 @@
 import { objectKeys, toDictIndexedBy } from '@xmatter/util-kit';
 import { ActivityState } from './activities/movex';
 import { GameType } from './activities/Play/types';
-// import { ActivityState } from './activity/reducer';
 
 export type RoomActivityType = ActivityState['activityType'];
 
@@ -89,3 +88,5 @@ const toSearchParams = ({
 
   return searchParams;
 };
+
+export type LinksType = typeof links;

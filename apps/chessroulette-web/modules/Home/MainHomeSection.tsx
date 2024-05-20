@@ -1,20 +1,15 @@
-'use client';
 import { Button } from 'apps/chessroulette-web/components/Button';
 import { Session } from 'next-auth';
-import React, { useState } from 'react';
+import React from 'react';
 import { links } from '../room/links';
 import Link from 'next/link';
-import { GameSelectDialog } from '../room/activities/Play/components/GameSelectDialog';
-import { useRouter } from 'next/navigation';
+import { PlaySetupButton } from '../room/activities/Play/components/PlaySetupButton/PlaySetupButton';
 
 type Props = {
   session?: Session;
 };
 
 export const MainHomeSection: React.FC<Props> = ({ session }) => {
-  const [playModeDialog, showPlayModeDialog] = useState(false);
-  const router = useRouter();
-
   return (
     <main className="flex flex-1 justify-center mt-32">
       <div className="flex gap-3 flex-col">
@@ -49,14 +44,7 @@ export const MainHomeSection: React.FC<Props> = ({ session }) => {
           </Button>
         </Link>
         <br />
-        <Button
-          onClick={() => showPlayModeDialog(true)}
-          type="custom"
-          bgColor="orange"
-          className="font-bold w-full"
-        >
-          Start Play
-        </Button>
+        <PlaySetupButton />
         <br />
         <Link
           href={links.getOnDemandRoomCreationLink({
@@ -69,21 +57,6 @@ export const MainHomeSection: React.FC<Props> = ({ session }) => {
           </Button>
         </Link>
       </div>
-      {playModeDialog && (
-        <GameSelectDialog
-          onSelect={({ gameType }) => {
-            router.push(
-              links.getOnDemandRoomCreationLink({
-                activity: 'play',
-                gameType,
-                host: true,
-              })
-            );
-            showPlayModeDialog(false);
-          }}
-          onCancel={() => showPlayModeDialog(false)}
-        />
-      )}
     </main>
   );
 };

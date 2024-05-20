@@ -1,14 +1,6 @@
 import movexConfig from 'apps/chessroulette-web/movex.config';
 import { MovexBoundResourceFromConfig } from 'movex-react';
-import {
-  ChessPGN,
-  FBHHistory,
-  FBHIndex,
-  FreeBoardHistory,
-  noop,
-  pgnToFen,
-  swapColor,
-} from '@xmatter/util-kit';
+import { FBHIndex, noop, swapColor } from '@xmatter/util-kit';
 import { IceServerRecord } from 'apps/chessroulette-web/providers/PeerToPeerProvider/type';
 import { MeetupActivityState } from './movex';
 import { UserId, UsersMap } from 'apps/chessroulette-web/modules/user/type';
@@ -22,6 +14,7 @@ import { PanelResizeHandle } from 'react-resizable-panels';
 import { GameDisplayView } from './components/GameDisplayView';
 import { StartPositionIconButton } from 'apps/chessroulette-web/components/Chessboard';
 import { FreeBoardNotation } from 'apps/chessroulette-web/components/FreeBoardNotation';
+import { getDisplayStateFromPgn } from './utils';
 
 export type Props = {
   roomId: string;
@@ -33,39 +26,6 @@ export type Props = {
     typeof movexConfig['resources'],
     'room'
   >['dispatch'];
-};
-
-const getDisplayStateFromPgn = (pgn: ChessPGN, focusedIndex?: FBHIndex) => {
-  const allHistory = FreeBoardHistory.pgnToHistory(pgn);
-
-  if (!focusedIndex) {
-    const lastFocusedIndex = FreeBoardHistory.getLastIndexInHistory(allHistory);
-
-    return {
-      fen: pgnToFen(pgn),
-      history: allHistory,
-      focusedIndex: FreeBoardHistory.getLastIndexInHistory(allHistory),
-      lastMove: getLastMove(allHistory, lastFocusedIndex),
-    } as const;
-  }
-
-  const [historyAtIndex, lastFocusedIndex] = FreeBoardHistory.sliceHistory(
-    allHistory,
-    FreeBoardHistory.incrementIndex(focusedIndex)
-  );
-
-  return {
-    fen: FreeBoardHistory.historyToFen(historyAtIndex),
-    history: allHistory,
-    focusedIndex: lastFocusedIndex,
-    lastMove: getLastMove(historyAtIndex, lastFocusedIndex),
-  };
-};
-
-const getLastMove = (history: FBHHistory, atIndex: FBHIndex) => {
-  const lm = FreeBoardHistory.findMoveAtIndex(history, atIndex);
-
-  return lm?.isNonMove ? undefined : lm;
 };
 
 export const MeetupActivity = ({

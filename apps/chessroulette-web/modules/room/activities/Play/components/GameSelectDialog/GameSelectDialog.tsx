@@ -28,11 +28,9 @@ export const GameSelectDialog: React.FC<Props> = (props) => {
           <div className="flex flex-row gap-3">
             <div>Choose Game type:</div>
             <SelectInput
-              value={{ value: gameType, label: gameType }}
+              value={gameType}
               onSelect={(v) => {
-                console.log('vvvv', v);
-                const validOption = gameTypeRecord.safeParse(v.value);
-                console.log('valid', validOption);
+                const validOption = gameTypeRecord.safeParse(v);
                 if (!validOption.success) {
                   return;
                 }
