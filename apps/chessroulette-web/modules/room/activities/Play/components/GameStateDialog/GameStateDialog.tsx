@@ -263,14 +263,14 @@ export const GameStateDialog: React.FC<Props> = ({
             />
           );
         }
-        if (lastOffer.status === 'denied') {
+        if (lastOffer.status === 'denied' && !gameResultSeen) {
           if (lastOffer.byPlayer === clientUserId) {
             return (
               <Dialog
                 title="Offer Denied"
                 content={
                   <div className="flex justify-center content-center">
-                    Rematch offer has been denied.
+                    Takeback offer has been denied.
                   </div>
                 }
                 buttons={[

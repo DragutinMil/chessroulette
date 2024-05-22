@@ -191,6 +191,7 @@ export const PlayActivity = ({
                 <div className="flex-1">
                   <GameActions
                     orientation={orientation}
+                    whoAmI={userId}
                     onOfferDraw={() => {
                       dispatch({
                         type: 'play:sendOffer',

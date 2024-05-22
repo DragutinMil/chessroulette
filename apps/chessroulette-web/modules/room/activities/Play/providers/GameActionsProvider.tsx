@@ -21,6 +21,7 @@ export const GameActionsProvider: React.FC<Props> = ({
   const [value, setValue] = useState<GameActionsContextProps>({
     lastOffer: undefined,
     gameState: remoteState.game,
+    offers: remoteState.offers,
     players,
     clientUserId,
   });
@@ -34,6 +35,7 @@ export const GameActionsProvider: React.FC<Props> = ({
       ...prev,
       players,
       gameState: remoteState.game,
+      offers: remoteState.offers,
       lastOffer,
     }));
   }, [remoteState, players]);

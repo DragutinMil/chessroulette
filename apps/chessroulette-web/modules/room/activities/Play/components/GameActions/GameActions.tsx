@@ -1,6 +1,6 @@
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useGameActions } from '../../providers/useGameActions';
-import { ChessColor, toLongColor } from '@xmatter/util-kit';
+import { ChessColor, LongChessColor, toLongColor } from '@xmatter/util-kit';
 import { Icon } from 'apps/chessroulette-web/components/Icon';
 import { QuickConfirmButton } from 'apps/chessroulette-web/components/Button/QuickConfirmButton';
 
@@ -9,6 +9,7 @@ type Props = {
   onResign: () => void;
   onTakeback: () => void;
   orientation: ChessColor;
+  whoAmI: string;
   buttonOrientation?: 'horizontal' | 'vertical';
 };
 
@@ -17,10 +18,12 @@ export const GameActions: React.FC<Props> = ({
   onOfferDraw,
   onTakeback,
   orientation,
+  whoAmI,
   buttonOrientation = 'vertical',
 }) => {
-  const { lastOffer, gameState } = useGameActions();
+  const { lastOffer, gameState, offers } = useGameActions();
   const offerAlreadySend = useRef(false);
+  const [allowTakeback, refreshAllowTakeback] = useState(false);
 
   const setOfferSent = useCallback(() => {
     if (!offerAlreadySend.current) {
@@ -34,11 +37,27 @@ export const GameActions: React.FC<Props> = ({
     }
   }, []);
 
+  const calculateTakebackStatus = (lastMoveBy: LongChessColor) => {
+    if (lastMoveBy !== toLongColor(orientation)) {
+      return false;
+    }
+    if (lastOffer?.status === 'pending' || offerAlreadySend.current) {
+      return false;
+    }
+    return !offers.some(
+      (offer) =>
+        offer.byPlayer === whoAmI &&
+        offer.offerType === 'takeback' &&
+        offer.status !== 'cancelled'
+    );
+  };
+
   useEffect(() => {
-    if (offerAlreadySend) {
+    if (offerAlreadySend.current) {
       resetOfferSent();
     }
-  }, [gameState.lastMoveBy]);
+    refreshAllowTakeback(calculateTakebackStatus(gameState.lastMoveBy));
+  }, [gameState.lastMoveBy, offers]);
 
   return (
     <div
@@ -77,13 +96,7 @@ export const GameActions: React.FC<Props> = ({
           onTakeback();
           setOfferSent();
         }}
-        disabled={
-          gameState.state !== 'ongoing' ||
-          lastOffer?.status === 'pending' ||
-          lastOffer?.offerType === 'takeback' || //TODO - currently can only send takeback offer 1 time per game.
-          offerAlreadySend.current ||
-          toLongColor(orientation) !== gameState.lastMoveBy
-        }
+        disabled={gameState.state !== 'ongoing' || !allowTakeback}
       >
         <Icon name="ArrowUturnLeftIcon" className="h-4 w-4" color="white" />
       </QuickConfirmButton>
