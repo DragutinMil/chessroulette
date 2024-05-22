@@ -51,6 +51,8 @@ export const GameActions: React.FC<Props> = ({
       <QuickConfirmButton
         size="sm"
         confirmationBgcolor="blue"
+        tooltip="Draw"
+        tooltipPositon="right"
         confirmationMessage="Invite to Draw?"
         onClick={() => {
           onOfferDraw();
@@ -67,6 +69,8 @@ export const GameActions: React.FC<Props> = ({
       </QuickConfirmButton>
       <QuickConfirmButton
         size="sm"
+        tooltip="Takeback"
+        tooltipPositon="right"
         confirmationBgcolor="indigo"
         confirmationMessage="Ask for Takeback?"
         onClick={() => {
@@ -86,6 +90,8 @@ export const GameActions: React.FC<Props> = ({
       <QuickConfirmButton
         size="sm"
         confirmationBgcolor="red"
+        tooltip="Resign"
+        tooltipPositon="right"
         confirmationMessage="Confirm Resign?"
         onClick={onResign}
         disabled={
