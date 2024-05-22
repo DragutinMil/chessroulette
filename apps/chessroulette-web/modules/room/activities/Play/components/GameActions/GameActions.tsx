@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useGameActions } from '../../providers/useGameActions';
-import { ChessColor, LongChessColor, toLongColor } from '@xmatter/util-kit';
+import { ChessColor, toLongColor } from '@xmatter/util-kit';
 import { Icon } from 'apps/chessroulette-web/components/Icon';
 import { QuickConfirmButton } from 'apps/chessroulette-web/components/Button/QuickConfirmButton';
 
@@ -21,6 +21,7 @@ export const GameActions: React.FC<Props> = ({
   whoAmI,
   buttonOrientation = 'vertical',
 }) => {
+  //TODO - can merge gameState and offers together as they are part of the same state and only used here
   const { lastOffer, gameState, offers } = useGameActions();
   const offerAlreadySend = useRef(false);
   const [allowTakeback, refreshAllowTakeback] = useState(false);
@@ -37,8 +38,8 @@ export const GameActions: React.FC<Props> = ({
     }
   }, []);
 
-  const calculateTakebackStatus = (lastMoveBy: LongChessColor) => {
-    if (lastMoveBy !== toLongColor(orientation)) {
+  const calculateTakebackStatus = () => {
+    if (gameState.lastMoveBy !== toLongColor(orientation)) {
       return false;
     }
     if (lastOffer?.status === 'pending' || offerAlreadySend.current) {
@@ -56,7 +57,8 @@ export const GameActions: React.FC<Props> = ({
     if (offerAlreadySend.current) {
       resetOfferSent();
     }
-    refreshAllowTakeback(calculateTakebackStatus(gameState.lastMoveBy));
+    //TODO - can optimize this function with useCallback and pass parameters the gameState
+    refreshAllowTakeback(calculateTakebackStatus());
   }, [gameState.lastMoveBy, offers]);
 
   return (
