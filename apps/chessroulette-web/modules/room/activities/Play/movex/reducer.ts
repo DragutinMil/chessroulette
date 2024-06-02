@@ -165,7 +165,7 @@ export const reducer = (
         game: {
           ...prev.activityState.game,
           state: 'complete',
-          winner: prev.activityState.game.lastMoveBy,
+          winner: toLongColor(swapColor(action.payload.color)),
         },
       },
     };
