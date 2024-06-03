@@ -8,7 +8,6 @@ import {
 } from 'apps/chessroulette-web/providers/PeerToPeerProvider/type';
 import {
   AVStreaming,
-  AVStreamingConstraints,
   getAVStreamingInstance,
 } from 'apps/chessroulette-web/services/AVStreaming';
 import useInstance from '@use-it/instance';
@@ -93,8 +92,6 @@ export const MultiFaceTimeCompact: React.FC<MultiFaceTimeCompactProps> = ({
     avStreaminginstance.activeConstraints
   );
 
-  // console.log('myFaceTimeConstraints', myFaceTimeConstraints);
-
   const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
@@ -130,17 +127,9 @@ export const MultiFaceTimeCompact: React.FC<MultiFaceTimeCompactProps> = ({
         />
       )}
       <div className="absolute inset-0 flex flex-col">
-        <div
-          // className={cls.headerWrapper}
-          className=""
-        >
-          {headerOverlay ? headerOverlay(inFocusUserOverlay) : null}
-        </div>
+        <div>{headerOverlay ? headerOverlay(inFocusUserOverlay) : null}</div>
         <div className="flex flex-1 min-h-0">
-          <div
-            // className={cls.mainOverlayWrapper}
-            className="flex-1"
-          >
+          <div className="flex-1">
             {mainOverlay ? mainOverlay(inFocusUserOverlay) : null}
             {isReady && (
               <div className="flex-1 nbg-red-100 w-full h-full items-start">
@@ -169,7 +158,6 @@ export const MultiFaceTimeCompact: React.FC<MultiFaceTimeCompactProps> = ({
           </div>
           {reel && (
             <div
-              // className={cls.reelWrapper}
               className="flex overflow-auto pr-1 pb-1"
               style={{
                 width: '25%',
@@ -191,17 +179,16 @@ export const MultiFaceTimeCompact: React.FC<MultiFaceTimeCompactProps> = ({
                 //     },
                 className="flex flex-col-reverse flex-1 overflow-y-auto hover:"
               >
-                <Reel streamingPeers={reel.streamingPeers} onClick={onFocus} />
+                <Reel
+                  streamingPeers={reel.streamingPeers}
+                  myFaceTimeConstraints={myFaceTimeConstraints}
+                  onClick={onFocus}
+                />
               </div>
             </div>
           )}
         </div>
-        <div
-          // className={cls.footerWrapper}
-          className=""
-        >
-          {footerOverlay ? footerOverlay(inFocusUserOverlay) : null}
-        </div>
+        <div>{footerOverlay ? footerOverlay(inFocusUserOverlay) : null}</div>
       </div>
     </div>
   );
