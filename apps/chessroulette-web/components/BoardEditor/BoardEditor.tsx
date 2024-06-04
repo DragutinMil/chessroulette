@@ -127,7 +127,7 @@ export const BoardEditor = ({
     ]
   );
 
-  const [draggedPiece, setDraggedPiece] = useState<{
+  const [draggedPieceState, setDraggedPieceState] = useState<{
     piece: PieceSan;
     from: Square;
     dropped: boolean;
@@ -163,10 +163,7 @@ export const BoardEditor = ({
         </div>
         <div
           className="flex flex-cosl sjustify-between justify-center"
-          style={{
-            width: sizePx,
-            // height: sizePx,
-          }}
+          style={{ width: sizePx }}
         >
           <DropContainer
             isActive={isDragging}
@@ -174,11 +171,17 @@ export const BoardEditor = ({
               setHoveredSquare(square);
             }}
             onDrop={(pieceSan, square) => {
-              fenBoard.put(square, pieceSanToFenBoardPieceSymbol(pieceSan));
+              try {
+                fenBoard.addPiece(
+                  square,
+                  pieceSanToFenBoardPieceSymbol(pieceSan)
+                );
 
-              // setEditedFen(fenBoard.fen);
-              onUpdated(fenBoard.fen);
-              setHoveredSquare(undefined);
+                onUpdated(fenBoard.fen);
+                setHoveredSquare(undefined);
+              } catch {
+                // TODO: Maybe show an error in the UI
+              }
             }}
             isFlipped={
               props.boardOrientation
@@ -191,46 +194,42 @@ export const BoardEditor = ({
               boardTheme={boardTheme}
               {...props}
               onMove={(m) => {
-                fenBoard.move(m);
+                // Should this be part of the ChessFen or outside? The king not being removed
+                // I think this should be after each clear, or move - because there is no valid FEN w/o the king
 
-                onUpdated(fenBoard.fen);
+                try {
+                  fenBoard.move(m);
 
-                setHoveredSquare(undefined);
+                  onUpdated(fenBoard.fen);
+                  setHoveredSquare(undefined);
 
-                // props.onArrowsChange()
-
-                return true;
+                  return true;
+                } catch (e) {
+                  return false;
+                }
               }}
               onPieceDragBegin={(piece, from) => {
-                setDraggedPiece({ piece, dropped: false, from });
+                setDraggedPieceState({ piece, dropped: false, from });
               }}
               onPieceDrop={(from, to, piece) => {
-                setDraggedPiece({ piece, dropped: true, from });
+                setDraggedPieceState({ piece, dropped: true, from });
                 return true;
               }}
               onPieceDragEnd={(piece, from) => {
-                setDraggedPiece((prev) => {
-                  if (prev) {
-                    const {
-                      piece: draggedPiece,
-                      dropped,
-                      from: prevFrom,
-                    } = prev;
+                if (
+                  draggedPieceState?.piece === piece &&
+                  draggedPieceState.dropped === false
+                ) {
+                  try {
+                    fenBoard.clearSquare(from, { validate: true });
 
-                    // If the draggedPiece haven't dropped yet, it means it got dragged outside
-                    if (
-                      draggedPiece === piece &&
-                      // prevFrom !== from &&
-                      dropped === false
-                    ) {
-                      fenBoard.clear(from);
+                    setDraggedPieceState(undefined);
 
-                      onUpdated(fenBoard.fen);
-                    }
+                    onUpdated(fenBoard.fen);
+                  } catch {
+                    // TODO: Maybe show an error in the UI?
                   }
-
-                  return undefined;
-                });
+                }
               }}
               arePiecesDraggable
               allowDragOutsideBoard
