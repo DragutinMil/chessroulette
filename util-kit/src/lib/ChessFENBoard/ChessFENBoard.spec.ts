@@ -289,20 +289,18 @@ describe('put', () => {
   });
 });
 
-describe('Set Fen Notation', () => {
+describe('UpdateFen', () => {
   describe('From Fen State', () => {
     test('With Valid Props', () => {
       const chessFenBoard = new ChessFENBoard();
 
-      chessFenBoard.setFenNotation({
-        fromState: {
-          turn: 'b',
-          halfMoves: 5,
-          fullMoves: 1,
-          castlingRights: {
-            w: {
-              kingSide: false,
-            },
+      chessFenBoard.setFenState({
+        turn: 'b',
+        halfMoves: 5,
+        fullMoves: 1,
+        castlingRights: {
+          w: {
+            kingSide: false,
           },
         },
       });
@@ -318,15 +316,13 @@ describe('Set Fen Notation', () => {
       const chessFenBoard = new ChessFENBoard();
 
       const actual = () => {
-        chessFenBoard.setFenNotation({
-          fromState: {
-            turn: 'b',
-            halfMoves: 5,
-            fullMoves: 0,
-            castlingRights: {
-              w: {
-                kingSide: true,
-              },
+        chessFenBoard.setFenState({
+          turn: 'b',
+          halfMoves: 5,
+          fullMoves: 0,
+          castlingRights: {
+            w: {
+              kingSide: true,
             },
           },
         });
@@ -339,15 +335,13 @@ describe('Set Fen Notation', () => {
       const chessFenBoard = new ChessFENBoard();
 
       const actual = () => {
-        chessFenBoard.setFenNotation({
-          fromState: {
-            turn: 'b',
-            halfMoves: -1,
-            fullMoves: 2,
-            castlingRights: {
-              w: {
-                kingSide: true,
-              },
+        chessFenBoard.setFenState({
+          turn: 'b',
+          halfMoves: -1,
+          fullMoves: 2,
+          castlingRights: {
+            w: {
+              kingSide: true,
             },
           },
         });
@@ -361,9 +355,7 @@ describe('Set Fen Notation', () => {
     test('With Valid Notation', () => {
       const chessFenBoard = new ChessFENBoard();
 
-      chessFenBoard.setFenNotation({
-        fromNotation: 'b Kq e3 0 1',
-      });
+      chessFenBoard.setFenState('b Kq e3 0 1');
 
       const actual = chessFenBoard.fen;
 
@@ -376,9 +368,7 @@ describe('Set Fen Notation', () => {
       const chessFenBoard = new ChessFENBoard();
 
       const actual = () => {
-        chessFenBoard.setFenNotation({
-          fromNotation: '- Kq e3 0 1',
-        });
+        chessFenBoard.setFenState('- Kq e3 0 1');
       };
 
       expect(actual).toThrow('InvalidTurnNotation');
@@ -388,9 +378,7 @@ describe('Set Fen Notation', () => {
       const chessFenBoard = new ChessFENBoard();
 
       const actual = () => {
-        chessFenBoard.setFenNotation({
-          fromNotation: 'w Kq e3 0 0',
-        });
+        chessFenBoard.setFenState('w Kq e3 0 0');
       };
 
       expect(actual).toThrow('InvalidFullMovesNotation');
