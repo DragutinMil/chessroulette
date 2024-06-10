@@ -188,7 +188,7 @@ export const PlayActivity = ({
             )}
             <div className="flex flex-row w-full">
               {canPlayGame && (
-                <div className="flex-1">
+                <div>
                   <GameActions
                     orientation={orientation}
                     whoAmI={userId}
@@ -218,6 +218,7 @@ export const PlayActivity = ({
                   />
                 </div>
               )}
+              <div className="flex-1" />
               <GameStateWidget
                 game={game}
                 gameType={remoteState.gameType}

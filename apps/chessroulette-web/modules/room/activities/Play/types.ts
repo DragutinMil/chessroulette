@@ -4,7 +4,6 @@ export const gameTypeRecord = z.union([
   z.literal('blitz'),
   z.literal('rapid'),
   z.literal('untimed'),
-  z.literal('testing'),
   z.literal('bullet'),
 ]);
 
@@ -16,7 +15,6 @@ export type ChessGameTimeMap = {
 
 //TODO - convert all to zod
 export const chessGameTimeLimitMsMap: ChessGameTimeMap = {
-  testing: 10000,
   bullet: 60000,
   blitz: 300000,
   rapid: 600000,
