@@ -1,5 +1,3 @@
-import { Action } from 'movex-core-util';
-import { User } from '../../user/type';
 import {
   ActivityActions,
   ActivityState,
@@ -29,7 +27,7 @@ export default (state = initialRoomState, action: RoomActions): RoomState => {
   const nextRoomState = roomReducer(state, action);
 
   return {
-    // ...nextRoomState,
+    // ...nextRoomState, // TODO: Bring back once it is updayeable
     activity: roomActivityReducer(
       nextRoomState.activity,
       action as ActivityActions

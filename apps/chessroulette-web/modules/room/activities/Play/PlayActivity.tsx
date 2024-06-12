@@ -6,7 +6,6 @@ import { UserId, UsersMap } from 'apps/chessroulette-web/modules/user/type';
 import { PlayContainer } from '../../../Play/PlayContainer';
 import { usePlayActivitySettings } from './usePlayActivitySettings';
 import { PlayActivityState } from './movex';
-import { useEffect } from 'react';
 
 export type Props = {
   roomId: string;
@@ -29,12 +28,6 @@ export const PlayActivity = ({
 
   // TODO: Why would this be optional here? Could be outside!
   const dispatch = optionalDispatch || noop;
-
-  useEffect(() => {
-    setTimeout(() => {
-      dispatch({ type: 'play:cancelOffer' });
-    }, 3 * 1000);
-  }, []);
 
   return (
     <PlayContainer
