@@ -1,4 +1,6 @@
+import { PlayActions } from 'apps/chessroulette-web/modules/Play/store';
 import type { LearnActivityState, LearnActivityActions } from '../Learn/movex';
+// import { MatchActivityState } from '../Match/movex';
 import type {
   MeetupActivityState,
   MeetupActivityActions,
@@ -15,6 +17,7 @@ export type ActivityState =
   | MeetupActivityState
   | NoneActivityState
   | PlayActivityState;
+// | MatchActivityState;
 
 export type ActivityActions =
   | LearnActivityActions

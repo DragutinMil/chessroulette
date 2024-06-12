@@ -1,3 +1,5 @@
+import { Action, AnyAction, ToPublicAction } from 'movex-core-util';
+
 export type GetComponentProps<T> = T extends
   | React.ComponentType<infer P>
   | React.Component<infer P>
@@ -31,3 +33,7 @@ export type StringKeys<TRecord extends UnknownRecord> = Extract<
   keyof TRecord,
   string
 >;
+
+export type DispatchOf<A extends AnyAction> = (
+  action: ToPublicAction<A> // TODO: Should this be ToPublic??
+) => void;

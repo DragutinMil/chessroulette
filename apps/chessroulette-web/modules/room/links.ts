@@ -1,6 +1,6 @@
 import { objectKeys, toDictIndexedBy } from '@xmatter/util-kit';
 import { ActivityState } from './activities/movex';
-import { GameType } from './activities/Play/types';
+import { GameType } from '../Play/types';
 
 export type RoomActivityType = ActivityState['activityType'];
 

@@ -19,7 +19,7 @@ const generalActivityParamsSchema = themeParamsSchema.partial(); // can add more
 export const learnActivityParamsSchema = z.object({
   activity: z.literal('learn'), // This will be more in the future like play or others
 
-  // Learn Actibity Settings
+  // Learn Activity Settings
   instructor: truthyParam.optional(),
 });
 
@@ -36,11 +36,19 @@ export const playActivityParamsSchema = z.object({
   activity: z.literal('play'),
 });
 
+export const matchActivityParamsSchema = z.object({
+  activity: z.literal('match'),
+
+  // Match specific params
+  // matchRounds: ,
+});
+
 export const activityParamsSchema = z
   .discriminatedUnion('activity', [
     learnActivityParamsSchema,
     meetupActivityParamsSchema,
     playActivityParamsSchema,
+    // matchActivityParamsSchema,
   ])
   .and(generalActivityParamsSchema);
 

@@ -3,42 +3,40 @@ import {
   GameActionsContext,
   GameActionsContextProps,
 } from './GameActionsContext';
-import { PlayActivityState } from '../movex';
 import { UserId, UsersMap } from 'apps/chessroulette-web/modules/user/type';
+import { PlayState } from '../store';
 
 type Props = PropsWithChildren & {
-  remoteState: PlayActivityState['activityState'];
+  state: PlayState;
   players: UsersMap | undefined;
   clientUserId: UserId;
 };
 
 export const GameActionsProvider: React.FC<Props> = ({
-  remoteState,
+  state,
   players,
   clientUserId,
   children,
 }) => {
   const [value, setValue] = useState<GameActionsContextProps>({
     lastOffer: undefined,
-    gameState: remoteState.game,
-    offers: remoteState.offers,
+    gameState: state.game,
+    offers: state.offers,
     players,
     clientUserId,
   });
 
   useEffect(() => {
-    console.log('remoteState', remoteState);
-
-    const lastOffer = remoteState.offers?.slice(-1)[0];
+    const lastOffer = state.offers?.slice(-1)[0];
 
     setValue((prev) => ({
       ...prev,
       players,
-      gameState: remoteState.game,
-      offers: remoteState.offers,
+      gameState: state.game,
+      offers: state.offers,
       lastOffer,
     }));
-  }, [remoteState, players]);
+  }, [state, players]);
 
   return (
     <GameActionsContext.Provider value={value}>

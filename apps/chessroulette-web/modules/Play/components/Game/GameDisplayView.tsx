@@ -1,9 +1,9 @@
 import { useMemo } from 'react';
 import { ChessFENBoard, pgnToFen, toLongColor } from '@xmatter/util-kit';
-import { PlayActivityState } from '../../movex';
+import { Game } from '../../store';
 
 type Props = {
-  game: PlayActivityState['activityState']['game'];
+  game: Game;
   className?: string;
 };
 

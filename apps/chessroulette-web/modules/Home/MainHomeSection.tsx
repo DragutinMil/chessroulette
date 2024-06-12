@@ -3,7 +3,8 @@ import { Session } from 'next-auth';
 import React from 'react';
 import { links } from '../room/links';
 import Link from 'next/link';
-import { PlaySetupButton } from '../room/activities/Play/components/PlaySetupButton/PlaySetupButton';
+import { PlaySetupButton } from '../Play/components/PlaySetupButton/PlaySetupButton';
+// import { PlaySetupButton } from '../room/activities/Play/components/PlaySetupButton/PlaySetupButton';
 
 type Props = {
   session?: Session;

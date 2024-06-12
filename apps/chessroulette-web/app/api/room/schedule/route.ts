@@ -109,6 +109,33 @@ export function GET(request: NextRequest) {
     });
   }
 
+  // if (activityParams.activity === 'match') {
+  //   return NextResponse.json({
+  //     links: [
+  //       {
+  //         userRole: 'challenger',
+  //         url: links.getOnDemandRoomCreationLink(
+  //           {
+  //             ...objectOmit(activityParams, ['client']),
+  //             id: roomId,
+  //           },
+  //           request.nextUrl
+  //         ),
+  //       },
+  //       {
+  //         userRole: 'challengee',
+  //         url: links.getOnDemandRoomCreationLink(
+  //           {
+  //             ...objectOmit(activityParams, ['client']),
+  //             id: roomId,
+  //           },
+  //           request.nextUrl
+  //         ),
+  //       },
+  //     ],
+  //   });
+  // }
+
   return NextResponse.json(
     {
       Error: `Ooops! this shouldn't happen.`,

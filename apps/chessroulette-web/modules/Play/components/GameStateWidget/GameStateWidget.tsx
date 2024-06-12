@@ -1,14 +1,14 @@
 import React, { useMemo } from 'react';
 import { PlayerBox } from '../PlayerBox/PlayerBox';
-import { PlayActivityState } from '../../movex';
 import { GameType } from '../../types';
 import { useGameTimeLeft } from '../../hooks/useGameTimeLeft';
 import { ChessFENBoard, pgnToFen, toLongColor } from '@xmatter/util-kit';
+import { Game } from '../../store';
 
 type Props = {
   id: string;
   //TODO - organize types better
-  game: PlayActivityState['activityState']['game'];
+  game: Game;
   gameType: GameType;
   onTimerFinished: () => void;
 };
@@ -30,9 +30,9 @@ export const GameStateWidget: React.FC<Props> = (props) => {
           <PlayerBox
             key={`${props.id}-white`}
             color="white"
-            turn={props.game.state !== 'complete' ? turn : undefined}
+            turn={props.game.status !== 'complete' ? turn : undefined}
             active={
-              props.game.state === 'ongoing' &&
+              props.game.status === 'ongoing' &&
               props.game.lastMoveBy !== 'white' &&
               timeLeft['white'] > 0
             }
@@ -43,9 +43,9 @@ export const GameStateWidget: React.FC<Props> = (props) => {
           <PlayerBox
             key={`${props.id}-black`}
             color="black"
-            turn={props.game.state !== 'complete' ? turn : undefined}
+            turn={props.game.status !== 'complete' ? turn : undefined}
             active={
-              props.game.state === 'ongoing' &&
+              props.game.status === 'ongoing' &&
               props.game.lastMoveBy !== 'black' &&
               timeLeft['black'] > 0
             }

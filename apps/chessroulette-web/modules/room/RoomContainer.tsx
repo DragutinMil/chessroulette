@@ -9,13 +9,13 @@ import { LearnActivity } from './activities/Learn';
 import { initialLearnActivityState } from './activities/Learn/movex';
 import { MeetupActivity } from './activities/Meetup/MeetupActivity';
 import { initialMeetupActivityState } from './activities/Meetup/movex';
-import { useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 import { objectKeys } from '@xmatter/util-kit';
 import { UsersMap } from '../user/type';
 import { MovexClientInfo } from 'apps/chessroulette-web/providers/MovexProvider';
-import { ChessEngineProvider } from '../ChessEngine/ChessEngineProvider';
 import { PlayActivity } from './activities/Play/PlayActivity';
-import { initialPlayActivityState } from './activities/Play/movex/state';
+import { initialPlayActivityState } from './activities/Play/movex';
+// import { MatchActivity } from './activities/Match/MatchActivity';
 
 type Props = {
   rid: ResourceIdentifier<'room'>;
@@ -52,11 +52,6 @@ export const RoomContainer = ({ iceServers, rid, activity }: Props) => {
 
   if (activity === 'learn') {
     return (
-      // TODO: Should this be here??
-      // <ChessEngineProvider
-      //   // uciUrl="ws://localhost:5222/senduci"
-      //   uciUrl="wss://chessroulette-engine.fly.dev/senduci"
-      // >
       <LearnActivity
         userId={userId}
         roomId={toResourceIdentifierObj(rid).resourceId}
@@ -70,7 +65,6 @@ export const RoomContainer = ({ iceServers, rid, activity }: Props) => {
             : initialLearnActivityState.activityState
         }
       />
-      // </ChessEngineProvider>
     );
   }
 
@@ -109,6 +103,24 @@ export const RoomContainer = ({ iceServers, rid, activity }: Props) => {
       />
     );
   }
+
+  // if (activity === 'match') {
+  //   return (
+  //     <MatchActivity
+  //       userId={userId}
+  //       roomId={toResourceIdentifierObj(rid).resourceId}
+  //       dispatch={movexResource?.dispatch}
+  //       players={participants}
+  //       iceServers={iceServers}
+  //       remoteState={
+  //         movexResource?.state.activity.activityType === 'play'
+  //           ? movexResource?.state.activity.activityState ??
+  //             initialPlayActivityState.activityState
+  //           : initialPlayActivityState.activityState
+  //       }
+  //     />
+  //   );
+  // }
 
   return null;
 };

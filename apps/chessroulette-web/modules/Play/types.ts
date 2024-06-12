@@ -1,5 +1,7 @@
 import z from 'zod';
-export type GameState = 'pending' | 'ongoing' | 'complete';
+
+export type GameStatus = 'pending' | 'ongoing' | 'complete';
+
 export const gameTypeRecord = z.union([
   z.literal('blitz'),
   z.literal('rapid'),

@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { useGameActions } from 'apps/chessroulette-web/modules/room/activities/Play/providers/useGameActions';
-import { objectKeys } from '@xmatter/util-kit';
-import { OfferType } from 'apps/chessroulette-web/modules/room/activities/Play/movex';
-import { Dialog } from 'apps/chessroulette-web/components/Dialog/Dialog';
+import { invoke, objectKeys } from '@xmatter/util-kit';
+import { Dialog } from 'apps/chessroulette-web/components/Dialog';
 import { Text } from 'apps/chessroulette-web/components/Text';
 import { RoomSideMenu } from 'apps/chessroulette-web/modules/room/components/RoomSideMenu';
+import { useGameActions } from '../../providers/useGameActions';
+import { OfferType } from '../../store';
 
 type Props = {
   onAcceptOffer: ({ offer }: { offer: OfferType }) => void;
@@ -27,23 +27,28 @@ export const GameStateDialog: React.FC<Props> = ({
   useEffect(() => {
     // Everytime the game state changes, reset the seen!
     setGameResultSeen(false);
-  }, [gameState.state]);
+  }, [gameState.status]);
 
-  const content = (() => {
-    if (gameState.state === 'pending' && objectKeys(players || {}).length < 2) {
+  return invoke(() => {
+    if (
+      gameState.status === 'pending' &&
+      objectKeys(players || {}).length < 2
+    ) {
       return (
         <Dialog
           title="Waiting for Opponent"
           content={
             <div>
+              {/* // TODO: Fix this */}
               <RoomSideMenu activity="play" roomId={roomId} />
             </div>
           }
         />
       );
     }
+
     if (
-      gameState.state === 'complete' &&
+      gameState.status === 'complete' &&
       !gameResultSeen &&
       (!lastOffer || lastOffer.status !== 'pending')
     ) {
@@ -76,7 +81,7 @@ export const GameStateDialog: React.FC<Props> = ({
     }
 
     if (lastOffer) {
-      if (gameState.state === 'complete' && !gameResultSeen) {
+      if (gameState.status === 'complete' && !gameResultSeen) {
         setGameResultSeen(true);
       }
       if (lastOffer.offerType === 'rematch') {
@@ -132,6 +137,7 @@ export const GameStateDialog: React.FC<Props> = ({
             />
           );
         }
+
         if (lastOffer.status === 'denied') {
           if (lastOffer.byPlayer === clientUserId) {
             return (
@@ -180,6 +186,7 @@ export const GameStateDialog: React.FC<Props> = ({
             />
           );
         }
+
         return (
           <Dialog
             title="Draw ?"
@@ -234,6 +241,7 @@ export const GameStateDialog: React.FC<Props> = ({
               />
             );
           }
+
           return (
             <Dialog
               title="Takeback ?"
@@ -263,6 +271,7 @@ export const GameStateDialog: React.FC<Props> = ({
             />
           );
         }
+
         if (lastOffer.status === 'denied' && !gameResultSeen) {
           if (lastOffer.byPlayer === clientUserId) {
             return (
@@ -290,11 +299,5 @@ export const GameStateDialog: React.FC<Props> = ({
     }
 
     return null;
-  })();
-
-  if (!content) {
-    return null;
-  }
-
-  return <>{content}</>;
+  });
 };

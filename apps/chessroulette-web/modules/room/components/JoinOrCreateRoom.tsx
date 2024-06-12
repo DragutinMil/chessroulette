@@ -19,11 +19,12 @@ import {
   ActivityState,
   initialActivityStatesByActivityType,
 } from '../activities/movex';
-import {
-  GameType,
-  chessGameTimeLimitMsMap,
-  gameTypeRecord,
-} from '../activities/Play/types';
+import { GameType, chessGameTimeLimitMsMap, gameTypeRecord } from '../../Play/types';
+// import {
+//   GameType,
+//   chessGameTimeLimitMsMap,
+//   gameTypeRecord,
+// } from '../activities/Play/types';
 
 type Props = {
   activity: ActivityState['activityType']; // To expand in the future
