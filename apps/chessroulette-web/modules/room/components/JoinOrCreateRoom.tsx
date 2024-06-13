@@ -13,10 +13,12 @@ import { useUpdateableSearchParams } from 'apps/chessroulette-web/hooks/useSearc
 import { generateUserId, getRandomStr } from 'apps/chessroulette-web/util';
 import { links } from '../links';
 import { AsyncErr } from 'ts-async-results';
-import { invoke } from '@xmatter/util-kit';
+import { getRandomInt, invoke } from '@xmatter/util-kit';
 import { initialActivityStatesByActivityType } from '../activities/movex';
 import { GameTimeClass, chessGameTimeLimitMsMap } from '../../Play/types';
 import { ActivityParamsSchema } from '../io/paramsSchema';
+import { initialFriendlyMatch } from '../activities/Match/movex';
+import { setupNewGame } from '../../Play/store';
 
 type Props = {
   activityParams: ActivityParamsSchema;
@@ -45,7 +47,7 @@ type ErrorType = 'RoomInexistent';
  */
 export const JoinOrCreateRoom: React.FC<Props> = ({
   activityParams,
-  id,
+  id: roomId,
   mode,
 }: Props) => {
   const roomResource = useMovexResourceType(movexConfig, 'room');
@@ -89,26 +91,54 @@ export const JoinOrCreateRoom: React.FC<Props> = ({
           };
         }
 
-        // if (params.activity === 'match') {
+        if (activityParams.activity === 'match') {
+          return {
+            ...initialRoomState,
+            activity: {
+              activityType: 'match',
+              activityState: {
+                // Default to a Friendly Match if not
+                ...initialFriendlyMatch,
+                ...(activityParams.timeClass && {
+                  timeClass: activityParams.timeClass,
+                }),
+                ...(activityParams.maxPlayers && {
+                  maxPlayers: activityParams.maxPlayers,
+                }),
+                ...(activityParams.type && { type: activityParams.type }),
 
-        // }
+                rounds:
+                  activityParams.rounds || initialFriendlyMatch.rounds || 1,
+
+                // Affect the game
+                ...(initialFriendlyMatch.timeClass && {
+                  currentPlay: {
+                    ...initialFriendlyMatch.currentPlay,
+                    game: setupNewGame(
+                      activityParams.timeClass ||
+                        initialFriendlyMatch.timeClass,
+                      // For now the color is randomized
+                      (['white', 'black'] as const)[getRandomInt(0, 1)]
+                    ),
+                  },
+                }),
+              },
+            },
+          };
+        }
 
         return initialRoomState;
       });
 
       if (mode === 'create') {
-        return roomResource.create(
-          createRoomInput,
-
-          getRandomStr(7) // the new room id
-        );
+        return roomResource.create(createRoomInput, getRandomStr(7));
       }
 
       return (
-        id
+        roomId
           ? roomResource.get(
               toResourceIdentifierStr({
-                resourceId: id,
+                resourceId: roomId,
                 resourceType: 'room',
               })
             )
@@ -120,11 +150,7 @@ export const JoinOrCreateRoom: React.FC<Props> = ({
             return new AsyncErr(e);
           }
 
-          return roomResource.create(
-            createRoomInput,
-
-            id
-          );
+          return roomResource.create(createRoomInput, roomId);
         });
     })
       .map((r) => {
@@ -142,7 +168,7 @@ export const JoinOrCreateRoom: React.FC<Props> = ({
         setError('RoomInexistent');
         console.error('JoinOrCreateRoom Error', e);
       });
-  }, [roomResource, activityParams, id]);
+  }, [roomResource, activityParams, roomId]);
 
   // TODO: Use the built in error page˝
   if (error === 'RoomInexistent') {

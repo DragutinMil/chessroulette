@@ -1,4 +1,5 @@
 import z from 'zod';
+import { gameTimeClassRecord } from '../../Play/types';
 
 const truthyParam = z
   .union([
@@ -34,14 +35,30 @@ export const meetupActivityParamsSchema = z.object({
 
 export const playActivityParamsSchema = z.object({
   activity: z.literal('play'),
+  timeClass: gameTimeClassRecord.optional(),
 });
+
+// const matchUnionParams = z.discriminatedUnion('matchType', [
+//   z.object({
+//     matchType: z.literal('bestOf'),
+//     round: z.number(), // TODO: Enforect positive odd numbers only
+//   }),
+//   z.object({
+//     matchType: z.literal('friendly'),
+//   }),
+// ]);
 
 export const matchActivityParamsSchema = z.object({
   activity: z.literal('match'),
 
-  // Match specific params
-  // matchRounds: ,
+  // TODO: Type these better
+  type: z.literal('bestOf').or(z.literal('friendly')),
+  rounds: z.coerce.number().optional(),
+  maxPlayers: z.coerce.number().optional(),
+  timeClass: gameTimeClassRecord.optional(),
 });
+
+// const x = {} as Zod.infer<typeof matchActivityParamsSchema>;
 
 export const activityParamsSchema = z
   .discriminatedUnion('activity', [
@@ -52,5 +69,11 @@ export const activityParamsSchema = z
   ])
   .and(generalActivityParamsSchema);
 
+export type ActivityParamsSchema = z.TypeOf<typeof activityParamsSchema>;
+
 export const identifiableActivityParamsSchema =
   activityParamsSchema.and(idParamsSchema);
+
+export type IdentifiableActivityParamsSchema = z.TypeOf<
+  typeof identifiableActivityParamsSchema
+>;

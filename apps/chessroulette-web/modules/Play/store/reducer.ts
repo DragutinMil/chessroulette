@@ -9,7 +9,7 @@ import { initialPlayState } from './state';
 import { GameOffer, PlayActions, PlayState } from './types';
 import { GameTimeClass, chessGameTimeLimitMsMap } from '../types';
 
-const setupNewGame = (
+export const setupNewGame = (
   gameTimeClass: GameTimeClass,
   color: ChessColor
 ): PlayState['game'] => {
@@ -17,6 +17,7 @@ const setupNewGame = (
 
   return {
     ...initialPlayState.game,
+    timeClass: gameTimeClass,
     orientation: color,
     status: 'pending',
     timeLeft: {

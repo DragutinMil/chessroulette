@@ -27,6 +27,10 @@ export type DistributiveOmit<T, K extends PropertyKey> = T extends any
   ? Omit<T, K>
   : never;
 
+// export type DistributivePick<T, K extends PropertyKey> = T extends any
+//   ? Pick<T, K>
+//   : never;
+
 export type UnknownRecord = Record<string, unknown>;
 
 export type StringKeys<TRecord extends UnknownRecord> = Extract<

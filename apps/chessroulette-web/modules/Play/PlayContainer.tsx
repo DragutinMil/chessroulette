@@ -115,17 +115,11 @@ export const PlayContainer = ({
                 }}
                 onAcceptOffer={({ offer }) => {
                   if (offer === 'draw') {
-                    dispatch({
-                      type: 'play:acceptOfferDraw',
-                    });
+                    dispatch({ type: 'play:acceptOfferDraw' });
                   } else if (offer === 'rematch') {
-                    dispatch({
-                      type: 'play:acceptOfferRematch',
-                    });
+                    dispatch({ type: 'play:acceptOfferRematch' });
                   } else if (offer === 'takeback') {
-                    dispatch({
-                      type: 'play:acceptTakeBack',
-                    });
+                    dispatch({ type: 'play:acceptTakeBack' });
                   }
                 }}
                 //TODO - at the moment nothing happens, later can decide if extra notifications when offer is cancelled
