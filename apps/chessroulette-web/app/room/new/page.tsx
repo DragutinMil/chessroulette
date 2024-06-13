@@ -24,15 +24,15 @@ export default async function Page({
     return <ErrorPage error={result.error} extra={allParams} />;
   }
 
-  const { activity, ...nextParamsObj } = result.data;
+  const activityParams = result.data;
 
   const nextParams = new URLSearchParams();
 
-  Object.entries(nextParamsObj).forEach(([k, v]) => {
+  Object.entries(activityParams).forEach(([k, v]) => {
     if (v) {
       nextParams.set(k, String(v));
     }
   });
 
-  return <JoinOrCreateRoom mode="create" activity={activity} />;
+  return <JoinOrCreateRoom mode="create" activityParams={activityParams} />;
 }

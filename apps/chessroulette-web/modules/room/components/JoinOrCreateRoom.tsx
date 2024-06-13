@@ -6,7 +6,6 @@ import { useMovexResourceType } from 'movex-react';
 import { useRouter } from 'next/navigation';
 import { RoomState, initialRoomState } from '../movex/reducer';
 import {
-  objectKeys,
   toResourceIdentifierObj,
   toResourceIdentifierStr,
 } from 'movex-core-util';
@@ -14,19 +13,13 @@ import { useUpdateableSearchParams } from 'apps/chessroulette-web/hooks/useSearc
 import { generateUserId, getRandomStr } from 'apps/chessroulette-web/util';
 import { links } from '../links';
 import { AsyncErr } from 'ts-async-results';
-import { invoke, isOneOf } from '@xmatter/util-kit';
-import {
-  ActivityState,
-  initialActivityStatesByActivityType,
-} from '../activities/movex';
-import {
-  GameTimeClass,
-  chessGameTimeLimitMsMap,
-  gameTimeClassRecord,
-} from '../../Play/types';
+import { invoke } from '@xmatter/util-kit';
+import { initialActivityStatesByActivityType } from '../activities/movex';
+import { GameTimeClass, chessGameTimeLimitMsMap } from '../../Play/types';
+import { ActivityParamsSchema } from '../io/paramsSchema';
 
 type Props = {
-  activity: ActivityState['activityType']; // To expand in the future
+  activityParams: ActivityParamsSchema;
 } & (
   | {
       mode: 'join';
@@ -51,7 +44,7 @@ type ErrorType = 'RoomInexistent';
  * @returns
  */
 export const JoinOrCreateRoom: React.FC<Props> = ({
-  activity,
+  activityParams,
   id,
   mode,
 }: Props) => {
@@ -62,48 +55,51 @@ export const JoinOrCreateRoom: React.FC<Props> = ({
   const [error, setError] = useState<ErrorType>();
 
   useEffect(() => {
-    if (
-      !(
-        roomResource &&
-        isOneOf(activity, objectKeys(initialActivityStatesByActivityType))
-      )
-    ) {
+    if (!roomResource) {
       return;
     }
 
     invoke(() => {
-      const updateableSearchParamsObject = updateableSearchParams.toObject();
+      const createRoomInput: RoomState = invoke(() => {
+        if (activityParams.activity === 'play') {
+          const defaultGame =
+            initialActivityStatesByActivityType['play'].activityState.game;
 
-      const parsedGameType = gameTimeClassRecord.safeParse(
-        updateableSearchParamsObject.gameTimeClass
-      );
-      const gameTimeClass: GameTimeClass = parsedGameType.success
-        ? parsedGameType.data
-        : 'untimed';
+          const timeClass: GameTimeClass =
+            activityParams.timeClass || defaultGame.timeClass;
+
+          const createGameInput = {
+            ...defaultGame,
+            timeClass,
+            timeLeft: {
+              white: chessGameTimeLimitMsMap[timeClass],
+              black: chessGameTimeLimitMsMap[timeClass],
+            },
+          };
+
+          return {
+            ...initialRoomState,
+            activity: {
+              activityType: 'play',
+              activityState: {
+                ...initialActivityStatesByActivityType['play'].activityState,
+                game: createGameInput,
+              },
+            },
+          };
+        }
+
+        // if (params.activity === 'match') {
+
+        // }
+
+        return initialRoomState;
+      });
 
       if (mode === 'create') {
         return roomResource.create(
-          {
-            ...initialRoomState,
-            activity: {
-              ...initialActivityStatesByActivityType[activity],
-              ...(activity === 'play' && {
-                activityState: {
-                  ...initialActivityStatesByActivityType[activity]
-                    .activityState,
-                  gameTimeClass,
-                  game: {
-                    ...initialActivityStatesByActivityType[activity]
-                      .activityState.game,
-                    timeLeft: {
-                      white: chessGameTimeLimitMsMap[gameTimeClass],
-                      black: chessGameTimeLimitMsMap[gameTimeClass],
-                    },
-                  },
-                },
-              }),
-            } as unknown as RoomState['activity'],
-          },
+          createRoomInput,
+
           getRandomStr(7) // the new room id
         );
       }
@@ -125,28 +121,8 @@ export const JoinOrCreateRoom: React.FC<Props> = ({
           }
 
           return roomResource.create(
-            {
-              ...initialRoomState,
-              activity: {
-                ...initialActivityStatesByActivityType[activity],
-                //TODO - this works but definitely not the prettiest & no typesafety -> find better way
-                ...(activity === 'play' && {
-                  activityState: {
-                    ...initialActivityStatesByActivityType[activity]
-                      .activityState,
-                    gameTimeClass,
-                    game: {
-                      ...initialActivityStatesByActivityType[activity]
-                        .activityState.game,
-                      timeLeft: {
-                        white: chessGameTimeLimitMsMap[gameTimeClass],
-                        black: chessGameTimeLimitMsMap[gameTimeClass],
-                      },
-                    },
-                  },
-                }),
-              } as unknown as RoomState['activity'],
-            },
+            createRoomInput,
+
             id
           );
         });
@@ -156,7 +132,7 @@ export const JoinOrCreateRoom: React.FC<Props> = ({
           links.getRoomLink({
             ...updateableSearchParams.toObject(),
             id: toResourceIdentifierObj(r.rid).resourceId,
-            activity,
+            activity: activityParams.activity,
             userId: updateableSearchParams.get('userId') || generateUserId(),
           })
         );
@@ -166,7 +142,7 @@ export const JoinOrCreateRoom: React.FC<Props> = ({
         setError('RoomInexistent');
         console.error('JoinOrCreateRoom Error', e);
       });
-  }, [roomResource, activity, id]);
+  }, [roomResource, activityParams, id]);
 
   // TODO: Use the built in error page˝
   if (error === 'RoomInexistent') {
@@ -174,6 +150,15 @@ export const JoinOrCreateRoom: React.FC<Props> = ({
       <div className="flex flex-1 items-center justify-center h-screen w-screen text-lg  divide-x">
         <h1 className="text-2xl pr-2">404</h1>
         <h1 className="pl-2">Room not found.</h1>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-1 items-center justify-center h-screen w-screen text-lg  divide-x">
+        <h1 className="text-2xl pr-2">An Error Occured</h1>
+        <h1 className="pl-2">{error}</h1>
       </div>
     );
   }

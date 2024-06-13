@@ -100,10 +100,14 @@ export function GET(request: NextRequest) {
         },
         {
           userRole: 'player',
-          url: links.getOnDemandRoomCreationLink({
-            ...objectOmit(activityParams, ['client']),
-            id: roomId,
-          }),
+          url: links.getOnDemandRoomCreationLink(
+            {
+              ...objectOmit(activityParams, ['client']),
+              id: roomId,
+              flipped: 1, // TODO: This can be stored in movex better
+            },
+            request.nextUrl
+          ),
         },
       ],
     });
