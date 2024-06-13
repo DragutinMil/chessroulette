@@ -48,7 +48,7 @@ export const activityParamsSchema = z
     learnActivityParamsSchema,
     meetupActivityParamsSchema,
     playActivityParamsSchema,
-    // matchActivityParamsSchema,
+    matchActivityParamsSchema,
   ])
   .and(generalActivityParamsSchema);
 

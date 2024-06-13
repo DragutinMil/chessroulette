@@ -15,6 +15,7 @@ import { UsersMap } from '../user/type';
 import { MovexClientInfo } from 'apps/chessroulette-web/providers/MovexProvider';
 import { PlayActivity } from './activities/Play/PlayActivity';
 import { initialPlayActivityState } from './activities/Play/movex';
+import { MatchActivity } from './activities/Match/MatchActivity';
 // import { MatchActivity } from './activities/Match/MatchActivity';
 
 type Props = {
@@ -104,23 +105,23 @@ export const RoomContainer = ({ iceServers, rid, activity }: Props) => {
     );
   }
 
-  // if (activity === 'match') {
-  //   return (
-  //     <MatchActivity
-  //       userId={userId}
-  //       roomId={toResourceIdentifierObj(rid).resourceId}
-  //       dispatch={movexResource?.dispatch}
-  //       players={participants}
-  //       iceServers={iceServers}
-  //       remoteState={
-  //         movexResource?.state.activity.activityType === 'play'
-  //           ? movexResource?.state.activity.activityState ??
-  //             initialPlayActivityState.activityState
-  //           : initialPlayActivityState.activityState
-  //       }
-  //     />
-  //   );
-  // }
+  if (activity === 'match') {
+    return (
+      <MatchActivity
+        userId={userId}
+        roomId={toResourceIdentifierObj(rid).resourceId}
+        dispatch={movexResource?.dispatch}
+        players={participants}
+        iceServers={iceServers}
+        remoteState={
+          movexResource?.state.activity.activityType === 'match'
+            ? movexResource?.state.activity.activityState ??
+              initialPlayActivityState.activityState
+            : initialPlayActivityState.activityState
+        }
+      />
+    );
+  }
 
   return null;
 };

@@ -9,9 +9,7 @@ export const reducer = (
   prev: ActivityState = initialActivityState,
   action: ActivityActions
 ): ActivityState => {
-  if (prev.activityType === 'play') {
-    console.log('Play Activity reducer', prev, action);
-
+  if (prev.activityType === 'match') {
     return {
       ...prev,
       activityState: PlayStore.reducer(

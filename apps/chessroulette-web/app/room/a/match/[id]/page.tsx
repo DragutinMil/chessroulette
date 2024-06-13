@@ -8,7 +8,7 @@ import { twilio } from 'apps/chessroulette-web/services/twiliio';
 import { metadata as rootMetadata } from '../../../../page';
 
 export const metadata: Metadata = {
-  title: `Play | ${rootMetadata.title}`,
+  title: `Match | ${rootMetadata.title}`,
 };
 
 export default async function Page({
@@ -24,18 +24,18 @@ export default async function Page({
   const id = decodeURIComponent(params.id);
   const rid: ResourceIdentifier<'room'> = `room:${id}`;
 
-  return (
-    <div>Match TBD</div>
-  );
-
   // return (
-  //   <RoomTemplate
-  //     themeName={searchParams.theme}
-  //     session={session}
-  //     roomId={id}
-  //     activity="match"
-  //   >
-  //     <RoomContainer rid={rid} iceServers={iceServers} activity="match" />
-  //   </RoomTemplate>
+  //   <div>Match TBD</div>
   // );
+
+  return (
+    <RoomTemplate
+      themeName={searchParams.theme}
+      session={session}
+      roomId={id}
+      activity="match"
+    >
+      <RoomContainer rid={rid} iceServers={iceServers} activity="match" />
+    </RoomTemplate>
+  );
 }

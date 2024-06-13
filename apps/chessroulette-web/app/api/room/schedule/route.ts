@@ -109,32 +109,34 @@ export function GET(request: NextRequest) {
     });
   }
 
-  // if (activityParams.activity === 'match') {
-  //   return NextResponse.json({
-  //     links: [
-  //       {
-  //         userRole: 'challenger',
-  //         url: links.getOnDemandRoomCreationLink(
-  //           {
-  //             ...objectOmit(activityParams, ['client']),
-  //             id: roomId,
-  //           },
-  //           request.nextUrl
-  //         ),
-  //       },
-  //       {
-  //         userRole: 'challengee',
-  //         url: links.getOnDemandRoomCreationLink(
-  //           {
-  //             ...objectOmit(activityParams, ['client']),
-  //             id: roomId,
-  //           },
-  //           request.nextUrl
-  //         ),
-  //       },
-  //     ],
-  //   });
-  // }
+  if (activityParams.activity === 'match') {
+    return NextResponse.json({
+      links: [
+        {
+          userRole: 'challenger',
+          url: links.getOnDemandRoomCreationLink(
+            {
+              ...objectOmit(activityParams, ['client']),
+              id: roomId,
+              challenger: true, // TODO: This can be stored in movex better
+            },
+            request.nextUrl
+          ),
+        },
+        {
+          userRole: 'challengee',
+          url: links.getOnDemandRoomCreationLink(
+            {
+              ...objectOmit(activityParams, ['client']),
+              id: roomId,
+              flipped: true, // TODO: This can be stored in movex better
+            },
+            request.nextUrl
+          ),
+        },
+      ],
+    });
+  }
 
   return NextResponse.json(
     {

@@ -42,6 +42,8 @@ export const reducer = (
     const nextTimeLeft = timeLeft[lastMoveBy] - elapsedTime;
 
     try {
+      console.log('[PlayReducer] trying to move', prev, action);
+
       instance.move(localChessMoveToChessLibraryMove(action.payload));
     } catch (e) {
       console.error(
