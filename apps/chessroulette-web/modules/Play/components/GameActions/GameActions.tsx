@@ -54,7 +54,7 @@ export const GameActions: React.FC<Props> = ({
       offers.some(
         (offer) =>
           offer.byPlayer === playerId &&
-          offer.offerType === 'takeback' &&
+          offer.type === 'takeback' &&
           offer.status === 'accepted'
       )
     ) {
@@ -63,7 +63,7 @@ export const GameActions: React.FC<Props> = ({
 
     return (
       offers.reduce((accum, offer) => {
-        if (offer.offerType === 'takeback' && offer.byPlayer === playerId) {
+        if (offer.type === 'takeback' && offer.byPlayer === playerId) {
           return accum + 1;
         }
         return accum;
@@ -82,7 +82,7 @@ export const GameActions: React.FC<Props> = ({
 
     return (
       offers.reduce((accum, offer) => {
-        if (offer.offerType === 'draw' && offer.byPlayer === playerId) {
+        if (offer.type === 'draw' && offer.byPlayer === playerId) {
           return accum + 1;
         }
         return accum;

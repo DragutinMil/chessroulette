@@ -19,12 +19,11 @@ import {
   ActivityState,
   initialActivityStatesByActivityType,
 } from '../activities/movex';
-import { GameType, chessGameTimeLimitMsMap, gameTypeRecord } from '../../Play/types';
-// import {
-//   GameType,
-//   chessGameTimeLimitMsMap,
-//   gameTypeRecord,
-// } from '../activities/Play/types';
+import {
+  GameTimeClass,
+  chessGameTimeLimitMsMap,
+  gameTimeClassRecord,
+} from '../../Play/types';
 
 type Props = {
   activity: ActivityState['activityType']; // To expand in the future
@@ -75,10 +74,10 @@ export const JoinOrCreateRoom: React.FC<Props> = ({
     invoke(() => {
       const updateableSearchParamsObject = updateableSearchParams.toObject();
 
-      const parsedGameType = gameTypeRecord.safeParse(
-        updateableSearchParamsObject.gameType
+      const parsedGameType = gameTimeClassRecord.safeParse(
+        updateableSearchParamsObject.gameTimeClass
       );
-      const gameType: GameType = parsedGameType.success
+      const gameTimeClass: GameTimeClass = parsedGameType.success
         ? parsedGameType.data
         : 'untimed';
 
@@ -92,13 +91,13 @@ export const JoinOrCreateRoom: React.FC<Props> = ({
                 activityState: {
                   ...initialActivityStatesByActivityType[activity]
                     .activityState,
-                  gameType,
+                  gameTimeClass,
                   game: {
                     ...initialActivityStatesByActivityType[activity]
                       .activityState.game,
                     timeLeft: {
-                      white: chessGameTimeLimitMsMap[gameType],
-                      black: chessGameTimeLimitMsMap[gameType],
+                      white: chessGameTimeLimitMsMap[gameTimeClass],
+                      black: chessGameTimeLimitMsMap[gameTimeClass],
                     },
                   },
                 },
@@ -135,13 +134,13 @@ export const JoinOrCreateRoom: React.FC<Props> = ({
                   activityState: {
                     ...initialActivityStatesByActivityType[activity]
                       .activityState,
-                    gameType,
+                    gameTimeClass,
                     game: {
                       ...initialActivityStatesByActivityType[activity]
                         .activityState.game,
                       timeLeft: {
-                        white: chessGameTimeLimitMsMap[gameType],
-                        black: chessGameTimeLimitMsMap[gameType],
+                        white: chessGameTimeLimitMsMap[gameTimeClass],
+                        black: chessGameTimeLimitMsMap[gameTimeClass],
                       },
                     },
                   },

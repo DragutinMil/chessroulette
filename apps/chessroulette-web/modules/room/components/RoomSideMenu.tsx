@@ -28,7 +28,7 @@ export const RoomSideMenu = ({ roomId, activity }: Props) => {
         activity,
         ...(activity === 'play' &&
           roomSettingsIsPlay(roomSettings) && {
-            gameType: roomSettings.gameType,
+            gameTimeClass: roomSettings.gameTimeClass,
           }),
         theme: roomSettings.theme,
         ...roomSettings.joinRoomLinkParams,

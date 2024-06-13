@@ -2,22 +2,26 @@ import { objectKeys } from '@xmatter/util-kit';
 import { Dialog } from 'apps/chessroulette-web/components/Dialog/Dialog';
 import { SelectInput } from 'apps/chessroulette-web/components/SelectInput';
 import React, { useState } from 'react';
-import { GameType, chessGameTimeLimitMsMap, gameTypeRecord } from '../../types';
+import {
+  GameTimeClass,
+  chessGameTimeLimitMsMap,
+  gameTimeClassRecord,
+} from '../../types';
 import { Button } from 'apps/chessroulette-web/components/Button';
 
 type Props = {
   onSelect: ({
     cameraOn,
-    gameType,
+    gameTimeClass,
   }: {
     cameraOn: boolean;
-    gameType: GameType;
+    gameTimeClass: GameTimeClass;
   }) => void;
   onCancel: () => void;
 };
 
 export const GameSelectDialog: React.FC<Props> = (props) => {
-  const [gameType, setGameType] = useState<GameType>('untimed');
+  const [gameTimeClass, setGameTimeClass] = useState<GameTimeClass>('untimed');
 
   return (
     <Dialog
@@ -28,13 +32,13 @@ export const GameSelectDialog: React.FC<Props> = (props) => {
           <div className="flex flex-row gap-3">
             <div>Choose Game type:</div>
             <SelectInput
-              value={gameType}
+              value={gameTimeClass}
               onSelect={(v) => {
-                const validOption = gameTypeRecord.safeParse(v);
+                const validOption = gameTimeClassRecord.safeParse(v);
                 if (!validOption.success) {
                   return;
                 }
-                setGameType(validOption.data);
+                setGameTimeClass(validOption.data);
               }}
               options={objectKeys(chessGameTimeLimitMsMap)}
             />
@@ -46,7 +50,7 @@ export const GameSelectDialog: React.FC<Props> = (props) => {
               onClick={() => {
                 props.onSelect({
                   cameraOn: true,
-                  gameType,
+                  gameTimeClass,
                 });
               }}
             >

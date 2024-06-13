@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { PlayerBox } from '../PlayerBox/PlayerBox';
-import { GameType } from '../../types';
+import { GameTimeClass } from '../../types';
 import { useGameTimeLeft } from '../../hooks/useGameTimeLeft';
 import { ChessFENBoard, pgnToFen, toLongColor } from '@xmatter/util-kit';
 import { Game } from '../../store';
@@ -9,7 +9,7 @@ type Props = {
   id: string;
   //TODO - organize types better
   game: Game;
-  gameType: GameType;
+  gameTimeClass: GameTimeClass;
   onTimerFinished: () => void;
 };
 
@@ -36,7 +36,7 @@ export const GameStateWidget: React.FC<Props> = (props) => {
               props.game.lastMoveBy !== 'white' &&
               timeLeft['white'] > 0
             }
-            gameType={props.gameType}
+            gameTimeClass={props.gameTimeClass}
             timeLeft={timeLeft['white']}
             onTimerFinished={props.onTimerFinished}
           />
@@ -49,7 +49,7 @@ export const GameStateWidget: React.FC<Props> = (props) => {
               props.game.lastMoveBy !== 'black' &&
               timeLeft['black'] > 0
             }
-            gameType={props.gameType}
+            gameTimeClass={props.gameTimeClass}
             timeLeft={timeLeft['black']}
             onTimerFinished={props.onTimerFinished}
           />

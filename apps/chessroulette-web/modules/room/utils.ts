@@ -4,5 +4,6 @@ import { PlayActivitySettings } from './activities/Play/usePlayActivitySettings'
 export const roomSettingsIsPlay = (
   roomSettings: object
 ): roomSettings is PlayActivitySettings => {
-  return keyInObject(roomSettings, 'gameType');
+  // TODO: This is probably not the best way to determine if it's play
+  return keyInObject(roomSettings, 'gameTimeClass');
 };

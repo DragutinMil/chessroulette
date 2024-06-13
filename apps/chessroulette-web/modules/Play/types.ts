@@ -2,17 +2,17 @@ import z from 'zod';
 
 export type GameStatus = 'pending' | 'ongoing' | 'complete';
 
-export const gameTypeRecord = z.union([
+export const gameTimeClassRecord = z.union([
   z.literal('blitz'),
   z.literal('rapid'),
   z.literal('untimed'),
   z.literal('bullet'),
 ]);
 
-export type GameType = z.infer<typeof gameTypeRecord>;
+export type GameTimeClass = z.infer<typeof gameTimeClassRecord>;
 
 export type ChessGameTimeMap = {
-  [k in GameType]: number;
+  [k in GameTimeClass]: number;
 };
 
 //TODO - convert all to zod

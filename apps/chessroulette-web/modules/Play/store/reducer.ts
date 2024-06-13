@@ -6,14 +6,14 @@ import {
   toLongColor,
 } from '@xmatter/util-kit';
 import { initialPlayState } from './state';
-import { Offer, PlayActions, PlayState } from './types';
-import { GameType, chessGameTimeLimitMsMap } from '../types';
+import { GameOffer, PlayActions, PlayState } from './types';
+import { GameTimeClass, chessGameTimeLimitMsMap } from '../types';
 
 const setupNewGame = (
-  gameType: GameType,
+  gameTimeClass: GameTimeClass,
   color: ChessColor
 ): PlayState['game'] => {
-  const timeLeft = chessGameTimeLimitMsMap[gameType];
+  const timeLeft = chessGameTimeLimitMsMap[gameTimeClass];
 
   return {
     ...initialPlayState.game,
@@ -60,10 +60,10 @@ export const reducer = (
     const nextGameState =
       prev.game.status === 'pending' && pgn.length === 0
         ? 'ongoing'
-        : (prev.gameType !== 'untimed' &&
+        : (prev.gameTimeClass !== 'untimed' &&
             prev.game.status !== 'pending' &&
             (nextTimeLeft < 0 || isCheckMate)) ||
-          (prev.gameType === 'untimed' &&
+          (prev.gameTimeClass === 'untimed' &&
             prev.game.status === 'ongoing' &&
             isCheckMate)
         ? 'complete'
@@ -89,11 +89,11 @@ export const reducer = (
     };
   }
 
-  if (action.type === 'play:setGameType') {
-    const timeLeft = chessGameTimeLimitMsMap[action.payload.gameType];
+  if (action.type === 'play:setGameTimeClass') {
+    const timeLeft = chessGameTimeLimitMsMap[action.payload];
     return {
       ...prev,
-      gameType: action.payload.gameType,
+      gameTimeClass: action.payload,
       game: {
         ...prev.game,
         timeLeft: {
@@ -110,12 +110,13 @@ export const reducer = (
     }
     //clear any pending offer leftover
     const lastOffer =
-      prev.offers.length > 0 &&
-      (prev.offers[prev.offers.length - 1] as Offer).status === 'pending'
+      prev.gameOffers.length > 0 &&
+      (prev.gameOffers[prev.gameOffers.length - 1] as GameOffer).status ===
+        'pending'
         ? ({
-            ...prev.offers[prev.offers.length - 1],
+            ...prev.gameOffers[prev.gameOffers.length - 1],
             status: 'cancelled',
-          } as Offer)
+          } as GameOffer)
         : undefined;
 
     return {
@@ -130,7 +131,7 @@ export const reducer = (
         },
       },
       ...(lastOffer && {
-        offers: [...prev.offers.slice(0, -1), lastOffer],
+        gameOffers: [...prev.gameOffers.slice(0, -1), lastOffer],
       }),
     };
   }
@@ -148,11 +149,11 @@ export const reducer = (
 
   if (action.type === 'play:sendOffer') {
     const { byPlayer, offerType } = action.payload;
-    const nextOffers: Offer[] = [
-      ...prev.offers,
+    const nextOffers: GameOffer[] = [
+      ...prev.gameOffers,
       {
         byPlayer,
-        offerType,
+        type: offerType,
         status: 'pending',
         ...(action.payload.timestamp && {
           timestamp: action.payload.timestamp,
@@ -162,34 +163,37 @@ export const reducer = (
 
     return {
       ...prev,
-      offers: nextOffers,
+      gameOffers: nextOffers,
     };
   }
 
   if (action.type === 'play:acceptOfferRematch') {
-    const lastOffer: Offer = {
-      ...prev.offers[prev.offers.length - 1],
+    const lastOffer: GameOffer = {
+      ...prev.gameOffers[prev.gameOffers.length - 1],
       status: 'accepted',
     };
 
-    const game = setupNewGame(prev.gameType, swapColor(prev.game.orientation));
+    const game = setupNewGame(
+      prev.gameTimeClass,
+      swapColor(prev.game.orientation)
+    );
 
     return {
       ...prev,
-      offers: [...prev.offers.slice(0, -1), lastOffer],
+      gameOffers: [...prev.gameOffers.slice(0, -1), lastOffer],
       game,
     };
   }
 
   if (action.type === 'play:acceptOfferDraw') {
-    const lastOffer: Offer = {
-      ...prev.offers[prev.offers.length - 1],
+    const lastOffer: GameOffer = {
+      ...prev.gameOffers[prev.gameOffers.length - 1],
       status: 'accepted',
     };
 
     return {
       ...prev,
-      offers: [...prev.offers.slice(0, -1), lastOffer],
+      gameOffers: [...prev.gameOffers.slice(0, -1), lastOffer],
       game: {
         ...prev.game,
         status: 'complete',
@@ -199,8 +203,8 @@ export const reducer = (
   }
 
   if (action.type === 'play:acceptTakeBack') {
-    const lastOffer: Offer = {
-      ...prev.offers[prev.offers.length - 1],
+    const lastOffer: GameOffer = {
+      ...prev.gameOffers[prev.gameOffers.length - 1],
       status: 'accepted',
     };
 
@@ -209,7 +213,8 @@ export const reducer = (
     });
 
     const takebackAt =
-      prev.offers[prev.offers.length - 1].timestamp || new Date().getTime();
+      prev.gameOffers[prev.gameOffers.length - 1].timestamp ||
+      new Date().getTime();
 
     const elapsedTime = takebackAt - prev.game.lastMoveAt;
     const nextTimeLeft = prev.game.timeLeft[prev.game.lastMoveBy] - elapsedTime;
@@ -226,29 +231,29 @@ export const reducer = (
           [prev.game.lastMoveBy]: nextTimeLeft,
         },
       },
-      offers: [...prev.offers.slice(0, -1), lastOffer],
+      gameOffers: [...prev.gameOffers.slice(0, -1), lastOffer],
     };
   }
 
   if (action.type === 'play:denyOffer') {
-    const lastOffer: Offer = {
-      ...prev.offers[prev.offers.length - 1],
+    const lastOffer: GameOffer = {
+      ...prev.gameOffers[prev.gameOffers.length - 1],
       status: 'denied',
     };
     return {
       ...prev,
-      offers: [...prev.offers.slice(0, -1), lastOffer],
+      gameOffers: [...prev.gameOffers.slice(0, -1), lastOffer],
     };
   }
 
   if (action.type === 'play:cancelOffer') {
-    const lastOffer: Offer = {
-      ...prev.offers[prev.offers.length - 1],
+    const lastOffer: GameOffer = {
+      ...prev.gameOffers[prev.gameOffers.length - 1],
       status: 'cancelled',
     };
     return {
       ...prev,
-      offers: [...prev.offers.slice(0, -1), lastOffer],
+      gameOffers: [...prev.gameOffers.slice(0, -1), lastOffer],
     };
   }
 

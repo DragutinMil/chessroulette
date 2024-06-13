@@ -1,13 +1,13 @@
 import React from 'react';
 import { Countdown } from '../Countdown/Countdown';
 import { ChessColor, toShortColor } from '@xmatter/util-kit';
-import { GameType } from '../../types';
+import { GameTimeClass } from '../../types';
 
 type Props = {
   color: ChessColor; //TODO - here replace with Player name from User record once we start using them
   active: boolean;
   turn: ChessColor | undefined; // TODO maybe improve logic
-  gameType: GameType;
+  gameTimeClass: GameTimeClass;
   timeLeft: number;
   onTimerFinished: () => void;
 };
@@ -24,10 +24,10 @@ export const PlayerBox: React.FC<Props> = (props) => {
       >
         {props.color}
       </div>
-      {props.gameType !== 'untimed' && (
+      {props.gameTimeClass !== 'untimed' && (
         <Countdown
           active={props.active}
-          gameTimeClass={props.gameType}
+          gameTimeClass={props.gameTimeClass}
           timeLeft={props.timeLeft}
           onFinished={props.onTimerFinished}
           className="text-xl"

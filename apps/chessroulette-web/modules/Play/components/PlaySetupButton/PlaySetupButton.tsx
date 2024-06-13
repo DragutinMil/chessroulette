@@ -23,11 +23,11 @@ export const PlaySetupButton: React.FC<Props> = (props) => {
       </Button>
       {playModeDialog && (
         <GameSelectDialog
-          onSelect={({ gameType }) => {
+          onSelect={({ gameTimeClass }) => {
             router.push(
               links.getOnDemandRoomCreationLink({
                 activity: 'play',
-                gameType,
+                gameTimeClass,
                 host: true,
               })
             );

@@ -212,7 +212,7 @@ export const PlayContainer = ({
               <div className="flex-1" />
               <GameStateWidget
                 game={game}
-                gameType={state.gameType}
+                gameTimeClass={state.gameTimeClass}
                 id={roomId}
                 key={roomId}
                 onTimerFinished={() => {

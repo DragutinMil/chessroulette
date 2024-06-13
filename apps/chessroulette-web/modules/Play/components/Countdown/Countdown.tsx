@@ -2,11 +2,11 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { CountdownDisplay } from './CountdownDisplay';
 import { noop } from 'movex-core-util';
 import { useInterval } from 'apps/chessroulette-web/hooks/useInterval';
-import { GameType, chessGameTimeLimitMsMap } from '../../types';
+import { GameTimeClass, chessGameTimeLimitMsMap } from '../../types';
 import { lpad, timeLeftToInterval, timeLeftToTimeUnits } from '../../lib/utils';
 
 type Props = {
-  gameTimeClass: GameType;
+  gameTimeClass: GameTimeClass;
   timeLeft: number;
   active: boolean;
   onFinished?: () => void;

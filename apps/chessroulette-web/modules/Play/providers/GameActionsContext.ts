@@ -1,11 +1,11 @@
 import { createContext } from 'react';
 import { UserId, UsersMap } from 'apps/chessroulette-web/modules/user/type';
-import { Game, Offer, PlayState, initialPlayState } from '../store';
+import { Game, GameOffer, PlayState, initialPlayState } from '../store';
 
 export type GameActionsContextProps = {
-  lastOffer: Offer | undefined;
+  lastOffer: GameOffer | undefined;
   game: Game;
-  offers: PlayState['offers'];
+  offers: PlayState['gameOffers'];
   players: UsersMap | undefined;
   playerId: UserId | undefined;
 };

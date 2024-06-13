@@ -1,15 +1,8 @@
 import {
   ChessFENBoard,
-  FBHMove,
-  FenBoardPromotionalPieceSymbol,
   FreeBoardHistory,
   getNewChessGame,
-  invoke,
-  isFenBoardPromotionalPieceSymbol,
-  isPromotableMove,
   isValidPgn,
-  pieceSanToFenBoardPieceSymbol,
-  pieceToFenBoardPieceSymbol,
 } from '@xmatter/util-kit';
 import { Chapter, ChapterState, LearnActivityState } from './types';
 import { initialChapterState, initialDefaultChapter } from './state';

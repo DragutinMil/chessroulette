@@ -3,26 +3,26 @@
 import { useUpdateableSearchParams } from 'apps/chessroulette-web/hooks/useSearchParams';
 import { JoinRoomLinkProps } from '../Learn';
 import {
-  GameType,
-  gameTypeRecord,
+  GameTimeClass,
+  gameTimeClassRecord,
 } from 'apps/chessroulette-web/modules/Play/types';
 import { invoke } from '@xmatter/util-kit';
 
 export type PlayActivitySettings = {
-  gameType: GameType;
+  gameTimeClass: GameTimeClass;
   isBoardFlipped: boolean;
 } & JoinRoomLinkProps;
 
 export const usePlayActivitySettings = (): PlayActivitySettings => {
   const updateableSearchParams = useUpdateableSearchParams();
   const isHost = updateableSearchParams.get('host') === '1';
-  const gameType: GameType = invoke(() => {
+  const gameTimeClass: GameTimeClass = invoke(() => {
     if (!updateableSearchParams) {
       return 'untimed';
     }
 
-    const gameType = updateableSearchParams.get('gameType');
-    const parser = gameTypeRecord.safeParse(gameType);
+    const gameTimeClass = updateableSearchParams.get('gameTimeClass');
+    const parser = gameTimeClassRecord.safeParse(gameTimeClass);
 
     return parser.success ? parser.data : 'untimed';
   });
@@ -30,7 +30,7 @@ export const usePlayActivitySettings = (): PlayActivitySettings => {
   return {
     isBoardFlipped: updateableSearchParams.get('flipped') === '1',
     joinRoomLinkTooltip: 'Invite Player',
-    gameType,
+    gameTimeClass,
     showJoinRoomLink: isHost,
     joinRoomLinkParams: {
       flipped: '1',

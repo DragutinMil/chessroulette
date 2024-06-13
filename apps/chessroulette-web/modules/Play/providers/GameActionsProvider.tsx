@@ -21,19 +21,19 @@ export const GameActionsProvider: React.FC<GameActionsProviderProps> = ({
   const [value, setValue] = useState<GameActionsContextProps>({
     lastOffer: undefined,
     game: state.game,
-    offers: state.offers,
+    offers: state.gameOffers,
     players,
     playerId,
   });
 
   useEffect(() => {
-    const lastOffer = state.offers?.slice(-1)[0];
+    const lastOffer = state.gameOffers?.slice(-1)[0];
 
     setValue((prev) => ({
       ...prev,
       players,
       game: state.game,
-      offers: state.offers,
+      offers: state.gameOffers,
       lastOffer,
     }));
   }, [state, players]);

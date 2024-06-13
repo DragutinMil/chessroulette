@@ -5,17 +5,16 @@ import {
   LongChessColor,
 } from '@xmatter/util-kit';
 import { Action } from 'movex-core-util';
-import { GameStatus, GameType } from '../types';
+import { GameStatus, GameTimeClass } from '../types';
 import { User } from 'apps/chessroulette-web/modules/user/type';
 
 type GameStateWinner = 'white' | 'black' | '1/2';
-export type OfferType = 'takeback' | 'draw' | 'rematch';
-export type OfferStatus = 'pending' | 'accepted' | 'denied' | 'cancelled';
-export type Offer = {
+
+export type GameOffer = {
   byPlayer: User['id'];
   //TODO - probably need toParticipant as well, but not sure how to get it now
-  offerType: OfferType;
-  status: OfferStatus;
+  type: 'takeback' | 'draw' | 'rematch';
+  status: 'pending' | 'accepted' | 'denied' | 'cancelled';
   timestamp?: number;
 };
 
@@ -34,8 +33,8 @@ export type Game = {
 
 export type PlayState = {
   game: Game;
-  gameType: GameType;
-  offers: Offer[];
+  gameTimeClass: GameTimeClass;
+  gameOffers: GameOffer[];
 };
 
 export type PlayActions =
@@ -45,14 +44,14 @@ export type PlayActions =
         moveAt: number;
       }
     >
-  | Action<'play:setGameType', { gameType: GameType }>
+  | Action<'play:setGameTimeClass', GameTimeClass>
   | Action<'play:timeout'>
   | Action<'play:resignGame', { color: ChessColor }>
   | Action<
       'play:sendOffer',
       {
         byPlayer: User['id'];
-        offerType: OfferType;
+        offerType: GameOffer['type'];
         timestamp?: number;
       }
     >

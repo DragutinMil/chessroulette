@@ -3,10 +3,10 @@ import { invoke, objectKeys } from '@xmatter/util-kit';
 import { Dialog } from 'apps/chessroulette-web/components/Dialog';
 import { Text } from 'apps/chessroulette-web/components/Text';
 import { useGameActionsContext } from '../../providers/useGameActions';
-import { OfferType } from '../../store';
+import { GameOffer } from '../../store';
 
 type Props = {
-  onAcceptOffer: ({ offer }: { offer: OfferType }) => void;
+  onAcceptOffer: ({ offer }: { offer: GameOffer['type'] }) => void;
   onDenyOffer: () => void;
   onRematchRequest: () => void;
   onCancelOffer: () => void;
@@ -21,7 +21,12 @@ export const GameStateDialog: React.FC<Props> = ({
   // roomId,
 }) => {
   const [gameResultSeen, setGameResultSeen] = useState(false);
-  const { lastOffer, game: gameState, players, playerId } = useGameActionsContext();
+  const {
+    lastOffer,
+    game: gameState,
+    players,
+    playerId,
+  } = useGameActionsContext();
 
   useEffect(() => {
     // Everytime the game state changes, reset the seen!
@@ -84,7 +89,7 @@ export const GameStateDialog: React.FC<Props> = ({
       if (gameState.status === 'complete' && !gameResultSeen) {
         setGameResultSeen(true);
       }
-      if (lastOffer.offerType === 'rematch') {
+      if (lastOffer.type === 'rematch') {
         if (lastOffer.status === 'pending') {
           if (lastOffer.byPlayer === playerId) {
             return (
@@ -163,7 +168,7 @@ export const GameStateDialog: React.FC<Props> = ({
         }
       }
 
-      if (lastOffer.offerType === 'draw' && lastOffer.status === 'pending') {
+      if (lastOffer.type === 'draw' && lastOffer.status === 'pending') {
         if (lastOffer.byPlayer === playerId) {
           return (
             <Dialog
@@ -217,7 +222,7 @@ export const GameStateDialog: React.FC<Props> = ({
         );
       }
 
-      if (lastOffer.offerType === 'takeback') {
+      if (lastOffer.type === 'takeback') {
         if (lastOffer.status === 'pending') {
           if (lastOffer.byPlayer === playerId) {
             return (

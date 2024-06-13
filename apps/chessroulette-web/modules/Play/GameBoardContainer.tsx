@@ -1,5 +1,5 @@
 import { DispatchOf, swapColor } from '@xmatter/util-kit';
-import { Game, OfferType, PlayActions } from './store';
+import { Game, GameOffer, PlayActions } from './store';
 import { UserId, UsersMap } from '../user/type';
 import { Playboard } from 'apps/chessroulette-web/components/Boards';
 import { useCallback, useMemo } from 'react';
@@ -46,7 +46,7 @@ export const GameBoardContainer = ({
   const canPlay = useCanPlay(game, players);
 
   const onAcceptOffer = useCallback(
-    ({ offer }: { offer: OfferType }) => {
+    ({ offer }: { offer: GameOffer['type'] }) => {
       if (offer === 'draw') {
         dispatch({ type: 'play:acceptOfferDraw' });
       } else if (offer === 'rematch') {
@@ -64,8 +64,6 @@ export const GameBoardContainer = ({
       payload: { byPlayer: playerId, offerType: 'rematch' },
     });
   }, [dispatch]);
-
-  console.log('[GameBoardContainer] canPlay', canPlay);
 
   return (
     <Playboard

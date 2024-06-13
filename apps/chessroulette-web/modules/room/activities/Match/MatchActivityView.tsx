@@ -84,7 +84,7 @@ export const MatchActivityView = ({
               <div className="flex-1" />
               <GameStateWidget
                 game={state.game}
-                gameType={state.gameType}
+                gameTimeClass={state.gameTimeClass}
                 id={roomId}
                 onTimerFinished={() => {
                   dispatch({
