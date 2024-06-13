@@ -29,7 +29,7 @@ type Props = {
   participants?: UsersMap;
   remoteState: LearnActivityState['activityState'];
   dispatch?: MovexBoundResourceFromConfig<
-    typeof movexConfig['resources'],
+    (typeof movexConfig)['resources'],
     'room'
   >['dispatch'];
 };
@@ -310,7 +310,7 @@ export const LearnActivity = ({
               {/* // This needs to show only when the user is a participants //
                   otherwise it's too soon and won't connect to the Peers */}
               <CameraPanel
-                players={participants}
+                participants={participants}
                 userId={userId}
                 peerGroupId={roomId}
                 iceServers={iceServers}

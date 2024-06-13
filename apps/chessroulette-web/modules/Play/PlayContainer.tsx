@@ -49,17 +49,17 @@ export const PlayContainer = ({
 
   const [canPlayGame, setCanPlayGame] = useState(false);
 
-  useEffect(() => {
-    console.log('[PlayContainer] remote state changeed', state);
-  }, [state]);
+  // useEffect(() => {
+  //   console.log('[PlayContainer] remote state changeed', state);
+  // }, [state]);
 
-  useEffect(() => {
-    console.log('[PlayContainer] players changeed', players);
-  }, [players]);
+  // useEffect(() => {
+  //   console.log('[PlayContainer] players changeed', players);
+  // }, [players]);
 
-  useEffect(() => {
-    console.log('[PlayContainer] canPlayGame changeed', canPlayGame);
-  }, [canPlayGame]);
+  // useEffect(() => {
+  //   console.log('[PlayContainer] canPlayGame changeed', canPlayGame);
+  // }, [canPlayGame]);
 
   useEffect(() => {
     if (
@@ -95,7 +95,7 @@ export const PlayContainer = ({
   );
 
   return (
-    <GameActionsProvider state={state} players={players} clientUserId={userId}>
+    <GameActionsProvider state={state} players={players} playerId={userId}>
       <DesktopRoomLayout
         rightSideSize={RIGHT_SIDE_SIZE_PX}
         mainComponent={({ boardSize }) => (
@@ -106,7 +106,7 @@ export const PlayContainer = ({
             canPlay={canPlayGame}
             overlayComponent={
               <GameStateDialog
-                roomId={roomId}
+                // roomId={roomId}
                 onRematchRequest={() => {
                   dispatch({
                     type: 'play:sendOffer',
@@ -169,7 +169,7 @@ export const PlayContainer = ({
                 {/* // This needs to show only when the user is a players //
                   otherwise it's too soon and won't connect to the Peers */}
                 <CameraPanel
-                  players={players}
+                  participants={players}
                   userId={userId}
                   peerGroupId={roomId}
                   iceServers={iceServers}
@@ -181,8 +181,8 @@ export const PlayContainer = ({
               {canPlayGame && (
                 <div>
                   <GameActions
-                    orientation={orientation}
-                    whoAmI={userId}
+                    homeColor={orientation}
+                    playerId={userId}
                     onOfferDraw={() => {
                       dispatch({
                         type: 'play:sendOffer',

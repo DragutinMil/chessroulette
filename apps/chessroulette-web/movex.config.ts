@@ -6,6 +6,10 @@ const reducerLogger = <S, A extends AnyAction>(
   reducer: MovexReducer<S, A>,
   name = ''
 ) => {
+  console.group(`${name} Reducer Logger Init State`);
+  console.log(reducer(undefined as S, { type: '_init' } as A));
+  console.groupEnd();
+
   return (s: S, a: A) => {
     const next = reducer(s, a);
 

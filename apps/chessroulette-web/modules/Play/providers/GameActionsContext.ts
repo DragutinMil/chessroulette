@@ -4,16 +4,16 @@ import { Game, Offer, PlayState, initialPlayState } from '../store';
 
 export type GameActionsContextProps = {
   lastOffer: Offer | undefined;
-  gameState: Game;
+  game: Game;
   offers: PlayState['offers'];
   players: UsersMap | undefined;
-  clientUserId: UserId | undefined;
+  playerId: UserId | undefined;
 };
 
 export const GameActionsContext = createContext<GameActionsContextProps>({
   lastOffer: undefined,
-  gameState: initialPlayState.game,
+  game: initialPlayState.game,
   players: undefined,
   offers: [],
-  clientUserId: undefined,
+  playerId: undefined,
 });

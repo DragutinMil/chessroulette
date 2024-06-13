@@ -1,14 +1,15 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { useGameActions } from '../../providers/useGameActions';
+import { useGameActionsContext } from '../../providers/useGameActions';
 import { ChessColor, toLongColor } from '@xmatter/util-kit';
 import { QuickConfirmButton } from 'apps/chessroulette-web/components/Button/QuickConfirmButton';
+import { useCanPlay } from '../../hooks/useCanPlay';
 
 type Props = {
   onOfferDraw: () => void;
   onResign: () => void;
   onTakeback: () => void;
-  orientation: ChessColor;
-  whoAmI: string;
+  homeColor: ChessColor;
+  playerId: string;
   buttonOrientation?: 'horizontal' | 'vertical';
 };
 
@@ -16,12 +17,14 @@ export const GameActions: React.FC<Props> = ({
   onResign,
   onOfferDraw,
   onTakeback,
-  orientation,
-  whoAmI,
+  homeColor,
+  playerId,
   buttonOrientation = 'vertical',
 }) => {
   //TODO - can merge gameState and offers together as they are part of the same state and only used here
-  const { lastOffer, gameState, offers } = useGameActions();
+  const { lastOffer, game, offers, players } = useGameActionsContext();
+  // const canPlay = useCanPlay(game, players);
+
   const offerAlreadySend = useRef(false);
   const [allowTakeback, refreshAllowTakeback] = useState(false);
   const [allowDraw, refreshAllowDraw] = useState(true);
@@ -39,16 +42,18 @@ export const GameActions: React.FC<Props> = ({
   }, []);
 
   const calculateTakebackStatus = () => {
-    if (gameState.lastMoveBy !== toLongColor(orientation)) {
+    if (game.lastMoveBy !== toLongColor(homeColor)) {
       return false;
     }
+
     if (lastOffer?.status === 'pending' || offerAlreadySend.current) {
       return false;
     }
+
     if (
       offers.some(
         (offer) =>
-          offer.byPlayer === whoAmI &&
+          offer.byPlayer === playerId &&
           offer.offerType === 'takeback' &&
           offer.status === 'accepted'
       )
@@ -58,7 +63,7 @@ export const GameActions: React.FC<Props> = ({
 
     return (
       offers.reduce((accum, offer) => {
-        if (offer.offerType === 'takeback' && offer.byPlayer === whoAmI) {
+        if (offer.offerType === 'takeback' && offer.byPlayer === playerId) {
           return accum + 1;
         }
         return accum;
@@ -67,15 +72,17 @@ export const GameActions: React.FC<Props> = ({
   };
 
   const calculateDrawStatus = () => {
-    if (gameState.status !== 'ongoing') {
+    if (game.status !== 'ongoing') {
       return false;
     }
+
     if (lastOffer?.status === 'pending' || offerAlreadySend.current) {
       return false;
     }
+
     return (
       offers.reduce((accum, offer) => {
-        if (offer.offerType === 'draw' && offer.byPlayer === whoAmI) {
+        if (offer.offerType === 'draw' && offer.byPlayer === playerId) {
           return accum + 1;
         }
         return accum;
@@ -87,13 +94,13 @@ export const GameActions: React.FC<Props> = ({
     if (offerAlreadySend.current) {
       resetOfferSent();
     }
-  }, [gameState.lastMoveBy]);
+  }, [game.lastMoveBy]);
 
   useEffect(() => {
     //TODO - can optimize this function with useCallback and pass parameters the gameState
     refreshAllowTakeback(calculateTakebackStatus());
     refreshAllowDraw(calculateDrawStatus());
-  }, [gameState.status, offers, gameState.lastMoveBy]);
+  }, [game.status, offers, game.lastMoveBy]);
 
   return (
     <div
@@ -129,7 +136,7 @@ export const GameActions: React.FC<Props> = ({
           setOfferSent();
           onTakeback();
         }}
-        disabled={gameState.status !== 'ongoing' || !allowTakeback}
+        disabled={game.status !== 'ongoing' || !allowTakeback}
       >
         Ask for Takeback
       </QuickConfirmButton>
@@ -141,9 +148,7 @@ export const GameActions: React.FC<Props> = ({
         icon="FlagIcon"
         iconKind="solid"
         onClick={onResign}
-        disabled={
-          gameState.status !== 'ongoing' || lastOffer?.status === 'pending'
-        }
+        disabled={game.status !== 'ongoing' || lastOffer?.status === 'pending'}
       >
         Resign
       </QuickConfirmButton>

@@ -2,8 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { invoke, objectKeys } from '@xmatter/util-kit';
 import { Dialog } from 'apps/chessroulette-web/components/Dialog';
 import { Text } from 'apps/chessroulette-web/components/Text';
-import { RoomSideMenu } from 'apps/chessroulette-web/modules/room/components/RoomSideMenu';
-import { useGameActions } from '../../providers/useGameActions';
+import { useGameActionsContext } from '../../providers/useGameActions';
 import { OfferType } from '../../store';
 
 type Props = {
@@ -11,7 +10,7 @@ type Props = {
   onDenyOffer: () => void;
   onRematchRequest: () => void;
   onCancelOffer: () => void;
-  roomId: string;
+  // roomId: string;
 };
 
 export const GameStateDialog: React.FC<Props> = ({
@@ -19,10 +18,10 @@ export const GameStateDialog: React.FC<Props> = ({
   onAcceptOffer,
   onDenyOffer,
   onCancelOffer,
-  roomId,
+  // roomId,
 }) => {
   const [gameResultSeen, setGameResultSeen] = useState(false);
-  const { lastOffer, gameState, players, clientUserId } = useGameActions();
+  const { lastOffer, game: gameState, players, playerId } = useGameActionsContext();
 
   useEffect(() => {
     // Everytime the game state changes, reset the seen!
@@ -40,7 +39,8 @@ export const GameStateDialog: React.FC<Props> = ({
           content={
             <div>
               {/* // TODO: Fix this */}
-              <RoomSideMenu activity="play" roomId={roomId} />
+              {/* <RoomSideMenu activity="play" roomId={roomId} /> */}
+              TODO: Show invite Link
             </div>
           }
         />
@@ -86,7 +86,7 @@ export const GameStateDialog: React.FC<Props> = ({
       }
       if (lastOffer.offerType === 'rematch') {
         if (lastOffer.status === 'pending') {
-          if (lastOffer.byPlayer === clientUserId) {
+          if (lastOffer.byPlayer === playerId) {
             return (
               <Dialog
                 title="Rematch ?"
@@ -139,7 +139,7 @@ export const GameStateDialog: React.FC<Props> = ({
         }
 
         if (lastOffer.status === 'denied') {
-          if (lastOffer.byPlayer === clientUserId) {
+          if (lastOffer.byPlayer === playerId) {
             return (
               <Dialog
                 title="Offer Denied"
@@ -164,7 +164,7 @@ export const GameStateDialog: React.FC<Props> = ({
       }
 
       if (lastOffer.offerType === 'draw' && lastOffer.status === 'pending') {
-        if (lastOffer.byPlayer === clientUserId) {
+        if (lastOffer.byPlayer === playerId) {
           return (
             <Dialog
               title="Draw ?"
@@ -219,7 +219,7 @@ export const GameStateDialog: React.FC<Props> = ({
 
       if (lastOffer.offerType === 'takeback') {
         if (lastOffer.status === 'pending') {
-          if (lastOffer.byPlayer === clientUserId) {
+          if (lastOffer.byPlayer === playerId) {
             return (
               <Dialog
                 title="Takeback ?"
@@ -273,7 +273,7 @@ export const GameStateDialog: React.FC<Props> = ({
         }
 
         if (lastOffer.status === 'denied' && !gameResultSeen) {
-          if (lastOffer.byPlayer === clientUserId) {
+          if (lastOffer.byPlayer === playerId) {
             return (
               <Dialog
                 title="Offer Denied"

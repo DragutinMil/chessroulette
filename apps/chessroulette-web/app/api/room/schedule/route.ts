@@ -118,7 +118,7 @@ export function GET(request: NextRequest) {
             {
               ...objectOmit(activityParams, ['client']),
               id: roomId,
-              challenger: true, // TODO: This can be stored in movex better
+              challenger: 1, // TODO: This can be stored in movex better
             },
             request.nextUrl
           ),
@@ -129,7 +129,7 @@ export function GET(request: NextRequest) {
             {
               ...objectOmit(activityParams, ['client']),
               id: roomId,
-              flipped: true, // TODO: This can be stored in movex better
+              flipped: 1, // TODO: This can be stored in movex better
             },
             request.nextUrl
           ),

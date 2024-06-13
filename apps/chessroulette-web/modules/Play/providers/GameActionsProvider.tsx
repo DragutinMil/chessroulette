@@ -6,24 +6,24 @@ import {
 import { UserId, UsersMap } from 'apps/chessroulette-web/modules/user/type';
 import { PlayState } from '../store';
 
-type Props = PropsWithChildren & {
+export type GameActionsProviderProps = PropsWithChildren & {
   state: PlayState;
-  players: UsersMap | undefined;
-  clientUserId: UserId;
+  playerId: UserId;
+  players?: UsersMap;
 };
 
-export const GameActionsProvider: React.FC<Props> = ({
+export const GameActionsProvider: React.FC<GameActionsProviderProps> = ({
   state,
   players,
-  clientUserId,
+  playerId,
   children,
 }) => {
   const [value, setValue] = useState<GameActionsContextProps>({
     lastOffer: undefined,
-    gameState: state.game,
+    game: state.game,
     offers: state.offers,
     players,
-    clientUserId,
+    playerId,
   });
 
   useEffect(() => {
@@ -32,7 +32,7 @@ export const GameActionsProvider: React.FC<Props> = ({
     setValue((prev) => ({
       ...prev,
       players,
-      gameState: state.game,
+      game: state.game,
       offers: state.offers,
       lastOffer,
     }));

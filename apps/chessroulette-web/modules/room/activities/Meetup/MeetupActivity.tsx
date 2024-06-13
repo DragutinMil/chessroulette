@@ -114,7 +114,7 @@ export const MeetupActivity = ({
                   otherwise it's too soon and won't connect to the Peers */}
               {/* // TODO: Is this still the case with the new movex subscribers updates? */}
               <CameraPanel
-                players={participants}
+                participants={participants}
                 userId={userId}
                 peerGroupId={roomId}
                 iceServers={iceServers}

@@ -1,11 +1,14 @@
+'use client';
+
 import movexConfig from 'apps/chessroulette-web/movex.config';
 import { MovexBoundResourceFromConfig } from 'movex-react';
 import { noop } from '@xmatter/util-kit';
 import { IceServerRecord } from 'apps/chessroulette-web/providers/PeerToPeerProvider/type';
 import { UserId, UsersMap } from 'apps/chessroulette-web/modules/user/type';
-import { PlayContainer } from '../../../Play/PlayContainer';
 import { MatchActivityState } from './movex';
 import { usePlayActivitySettings } from '../Play/usePlayActivitySettings';
+import { MatchActivityView } from './MatchActivityView';
+import { useMemo } from 'react';
 
 export type Props = {
   roomId: string;
@@ -29,14 +32,24 @@ export const MatchActivity = ({
   const { isBoardFlipped } = usePlayActivitySettings();
 
   // TODO: Why would this be optional here? Could be outside!
-  const dispatch = optionalDispatch || noop;
+  // const dispatch = useMemo(() => optionalDispatch || noop, [optionalDispatch]);
+  // const dispatch = useMemo(() => , [optionalDispatch]);
 
   return (
-    <PlayContainer
+    <MatchActivityView
+      dispatch={optionalDispatch || noop}
       state={remoteState}
-      dispatch={dispatch}
       isBoardFlipped={isBoardFlipped}
       {...props}
     />
   );
+
+  // return (
+  //   <PlayContainer
+  //     state={remoteState}
+  //     dispatch={dispatch}
+  //     isBoardFlipped={isBoardFlipped}
+  //     {...props}
+  //   />
+  // );
 };

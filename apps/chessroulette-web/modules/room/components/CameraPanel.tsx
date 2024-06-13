@@ -15,7 +15,7 @@ import { useMemo } from 'react';
 type Props = {
   userId: UserId;
   peerGroupId: string;
-  players: UsersMap;
+  participants: UsersMap;
   iceServers: IceServerRecord[];
   aspectRatio?: FaceTimeProps['aspectRatio'];
   fallback?: React.ReactNode;
@@ -30,13 +30,13 @@ export const CameraPanel = ({
   aspectRatio,
   userId,
   peerGroupId,
-  players,
+  participants,
   fallback,
 }: Props) => {
   const { [userId]: removedMe, ...peerUsersMap } = useMemo<PeerUsersMap>(
     () =>
       toDictIndexedBy(
-        Object.values(players),
+        Object.values(participants),
         (p) => p.id,
         (p) => ({
           userId: p.id,
@@ -56,7 +56,7 @@ export const CameraPanel = ({
         //   }),
         //   {} as PeerUserIdsMap
       ),
-    [players]
+    [participants]
   );
 
   if (!config.CAMERA_ON) {
