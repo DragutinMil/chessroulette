@@ -9,9 +9,7 @@ import { DispatchOf } from '@xmatter/util-kit';
 import { RIGHT_SIDE_SIZE_PX } from '../Learn/components/LearnBoard';
 import { GameBoardContainer } from 'apps/chessroulette-web/modules/Play/GameBoardContainer';
 import { CameraPanel } from '../../components/CameraPanel';
-
 import { GameActionsContainer } from 'apps/chessroulette-web/modules/Play/components/GameActionsContainers';
-import { useEffect } from 'react';
 
 type Props = {
   roomId: string;
@@ -27,24 +25,19 @@ type Props = {
 
 export const MatchActivityView = ({
   state,
+  dispatch,
   userId,
   iceServers,
-  dispatch,
   roomId,
   players,
   isBoardFlipped,
 }: Props) => {
-  // TODO: This should be part of the game Provider
-  // const canPlay = useCanPlay(state.game, players);
-  // useEffect(() => {
-  //   setTimeout(() => {
-  //     console.log('dispatching now', dispatch);
-  //     dispatch({ type: 'play:cancelOffer' });
-  //   }, 2 * 1000);
-  // }, [dispatch]);
+  const {
+    currentPlay: { game },
+  } = state;
 
   return (
-    <GameProvider state={state} players={players} playerId={userId}>
+    <GameProvider game={game} players={players} playerId={userId}>
       <DesktopRoomLayout
         rightSideSize={RIGHT_SIDE_SIZE_PX}
         mainComponent={({ boardSize }) => (
@@ -52,7 +45,7 @@ export const MatchActivityView = ({
             boardSizePx={boardSize}
             isBoardFlipped={isBoardFlipped}
             // TODO: All of these can be provided from the GamePovider
-            game={state.game}
+            game={game}
             dispatch={dispatch}
             playerId={userId}
             players={players}
@@ -83,8 +76,7 @@ export const MatchActivityView = ({
               />
               <div className="flex-1" />
               <GameStateWidget
-                game={state.game}
-                gameTimeClass={state.gameTimeClass}
+                game={game}
                 id={roomId}
                 onTimerFinished={() => {
                   dispatch({

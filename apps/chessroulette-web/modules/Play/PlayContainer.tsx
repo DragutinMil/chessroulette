@@ -95,7 +95,7 @@ export const PlayContainer = ({
   );
 
   return (
-    <GameActionsProvider state={state} players={players} playerId={userId}>
+    <GameActionsProvider game={state.game} players={players} playerId={userId}>
       <DesktopRoomLayout
         rightSideSize={RIGHT_SIDE_SIZE_PX}
         mainComponent={({ boardSize }) => (

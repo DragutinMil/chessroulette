@@ -1,40 +1,29 @@
-import React, { PropsWithChildren, useEffect, useState } from 'react';
-import {
-  GameActionsContext,
-  GameActionsContextProps,
-} from './GameActionsContext';
+import React, { PropsWithChildren, useMemo } from 'react';
+import { GameActionsContext } from './GameActionsContext';
 import { UserId, UsersMap } from 'apps/chessroulette-web/modules/user/type';
-import { PlayState } from '../store';
+import { Game } from '../store';
 
 export type GameActionsProviderProps = PropsWithChildren & {
-  state: PlayState;
+  game: Game;
   playerId: UserId;
   players?: UsersMap;
 };
 
 export const GameActionsProvider: React.FC<GameActionsProviderProps> = ({
-  state,
+  game,
   players,
   playerId,
   children,
 }) => {
-  const [value, setValue] = useState<GameActionsContextProps>({
-    lastOffer: undefined,
-    game: state.game,
-    players,
-    playerId,
-  });
-
-  useEffect(() => {
-    const lastOffer = state.game.offers?.slice(-1)[0];
-
-    setValue((prev) => ({
-      ...prev,
+  const value = useMemo(
+    () => ({
       players,
-      game: state.game,
-      lastOffer,
-    }));
-  }, [state, players]);
+      playerId,
+      game,
+      lastOffer: game.offers?.slice(-1)[0],
+    }),
+    [game, players, playerId]
+  );
 
   return (
     <GameActionsContext.Provider value={value}>

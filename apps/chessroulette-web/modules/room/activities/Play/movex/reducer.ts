@@ -10,8 +10,6 @@ export const reducer = (
   action: ActivityActions
 ): ActivityState => {
   if (prev.activityType === 'play') {
-    console.log('Play Activity reducer', prev, action);
-
     return {
       ...prev,
       activityState: PlayStore.reducer(
