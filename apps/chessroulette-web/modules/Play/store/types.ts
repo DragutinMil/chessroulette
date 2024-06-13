@@ -37,12 +37,13 @@ export type Game = {
   // TODO: Is this needed here???
   // @deprecate as each player can chose individualy
   orientation: ChessColor;
+
+  // This should actually only be one not multiple as they can never be multiple at the same time no?
+  offers: GameOffer[];
 };
 
 export type PlayState = {
   game: Game;
-  // gameTimeClass: GameTimeClass;
-  gameOffers: GameOffer[];
 };
 
 export type PlayActions =

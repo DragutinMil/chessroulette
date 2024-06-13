@@ -12,6 +12,8 @@ export const initialPlayState: PlayState = {
     lastMoveAt: 0,
     status: 'pending',
     timeClass: 'untimed',
+
+    // TODO: This doesn't need to be an array and it doesn't need to be always defined
+    offers: [],
   },
-  gameOffers: [],
 };

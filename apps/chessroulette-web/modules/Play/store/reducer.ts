@@ -111,11 +111,11 @@ export const reducer = (
     }
     //clear any pending offer leftover
     const lastOffer =
-      prev.gameOffers.length > 0 &&
-      (prev.gameOffers[prev.gameOffers.length - 1] as GameOffer).status ===
+      prev.game.offers.length > 0 &&
+      (prev.game.offers[prev.game.offers.length - 1] as GameOffer).status ===
         'pending'
         ? ({
-            ...prev.gameOffers[prev.gameOffers.length - 1],
+            ...prev.game.offers[prev.game.offers.length - 1],
             status: 'cancelled',
           } as GameOffer)
         : undefined;
@@ -132,7 +132,7 @@ export const reducer = (
         },
       },
       ...(lastOffer && {
-        gameOffers: [...prev.gameOffers.slice(0, -1), lastOffer],
+        gameOffers: [...prev.game.offers.slice(0, -1), lastOffer],
       }),
     };
   }
@@ -151,7 +151,7 @@ export const reducer = (
   if (action.type === 'play:sendOffer') {
     const { byPlayer, offerType } = action.payload;
     const nextOffers: GameOffer[] = [
-      ...prev.gameOffers,
+      ...prev.game.offers,
       {
         byPlayer,
         type: offerType,
@@ -164,48 +164,53 @@ export const reducer = (
 
     return {
       ...prev,
-      gameOffers: nextOffers,
+      game: {
+        ...prev.game,
+        offers: nextOffers,
+      },
     };
   }
 
   if (action.type === 'play:acceptOfferRematch') {
     const lastOffer: GameOffer = {
-      ...prev.gameOffers[prev.gameOffers.length - 1],
+      ...prev.game.offers[prev.game.offers.length - 1],
       status: 'accepted',
     };
 
-    const game = setupNewGame(
+    const newGame = setupNewGame(
       prev.game.timeClass,
       swapColor(prev.game.orientation)
     );
 
     return {
       ...prev,
-      gameOffers: [...prev.gameOffers.slice(0, -1), lastOffer],
-      game,
+      // gameOffers: [...prev.gameOffers.slice(0, -1), lastOffer],
+      game: newGame,
     };
   }
 
   if (action.type === 'play:acceptOfferDraw') {
     const lastOffer: GameOffer = {
-      ...prev.gameOffers[prev.gameOffers.length - 1],
+      ...prev.game.offers[prev.game.offers.length - 1],
       status: 'accepted',
     };
 
+    const nextOffers = [...prev.game.offers.slice(0, -1), lastOffer];
+
     return {
       ...prev,
-      gameOffers: [...prev.gameOffers.slice(0, -1), lastOffer],
       game: {
         ...prev.game,
         status: 'complete',
         winner: '1/2',
+        offers: nextOffers,
       },
     };
   }
 
   if (action.type === 'play:acceptTakeBack') {
     const lastOffer: GameOffer = {
-      ...prev.gameOffers[prev.gameOffers.length - 1],
+      ...prev.game.offers[prev.game.offers.length - 1],
       status: 'accepted',
     };
 
@@ -214,12 +219,14 @@ export const reducer = (
     });
 
     const takebackAt =
-      prev.gameOffers[prev.gameOffers.length - 1].timestamp ||
+      prev.game.offers[prev.game.offers.length - 1].timestamp ||
       new Date().getTime();
 
     const elapsedTime = takebackAt - prev.game.lastMoveAt;
     const nextTimeLeft = prev.game.timeLeft[prev.game.lastMoveBy] - elapsedTime;
     const turn = toLongColor(swapColor(prev.game.lastMoveBy));
+
+    const nextOffers = [...prev.game.offers.slice(0, -1), lastOffer];
 
     return {
       ...prev,
@@ -231,30 +238,42 @@ export const reducer = (
           ...prev.game.timeLeft,
           [prev.game.lastMoveBy]: nextTimeLeft,
         },
+        offers: nextOffers,
       },
-      gameOffers: [...prev.gameOffers.slice(0, -1), lastOffer],
     };
   }
 
   if (action.type === 'play:denyOffer') {
     const lastOffer: GameOffer = {
-      ...prev.gameOffers[prev.gameOffers.length - 1],
+      ...prev.game.offers[prev.game.offers.length - 1],
       status: 'denied',
     };
+
+    const nextOffers = [...prev.game.offers.slice(0, -1), lastOffer];
+
     return {
       ...prev,
-      gameOffers: [...prev.gameOffers.slice(0, -1), lastOffer],
+      game: {
+        ...prev.game,
+        offers: nextOffers,
+      },
     };
   }
 
   if (action.type === 'play:cancelOffer') {
     const lastOffer: GameOffer = {
-      ...prev.gameOffers[prev.gameOffers.length - 1],
+      ...prev.game.offers[prev.game.offers.length - 1],
       status: 'cancelled',
     };
+
+    const nextOffers = [...prev.game.offers.slice(0, -1), lastOffer];
+
     return {
       ...prev,
-      gameOffers: [...prev.gameOffers.slice(0, -1), lastOffer],
+      game: {
+        ...prev.game,
+        offers: nextOffers,
+      },
     };
   }
 

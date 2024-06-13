@@ -22,7 +22,9 @@ export const GameActions: React.FC<Props> = ({
   buttonOrientation = 'vertical',
 }) => {
   //TODO - can merge gameState and offers together as they are part of the same state and only used here
-  const { lastOffer, game, offers, players } = useGameActionsContext();
+  const { lastOffer, game } = useGameActionsContext();
+
+  const { offers: offers = [] } = game;
   // const canPlay = useCanPlay(game, players);
 
   const offerAlreadySend = useRef(false);
