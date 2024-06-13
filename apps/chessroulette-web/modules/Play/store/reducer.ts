@@ -60,10 +60,10 @@ export const reducer = (
     const nextGameState =
       prev.game.status === 'pending' && pgn.length === 0
         ? 'ongoing'
-        : (prev.gameTimeClass !== 'untimed' &&
+        : (prev.game.timeClass !== 'untimed' &&
             prev.game.status !== 'pending' &&
             (nextTimeLeft < 0 || isCheckMate)) ||
-          (prev.gameTimeClass === 'untimed' &&
+          (prev.game.timeClass === 'untimed' &&
             prev.game.status === 'ongoing' &&
             isCheckMate)
         ? 'complete'
@@ -91,11 +91,12 @@ export const reducer = (
 
   if (action.type === 'play:setGameTimeClass') {
     const timeLeft = chessGameTimeLimitMsMap[action.payload];
+
     return {
       ...prev,
-      gameTimeClass: action.payload,
       game: {
         ...prev.game,
+        timeClass: action.payload,
         timeLeft: {
           white: timeLeft,
           black: timeLeft,
@@ -174,7 +175,7 @@ export const reducer = (
     };
 
     const game = setupNewGame(
-      prev.gameTimeClass,
+      prev.game.timeClass,
       swapColor(prev.game.orientation)
     );
 

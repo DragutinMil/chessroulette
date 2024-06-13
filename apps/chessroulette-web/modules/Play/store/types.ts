@@ -11,16 +11,20 @@ import { User } from 'apps/chessroulette-web/modules/user/type';
 type GameStateWinner = 'white' | 'black' | '1/2';
 
 export type GameOffer = {
+  // TODO: this should not be byPlayer but byColor, since inside the Game there is no notion of player but just of color
   byPlayer: User['id'];
+
   //TODO - probably need toParticipant as well, but not sure how to get it now
   type: 'takeback' | 'draw' | 'rematch';
   status: 'pending' | 'accepted' | 'denied' | 'cancelled';
+
+  // Nededed? If so change to Date or smtg
   timestamp?: number;
 };
 
 export type Game = {
-  orientation: ChessColor;
   pgn: ChessPGN;
+  timeClass: GameTimeClass;
   timeLeft: {
     white: number;
     black: number;
@@ -29,11 +33,15 @@ export type Game = {
   lastMoveAt: number;
   status: GameStatus;
   winner?: GameStateWinner;
+
+  // TODO: Is this needed here???
+  // @deprecate as each player can chose individualy
+  orientation: ChessColor;
 };
 
 export type PlayState = {
   game: Game;
-  gameTimeClass: GameTimeClass;
+  // gameTimeClass: GameTimeClass;
   gameOffers: GameOffer[];
 };
 

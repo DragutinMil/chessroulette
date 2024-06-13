@@ -11,7 +11,7 @@ export const initialPlayState: PlayState = {
     lastMoveBy: 'black',
     lastMoveAt: 0,
     status: 'pending',
+    timeClass: 'untimed',
   },
   gameOffers: [],
-  gameTimeClass: 'untimed',
 };
