@@ -111,12 +111,11 @@ export const JoinOrCreateRoom: React.FC<Props> = ({
                   activityParams.rounds || initialFriendlyMatch.rounds || 1,
 
                 // Affect the game
-                ...(initialFriendlyMatch.timeClass && {
+                ...(activityParams.timeClass && {
                   currentPlay: {
                     ...initialFriendlyMatch.currentPlay,
                     game: setupNewGame(
-                      activityParams.timeClass ||
-                        initialFriendlyMatch.timeClass,
+                      activityParams.timeClass,
                       // For now the color is randomized
                       (['white', 'black'] as const)[getRandomInt(0, 1)]
                     ),

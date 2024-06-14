@@ -25,7 +25,7 @@ export type MatchState = (
   players: Record<Player['id'], Player>;
   plays: PlayStore.PlayState[];
 
-  timeClass: Game['timeClass'];
+  // timeClass: Game['timeClass'];
 
   // TODO: Should this always hav a pending game??
   currentPlay: PlayStore.PlayState;
