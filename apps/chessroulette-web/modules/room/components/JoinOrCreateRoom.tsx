@@ -126,7 +126,11 @@ export const JoinOrCreateRoom: React.FC<Props> = ({
           };
         }
 
-        return initialRoomState;
+        return {
+          ...initialRoomState,
+          activity:
+            initialActivityStatesByActivityType[activityParams.activity],
+        };
       });
 
       if (mode === 'create') {
