@@ -144,7 +144,7 @@ export function GET(request: NextRequest) {
 
   return NextResponse.json(
     {
-      Error: `Ooops! this shouldn't happen.`,
+      Error: `Ooops! This shouldn't happen.`,
     },
     { status: 500 }
   );
