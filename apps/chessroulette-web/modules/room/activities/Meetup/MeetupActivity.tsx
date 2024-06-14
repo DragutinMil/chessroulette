@@ -20,7 +20,7 @@ export type Props = {
   roomId: string;
   userId: UserId;
   iceServers: IceServerRecord[];
-  participants?: UsersMap;
+  participants: UsersMap;
   remoteState: MeetupActivityState['activityState'];
   dispatch?: MovexBoundResourceFromConfig<
     typeof movexConfig['resources'],

@@ -31,6 +31,7 @@ export default async function Page({
       roomId={id}
       activity="learn"
     >
+      {/* // TODO: Here can show suspense with loading of a none room or smtg for server rendering! */}
       <RoomContainer rid={rid} iceServers={iceServers} activity="learn" />
     </RoomTemplate>
   );

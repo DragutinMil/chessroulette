@@ -126,6 +126,7 @@ export function GET(request: NextRequest) {
             },
             request.nextUrl
           ),
+          matchId: roomId,
         },
         {
           userRole: 'challengee',
@@ -137,6 +138,7 @@ export function GET(request: NextRequest) {
             },
             request.nextUrl
           ),
+          matchId: roomId,
         },
       ],
     });

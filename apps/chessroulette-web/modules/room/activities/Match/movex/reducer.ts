@@ -18,6 +18,10 @@ export const reducer = (
     return prev;
   }
 
+  if (!prev.activityState) {
+    return prev;
+  }
+
   const prevMatch = prev.activityState;
 
   if (action.type === 'match:startNewGame') {
@@ -25,7 +29,7 @@ export const reducer = (
       return prev;
     }
 
-    const prevPlay = prevMatch.currentPlay;
+    const prevPlay = prevMatch.ongoingPlay;
 
     if (prevPlay.game.status !== 'complete') {
       return prev;
@@ -35,8 +39,8 @@ export const reducer = (
       ...prev,
       activityState: {
         ...prev.activityState,
-        plays: [...prevMatch.plays, prevPlay],
-        currentPlay: {
+        completedPlays: [...prevMatch.completedPlays, prevPlay],
+        ongoingPlay: {
           game: setupNewGame(
             prevPlay.game.timeClass,
             swapColor(prevPlay.game.orientation) // TODO: This should be done differently once we have colors with players
@@ -46,12 +50,12 @@ export const reducer = (
     };
   }
 
-  const nextCurrentPlay = prev.activityState.currentPlay
+  const nextCurrentPlay = prev.activityState.ongoingPlay
     ? PlayStore.reducer(
-        prev.activityState.currentPlay,
+        prev.activityState.ongoingPlay,
         action as PlayStore.PlayActions
       )
-    : prev.activityState.currentPlay;
+    : prev.activityState.ongoingPlay;
 
   const nextMatchStatus: MatchState['status'] = invoke(
     (): MatchState['status'] => {
@@ -61,13 +65,13 @@ export const reducer = (
       }
 
       // If it's a Friendly Match it never goes into completion
-      if (prevMatch.type === 'friendly') {
+      if (prevMatch.type === 'openEnded') {
         // TODO: Is this actually ok?
         return prevMatch.status;
       }
 
       if (prevMatch.type === 'bestOf') {
-        if (prevMatch.plays.length === prevMatch.rounds) {
+        if (prevMatch.completedPlays.length === prevMatch.rounds) {
           return 'complete';
         }
 
@@ -83,7 +87,7 @@ export const reducer = (
     activityState: {
       ...prev.activityState,
       // plays: nextPlays,
-      currentPlay: nextCurrentPlay,
+      ongoingPlay: nextCurrentPlay,
       status: nextMatchStatus,
     },
   };

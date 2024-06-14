@@ -16,9 +16,9 @@ type Props = {
   roomId: string;
   userId: UserId;
   iceServers: IceServerRecord[];
-  state: MatchActivityState['activityState'];
+  state: NonNullable<MatchActivityState['activityState']>;
   dispatch: DispatchOf<MatchActivityActions>;
-  players?: UsersMap;
+  participants: UsersMap;
 
   // TODO: deprecate once I have a better system for determingin player colors
   isBoardFlipped?: boolean;
@@ -30,11 +30,11 @@ export const MatchActivityView = ({
   userId,
   iceServers,
   roomId,
-  players,
+  participants,
   isBoardFlipped,
 }: Props) => {
   const {
-    currentPlay: { game },
+    ongoingPlay: { game },
     ...matchState
   } = state;
 
@@ -58,7 +58,7 @@ export const MatchActivityView = ({
   }, [game.status === 'complete', matchState.status, waitingForNextGame]);
 
   const results = useMemo(() => {
-    return matchState.plays.reduce(
+    return matchState.completedPlays.reduce(
       (prev, nextPlay) => ({
         white: nextPlay.game.winner === 'white' ? prev.white + 1 : prev.white,
         black: nextPlay.game.winner === 'black' ? prev.black + 1 : prev.black,
@@ -68,7 +68,7 @@ export const MatchActivityView = ({
   }, [matchState]);
 
   return (
-    <GameProvider game={game} players={players} playerId={userId}>
+    <GameProvider game={game} players={matchState.players} playerId={userId}>
       <DesktopRoomLayout
         rightSideSize={RIGHT_SIDE_SIZE_PX}
         mainComponent={({ boardSize }) => (
@@ -80,19 +80,19 @@ export const MatchActivityView = ({
               game={game}
               dispatch={dispatch}
               playerId={userId}
-              players={players}
+              players={matchState.players}
             />
           </div>
         )}
         rightComponent={
           <div className="flex flex-col flex-1 min-h-0 gap-4">
-            {players && players[userId] && (
+            {participants && participants[userId] && (
               <div className="overflow-hidden rounded-lg shadow-2xl">
                 {/* // This needs to show only when the user is a players //
                   otherwise it's too soon and won't connect to the Peers */}
                 {/* // TODO: Provide this so I don't have to pass in the iceServers each time */}
                 <CameraPanel
-                  participants={players}
+                  participants={participants}
                   userId={userId}
                   peerGroupId={roomId}
                   iceServers={iceServers}

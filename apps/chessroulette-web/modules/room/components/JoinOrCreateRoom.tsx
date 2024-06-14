@@ -13,12 +13,11 @@ import { useUpdateableSearchParams } from 'apps/chessroulette-web/hooks/useSearc
 import { generateUserId, getRandomStr } from 'apps/chessroulette-web/util';
 import { links } from '../links';
 import { AsyncErr } from 'ts-async-results';
-import { getRandomInt, invoke } from '@xmatter/util-kit';
+import { invoke } from '@xmatter/util-kit';
 import { initialActivityStatesByActivityType } from '../activities/movex';
 import { GameTimeClass, chessGameTimeLimitMsMap } from '../../Play/types';
 import { ActivityParamsSchema } from '../io/paramsSchema';
-import { initialFriendlyMatch } from '../activities/Match/movex';
-import { setupNewGame } from '../../Play/store';
+import { setupNewMatchState } from '../activities/Match/movex/util';
 
 type Props = {
   activityParams: ActivityParamsSchema;
@@ -96,32 +95,7 @@ export const JoinOrCreateRoom: React.FC<Props> = ({
             ...initialRoomState,
             activity: {
               activityType: 'match',
-              activityState: {
-                // Default to a Friendly Match if not
-                ...initialFriendlyMatch,
-                ...(activityParams.timeClass && {
-                  timeClass: activityParams.timeClass,
-                }),
-                ...(activityParams.maxPlayers && {
-                  maxPlayers: activityParams.maxPlayers,
-                }),
-                ...(activityParams.type && { type: activityParams.type }),
-
-                rounds:
-                  activityParams.rounds || initialFriendlyMatch.rounds || 1,
-
-                // Affect the game
-                ...(activityParams.timeClass && {
-                  currentPlay: {
-                    ...initialFriendlyMatch.currentPlay,
-                    game: setupNewGame(
-                      activityParams.timeClass,
-                      // For now the color is randomized
-                      (['white', 'black'] as const)[getRandomInt(0, 1)]
-                    ),
-                  },
-                }),
-              },
+              activityState: setupNewMatchState(activityParams),
             },
           };
         }

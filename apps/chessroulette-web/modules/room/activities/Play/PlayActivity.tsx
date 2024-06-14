@@ -11,7 +11,7 @@ export type Props = {
   roomId: string;
   userId: UserId;
   iceServers: IceServerRecord[];
-  players?: UsersMap;
+  participants: UsersMap;
   remoteState: PlayActivityState['activityState'];
   dispatch?: MovexBoundResourceFromConfig<
     (typeof movexConfig)['resources'],
@@ -22,6 +22,7 @@ export type Props = {
 export const PlayActivity = ({
   remoteState,
   dispatch: optionalDispatch,
+  participants,
   ...props
 }: Props) => {
   const { isBoardFlipped } = usePlayActivitySettings();
@@ -34,6 +35,11 @@ export const PlayActivity = ({
       state={remoteState}
       dispatch={dispatch}
       isBoardFlipped={isBoardFlipped}
+
+      // TODO: The players here aren't the participants (this is not correct. the players should and will come from the game! or match!)
+      //  In fact I don't even know why this is used?
+      // Should be removd
+      players={participants}
       {...props}
     />
   );

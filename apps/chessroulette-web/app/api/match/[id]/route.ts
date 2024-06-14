@@ -29,7 +29,7 @@ export function GET(
 
   const movexRoomUrl = `http://${MOVEX_ENDPOINT_URL}/api/resources/room:${params.id}`;
 
-  return fetch(movexRoomUrl)
+  return fetch(movexRoomUrl, { cache: 'no-store' })
     .then((s) => {
       if (s.ok) {
         return s.json();

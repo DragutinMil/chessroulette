@@ -8,14 +8,13 @@ import { UserId, UsersMap } from 'apps/chessroulette-web/modules/user/type';
 import { MatchActivityState } from './movex';
 import { usePlayActivitySettings } from '../Play/usePlayActivitySettings';
 import { MatchActivityView } from './MatchActivityView';
-import { useMemo } from 'react';
 
 export type Props = {
   roomId: string;
   userId: UserId;
   iceServers: IceServerRecord[];
-  players?: UsersMap;
-  remoteState: MatchActivityState['activityState'];
+  participants: UsersMap;
+  remoteState: NonNullable<MatchActivityState['activityState']>;
   dispatch?: MovexBoundResourceFromConfig<
     (typeof movexConfig)['resources'],
     'room'

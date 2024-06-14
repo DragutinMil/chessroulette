@@ -26,7 +26,7 @@ type Props = {
   roomId: string;
   userId: UserId;
   iceServers: IceServerRecord[];
-  participants?: UsersMap;
+  participants: UsersMap;
   remoteState: LearnActivityState['activityState'];
   dispatch?: MovexBoundResourceFromConfig<
     (typeof movexConfig)['resources'],

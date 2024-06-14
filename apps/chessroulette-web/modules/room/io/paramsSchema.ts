@@ -1,5 +1,6 @@
 import z from 'zod';
 import { gameTimeClassRecord } from '../../Play/types';
+import { matchActivityParamsSchema } from '../activities/Match/activityParamsSchema';
 
 const truthyParam = z
   .union([
@@ -48,15 +49,7 @@ export const playActivityParamsSchema = z.object({
 //   }),
 // ]);
 
-export const matchActivityParamsSchema = z.object({
-  activity: z.literal('match'),
 
-  // TODO: Type these better
-  type: z.literal('bestOf').or(z.literal('friendly')),
-  rounds: z.coerce.number().optional(),
-  maxPlayers: z.coerce.number().optional(),
-  timeClass: gameTimeClassRecord.optional(),
-});
 
 // const x = {} as Zod.infer<typeof matchActivityParamsSchema>;
 

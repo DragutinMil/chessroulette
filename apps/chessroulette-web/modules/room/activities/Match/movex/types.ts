@@ -1,5 +1,4 @@
 import { PlayStore } from 'apps/chessroulette-web/modules/Play';
-import { Game } from 'apps/chessroulette-web/modules/Play/store';
 import { Action } from 'movex-core-util';
 
 export type Player = {
@@ -10,32 +9,37 @@ export type Player = {
 export type MatchState = (
   | {
       type: 'bestOf';
-      // rounds: 1 | 3 | 4 | 5 | 7 | 9 | 11 | 13 | 15 | 17 | 19 | 21; // Can add more
-      rounds: number;
+      rounds: number; // Ensure these can only be odd numbers
     }
   | {
-      type: 'friendly'; // This is a regular Play
-      rounds?: number;
+      type: 'openEnded';
+      rounds?: undefined; // There is no end so no need for rounds here
       // rounds?: 'unlimited';
     }
 ) & {
   // Add others
-  maxPlayers: number;
   status: 'pending' | 'ongoing' | 'complete';
-  players: Record<Player['id'], Player>;
-  plays: PlayStore.PlayState[];
+  // players: Record<Player['id'], Player>;
+  // maxPlayers: number; // Not needed anymore
+  players: {
+    white: Player;
+    black: Player;
+  };
+  completedPlays: PlayStore.PlayState[];
 
   // timeClass: Game['timeClass'];
 
   // TODO: Should this always hav a pending game??
-  currentPlay: PlayStore.PlayState;
+  ongoingPlay: PlayStore.PlayState;
 };
 
 // export type MatchState = PlayStore.PlayState
 
+export type MatchActivityActivityState = undefined | MatchState;
+
 export type MatchActivityState = {
   activityType: 'match';
-  activityState: MatchState;
+  activityState: MatchActivityActivityState;
 };
 
 export type MatchActivityActions =
