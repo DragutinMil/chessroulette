@@ -16,6 +16,7 @@ export type ChessGameTimeMap = {
 };
 
 //TODO - convert all to zod
+// TODO: Move these values into a CONSTANTS file
 export const chessGameTimeLimitMsMap: ChessGameTimeMap = {
   bullet: 60000,
   blitz: 300000,

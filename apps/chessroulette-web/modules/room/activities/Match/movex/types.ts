@@ -35,6 +35,7 @@ export type MatchState = (
 
 // export type MatchState = PlayStore.PlayState
 
+// export type MatchActivityActivityState = undefined | MatchState;
 export type MatchActivityActivityState = undefined | MatchState;
 
 export type MatchActivityState = {

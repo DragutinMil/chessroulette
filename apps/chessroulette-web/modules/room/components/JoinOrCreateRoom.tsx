@@ -17,7 +17,7 @@ import { invoke } from '@xmatter/util-kit';
 import { initialActivityStatesByActivityType } from '../activities/movex';
 import { GameTimeClass, chessGameTimeLimitMsMap } from '../../Play/types';
 import { ActivityParamsSchema } from '../io/paramsSchema';
-import { setupNewMatchState } from '../activities/Match/movex/util';
+import { createMatchState } from '../activities/Match/movex';
 
 type Props = {
   activityParams: ActivityParamsSchema;
@@ -95,7 +95,7 @@ export const JoinOrCreateRoom: React.FC<Props> = ({
             ...initialRoomState,
             activity: {
               activityType: 'match',
-              activityState: setupNewMatchState(activityParams),
+              activityState: createMatchState(activityParams),
             },
           };
         }

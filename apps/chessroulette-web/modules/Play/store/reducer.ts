@@ -7,25 +7,8 @@ import {
 } from '@xmatter/util-kit';
 import { initialPlayState } from './state';
 import { GameOffer, PlayActions, PlayState } from './types';
-import { GameTimeClass, chessGameTimeLimitMsMap } from '../types';
-
-export const setupNewGame = (
-  gameTimeClass: GameTimeClass,
-  color: ChessColor
-): PlayState['game'] => {
-  const timeLeft = chessGameTimeLimitMsMap[gameTimeClass];
-
-  return {
-    ...initialPlayState.game,
-    timeClass: gameTimeClass,
-    orientation: color,
-    status: 'pending',
-    timeLeft: {
-      white: timeLeft,
-      black: timeLeft,
-    },
-  };
-};
+import { chessGameTimeLimitMsMap } from '../types';
+import { createGame } from './operations';
 
 export const reducer = (
   prev: PlayState = initialPlayState,
@@ -178,10 +161,10 @@ export const reducer = (
       status: 'accepted',
     };
 
-    const newGame = setupNewGame(
-      prev.game.timeClass,
-      swapColor(prev.game.orientation)
-    );
+    const newGame = createGame({
+      timeClass: prev.game.timeClass,
+      color: swapColor(prev.game.orientation),
+    });
 
     return {
       ...prev,

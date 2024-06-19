@@ -1,18 +1,14 @@
 import { invoke, swapColor } from '@xmatter/util-kit';
-import {
-  ActivityActions,
-  ActivityState,
-  initialActivityState,
-} from '../../movex';
+import { ActivityState, initialActivityState } from '../../movex';
 import { PlayStore } from 'apps/chessroulette-web/modules/Play';
-import { MatchState } from './types';
-import { setupNewGame } from 'apps/chessroulette-web/modules/Play/store';
+import { MatchActivityActions, MatchState } from './types';
+import { createGame } from 'apps/chessroulette-web/modules/Play/store';
 
 const matchReducer = (prev: any) => prev;
 
 export const reducer = (
   prev: ActivityState = initialActivityState,
-  action: ActivityActions
+  action: MatchActivityActions
 ): ActivityState => {
   if (prev.activityType !== 'match') {
     return prev;
@@ -41,10 +37,10 @@ export const reducer = (
         ...prev.activityState,
         completedPlays: [...prevMatch.completedPlays, prevPlay],
         ongoingPlay: {
-          game: setupNewGame(
-            prevPlay.game.timeClass,
-            swapColor(prevPlay.game.orientation) // TODO: This should be done differently once we have colors with players
-          ),
+          game: createGame({
+            timeClass: prevPlay.game.timeClass,
+            color: swapColor(prevPlay.game.orientation), // TODO: This should be done differently once we have colors with players
+          }),
         },
       },
     };

@@ -5,10 +5,10 @@ import {
   isWhiteColor,
 } from '@xmatter/util-kit';
 import { MatchState } from './types';
-import { setupNewGame } from 'apps/chessroulette-web/modules/Play/store';
+import { createGame } from 'apps/chessroulette-web/modules/Play/store';
 import { MatchActivityParamsSchema } from '../activityParamsSchema';
 
-export const setupNewMatchState = (
+export const createMatchState = (
   params: DistributiveOmit<MatchActivityParamsSchema, 'activity'>
 ): MatchState => {
   const challengerColor = params.startColor || getRandomColor();
@@ -37,12 +37,15 @@ export const setupNewMatchState = (
           type: params.type,
         }),
     players,
-    ...(params.timeClass && {
-      timeClass: params.timeClass,
-    }),
+    // ...(params.timeClass && {
+    //   // timeClass: params.timeClass,
+    // }),
     completedPlays: [],
     ongoingPlay: {
-      game: setupNewGame(params.timeClass || 'untimed', challengerColor),
+      game: createGame({
+        timeClass: params.timeClass || 'untimed',
+        color: challengerColor,
+      }),
     },
   };
 };
