@@ -16,6 +16,7 @@ export type ListProps = {
   focusedIndex?: FBHIndex;
   className?: string;
   rowClassName?: string;
+  canDelete?: boolean;
 } & (
   | {
       isNested: true;
@@ -40,6 +41,7 @@ export const List: React.FC<ListProps> = ({
   rowClassName,
   rootHistoryIndex,
   isNested = false,
+  canDelete,
 }) => {
   const rowElementRefs = useRef<Record<number, HTMLDivElement | null>>({});
   const containerElementRef = useRef<HTMLDivElement | null>();
@@ -119,6 +121,7 @@ export const List: React.FC<ListProps> = ({
             key={rowId}
             rowId={rowId}
             ref={(r) => (rowElementRefs.current[historyTurnIndex] = r)}
+            canDelete={canDelete}
             historyTurn={historyTurn}
             historyTurnIndex={historyTurnIndex}
             moveCount={rootHistoryTurnIndex + 1 + historyTurnIndex}

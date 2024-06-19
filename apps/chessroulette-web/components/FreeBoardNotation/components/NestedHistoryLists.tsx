@@ -11,6 +11,7 @@ type Props = {
   focusedRecursiveIndexes?: FBHRecursiveIndexes;
   rowClassName?: RowProps['className'];
   className?: string;
+  canDelete?: boolean;
 };
 
 export const NestedLists = ({
@@ -19,6 +20,7 @@ export const NestedLists = ({
   focusedRecursiveIndexes,
   className,
   rowClassName,
+  canDelete,
   onFocus,
   onDelete,
 }: Props) => {
@@ -57,6 +59,7 @@ export const NestedLists = ({
           rowClassName={rowClassName}
           isNested
           rootHistoryIndex={rootHistoryIndexWithoutNested}
+          canDelete={canDelete}
           focusedIndex={
             focusedRecursiveIndexes?.[0] !== -1 &&
             focusedRecursiveIndexes?.[1] === branchIndex

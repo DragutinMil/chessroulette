@@ -8,6 +8,7 @@ export const GameNotationContainer = () => {
     <FreeBoardNotation
       history={displayState.history}
       focusedIndex={displayState.focusedIndex}
+      canDelete={false}
       onDelete={() => {}}
       onRefocus={actions.onRefocus}
     />
