@@ -174,7 +174,7 @@ export const PlayContainer = ({
             <div className="flex flex-row w-full">
               {canPlayGame && (
                 <div>
-                  <GameActions
+                  {/* <GameActions
                     homeColor={orientation}
                     playerId={userId}
                     onOfferDraw={() => {
@@ -200,7 +200,7 @@ export const PlayContainer = ({
                       });
                     }}
                     buttonOrientation="vertical"
-                  />
+                  /> */}
                 </div>
               )}
               <div className="flex-1" />

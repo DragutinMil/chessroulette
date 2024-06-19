@@ -12,22 +12,20 @@ type Props = {
 
 export const CountdownDisplay: React.FC<Props> = ({
   timeLeft,
-  active,
-  canShowMilliseconds,
   major,
   minor,
-  ...props
+  active,
 }) => {
   if (timeLeft > 0) {
     return (
-      <Text className="">
+      <Text className={active ? 'text-white' : 'text-slate-400'}>
         <Text className="font-bold">{major}</Text>
-        <Text className="">:</Text>
+        <Text>:</Text>
         <Text
-          className={`${
-            Number(major) < 1 && Number(minor) < 30
-              ? 'text-red-400 animate-pulse'
-              : 'text-white'
+          className={`font-thin ${
+            Number(major) < 1 &&
+            Number(minor) < 30 &&
+            'text-red-400 animate-pulse'
           }`}
         >
           {minor}
@@ -38,8 +36,8 @@ export const CountdownDisplay: React.FC<Props> = ({
 
   return (
     <Text className="text-red-500">
-      <Text className="">00:</Text>
-      <Text className="">00</Text>
+      <Text>00:</Text>
+      <Text>00</Text>
     </Text>
   );
 };

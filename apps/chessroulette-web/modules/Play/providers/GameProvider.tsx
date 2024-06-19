@@ -8,8 +8,8 @@ import {
   GameContextProps,
   initialGameContextState,
 } from './GameContext';
-import { getDisplayStateFromPgn } from '../../room/activities/Meetup/utils';
 import { FBHIndex } from '@xmatter/util-kit';
+import { getGameDisplayState, getGameTurn } from '../lib';
 
 type Props = GameActionsProviderProps & {
   focusedIndex?: FBHIndex;
@@ -18,7 +18,14 @@ type Props = GameActionsProviderProps & {
 export const GameProvider = (props: Props) => {
   const [state, setState] = useState<GameContextProps>({
     ...initialGameContextState,
-    displayState: getDisplayStateFromPgn(props.game.pgn, props.focusedIndex),
+    realState: {
+      turn: getGameTurn(props.game.pgn),
+      game: props.game,
+    },
+    displayState: getGameDisplayState({
+      pgn: props.game.pgn,
+      focusedIndex: props.focusedIndex,
+    }),
   });
 
   useEffect(() => {
@@ -27,11 +34,21 @@ export const GameProvider = (props: Props) => {
         onRefocus: (nextIndex) => {
           setState((prev) => ({
             ...prev,
-            displayState: getDisplayStateFromPgn(props.game.pgn, nextIndex),
+            displayState: getGameDisplayState({
+              pgn: props.game.pgn,
+              focusedIndex: nextIndex,
+            }),
           }));
         },
       },
-      displayState: getDisplayStateFromPgn(props.game.pgn, props.focusedIndex),
+      realState: {
+        turn: getGameTurn(props.game.pgn),
+        game: props.game,
+      },
+      displayState: getGameDisplayState({
+        pgn: props.game.pgn,
+        focusedIndex: props.focusedIndex,
+      }),
     });
   }, [props.game.pgn, props.focusedIndex]);
 

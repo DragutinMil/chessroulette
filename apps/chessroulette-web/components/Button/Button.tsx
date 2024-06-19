@@ -122,7 +122,7 @@ export const Button = React.forwardRef<HTMLButtonElement | null, ButtonProps>(
         className={`group relative hover:cursor-pointer ${classes[type]} ${
           classes[size]
         } ${
-          disabled ? 'bg-slate-400 hover:bg-slate-400' : ''
+          disabled ? 'bg-slate-400 hover:bg-slate-400 active:bg-slate-400 hover:cursor-default' : ''
         } flex items-center justify-center gap-1 ${className} ${
           bgColor ? toStringColors(getButtonColors(bgColor)) : ''
         } ${isActiveClass}`}

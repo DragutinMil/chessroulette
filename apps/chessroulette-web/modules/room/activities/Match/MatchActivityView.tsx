@@ -1,7 +1,6 @@
 import { GameProvider } from 'apps/chessroulette-web/modules/Play';
 import { DesktopRoomLayout } from '../../components/DesktopRoomLayout';
 import { GameNotationContainer } from 'apps/chessroulette-web/modules/Play/GameNotationContainer';
-import { GameStateWidget } from 'apps/chessroulette-web/modules/Play/components/GameStateWidget/GameStateWidget';
 import { UserId, UsersMap } from 'apps/chessroulette-web/modules/user/type';
 import { IceServerRecord } from 'apps/chessroulette-web/providers/PeerToPeerProvider/type';
 import { MatchActivityActions, MatchActivityState } from './movex';
@@ -11,6 +10,8 @@ import { GameBoardContainer } from 'apps/chessroulette-web/modules/Play/GameBoar
 import { CameraPanel } from '../../components/CameraPanel';
 import { GameActionsContainer } from 'apps/chessroulette-web/modules/Play/components/GameActionsContainers';
 import { useEffect, useMemo, useState } from 'react';
+import { PlayersBySide } from 'apps/chessroulette-web/modules/Play/types';
+import { PlayersInfoContainer } from 'apps/chessroulette-web/modules/Play/PlayersInfoContainer';
 
 type Props = {
   roomId: string;
@@ -38,7 +39,6 @@ export const MatchActivityView = ({
     ...matchState
   } = state;
 
-  // const []
   const [waitingForNextGame, setWaitingForNextGame] = useState<number>();
 
   useEffect(() => {
@@ -66,6 +66,32 @@ export const MatchActivityView = ({
       { white: 0, black: 0 }
     );
   }, [matchState]);
+
+  const playersBySide = useMemo((): PlayersBySide => {
+    if (userId === matchState.players.black.id) {
+      return {
+        home: {
+          ...matchState.players.black,
+          color: 'black',
+        },
+        away: {
+          ...matchState.players.white,
+          color: 'white',
+        },
+      };
+    }
+
+    return {
+      home: {
+        ...matchState.players.white,
+        color: 'white',
+      },
+      away: {
+        ...matchState.players.black,
+        color: 'black',
+      },
+    };
+  }, [userId, matchState.players]);
 
   return (
     <GameProvider game={game} players={matchState.players} playerId={userId}>
@@ -98,53 +124,25 @@ export const MatchActivityView = ({
                 />
               </div>
             )}
-            <div>
-              {waitingForNextGame && (
-                <div>
-                  Next Game in{' '}
-                  {(waitingForNextGame - new Date().getTime()) / 1000}s
-                </div>
-              )}
-            </div>
             <div className="flex flex-row w-full">
-              <GameActionsContainer
-                // TODO: All of these can be provided from the GamePovider
-                dispatch={dispatch}
-                homeColor="b"
-                playerId={userId}
-              />
-              <div className="flex-1" />
-              <GameStateWidget
-                game={game}
-                id={roomId}
-                onTimerFinished={() => {
-                  dispatch({
-                    type: 'play:timeout',
-                  });
+              <PlayersInfoContainer
+                players={playersBySide}
+                onTimerFinished={(side) => {
+                  // TURN: Call the match dispatcher to end the game!
+                  console.log('timer finished for side', side);
                 }}
               />
             </div>
-            <div>
-              White {results.white} | Black {results.black}
-            </div>
-            <div className="bg-slate-700 p-3 flex flex-col flex-1 min-h-0 rounded-lg shadow-2xl overflow-y-scroll">
+            <div className="bg-slate-700 p-3 flex flex-col gap-2 flex-1 min-h-0 rounded-lg shadow-2xl overflow-y-scroll">
               <GameNotationContainer />
-              {/* <pre
-                className="text-xs"
-                style={
-                  {
-                    // fontSize: 6,
-                  }
-                }
-              >
-                {JSON.stringify(state, null, 2)}
-              </pre> */}
-              {/* <FreeBoardNotation
-              history={displayState.history}
-              focusedIndex={displayState.focusedIndex}
-              onDelete={() => {}}
-              onRefocus={onRefocus}
-            /> */}
+              <div className="flex gap-2 bor">
+                <GameActionsContainer
+                  // TODO: All of these can be provided from the GamePovider
+                  dispatch={dispatch}
+                  homeColor="b"
+                  playerId={userId}
+                />
+              </div>
             </div>
           </div>
         }

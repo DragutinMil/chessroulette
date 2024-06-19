@@ -2,7 +2,6 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useGameActionsContext } from '../../providers/useGameActions';
 import { ChessColor, toLongColor } from '@xmatter/util-kit';
 import { QuickConfirmButton } from 'apps/chessroulette-web/components/Button/QuickConfirmButton';
-import { useCanPlay } from '../../hooks/useCanPlay';
 
 type Props = {
   onOfferDraw: () => void;
@@ -10,7 +9,6 @@ type Props = {
   onTakeback: () => void;
   homeColor: ChessColor;
   playerId: string;
-  buttonOrientation?: 'horizontal' | 'vertical';
 };
 
 export const GameActions: React.FC<Props> = ({
@@ -19,14 +17,11 @@ export const GameActions: React.FC<Props> = ({
   onTakeback,
   homeColor,
   playerId,
-  buttonOrientation = 'vertical',
 }) => {
   //TODO - can merge gameState and offers together as they are part of the same state and only used here
   const { lastOffer, game } = useGameActionsContext();
 
   const { offers: offers = [] } = game;
-  // const canPlay = useCanPlay(game, players);
-
   const offerAlreadySend = useRef(false);
   const [allowTakeback, refreshAllowTakeback] = useState(false);
   const [allowDraw, refreshAllowDraw] = useState(true);
@@ -105,13 +100,7 @@ export const GameActions: React.FC<Props> = ({
   }, [game.status, offers, game.lastMoveBy]);
 
   return (
-    <div
-      className={`${
-        buttonOrientation === 'horizontal'
-          ? 'flex flex-row justify-start gap-4 flex-1'
-          : 'flex flex-col h-full gap-2 justify-end items-start content-start'
-      }`}
-    >
+    <>
       <QuickConfirmButton
         size="sm"
         confirmationBgcolor="blue"
@@ -125,7 +114,7 @@ export const GameActions: React.FC<Props> = ({
         }}
         disabled={!allowDraw}
       >
-        Invite to Draw
+        Draw
       </QuickConfirmButton>
       <QuickConfirmButton
         size="sm"
@@ -140,7 +129,7 @@ export const GameActions: React.FC<Props> = ({
         }}
         disabled={game.status !== 'ongoing' || !allowTakeback}
       >
-        Ask for Takeback
+        Takeback
       </QuickConfirmButton>
       <QuickConfirmButton
         size="sm"
@@ -154,6 +143,6 @@ export const GameActions: React.FC<Props> = ({
       >
         Resign
       </QuickConfirmButton>
-    </div>
+    </>
   );
 };

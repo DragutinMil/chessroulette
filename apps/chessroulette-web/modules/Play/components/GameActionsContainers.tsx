@@ -19,34 +19,31 @@ export const GameActionsContainer = ({
   dispatch,
   homeColor,
   playerId,
-}: Props) => {
-  return (
-    <GameActions
-      homeColor={homeColor}
-      playerId={playerId}
-      onOfferDraw={() => {
-        dispatch({
-          type: 'play:sendOffer',
-          payload: { byPlayer: playerId, offerType: 'draw' },
-        });
-      }}
-      onTakeback={() => {
-        dispatch({
-          type: 'play:sendOffer',
-          payload: {
-            byPlayer: playerId,
-            offerType: 'takeback',
-            timestamp: new Date().getTime(),
-          },
-        });
-      }}
-      onResign={() => {
-        dispatch({
-          type: 'play:resignGame',
-          payload: { color: homeColor },
-        });
-      }}
-      buttonOrientation="vertical"
-    />
-  );
-};
+}: Props) => (
+  <GameActions
+    homeColor={homeColor}
+    playerId={playerId}
+    onOfferDraw={() => {
+      dispatch({
+        type: 'play:sendOffer',
+        payload: { byPlayer: playerId, offerType: 'draw' },
+      });
+    }}
+    onTakeback={() => {
+      dispatch({
+        type: 'play:sendOffer',
+        payload: {
+          byPlayer: playerId,
+          offerType: 'takeback',
+          timestamp: new Date().getTime(),
+        },
+      });
+    }}
+    onResign={() => {
+      dispatch({
+        type: 'play:resignGame',
+        payload: { color: homeColor },
+      });
+    }}
+  />
+);

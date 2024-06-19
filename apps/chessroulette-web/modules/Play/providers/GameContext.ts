@@ -1,20 +1,18 @@
 import { createContext } from 'react';
 import {
-  ChessFEN,
-  FBHHistory,
   FBHIndex,
-  FBHMove,
   FreeBoardHistory,
-  ShortChessMove,
+  LongChessColor,
   noop,
 } from '@xmatter/util-kit';
+import { GameDisplayState } from '../types';
+import { Game, initialPlayState } from '../store';
 
 export type GameContextProps = {
-  displayState: {
-    fen: ChessFEN;
-    history: FBHHistory;
-    focusedIndex: FBHIndex;
-    lastMove?: ShortChessMove;
+  displayState: GameDisplayState;
+  realState: {
+    turn: LongChessColor;
+    game: Game;
   };
   actions: {
     onRefocus: (i: FBHIndex) => void;
@@ -26,6 +24,11 @@ export const initialGameContextState: GameContextProps = {
     fen: '',
     history: [],
     focusedIndex: FreeBoardHistory.getStartingIndex(),
+    turn: 'white',
+  },
+  realState: {
+    turn: 'white',
+    game: initialPlayState.game,
   },
   actions: {
     onRefocus: noop,

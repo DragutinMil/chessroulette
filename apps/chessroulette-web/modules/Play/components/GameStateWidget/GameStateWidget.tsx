@@ -25,11 +25,11 @@ export const GameStateWidget: React.FC<Props> = (props) => {
     <div className="flex flex-col gap-2">
       <div className="flex flex-row w-full justify-end">
         <div className="flex flex-col gap-1">
-          <PlayerBox
+          {/* <PlayerBox
             key={`${props.id}-white`}
             color="white"
             turn={props.game.status !== 'complete' ? turn : undefined}
-            active={
+            isActive={
               props.game.status === 'ongoing' &&
               props.game.lastMoveBy !== 'white' &&
               timeLeft['white'] > 0
@@ -42,7 +42,7 @@ export const GameStateWidget: React.FC<Props> = (props) => {
             key={`${props.id}-black`}
             color="black"
             turn={props.game.status !== 'complete' ? turn : undefined}
-            active={
+            isActive={
               props.game.status === 'ongoing' &&
               props.game.lastMoveBy !== 'black' &&
               timeLeft['black'] > 0
@@ -50,7 +50,7 @@ export const GameStateWidget: React.FC<Props> = (props) => {
             gameTimeClass={props.game.timeClass}
             timeLeft={timeLeft['black']}
             onTimerFinished={props.onTimerFinished}
-          />
+          /> */}
         </div>
       </div>
     </div>

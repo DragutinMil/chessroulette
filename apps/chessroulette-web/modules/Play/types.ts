@@ -1,3 +1,10 @@
+import {
+  ChessFEN,
+  FBHHistory,
+  FBHIndex,
+  LongChessColor,
+  ShortChessMove,
+} from '@xmatter/util-kit';
 import z from 'zod';
 
 export type GameStatus = 'pending' | 'ongoing' | 'complete';
@@ -22,4 +29,22 @@ export const chessGameTimeLimitMsMap: ChessGameTimeMap = {
   blitz: 300000,
   rapid: 600000,
   untimed: -1,
+};
+
+export type GameDisplayState = {
+  fen: ChessFEN;
+  history: FBHHistory;
+  focusedIndex: FBHIndex;
+  turn: LongChessColor;
+  lastMove?: ShortChessMove;
+};
+
+export type PlayerInfo = {
+  color: LongChessColor;
+  displayName?: string;
+};
+
+export type PlayersBySide = {
+  home: PlayerInfo;
+  away: PlayerInfo;
 };

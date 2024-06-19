@@ -1,10 +1,14 @@
 import {
+  ChessFENBoard,
   ChessPGN,
   FBHHistory,
   FBHIndex,
   FreeBoardHistory,
+  LongChessColor,
   pgnToFen,
+  toLongColor,
 } from '@xmatter/util-kit';
+import { GameDisplayState } from '../types';
 
 const getLastMove = (history: FBHHistory, atIndex: FBHIndex) => {
   const lm = FreeBoardHistory.findMoveAtIndex(history, atIndex);
@@ -12,21 +16,26 @@ const getLastMove = (history: FBHHistory, atIndex: FBHIndex) => {
   return lm?.isNonMove ? undefined : lm;
 };
 
-// TODO: @deprecate this in favor of modules/Play getGameDisplayState
-export const getDisplayStateFromPgn = (
-  pgn: ChessPGN,
-  focusedIndex?: FBHIndex
-) => {
+export const getGameDisplayState = ({
+  pgn,
+  focusedIndex,
+}: {
+  pgn: ChessPGN;
+  focusedIndex?: FBHIndex;
+}): GameDisplayState => {
   const allHistory = FreeBoardHistory.pgnToHistory(pgn);
 
   if (!focusedIndex) {
     const lastFocusedIndex = FreeBoardHistory.getLastIndexInHistory(allHistory);
 
+    const fen = pgnToFen(pgn);
+
     return {
-      fen: pgnToFen(pgn),
+      fen,
       history: allHistory,
       focusedIndex: FreeBoardHistory.getLastIndexInHistory(allHistory),
       lastMove: getLastMove(allHistory, lastFocusedIndex),
+      turn: toLongColor(new ChessFENBoard(fen).getFenState().turn),
     } as const;
   }
 
@@ -35,10 +44,16 @@ export const getDisplayStateFromPgn = (
     FreeBoardHistory.incrementIndex(focusedIndex)
   );
 
+  const fen = FreeBoardHistory.historyToFen(historyAtIndex);
+
   return {
-    fen: FreeBoardHistory.historyToFen(historyAtIndex),
+    fen,
     history: allHistory,
     focusedIndex: lastFocusedIndex,
     lastMove: getLastMove(historyAtIndex, lastFocusedIndex),
+    turn: toLongColor(new ChessFENBoard(fen).getFenState().turn),
   };
 };
+
+export const getGameTurn = (pgn: ChessPGN): LongChessColor =>
+  toLongColor(new ChessFENBoard(pgnToFen(pgn)).getFenState().turn);

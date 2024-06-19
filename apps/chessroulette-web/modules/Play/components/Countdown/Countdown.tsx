@@ -8,7 +8,7 @@ import { lpad, timeLeftToInterval, timeLeftToTimeUnits } from '../../lib/utils';
 type Props = {
   gameTimeClass: GameTimeClass;
   timeLeft: number;
-  active: boolean;
+  isActive: boolean;
   onFinished?: () => void;
   className?: string;
   thumbnail?: boolean;
@@ -34,7 +34,7 @@ export const Countdown: React.FC<Props> = ({
     () => {
       setTimeLeft((prev) => prev - interval);
     },
-    finished || !props.active ? undefined : interval
+    finished || !props.isActive ? undefined : interval
   );
 
   useEffect(() => {
@@ -44,7 +44,7 @@ export const Countdown: React.FC<Props> = ({
   useEffect(() => {
     setInterval(timeLeftToInterval(timeLeft));
 
-    if (timeLeft <= 0 && props.active) {
+    if (timeLeft <= 0 && props.isActive) {
       setFinished(true);
     }
   }, [timeLeft]);
@@ -76,7 +76,7 @@ export const Countdown: React.FC<Props> = ({
       <CountdownDisplay
         major={major}
         minor={minor}
-        active={props.active}
+        active={props.isActive}
         timeLeft={timeLeft}
         canShowMilliseconds={canShowMilliseconds}
         thumbnail={props.thumbnail}

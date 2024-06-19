@@ -1,32 +1,33 @@
 import React from 'react';
 import { Countdown } from '../Countdown/Countdown';
-import { ChessColor, toShortColor } from '@xmatter/util-kit';
-import { GameTimeClass } from '../../types';
+import { GameTimeClass, PlayerInfo } from '../../types';
 
 type Props = {
-  color: ChessColor; //TODO - here replace with Player name from User record once we start using them
-  active: boolean;
-  turn: ChessColor | undefined; // TODO maybe improve logic
+  playerInfo: PlayerInfo;
+  isActive: boolean;
   gameTimeClass: GameTimeClass;
   timeLeft: number;
   onTimerFinished: () => void;
 };
 
 export const PlayerBox: React.FC<Props> = (props) => {
+  const display = props.playerInfo.displayName
+    ? `${props.playerInfo.displayName} (${props.playerInfo.color})`
+    : props.playerInfo.color;
+
   return (
-    <div className="flex flex-row gap-3 items-center content-center">
+    <div className="flex flex-1 gap-3 items-center justify-between">
       <div
-        className={`capitalize w-12 ${
-          props.turn &&
-          toShortColor(props.turn) === toShortColor(props.color) &&
-          'text-purple-400 font-bold'
+        className={`capitalize text-lg ${
+          props.isActive ? 'text-white font-bold' : 'text-slate-400'
         }`}
       >
-        {props.color}
+        {display}
       </div>
+      {/* <div className='flex-1' /> */}
       {props.gameTimeClass !== 'untimed' && (
         <Countdown
-          active={props.active}
+          isActive={props.isActive}
           gameTimeClass={props.gameTimeClass}
           timeLeft={props.timeLeft}
           onFinished={props.onTimerFinished}

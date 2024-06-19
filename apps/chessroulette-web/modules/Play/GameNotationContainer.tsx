@@ -1,7 +1,16 @@
-import { FreeBoardNotation } from 'apps/chessroulette-web/components/FreeBoardNotation';
+import {
+  FreeBoardNotation,
+  FreeBoardNotationProps,
+} from 'apps/chessroulette-web/components/FreeBoardNotation';
 import { useGame } from './providers/useGame';
+import { noop } from '@xmatter/util-kit';
 
-export const GameNotationContainer = () => {
+type Props = Pick<
+  FreeBoardNotationProps,
+  'emptyContent' | 'className' | 'containerClassName'
+>;
+
+export const GameNotationContainer = (props: Props) => {
   const { displayState, actions } = useGame();
 
   return (
@@ -9,8 +18,9 @@ export const GameNotationContainer = () => {
       history={displayState.history}
       focusedIndex={displayState.focusedIndex}
       canDelete={false}
-      onDelete={() => {}}
+      onDelete={noop}
       onRefocus={actions.onRefocus}
+      {...props}
     />
   );
 };
