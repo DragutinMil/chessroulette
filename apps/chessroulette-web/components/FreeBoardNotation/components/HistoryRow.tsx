@@ -5,7 +5,6 @@ import {
   FBHIndex,
   FBHMove,
   FBHRecursiveIndexes,
-  FBHRecursiveMove,
   FBHTurn,
 } from '@xmatter/util-kit';
 import { Text } from '../../Text';

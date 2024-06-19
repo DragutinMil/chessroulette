@@ -3,11 +3,11 @@ import { Game, GameOffer, PlayActions } from './store';
 import { UserId, UsersMap } from '../user/type';
 import { Playboard } from 'apps/chessroulette-web/components/Boards';
 import { useCallback, useMemo } from 'react';
-import { getDisplayStateFromPgn } from '../room/activities/Meetup/utils';
 import { GameStateDialog } from './components/GameStateDialog/GameStateDialog';
 import { RIGHT_SIDE_SIZE_PX } from '../room/activities/Learn/components/LearnBoard';
 import { PanelResizeHandle } from 'react-resizable-panels';
 import { useCanPlay } from './hooks/useCanPlay';
+import { useGame } from './providers/useGame';
 
 type Props = {
   boardSizePx: number;
@@ -38,10 +38,7 @@ export const GameBoardContainer = ({
     [isBoardFlipped, game.orientation]
   );
 
-  const { fen, lastMove } = useMemo(
-    () => getDisplayStateFromPgn(game.pgn),
-    [game.pgn]
-  );
+  const { displayState } = useGame();
 
   const canPlay = useCanPlay(game, players);
 
@@ -68,8 +65,8 @@ export const GameBoardContainer = ({
   return (
     <Playboard
       sizePx={boardSizePx}
-      fen={fen}
-      lastMove={lastMove}
+      fen={displayState.fen}
+      lastMove={displayState.lastMove}
       canPlay={canPlay}
       overlayComponent={
         <GameStateDialog

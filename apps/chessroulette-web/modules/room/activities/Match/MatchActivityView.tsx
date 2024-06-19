@@ -1,6 +1,6 @@
 import { GameProvider } from 'apps/chessroulette-web/modules/Play';
 import { DesktopRoomLayout } from '../../components/DesktopRoomLayout';
-import { GameNotation } from 'apps/chessroulette-web/modules/Play/GameNotation';
+import { GameNotationContainer } from 'apps/chessroulette-web/modules/Play/GameNotationContainer';
 import { GameStateWidget } from 'apps/chessroulette-web/modules/Play/components/GameStateWidget/GameStateWidget';
 import { UserId, UsersMap } from 'apps/chessroulette-web/modules/user/type';
 import { IceServerRecord } from 'apps/chessroulette-web/providers/PeerToPeerProvider/type';
@@ -72,17 +72,15 @@ export const MatchActivityView = ({
       <DesktopRoomLayout
         rightSideSize={RIGHT_SIDE_SIZE_PX}
         mainComponent={({ boardSize }) => (
-          <div>
-            <GameBoardContainer
-              boardSizePx={boardSize}
-              isBoardFlipped={isBoardFlipped}
-              // TODO: All of these can be provided from the GamePovider
-              game={game}
-              dispatch={dispatch}
-              playerId={userId}
-              players={matchState.players}
-            />
-          </div>
+          <GameBoardContainer
+            boardSizePx={boardSize}
+            isBoardFlipped={isBoardFlipped}
+            // TODO: All of these can be provided from the GamePovider
+            game={game}
+            dispatch={dispatch}
+            playerId={userId}
+            players={matchState.players}
+          />
         )}
         rightComponent={
           <div className="flex flex-col flex-1 min-h-0 gap-4">
@@ -130,8 +128,8 @@ export const MatchActivityView = ({
               White {results.white} | Black {results.black}
             </div>
             <div className="bg-slate-700 p-3 flex flex-col flex-1 min-h-0 rounded-lg shadow-2xl overflow-y-scroll">
-              <GameNotation />
-              <pre
+              <GameNotationContainer />
+              {/* <pre
                 className="text-xs"
                 style={
                   {
@@ -140,7 +138,7 @@ export const MatchActivityView = ({
                 }
               >
                 {JSON.stringify(state, null, 2)}
-              </pre>
+              </pre> */}
               {/* <FreeBoardNotation
               history={displayState.history}
               focusedIndex={displayState.focusedIndex}

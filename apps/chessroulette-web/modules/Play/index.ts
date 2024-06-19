@@ -1,2 +1,2 @@
 export * as PlayStore from './store';
-export * from './GameProvider';
+export * from './providers/GameProvider';
