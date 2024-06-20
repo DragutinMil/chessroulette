@@ -5,6 +5,7 @@
   "scripts": {
     "tsc-web": "tsc -b apps/chessroulette-web",
     "seed": "node -r dotenv/config ./scripts/seed.js",
+    "prisma-push": "npx prisma db push --schema apps/chessroulette-web/prisma/schema.prisma",
     "tsc-chessroulette": "npx tsc -b apps/chessroulette-web",
     "test": "jest",
     "build-movex-chessroulette": "npx movex build --path ./apps/chessroulette-web/movex.config.ts",
