@@ -26,7 +26,9 @@ export type InputState =
       chapterState: undefined;
     };
 
-type InputAction =
+export type AcvtiveInputState = Extract<InputState, { isActive: true }>;
+
+export type InputAction =
   | Action<
       'activate',
       {
@@ -61,11 +63,11 @@ export default (
   prev: InputState = initialInputState,
   action: InputAction
 ): InputState => {
-  console.group('Input Action', action.type);
-  console.log('payload', (action as any).payload);
-  console.log('prev', prev);
-  console.log('');
-  console.groupEnd();
+  // console.group('Input Action', action.type);
+  // console.log('payload', (action as any).payload);
+  // console.log('prev', prev);
+  // console.log('');
+  // console.groupEnd();
 
   if (action.type === 'activate') {
     return {

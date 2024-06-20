@@ -1,11 +1,11 @@
-import { getServerSession } from 'next-auth';
 import { ResourceIdentifier } from 'movex-core-util';
-import { authOptions } from 'apps/chessroulette-web/services/auth';
-import RoomTemplate from 'apps/chessroulette-web/templates/RoomTemplate';
 import { Metadata } from 'next';
+import { authOptions } from 'apps/chessroulette-web/services/Auth';
+import RoomTemplate from 'apps/chessroulette-web/templates/RoomTemplate';
 import { RoomContainer } from 'apps/chessroulette-web/modules/room/RoomContainer';
-import { metadata as rootMetadata } from '../../../../page';
+import { metadata as rootMetadata } from '../../../page';
 import { twilio } from 'apps/chessroulette-web/services/twiliio';
+import { getCustomServerSession } from 'apps/chessroulette-web/services/Auth/lib';
 
 export const metadata: Metadata = {
   title: `Room | ${rootMetadata.title}`,
@@ -15,13 +15,13 @@ export default async function Page({
   params,
   searchParams,
 }: {
-  params: { id: string };
+  params: { roomId: string };
   searchParams: Partial<{ theme: string }>;
 }) {
-  const session = (await getServerSession(authOptions)) || undefined;
+  const session = (await getCustomServerSession(authOptions)) || undefined;
   const iceServers = await twilio.getIceServers();
 
-  const id = decodeURIComponent(params.id);
+  const id = decodeURIComponent(params.roomId);
   const rid: ResourceIdentifier<'room'> = `room:${id}`;
 
   return (
@@ -31,7 +31,6 @@ export default async function Page({
       roomId={id}
       activity="learn"
     >
-      {/* // TODO: Here can show suspense with loading of a none room or smtg for server rendering! */}
       <RoomContainer rid={rid} iceServers={iceServers} activity="learn" />
     </RoomTemplate>
   );

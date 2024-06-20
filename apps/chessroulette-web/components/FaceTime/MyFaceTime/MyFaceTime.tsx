@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-// import { getAVStreaming, AVStreamingConstraints, AVStreaming } from 'src/services/AVStreaming';
 import { FaceTime, FaceTimeProps } from '../FaceTime/FaceTime';
 import {
   AVStreaming,
@@ -11,8 +10,6 @@ import {
 } from 'apps/chessroulette-web/services/AVStreaming';
 import { PeerStreamingConfig } from 'apps/chessroulette-web/providers/PeerToPeerProvider/type';
 import useInstance from '@use-it/instance';
-// import useInstance from '@use-it/instance';
-// import { PeerStreamingConfig } from 'src/providers/PeerConnectionProvider';
 
 type Props = Omit<FaceTimeProps, 'streamConfig'> & {
   constraints?: AVStreamingConstraints;
@@ -57,7 +54,7 @@ export const MyFaceTime: React.FC<Props> = ({
     } else {
       avStreamingInstance.updateConstraints(DEFAULT_AV_STREAMING_CONSTRAINTS);
     }
-  }, [constraints?.audio, constraints?.video])
+  }, [constraints?.audio, constraints?.video]);
 
   return (
     <FaceTime

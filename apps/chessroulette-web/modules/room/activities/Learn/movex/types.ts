@@ -16,8 +16,11 @@ import { Action } from 'movex-core-util';
 export type LearnActivityState = {
   activityType: 'learn';
   activityState: {
+    // TODO: This is the LessonModel induced LessonState
     loadedChapterId: Chapter['id'];
     chaptersMap: Record<Chapter['id'], Chapter>;
+
+    // TODO: This should only be last chapter Index or smtg like that, because otherwise it skips counts if deleting the last one
     chaptersIndex: number;
   };
 };
@@ -46,8 +49,6 @@ export type ChapterBoardState = {
 
   arrowsMap: ArrowsMap;
   circlesMap: CirclesMap;
-
-  // TODO: This make required once refactored
   orientation: ChessColor;
 };
 

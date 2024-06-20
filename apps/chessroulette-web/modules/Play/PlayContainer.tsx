@@ -5,15 +5,14 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { PanelResizeHandle } from 'react-resizable-panels';
 import { GameStateWidget } from './components/GameStateWidget/GameStateWidget';
 import { GameActionsProvider } from './providers/GameActionsProvider';
-import { GameActions } from './components/GameActions/GameActions';
 import { GameStateDialog } from './components/GameStateDialog/GameStateDialog';
 import { Playboard } from 'apps/chessroulette-web/components/Boards';
 import { FreeBoardNotation } from 'apps/chessroulette-web/components/FreeBoardNotation';
 import { getDisplayStateFromPgn } from '../room/activities/Meetup/utils';
-import { DesktopRoomLayout } from '../room/components/DesktopRoomLayout';
 import { RIGHT_SIDE_SIZE_PX } from '../room/activities/Learn/components/LearnBoard';
 import { CameraPanel } from '../room/components/CameraPanel';
 import { PlayActions, PlayState } from './store';
+import { ResizableDesktopLayout } from 'apps/chessroulette-web/templates/ResizableDesktopLayout';
 
 export type Props = {
   state: PlayState;
@@ -96,7 +95,7 @@ export const PlayContainer = ({
 
   return (
     <GameActionsProvider game={state.game} players={players} playerId={userId}>
-      <DesktopRoomLayout
+      <ResizableDesktopLayout
         rightSideSize={RIGHT_SIDE_SIZE_PX}
         mainComponent={({ boardSize }) => (
           <Playboard

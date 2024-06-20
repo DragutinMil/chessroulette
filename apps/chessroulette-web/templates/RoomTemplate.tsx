@@ -2,17 +2,17 @@ import Header from '../components/Header';
 import { RoomSideMenu } from '../modules/room/components/RoomSideMenu';
 import { toImgPath } from '../lib/misc';
 import { CSSProperties } from 'react';
-import { Session } from 'next-auth';
 import { OnboardingWidget } from '../modules/Onboarding';
 import bkg_2 from 'apps/chessroulette-web/templates/bkg_2.svg';
 import { ActivityState } from '../modules/room/activities/movex';
+import { CustomSession } from '../services/Auth';
 
 type Props = React.PropsWithChildren & {
   activity: ActivityState['activityType'];
   roomId?: string;
   contentClassname?: string;
   themeName?: string;
-  session?: Session;
+  session?: CustomSession;
 };
 
 export default function RoomTemplate(props: Props) {
@@ -29,7 +29,7 @@ export default function RoomTemplate(props: Props) {
   return (
     <div className="flex h-screen w-screen" style={style}>
       <div className="flex flex-col flex-1">
-        <Header themeName={props.themeName} roomId={props.roomId} />
+        <Header themeName={props.themeName} showConnectionStatus />
         <div
           className={`
              ml-[max(env(safe-area-inset-left),1.5rem)]

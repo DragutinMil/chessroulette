@@ -1,26 +1,27 @@
 'use client';
 
-import { useEffect } from 'react';
-import { MovexProvider } from 'movex-react';
-import { captureEvent, setUser } from '@sentry/nextjs';
+import React, { useEffect } from 'react';
+import { MovexProvider as NativeMovexProvider } from 'movex-react';
+import { captureEvent, setUser as setSentryUser } from '@sentry/nextjs';
 import { isOneOf } from '@xmatter/util-kit';
-import movexConfig from '../movex.config';
-import { config } from '../config';
-import { useUser } from '../modules/user/hooks';
+import movexConfig from '../../movex.config';
+import { config } from '../../config';
+import { useSessionUserOrSetAsGuest } from '../../modules/user/hooks';
+import { CustomSession } from '../../services/Auth';
 
-export type MovexClientInfo = {
-  displayName: string;
-};
+export type Props = React.PropsWithChildren<{
+  session?: CustomSession;
+}>;
 
-export default (props: React.PropsWithChildren) => {
-  const user = useUser();
+export const MovexProvider = React.memo(({ session, children }: Props) => {
+  const user = useSessionUserOrSetAsGuest(session);
 
   useEffect(() => {
-    setUser(user);
+    setSentryUser(user);
   }, [user.id]);
 
   return (
-    <MovexProvider
+    <NativeMovexProvider
       movexDefinition={movexConfig}
       endpointUrl={config.MOVEX_ENDPOINT_URL}
       clientId={user.id}
@@ -46,7 +47,7 @@ export default (props: React.PropsWithChildren) => {
         },
       }}
     >
-      {props.children}
-    </MovexProvider>
+      {children}
+    </NativeMovexProvider>
   );
-};
+});

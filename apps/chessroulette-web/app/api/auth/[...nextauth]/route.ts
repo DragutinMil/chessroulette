@@ -1,4 +1,4 @@
-import { authOptions } from 'apps/chessroulette-web/services/auth';
+import { authOptions } from 'apps/chessroulette-web/services/Auth';
 import NextAuth from 'next-auth';
 
 const handler = NextAuth(authOptions);

@@ -13,15 +13,11 @@ export const getInCheckSquareMap = (fen: ChessFEN): SquareMap => {
 
   const fenBoardInstance = new ChessFENBoard(fen);
 
-  fenBoardInstance.setFenNotation({
-    fromState: { turn: 'w', enPassant: undefined },
-  });
+  fenBoardInstance.setFenState({ turn: 'w', enPassant: undefined });
 
   const fenAsWhiteTurn = fenBoardInstance.fen;
 
-  fenBoardInstance.setFenNotation({
-    fromState: { turn: 'b', enPassant: undefined },
-  });
+  fenBoardInstance.setFenState({ turn: 'b', enPassant: undefined });
 
   const fenAsBlackTurn = fenBoardInstance.fen;
 

@@ -8,7 +8,7 @@ datasource db {
 }
 
 model Account {
-  id                String  @id @default(cuid())
+  id                String    @id @default(cuid())
   userId            String
   type              String
   provider          String
@@ -20,6 +20,8 @@ model Account {
   scope             String?
   id_token          String? // @db.Text
   session_state     String?
+  createdAt         DateTime  @default(now()) @map(name: "created_at")
+  updatedAt         DateTime? @updatedAt @map(name: "updated_at") // How to make this updated automatically?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -27,27 +29,74 @@ model Account {
 }
 
 model Session {
-  id           String   @id @default(cuid())
-  sessionToken String   @unique
+  id           String    @id @default(cuid())
+  sessionToken String    @unique
   userId       String
   expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt    DateTime  @default(now()) @map(name: "created_at")
+  updatedAt    DateTime? @updatedAt @map(name: "updated_at") // How to make this updated automatically?
 }
 
 model User {
   id            String    @id @default(cuid())
-  name          String?
-  email         String?   @unique
-  emailVerified DateTime?
+  name          String? // needed only for next auth
+  firstName     String?
+  lastName      String?
+  displayName   String?
   image         String?
+  email         String    @unique
+  emailVerified DateTime?
+  createdAt     DateTime  @default(now()) @map(name: "created_at")
+  updatedAt     DateTime? @updatedAt @map(name: "updated_at") // How to make this updated automatically?
+  // avatarId   // For the avatar I'm thinking using someting like gravatar or a service
+  // avatar        String?
   accounts      Account[]
   sessions      Session[]
+  Lesson        Lesson[]
 }
 
 model VerificationToken {
   identifier String
-  token      String   @unique
+  token      String    @unique
   expires    DateTime
+  createdAt  DateTime  @default(now()) @map(name: "created_at")
+  updatedAt  DateTime? @updatedAt @map(name: "updated_at")
 
   @@unique([identifier, token])
+}
+
+// Lessons
+
+model Chapter {
+  id          String    @id @default(cuid())
+  name        String
+  // notation
+  startingFen String
+  Lesson      Lesson?   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  lessonId    String?
+  createdAt   DateTime  @default(now()) @map(name: "created_at")
+  updatedAt   DateTime? @updatedAt @map(name: "updated_at")
+}
+
+model Lesson {
+  id        String      @id @default(cuid())
+  name      String
+  createdBy User        @relation(fields: [userId], references: [id])
+  userId    String
+  chapters  Chapter[]
+  // tags      LessonTag[]
+  // LessonToTagConnection LessonToTagConnection[]
+  tags      LessonTag[]
+  createdAt DateTime    @default(now()) @map(name: "created_at")
+  updatedAt DateTime?   @updatedAt @map(name: "updated_at")
+}
+
+model LessonTag {
+  id        String    @id @default(cuid())
+  name      String
+  // LessonToTagConnection LessonToTagConnection[]
+  lessons   Lesson[]
+  createdAt DateTime  @default(now()) @map(name: "created_at")
+  updatedAt DateTime? @updatedAt @map(name: "updated_at")
 }

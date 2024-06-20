@@ -4,7 +4,6 @@ import { FBHIndex, noop, swapColor } from '@xmatter/util-kit';
 import { IceServerRecord } from 'apps/chessroulette-web/providers/PeerToPeerProvider/type';
 import { MeetupActivityState } from './movex';
 import { UserId, UsersMap } from 'apps/chessroulette-web/modules/user/type';
-import { DesktopRoomLayout } from '../../components/DesktopRoomLayout';
 import { RIGHT_SIDE_SIZE_PX } from '../Learn/components/LearnBoard';
 import { Playboard } from 'apps/chessroulette-web/components/Boards';
 import { CameraPanel } from '../../components/CameraPanel';
@@ -15,6 +14,7 @@ import { GameDisplayView } from './components/GameDisplayView';
 import { StartPositionIconButton } from 'apps/chessroulette-web/components/Chessboard';
 import { FreeBoardNotation } from 'apps/chessroulette-web/components/FreeBoardNotation';
 import { getDisplayStateFromPgn } from './utils';
+import { ResizableDesktopLayout } from 'apps/chessroulette-web/templates/ResizableDesktopLayout';
 
 export type Props = {
   roomId: string;
@@ -63,7 +63,7 @@ export const MeetupActivity = ({
   );
 
   return (
-    <DesktopRoomLayout
+    <ResizableDesktopLayout
       rightSideSize={RIGHT_SIDE_SIZE_PX}
       mainComponent={({ boardSize }) => (
         <Playboard

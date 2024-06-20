@@ -1,31 +1,31 @@
 import React from 'react';
 import { Avatar } from 'apps/chessroulette-web/components/Avatar';
-import { Session } from 'next-auth';
 import Link from 'next/link';
-import 'react-contexify/dist/ReactContexify.css';
 import { OnboardingMenuContainer } from './OnboardingMenuContainer';
+import { CustomSession } from 'apps/chessroulette-web/services/Auth';
+import { Text } from 'apps/chessroulette-web/components/Text';
+import 'react-contexify/dist/ReactContexify.css';
 
 type Props = {
-  session?: Session;
+  session?: CustomSession;
   containerClassName?: string;
 };
 
 export const OnboardingWidget: React.FC<Props> = ({
   session,
   containerClassName,
-}) => {
-  return (
-    <div className={`flex flex-col ${containerClassName}`}>
-      <OnboardingMenuContainer>
-        <Avatar shortName={'U'} />
+}) => (
+  <div className={`flex flex-col ${containerClassName}`}>
+    {session?.user ? (
+      <OnboardingMenuContainer session={session}>
+        <Avatar shortName={session.user.displayName || 'T'} />
       </OnboardingMenuContainer>
-      {/* {session?.user ? (
-        <OnboardingMenuContainer>
-          <Avatar shortName={session.user.name || 'T'} />
-        </OnboardingMenuContainer>
-      ) : (
-        <Link href="/api/auth/signin">Sign In</Link>
-      )} */}
-    </div>
-  );
-};
+    ) : (
+      <div className="flex relative w-12 h-12 justify-center items-center text-xs text-slate-400">
+        <Link href="/api/auth/signin" className="text-sm">
+          <Text>Sign In</Text>
+        </Link>
+      </div>
+    )}
+  </div>
+);

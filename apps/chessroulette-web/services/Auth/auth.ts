@@ -1,12 +1,10 @@
 import { AuthOptions } from 'next-auth';
-import EmailProvider from 'next-auth/providers/email';
-
-// import type { NextAuthConfig } from 'next-auth';
-// import { appConfig } from '.';
-
-import { PrismaAdapter } from '@auth/prisma-adapter';
 import { PrismaClient } from '@prisma/client';
-import { serverConfig } from '../config/config.server';
+import { PrismaAdapter } from '@auth/prisma-adapter';
+import EmailProvider from 'next-auth/providers/email';
+import { config } from 'apps/chessroulette-web/config';
+import { serverConfig } from '../../config/config.server';
+import { CustomSessionUser } from './types';
 
 const prisma = new PrismaClient();
 
@@ -58,6 +56,17 @@ export const authOptions: AuthOptions = {
           .then((profile) => ({
             ...profile,
             ...user,
+          }))
+          .then((r) => {
+            if (config.DEBUG_MODE) {
+              console.log('[Lichess Response]', r);
+            }
+            return r;
+          })
+          .then((r) => ({
+            id: r.id,
+            email: r.email,
+            displayName: r.username,
           }));
       },
       // clientSecret: 'client_secret',
@@ -72,6 +81,23 @@ export const authOptions: AuthOptions = {
     // session(...args) {
     //   return args;
     // }
+    async session({ session, user }) {
+      // Send properties to the client, like an access_token and user id from a provider.
+      // session.accessToken = token.accessToken
+      // session.user.id = token.id
+      // if (session.user) {
+      const resUser: CustomSessionUser = {
+        // ...session.user,
+        displayName: (user as CustomSessionUser).displayName,
+        id: user.id,
+      };
+
+      session.user = resUser;
+      // (session.user as any).id = user.id;
+      // }
+
+      return session;
+    },
   },
-  debug: true,
+  debug: config.DEBUG_MODE,
 } as AuthOptions;

@@ -26,3 +26,4 @@ export const getRandomStr = (N: number = 6) =>
     .join('');
 
 export const generateUserId = () => getRandomStr(5);
+export const generateGuestUserId = () => `guest-${getRandomStr(9)}`;

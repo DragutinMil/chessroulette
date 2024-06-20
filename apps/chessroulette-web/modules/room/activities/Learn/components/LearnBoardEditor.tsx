@@ -11,16 +11,18 @@ export type LearnBoardEditorProps = {
 } & Required<
   Pick<
     BoardEditorProps,
-    | 'onUpdated'
+    | 'onUpdateFen'
     | 'onClearCircles'
     | 'onFlipBoard'
     | 'onCircleDraw'
     | 'onArrowsChange'
+    | 'showSaveButtons'
     | 'onCancel'
     | 'onSave'
   >
 >;
 
+// @deprecate a not used anymore in favor of InstructorBoard direct usage
 export const LearnBoardEditor = ({
   state: { displayFen, orientation, arrowsMap, circlesMap },
   boardOrientation,

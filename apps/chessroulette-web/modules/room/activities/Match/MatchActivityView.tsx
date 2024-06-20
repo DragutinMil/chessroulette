@@ -1,5 +1,4 @@
 import { GameProvider } from 'apps/chessroulette-web/modules/Play';
-import { DesktopRoomLayout } from '../../components/DesktopRoomLayout';
 import { GameNotationContainer } from 'apps/chessroulette-web/modules/Play/GameNotationContainer';
 import { UserId, UsersMap } from 'apps/chessroulette-web/modules/user/type';
 import { IceServerRecord } from 'apps/chessroulette-web/providers/PeerToPeerProvider/type';
@@ -12,6 +11,7 @@ import { GameActionsContainer } from 'apps/chessroulette-web/modules/Play/compon
 import { useEffect, useMemo, useState } from 'react';
 import { PlayersBySide } from 'apps/chessroulette-web/modules/Play/types';
 import { PlayersInfoContainer } from 'apps/chessroulette-web/modules/Play/PlayersInfoContainer';
+import { ResizableDesktopLayout } from 'apps/chessroulette-web/templates/ResizableDesktopLayout';
 
 type Props = {
   roomId: string;
@@ -95,7 +95,7 @@ export const MatchActivityView = ({
 
   return (
     <GameProvider game={game} players={matchState.players} playerId={userId}>
-      <DesktopRoomLayout
+      <ResizableDesktopLayout
         rightSideSize={RIGHT_SIDE_SIZE_PX}
         mainComponent={({ boardSize }) => (
           <GameBoardContainer

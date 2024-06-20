@@ -137,6 +137,10 @@ export const JoinOrCreateRoom: React.FC<Props> = ({
             id: toResourceIdentifierObj(r.rid).resourceId,
             activity: activityParams.activity,
             userId: updateableSearchParams.get('userId') || generateUserId(),
+            // activity,
+            // TODO: This was removed when I introduced the Auth (May 4th)
+            // Don't think it's needed but need to ensure, especially around user given from outpost or guests
+            // userId: updateableSearchParams.get('userId') || generateUserId(),
           })
         );
       })
@@ -166,5 +170,9 @@ export const JoinOrCreateRoom: React.FC<Props> = ({
     );
   }
 
-  return null;
+  return (
+    <div className="flex flex-1 items-center justify-center h-screen w-screen text-lg  divide-x">
+      <span className="text-2xl pr-2">Loading...</span>
+    </div>
+  );
 };

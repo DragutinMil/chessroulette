@@ -30,7 +30,7 @@ export const useWidgetPanelTabsNavAsSearchParams = () => {
 
       getCurrentTabId: () => updateableSearchParams.get('tabId') || undefined,
       getCurrentTabIndex: () =>
-        Number(updateableSearchParams.get('tabIndex')) || undefined,
+        Number(updateableSearchParams.get('tabIndex')) || 0,
       getCurrentTabStackIndex: () =>
         Number(updateableSearchParams.get('tabStackIndex')) || undefined,
     }),

@@ -1,14 +1,15 @@
 import Link from 'next/link';
 import { Logo } from './Logo';
 import { OnboardingWidget } from '../modules/Onboarding';
-import { type Session } from 'next-auth';
 import ConnectionStatus from './ConnectionStatus';
+import { CustomSession } from '../services/Auth';
+import { config } from '../config';
 
 type Props = {
   themeName?: string;
+  showConnectionStatus?: boolean;
   showOnboarding?: boolean;
-  session?: Session;
-  roomId?: string;
+  session?: CustomSession;
 };
 
 export default (props: Props) => {
@@ -25,7 +26,7 @@ export default (props: Props) => {
         <Logo themeName={props.themeName} />
       </Link>
       <div className="flex gap-4">
-        <ConnectionStatus roomId={props.roomId} />
+        {props.showConnectionStatus && <ConnectionStatus />}
         {props.showOnboarding && <OnboardingWidget session={props.session} />}
       </div>
     </header>

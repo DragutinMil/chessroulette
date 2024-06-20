@@ -8,6 +8,7 @@ import { Icon } from 'apps/chessroulette-web/components/Icon';
 import { useMemo } from 'react';
 import { useRoomSettings } from '../hooks/useRoomSettings';
 import { roomSettingsIsPlay } from '../utils';
+import { IconButton } from 'apps/chessroulette-web/components/Button';
 
 type Props = {
   roomId: string;
@@ -66,6 +67,8 @@ export const RoomSideMenu = ({ roomId, activity }: Props) => {
           tooltip={roomSettings.joinRoomLinkTooltip || 'Invite Opponent'}
         />
       )}
+
+      <IconButton icon="BuildingLibraryIcon" size="sm" href="/learn/lessons" />
     </div>
   );
 };

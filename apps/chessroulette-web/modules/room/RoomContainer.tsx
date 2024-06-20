@@ -8,11 +8,9 @@ import { ActivityState } from './activities/movex';
 import { LearnActivity } from './activities/Learn';
 import { MeetupActivity } from './activities/Meetup/MeetupActivity';
 import { useMemo } from 'react';
-import { objectKeys } from '@xmatter/util-kit';
-import { UsersMap } from '../user/type';
-import { MovexClientInfo } from 'apps/chessroulette-web/providers/MovexProvider';
 import { PlayActivity } from './activities/Play/PlayActivity';
 import { MatchActivity } from './activities/Match/MatchActivity';
+import { movexSubcribersToUserMap } from 'apps/chessroulette-web/providers/MovexProvider';
 
 type Props = {
   rid: ResourceIdentifier<'room'>;
@@ -23,24 +21,10 @@ type Props = {
 export const RoomContainer = ({ iceServers, rid }: Props) => {
   const movexResource = useMovexBoundResourceFromRid(movexConfig, rid);
   const userId = useMovexClientId(movexConfig);
-  const participants = useMemo(() => {
-    if (!movexResource) {
-      return {};
-    }
-
-    return objectKeys(movexResource.subscribers).reduce(
-      (prev, nextSubscriberId) => ({
-        ...prev,
-        [nextSubscriberId]: {
-          id: nextSubscriberId,
-          displayName: (
-            movexResource.subscribers[nextSubscriberId].info as MovexClientInfo
-          ).displayName,
-        },
-      }),
-      {} as UsersMap
-    );
-  }, [movexResource?.subscribers]);
+  const participants = useMemo(
+    () => movexSubcribersToUserMap(movexResource?.subscribers || {}),
+    [movexResource?.subscribers]
+  );
 
   // This shouldn't really happen
   if (!userId) {
@@ -70,6 +54,11 @@ export const RoomContainer = ({ iceServers, rid }: Props) => {
       <LearnActivity
         {...commonActivityProps}
         remoteState={activity.activityState}
+        userId={userId}
+        roomId={toResourceIdentifierObj(rid).resourceId}
+        dispatch={movexResource?.dispatch}
+        participants={participants}
+        iceServers={iceServers}
       />
     );
   }

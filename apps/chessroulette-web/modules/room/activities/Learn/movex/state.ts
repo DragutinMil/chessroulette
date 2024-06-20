@@ -1,5 +1,5 @@
 import { ChessFENBoard, FreeBoardHistory } from '@xmatter/util-kit';
-import { Chapter, ChapterState, LearnActivityState } from './types';
+import type { Chapter, ChapterState, LearnActivityState } from './types';
 
 export const initialChapterState: ChapterState = {
   name: 'New Chapter', // TODO: Should it have a name?
@@ -22,13 +22,16 @@ export const initialDefaultChapter: Chapter = {
   id: '0',
 };
 
-export const initialLearnActivityState: LearnActivityState = {
-  activityType: 'learn',
-  activityState: {
+export const initialLearnStateActivityState: LearnActivityState['activityState'] =
+  {
     chaptersMap: {
       [initialDefaultChapter.id]: initialDefaultChapter,
     },
     loadedChapterId: initialDefaultChapter.id,
     chaptersIndex: 1,
-  },
+  };
+
+export const initialLearnActivityState: LearnActivityState = {
+  activityType: 'learn',
+  activityState: initialLearnStateActivityState,
 };

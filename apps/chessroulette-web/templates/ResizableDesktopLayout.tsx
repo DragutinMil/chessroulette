@@ -15,7 +15,7 @@ type Props = {
     | React.ReactNode;
 };
 
-export const DesktopRoomLayout = ({
+export const ResizableDesktopLayout = ({
   rightSideSize,
   mainComponent,
   rightComponent,
