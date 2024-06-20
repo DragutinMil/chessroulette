@@ -1,11 +1,11 @@
 import { JoinOrCreateRoom } from 'apps/chessroulette-web/modules/room/components/JoinOrCreateRoom';
+import { roomIdentifiableActivityParamsSchema } from 'apps/chessroulette-web/modules/room/io/paramsSchema';
 import { Metadata } from 'next';
 import { metadata as rootMetadata } from '../../../page';
-import { identifiableActivityParamsSchema } from 'apps/chessroulette-web/modules/room/io/paramsSchema';
 import { ErrorPage } from 'apps/chessroulette-web/appPages/ErrorPage';
 
 export const metadata: Metadata = {
-  title: `Join Room | ${rootMetadata.title}`,
+  title: `Join Or Create Room | ${rootMetadata.title}`,
 };
 
 export default async function Page({
@@ -16,7 +16,7 @@ export default async function Page({
   params: Record<string, string>;
 }) {
   const allParams = Object.assign(searchParams, params);
-  const result = identifiableActivityParamsSchema.safeParse(
+  const result = roomIdentifiableActivityParamsSchema.safeParse(
     Object.fromEntries(new URLSearchParams(allParams))
   );
 
@@ -24,7 +24,7 @@ export default async function Page({
     return <ErrorPage error={result.error} extra={allParams} />;
   }
 
-  const { id, ...activityParams } = result.data;
+  const { roomId, ...activityParams } = result.data;
 
   const nextParams = new URLSearchParams();
 
@@ -34,7 +34,14 @@ export default async function Page({
     }
   });
 
+  console.log('activityParams', activityParams);
+
   return (
-    <JoinOrCreateRoom mode="join" id={id} activityParams={activityParams} />
+    <JoinOrCreateRoom
+      mode="joinOrCreate"
+      roomId={roomId}
+      activityParams={activityParams}
+      // forwardSearchParamsString={nextParams.toString()}
+    />
   );
 }

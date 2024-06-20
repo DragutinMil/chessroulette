@@ -10,7 +10,8 @@ const truthyParam = z
   ])
   .default(0); // Set a default instead of failing the whole page
 
-const idParamsSchema = z.object({ id: z.string() }); // room id,;
+export const idParamsSchema = z.object({ id: z.string() }); // room id,;
+export const roomIdParamsSchema = z.object({ roomId: z.string() }); // room id,;
 
 const themeParamsSchema = z.object({
   theme: z.string(),
@@ -49,8 +50,6 @@ export const playActivityParamsSchema = z.object({
 //   }),
 // ]);
 
-
-
 // const x = {} as Zod.infer<typeof matchActivityParamsSchema>;
 
 export const activityParamsSchema = z
@@ -69,4 +68,11 @@ export const identifiableActivityParamsSchema =
 
 export type IdentifiableActivityParamsSchema = z.TypeOf<
   typeof identifiableActivityParamsSchema
+>;
+
+export const roomIdentifiableActivityParamsSchema =
+  activityParamsSchema.and(roomIdParamsSchema);
+
+export type RoomIdentifiableActivityParamsSchema = z.TypeOf<
+  typeof roomIdentifiableActivityParamsSchema
 >;

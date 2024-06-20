@@ -24,15 +24,15 @@ type Props = {
 } & (
   | {
       mode: 'join';
-      id: string;
+      roomId: string;
     }
   | {
       mode: 'joinOrCreate';
-      id?: string;
+      roomId?: string;
     }
   | {
       mode: 'create';
-      id?: undefined;
+      roomId?: undefined;
     }
 );
 
@@ -46,7 +46,7 @@ type ErrorType = 'RoomInexistent';
  */
 export const JoinOrCreateRoom: React.FC<Props> = ({
   activityParams,
-  id: roomId,
+  roomId,
   mode,
 }: Props) => {
   const roomResource = useMovexResourceType(movexConfig, 'room');

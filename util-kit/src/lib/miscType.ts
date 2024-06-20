@@ -32,6 +32,8 @@ export type DistributivePick<T, K extends keyof T> = T extends unknown
   : never;
 
 export type UnknownRecord = Record<string, unknown>;
+export type StringRecord = Record<string, string>;
+
 
 export type StringKeys<TRecord extends UnknownRecord> = Extract<
   keyof TRecord,
