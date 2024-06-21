@@ -15,7 +15,8 @@ import { GeneralPageTemplate } from 'apps/chessroulette-web/templates/GeneralPag
 import RoomTemplate from 'apps/chessroulette-web/templates/RoomTemplate';
 import Header from 'apps/chessroulette-web/components/Header';
 import { UpdateLessonContainer } from 'apps/chessroulette-web/modules/Learn/Lessons/UpdateLessonContainer';
-import { getCustomServerSession } from 'apps/chessroulette-web/services/Auth/lib';
+import { get_UNSAFE_URL_SESSION } from 'apps/chessroulette-web/services/Auth/lib';
+import { getCustomServerSession } from 'apps/chessroulette-web/services/Auth/getCustomServerSession';
 import { authOptions } from 'apps/chessroulette-web/services/Auth';
 
 export const metadata: Metadata = {
@@ -47,7 +48,7 @@ export default async function LessonPage({
   //   });
   // };
 
-  const session = await getCustomServerSession(authOptions);
+  const session = await get_UNSAFE_URL_SESSION(searchParams);
 
   if (!session) {
     return <div>No User</div>;
@@ -80,30 +81,4 @@ export default async function LessonPage({
       </div>
     </div>
   );
-
-  // return (
-  //   <AuthenticatedGeneralPage
-  //     render={async (session) => {
-  //       // const lessons = await getLessons(session.user);
-  //       const lesson = await findLesson(params);
-
-  //       if (!lesson) {
-  //         return <div>Should show error page</div>;
-  //       }
-
-  //       return (
-  //         <>
-  //           {/* {allParams && (
-  //             <div className="pb-2">
-  //               Params:
-  //               {JSON.stringify(allParams, null, 2)}
-  //             </div>
-  //           )} */}
-
-  //           <LessonPageView lesson={lesson} />
-  //         </>
-  //       );
-  //     }}
-  //   />
-  // );
 }

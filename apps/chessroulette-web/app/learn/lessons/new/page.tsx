@@ -1,8 +1,7 @@
 import { Metadata } from 'next';
 import z from 'zod';
 import { createLesson } from 'apps/chessroulette-web/modules/Learn/Lessons/apiActions';
-import { getCustomServerSession } from 'apps/chessroulette-web/services/Auth/lib';
-import { authOptions } from 'apps/chessroulette-web/services/Auth';
+import { get_UNSAFE_URL_SESSION } from 'apps/chessroulette-web/services/Auth/lib';
 import Header from 'apps/chessroulette-web/components/Header';
 import { CreateLessonContainer } from 'apps/chessroulette-web/modules/Learn/Lessons/CreateLessonContainer';
 
@@ -22,20 +21,8 @@ export default async function LessonPage({
   searchParams: Record<string, string>;
   params: { lessonId: string };
 }) {
-  // const allParams = Object.assign(searchParams, params);
-
-  // const result = paramsSchema.safeParse(
-  //   Object.fromEntries(new URLSearchParams(allParams))
-  // );
-
-  // const getLessons = (user: User) => {
-  //   return findUserLessons({
-  //     userId: user.id,
-  //     query: result.success ? result.data : {},
-  //   });
-  // };
-
-  const session = await getCustomServerSession(authOptions);
+  // const session = await getCustomServerSession(authOptions);
+  const session = await get_UNSAFE_URL_SESSION(searchParams);
 
   if (!session) {
     return <div>No User</div>;

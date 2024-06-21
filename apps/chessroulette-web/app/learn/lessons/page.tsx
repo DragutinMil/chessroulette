@@ -5,7 +5,7 @@ import z from 'zod';
 import { User } from 'apps/chessroulette-web/modules/user';
 import { LessonItem } from 'apps/chessroulette-web/modules/Learn/Lessons/components/LessonItem';
 import { LessonsList } from 'apps/chessroulette-web/modules/Learn/Lessons/components/LessonsList';
-import { getCustomServerSession } from 'apps/chessroulette-web/services/Auth/lib';
+import { get_UNSAFE_URL_SESSION } from 'apps/chessroulette-web/services/Auth/lib';
 import { CustomSession, authOptions } from '../../../services/Auth';
 import { GeneralPageTemplate } from 'apps/chessroulette-web/templates/GeneralPageTemplate';
 import { invoke } from '@xmatter/util-kit';
@@ -41,11 +41,13 @@ export default async function LessonsPage({
     });
   };
 
-  const session = await getCustomServerSession(authOptions);
+  const session = await get_UNSAFE_URL_SESSION(searchParams);
 
   if (!session) {
     return <div>No User</div>;
   }
+
+  console.log('Lessons Page >');
 
   return (
     <GeneralPageTemplate session={session}>
@@ -89,7 +91,10 @@ export default async function LessonsPage({
           </div>
         )}
 
-        <LessonsList lessons={await getLessons(session.user)} />
+        <LessonsList
+          lessons={await getLessons(session.user)}
+          session={session}
+        />
       </>
     </GeneralPageTemplate>
   );

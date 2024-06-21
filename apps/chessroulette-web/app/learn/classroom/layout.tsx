@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import { authOptions } from 'apps/chessroulette-web/services/Auth';
-import { getCustomServerSession } from 'apps/chessroulette-web/services/Auth/lib';
+import { getCustomServerSession } from 'apps/chessroulette-web/services/Auth/getCustomServerSession';
 import { MovexProvider } from 'apps/chessroulette-web/providers/MovexProvider';
 
 export const metadata: Metadata = {

@@ -1,5 +1,5 @@
 import { CustomSession, authOptions } from '../services/Auth';
-import { getCustomServerSession } from 'apps/chessroulette-web/services/Auth/lib';
+import { getCustomServerSession } from 'apps/chessroulette-web/services/Auth/getCustomServerSession';
 import { GeneralPageTemplate } from 'apps/chessroulette-web/templates/GeneralPageTemplate';
 import { Awaitable } from 'next-auth';
 import { PropsWithChildren } from 'react';

@@ -1,6 +1,7 @@
 'use client';
 
 import { LessonEditorView } from './LessonEditor/LessonEditorView';
+import { useLearnRoutes_WITH_UNSAFE_SESSOIN_IN_URL } from './hooks/useLearnRoutes_WITH_UNSAFE_SESSOIN_IN_URL';
 import { LessonModel } from './types';
 import {
   lessonModelToLessonState,
@@ -13,6 +14,10 @@ type Props = {
 
 export const UpdateLessonContainer = ({ lesson }: Props) => {
   const lessonState = lessonModelToLessonState(lesson);
+
+  const x = useLearnRoutes_WITH_UNSAFE_SESSOIN_IN_URL()
+
+  console.log('UpdateLessonContainer', x);
 
   return (
     <LessonEditorView

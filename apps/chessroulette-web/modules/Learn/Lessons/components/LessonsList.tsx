@@ -1,13 +1,19 @@
+// 'use client';
+
 import Link from 'next/link';
 import { LessonModel } from '../types';
 import { LessonItem } from './LessonItem';
-import { learnRoutes } from '../links';
+import { CustomSession } from 'apps/chessroulette-web/services/Auth';
+import { getLearnRoutes_WITH_UNSAFE_SESSION_IN_URL } from '../links';
 
 type Props = {
   lessons: LessonModel[];
+  session: CustomSession;
 };
 
-export const LessonsList = ({ lessons }: Props) => {
+export const LessonsList = ({ lessons, session }: Props) => {
+  const learnRoutesUrls = getLearnRoutes_WITH_UNSAFE_SESSION_IN_URL(session);
+
   return (
     <div className="">
       <header className="pb-4">
@@ -20,7 +26,11 @@ export const LessonsList = ({ lessons }: Props) => {
 
           //   <pre>{JSON.stringify(lesson, null, 2)}</pre>
           // </div>
-          <Link key={lesson.id} href={learnRoutes.newLesson(lesson.id)} className="w-1/4 block">
+          <Link
+            key={lesson.id}
+            href={learnRoutesUrls.newLesson(lesson.id)}
+            className="w-1/4 block"
+          >
             <LessonItem key={lesson.id} lesson={lesson} />
           </Link>
         ))}

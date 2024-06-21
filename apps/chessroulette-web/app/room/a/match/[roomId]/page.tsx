@@ -5,7 +5,7 @@ import { Metadata } from 'next';
 import { RoomContainer } from 'apps/chessroulette-web/modules/room/RoomContainer';
 import { twilio } from 'apps/chessroulette-web/services/twiliio';
 import { metadata as rootMetadata } from '../../../../page';
-import { getCustomServerSession } from 'apps/chessroulette-web/services/Auth/lib';
+import { getCustomServerSession } from 'apps/chessroulette-web/services/Auth/getCustomServerSession';
 import { roomIdParamsSchema } from 'apps/chessroulette-web/modules/room/io/paramsSchema';
 import { StringRecord } from '@xmatter/util-kit';
 import { ErrorPage } from 'apps/chessroulette-web/appPages/ErrorPage';
