@@ -112,6 +112,7 @@ export const PlayContainer = ({
                     payload: { byPlayer: userId, offerType: 'rematch' },
                   });
                 }}
+                activity="play"
                 onAcceptOffer={({ offer }) => {
                   if (offer === 'draw') {
                     dispatch({ type: 'play:acceptOfferDraw' });

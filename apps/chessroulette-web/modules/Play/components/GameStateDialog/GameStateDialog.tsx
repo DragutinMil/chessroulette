@@ -4,12 +4,17 @@ import { Dialog } from 'apps/chessroulette-web/components/Dialog';
 import { Text } from 'apps/chessroulette-web/components/Text';
 import { useGameActionsContext } from '../../providers/useGameActions';
 import { GameOffer } from '../../store';
+import { ClipboardCopyButton } from 'apps/chessroulette-web/components/ClipboardCopyButton';
+import { useRoomLinkId } from 'apps/chessroulette-web/modules/room/hooks/useRoomLinkId';
+import { RoomActivityType } from 'apps/chessroulette-web/modules/room/links';
+import Link from 'next/link';
 
 type Props = {
   onAcceptOffer: ({ offer }: { offer: GameOffer['type'] }) => void;
   onDenyOffer: () => void;
   onRematchRequest: () => void;
   onCancelOffer: () => void;
+  activity: RoomActivityType;
   // roomId: string;
 };
 
@@ -18,6 +23,7 @@ export const GameStateDialog: React.FC<Props> = ({
   onAcceptOffer,
   onDenyOffer,
   onCancelOffer,
+  activity,
   // roomId,
 }) => {
   const [gameResultSeen, setGameResultSeen] = useState(false);
@@ -27,6 +33,7 @@ export const GameStateDialog: React.FC<Props> = ({
     players,
     playerId,
   } = useGameActionsContext();
+  const { joinRoomLink } = useRoomLinkId(activity);
 
   useEffect(() => {
     // Everytime the game state changes, reset the seen!
@@ -42,10 +49,35 @@ export const GameStateDialog: React.FC<Props> = ({
         <Dialog
           title="Waiting for Opponent"
           content={
-            <div>
-              {/* // TODO: Fix this */}
-              {/* <RoomSideMenu activity="play" roomId={roomId} /> */}
-              TODO: Show invite Link
+            <div className="w-full flex justify-center">
+              {joinRoomLink && (
+                <ClipboardCopyButton
+                  buttonComponentType="Button"
+                  value={joinRoomLink}
+                  render={(copied) => (
+                    <>
+                      {copied ? (
+                        <Link
+                          href={joinRoomLink}
+                          target="_blank"
+                          className="bg-transparent"
+                          onClick={(e) => e.preventDefault()}
+                        >
+                          <div className="bg-green-400 text-black p-3 rounded-xl">
+                            Copied
+                          </div>
+                        </Link>
+                      ) : (
+                        <div className="bg-purple-400 p-3 text-black rounded-xl">
+                          Copy Invite URL
+                        </div>
+                      )}
+                    </>
+                  )}
+                  type="clear"
+                  size="sm"
+                />
+              )}
             </div>
           }
         />
