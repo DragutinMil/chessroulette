@@ -12,6 +12,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { PlayersBySide } from 'apps/chessroulette-web/modules/Play/types';
 import { PlayersInfoContainer } from 'apps/chessroulette-web/modules/Play/PlayersInfoContainer';
 import { ResizableDesktopLayout } from 'apps/chessroulette-web/templates/ResizableDesktopLayout';
+import { useGameActionsContext } from 'apps/chessroulette-web/modules/Play/providers/useGameActions';
 
 type Props = {
   roomId: string;
@@ -40,12 +41,14 @@ export const MatchActivityView = ({
   } = state;
 
   const [waitingForNextGame, setWaitingForNextGame] = useState<number>();
+  const { lastOffer } = useGameActionsContext();
 
   useEffect(() => {
     if (
       game.status === 'complete' &&
       matchState.status !== 'complete' &&
       !waitingForNextGame
+      // !lastOffer?.type ===
     ) {
       const waitMs = 3 * 1000;
       setTimeout(() => {
@@ -68,15 +71,24 @@ export const MatchActivityView = ({
   }, [matchState]);
 
   const playersBySide = useMemo((): PlayersBySide => {
+    const whiteDisplayName = participants[matchState.players.white.id]
+      ? participants[matchState.players.white.id].displayName
+      : undefined;
+    const blackDisplayName = participants[matchState.players.black.id]
+      ? participants[matchState.players.black.id].displayName
+      : undefined;
+
     if (userId === matchState.players.black.id) {
       return {
         home: {
           ...matchState.players.black,
           color: 'black',
+          ...(blackDisplayName && { displayName: blackDisplayName }),
         },
         away: {
           ...matchState.players.white,
           color: 'white',
+          ...(whiteDisplayName && { displayName: whiteDisplayName }),
         },
       };
     }
@@ -85,10 +97,12 @@ export const MatchActivityView = ({
       home: {
         ...matchState.players.white,
         color: 'white',
+        ...(whiteDisplayName && { displayName: whiteDisplayName }),
       },
       away: {
         ...matchState.players.black,
         color: 'black',
+        ...(blackDisplayName && { displayName: blackDisplayName }),
       },
     };
   }, [userId, matchState.players]);
@@ -100,6 +114,7 @@ export const MatchActivityView = ({
         mainComponent={({ boardSize }) => (
           <GameBoardContainer
             boardSizePx={boardSize}
+            activity="match"
             isBoardFlipped={isBoardFlipped}
             // TODO: All of these can be provided from the GamePovider
             game={game}
