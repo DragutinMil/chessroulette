@@ -1,7 +1,7 @@
 import { ChessColor, ChessSide } from '@xmatter/util-kit';
 import { PlayerBox } from './PlayerBox';
 import { Game } from '../store';
-import { PlayersBySide } from '../types';
+import { PlayersBySide, Results } from '../types';
 
 export type PlayersInfoProps = {
   players: PlayersBySide;
@@ -9,11 +9,13 @@ export type PlayersInfoProps = {
   game: Game;
   onTimerFinished: (side: ChessSide) => void;
   isGameOngoing: boolean;
+  results: Results;
 };
 
 export const PlayersInfo = ({
   players,
   game,
+  results,
   isGameOngoing,
   turn,
   onTimerFinished,
@@ -22,6 +24,7 @@ export const PlayersInfo = ({
     <PlayerBox
       key="away"
       playerInfo={players.away}
+      score={results[players.away.color]}
       isActive={isGameOngoing && turn === players.away.color}
       gameTimeClass={game.timeClass}
       timeLeft={game.timeLeft[players.away.color]}
@@ -30,6 +33,7 @@ export const PlayersInfo = ({
     <PlayerBox
       key="home"
       playerInfo={players.home}
+      score={results[players.home.color]}
       isActive={isGameOngoing && turn === players.home.color}
       gameTimeClass={game.timeClass}
       timeLeft={game.timeLeft[players.home.color]}

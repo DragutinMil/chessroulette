@@ -48,3 +48,8 @@ export type PlayersBySide = {
   home: PlayerInfo;
   away: PlayerInfo;
 };
+
+export type Results = {
+  black: number;
+  white: number;
+};

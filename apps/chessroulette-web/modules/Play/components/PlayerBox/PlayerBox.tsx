@@ -8,12 +8,13 @@ type Props = {
   gameTimeClass: GameTimeClass;
   timeLeft: number;
   onTimerFinished: () => void;
+  score: number;
 };
 
 export const PlayerBox: React.FC<Props> = (props) => {
   const display = props.playerInfo.displayName
-    ? `${props.playerInfo.displayName} (${props.playerInfo.color})`
-    : props.playerInfo.color;
+    ? `${props.score} ${props.playerInfo.displayName} (${props.playerInfo.color})`
+    : `${props.score} ${props.playerInfo.color}`;
 
   return (
     <div className="flex flex-1 gap-3 items-center justify-between">

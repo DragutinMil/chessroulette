@@ -9,7 +9,10 @@ import { GameBoardContainer } from 'apps/chessroulette-web/modules/Play/GameBoar
 import { CameraPanel } from '../../components/CameraPanel';
 import { GameActionsContainer } from 'apps/chessroulette-web/modules/Play/components/GameActionsContainers';
 import { useEffect, useMemo, useState } from 'react';
-import { PlayersBySide } from 'apps/chessroulette-web/modules/Play/types';
+import {
+  PlayersBySide,
+  Results,
+} from 'apps/chessroulette-web/modules/Play/types';
 import { PlayersInfoContainer } from 'apps/chessroulette-web/modules/Play/PlayersInfoContainer';
 import { ResizableDesktopLayout } from 'apps/chessroulette-web/templates/ResizableDesktopLayout';
 
@@ -58,7 +61,7 @@ export const MatchActivityView = ({
     }
   }, [game.status === 'complete', matchState.status, waitingForNextGame]);
 
-  const results = useMemo(() => {
+  const results = useMemo((): Results => {
     return matchState.completedPlays.reduce(
       (prev, nextPlay) => ({
         white: nextPlay.game.winner === 'white' ? prev.white + 1 : prev.white,
@@ -140,6 +143,7 @@ export const MatchActivityView = ({
             <div className="flex flex-row w-full">
               <PlayersInfoContainer
                 players={playersBySide}
+                results={results}
                 onTimerFinished={(side) => {
                   // TURN: Call the match dispatcher to end the game!
                   console.log('timer finished for side', side);
