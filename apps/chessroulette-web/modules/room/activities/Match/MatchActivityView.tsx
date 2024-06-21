@@ -12,7 +12,6 @@ import { useEffect, useMemo, useState } from 'react';
 import { PlayersBySide } from 'apps/chessroulette-web/modules/Play/types';
 import { PlayersInfoContainer } from 'apps/chessroulette-web/modules/Play/PlayersInfoContainer';
 import { ResizableDesktopLayout } from 'apps/chessroulette-web/templates/ResizableDesktopLayout';
-import { useGameActionsContext } from 'apps/chessroulette-web/modules/Play/providers/useGameActions';
 
 type Props = {
   roomId: string;
@@ -41,7 +40,6 @@ export const MatchActivityView = ({
   } = state;
 
   const [waitingForNextGame, setWaitingForNextGame] = useState<number>();
-  const { lastOffer } = useGameActionsContext();
 
   useEffect(() => {
     if (

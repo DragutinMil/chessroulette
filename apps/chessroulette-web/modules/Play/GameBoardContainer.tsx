@@ -43,7 +43,7 @@ export const GameBoardContainer = ({
 
   const { displayState } = useGame();
 
-  const canPlay = useCanPlay(game, players);
+  const canPlay = useCanPlay(game, players, playerId);
 
   const onAcceptOffer = useCallback(
     ({ offer }: { offer: GameOffer['type'] }) => {
