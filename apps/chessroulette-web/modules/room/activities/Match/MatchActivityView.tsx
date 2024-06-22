@@ -3,7 +3,7 @@ import { GameNotationContainer } from 'apps/chessroulette-web/modules/Play/GameN
 import { UserId, UsersMap } from 'apps/chessroulette-web/modules/user/type';
 import { IceServerRecord } from 'apps/chessroulette-web/providers/PeerToPeerProvider/type';
 import { MatchActivityActions, MatchActivityState } from './movex';
-import { DispatchOf } from '@xmatter/util-kit';
+import { DispatchOf, invoke } from '@xmatter/util-kit';
 import { RIGHT_SIDE_SIZE_PX } from '../Learn/components/LearnBoard';
 import { GameBoardContainer } from 'apps/chessroulette-web/modules/Play/GameBoardContainer';
 import { CameraPanel } from '../../components/CameraPanel';
@@ -17,6 +17,7 @@ import { PlayersInfoContainer } from 'apps/chessroulette-web/modules/Play/Player
 import { ResizableDesktopLayout } from 'apps/chessroulette-web/templates/ResizableDesktopLayout';
 import { useRoomLinkId } from '../../hooks/useRoomLinkId';
 import { MatchStateProvider } from 'apps/chessroulette-web/modules/Play/providers/MatchStateProvider';
+import { Text } from 'apps/chessroulette-web/components/Text';
 
 type Props = {
   roomId: string;
@@ -145,6 +146,17 @@ export const MatchActivityView = ({
                     iceServers={iceServers}
                     aspectRatio={16 / 9}
                   />
+                </div>
+              )}
+              {matchState.type === 'bestOf' && (
+                <div className="flex flex-row gap-2 w-full">
+                  <Text>Round</Text>
+                  {`${invoke(() => {
+                    const completedRounds = matchState.completedPlays.length;
+                    return completedRounds === matchState.rounds
+                      ? completedRounds
+                      : completedRounds + 1;
+                  })}/${matchState.rounds}`}
                 </div>
               )}
               <div className="flex flex-row w-full">

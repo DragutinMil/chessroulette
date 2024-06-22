@@ -25,8 +25,8 @@ export const GameStateDialog: React.FC<Props> = ({
   joinRoomLink,
 }) => {
   const [gameResultSeen, setGameResultSeen] = useState(false);
-  const { lastOffer, realState, players, playerId, displayState } = useGame();
-  const { type: matchType, status: matchStatus, rounds } = useMatch();
+  const { lastOffer, realState, players, playerId } = useGame();
+  const { type: matchType, status: matchStatus, completedPlays } = useMatch();
   const { game: gameState } = realState;
 
   useEffect(() => {
@@ -85,7 +85,11 @@ export const GameStateDialog: React.FC<Props> = ({
     ) {
       return (
         <Dialog
-          title="Game Ended"
+          title={
+            matchType === 'bestOf'
+              ? `Game ${completedPlays} Ended`
+              : 'Game Ended'
+          }
           content={
             <div className="flex flex-col gap-4 items-center">
               <div className="flex justify-center content-center text-center">
@@ -98,7 +102,7 @@ export const GameStateDialog: React.FC<Props> = ({
               </div>
               {matchType === 'bestOf' && matchStatus !== 'complete' && (
                 <div className="flex gap-1">
-                  <span>Next game starting in</span>
+                  <span>{`Game ${completedPlays + 1} starts in`}</span>
                   <NewGameCountdown />
                 </div>
               )}
