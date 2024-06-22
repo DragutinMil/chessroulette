@@ -67,7 +67,15 @@ export const reducer = (
       }
 
       if (prevMatch.type === 'bestOf') {
-        if (prevMatch.completedPlays.length === prevMatch.rounds) {
+        // Take out the draw games as they don't count towards the Best-Of score.
+        if (
+          prevMatch.completedPlays.reduce((accum, play) => {
+            if (play.game.winner === '1/2') {
+              return accum;
+            }
+            return accum + 1;
+          }, 0) === prevMatch.rounds
+        ) {
           return 'complete';
         }
 
