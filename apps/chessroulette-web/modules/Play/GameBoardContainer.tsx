@@ -8,7 +8,6 @@ import { RIGHT_SIDE_SIZE_PX } from '../room/activities/Learn/components/LearnBoa
 import { PanelResizeHandle } from 'react-resizable-panels';
 import { useCanPlay } from './hooks/useCanPlay';
 import { useGame } from './providers/useGame';
-import { RoomActivityType } from '../room/links';
 
 type Props = {
   boardSizePx: number;
@@ -17,7 +16,7 @@ type Props = {
   players?: UsersMap; // TODO: this should be better defined
   playerId: UserId;
   isBoardFlipped?: boolean;
-  activity: RoomActivityType;
+  joinRoomLink: string | undefined;
 };
 
 /**
@@ -33,7 +32,7 @@ export const GameBoardContainer = ({
   players,
   playerId,
   dispatch,
-  activity,
+  joinRoomLink,
 }: Props) => {
   // TODO: This should come from somewhere else
   const orientation = useMemo(
@@ -75,7 +74,7 @@ export const GameBoardContainer = ({
         <GameStateDialog
           onRematchRequest={onRematchRequest}
           onAcceptOffer={onAcceptOffer}
-          activity={activity}
+          joinRoomLink={joinRoomLink}
           //TODO - at the moment nothing happens, later can decide if extra notifications when offer is cancelled
           onCancelOffer={() => dispatch({ type: 'play:cancelOffer' })}
           onDenyOffer={() => dispatch({ type: 'play:denyOffer' })}

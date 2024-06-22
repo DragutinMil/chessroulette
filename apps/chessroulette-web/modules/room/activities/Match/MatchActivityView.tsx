@@ -15,6 +15,7 @@ import {
 } from 'apps/chessroulette-web/modules/Play/types';
 import { PlayersInfoContainer } from 'apps/chessroulette-web/modules/Play/PlayersInfoContainer';
 import { ResizableDesktopLayout } from 'apps/chessroulette-web/templates/ResizableDesktopLayout';
+import { useRoomLinkId } from '../../hooks/useRoomLinkId';
 
 type Props = {
   roomId: string;
@@ -43,13 +44,13 @@ export const MatchActivityView = ({
   } = state;
 
   const [waitingForNextGame, setWaitingForNextGame] = useState<number>();
+  const { joinRoomLink } = useRoomLinkId('match');
 
   useEffect(() => {
     if (
       game.status === 'complete' &&
       matchState.status !== 'complete' &&
       !waitingForNextGame
-      // !lastOffer?.type ===
     ) {
       const waitMs = 3 * 1000;
       setTimeout(() => {
@@ -115,7 +116,7 @@ export const MatchActivityView = ({
         mainComponent={({ boardSize }) => (
           <GameBoardContainer
             boardSizePx={boardSize}
-            activity="match"
+            joinRoomLink={joinRoomLink}
             isBoardFlipped={isBoardFlipped}
             // TODO: All of these can be provided from the GamePovider
             game={game}

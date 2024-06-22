@@ -5,8 +5,6 @@ import { Text } from 'apps/chessroulette-web/components/Text';
 import { useGameActionsContext } from '../../providers/useGameActions';
 import { GameOffer } from '../../store';
 import { ClipboardCopyButton } from 'apps/chessroulette-web/components/ClipboardCopyButton';
-import { useRoomLinkId } from 'apps/chessroulette-web/modules/room/hooks/useRoomLinkId';
-import { RoomActivityType } from 'apps/chessroulette-web/modules/room/links';
 import Link from 'next/link';
 
 type Props = {
@@ -14,8 +12,7 @@ type Props = {
   onDenyOffer: () => void;
   onRematchRequest: () => void;
   onCancelOffer: () => void;
-  activity: RoomActivityType;
-  // roomId: string;
+  joinRoomLink: string | undefined;
 };
 
 export const GameStateDialog: React.FC<Props> = ({
@@ -23,8 +20,7 @@ export const GameStateDialog: React.FC<Props> = ({
   onAcceptOffer,
   onDenyOffer,
   onCancelOffer,
-  activity,
-  // roomId,
+  joinRoomLink,
 }) => {
   const [gameResultSeen, setGameResultSeen] = useState(false);
   const {
@@ -33,7 +29,6 @@ export const GameStateDialog: React.FC<Props> = ({
     players,
     playerId,
   } = useGameActionsContext();
-  const { joinRoomLink } = useRoomLinkId(activity);
 
   useEffect(() => {
     // Everytime the game state changes, reset the seen!
