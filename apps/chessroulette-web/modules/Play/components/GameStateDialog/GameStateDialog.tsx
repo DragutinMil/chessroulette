@@ -2,10 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { invoke, objectKeys } from '@xmatter/util-kit';
 import { Dialog } from 'apps/chessroulette-web/components/Dialog';
 import { Text } from 'apps/chessroulette-web/components/Text';
-import { useGameActionsContext } from '../../providers/useGameActions';
 import { GameOffer } from '../../store';
 import { ClipboardCopyButton } from 'apps/chessroulette-web/components/ClipboardCopyButton';
 import Link from 'next/link';
+import { useGame } from '../../providers/useGame';
+import { useMatch } from '../../providers/useMatch';
+import { NewGameCountdown } from '../Countdown/NewGameCountdown';
 
 type Props = {
   onAcceptOffer: ({ offer }: { offer: GameOffer['type'] }) => void;
@@ -23,12 +25,9 @@ export const GameStateDialog: React.FC<Props> = ({
   joinRoomLink,
 }) => {
   const [gameResultSeen, setGameResultSeen] = useState(false);
-  const {
-    lastOffer,
-    game: gameState,
-    players,
-    playerId,
-  } = useGameActionsContext();
+  const { lastOffer, realState, players, playerId, displayState } = useGame();
+  const { type: matchType, status: matchStatus, rounds } = useMatch();
+  const { game: gameState } = realState;
 
   useEffect(() => {
     // Everytime the game state changes, reset the seen!
@@ -88,26 +87,41 @@ export const GameStateDialog: React.FC<Props> = ({
         <Dialog
           title="Game Ended"
           content={
-            <div className="flex justify-center content-center text-center">
-              {gameState.winner &&
-                (gameState.winner === '1/2' ? (
-                  <Text>Game Ended in a Draw</Text>
-                ) : (
-                  <Text className="capitalize">{gameState.winner} Won!</Text>
-                ))}
+            <div className="flex flex-col gap-4 items-center">
+              <div className="flex justify-center content-center text-center">
+                {gameState.winner &&
+                  (gameState.winner === '1/2' ? (
+                    <Text>Game Ended in a Draw</Text>
+                  ) : (
+                    <Text className="capitalize">{gameState.winner} Won!</Text>
+                  ))}
+              </div>
+              {matchType === 'bestOf' && matchStatus !== 'complete' && (
+                <div className="flex gap-1">
+                  <span>Next game starting in</span>
+                  <NewGameCountdown />
+                </div>
+              )}
+              {matchType === 'bestOf' && matchStatus === 'complete' && (
+                <div className="flex gap-1">
+                  <span>Match series complete.</span>
+                </div>
+              )}
             </div>
           }
           onClose={() => {
             setGameResultSeen(true);
           }}
-          buttons={[
-            {
-              children: 'Offer Rematch',
-              onClick: () => onRematchRequest(),
-              type: 'primary',
-              bgColor: 'blue',
-            },
-          ]}
+          {...(matchType === 'openEnded' && {
+            buttons: [
+              {
+                children: 'Offer Rematch',
+                onClick: () => onRematchRequest(),
+                type: 'primary',
+                bgColor: 'blue',
+              },
+            ],
+          })}
         />
       );
     }

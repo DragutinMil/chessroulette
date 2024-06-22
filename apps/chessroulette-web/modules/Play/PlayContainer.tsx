@@ -4,7 +4,6 @@ import { UserId, UsersMap } from 'apps/chessroulette-web/modules/user/type';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { PanelResizeHandle } from 'react-resizable-panels';
 import { GameStateWidget } from './components/GameStateWidget/GameStateWidget';
-import { GameActionsProvider } from './providers/GameActionsProvider';
 import { GameStateDialog } from './components/GameStateDialog/GameStateDialog';
 import { Playboard } from 'apps/chessroulette-web/components/Boards';
 import { FreeBoardNotation } from 'apps/chessroulette-web/components/FreeBoardNotation';
@@ -13,6 +12,8 @@ import { RIGHT_SIDE_SIZE_PX } from '../room/activities/Learn/components/LearnBoa
 import { CameraPanel } from '../room/components/CameraPanel';
 import { PlayActions, PlayState } from './store';
 import { ResizableDesktopLayout } from 'apps/chessroulette-web/templates/ResizableDesktopLayout';
+import { useRoomLinkId } from '../room/hooks/useRoomLinkId';
+import { GameProvider } from './providers/GameProvider';
 
 export type Props = {
   state: PlayState;
@@ -41,6 +42,7 @@ export const PlayContainer = ({
     getDisplayStateFromPgn(game.pgn)
   );
 
+  const { joinRoomLink } = useRoomLinkId('play'); // TODO this needs to go but have to rethink it - leaving here so it doesn't crash the app currently
   const orientation = useMemo(
     () => (isBoardFlipped ? swapColor(game.orientation) : game.orientation),
     [isBoardFlipped, game.orientation]
@@ -94,7 +96,7 @@ export const PlayContainer = ({
   );
 
   return (
-    <GameActionsProvider game={state.game} players={players} playerId={userId}>
+    <GameProvider game={state.game} players={players} playerId={userId}>
       <ResizableDesktopLayout
         rightSideSize={RIGHT_SIDE_SIZE_PX}
         mainComponent={({ boardSize }) => (
@@ -105,14 +107,13 @@ export const PlayContainer = ({
             canPlay={canPlayGame}
             overlayComponent={
               <GameStateDialog
-                // roomId={roomId}
+                joinRoomLink={joinRoomLink}
                 onRematchRequest={() => {
                   dispatch({
                     type: 'play:sendOffer',
                     payload: { byPlayer: userId, offerType: 'rematch' },
                   });
                 }}
-                activity="play"
                 onAcceptOffer={({ offer }) => {
                   if (offer === 'draw') {
                     dispatch({ type: 'play:acceptOfferDraw' });
@@ -226,6 +227,6 @@ export const PlayContainer = ({
           </div>
         }
       />
-    </GameActionsProvider>
+    </GameProvider>
   );
 };
