@@ -3,6 +3,7 @@ import { ActivityState, initialActivityState } from '../../movex';
 import { PlayStore } from 'apps/chessroulette-web/modules/Play';
 import { MatchActivityActions, MatchState } from './types';
 import { createGame } from 'apps/chessroulette-web/modules/Play/store';
+import { Results } from 'apps/chessroulette-web/modules/Play/types';
 
 const matchReducer = (prev: any) => prev;
 
@@ -74,18 +75,32 @@ export const reducer = (
       }
 
       if (prevMatch.type === 'bestOf') {
-        // Take out the draw games as they don't count towards the Best-Of score.
+        const prevResults = prevMatch.completedPlays.reduce(
+          (prev, nextPlay) => ({
+            white:
+              nextPlay.game.winner === 'white' ? prev.white + 1 : prev.white,
+            black:
+              nextPlay.game.winner === 'black' ? prev.black + 1 : prev.black,
+          }),
+          { white: 0, black: 0 }
+        );
+
+        const result: Results = {
+          white:
+            nextCurrentPlay.game.winner === 'white'
+              ? prevResults.white + 1
+              : prevResults.white,
+          black:
+            nextCurrentPlay.game.winner === 'black'
+              ? prevResults.black + 1
+              : prevResults.black,
+        };
         if (
-          prevMatch.completedPlays.reduce((accum, play) => {
-            if (play.game.winner === '1/2') {
-              return accum;
-            }
-            return accum + 1;
-          }, 0) === prevMatch.rounds
+          result.white === Math.ceil(prevMatch.rounds / 2) ||
+          result.black === Math.ceil(prevMatch.rounds / 2)
         ) {
           return 'complete';
         }
-
         // TODO: Fill up more stuff
       }
 

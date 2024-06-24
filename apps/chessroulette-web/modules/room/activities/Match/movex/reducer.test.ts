@@ -268,6 +268,104 @@ describe('Start New Match => ', () => {
   });
 });
 
+describe('End Match when rounds number reached', () => {
+  const matchCreateParams: Parameters<typeof createMatchState>[0] = {
+    type: 'bestOf',
+    rounds: 1,
+    timeClass: 'blitz',
+    challengeeId: 'maria',
+    challengerId: 'john',
+    startColor: 'w',
+  };
+
+  const pendingMatch = createMatchState(matchCreateParams);
+
+  test('ending last game should end the series', () => {
+    const action: PlayActions = {
+      type: 'play:move',
+      payload: { from: 'e2', to: 'e4', moveAt: 123 },
+    };
+
+    const actual = matchReducer(wrapIntoActivityState(pendingMatch), action);
+
+    const expectedMatch: MatchState = {
+      status: 'ongoing',
+      type: 'bestOf',
+      rounds: 1,
+      completedPlays: [],
+      players: {
+        white: {
+          id: 'john',
+        },
+        black: {
+          id: 'maria',
+        },
+      },
+      ongoingPlay: wrapIntoPlay({
+        ...createGame({
+          timeClass: 'blitz',
+          color: 'w',
+        }),
+        status: 'ongoing',
+        pgn: '1. e4',
+        lastMoveAt: 123,
+        lastMoveBy: 'white',
+      }),
+    };
+
+    const newMatchState: MatchActivityState = {
+      activityType: 'match',
+      activityState: expectedMatch,
+    };
+
+    expect(actual).toEqual(newMatchState);
+
+    const actionResign: PlayActions = {
+      type: 'play:resignGame',
+      payload: {
+        color: 'black',
+      },
+    };
+
+    const update = matchReducer(actual, actionResign);
+
+    const expectedMatchUpdate: MatchState = {
+      status: 'complete',
+      type: 'bestOf',
+      rounds: 1,
+      completedPlays: [],
+      players: {
+        white: {
+          id: 'john',
+        },
+        black: {
+          id: 'maria',
+        },
+      },
+      ongoingPlay: {
+        ...wrapIntoPlay({
+          ...createGame({
+            timeClass: 'blitz',
+            color: 'w',
+          }),
+          status: 'complete',
+          pgn: '1. e4',
+          lastMoveAt: 123,
+          lastMoveBy: 'white',
+          winner: 'white',
+        }),
+      },
+    };
+
+    const finalMatchState: MatchActivityState = {
+      activityType: 'match',
+      activityState: expectedMatchUpdate,
+    };
+    console.log('match state ==> ', update.activityState);
+    expect(update).toEqual(finalMatchState);
+  });
+});
+
 // it('works', () => {
 //   const actual = matchReducer(initialMatchActivityState, { type: '' });
 
