@@ -87,7 +87,7 @@ export const GameStateDialog: React.FC<Props> = ({
         <Dialog
           title={
             matchType === 'bestOf'
-              ? `Game ${completedPlays} Ended`
+              ? `Game ${completedPlays + 1} Ended`
               : 'Game Ended'
           }
           content={
@@ -95,14 +95,17 @@ export const GameStateDialog: React.FC<Props> = ({
               <div className="flex justify-center content-center text-center">
                 {gameState.winner &&
                   (gameState.winner === '1/2' ? (
-                    <Text>Game Ended in a Draw</Text>
+                    <Text>
+                      `Game Ended in a Draw$
+                      {matchType === 'bestOf' && '. Round will repeat!'}`
+                    </Text>
                   ) : (
                     <Text className="capitalize">{gameState.winner} Won!</Text>
                   ))}
               </div>
               {matchType === 'bestOf' && matchStatus !== 'complete' && (
                 <div className="flex gap-1">
-                  <span>{`Game ${completedPlays + 1} starts in`}</span>
+                  <span>{`Next game starts in`}</span>
                   <NewGameCountdown />
                 </div>
               )}

@@ -3,21 +3,17 @@ import { GameNotationContainer } from 'apps/chessroulette-web/modules/Play/GameN
 import { UserId, UsersMap } from 'apps/chessroulette-web/modules/user/type';
 import { IceServerRecord } from 'apps/chessroulette-web/providers/PeerToPeerProvider/type';
 import { MatchActivityActions, MatchActivityState } from './movex';
-import { DispatchOf, invoke } from '@xmatter/util-kit';
+import { DispatchOf } from '@xmatter/util-kit';
 import { RIGHT_SIDE_SIZE_PX } from '../Learn/components/LearnBoard';
 import { GameBoardContainer } from 'apps/chessroulette-web/modules/Play/GameBoardContainer';
 import { CameraPanel } from '../../components/CameraPanel';
 import { GameActionsContainer } from 'apps/chessroulette-web/modules/Play/components/GameActionsContainers';
 import { useEffect, useMemo, useState } from 'react';
-import {
-  PlayersBySide,
-  Results,
-} from 'apps/chessroulette-web/modules/Play/types';
-import { PlayersInfoContainer } from 'apps/chessroulette-web/modules/Play/PlayersInfoContainer';
+import { PlayersBySide } from 'apps/chessroulette-web/modules/Play/types';
 import { ResizableDesktopLayout } from 'apps/chessroulette-web/templates/ResizableDesktopLayout';
 import { useRoomLinkId } from '../../hooks/useRoomLinkId';
 import { MatchStateProvider } from 'apps/chessroulette-web/modules/Play/providers/MatchStateProvider';
-import { Text } from 'apps/chessroulette-web/components/Text';
+import { MatchStateDisplay } from './components/MatchStateDisplay';
 
 type Props = {
   roomId: string;
@@ -63,16 +59,6 @@ export const MatchActivityView = ({
       setWaitingForNextGame(new Date().getTime() + waitMs);
     }
   }, [game.status === 'complete', matchState.status, waitingForNextGame]);
-
-  const results = useMemo((): Results => {
-    return matchState.completedPlays.reduce(
-      (prev, nextPlay) => ({
-        white: nextPlay.game.winner === 'white' ? prev.white + 1 : prev.white,
-        black: nextPlay.game.winner === 'black' ? prev.black + 1 : prev.black,
-      }),
-      { white: 0, black: 0 }
-    );
-  }, [matchState]);
 
   const playersBySide = useMemo((): PlayersBySide => {
     const whiteDisplayName = participants[matchState.players.white.id]
@@ -149,33 +135,8 @@ export const MatchActivityView = ({
                   />
                 </div>
               )}
-              {matchState.type === 'bestOf' && (
-                <div className="flex flex-row gap-2 w-full">
-                  <Text>Round</Text>
-                  {`${invoke(() => {
-                    const completedRoundsWithoutDraws =
-                      matchState.completedPlays.reduce((accum, play) => {
-                        if (play.game.winner === '1/2') {
-                          return accum;
-                        }
-                        return accum + 1;
-                      }, 0);
-                    return completedRoundsWithoutDraws === matchState.rounds
-                      ? completedRoundsWithoutDraws
-                      : completedRoundsWithoutDraws + 1;
-                  })}/${matchState.rounds}`}
-                </div>
-              )}
-              <div className="flex flex-row w-full">
-                <PlayersInfoContainer
-                  players={playersBySide}
-                  results={results}
-                  onTimerFinished={(side) => {
-                    // TURN: Call the match dispatcher to end the game!
-                    console.log('timer finished for side', side);
-                  }}
-                />
-              </div>
+              <MatchStateDisplay playersBySide={playersBySide} />
+
               <div className="bg-slate-700 p-3 flex flex-col gap-2 flex-1 min-h-0 rounded-lg shadow-2xl overflow-y-scroll">
                 <GameNotationContainer />
                 <div className="flex gap-2 bor">
