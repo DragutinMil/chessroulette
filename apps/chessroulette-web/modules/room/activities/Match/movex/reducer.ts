@@ -31,10 +31,17 @@ export const reducer = (
       return prev;
     }
 
+    // reverse player colors after each match
+    const players: MatchState['players'] = {
+      white: { id: prevMatch.players.black.id },
+      black: { id: prevMatch.players.white.id },
+    };
+
     return {
       ...prev,
       activityState: {
         ...prev.activityState,
+        players,
         completedPlays: [...prevMatch.completedPlays, prevPlay],
         ongoingPlay: {
           game: createGame({

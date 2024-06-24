@@ -1,6 +1,6 @@
 import { createMatchState } from './operations';
 import { reducer as matchReducer } from './reducer';
-import { MatchActivityState, MatchState } from './types';
+import { MatchActivityActions, MatchActivityState, MatchState } from './types';
 import {
   Game,
   PlayActions,
@@ -119,16 +119,12 @@ describe('Match Status: Pending > Ongoing', () => {
 describe('Match Status: Ongoing > Completed', () => {
   test('On check mate move', () => {
     // TBD
-
     // TODO: Uncomment this and make it work
-
     // const action: PlayActions = {
     //   type: 'play:move',
     //   payload: { from: 'e2', to: 'e4', moveAt: 123 },
     // };
-
     // const actual = matchReducer(wrapIntoActivityState(pendingMatch), action);
-
     // const expectedMatch: MatchState = {
     //   status: 'ongoing',
     //   type: 'bestOf',
@@ -153,15 +149,122 @@ describe('Match Status: Ongoing > Completed', () => {
     //     lastMoveBy: 'white',
     //   }),
     // };
-
     // const expected: MatchActivityState = {
     //   activityType: 'match',
     //   activityState: expectedMatch,
     // };
-
     // expect(actual).toEqual(expected);
+    // expect(1).toBe(2);
+  });
+});
 
-    expect(1).toBe(2);
+describe('Start New Match => ', () => {
+  const matchCreateParams: Parameters<typeof createMatchState>[0] = {
+    type: 'bestOf',
+    rounds: 3,
+    timeClass: 'blitz',
+    challengeeId: 'maria',
+    challengerId: 'john',
+    startColor: 'w',
+  };
+
+  const pendingMatch = createMatchState(matchCreateParams);
+  test('Swap players colors when starting new game if not the first of the series', () => {
+    const action: PlayActions = {
+      type: 'play:move',
+      payload: { from: 'e2', to: 'e4', moveAt: 123 },
+    };
+
+    const actual = matchReducer(wrapIntoActivityState(pendingMatch), action);
+
+    const expectedMatch: MatchState = {
+      status: 'ongoing',
+      type: 'bestOf',
+      rounds: 3,
+      completedPlays: [],
+      players: {
+        white: {
+          id: 'john',
+        },
+        black: {
+          id: 'maria',
+        },
+      },
+      ongoingPlay: wrapIntoPlay({
+        ...createGame({
+          timeClass: 'blitz',
+          color: 'w',
+        }),
+        status: 'ongoing',
+        pgn: '1. e4',
+        lastMoveAt: 123,
+        lastMoveBy: 'white',
+      }),
+    };
+
+    const newMatchState: MatchActivityState = {
+      activityType: 'match',
+      activityState: expectedMatch,
+    };
+
+    expect(actual).toEqual(newMatchState);
+
+    const resignAction: PlayActions = {
+      type: 'play:resignGame',
+      payload: {
+        color: 'white',
+      },
+    };
+
+    const update = matchReducer(actual, resignAction);
+
+    const startNewMatch: MatchActivityActions = {
+      type: 'match:startNewGame',
+    };
+
+    const actualNewMatch = matchReducer(update, startNewMatch);
+
+    const expectedMatchUpdate: MatchState = {
+      status: 'pending',
+      type: 'bestOf',
+      rounds: 3,
+      completedPlays: [
+        {
+          ...wrapIntoPlay({
+            ...createGame({
+              timeClass: 'blitz',
+              color: 'w',
+            }),
+            status: 'complete',
+            pgn: '1. e4',
+            lastMoveAt: 123,
+            lastMoveBy: 'white',
+            winner: 'black',
+          }),
+        },
+      ],
+      players: {
+        white: {
+          id: 'maria',
+        },
+        black: {
+          id: 'john',
+        },
+      },
+      ongoingPlay: {
+        game: createGame({
+          timeClass: 'blitz',
+          color: 'black',
+        }),
+      },
+    };
+
+    const finalMatchState: MatchActivityState = {
+      activityType: 'match',
+      activityState: expectedMatchUpdate,
+    };
+
+    expect(actualNewMatch).toEqual(finalMatchState);
   });
 });
 

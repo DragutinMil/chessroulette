@@ -109,11 +109,12 @@ export const MatchActivityView = ({
         ...(blackDisplayName && { displayName: blackDisplayName }),
       },
     };
-  }, [userId, matchState.players]);
+  }, [userId, matchState.players, participants]);
 
   return (
     <GameProvider game={game} players={matchState.players} playerId={userId}>
       <MatchStateProvider
+        completedPlays={matchState.completedPlays}
         type={matchState.type}
         status={matchState.status}
         rounds={matchState.rounds}
@@ -152,10 +153,16 @@ export const MatchActivityView = ({
                 <div className="flex flex-row gap-2 w-full">
                   <Text>Round</Text>
                   {`${invoke(() => {
-                    const completedRounds = matchState.completedPlays.length;
-                    return completedRounds === matchState.rounds
-                      ? completedRounds
-                      : completedRounds + 1;
+                    const completedRoundsWithoutDraws =
+                      matchState.completedPlays.reduce((accum, play) => {
+                        if (play.game.winner === '1/2') {
+                          return accum;
+                        }
+                        return accum + 1;
+                      }, 0);
+                    return completedRoundsWithoutDraws === matchState.rounds
+                      ? completedRoundsWithoutDraws
+                      : completedRoundsWithoutDraws + 1;
                   })}/${matchState.rounds}`}
                 </div>
               )}
@@ -175,7 +182,7 @@ export const MatchActivityView = ({
                   <GameActionsContainer
                     // TODO: All of these can be provided from the GamePovider
                     dispatch={dispatch}
-                    homeColor="b"
+                    homeColor={playersBySide.home.color}
                     playerId={userId}
                   />
                 </div>

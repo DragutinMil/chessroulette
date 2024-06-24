@@ -1,4 +1,4 @@
-import React, { PropsWithChildren, useMemo } from 'react';
+import React, { PropsWithChildren, useEffect, useMemo } from 'react';
 import { MatchStateContext, MatchStateContextType } from './MatchStateContext';
 import { MatchState } from '../../room/activities/Match/movex';
 
@@ -11,7 +11,7 @@ export const MatchStateProvider: React.FC<Props> = (props) => {
       type: props.type,
       status: props.status,
       rounds: props.rounds,
-      completedPlays: props.completedPlays.length,
+      completedPlays: props.completedPlays ? props.completedPlays.length : 0,
     }),
     [props]
   );
