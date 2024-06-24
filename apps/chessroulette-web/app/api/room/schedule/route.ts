@@ -114,6 +114,23 @@ export function GET(request: NextRequest) {
   }
 
   if (activityParams.activity === 'match') {
+    if (
+      activityParams.type === 'bestOf' &&
+      !(
+        activityParams.rounds &&
+        activityParams.rounds > 0 &&
+        activityParams.rounds % 2 !== 0
+      )
+    ) {
+      return NextResponse.json(
+        {
+          Error: 'Invalid number of rounds for BestOf',
+        },
+        {
+          status: 500,
+        }
+      );
+    }
     return NextResponse.json({
       links: [
         {
