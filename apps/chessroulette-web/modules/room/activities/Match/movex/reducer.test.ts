@@ -361,7 +361,7 @@ describe('End Match when rounds number reached', () => {
       activityType: 'match',
       activityState: expectedMatchUpdate,
     };
-    console.log('match state ==> ', update.activityState);
+
     expect(update).toEqual(finalMatchState);
   });
 });
