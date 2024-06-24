@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { invoke, objectKeys } from '@xmatter/util-kit';
 import { Dialog } from 'apps/chessroulette-web/components/Dialog';
 import { Text } from 'apps/chessroulette-web/components/Text';
@@ -26,13 +26,32 @@ export const GameStateDialog: React.FC<Props> = ({
 }) => {
   const [gameResultSeen, setGameResultSeen] = useState(false);
   const { lastOffer, realState, players, playerId } = useGame();
-  const { type: matchType, status: matchStatus, completedPlays } = useMatch();
+  const {
+    type: matchType,
+    status: matchStatus,
+    completedPlays,
+    results,
+    rounds,
+  } = useMatch();
   const { game: gameState } = realState;
 
   useEffect(() => {
     // Everytime the game state changes, reset the seen!
     setGameResultSeen(false);
   }, [gameState.status]);
+
+  const matchWinner = useMemo(() => {
+    if (!rounds || matchStatus !== 'complete') {
+      return;
+    }
+    const winsNeeded = Math.ceil(rounds / 2);
+    //TODO - here add player name instead of "Black" "White"
+    return results.white === winsNeeded
+      ? 'White Player'
+      : results.black === winsNeeded
+      ? 'Black Player'
+      : undefined;
+  }, [results]);
 
   return invoke(() => {
     if (
@@ -96,11 +115,16 @@ export const GameStateDialog: React.FC<Props> = ({
                 {gameState.winner &&
                   (gameState.winner === '1/2' ? (
                     <Text>
-                      `Game Ended in a Draw$
-                      {matchType === 'bestOf' && '. Round will repeat!'}`
+                      {`Game Ended in a Draw${
+                        matchType === 'bestOf' && '. Round will repeat!'
+                      }`}
                     </Text>
                   ) : (
-                    <Text className="capitalize">{gameState.winner} Won!</Text>
+                    <Text className="capitalize">{`${
+                      matchWinner
+                        ? `${matchWinner} won the series!`
+                        : `${gameState.winner} Won!`
+                    }`}</Text>
                   ))}
               </div>
               {matchType === 'bestOf' && matchStatus !== 'complete' && (
