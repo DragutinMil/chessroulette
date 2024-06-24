@@ -225,7 +225,7 @@ describe('Start New Match => ', () => {
     const actualNewMatch = matchReducer(update, startNewMatch);
 
     const expectedMatchUpdate: MatchState = {
-      status: 'pending',
+      status: 'ongoing',
       type: 'bestOf',
       rounds: 3,
       completedPlays: [
@@ -363,6 +363,97 @@ describe('End Match when rounds number reached', () => {
     };
 
     expect(update).toEqual(finalMatchState);
+  });
+
+  test('draw game doesnt impact score', () => {
+    const action: PlayActions = {
+      type: 'play:move',
+      payload: { from: 'e2', to: 'e4', moveAt: 123 },
+    };
+
+    const actual = matchReducer(wrapIntoActivityState(pendingMatch), action);
+
+    const expectedMatch: MatchState = {
+      status: 'ongoing',
+      type: 'bestOf',
+      rounds: 1,
+      completedPlays: [],
+      players: {
+        white: {
+          id: 'john',
+        },
+        black: {
+          id: 'maria',
+        },
+      },
+      ongoingPlay: wrapIntoPlay({
+        ...createGame({
+          timeClass: 'blitz',
+          color: 'w',
+        }),
+        status: 'ongoing',
+        pgn: '1. e4',
+        lastMoveAt: 123,
+        lastMoveBy: 'white',
+      }),
+    };
+
+    const newMatchState: MatchActivityState = {
+      activityType: 'match',
+      activityState: expectedMatch,
+    };
+
+    expect(actual).toEqual(newMatchState);
+
+    const actionDrawInvite: PlayActions = {
+      type: 'play:sendOffer',
+      payload: {
+        byPlayer: 'john',
+        offerType: 'draw',
+      },
+    };
+
+    const drawOffer = matchReducer(actual, actionDrawInvite);
+
+    const acceptDraw: PlayActions = {
+      type: 'play:acceptOfferDraw',
+    };
+
+    const update = matchReducer(drawOffer, acceptDraw);
+
+    const expectedUpdate: MatchState = {
+      status: 'ongoing',
+      type: 'bestOf',
+      rounds: 1,
+      completedPlays: [],
+      players: {
+        white: {
+          id: 'john',
+        },
+        black: {
+          id: 'maria',
+        },
+      },
+      ongoingPlay: wrapIntoPlay({
+        ...createGame({
+          timeClass: 'blitz',
+          color: 'w',
+        }),
+        offers: [{ byPlayer: 'john', status: 'accepted', type: 'draw' }],
+        status: 'complete',
+        pgn: '1. e4',
+        lastMoveAt: 123,
+        lastMoveBy: 'white',
+        winner: '1/2',
+      }),
+    };
+
+    const updateMatchState: MatchActivityState = {
+      activityType: 'match',
+      activityState: expectedUpdate,
+    };
+
+    expect(update).toEqual(updateMatchState);
   });
 });
 

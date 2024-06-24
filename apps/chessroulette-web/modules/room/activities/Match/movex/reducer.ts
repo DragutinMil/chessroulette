@@ -101,6 +101,13 @@ export const reducer = (
         ) {
           return 'complete';
         }
+
+        if (
+          nextCurrentPlay.game.status !== 'pending' ||
+          prevMatch.completedPlays.length > 0
+        ) {
+          return 'ongoing';
+        }
         // TODO: Fill up more stuff
       }
 
