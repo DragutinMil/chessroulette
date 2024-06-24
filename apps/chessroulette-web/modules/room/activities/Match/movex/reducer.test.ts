@@ -73,88 +73,108 @@ describe('Match Status: Pending > Ongoing', () => {
 
     expect(actual).toEqual(expected);
   });
-
-  // test('With first move action', () => {
-  //   const action: PlayActions = {
-  //     type: 'play:move',
-  //     payload: { from: 'e2', to: 'e4', moveAt: 123 },
-  //   };
-
-  //   const actual = matchReducer(wrapIntoActivityState(pendingMatch), action);
-
-  //   const expectedMatch: MatchState = {
-  //     status: 'ongoing',
-  //     type: 'bestOf',
-  //     rounds: 3,
-  //     completedPlays: [],
-  //     players: {
-  //       white: {
-  //         id: 'gigi',
-  //       },
-  //       black: {
-  //         id: 'costel',
-  //       },
-  //     },
-  //     ongoingPlay: wrapIntoPlay({
-  //       ...createGame({
-  //         timeClass: 'blitz',
-  //         color: 'b',
-  //       }),
-  //       status: 'ongoing',
-  //       pgn: '1. e4',
-  //       lastMoveAt: 123,
-  //       lastMoveBy: 'white',
-  //     }),
-  //   };
-
-  //   const expected: MatchActivityState = {
-  //     activityType: 'match',
-  //     activityState: expectedMatch,
-  //   };
-
-  //   expect(actual).toEqual(expected);
-  // });
 });
 
 describe('Match Status: Ongoing > Completed', () => {
+  const matchCreateParams: Parameters<typeof createMatchState>[0] = {
+    type: 'bestOf',
+    rounds: 1,
+    timeClass: 'blitz',
+    challengeeId: 'maria',
+    challengerId: 'john',
+    startColor: 'w',
+  };
+
+  const pendingMatch = createMatchState(matchCreateParams);
+
   test('On check mate move', () => {
-    // TBD
-    // TODO: Uncomment this and make it work
-    // const action: PlayActions = {
-    //   type: 'play:move',
-    //   payload: { from: 'e2', to: 'e4', moveAt: 123 },
-    // };
-    // const actual = matchReducer(wrapIntoActivityState(pendingMatch), action);
-    // const expectedMatch: MatchState = {
-    //   status: 'ongoing',
-    //   type: 'bestOf',
-    //   rounds: 3,
-    //   completedPlays: [],
-    //   players: {
-    //     white: {
-    //       id: 'gigi',
-    //     },
-    //     black: {
-    //       id: 'costel',
-    //     },
-    //   },
-    //   ongoingPlay: wrapIntoPlay({
-    //     ...createGame({
-    //       timeClass: 'blitz',
-    //       color: 'b',
-    //     }),
-    //     status: 'ongoing',
-    //     pgn: '1. e4',
-    //     lastMoveAt: 123,
-    //     lastMoveBy: 'white',
-    //   }),
-    // };
-    // const expected: MatchActivityState = {
-    //   activityType: 'match',
-    //   activityState: expectedMatch,
-    // };
-    // expect(actual).toEqual(expected);
-    // expect(1).toBe(2);
+    const action: PlayActions = {
+      type: 'play:move',
+      payload: { from: 'g2', to: 'g4', moveAt: 123 },
+    };
+    const actual = matchReducer(wrapIntoActivityState(pendingMatch), action);
+    const expectedMatch: MatchState = {
+      status: 'ongoing',
+      type: 'bestOf',
+      rounds: 1,
+      completedPlays: [],
+      players: {
+        white: {
+          id: 'john',
+        },
+        black: {
+          id: 'maria',
+        },
+      },
+      ongoingPlay: wrapIntoPlay({
+        ...createGame({
+          timeClass: 'blitz',
+          color: 'w',
+        }),
+        status: 'ongoing',
+        pgn: '1. g4',
+        lastMoveAt: 123,
+        lastMoveBy: 'white',
+      }),
+    };
+    const expected: MatchActivityState = {
+      activityType: 'match',
+      activityState: expectedMatch,
+    };
+    expect(actual).toEqual(expected);
+
+    const actionBlack: PlayActions = {
+      type: 'play:move',
+      payload: { from: 'e7', to: 'e6', moveAt: 123 },
+    };
+    const actualUpdate = matchReducer(actual, actionBlack);
+
+    const actionWhite: PlayActions = {
+      type: 'play:move',
+      payload: { from: 'f2', to: 'f3', moveAt: 123 },
+    };
+
+    const actualUpdateAgain = matchReducer(actualUpdate, actionWhite);
+
+    const killerAction: PlayActions = {
+      type: 'play:move',
+      payload: { from: 'd8', to: 'h4', moveAt: 123 },
+    };
+
+    const lastUpdate = matchReducer(actualUpdateAgain, killerAction);
+
+    const expectedMatchState: MatchState = {
+      status: 'complete',
+      type: 'bestOf',
+      rounds: 1,
+      completedPlays: [],
+      players: {
+        white: {
+          id: 'john',
+        },
+        black: {
+          id: 'maria',
+        },
+      },
+      ongoingPlay: wrapIntoPlay({
+        ...createGame({
+          timeClass: 'blitz',
+          color: 'w',
+        }),
+        status: 'complete',
+        pgn: '1. g4 e6 2. f3 Qh4#',
+        lastMoveAt: 123,
+        lastMoveBy: 'black',
+        winner: 'black',
+      }),
+    };
+
+    const expectedResult: MatchActivityState = {
+      activityType: 'match',
+      activityState: expectedMatchState,
+    };
+
+    expect(lastUpdate).toEqual(expectedResult);
   });
 });
 
