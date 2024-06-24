@@ -2,8 +2,7 @@ import React, { PropsWithChildren, useMemo } from 'react';
 import { MatchStateContext, MatchStateContextType } from './MatchStateContext';
 import { MatchState } from '../../room/activities/Match/movex';
 
-type Props = PropsWithChildren &
-  Pick<MatchState, 'type' | 'rounds' | 'status' | 'completedPlays'>;
+type Props = PropsWithChildren & Omit<MatchState, 'ongoingPlay'>;
 
 export const MatchStateProvider: React.FC<Props> = (props) => {
   const value = useMemo<MatchStateContextType>(
@@ -16,13 +15,10 @@ export const MatchStateProvider: React.FC<Props> = (props) => {
       currentRound:
         props.completedPlays.filter((play) => play.game.winner !== '1/2')
           .length + 1,
-      results: props.completedPlays.reduce(
-        (prev, nextPlay) => ({
-          white: nextPlay.game.winner === 'white' ? prev.white + 1 : prev.white,
-          black: nextPlay.game.winner === 'black' ? prev.black + 1 : prev.black,
-        }),
-        { white: 0, black: 0 }
-      ),
+      results: {
+        white: props.players.white.score,
+        black: props.players.black.score,
+      },
     }),
     [props]
   );

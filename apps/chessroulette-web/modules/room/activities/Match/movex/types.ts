@@ -4,6 +4,7 @@ import { Action } from 'movex-core-util';
 export type Player = {
   id: string;
   displayName?: string;
+  score: number;
 };
 
 export type MatchState = (

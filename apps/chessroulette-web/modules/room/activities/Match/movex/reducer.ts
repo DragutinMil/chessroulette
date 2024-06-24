@@ -34,8 +34,8 @@ export const reducer = (
 
     // reverse player colors after each match
     const players: MatchState['players'] = {
-      white: { id: prevMatch.players.black.id },
-      black: { id: prevMatch.players.white.id },
+      white: { ...prevMatch.players.black },
+      black: { ...prevMatch.players.white },
     };
 
     return {
@@ -61,6 +61,17 @@ export const reducer = (
       )
     : prev.activityState.ongoingPlay;
 
+  const result: Results = {
+    white:
+      nextCurrentPlay.game.winner === 'white'
+        ? prevMatch.players.white.score + 1
+        : prevMatch.players.white.score,
+    black:
+      nextCurrentPlay.game.winner === 'black'
+        ? prevMatch.players.black.score + 1
+        : prevMatch.players.black.score,
+  };
+
   const nextMatchStatus: MatchState['status'] = invoke(
     (): MatchState['status'] => {
       // If there is a current ongoing game the status of the match is also ongong
@@ -75,26 +86,16 @@ export const reducer = (
       }
 
       if (prevMatch.type === 'bestOf') {
-        const prevResults = prevMatch.completedPlays.reduce(
-          (prev, nextPlay) => ({
-            white:
-              nextPlay.game.winner === 'white' ? prev.white + 1 : prev.white,
-            black:
-              nextPlay.game.winner === 'black' ? prev.black + 1 : prev.black,
-          }),
-          { white: 0, black: 0 }
-        );
+        // const prevResults = prevMatch.completedPlays.reduce(
+        //   (prev, nextPlay) => ({
+        //     white:
+        //       nextPlay.game.winner === 'white' ? prev.white + 1 : prev.white,
+        //     black:
+        //       nextPlay.game.winner === 'black' ? prev.black + 1 : prev.black,
+        //   }),
+        //   { white: 0, black: 0 }
+        // );
 
-        const result: Results = {
-          white:
-            nextCurrentPlay.game.winner === 'white'
-              ? prevResults.white + 1
-              : prevResults.white,
-          black:
-            nextCurrentPlay.game.winner === 'black'
-              ? prevResults.black + 1
-              : prevResults.black,
-        };
         if (
           result.white === Math.ceil(prevMatch.rounds / 2) ||
           result.black === Math.ceil(prevMatch.rounds / 2)
@@ -122,6 +123,16 @@ export const reducer = (
       // plays: nextPlays,
       ongoingPlay: nextCurrentPlay,
       status: nextMatchStatus,
+      players: {
+        white: {
+          ...prev.activityState.players.white,
+          score: result.white,
+        },
+        black: {
+          ...prev.activityState.players.black,
+          score: result.black,
+        },
+      },
     },
   };
 };

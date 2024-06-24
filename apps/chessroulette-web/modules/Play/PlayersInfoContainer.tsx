@@ -8,6 +8,9 @@ type Props = Omit<PlayersInfoProps, 'turn' | 'game' | 'isGameOngoing'> & {
 
 export const PlayersInfoContainer = (props: Props) => {
   const { realState } = useGame();
+
+  console.log('results', props.results);
+  console.log('players', props.players);
   return (
     <PlayersInfo
       {...props}

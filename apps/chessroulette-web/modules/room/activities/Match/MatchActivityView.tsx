@@ -99,12 +99,7 @@ export const MatchActivityView = ({
 
   return (
     <GameProvider game={game} players={matchState.players} playerId={userId}>
-      <MatchStateProvider
-        completedPlays={matchState.completedPlays}
-        type={matchState.type}
-        status={matchState.status}
-        rounds={matchState.rounds}
-      >
+      <MatchStateProvider {...matchState}>
         <ResizableDesktopLayout
           rightSideSize={RIGHT_SIDE_SIZE_PX}
           mainComponent={({ boardSize }) => (

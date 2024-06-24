@@ -49,9 +49,11 @@ describe('Match Status: Pending > Ongoing', () => {
       players: {
         white: {
           id: 'gigi',
+          score: 0,
         },
         black: {
           id: 'costel',
+          score: 0,
         },
       },
       ongoingPlay: wrapIntoPlay({
@@ -101,9 +103,11 @@ describe('Match Status: Ongoing > Completed', () => {
       players: {
         white: {
           id: 'john',
+          score: 0,
         },
         black: {
           id: 'maria',
+          score: 0,
         },
       },
       ongoingPlay: wrapIntoPlay({
@@ -151,9 +155,11 @@ describe('Match Status: Ongoing > Completed', () => {
       players: {
         white: {
           id: 'john',
+          score: 0,
         },
         black: {
           id: 'maria',
+          score: 1,
         },
       },
       ongoingPlay: wrapIntoPlay({
@@ -205,9 +211,11 @@ describe('Start New Match => ', () => {
       players: {
         white: {
           id: 'john',
+          score: 0,
         },
         black: {
           id: 'maria',
+          score: 0,
         },
       },
       ongoingPlay: wrapIntoPlay({
@@ -266,9 +274,11 @@ describe('Start New Match => ', () => {
       players: {
         white: {
           id: 'maria',
+          score: 1,
         },
         black: {
           id: 'john',
+          score: 0,
         },
       },
       ongoingPlay: {
@@ -316,9 +326,11 @@ describe('End Match when rounds number reached', () => {
       players: {
         white: {
           id: 'john',
+          score: 0,
         },
         black: {
           id: 'maria',
+          score: 0,
         },
       },
       ongoingPlay: wrapIntoPlay({
@@ -357,9 +369,11 @@ describe('End Match when rounds number reached', () => {
       players: {
         white: {
           id: 'john',
+          score: 1,
         },
         black: {
           id: 'maria',
+          score: 0,
         },
       },
       ongoingPlay: {
@@ -401,9 +415,11 @@ describe('End Match when rounds number reached', () => {
       players: {
         white: {
           id: 'john',
+          score: 0,
         },
         black: {
           id: 'maria',
+          score: 0,
         },
       },
       ongoingPlay: wrapIntoPlay({
@@ -449,9 +465,11 @@ describe('End Match when rounds number reached', () => {
       players: {
         white: {
           id: 'john',
+          score: 0,
         },
         black: {
           id: 'maria',
+          score: 0,
         },
       },
       ongoingPlay: wrapIntoPlay({

@@ -15,14 +15,14 @@ export const createMatchState = (
   const players = invoke((): MatchState['players'] => {
     if (isWhiteColor(challengerColor)) {
       return {
-        white: { id: params.challengerId },
-        black: { id: params.challengeeId },
+        white: { id: params.challengerId, score: 0 },
+        black: { id: params.challengeeId, score: 0 },
       };
     }
 
     return {
-      white: { id: params.challengeeId },
-      black: { id: params.challengerId },
+      white: { id: params.challengeeId, score: 0 },
+      black: { id: params.challengerId, score: 0 },
     };
   });
 

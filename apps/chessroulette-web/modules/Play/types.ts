@@ -50,6 +50,6 @@ export type PlayersBySide = {
 };
 
 export type Results = {
-  black: number;
   white: number;
+  black: number;
 };
