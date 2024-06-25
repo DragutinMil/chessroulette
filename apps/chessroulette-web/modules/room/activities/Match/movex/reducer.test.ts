@@ -191,7 +191,7 @@ describe('Match Status: Ongoing > Completed', () => {
   });
 });
 
-describe.only('Start New Match => ', () => {
+describe('Start New Match => ', () => {
   const matchCreateParams: Parameters<typeof createMatchState>[0] = {
     type: 'bestOf',
     rounds: 3,
@@ -203,7 +203,7 @@ describe.only('Start New Match => ', () => {
 
   const pendingMatch = createMatchState(matchCreateParams);
 
-  test.only('Swap players colors when starting new game if not the first of the series', () => {
+  test('Swap players colors when starting new game if not the first of the series', () => {
     const action: PlayActions = {
       type: 'play:move',
       payload: { from: 'e2', to: 'e4', moveAt: 123 },
@@ -476,7 +476,22 @@ describe('End Match when rounds number reached', () => {
       status: 'ongoing',
       type: 'bestOf',
       rounds: 1,
-      completedPlays: [],
+      completedPlays: [
+        {
+          ...wrapIntoPlay({
+            ...createGame({
+              timeClass: 'blitz',
+              color: 'w',
+            }),
+            offers: [{ byPlayer: 'john', status: 'accepted', type: 'draw' }],
+            status: 'complete',
+            pgn: '1. e4',
+            lastMoveAt: 123,
+            lastMoveBy: 'white',
+            winner: '1/2',
+          }),
+        },
+      ],
       players: {
         white: {
           id: 'john',
@@ -488,18 +503,7 @@ describe('End Match when rounds number reached', () => {
         },
       },
       winner: undefined,
-      ongoingPlay: wrapIntoPlay({
-        ...createGame({
-          timeClass: 'blitz',
-          color: 'w',
-        }),
-        offers: [{ byPlayer: 'john', status: 'accepted', type: 'draw' }],
-        status: 'complete',
-        pgn: '1. e4',
-        lastMoveAt: 123,
-        lastMoveBy: 'white',
-        winner: '1/2',
-      }),
+      ongoingPlay: undefined,
     };
 
     const updateMatchState: MatchActivityState = {
