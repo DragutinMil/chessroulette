@@ -1,6 +1,6 @@
 import { Text } from 'apps/chessroulette-web/components/Text';
 import { PlayersInfoContainer } from 'apps/chessroulette-web/modules/Play/PlayersInfoContainer';
-import { useMatch } from 'apps/chessroulette-web/modules/Play/providers/useMatch';
+import { useMatch } from 'apps/chessroulette-web/modules/room/activities/Match/providers/useMatch';
 import { PlayersBySide } from 'apps/chessroulette-web/modules/Play/types';
 import React from 'react';
 

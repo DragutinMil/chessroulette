@@ -8,12 +8,14 @@ import { RIGHT_SIDE_SIZE_PX } from '../Learn/components/LearnBoard';
 import { GameBoardContainer } from 'apps/chessroulette-web/modules/Play/GameBoardContainer';
 import { CameraPanel } from '../../components/CameraPanel';
 import { GameActionsContainer } from 'apps/chessroulette-web/modules/Play/components/GameActionsContainers';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { PlayersBySide } from 'apps/chessroulette-web/modules/Play/types';
 import { ResizableDesktopLayout } from 'apps/chessroulette-web/templates/ResizableDesktopLayout';
 import { useRoomLinkId } from '../../hooks/useRoomLinkId';
-import { MatchStateProvider } from 'apps/chessroulette-web/modules/Play/providers/MatchStateProvider';
+import { MatchStateProvider } from 'apps/chessroulette-web/modules/room/activities/Match/providers/MatchStateProvider';
 import { MatchStateDisplay } from './components/MatchStateDisplay';
+import { MatchStateDialogContainer } from './components/MatchStateDialogContainer';
+import { initialPlayState } from 'apps/chessroulette-web/modules/Play/store';
 
 type Props = {
   roomId: string;
@@ -38,31 +40,16 @@ export const MatchActivityView = ({
 }: Props) => {
   const { ongoingPlay, ...matchState } = state;
 
-  const game = useMemo(() => {
-    //TODO - maybe build some safety here in the extreme case both are undefined create a new pending game.
-    return ongoingPlay?.game
-      ? ongoingPlay.game
-      : matchState.completedPlays.slice(-1)[0].game;
-  }, [ongoingPlay]);
+  const game = useMemo(
+    () =>
+      ongoingPlay?.game ||
+      matchState.completedPlays.slice(-1)[0].game ||
+      // Default to Initial Play State if no ongoing or completed
+      initialPlayState.game,
+    [ongoingPlay, matchState.completedPlays]
+  );
 
-  const [waitingForNextGame, setWaitingForNextGame] = useState<number>();
   const { joinRoomLink } = useRoomLinkId('match');
-
-  useEffect(() => {
-    if (
-      game.status === 'complete' &&
-      matchState.status !== 'complete' &&
-      !waitingForNextGame
-    ) {
-      const waitMs = 3 * 1000;
-      setTimeout(() => {
-        dispatch({ type: 'match:startNewGame' });
-        setWaitingForNextGame(undefined);
-      }, waitMs);
-
-      setWaitingForNextGame(new Date().getTime() + waitMs);
-    }
-  }, [game.status === 'complete', matchState.status, waitingForNextGame]);
 
   const playersBySide = useMemo((): PlayersBySide => {
     const whiteDisplayName = participants[matchState.players.white.id]
@@ -103,7 +90,7 @@ export const MatchActivityView = ({
 
   return (
     <GameProvider game={game} players={matchState.players} playerId={userId}>
-      <MatchStateProvider {...matchState}>
+      <MatchStateProvider {...matchState} ongoingPlay={ongoingPlay}>
         <ResizableDesktopLayout
           rightSideSize={RIGHT_SIDE_SIZE_PX}
           mainComponent={({ boardSize }) => (
@@ -111,6 +98,13 @@ export const MatchActivityView = ({
               boardSizePx={boardSize}
               joinRoomLink={joinRoomLink}
               isBoardFlipped={isBoardFlipped}
+              overlayComponent={
+                <MatchStateDialogContainer
+                  dispatch={dispatch}
+                  playerId={userId}
+                  joinRoomLink={joinRoomLink}
+                />
+              }
               // TODO: All of these can be provided from the GamePovider
               game={game}
               dispatch={dispatch}

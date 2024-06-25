@@ -146,9 +146,7 @@ export const reducer = (
       completedPlays: [...prevMatch.completedPlays, nextCurrentPlay],
       ongoingPlay: undefined,
       status: nextMatchStatus,
-      ...(winner && {
-        winner,
-      }),
+      winner,
       players: {
         white: {
           ...prev.activityState.players.white,

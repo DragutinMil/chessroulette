@@ -3,7 +3,7 @@ import { Action } from 'movex-core-util';
 
 type PlayerId = string;
 
-export type Player = {
+export type MatchPlayer = {
   id: PlayerId;
   displayName?: string;
   score: number;
@@ -25,8 +25,8 @@ export type MatchState = (
   // players: Record<Player['id'], Player>;
   // maxPlayers: number; // Not needed anymore
   players: {
-    white: Player;
-    black: Player;
+    white: MatchPlayer;
+    black: MatchPlayer;
   };
   completedPlays: PlayStore.PlayState[];
 

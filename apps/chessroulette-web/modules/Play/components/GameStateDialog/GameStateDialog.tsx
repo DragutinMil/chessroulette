@@ -1,15 +1,12 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { invoke, objectKeys } from '@xmatter/util-kit';
 import { Dialog } from 'apps/chessroulette-web/components/Dialog';
-import { Text } from 'apps/chessroulette-web/components/Text';
 import { GameOffer } from '../../store';
 import { ClipboardCopyButton } from 'apps/chessroulette-web/components/ClipboardCopyButton';
 import Link from 'next/link';
 import { useGame } from '../../providers/useGame';
-import { useMatch } from '../../providers/useMatch';
-import { NewGameCountdown } from '../Countdown/NewGameCountdown';
 
-type Props = {
+export type GameStateDialogProps = {
   onAcceptOffer: ({ offer }: { offer: GameOffer['type'] }) => void;
   onDenyOffer: () => void;
   onRematchRequest: () => void;
@@ -17,7 +14,7 @@ type Props = {
   joinRoomLink: string | undefined;
 };
 
-export const GameStateDialog: React.FC<Props> = ({
+export const GameStateDialog: React.FC<GameStateDialogProps> = ({
   onRematchRequest,
   onAcceptOffer,
   onDenyOffer,
@@ -26,32 +23,13 @@ export const GameStateDialog: React.FC<Props> = ({
 }) => {
   const [gameResultSeen, setGameResultSeen] = useState(false);
   const { lastOffer, realState, players, playerId } = useGame();
-  const {
-    type: matchType,
-    status: matchStatus,
-    completedPlays,
-    results,
-    rounds,
-  } = useMatch();
+
   const { game: gameState } = realState;
 
   useEffect(() => {
     // Everytime the game state changes, reset the seen!
     setGameResultSeen(false);
   }, [gameState.status]);
-
-  const matchWinner = useMemo(() => {
-    if (!rounds || matchStatus !== 'complete') {
-      return;
-    }
-    const winsNeeded = Math.ceil(rounds / 2);
-    //TODO - here add player name instead of "Black" "White"
-    return results.white === winsNeeded
-      ? 'White Player'
-      : results.black === winsNeeded
-      ? 'Black Player'
-      : undefined;
-  }, [results]);
 
   return invoke(() => {
     if (
@@ -93,66 +71,6 @@ export const GameStateDialog: React.FC<Props> = ({
               )}
             </div>
           }
-        />
-      );
-    }
-
-    if (
-      gameState.status === 'complete' &&
-      !gameResultSeen &&
-      (!lastOffer || lastOffer.status !== 'pending')
-    ) {
-      return (
-        <Dialog
-          title={
-            matchType === 'bestOf'
-              ? `Game ${completedPlays + 1} Ended`
-              : 'Game Ended'
-          }
-          content={
-            <div className="flex flex-col gap-4 items-center">
-              <div className="flex justify-center content-center text-center">
-                {gameState.winner &&
-                  (gameState.winner === '1/2' ? (
-                    <Text>
-                      {`Game Ended in a Draw${
-                        matchType === 'bestOf' && '. Round will repeat!'
-                      }`}
-                    </Text>
-                  ) : (
-                    <Text className="capitalize">{`${
-                      matchWinner
-                        ? `${matchWinner} won the series!`
-                        : `${gameState.winner} Won!`
-                    }`}</Text>
-                  ))}
-              </div>
-              {matchType === 'bestOf' && matchStatus !== 'complete' && (
-                <div className="flex gap-1">
-                  <span>{`Next game starts in`}</span>
-                  <NewGameCountdown />
-                </div>
-              )}
-              {matchType === 'bestOf' && matchStatus === 'complete' && (
-                <div className="flex gap-1">
-                  <span>Match series complete.</span>
-                </div>
-              )}
-            </div>
-          }
-          onClose={() => {
-            setGameResultSeen(true);
-          }}
-          {...(matchType === 'openEnded' && {
-            buttons: [
-              {
-                children: 'Offer Rematch',
-                onClick: () => onRematchRequest(),
-                type: 'primary',
-                bgColor: 'blue',
-              },
-            ],
-          })}
         />
       );
     }
