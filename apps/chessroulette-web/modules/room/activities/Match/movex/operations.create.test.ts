@@ -48,6 +48,7 @@ describe('Best Of', () => {
           score: 0,
         },
       },
+      winner: undefined,
       completedPlays: [],
       ongoingPlay: expectedPlay,
     };
@@ -91,6 +92,7 @@ describe('Open Ended', () => {
           score: 0,
         },
       },
+      winner: undefined,
       completedPlays: [],
       ongoingPlay: expectedPlay,
     };

@@ -1,8 +1,10 @@
 import { PlayStore } from 'apps/chessroulette-web/modules/Play';
 import { Action } from 'movex-core-util';
 
+type PlayerId = string;
+
 export type Player = {
-  id: string;
+  id: PlayerId;
   displayName?: string;
   score: number;
 };
@@ -27,6 +29,8 @@ export type MatchState = (
     black: Player;
   };
   completedPlays: PlayStore.PlayState[];
+
+  winner: undefined | PlayerId;
 
   // timeClass: Game['timeClass'];
 

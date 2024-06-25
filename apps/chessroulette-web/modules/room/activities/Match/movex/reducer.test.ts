@@ -56,6 +56,7 @@ describe('Match Status: Pending > Ongoing', () => {
           score: 0,
         },
       },
+      winner: undefined,
       ongoingPlay: wrapIntoPlay({
         ...createGame({
           timeClass: 'blitz',
@@ -110,6 +111,7 @@ describe('Match Status: Ongoing > Completed', () => {
           score: 0,
         },
       },
+      winner: undefined,
       ongoingPlay: wrapIntoPlay({
         ...createGame({
           timeClass: 'blitz',
@@ -162,6 +164,7 @@ describe('Match Status: Ongoing > Completed', () => {
           score: 1,
         },
       },
+      winner: 'maria',
       ongoingPlay: wrapIntoPlay({
         ...createGame({
           timeClass: 'blitz',
@@ -218,6 +221,7 @@ describe('Start New Match => ', () => {
           score: 0,
         },
       },
+      winner: undefined,
       ongoingPlay: wrapIntoPlay({
         ...createGame({
           timeClass: 'blitz',
@@ -271,6 +275,7 @@ describe('Start New Match => ', () => {
           }),
         },
       ],
+      winner: undefined,
       players: {
         white: {
           id: 'maria',
@@ -333,6 +338,7 @@ describe('End Match when rounds number reached', () => {
           score: 0,
         },
       },
+      winner: undefined,
       ongoingPlay: wrapIntoPlay({
         ...createGame({
           timeClass: 'blitz',
@@ -376,6 +382,7 @@ describe('End Match when rounds number reached', () => {
           score: 0,
         },
       },
+      winner: 'john',
       ongoingPlay: {
         ...wrapIntoPlay({
           ...createGame({
@@ -422,6 +429,7 @@ describe('End Match when rounds number reached', () => {
           score: 0,
         },
       },
+      winner: undefined,
       ongoingPlay: wrapIntoPlay({
         ...createGame({
           timeClass: 'blitz',
@@ -472,6 +480,7 @@ describe('End Match when rounds number reached', () => {
           score: 0,
         },
       },
+      winner: undefined,
       ongoingPlay: wrapIntoPlay({
         ...createGame({
           timeClass: 'blitz',

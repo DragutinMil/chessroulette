@@ -72,6 +72,18 @@ export const reducer = (
         : prevMatch.players.black.score,
   };
 
+  const winner = invoke(() => {
+    if (prevMatch.type !== 'bestOf') {
+      return;
+    }
+
+    return result.white === Math.ceil(prevMatch.rounds / 2)
+      ? prevMatch.players.white.id
+      : result.black === Math.ceil(prevMatch.rounds / 2)
+      ? prevMatch.players.black.id
+      : undefined;
+  });
+
   const nextMatchStatus: MatchState['status'] = invoke(
     (): MatchState['status'] => {
       // If there is a current ongoing game the status of the match is also ongong
@@ -96,10 +108,7 @@ export const reducer = (
         //   { white: 0, black: 0 }
         // );
 
-        if (
-          result.white === Math.ceil(prevMatch.rounds / 2) ||
-          result.black === Math.ceil(prevMatch.rounds / 2)
-        ) {
+        if (winner) {
           return 'complete';
         }
 
@@ -123,6 +132,9 @@ export const reducer = (
       // plays: nextPlays,
       ongoingPlay: nextCurrentPlay,
       status: nextMatchStatus,
+      ...(winner && {
+        winner,
+      }),
       players: {
         white: {
           ...prev.activityState.players.white,
