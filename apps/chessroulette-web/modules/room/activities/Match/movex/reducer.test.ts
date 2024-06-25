@@ -413,7 +413,7 @@ describe('End Match when rounds number reached', () => {
     expect(update).toEqual(finalMatchState);
   });
 
-  test.skip('draw game doesnt impact score', () => {
+  test('draw game doesnt impact score', () => {
     const action: PlayActions = {
       type: 'play:move',
       payload: { from: 'e2', to: 'e4', moveAt: 123 },
