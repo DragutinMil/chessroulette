@@ -124,31 +124,31 @@ _**This is the case only for MVP, until we have proper Authentication Integratio
 ```
 
 #### Left To Do
-- [ ] [WIP] Api route to schedule the Match
-- [ ] [WIP] Api route to check the status of the Match
+- [x] Api route to schedule the Match
+- [x] Api route to check the status of the Match
 - [ ] [WIP] The Match Reducer updates correctly
    - [ ] Reacts correctly to Play Actions and changes the Match State accordingly
    - [ ] [WIP] Use tests to ensure this is working correctly
-- [ ] Bug: On Resign white always wins
+- [x] Bug: On Resign white always wins
 - [ ] Check that the user currently inside the room is part of the `players`. If not cannot play.
-- [ ] Populate User Display Name if present (in the url)
-- [ ] Show the Result next to the Player Name (as an extra string to the PlayerBox component that gets populated from outside with whatever)
+- [x] Populate User Display Name if present (in the url)
+- [x] Show the Result next to the Player Name (as an extra string to the PlayerBox component that gets populated from outside with whatever)
   - [ ] To begin with just the score such as "White (0)" "Black (0)"...later on... "White (2)" "Black (1)"...once the match finished "White (3) Winner 🏆", "Black (1)" or smtg like this
 - [ ] Match Reducer 
   - [ ] A Match moves to ongoing when the 1st game starts
   - [ ] A Match completes when the minimum amount of games have been finished and we have a winner (e.g. in a 2 out of 3 scenario minimum 2 games need to be player max 3)
   - [ ] Ensure the Match Status updates correctly when the `ongoingGame` status changes
 - [ ] Match Dialogues:
-  - [ ] on match completed
+  - [x] on match completed
     - [ ] Show the Winner Color, User Display Name if available, and a nice Victory UI. Maybe an animation or smtg
-  - [ ] on game completed but not match completed (in case the match is a multiple game e.g. 2 out of 3), with a timer saying the next game will start in x seconds.
+  - [x] on game completed but not match completed (in case the match is a multiple game e.g. 2 out of 3), with a timer saying the next game will start in x seconds.
     - [ ] In the future, this can be triggered or canceled manualy as well b/c maybe they want to take a break but not of concern now
   - [ ] Ensure no other situation is left out, as the UX needs to take in account all critical use cases
-- [ ] Don't show the "Waiting for Player" dialog if the game is `ongoing` but one of the players left the room.
+- [x] Don't show the "Waiting for Player" dialog if the game is `ongoing` but one of the players left the room.
 - [ ] Invitation Link for spectators - (i.e. without the appended userId in the JOIN URL (see above))
 - [ ] Timers are unsynched between players. It seems each time a player comes back to the room (refreshes the page for e.g.) the timer gets reset or at least goes back a few seconds
 - [ ] 500 Error on Server Rendered Component of the Match Room Page
-- [ ] When there is a DRAW, we treated as not counting
+- [x] When there is a DRAW, we treated as not counting
 
 - [ ] [WIP] UI/UX + Design 
 - [ ] Cleanup Code
