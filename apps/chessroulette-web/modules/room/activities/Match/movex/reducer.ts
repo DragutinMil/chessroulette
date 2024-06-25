@@ -1,9 +1,12 @@
-import { invoke, swapColor } from '@xmatter/util-kit';
+import { ChessColor, invoke, swapColor } from '@xmatter/util-kit';
 import { ActivityState, initialActivityState } from '../../movex';
 import { PlayStore } from 'apps/chessroulette-web/modules/Play';
 import { MatchActivityActions, MatchState } from './types';
 import { createGame } from 'apps/chessroulette-web/modules/Play/store';
-import { Results } from 'apps/chessroulette-web/modules/Play/types';
+import {
+  GameTimeClass,
+  Results,
+} from 'apps/chessroulette-web/modules/Play/types';
 
 const matchReducer = (prev: any) => prev;
 
@@ -28,7 +31,10 @@ export const reducer = (
 
     const prevPlay = prevMatch.ongoingPlay;
 
-    if (prevPlay.game.status !== 'complete') {
+    if (
+      (prevPlay && prevPlay.game.status !== 'complete') ||
+      (!prevPlay && prevMatch.completedPlays.length === 0)
+    ) {
       return prev;
     }
 
@@ -38,28 +44,62 @@ export const reducer = (
       black: { ...prevMatch.players.white },
     };
 
+    const newGameSettings = invoke(
+      (): { timeClass: GameTimeClass; color: ChessColor } => {
+        if (prevPlay) {
+          return {
+            color: swapColor(prevPlay.game.orientation),
+            timeClass: prevPlay.game.timeClass,
+          };
+        }
+        const lastGamePlayed = prevMatch.completedPlays.slice(-1)[0].game;
+        return {
+          color: swapColor(lastGamePlayed.orientation),
+          timeClass: lastGamePlayed.timeClass,
+        };
+      }
+    );
+
     return {
       ...prev,
       activityState: {
         ...prev.activityState,
         players,
-        completedPlays: [...prevMatch.completedPlays, prevPlay],
         ongoingPlay: {
-          game: createGame({
-            timeClass: prevPlay.game.timeClass,
-            color: swapColor(prevPlay.game.orientation), // TODO: This should be done differently once we have colors with players
-          }),
+          game: createGame(newGameSettings),
         },
       },
     };
   }
 
-  const nextCurrentPlay = prev.activityState.ongoingPlay
-    ? PlayStore.reducer(
-        prev.activityState.ongoingPlay,
-        action as PlayStore.PlayActions
-      )
-    : prev.activityState.ongoingPlay;
+  //TODO - test more here, not sure if the best
+  if (!prevMatch.ongoingPlay) {
+    return prev;
+  }
+
+  const nextCurrentPlay = prevMatch.ongoingPlay
+    ? PlayStore.reducer(prevMatch.ongoingPlay, action as PlayStore.PlayActions)
+    : prevMatch.ongoingPlay;
+
+  if (nextCurrentPlay.game.status !== 'complete') {
+    const nextStatus = invoke((): MatchState['status'] => {
+      if (nextCurrentPlay.game.status === 'ongoing') {
+        return 'ongoing';
+      }
+      return prevMatch.completedPlays.length > 0 ? 'ongoing' : 'pending';
+    });
+
+    return {
+      ...prev,
+      activityState: {
+        ...prev.activityState,
+        ongoingPlay: nextCurrentPlay,
+        status: nextStatus,
+      },
+    };
+  }
+
+  //Current Game is complete - so Match can only be ongoing or complete.
 
   const result: Results = {
     white:
@@ -86,42 +126,16 @@ export const reducer = (
 
   const nextMatchStatus: MatchState['status'] = invoke(
     (): MatchState['status'] => {
-      // If there is a current ongoing game the status of the match is also ongong
-      if (nextCurrentPlay.game.status === 'ongoing') {
-        return 'ongoing';
+      // TODO: Is this actually ok?
+      // if (prevMatch.type === 'openEnded') {
+      //   return prevMatch.status;
+      // }
+
+      if (winner) {
+        return 'complete';
       }
 
-      // If it's a Friendly Match it never goes into completion
-      if (prevMatch.type === 'openEnded') {
-        // TODO: Is this actually ok?
-        return prevMatch.status;
-      }
-
-      if (prevMatch.type === 'bestOf') {
-        // const prevResults = prevMatch.completedPlays.reduce(
-        //   (prev, nextPlay) => ({
-        //     white:
-        //       nextPlay.game.winner === 'white' ? prev.white + 1 : prev.white,
-        //     black:
-        //       nextPlay.game.winner === 'black' ? prev.black + 1 : prev.black,
-        //   }),
-        //   { white: 0, black: 0 }
-        // );
-
-        if (winner) {
-          return 'complete';
-        }
-
-        if (
-          nextCurrentPlay.game.status !== 'pending' ||
-          prevMatch.completedPlays.length > 0
-        ) {
-          return 'ongoing';
-        }
-        // TODO: Fill up more stuff
-      }
-
-      return 'pending';
+      return 'ongoing';
     }
   );
 
@@ -129,8 +143,8 @@ export const reducer = (
     ...prev,
     activityState: {
       ...prev.activityState,
-      // plays: nextPlays,
-      ongoingPlay: nextCurrentPlay,
+      completedPlays: [...prevMatch.completedPlays, nextCurrentPlay],
+      ongoingPlay: undefined,
       status: nextMatchStatus,
       ...(winner && {
         winner,

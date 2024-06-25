@@ -35,7 +35,7 @@ export type MatchState = (
   // timeClass: Game['timeClass'];
 
   // TODO: Should this always hav a pending game??
-  ongoingPlay: PlayStore.PlayState;
+  ongoingPlay: PlayStore.PlayState | undefined;
 };
 
 // export type MatchState = PlayStore.PlayState

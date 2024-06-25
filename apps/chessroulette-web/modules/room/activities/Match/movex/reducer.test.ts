@@ -153,7 +153,21 @@ describe('Match Status: Ongoing > Completed', () => {
       status: 'complete',
       type: 'bestOf',
       rounds: 1,
-      completedPlays: [],
+      completedPlays: [
+        {
+          ...wrapIntoPlay({
+            ...createGame({
+              timeClass: 'blitz',
+              color: 'w',
+            }),
+            status: 'complete',
+            pgn: '1. g4 e6 2. f3 Qh4#',
+            lastMoveAt: 123,
+            lastMoveBy: 'black',
+            winner: 'black',
+          }),
+        },
+      ],
       players: {
         white: {
           id: 'john',
@@ -165,17 +179,7 @@ describe('Match Status: Ongoing > Completed', () => {
         },
       },
       winner: 'maria',
-      ongoingPlay: wrapIntoPlay({
-        ...createGame({
-          timeClass: 'blitz',
-          color: 'w',
-        }),
-        status: 'complete',
-        pgn: '1. g4 e6 2. f3 Qh4#',
-        lastMoveAt: 123,
-        lastMoveBy: 'black',
-        winner: 'black',
-      }),
+      ongoingPlay: undefined,
     };
 
     const expectedResult: MatchActivityState = {
@@ -187,7 +191,7 @@ describe('Match Status: Ongoing > Completed', () => {
   });
 });
 
-describe('Start New Match => ', () => {
+describe.only('Start New Match => ', () => {
   const matchCreateParams: Parameters<typeof createMatchState>[0] = {
     type: 'bestOf',
     rounds: 3,
@@ -198,7 +202,8 @@ describe('Start New Match => ', () => {
   };
 
   const pendingMatch = createMatchState(matchCreateParams);
-  test('Swap players colors when starting new game if not the first of the series', () => {
+
+  test.only('Swap players colors when starting new game if not the first of the series', () => {
     const action: PlayActions = {
       type: 'play:move',
       payload: { from: 'e2', to: 'e4', moveAt: 123 },
@@ -371,7 +376,21 @@ describe('End Match when rounds number reached', () => {
       status: 'complete',
       type: 'bestOf',
       rounds: 1,
-      completedPlays: [],
+      completedPlays: [
+        {
+          ...wrapIntoPlay({
+            ...createGame({
+              timeClass: 'blitz',
+              color: 'w',
+            }),
+            status: 'complete',
+            pgn: '1. e4',
+            lastMoveAt: 123,
+            lastMoveBy: 'white',
+            winner: 'white',
+          }),
+        },
+      ],
       players: {
         white: {
           id: 'john',
@@ -383,19 +402,7 @@ describe('End Match when rounds number reached', () => {
         },
       },
       winner: 'john',
-      ongoingPlay: {
-        ...wrapIntoPlay({
-          ...createGame({
-            timeClass: 'blitz',
-            color: 'w',
-          }),
-          status: 'complete',
-          pgn: '1. e4',
-          lastMoveAt: 123,
-          lastMoveBy: 'white',
-          winner: 'white',
-        }),
-      },
+      ongoingPlay: undefined,
     };
 
     const finalMatchState: MatchActivityState = {

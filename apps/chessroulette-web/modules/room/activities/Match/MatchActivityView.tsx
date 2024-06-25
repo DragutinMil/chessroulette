@@ -36,10 +36,14 @@ export const MatchActivityView = ({
   participants,
   isBoardFlipped,
 }: Props) => {
-  const {
-    ongoingPlay: { game },
-    ...matchState
-  } = state;
+  const { ongoingPlay, ...matchState } = state;
+
+  const game = useMemo(() => {
+    //TODO - maybe build some safety here in the extreme case both are undefined create a new pending game.
+    return ongoingPlay?.game
+      ? ongoingPlay.game
+      : matchState.completedPlays.slice(-1)[0].game;
+  }, [ongoingPlay]);
 
   const [waitingForNextGame, setWaitingForNextGame] = useState<number>();
   const { joinRoomLink } = useRoomLinkId('match');
