@@ -10,7 +10,8 @@ export const MatchStateProvider: React.FC<Props> = (props) => {
       type: props.type,
       status: props.status,
       rounds: props.rounds,
-      // excludes draw results
+      draws: props.completedPlays.filter((play) => play.game.winner === '1/2')
+        .length,
       completedPlaysCount: props.completedPlays.length,
       currentRound:
         props.completedPlays.filter((play) => play.game.winner !== '1/2')

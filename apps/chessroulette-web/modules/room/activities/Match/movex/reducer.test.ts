@@ -514,9 +514,3 @@ describe('End Match when rounds number reached', () => {
     expect(update).toEqual(updateMatchState);
   });
 });
-
-// it('works', () => {
-//   const actual = matchReducer(initialMatchActivityState, { type: '' });
-
-//   expect(2).toEqual(3);
-// });

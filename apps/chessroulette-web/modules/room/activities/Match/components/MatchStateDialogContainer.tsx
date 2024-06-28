@@ -59,11 +59,14 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
             <div className="flex justify-center content-center text-center">
               {lastCompletedPlay.game.winner &&
                 (lastCompletedPlay.game.winner === '1/2' ? (
-                  <Text>
-                    {`Game Ended in a Draw${
-                      matchType === 'bestOf' && '. Round will repeat!'
-                    }`}
-                  </Text>
+                  <div>
+                    <Text>Game Ended in a Draw.</Text>
+                    {matchType === 'bestOf' && (
+                      <Text>
+                        Because of draw result, the round is repeating.
+                      </Text>
+                    )}
+                  </div>
                 ) : (
                   <Text className="capitalize">
                     {players

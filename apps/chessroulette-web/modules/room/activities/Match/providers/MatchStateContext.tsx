@@ -9,6 +9,8 @@ export type MatchStateContextType = Pick<
   completedPlaysCount: number;
   currentRound: number;
 
+  draws: number;
+
   ongoingPlay?: MatchState['ongoingPlay'];
   lastCompletedPlay?: MatchState['ongoingPlay'];
   // TODO: This should be translated to MatchResults
@@ -20,6 +22,7 @@ export const MatchStateContext = createContext<MatchStateContextType>({
   type: 'openEnded',
   status: 'pending',
   completedPlaysCount: 0,
+  draws: 0,
   currentRound: 1,
   ongoingPlay: undefined,
   lastCompletedPlay: undefined,

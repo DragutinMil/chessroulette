@@ -9,7 +9,7 @@ type Props = {
 };
 
 export const MatchStateDisplay: React.FC<Props> = (props) => {
-  const { rounds, currentRound, type, results } = useMatch();
+  const { rounds, currentRound, type, results, draws } = useMatch();
 
   return (
     <div>
@@ -17,6 +17,7 @@ export const MatchStateDisplay: React.FC<Props> = (props) => {
         <div className="flex flex-row gap-2 w-full">
           <Text>Round</Text>
           <Text>{`${currentRound}/${rounds}`}</Text>
+          {draws > 0 && <Text>{`(${draws} games ended in draw)`}</Text>}
         </div>
       )}
       <div className="flex flex-row w-full">
