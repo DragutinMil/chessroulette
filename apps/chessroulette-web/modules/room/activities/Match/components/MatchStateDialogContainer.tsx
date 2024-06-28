@@ -59,7 +59,7 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
             <div className="flex justify-center content-center text-center">
               {lastCompletedPlay.game.winner &&
                 (lastCompletedPlay.game.winner === '1/2' ? (
-                  <div>
+                  <div className="flex flex-col gap-1">
                     <Text>Game Ended in a Draw.</Text>
                     {matchType === 'bestOf' && (
                       <Text>
