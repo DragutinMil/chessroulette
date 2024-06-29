@@ -1,6 +1,9 @@
-import { Game, PlayState } from './types';
+import { PendingGame, PlayState } from './types';
 
-export const UNSTARTED_UNTIMED_GAME: Game = {
+export const PENDING_UNTIMED_GAME: PendingGame = {
+  status: 'pending',
+  winner: undefined,
+  startedAt: undefined,
   pgn: '',
   orientation: 'w',
   timeLeft: {
@@ -8,8 +11,7 @@ export const UNSTARTED_UNTIMED_GAME: Game = {
     black: 0,
   },
   lastMoveBy: 'black',
-  lastMoveAt: 0,
-  status: 'pending',
+  lastMoveAt: undefined,
   timeClass: 'untimed',
 
   // TODO: This doesn't need to be an array and it doesn't need to be always defined
@@ -17,5 +19,5 @@ export const UNSTARTED_UNTIMED_GAME: Game = {
 };
 
 export const initialPlayState: PlayState = {
-  game: UNSTARTED_UNTIMED_GAME,
+  game: PENDING_UNTIMED_GAME,
 };

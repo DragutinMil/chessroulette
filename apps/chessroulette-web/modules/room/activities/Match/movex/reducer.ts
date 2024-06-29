@@ -160,3 +160,13 @@ export const reducer = (
     },
   };
 };
+
+// TODO: This also can be memoized, soooo it could be an interesting feature
+//  to avoid cron jobs and other time based logic?
+// const $getDerivedState = (state: ActivityState): ActivityState => {
+//   if (state.activityType === 'match') {
+//     if (state.activityState?.ongoingPlay?.game.)
+//   }
+
+//   return state;
+// }

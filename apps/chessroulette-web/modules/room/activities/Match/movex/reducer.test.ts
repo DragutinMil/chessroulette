@@ -63,6 +63,8 @@ describe('Match Status: Pending > Ongoing', () => {
           color: 'b',
         }),
         status: 'ongoing',
+        startedAt: 123,
+        winner: undefined,
         pgn: '1. e4',
         lastMoveAt: 123,
         lastMoveBy: 'white',
@@ -118,9 +120,12 @@ describe('Match Status: Ongoing > Completed', () => {
           color: 'w',
         }),
         status: 'ongoing',
+
         pgn: '1. g4',
         lastMoveAt: 123,
         lastMoveBy: 'white',
+        startedAt: 123,
+        winner: undefined,
       }),
     };
     const expected: MatchActivityState = {
@@ -131,20 +136,20 @@ describe('Match Status: Ongoing > Completed', () => {
 
     const actionBlack: PlayActions = {
       type: 'play:move',
-      payload: { from: 'e7', to: 'e6', moveAt: 123 },
+      payload: { from: 'e7', to: 'e6', moveAt: 1234 },
     };
     const actualUpdate = matchReducer(actual, actionBlack);
 
     const actionWhite: PlayActions = {
       type: 'play:move',
-      payload: { from: 'f2', to: 'f3', moveAt: 123 },
+      payload: { from: 'f2', to: 'f3', moveAt: 1234 },
     };
 
     const actualUpdateAgain = matchReducer(actualUpdate, actionWhite);
 
     const killerAction: PlayActions = {
       type: 'play:move',
-      payload: { from: 'd8', to: 'h4', moveAt: 123 },
+      payload: { from: 'd8', to: 'h4', moveAt: 1234 },
     };
 
     const lastUpdate = matchReducer(actualUpdateAgain, killerAction);
@@ -162,9 +167,10 @@ describe('Match Status: Ongoing > Completed', () => {
             }),
             status: 'complete',
             pgn: '1. g4 e6 2. f3 Qh4#',
-            lastMoveAt: 123,
+            lastMoveAt: 1234,
             lastMoveBy: 'black',
             winner: 'black',
+            startedAt: 123,
           }),
         },
       ],
@@ -236,6 +242,8 @@ describe('Start New Match => ', () => {
         pgn: '1. e4',
         lastMoveAt: 123,
         lastMoveBy: 'white',
+        startedAt: 123,
+        winner: undefined,
       }),
     };
 
@@ -277,6 +285,7 @@ describe('Start New Match => ', () => {
             lastMoveAt: 123,
             lastMoveBy: 'white',
             winner: 'black',
+            startedAt: 123,
           }),
         },
       ],
@@ -353,6 +362,8 @@ describe('End Match when rounds number reached', () => {
         pgn: '1. e4',
         lastMoveAt: 123,
         lastMoveBy: 'white',
+        startedAt: 123,
+        winner: undefined,
       }),
     };
 
@@ -388,6 +399,7 @@ describe('End Match when rounds number reached', () => {
             lastMoveAt: 123,
             lastMoveBy: 'white',
             winner: 'white',
+            startedAt: 123,
           }),
         },
       ],
@@ -446,6 +458,8 @@ describe('End Match when rounds number reached', () => {
         pgn: '1. e4',
         lastMoveAt: 123,
         lastMoveBy: 'white',
+        startedAt: 123,
+        winner: undefined,
       }),
     };
 
@@ -489,6 +503,7 @@ describe('End Match when rounds number reached', () => {
             lastMoveAt: 123,
             lastMoveBy: 'white',
             winner: '1/2',
+            startedAt: 123,
           }),
         },
       ],
@@ -536,6 +551,7 @@ describe('timer only starts after black moves', () => {
     const actual = matchReducer(wrapIntoActivityState(pendingMatch), action);
 
     const expectedMatch: MatchState = {
+      // TODO: This should still be "pending" with the new Ideas
       status: 'ongoing',
       type: 'openEnded',
       completedPlays: [],
@@ -560,6 +576,8 @@ describe('timer only starts after black moves', () => {
         pgn: '1. e4',
         lastMoveAt: moveWhiteTime,
         lastMoveBy: 'white',
+        startedAt: 123,
+        winner: undefined,
       }),
     };
     const newMatchState: MatchActivityState = {
@@ -601,6 +619,8 @@ describe('timer only starts after black moves', () => {
         pgn: '1. e4 e6',
         lastMoveAt: moveBlackTime,
         lastMoveBy: 'black',
+        startedAt: 123,
+        winner: undefined,
       }),
     };
     const newMatchStateUpdate: MatchActivityState = {
