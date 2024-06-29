@@ -56,7 +56,7 @@ export const reducer = (
   if (action.type === 'play:move') {
     if (
       !(
-        prev.game.status === 'pending' ||
+        // prev.game.status === 'pending' ||
         prev.game.status === 'idling' ||
         prev.game.status === 'ongoing'
       )
@@ -114,23 +114,23 @@ export const reducer = (
       lastMoveAt: moveAt,
     } as const;
 
-    if (prev.game.status === 'pending') {
-      // From Pending the Game advances to Idling (on Move)
-      // Next > "Idling"
-      return {
-        ...prev,
-        game: {
-          ...commonPrevGameProps,
-          ...commonNextGameProps,
-          status: 'idling',
-          // The StartedAt is the saame as the first move
-          startedAt: action.payload.moveAt,
-          winner: undefined,
-          // The time left doesn't change yet
-          timeLeft: prev.game.timeLeft,
-        },
-      };
-    }
+    // if (prev.game.status === 'pending') {
+    //   // From Pending the Game advances to Idling (on Move)
+    //   // Next > "Idling"
+    //   return {
+    //     ...prev,
+    //     game: {
+    //       ...commonPrevGameProps,
+    //       ...commonNextGameProps,
+    //       status: 'idling',
+    //       // The StartedAt is the saame as the first move
+    //       startedAt: action.payload.moveAt,
+    //       winner: undefined,
+    //       // The time left doesn't change yet
+    //       timeLeft: prev.game.timeLeft,
+    //     },
+    //   };
+    // }
 
     if (prev.game.status === 'idling') {
       // The Game Status advances to "ongoing" only if both players moved
