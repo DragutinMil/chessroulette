@@ -515,7 +515,7 @@ describe('End Match when rounds number reached', () => {
   });
 });
 
-describe.only('timer only starts after black moves', () => {
+describe('timer only starts after black moves', () => {
   const matchCreateParams: Parameters<typeof createMatchState>[0] = {
     type: 'openEnded',
     timeClass: 'blitz',
