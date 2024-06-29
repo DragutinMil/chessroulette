@@ -514,3 +514,117 @@ describe('End Match when rounds number reached', () => {
     expect(update).toEqual(updateMatchState);
   });
 });
+
+describe.only('timer only starts after black moves', () => {
+  const matchCreateParams: Parameters<typeof createMatchState>[0] = {
+    type: 'openEnded',
+    timeClass: 'blitz',
+    challengeeId: 'maria',
+    challengerId: 'john',
+    startColor: 'w',
+  };
+
+  const pendingMatch = createMatchState(matchCreateParams);
+
+  test('timer shouldnt start after white move, only after black', () => {
+    const moveWhiteTime = new Date().getTime();
+    const action: PlayActions = {
+      type: 'play:move',
+      payload: { from: 'e2', to: 'e4', moveAt: moveWhiteTime },
+    };
+
+    const actual = matchReducer(wrapIntoActivityState(pendingMatch), action);
+
+    const expectedMatch: MatchState = {
+      status: 'ongoing',
+      type: 'openEnded',
+      completedPlays: [],
+      players: {
+        white: {
+          id: 'john',
+          score: 0,
+        },
+        black: {
+          id: 'maria',
+          score: 0,
+        },
+      },
+      winner: undefined,
+      ongoingPlay: wrapIntoPlay({
+        ...createGame({
+          timeClass: 'blitz',
+          color: 'w',
+        }),
+        timeLeft: { white: 300000, black: 300000 },
+        status: 'ongoing',
+        pgn: '1. e4',
+        lastMoveAt: moveWhiteTime,
+        lastMoveBy: 'white',
+      }),
+    };
+    const newMatchState: MatchActivityState = {
+      activityType: 'match',
+      activityState: expectedMatch,
+    };
+    expect(actual).toEqual(newMatchState);
+
+    const moveBlackTime = new Date().getTime();
+    const action2: PlayActions = {
+      type: 'play:move',
+      payload: { from: 'e7', to: 'e6', moveAt: moveBlackTime },
+    };
+
+    const update = matchReducer(actual, action2);
+
+    const expectedMatchUpdate: MatchState = {
+      status: 'ongoing',
+      type: 'openEnded',
+      completedPlays: [],
+      players: {
+        white: {
+          id: 'john',
+          score: 0,
+        },
+        black: {
+          id: 'maria',
+          score: 0,
+        },
+      },
+      winner: undefined,
+      ongoingPlay: wrapIntoPlay({
+        ...createGame({
+          timeClass: 'blitz',
+          color: 'w',
+        }),
+        timeLeft: { white: 300000, black: 300000 },
+        status: 'ongoing',
+        pgn: '1. e4 e6',
+        lastMoveAt: moveBlackTime,
+        lastMoveBy: 'black',
+      }),
+    };
+    const newMatchStateUpdate: MatchActivityState = {
+      activityType: 'match',
+      activityState: expectedMatchUpdate,
+    };
+    expect(update).toEqual(newMatchStateUpdate);
+
+    const lastMoveTime = new Date().getTime() + 1;
+    const lastMoveAction: PlayActions = {
+      type: 'play:move',
+      payload: { from: 'c2', to: 'c4', moveAt: lastMoveTime },
+    };
+
+    const final = matchReducer(update, lastMoveAction);
+    if (final.activityType !== 'match') {
+      return;
+    }
+    if (!final.activityState?.ongoingPlay) {
+      return;
+    }
+    const { timeLeft } = final.activityState.ongoingPlay.game;
+
+    expect(timeLeft.black).toEqual(300000);
+    expect(timeLeft.white).not.toEqual(30000);
+  });
+});

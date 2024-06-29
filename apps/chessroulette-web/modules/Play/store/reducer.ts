@@ -22,7 +22,7 @@ export const reducer = (
     const movesHistory = getMovesDetailsFromPGN(pgn);
     //if black hasn't moved yet, don't update the timeLeft
     const nextTimeLeft = invoke(() => {
-      if (movesHistory.totalMoves > 1 || lastMoveBy === 'white') {
+      if (movesHistory.totalMoves > 1 || lastMoveBy === 'black') {
         const movedAtAsDate = new Date(moveAt);
         const lastMoveAtAsDate =
           prev.game.status === 'pending' ? movedAtAsDate : new Date(lastMoveAt);
@@ -33,7 +33,6 @@ export const reducer = (
       }
       return timeLeft[lastMoveBy];
     });
-
     const instance = getNewChessGame({ pgn });
     try {
       instance.move(localChessMoveToChessLibraryMove(action.payload));
