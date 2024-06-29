@@ -1,6 +1,6 @@
 import {
-  ChessColor,
   getNewChessGame,
+  invoke,
   localChessMoveToChessLibraryMove,
   swapColor,
   toLongColor,
@@ -9,6 +9,7 @@ import { initialPlayState } from './state';
 import { GameOffer, PlayActions, PlayState } from './types';
 import { chessGameTimeLimitMsMap } from '../types';
 import { createGame } from './operations';
+import { getMovesDetailsFromPGN } from '../../room/activities/Match/utils';
 
 export const reducer = (
   prev: PlayState = initialPlayState,
@@ -17,14 +18,23 @@ export const reducer = (
   if (action.type === 'play:move') {
     const { lastMoveAt, lastMoveBy, timeLeft, pgn } = prev.game;
     const { moveAt } = action.payload;
-    const movedAtAsDate = new Date(moveAt);
-    const lastMoveAtAsDate =
-      prev.game.status === 'pending' ? movedAtAsDate : new Date(lastMoveAt);
+
+    const movesHistory = getMovesDetailsFromPGN(pgn);
+    //if black hasn't moved yet, don't update the timeLeft
+    const nextTimeLeft = invoke(() => {
+      if (movesHistory.totalMoves > 1 || lastMoveBy === 'white') {
+        const movedAtAsDate = new Date(moveAt);
+        const lastMoveAtAsDate =
+          prev.game.status === 'pending' ? movedAtAsDate : new Date(lastMoveAt);
+
+        const elapsedTime =
+          movedAtAsDate.getTime() - lastMoveAtAsDate.getTime();
+        return timeLeft[lastMoveBy] - elapsedTime;
+      }
+      return timeLeft[lastMoveBy];
+    });
 
     const instance = getNewChessGame({ pgn });
-    const elapsedTime = movedAtAsDate.getTime() - lastMoveAtAsDate.getTime();
-    const nextTimeLeft = timeLeft[lastMoveBy] - elapsedTime;
-
     try {
       instance.move(localChessMoveToChessLibraryMove(action.payload));
     } catch (e) {
