@@ -75,13 +75,13 @@ export const createLesson = async ({
 }) => {
   console.log('going to create the lesson for', userId, input);
 
-  return prisma.lesson.create({
-    data: {
-      name: input.name,
-      createdBy: { connect: { id: userId } },
-      chapters: { create: input.chapters },
-    },
-  });
+  // return prisma.lesson.create({
+  //   data: {
+  //     name: input.name,
+  //     createdBy: { connect: { id: userId } },
+  //     chapters: { create: input.chapters },
+  //   },
+  // });
 };
 
 // export const testForm = async (...args: any) => {

@@ -1,4 +1,5 @@
 import {
+  LongChessColor,
   getNewChessGame,
   invoke,
   isOneOf,
@@ -7,15 +8,59 @@ import {
   toLongColor,
 } from '@xmatter/util-kit';
 import { initialPlayState } from './state';
-import { GameOffer, PlayActions, PlayState } from './types';
+import { Game, GameOffer, OngoingGame, PlayActions, PlayState } from './types';
 import { createGame } from './operations';
+
+const calculateTimeLeftAfterMove = ({
+  moveAt,
+  lastMoveAt,
+  turn,
+  game,
+}: {
+  moveAt: number;
+  lastMoveAt: number;
+  turn: LongChessColor;
+  game: Game;
+}): OngoingGame['timeLeft'] => {
+  const elapsed = new Date(moveAt).getTime() - new Date(lastMoveAt).getTime();
+  const nextTimeLeftForTurn = game.timeLeft[turn] - elapsed;
+
+  return {
+    ...game.timeLeft,
+    [turn]: nextTimeLeftForTurn,
+  };
+};
 
 export const reducer = (
   prev: PlayState = initialPlayState,
   action: PlayActions
 ): PlayState => {
+  // This moves the game from pending to idling
+  if (action.type === 'play:startWhitePlayerIdlingTimer') {
+    // Only a "pending" game can start
+    if (prev.game.status !== 'pending') {
+      return prev;
+    }
+
+    return {
+      ...prev,
+      game: {
+        ...prev.game,
+        status: 'idling',
+        startedAt: action.payload.at,
+        lastMoveAt: undefined,
+      },
+    };
+  }
+
   if (action.type === 'play:move') {
-    if (!isOneOf(prev.game.status, ['pending', 'idling', 'ongoing'])) {
+    if (
+      !(
+        prev.game.status === 'pending' ||
+        prev.game.status === 'idling' ||
+        prev.game.status === 'ongoing'
+      )
+    ) {
       // Cannot move otherwise
       return prev;
     }
@@ -87,16 +132,6 @@ export const reducer = (
       };
     }
 
-    const elapsedMsSinceLastMove =
-      new Date(moveAt).getTime() - new Date(prev.game.lastMoveAt).getTime();
-    const nextTimeLeftForTurn =
-      prev.game.timeLeft[turn] - elapsedMsSinceLastMove;
-
-    const nextTimeLeft = {
-      ...prev.game.timeLeft,
-      [turn]: nextTimeLeftForTurn,
-    };
-
     if (prev.game.status === 'idling') {
       // The Game Status advances to "ongoing" only if both players moved
       const canAdvanceToOngoing = instance.moves().length >= 2;
@@ -123,17 +158,25 @@ export const reducer = (
           status: 'ongoing',
           // Copy this over from the "idling" state
           startedAt: prev.game.startedAt,
+          // When moving from Idling to Ongoing (aka. on first black move), the timeLeft doesn't change
+          timeLeft: prev.game.timeLeft,
           winner: undefined,
-          timeLeft: nextTimeLeft,
         },
       };
     }
+
+    const nextTimeLeft = calculateTimeLeftAfterMove({
+      lastMoveAt: prev.game.lastMoveAt,
+      moveAt,
+      turn,
+      game: prev.game,
+    });
 
     // Prev Game Status is "Ongoing"
 
     const isCheckMate = instance.isCheckmate();
     const isTimeOut =
-      prev.game.timeClass !== 'untimed' && nextTimeLeftForTurn < 0;
+      prev.game.timeClass !== 'untimed' && nextTimeLeft[turn] < 0;
 
     const isGameComplete = isCheckMate || isTimeOut;
 

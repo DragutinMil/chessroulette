@@ -60,7 +60,8 @@ export type IdlingGame = {
   };
   pgn: ChessPGN;
   lastMoveBy: LongChessColor;
-  lastMoveAt: number; // TODO: Change this to ISODateTime
+  // This is number in case white made its first move and waiting for black, or undefined otherwise 
+  lastMoveAt: number | undefined; // TODO: Change this to ISODateTime
   winner: undefined;
   offers: GameOffer[]; // TODO: Make this undefined
 
@@ -137,7 +138,8 @@ export type AbortedGame = {
   };
   pgn: ChessPGN;
   lastMoveBy: LongChessColor;
-  lastMoveAt: number; // TODO: Change this to ISODateTime
+  // This is number in case white made its first move and waiting for black, or undefined otherwise 
+  lastMoveAt: number | undefined; // TODO: Change this to ISODateTime
   winner: undefined;
   offers: GameOffer[];
 
@@ -158,7 +160,7 @@ export type AbortedGame = {
  *    - whenever the state is read, a certain type of actions can be dispatched to the reducer to change the state like for ex.
  *       - to check if an ongoing game is still ongoing or did the timers finished and it can move to completed
  *       - or to check if an idling game is still idling or it moved into ongoing or aborted
- *  Actually, after thinking more of this it doesn't need to be an ACTION but a transformer (like getDerivedState) that gets calculated (and memoized) 
+ *  Actually, after thinking more of this it doesn't need to be an ACTION but a transformer (like getDerivedState) that gets calculated (and memoized)
  *   on each read, so it always returns the calculated version!
  *    - the downside to this is that it doesn't get saved in the Movex Store, but memoized or run multiple times, but is this a real downside?
  *    - Movex Can still show both versions, and the cached/memoized version is stored in just another store - or the same? :)
@@ -175,6 +177,7 @@ export type PlayState = {
 };
 
 export type PlayActions =
+  | Action<'play:startWhitePlayerIdlingTimer', { at: number }>
   | Action<
       'play:move',
       ChessMove & {
