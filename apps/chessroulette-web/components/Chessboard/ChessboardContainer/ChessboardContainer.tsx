@@ -399,6 +399,9 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
           customDarkSquareStyle={customStyles.customDarkSquareStyle}
           customSquare={ChessboardSquare}
           onPieceDrop={(from, to, pieceSan) => {
+            if (circlesMap && Object.keys(circlesMap).length > 0) {
+              resetCircles();
+            }
             onPieceDrop(from, to, pieceSan);
 
             if (isPromotableMove({ from, to }, pieceSanToPiece(pieceSan))) {

@@ -63,8 +63,6 @@ const canMove = (
   }
 };
 
-const [circlesMap, setCirclesMap] = useState<CirclesMap>({});
-
 export const Playboard = ({
   fen = ChessFENBoard.STARTING_FEN,
   playingColor,
@@ -73,6 +71,8 @@ export const Playboard = ({
   canPlay = true,
   ...props
 }: Props) => {
+  const [circlesMap, setCirclesMap] = useState<CirclesMap>({});
+
   const boardTheme = useBoardTheme();
 
   return (

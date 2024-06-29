@@ -32,7 +32,7 @@ export const PlayersInfo = ({
         isGameOngoing &&
         moves.totalMoves > 0 &&
         moves.lastMoveBy &&
-        toLongColor(moves.lastMoveBy) === 'black'
+        toLongColor(moves.lastMoveBy) === 'white'
       ) {
         isCounterActive.current = true;
       }
@@ -46,7 +46,9 @@ export const PlayersInfo = ({
         playerInfo={players.away}
         score={results[players.away.color]}
         isActive={
-          isCounterActive && isGameOngoing && turn === players.away.color
+          isCounterActive.current &&
+          isGameOngoing &&
+          turn === players.away.color
         }
         gameTimeClass={game.timeClass}
         timeLeft={game.timeLeft[players.away.color]}
@@ -57,7 +59,9 @@ export const PlayersInfo = ({
         playerInfo={players.home}
         score={results[players.home.color]}
         isActive={
-          isCounterActive && isGameOngoing && turn === players.home.color
+          isCounterActive.current &&
+          isGameOngoing &&
+          turn === players.home.color
         }
         gameTimeClass={game.timeClass}
         timeLeft={game.timeLeft[players.home.color]}
