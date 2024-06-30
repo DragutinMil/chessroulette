@@ -28,7 +28,7 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
     players,
   } = useMatch();
 
-  if (winner) {
+  if (winner && matchStatus !== 'aborted') {
     return (
       <Dialog
         title="Match Completed"
@@ -38,6 +38,25 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
               <Text>
                 <span className="capitalize">{winner}</span> Won <span>🏆</span>
               </Text>
+            </div>
+          </div>
+        }
+      />
+    );
+  }
+
+  if (matchStatus === 'aborted') {
+    return (
+      <Dialog
+        title="Match Aborted"
+        content={
+          <div className="flex flex-col gap-4 items-center">
+            <div className="flex justify-center content-center text-center">
+              {winner && (
+                <Text>
+                  <span className="capitalize">{`${winner} has won!`}</span>
+                </Text>
+              )}
             </div>
           </div>
         }

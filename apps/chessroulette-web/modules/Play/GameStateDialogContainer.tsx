@@ -40,16 +40,16 @@ export const GameStateDialogContainer = ({
     [dispatch]
   );
 
-  const onRematchRequest = useCallback(() => {
-    dispatch({
-      type: 'play:sendOffer',
-      payload: { byPlayer: playerId, offerType: 'rematch' },
-    });
-  }, [dispatch]);
+  // TODO - is rematch now used only per MatchStateDialog on openEnded matches ? If so can safely remove this
+  // const onRematchRequest = useCallback(() => {
+  //   dispatch({
+  //     type: 'play:sendOffer',
+  //     payload: { byPlayer: playerId, offerType: 'rematch' },
+  //   });
+  // }, [dispatch]);
 
   return (
     <GameStateDialog
-      onRematchRequest={onRematchRequest}
       onAcceptOffer={onAcceptOffer}
       joinRoomLink={joinRoomLink}
       //TODO - at the moment nothing happens, later can decide if extra notifications when offer is cancelled

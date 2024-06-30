@@ -128,7 +128,10 @@ export const MatchActivityView = ({
                   />
                 </div>
               )}
-              <MatchStateDisplay playersBySide={playersBySide} />
+              <MatchStateDisplay
+                playersBySide={playersBySide}
+                dispatch={dispatch}
+              />
 
               <div className="bg-slate-700 p-3 flex flex-col gap-2 flex-1 min-h-0 rounded-lg shadow-2xl overflow-y-scroll">
                 <GameNotationContainer />

@@ -1,6 +1,5 @@
 import { Game, PlayActions, PlayState } from './types';
 import { reducer as playReducer } from './reducer';
-import { PENDING_UNTIMED_GAME } from './state';
 import { createGame } from './operations';
 
 const wrapIntoPlay = <G extends Game>(game: G): PlayState => ({
@@ -72,9 +71,33 @@ describe('Game Status: Idling > Idling', () => {
 });
 
 describe('Game Status: Idling > Aborted', () => {
+  test('It moves from Idling to Aborted after timer ends', () => {
+    const pendingGame = createGame({
+      color: 'white',
+      timeClass: 'blitz',
+    });
+    const action: PlayActions = {
+      type: 'play:abortGame',
+      payload: { color: 'white' },
+    };
 
-  // TODO: Add tests here
+    const actual = playReducer(wrapIntoPlay(pendingGame), action);
 
+    const expected: PlayState = wrapIntoPlay({
+      status: 'aborted',
+      timeClass: pendingGame.timeClass,
+      timeLeft: pendingGame.timeLeft,
+      pgn: '',
+      // these 2 are the same for now
+      startedAt: 123,
+      lastMoveAt: undefined,
+      lastMoveBy: 'white',
+      winner: undefined,
+      offers: [],
+      orientation: 'white',
+    });
+    expect(actual).toEqual(expected);
+  });
 });
 
 describe('Game Status: Idling > Ongoing', () => {

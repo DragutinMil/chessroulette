@@ -81,10 +81,46 @@ export const reducer = (
     ? PlayStore.reducer(prevMatch.ongoingPlay, action as PlayStore.PlayActions)
     : prevMatch.ongoingPlay;
 
+  if (nextCurrentPlay.game.status === 'aborted') {
+    const winner = invoke(() => {
+      return prevMatch.completedPlays.length === 0
+        ? nextCurrentPlay.game.winner
+        : undefined;
+    });
+    return {
+      ...prev,
+      activityState: {
+        ...prev.activityState,
+        completedPlays: [...prevMatch.completedPlays, nextCurrentPlay],
+        ongoingPlay: undefined,
+        status:
+          prevMatch.completedPlays.length === 0 ? 'aborted' : prevMatch.status,
+        winner,
+        ...(winner &&
+          winner !== '1/2' && {
+            players: {
+              ...prev.activityState.players,
+              [winner]: {
+                ...prev.activityState.players[winner],
+                score: 1,
+              },
+            },
+          }),
+      },
+    };
+  }
+
   if (nextCurrentPlay.game.status !== 'complete') {
     const nextStatus = invoke((): MatchState['status'] => {
       if (nextCurrentPlay.game.status === 'ongoing') {
         return 'ongoing';
+      }
+      //If first game is aborted then the whole Match should abort
+      if (
+        nextCurrentPlay.game.status === 'aborted' &&
+        prevMatch.completedPlays.length === 0
+      ) {
+        return 'aborted';
       }
       return prevMatch.completedPlays.length > 0 ? 'ongoing' : 'pending';
     });
@@ -95,6 +131,9 @@ export const reducer = (
         ...prev.activityState,
         ongoingPlay: nextCurrentPlay,
         status: nextStatus,
+        ...(nextStatus === 'aborted' && {
+          winner: swapColor(nextCurrentPlay.game.lastMoveBy),
+        }),
       },
     };
   }

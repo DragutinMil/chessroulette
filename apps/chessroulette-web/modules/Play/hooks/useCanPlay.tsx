@@ -18,7 +18,6 @@ export const useCanPlay = (game: Game, players?: UsersMap, player?: UserId) =>
     }
 
     // if Pending, can play only if both players are present
-
     const [playerA, playerB] = Object.keys(players || {});
 
     return !!(playerA && playerB);

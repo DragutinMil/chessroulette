@@ -9,13 +9,11 @@ import { useGame } from '../../providers/useGame';
 export type GameStateDialogProps = {
   onAcceptOffer: ({ offer }: { offer: GameOffer['type'] }) => void;
   onDenyOffer: () => void;
-  onRematchRequest: () => void;
   onCancelOffer: () => void;
   joinRoomLink: string | undefined;
 };
 
 export const GameStateDialog: React.FC<GameStateDialogProps> = ({
-  onRematchRequest,
   onAcceptOffer,
   onDenyOffer,
   onCancelOffer,

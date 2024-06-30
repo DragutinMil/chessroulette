@@ -2,7 +2,7 @@ import { DispatchOf, swapColor } from '@xmatter/util-kit';
 import { Game, PlayActions } from './store';
 import { UserId, UsersMap } from '../user/type';
 import { Playboard } from 'apps/chessroulette-web/components/Boards';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { RIGHT_SIDE_SIZE_PX } from '../room/activities/Learn/components/LearnBoard';
 import { PanelResizeHandle } from 'react-resizable-panels';
 import { useCanPlay } from './hooks/useCanPlay';
@@ -43,6 +43,18 @@ export const GameBoardContainer = ({
   const { displayState } = useGame();
 
   const canPlay = useCanPlay(game, players, playerId);
+
+  //TODO - not sure here is the best place for this logic as it should be independent of the Board
+  useEffect(() => {
+    if (canPlay && game.status === 'pending') {
+      dispatch({
+        type: 'play:startWhitePlayerIdlingTimer',
+        payload: {
+          at: new Date().getTime(),
+        },
+      });
+    }
+  }, [canPlay, game.status]);
 
   return (
     <Playboard

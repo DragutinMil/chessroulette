@@ -21,7 +21,7 @@ export type MatchState = (
     }
 ) & {
   // Add others
-  status: 'pending' | 'ongoing' | 'complete';
+  status: 'pending' | 'ongoing' | 'complete' | 'aborted';
   // players: Record<Player['id'], Player>;
   // maxPlayers: number; // Not needed anymore
   players: {

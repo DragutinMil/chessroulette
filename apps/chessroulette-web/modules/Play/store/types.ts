@@ -60,7 +60,7 @@ export type IdlingGame = {
   };
   pgn: ChessPGN;
   lastMoveBy: LongChessColor;
-  // This is number in case white made its first move and waiting for black, or undefined otherwise 
+  // This is number in case white made its first move and waiting for black, or undefined otherwise
   lastMoveAt: number | undefined; // TODO: Change this to ISODateTime
   winner: undefined;
   offers: GameOffer[]; // TODO: Make this undefined
@@ -138,7 +138,7 @@ export type AbortedGame = {
   };
   pgn: ChessPGN;
   lastMoveBy: LongChessColor;
-  // This is number in case white made its first move and waiting for black, or undefined otherwise 
+  // This is number in case white made its first move and waiting for black, or undefined otherwise
   lastMoveAt: number | undefined; // TODO: Change this to ISODateTime
   winner: undefined;
   offers: GameOffer[];
@@ -176,7 +176,7 @@ export type PlayState = {
   game: Game;
 };
 
-export type PlayActions =
+export type PlayActions = 
   | Action<'play:startWhitePlayerIdlingTimer', { at: number }>
   | Action<
       'play:move',
@@ -187,6 +187,8 @@ export type PlayActions =
   | Action<'play:timeout'>
   // TODO: Add this feature in
   //  When the timer runs out in the UI or they press the abort button, move the game to abort!
+
+  //TODO - do we need a color here? as there's no winner for an aborted game, it doesn't really matter who aborts, or am I missing something?
   | Action<'play:abortGame', { color: ChessColor }>
   | Action<'play:resignGame', { color: ChessColor }>
   | Action<

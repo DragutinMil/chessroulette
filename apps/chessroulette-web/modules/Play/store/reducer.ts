@@ -57,8 +57,7 @@ export const reducer = (
     if (
       !(
         // prev.game.status === 'pending' ||
-        prev.game.status === 'idling' ||
-        prev.game.status === 'ongoing'
+        (prev.game.status === 'idling' || prev.game.status === 'ongoing')
       )
     ) {
       // Cannot move otherwise
@@ -232,23 +231,6 @@ export const reducer = (
 
     return prev;
   }
-
-  // TODO: @andrei Is this needed anywhere??
-  // if (action.type === 'play:setGameTimeClass') {
-  //   const timeLeft = chessGameTimeLimitMsMap[action.payload];
-
-  //   return {
-  //     ...prev,
-  //     game: {
-  //       ...prev.game,
-  //       timeClass: action.payload,
-  //       timeLeft: {
-  //         white: timeLeft,
-  //         black: timeLeft,
-  //       },
-  //     },
-  //   };
-  // }
 
   if (action.type === 'play:timeout') {
     if (prev.game.status !== 'ongoing') {
