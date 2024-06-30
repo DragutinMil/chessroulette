@@ -21,7 +21,7 @@ const wrapIntoPlay = <G extends Game>(game: G): PlayState => ({
 
 test('match does NOT become "pending" if the game has NOT started yet', () => {});
 
-describe.only('Match Status: Pending > Ongoing', () => {
+describe('Match Status: Pending > Ongoing', () => {
   const matchCreateParams: Parameters<typeof createMatchState>[0] = {
     type: 'bestOf',
     rounds: 3,
@@ -142,13 +142,19 @@ describe('Match Status: Ongoing > Completed', () => {
   };
 
   const pendingMatch = createMatchState(matchCreateParams);
+  const idlingMatch = matchReducer(wrapIntoActivityState(pendingMatch), {
+    type: 'play:startWhitePlayerIdlingTimer',
+    payload: {
+      at: 123,
+    },
+  });
 
   test('On check mate move', () => {
     const action: PlayActions = {
       type: 'play:move',
       payload: { from: 'g2', to: 'g4', moveAt: 123 },
     };
-    const actual = matchReducer(wrapIntoActivityState(pendingMatch), action);
+    const actual = matchReducer(idlingMatch, action);
     const expectedMatch: MatchState = {
       status: 'pending',
       type: 'bestOf',
@@ -170,7 +176,7 @@ describe('Match Status: Ongoing > Completed', () => {
           timeClass: 'blitz',
           color: 'w',
         }),
-        status: 'ongoing',
+        status: 'idling',
 
         pgn: '1. g4',
         lastMoveAt: 123,
@@ -259,6 +265,12 @@ describe('Start New Match => ', () => {
   };
 
   const pendingMatch = createMatchState(matchCreateParams);
+  const idlingMatch = matchReducer(wrapIntoActivityState(pendingMatch), {
+    type: 'play:startWhitePlayerIdlingTimer',
+    payload: {
+      at: 123,
+    },
+  });
 
   test('Swap players colors when starting new game if not the first of the series', () => {
     const action: PlayActions = {
@@ -266,7 +278,7 @@ describe('Start New Match => ', () => {
       payload: { from: 'e2', to: 'e4', moveAt: 123 },
     };
 
-    const actual = matchReducer(wrapIntoActivityState(pendingMatch), action);
+    const actual = matchReducer(idlingMatch, action);
 
     const expectedMatch: MatchState = {
       status: 'pending',
@@ -289,7 +301,7 @@ describe('Start New Match => ', () => {
           timeClass: 'blitz',
           color: 'w',
         }),
-        status: 'ongoing',
+        status: 'idling',
         pgn: '1. e4',
         lastMoveAt: 123,
         lastMoveBy: 'white',
@@ -305,6 +317,11 @@ describe('Start New Match => ', () => {
 
     expect(actual).toEqual(newMatchState);
 
+    const actual2 = matchReducer(actual, {
+      type: 'play:move',
+      payload: { from: 'e7', to: 'e6', moveAt: 123 },
+    });
+
     const resignAction: PlayActions = {
       type: 'play:resignGame',
       payload: {
@@ -312,7 +329,7 @@ describe('Start New Match => ', () => {
       },
     };
 
-    const update = matchReducer(actual, resignAction);
+    const update = matchReducer(actual2, resignAction);
 
     const startNewMatch: MatchActivityActions = {
       type: 'match:startNewGame',
@@ -332,9 +349,9 @@ describe('Start New Match => ', () => {
               color: 'w',
             }),
             status: 'complete',
-            pgn: '1. e4',
+            pgn: '1. e4 e6',
             lastMoveAt: 123,
-            lastMoveBy: 'white',
+            lastMoveBy: 'black',
             winner: 'black',
             startedAt: 123,
           }),
@@ -379,6 +396,12 @@ describe('End Match when rounds number reached', () => {
   };
 
   const pendingMatch = createMatchState(matchCreateParams);
+  const idlingMatch = matchReducer(wrapIntoActivityState(pendingMatch), {
+    type: 'play:startWhitePlayerIdlingTimer',
+    payload: {
+      at: 123,
+    },
+  });
 
   test('ending last game should end the series', () => {
     const action: PlayActions = {
@@ -386,10 +409,10 @@ describe('End Match when rounds number reached', () => {
       payload: { from: 'e2', to: 'e4', moveAt: 123 },
     };
 
-    const actual = matchReducer(wrapIntoActivityState(pendingMatch), action);
+    const actual = matchReducer(idlingMatch, action);
 
     const expectedMatch: MatchState = {
-      status: 'ongoing',
+      status: 'pending',
       type: 'bestOf',
       rounds: 1,
       completedPlays: [],
@@ -409,7 +432,7 @@ describe('End Match when rounds number reached', () => {
           timeClass: 'blitz',
           color: 'w',
         }),
-        status: 'ongoing',
+        status: 'idling',
         pgn: '1. e4',
         lastMoveAt: 123,
         lastMoveBy: 'white',
@@ -425,6 +448,11 @@ describe('End Match when rounds number reached', () => {
 
     expect(actual).toEqual(newMatchState);
 
+    const actual2 = matchReducer(actual, {
+      type: 'play:move',
+      payload: { from: 'e7', to: 'e6', moveAt: 123 },
+    });
+
     const actionResign: PlayActions = {
       type: 'play:resignGame',
       payload: {
@@ -432,7 +460,7 @@ describe('End Match when rounds number reached', () => {
       },
     };
 
-    const update = matchReducer(actual, actionResign);
+    const update = matchReducer(actual2, actionResign);
 
     const expectedMatchUpdate: MatchState = {
       status: 'complete',
@@ -446,9 +474,9 @@ describe('End Match when rounds number reached', () => {
               color: 'w',
             }),
             status: 'complete',
-            pgn: '1. e4',
+            pgn: '1. e4 e6',
             lastMoveAt: 123,
-            lastMoveBy: 'white',
+            lastMoveBy: 'black',
             winner: 'white',
             startedAt: 123,
           }),
@@ -482,10 +510,10 @@ describe('End Match when rounds number reached', () => {
       payload: { from: 'e2', to: 'e4', moveAt: 123 },
     };
 
-    const actual = matchReducer(wrapIntoActivityState(pendingMatch), action);
+    const actual = matchReducer(idlingMatch, action);
 
     const expectedMatch: MatchState = {
-      status: 'ongoing',
+      status: 'pending',
       type: 'bestOf',
       rounds: 1,
       completedPlays: [],
@@ -505,7 +533,7 @@ describe('End Match when rounds number reached', () => {
           timeClass: 'blitz',
           color: 'w',
         }),
-        status: 'ongoing',
+        status: 'idling',
         pgn: '1. e4',
         lastMoveAt: 123,
         lastMoveBy: 'white',
@@ -521,6 +549,11 @@ describe('End Match when rounds number reached', () => {
 
     expect(actual).toEqual(newMatchState);
 
+    const actual2 = matchReducer(actual, {
+      type: 'play:move',
+      payload: { from: 'e7', to: 'e6', moveAt: 123 },
+    });
+
     const actionDrawInvite: PlayActions = {
       type: 'play:sendOffer',
       payload: {
@@ -529,7 +562,7 @@ describe('End Match when rounds number reached', () => {
       },
     };
 
-    const drawOffer = matchReducer(actual, actionDrawInvite);
+    const drawOffer = matchReducer(actual2, actionDrawInvite);
 
     const acceptDraw: PlayActions = {
       type: 'play:acceptOfferDraw',
@@ -550,9 +583,9 @@ describe('End Match when rounds number reached', () => {
             }),
             offers: [{ byPlayer: 'john', status: 'accepted', type: 'draw' }],
             status: 'complete',
-            pgn: '1. e4',
+            pgn: '1. e4 e6',
             lastMoveAt: 123,
-            lastMoveBy: 'white',
+            lastMoveBy: 'black',
             winner: '1/2',
             startedAt: 123,
           }),
@@ -591,6 +624,12 @@ describe('timer only starts after black moves', () => {
   };
 
   const pendingMatch = createMatchState(matchCreateParams);
+  const idlingMatch = matchReducer(wrapIntoActivityState(pendingMatch), {
+    type: 'play:startWhitePlayerIdlingTimer',
+    payload: {
+      at: 123,
+    },
+  });
 
   test('timer shouldnt start after white move, only after black', () => {
     const moveWhiteTime = new Date().getTime();
@@ -599,11 +638,11 @@ describe('timer only starts after black moves', () => {
       payload: { from: 'e2', to: 'e4', moveAt: moveWhiteTime },
     };
 
-    const actual = matchReducer(wrapIntoActivityState(pendingMatch), action);
+    const actual = matchReducer(idlingMatch, action);
 
     const expectedMatch: MatchState = {
       // TODO: This should still be "pending" with the new Ideas
-      status: 'ongoing',
+      status: 'pending',
       type: 'openEnded',
       completedPlays: [],
       players: {
@@ -623,7 +662,7 @@ describe('timer only starts after black moves', () => {
           color: 'w',
         }),
         timeLeft: { white: 300000, black: 300000 },
-        status: 'ongoing',
+        status: 'idling',
         pgn: '1. e4',
         lastMoveAt: moveWhiteTime,
         lastMoveBy: 'white',
