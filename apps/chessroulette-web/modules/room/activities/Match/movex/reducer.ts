@@ -115,13 +115,6 @@ export const reducer = (
       if (nextCurrentPlay.game.status === 'ongoing') {
         return 'ongoing';
       }
-      //If first game is aborted then the whole Match should abort
-      if (
-        nextCurrentPlay.game.status === 'aborted' &&
-        prevMatch.completedPlays.length === 0
-      ) {
-        return 'aborted';
-      }
       return prevMatch.completedPlays.length > 0 ? 'ongoing' : 'pending';
     });
 
