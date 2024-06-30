@@ -133,7 +133,7 @@ export const reducer = (
 
     if (prev.game.status === 'idling') {
       // The Game Status advances to "ongoing" only if both players moved
-      const canAdvanceToOngoing = instance.moves().length >= 2;
+      const canAdvanceToOngoing = instance.moveNumber() >= 2;
 
       const nextStatus = canAdvanceToOngoing ? 'ongoing' : 'idling';
 

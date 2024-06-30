@@ -45,12 +45,18 @@ describe('Game Status: Idling > Idling', () => {
       payload: { from: 'e2', to: 'e4', moveAt: 123 },
     };
 
+    const idleAction: PlayActions = {
+      type: 'play:startWhitePlayerIdlingTimer',
+      payload: { at: 123 },
+    };
+
     const pendingGame = createGame({
       color: 'white',
       timeClass: 'blitz',
     });
 
-    const actual = playReducer(wrapIntoPlay(pendingGame), action);
+    const idle = playReducer(wrapIntoPlay(pendingGame), idleAction);
+    const actual = playReducer(idle, action);
 
     const expected: PlayState = wrapIntoPlay({
       status: 'idling',
@@ -76,12 +82,17 @@ describe('Game Status: Idling > Aborted', () => {
       color: 'white',
       timeClass: 'blitz',
     });
+    const idleAction: PlayActions = {
+      type: 'play:startWhitePlayerIdlingTimer',
+      payload: { at: 123 },
+    };
     const action: PlayActions = {
       type: 'play:abortGame',
       payload: { color: 'white' },
     };
 
-    const actual = playReducer(wrapIntoPlay(pendingGame), action);
+    const idle = playReducer(wrapIntoPlay(pendingGame), idleAction);
+    const actual = playReducer(idle, action);
 
     const expected: PlayState = wrapIntoPlay({
       status: 'aborted',
@@ -91,11 +102,12 @@ describe('Game Status: Idling > Aborted', () => {
       // these 2 are the same for now
       startedAt: 123,
       lastMoveAt: undefined,
-      lastMoveBy: 'white',
+      lastMoveBy: 'black',
       winner: undefined,
       offers: [],
       orientation: 'white',
     });
+
     expect(actual).toEqual(expected);
   });
 });
@@ -107,7 +119,14 @@ describe('Game Status: Idling > Ongoing', () => {
       timeClass: 'blitz',
     });
 
-    const playAfterWhiteMove = playReducer(wrapIntoPlay(pendingGame), {
+    const idleAction: PlayActions = {
+      type: 'play:startWhitePlayerIdlingTimer',
+      payload: { at: 123 },
+    };
+
+    const idle = playReducer(wrapIntoPlay(pendingGame), idleAction);
+
+    const playAfterWhiteMove = playReducer(idle, {
       type: 'play:move',
       payload: { from: 'e2', to: 'e4', moveAt: 123 },
     });

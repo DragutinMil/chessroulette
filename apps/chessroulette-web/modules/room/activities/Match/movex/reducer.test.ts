@@ -21,7 +21,7 @@ const wrapIntoPlay = <G extends Game>(game: G): PlayState => ({
 
 test('match does NOT become "pending" if the game has NOT started yet', () => {});
 
-describe('Match Status: Pending > Ongoing', () => {
+describe.only('Match Status: Pending > Ongoing', () => {
   const matchCreateParams: Parameters<typeof createMatchState>[0] = {
     type: 'bestOf',
     rounds: 3,
@@ -33,15 +33,66 @@ describe('Match Status: Pending > Ongoing', () => {
 
   const pendingMatch = createMatchState(matchCreateParams);
 
+  const idlingMatch = matchReducer(wrapIntoActivityState(pendingMatch), {
+    type: 'play:startWhitePlayerIdlingTimer',
+    payload: {
+      at: 123,
+    },
+  });
+
   test('With first move action', () => {
     const action: PlayActions = {
       type: 'play:move',
       payload: { from: 'e2', to: 'e4', moveAt: 123 },
     };
 
-    const actual = matchReducer(wrapIntoActivityState(pendingMatch), action);
+    const actual = matchReducer(idlingMatch, action);
 
     const expectedMatch: MatchState = {
+      status: 'pending',
+      type: 'bestOf',
+      rounds: 3,
+      completedPlays: [],
+      players: {
+        white: {
+          id: 'gigi',
+          score: 0,
+        },
+        black: {
+          id: 'costel',
+          score: 0,
+        },
+      },
+      winner: undefined,
+      ongoingPlay: wrapIntoPlay({
+        ...createGame({
+          timeClass: 'blitz',
+          color: 'b',
+        }),
+        status: 'idling',
+        startedAt: 123,
+        winner: undefined,
+        pgn: '1. e4',
+        lastMoveAt: 123,
+        lastMoveBy: 'white',
+      }),
+    };
+
+    const expected: MatchActivityState = {
+      activityType: 'match',
+      activityState: expectedMatch,
+    };
+
+    expect(actual).toEqual(expected);
+
+    const actionBlack: PlayActions = {
+      type: 'play:move',
+      payload: { from: 'e7', to: 'e6', moveAt: 123 },
+    };
+
+    const update = matchReducer(actual, actionBlack);
+
+    const expectedUpdate: MatchState = {
       status: 'ongoing',
       type: 'bestOf',
       rounds: 3,
@@ -65,18 +116,18 @@ describe('Match Status: Pending > Ongoing', () => {
         status: 'ongoing',
         startedAt: 123,
         winner: undefined,
-        pgn: '1. e4',
+        pgn: '1. e4 e6',
         lastMoveAt: 123,
-        lastMoveBy: 'white',
+        lastMoveBy: 'black',
       }),
     };
 
-    const expected: MatchActivityState = {
+    const expectedStateUpdate: MatchActivityState = {
       activityType: 'match',
-      activityState: expectedMatch,
+      activityState: expectedUpdate,
     };
 
-    expect(actual).toEqual(expected);
+    expect(update).toEqual(expectedStateUpdate);
   });
 });
 
@@ -99,7 +150,7 @@ describe('Match Status: Ongoing > Completed', () => {
     };
     const actual = matchReducer(wrapIntoActivityState(pendingMatch), action);
     const expectedMatch: MatchState = {
-      status: 'ongoing',
+      status: 'pending',
       type: 'bestOf',
       rounds: 1,
       completedPlays: [],
@@ -218,7 +269,7 @@ describe('Start New Match => ', () => {
     const actual = matchReducer(wrapIntoActivityState(pendingMatch), action);
 
     const expectedMatch: MatchState = {
-      status: 'ongoing',
+      status: 'pending',
       type: 'bestOf',
       rounds: 3,
       completedPlays: [],
