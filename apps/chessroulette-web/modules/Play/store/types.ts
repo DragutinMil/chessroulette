@@ -176,7 +176,7 @@ export type PlayState = {
   game: Game;
 };
 
-export type PlayActions = 
+export type PlayActions =
   | Action<'play:startWhitePlayerIdlingTimer', { at: number }>
   | Action<
       'play:move',
@@ -184,7 +184,7 @@ export type PlayActions =
         moveAt: number;
       }
     >
-  | Action<'play:timeout'>
+  | Action<'play:timeout', { color: ChessColor }>
   // TODO: Add this feature in
   //  When the timer runs out in the UI or they press the abort button, move the game to abort!
 

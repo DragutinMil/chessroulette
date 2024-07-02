@@ -4,17 +4,11 @@ import { Results } from './types';
 
 type Props = Omit<PlayersInfoProps, 'turn' | 'game' | 'isGameOngoing'> & {
   results: Results;
+  gameCounterActive: boolean;
 };
 
 export const PlayersInfoContainer = (props: Props) => {
   const { realState } = useGame();
 
-  return (
-    <PlayersInfo
-      {...props}
-      turn={realState.turn}
-      isGameOngoing={realState.game.status === 'ongoing'}
-      game={realState.game}
-    />
-  );
+  return <PlayersInfo {...props} turn={realState.turn} game={realState.game} />;
 };

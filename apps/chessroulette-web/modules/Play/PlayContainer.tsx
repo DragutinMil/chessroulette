@@ -108,12 +108,12 @@ export const PlayContainer = ({
             overlayComponent={
               <GameStateDialog
                 joinRoomLink={joinRoomLink}
-                onRematchRequest={() => {
-                  dispatch({
-                    type: 'play:sendOffer',
-                    payload: { byPlayer: userId, offerType: 'rematch' },
-                  });
-                }}
+                // onRematchRequest={() => {
+                //   dispatch({
+                //     type: 'play:sendOffer',
+                //     payload: { byPlayer: userId, offerType: 'rematch' },
+                //   });
+                // }}
                 onAcceptOffer={({ offer }) => {
                   if (offer === 'draw') {
                     dispatch({ type: 'play:acceptOfferDraw' });
@@ -205,7 +205,10 @@ export const PlayContainer = ({
                 </div>
               )}
               <div className="flex-1" />
-              <GameStateWidget
+              {/*
+               * Todo - bring it back and fix prop erros
+               */}
+              {/*<GameStateWidget
                 game={game}
                 id={roomId}
                 key={roomId}
@@ -214,7 +217,7 @@ export const PlayContainer = ({
                     type: 'play:timeout',
                   });
                 }}
-              />
+              />*/}
             </div>
             <div className="bg-slate-700 p-3 flex flex-col flex-1 min-h-0 rounded-lg shadow-2xl">
               <FreeBoardNotation

@@ -5,9 +5,10 @@ import { PlayersBySide } from 'apps/chessroulette-web/modules/Play/types';
 import React, { useMemo } from 'react';
 import { useGame } from 'apps/chessroulette-web/modules/Play/providers/useGame';
 import { AbortWidget } from 'apps/chessroulette-web/modules/Play/components/AbortWidget/AbortWidget';
-import { DispatchOf } from '@xmatter/util-kit';
+import { DispatchOf, toLongColor } from '@xmatter/util-kit';
 import { PlayActions } from 'apps/chessroulette-web/modules/Play/store';
 import { invoke } from 'movex-core-util';
+import { getMovesDetailsFromPGN } from '../utils';
 
 type Props = {
   playersBySide: PlayersBySide;
@@ -51,6 +52,21 @@ export const MatchStateDisplay: React.FC<Props> = ({ dispatch, ...props }) => {
     return null;
   }, [realState.game.status, realState.turn]);
 
+  const isGameCounterActive = useMemo(() => {
+    const moves = getMovesDetailsFromPGN(realState.game.pgn);
+    if (realState.game.status !== 'ongoing') {
+      return false;
+    }
+    if (moves.totalMoves > 1) {
+      return true;
+    }
+    return !!(
+      moves.totalMoves === 1 &&
+      moves.lastMoveBy &&
+      toLongColor(moves.lastMoveBy) === 'black'
+    );
+  }, [realState.game.status, realState.game.pgn]);
+
   return (
     <div>
       {type === 'bestOf' && (
@@ -63,11 +79,16 @@ export const MatchStateDisplay: React.FC<Props> = ({ dispatch, ...props }) => {
       )}
       <div className="flex flex-row w-full">
         <PlayersInfoContainer
+          gameCounterActive={isGameCounterActive}
           players={props.playersBySide}
           results={results}
           onTimerFinished={(side) => {
-            // TURN: Call the match dispatcher to end the game!
-            console.log('timer finished for side', side);
+            dispatch({
+              type: 'play:timeout',
+              payload: {
+                color: props.playersBySide[side].color,
+              },
+            });
           }}
         />
       </div>

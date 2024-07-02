@@ -253,7 +253,7 @@ export const reducer = (
       game: {
         ...prev.game,
         status: 'complete',
-        winner: prev.game.lastMoveBy,
+        winner: toLongColor(swapColor(action.payload.color)),
         timeLeft: {
           ...prev.game.timeLeft,
           [swapColor(prev.game.lastMoveBy)]: 0,
