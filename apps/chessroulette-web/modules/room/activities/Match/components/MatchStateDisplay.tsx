@@ -7,6 +7,7 @@ import { useGame } from 'apps/chessroulette-web/modules/Play/providers/useGame';
 import { AbortWidget } from 'apps/chessroulette-web/modules/Play/components/AbortWidget/AbortWidget';
 import { DispatchOf } from '@xmatter/util-kit';
 import { PlayActions } from 'apps/chessroulette-web/modules/Play/store';
+import { invoke } from 'movex-core-util';
 
 type Props = {
   playersBySide: PlayersBySide;
@@ -14,11 +15,21 @@ type Props = {
 };
 
 export const MatchStateDisplay: React.FC<Props> = ({ dispatch, ...props }) => {
-  const { rounds, currentRound, type, results, draws } = useMatch();
-  const { realState } = useGame();
+  const { rounds, currentRound, type, results, draws, players } = useMatch();
+  const { realState, playerId } = useGame();
 
   const displayAbortWidget = useMemo(() => {
-    if (realState.game.status === 'idling') {
+    const myTurn = invoke(() => {
+      if (!players) {
+        return false;
+      }
+      const { turn } = realState;
+      return (
+        (players.black.id === playerId && turn === 'black') ||
+        (players.white.id === playerId && turn === 'white')
+      );
+    });
+    if (realState.game.status === 'idling' && myTurn) {
       const timer = Math.floor(
         Math.floor(realState.game.timeLeft.white / 10) -
           (new Date().getTime() - realState.game.startedAt)
@@ -29,8 +40,7 @@ export const MatchStateDisplay: React.FC<Props> = ({ dispatch, ...props }) => {
             dispatch({
               type: 'play:abortGame',
               payload: {
-                color:
-                  realState.game.lastMoveBy === 'white' ? 'black' : 'white',
+                color: realState.turn,
               },
             });
           }}
@@ -39,7 +49,7 @@ export const MatchStateDisplay: React.FC<Props> = ({ dispatch, ...props }) => {
       );
     }
     return null;
-  }, [realState.game.status]);
+  }, [realState.game.status, realState.turn]);
 
   return (
     <div>
