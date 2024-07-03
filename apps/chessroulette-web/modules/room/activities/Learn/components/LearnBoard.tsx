@@ -63,6 +63,7 @@ export const LearnBoard = ({
       circlesMap={circlesMap}
       {...chessBoardProps}
       rightSideSizePx={RIGHT_SIDE_SIZE_PX}
+      canPlay
       rightSideClassName={`flex flex-col ${rightSideClassName}`}
       rightSideComponent={
         <>

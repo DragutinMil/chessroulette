@@ -68,7 +68,7 @@ export const Playboard = ({
   playingColor,
   boardOrientation = playingColor,
   onMove,
-  canPlay = true,
+  canPlay = false,
   ...props
 }: Props) => {
   const [circlesMap, setCirclesMap] = useState<CirclesMap>({});

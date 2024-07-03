@@ -56,6 +56,7 @@ export const Main: Story = {
         <Playboard
           {...args}
           fen={state.fen}
+          canPlay
           playingColor={state.turn}
           onMove={(_, nextFen) => {
             setState((prev) => ({

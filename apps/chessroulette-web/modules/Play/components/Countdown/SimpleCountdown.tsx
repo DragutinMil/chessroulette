@@ -7,11 +7,17 @@ type Props = {
   onFinished: () => void;
 };
 
+const toSeconds = (ms: number) => Math.floor(ms / 1000);
+
 export const SimpleCountdown: React.FC<Props> = ({
   timeleft = 10 * 1000,
   onFinished,
 }) => {
   const [display, setDisplay] = useState(timeleft);
+
+  useEffect(() => {
+    setDisplay(timeleft);
+  }, [toSeconds(timeleft)]);
 
   useInterval(() => {
     setDisplay((prev) => {
@@ -34,7 +40,7 @@ export const SimpleCountdown: React.FC<Props> = ({
   return (
     <div className="">
       <Text className="text-red-500 animate-pulse font-bold">
-        {Math.floor(display / 1000)}
+        {toSeconds(display)}
       </Text>
     </div>
   );

@@ -16,6 +16,8 @@ import { MatchStateProvider } from 'apps/chessroulette-web/modules/room/activiti
 import { MatchStateDisplay } from './components/MatchStateDisplay';
 import { MatchStateDialogContainer } from './components/MatchStateDialogContainer';
 import { initialPlayState } from 'apps/chessroulette-web/modules/Play/store';
+import { PlayContainer } from 'apps/chessroulette-web/modules/Play/PlayContainer';
+import { GameAbortContainer } from 'apps/chessroulette-web/modules/Play/GameAbortContainer';
 
 type Props = {
   roomId: string;
@@ -94,9 +96,9 @@ export const MatchActivityView = ({
         <ResizableDesktopLayout
           rightSideSize={RIGHT_SIDE_SIZE_PX}
           mainComponent={({ boardSize }) => (
-            <GameBoardContainer
+            <PlayContainer
               boardSizePx={boardSize}
-              joinRoomLink={joinRoomLink}
+              // joinRoomLink={joinRoomLink}
               isBoardFlipped={isBoardFlipped}
               overlayComponent={
                 <MatchStateDialogContainer
@@ -108,7 +110,7 @@ export const MatchActivityView = ({
               // TODO: All of these can be provided from the GamePovider
               game={game}
               dispatch={dispatch}
-              playerId={userId}
+              userId={userId}
               players={matchState.players}
             />
           )}

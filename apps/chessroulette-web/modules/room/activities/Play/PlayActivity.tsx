@@ -3,7 +3,7 @@ import { MovexBoundResourceFromConfig } from 'movex-react';
 import { noop } from '@xmatter/util-kit';
 import { IceServerRecord } from 'apps/chessroulette-web/providers/PeerToPeerProvider/type';
 import { UserId, UsersMap } from 'apps/chessroulette-web/modules/user/type';
-import { PlayContainer } from '../../../Play/PlayContainer';
+import { PlayContainer_old } from '../../../Play/PlayContainer_old';
 import { usePlayActivitySettings } from './usePlayActivitySettings';
 import { PlayActivityState } from './movex';
 
@@ -31,7 +31,7 @@ export const PlayActivity = ({
   const dispatch = optionalDispatch || noop;
 
   return (
-    <PlayContainer
+    <PlayContainer_old
       state={remoteState}
       dispatch={dispatch}
       isBoardFlipped={isBoardFlipped}
