@@ -82,30 +82,26 @@ export const reducer = (
     : prevMatch.ongoingPlay;
 
   if (nextCurrentPlay.game.status === 'aborted') {
-    const winner = invoke(() => {
+    //First game abort results in aborted match. Afterwards results in completed match + winner
+    const nextMatchState = invoke((): Pick<MatchState, 'winner' | 'status'> => {
       return prevMatch.completedPlays.length === 0
-        ? nextCurrentPlay.game.winner
-        : undefined;
+        ? {
+            status: 'aborted',
+            winner: undefined,
+          }
+        : {
+            status: 'complete',
+            winner: nextCurrentPlay.game.lastMoveBy,
+          };
     });
+
     return {
       ...prev,
       activityState: {
         ...prev.activityState,
         completedPlays: [...prevMatch.completedPlays, nextCurrentPlay],
         ongoingPlay: undefined,
-        status:
-          prevMatch.completedPlays.length === 0 ? 'aborted' : prevMatch.status,
-        winner,
-        ...(winner &&
-          winner !== '1/2' && {
-            players: {
-              ...prev.activityState.players,
-              [winner]: {
-                ...prev.activityState.players[winner],
-                score: 1,
-              },
-            },
-          }),
+        ...nextMatchState,
       },
     };
   }

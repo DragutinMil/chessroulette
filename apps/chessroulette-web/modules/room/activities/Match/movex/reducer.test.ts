@@ -738,3 +738,348 @@ describe('timer only starts after black moves', () => {
     expect(timeLeft.white).not.toEqual(30000);
   });
 });
+
+describe('abort game -> match', () => {
+  const matchCreateParams: Parameters<typeof createMatchState>[0] = {
+    type: 'bestOf',
+    rounds: 3,
+    timeClass: 'blitz',
+    challengeeId: 'maria',
+    challengerId: 'john',
+    startColor: 'w',
+  };
+
+  const pendingMatch = createMatchState(matchCreateParams);
+  const idlingMatch = matchReducer(wrapIntoActivityState(pendingMatch), {
+    type: 'play:startWhitePlayerIdlingTimer',
+    payload: {
+      at: 123,
+    },
+  });
+  test('aborting first game will abort the whole match', () => {
+    const action: PlayActions = {
+      type: 'play:abortGame',
+      payload: {
+        color: 'white',
+      },
+    };
+
+    const actual = matchReducer(idlingMatch, action);
+
+    const expectedMatch: MatchState = {
+      status: 'aborted',
+      type: 'bestOf',
+      rounds: 3,
+      completedPlays: [
+        {
+          ...wrapIntoPlay({
+            ...createGame({
+              timeClass: 'blitz',
+              color: 'w',
+            }),
+            offers: [],
+            status: 'aborted',
+            pgn: '',
+            lastMoveAt: undefined,
+            lastMoveBy: 'black',
+            winner: undefined,
+            startedAt: 123,
+          }),
+        },
+      ],
+      players: {
+        white: {
+          id: 'john',
+          score: 0,
+        },
+        black: {
+          id: 'maria',
+          score: 0,
+        },
+      },
+      winner: undefined,
+      ongoingPlay: undefined,
+    };
+    const expected: MatchActivityState = {
+      activityType: 'match',
+      activityState: expectedMatch,
+    };
+    expect(expected).toEqual(actual);
+  });
+  test('aborting second game will complete the match and have a winner - abort with white', () => {
+    const matchUpdateWhiteMove = matchReducer(idlingMatch, {
+      type: 'play:move',
+      payload: { from: 'e2', to: 'e4', moveAt: 123 },
+    });
+    const matchUpdateBlackMove = matchReducer(matchUpdateWhiteMove, {
+      type: 'play:move',
+      payload: { from: 'e7', to: 'e6', moveAt: 123 },
+    });
+    const matchUpdateResign = matchReducer(matchUpdateBlackMove, {
+      type: 'play:resignGame',
+      payload: {
+        color: 'black',
+      },
+    });
+
+    const newMatch = matchReducer(matchUpdateResign, {
+      type: 'match:startNewGame',
+    });
+
+    const expectedNewMatchState: MatchState = {
+      status: 'ongoing',
+      type: 'bestOf',
+      rounds: 3,
+      completedPlays: [
+        {
+          ...wrapIntoPlay({
+            ...createGame({
+              timeClass: 'blitz',
+              color: 'w',
+            }),
+            offers: [],
+            status: 'complete',
+            pgn: '1. e4 e6',
+            lastMoveAt: 123,
+            lastMoveBy: 'black',
+            winner: 'white',
+            startedAt: 123,
+          }),
+        },
+      ],
+      players: {
+        black: {
+          id: 'john',
+          score: 1,
+        },
+        white: {
+          id: 'maria',
+          score: 0,
+        },
+      },
+      winner: undefined,
+      ongoingPlay: wrapIntoPlay({
+        ...createGame({
+          timeClass: 'blitz',
+          color: 'black',
+        }),
+      }),
+    };
+    const expectedNewMatch: MatchActivityState = {
+      activityType: 'match',
+      activityState: expectedNewMatchState,
+    };
+
+    expect(newMatch).toEqual(expectedNewMatch);
+
+    const idleMatch = matchReducer(newMatch, {
+      type: 'play:startWhitePlayerIdlingTimer',
+      payload: { at: 123 },
+    });
+
+    const actual = matchReducer(idleMatch, {
+      type: 'play:abortGame',
+      payload: {
+        color: 'white',
+      },
+    });
+
+    const expectedMatch: MatchState = {
+      status: 'complete',
+      type: 'bestOf',
+      rounds: 3,
+      completedPlays: [
+        {
+          ...wrapIntoPlay({
+            ...createGame({
+              timeClass: 'blitz',
+              color: 'w',
+            }),
+            offers: [],
+            status: 'complete',
+            pgn: '1. e4 e6',
+            lastMoveAt: 123,
+            lastMoveBy: 'black',
+            winner: 'white',
+            startedAt: 123,
+          }),
+        },
+        {
+          ...wrapIntoPlay({
+            ...createGame({
+              timeClass: 'blitz',
+              color: 'black',
+            }),
+            offers: [],
+            status: 'aborted',
+            pgn: '',
+            lastMoveAt: undefined,
+            lastMoveBy: 'black',
+            winner: undefined,
+            startedAt: 123,
+          }),
+        },
+      ],
+      players: {
+        black: {
+          id: 'john',
+          score: 1,
+        },
+        white: {
+          id: 'maria',
+          score: 0,
+        },
+      },
+      winner: 'black',
+      ongoingPlay: undefined,
+    };
+
+    const expected: MatchActivityState = {
+      activityType: 'match',
+      activityState: expectedMatch,
+    };
+
+    expect(actual).toEqual(expected);
+  });
+
+  test('aborting second game will complete the match and have a winner - abort with black', () => {
+    const matchUpdateWhiteMove = matchReducer(idlingMatch, {
+      type: 'play:move',
+      payload: { from: 'e2', to: 'e4', moveAt: 123 },
+    });
+    const matchUpdateBlackMove = matchReducer(matchUpdateWhiteMove, {
+      type: 'play:move',
+      payload: { from: 'e7', to: 'e6', moveAt: 123 },
+    });
+    const matchUpdateResign = matchReducer(matchUpdateBlackMove, {
+      type: 'play:resignGame',
+      payload: {
+        color: 'black',
+      },
+    });
+
+    const newMatch = matchReducer(matchUpdateResign, {
+      type: 'match:startNewGame',
+    });
+
+    const expectedNewMatchState: MatchState = {
+      status: 'ongoing',
+      type: 'bestOf',
+      rounds: 3,
+      completedPlays: [
+        {
+          ...wrapIntoPlay({
+            ...createGame({
+              timeClass: 'blitz',
+              color: 'w',
+            }),
+            offers: [],
+            status: 'complete',
+            pgn: '1. e4 e6',
+            lastMoveAt: 123,
+            lastMoveBy: 'black',
+            winner: 'white',
+            startedAt: 123,
+          }),
+        },
+      ],
+      players: {
+        black: {
+          id: 'john',
+          score: 1,
+        },
+        white: {
+          id: 'maria',
+          score: 0,
+        },
+      },
+      winner: undefined,
+      ongoingPlay: wrapIntoPlay({
+        ...createGame({
+          timeClass: 'blitz',
+          color: 'black',
+        }),
+      }),
+    };
+    const expectedNewMatch: MatchActivityState = {
+      activityType: 'match',
+      activityState: expectedNewMatchState,
+    };
+
+    expect(newMatch).toEqual(expectedNewMatch);
+
+    const idleMatch = matchReducer(newMatch, {
+      type: 'play:startWhitePlayerIdlingTimer',
+      payload: { at: 123 },
+    });
+
+    const moveWhite = matchReducer(idleMatch, {
+      type: 'play:move',
+      payload: { from: 'e2', to: 'e4', moveAt: 123 },
+    });
+
+    const actual = matchReducer(moveWhite, {
+      type: 'play:abortGame',
+      payload: {
+        color: 'black',
+      },
+    });
+
+    const expectedMatch: MatchState = {
+      status: 'complete',
+      type: 'bestOf',
+      rounds: 3,
+      completedPlays: [
+        {
+          ...wrapIntoPlay({
+            ...createGame({
+              timeClass: 'blitz',
+              color: 'w',
+            }),
+            offers: [],
+            status: 'complete',
+            pgn: '1. e4 e6',
+            lastMoveAt: 123,
+            lastMoveBy: 'black',
+            winner: 'white',
+            startedAt: 123,
+          }),
+        },
+        {
+          ...wrapIntoPlay({
+            ...createGame({
+              timeClass: 'blitz',
+              color: 'black',
+            }),
+            offers: [],
+            status: 'aborted',
+            pgn: '1. e4',
+            lastMoveAt: 123,
+            lastMoveBy: 'white',
+            winner: undefined,
+            startedAt: 123,
+          }),
+        },
+      ],
+      players: {
+        black: {
+          id: 'john',
+          score: 1,
+        },
+        white: {
+          id: 'maria',
+          score: 0,
+        },
+      },
+      winner: 'white',
+      ongoingPlay: undefined,
+    };
+
+    const expected: MatchActivityState = {
+      activityType: 'match',
+      activityState: expectedMatch,
+    };
+
+    expect(actual).toEqual(expected);
+  });
+});
