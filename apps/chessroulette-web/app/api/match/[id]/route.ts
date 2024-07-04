@@ -7,6 +7,8 @@ import { MovexClientResourceShape } from 'movex-core-util';
 import { NextRequest, NextResponse } from 'next/server';
 import z from 'zod';
 
+const env = process.env.NEXT_PUBLIC_ENV;
+const HTTP_PROTOCOL = env === 'staging' || env === 'prod' ? 'https' : 'http';
 const MOVEX_ENDPOINT_URL = process.env.NEXT_PUBLIC_MOVEX_ENDPOINT_URL as string;
 
 const paramsSchema = z.object({
@@ -19,7 +21,6 @@ export function GET(
   { params }: { params: { id: string } }
 ) {
   // const params = new URLSearchParams(request.nextUrl.search);
-  console.log('here', params);
   // const params = new URLSearchParams(request.nextUrl.searchParams);
   // const result = paramsSchema.safeParse(Object.fromEntries(params));
 
@@ -27,9 +28,11 @@ export function GET(
   //   return NextResponse.json(result.error, { status: 400 });
   // }
 
-  const movexRoomUrl = `http://${MOVEX_ENDPOINT_URL}/api/resources/room:${params.id}`;
+  const movexRoomUrl = `${HTTP_PROTOCOL}://${MOVEX_ENDPOINT_URL}/api/resources/room:${params.id}`;
 
-  return fetch(movexRoomUrl, { cache: 'no-store' })
+  console.log('api/match route ', { params, movexRoomUrl });
+
+  return fetch(movexRoomUrl, { cache: 'no-store', next: { revalidate: 1 } })
     .then((s) => {
       if (s.ok) {
         return s.json();
