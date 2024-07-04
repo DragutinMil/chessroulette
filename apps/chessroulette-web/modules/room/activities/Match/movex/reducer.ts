@@ -1,4 +1,4 @@
-import { ChessColor, invoke, swapColor } from '@xmatter/util-kit';
+import { ChessColor, invoke, swapColor, toLongColor } from '@xmatter/util-kit';
 import { ActivityState, initialActivityState } from '../../movex';
 import { PlayStore } from 'apps/chessroulette-web/modules/Play';
 import { MatchActivityActions, MatchState } from './types';
@@ -91,7 +91,9 @@ export const reducer = (
           }
         : {
             status: 'complete',
-            winner: nextCurrentPlay.game.lastMoveBy,
+            winner:
+              prevMatch.players[toLongColor(nextCurrentPlay.game.lastMoveBy)]
+                .id,
           };
     });
 
@@ -121,7 +123,10 @@ export const reducer = (
         ongoingPlay: nextCurrentPlay,
         status: nextStatus,
         ...(nextStatus === 'aborted' && {
-          winner: swapColor(nextCurrentPlay.game.lastMoveBy),
+          winner:
+            prevMatch.players[
+              toLongColor(swapColor(nextCurrentPlay.game.lastMoveBy))
+            ].id,
         }),
       },
     };
@@ -142,7 +147,7 @@ export const reducer = (
 
   const winner = invoke(() => {
     if (prevMatch.type !== 'bestOf') {
-      return;
+      return undefined;
     }
 
     return result.white === Math.ceil(prevMatch.rounds / 2)

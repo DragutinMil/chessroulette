@@ -105,6 +105,7 @@ export const MatchActivityView = ({
                   dispatch={dispatch}
                   playerId={userId}
                   joinRoomLink={joinRoomLink}
+                  playersBySide={playersBySide}
                 />
               }
               // TODO: All of these can be provided from the GamePovider

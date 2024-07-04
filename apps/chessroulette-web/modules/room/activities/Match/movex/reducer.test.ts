@@ -930,7 +930,7 @@ describe('abort game -> match', () => {
           score: 0,
         },
       },
-      winner: 'black',
+      winner: 'john',
       ongoingPlay: undefined,
     };
 
@@ -1071,7 +1071,7 @@ describe('abort game -> match', () => {
           score: 0,
         },
       },
-      winner: 'white',
+      winner: 'maria',
       ongoingPlay: undefined,
     };
 
