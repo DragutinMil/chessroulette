@@ -42,10 +42,11 @@ export const GameAbortContainer = ({
     );
   });
 
-  const totalTime =
-    game.timeClass === 'untimed'
-      ? 60 * 1000 // 1 min in Ms
-      : chessGameTimeLimitMsMap[game.timeClass] / 10;
+  // const totalTime =
+  //   game.timeClass === 'untimed'
+  //     ? 60 * 1000 // 1 min in Ms
+  //     : chessGameTimeLimitMsMap[game.timeClass] / 10;
+  const totalTime = 3 * 60 * 1000; // 3 min in ms
 
   // If it's white's turn there is no lastMoveAt so it needs to use game.startedAt
   const lastGameActionAt = game.lastMoveAt || game.startedAt;

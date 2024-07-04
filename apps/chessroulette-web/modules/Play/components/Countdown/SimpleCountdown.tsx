@@ -1,6 +1,7 @@
 import { Text } from 'apps/chessroulette-web/components/Text';
 import { useInterval } from 'apps/chessroulette-web/hooks/useInterval';
 import React, { useEffect, useState } from 'react';
+import prettyMs from 'pretty-ms';
 
 type Props = {
   timeleft?: number;
@@ -40,7 +41,7 @@ export const SimpleCountdown: React.FC<Props> = ({
   return (
     <div className="">
       <Text className="text-red-500 animate-pulse font-bold">
-        {toSeconds(display)}
+        {prettyMs(toSeconds(display) * 1000, { colonNotation: true })}
       </Text>
     </div>
   );
