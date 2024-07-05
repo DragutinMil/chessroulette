@@ -1,8 +1,4 @@
-import { objectOmit } from '@xmatter/util-kit';
-import { activityParamsSchema } from 'apps/chessroulette-web/modules/room/io/paramsSchema';
-import { links } from 'apps/chessroulette-web/modules/room/links';
 import { RoomState } from 'apps/chessroulette-web/modules/room/movex/reducer';
-import { getRandomStr } from 'apps/chessroulette-web/util';
 import { MovexClientResourceShape } from 'movex-core-util';
 import { NextRequest, NextResponse } from 'next/server';
 import z from 'zod';
@@ -20,17 +16,7 @@ export function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  // const params = new URLSearchParams(request.nextUrl.search);
-  // const params = new URLSearchParams(request.nextUrl.searchParams);
-  // const result = paramsSchema.safeParse(Object.fromEntries(params));
-
-  // if (!result.success) {
-  //   return NextResponse.json(result.error, { status: 400 });
-  // }
-
   const movexRoomUrl = `${HTTP_PROTOCOL}://${MOVEX_ENDPOINT_URL}/api/resources/room:${params.id}`;
-
-  console.log('api/match route ', { params, movexRoomUrl });
 
   return fetch(movexRoomUrl, { cache: 'no-store', next: { revalidate: 1 } })
     .then((s) => {
@@ -38,12 +24,7 @@ export function GET(
         return s.json();
       }
 
-      return {
-        error: 'Fetch Failed',
-        response: s,
-      };
-
-      // throw s ;
+      throw s;
     })
     .then(
       (resource: MovexClientResourceShape<string, RoomState>) => {
