@@ -38,7 +38,12 @@ export function GET(
         return s.json();
       }
 
-      throw s;
+      return {
+        error: 'Fetch Failed',
+        response: s,
+      };
+
+      // throw s ;
     })
     .then(
       (resource: MovexClientResourceShape<string, RoomState>) => {
@@ -75,6 +80,7 @@ export function GET(
         return NextResponse.json(
           {
             Error: `Ooops! This shouldn't happen.`,
+            payload: e,
           },
           { status: 500 }
         );
