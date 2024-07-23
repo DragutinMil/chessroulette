@@ -1,19 +1,14 @@
 import { Text } from 'apps/chessroulette-web/components/Text';
 import { PlayersInfoContainer } from 'apps/chessroulette-web/modules/Play/PlayersInfoContainer';
 import { useMatch } from 'apps/chessroulette-web/modules/room/activities/Match/providers/useMatch';
-import {
-  PlayersBySide,
-  chessGameTimeLimitMsMap,
-  gameTimeClassRecord,
-} from 'apps/chessroulette-web/modules/Play/types';
+import { PlayersBySide } from 'apps/chessroulette-web/modules/Play/types';
 import React, { useMemo } from 'react';
 import { useGame } from 'apps/chessroulette-web/modules/Play/providers/useGame';
-// import { AbortWidget } from 'apps/chessroulette-web/modules/Play/components/AbortWidget/AbortView';
 import { DispatchOf, toLongColor } from '@xmatter/util-kit';
 import { PlayActions } from 'apps/chessroulette-web/modules/Play/store';
-import { invoke } from 'movex-core-util';
 import { getMovesDetailsFromPGN } from '../utils';
 import { GameAbortContainer } from 'apps/chessroulette-web/modules/Play/GameAbortContainer';
+import { MATCH_TIME_TO_ABORT } from '../movex';
 
 type Props = {
   playersBySide: PlayersBySide;
@@ -74,6 +69,7 @@ export const MatchStateDisplay: React.FC<Props> = ({
           players={players}
           dispatch={dispatch}
           className="bg-slate-700 rounded-md p-2"
+          timeToAbortMs={MATCH_TIME_TO_ABORT}
         />
       )}
     </div>

@@ -7,10 +7,14 @@ import {
   GameTimeClass,
   Results,
 } from 'apps/chessroulette-web/modules/Play/types';
+import { MovexReducer } from 'movex-core-util';
 
-const matchReducer = (prev: any) => prev;
+// const matchReducer = (prev: any) => prev;
 
-export const reducer = (
+// export const MATCH_TIME_TO_ABORT = 3 * 60 * 1000; // 3 mins
+export const MATCH_TIME_TO_ABORT = 20 * 1000; // 3 mins
+
+export const reducer: MovexReducer<ActivityState,MatchActivityActions> = (
   prev: ActivityState = initialActivityState,
   action: MatchActivityActions
 ): ActivityState => {
@@ -193,6 +197,8 @@ export const reducer = (
     },
   };
 };
+
+
 
 // TODO: This also can be memoized, soooo it could be an interesting feature
 //  to avoid cron jobs and other time based logic?

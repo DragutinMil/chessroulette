@@ -18,7 +18,7 @@ export const GameAbortView: React.FC<GameAbortViewProps> = ({
   <div className={`flex gap-3 flex-1 justify-between ${className}`}>
     <div className="flex gap-2">
       <span>{`Game aborting in `}</span>
-      <SimpleCountdown timeleft={timeLeft} onFinished={onAbort} />
+      <SimpleCountdown msleft={timeLeft} onFinished={onAbort} />
     </div>
     {canAbortOnDemand && (
       <div>

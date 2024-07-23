@@ -126,8 +126,9 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
             {matchType === 'bestOf' && (
               <div className="flex gap-1">
                 <span>Next game starts in</span>
+                {/* // TODO: Fix - when refreshing the page this refreshes too */}
                 <SimpleCountdown
-                  timeleft={10 * 1000}
+                  msleft={10 * 1000}
                   onFinished={() => {
                     dispatch({ type: 'match:startNewGame' });
                   }}

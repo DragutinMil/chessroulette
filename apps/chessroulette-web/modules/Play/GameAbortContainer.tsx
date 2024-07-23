@@ -9,6 +9,7 @@ type Props = Pick<GameAbortViewProps, 'className'> & {
   // // Not sure if here what we need is the match players
   players: MatchState['players'];
   dispatch: DispatchOf<PlayActions>;
+  timeToAbortMs: number;
 };
 
 /**
@@ -20,6 +21,7 @@ type Props = Pick<GameAbortViewProps, 'className'> & {
 export const GameAbortContainer = ({
   players,
   dispatch,
+  timeToAbortMs,
   ...gameAbortViewProps
 }: Props) => {
   const {
@@ -46,13 +48,13 @@ export const GameAbortContainer = ({
   //   game.timeClass === 'untimed'
   //     ? 60 * 1000 // 1 min in Ms
   //     : chessGameTimeLimitMsMap[game.timeClass] / 10;
-  const totalTime = 3 * 60 * 1000; // 3 min in ms
+  // const totalTime = 3 * 60 * 1000; // 3 min in ms
 
   // If it's white's turn there is no lastMoveAt so it needs to use game.startedAt
   const lastGameActionAt = game.lastMoveAt || game.startedAt;
 
   // TODO: Here we don't need the round downs no?
-  const timeLeft = totalTime - (new Date().getTime() - lastGameActionAt);
+  const timeLeft = timeToAbortMs - (new Date().getTime() - lastGameActionAt);
 
   return (
     <GameAbortView
