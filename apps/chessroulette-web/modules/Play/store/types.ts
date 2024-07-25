@@ -29,6 +29,8 @@ export type PendingGame = {
   status: 'pending';
   startedAt: undefined;
   timeClass: GameTimeClass;
+
+  // Since lastActivity
   timeLeft: {
     white: number;
     black: number;
@@ -54,6 +56,8 @@ export type IdlingGame = {
   // This reflects when the Game has Started - as Idle First
   startedAt: number; // Change this to ISODateTime
   timeClass: GameTimeClass;
+
+  // Since lastActivity
   timeLeft: {
     white: number;
     black: number;
@@ -80,6 +84,8 @@ export type OngoingGame = {
   // This reflects when the Game has Started - as Idle First and then Ongoing
   startedAt: number; // Change this to ISODateTime
   timeClass: GameTimeClass;
+
+  // Since lastActivity
   timeLeft: {
     white: number;
     black: number;
@@ -104,6 +110,8 @@ export type CompletedGame = {
   status: 'complete';
   startedAt: number; // Change this to ISODateTime
   timeClass: GameTimeClass;
+
+  // Since lastActivity
   timeLeft: {
     white: number;
     black: number;
@@ -132,6 +140,8 @@ export type AbortedGame = {
   status: 'aborted';
   startedAt: number; // Change this to ISODateTime
   timeClass: GameTimeClass;
+
+  // Since lastActivity
   timeLeft: {
     white: number;
     black: number;

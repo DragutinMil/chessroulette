@@ -2,6 +2,8 @@ import { ChessColor, ChessSide } from '@xmatter/util-kit';
 import { PlayerBox } from './PlayerBox';
 import { Game } from '../store';
 import { PlayersBySide, Results } from '../types';
+import { calculateGameTimeLeftAt } from '../lib';
+import { useMemo } from 'react';
 
 export type PlayersInfoProps = {
   players: PlayersBySide;
@@ -20,6 +22,11 @@ export const PlayersInfo = ({
   turn,
   onTimerFinished,
 }: PlayersInfoProps) => {
+  const calculatedGameTimeLeft = useMemo(
+    () => calculateGameTimeLeftAt(new Date().getTime(), game),
+    [game]
+  );
+
   return (
     <div className="flex flex-1 gap-1 flex-col">
       <PlayerBox
@@ -32,7 +39,7 @@ export const PlayersInfo = ({
           turn === players.away.color
         }
         gameTimeClass={game.timeClass}
-        timeLeft={game.timeLeft[players.away.color]}
+        timeLeft={calculatedGameTimeLeft[players.away.color]}
         onTimerFinished={() => onTimerFinished('away')}
       />
       <PlayerBox
@@ -45,7 +52,7 @@ export const PlayersInfo = ({
           turn === players.home.color
         }
         gameTimeClass={game.timeClass}
-        timeLeft={game.timeLeft[players.home.color]}
+        timeLeft={calculatedGameTimeLeft[players.home.color]}
         onTimerFinished={() => onTimerFinished('home')}
       />
     </div>
