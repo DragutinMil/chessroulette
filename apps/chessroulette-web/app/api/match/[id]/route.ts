@@ -1,49 +1,41 @@
 import { RoomState } from 'apps/chessroulette-web/modules/room/movex/reducer';
 import { MovexClientResourceShape } from 'movex-core-util';
 import { NextRequest, NextResponse } from 'next/server';
-import z from 'zod';
 
 const env = process.env.NEXT_PUBLIC_ENV;
 const HTTP_PROTOCOL = env === 'staging' || env === 'prod' ? 'https' : 'http';
 const MOVEX_ENDPOINT_URL = process.env.NEXT_PUBLIC_MOVEX_ENDPOINT_URL as string;
 
-const paramsSchema = z.object({
-  // TODO: this can be used later when they hit the api, now just the op prefixed id
-  id: z.string(), // Outpost
-});
+// const paramsSchema = z.object({
+//   // TODO: this can be used later when they hit the api, now just the op prefixed id
+//   id: z.string(), // Outpost
+// });
 
-export function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
-  const movexRoomUrl = `${HTTP_PROTOCOL}://${MOVEX_ENDPOINT_URL}/api/resources/room:${params.id}`;
+export function GET(_: NextRequest, { params }: { params: { id: string } }) {
+  const movexRoomUrl = `${HTTP_PROTOCOL}://${MOVEX_ENDPOINT_URL}/api/resources/room:${params.id}/state`;
 
-  return fetch(movexRoomUrl, { cache: 'no-store', next: { revalidate: 1 } })
+  return fetch(movexRoomUrl, { cache: 'no-store' })
     .then((s) => {
-      if (s.ok) {
-        return s.json();
+      if (!s.ok) {
+        throw s;
       }
 
-      throw s;
+      return s.json();
     })
     .then(
-      (resource: MovexClientResourceShape<string, RoomState>) => {
-        const [room] = resource.state;
-
+      ([room]: MovexClientResourceShape<string, RoomState>['state']) => {
         if (room.activity.activityType === 'match') {
-          // return room.activity.activityState;
-
           return NextResponse.json(room.activity.activityState);
         }
 
         return NextResponse.json(
           {
-            Error: `Not found a Match Resource`,
+            Error: `Match Resource Not Found`,
           },
           { status: 404 }
         );
       },
-      (e: Response) => {
+      async (e: Response) => {
         if (e.statusText) {
           return NextResponse.json(
             {
@@ -52,11 +44,6 @@ export function GET(
             { status: e.status }
           );
         }
-
-        console.error('[api/match/[id]] Error', {
-          params,
-          error: e,
-        });
 
         return NextResponse.json(
           {
