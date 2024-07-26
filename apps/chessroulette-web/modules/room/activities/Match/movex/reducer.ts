@@ -1,16 +1,13 @@
+import { MovexReducer } from 'movex-core-util';
 import { ChessColor, invoke, swapColor, toLongColor } from '@xmatter/util-kit';
-import { ActivityState, initialActivityState } from '../../movex';
-import { PlayStore } from 'apps/chessroulette-web/modules/Play';
-import { MatchActivityActions, MatchState } from './types';
+import { ActivityState } from '../../movex';
 import {
-  AbortedGame,
-  createGame,
-} from 'apps/chessroulette-web/modules/Play/store';
-import {
+  PlayStore,
   GameTimeClass,
   Results,
-} from 'apps/chessroulette-web/modules/Play/types';
-import { MovexReducer } from 'movex-core-util';
+} from 'apps/chessroulette-web/modules/Play';
+import { MatchActivityActions, MatchState } from './types';
+import { initialMatchActivityState } from './state';
 
 // const matchReducer = (prev: any) => prev;
 
@@ -18,7 +15,7 @@ import { MovexReducer } from 'movex-core-util';
 export const MATCH_TIME_TO_ABORT = 20 * 1000; // 3 mins
 
 export const reducer: MovexReducer<ActivityState, MatchActivityActions> = (
-  prev: ActivityState = initialActivityState,
+  prev: ActivityState = initialMatchActivityState,
   action: MatchActivityActions
 ): ActivityState => {
   if (prev.activityType !== 'match') {
@@ -28,8 +25,6 @@ export const reducer: MovexReducer<ActivityState, MatchActivityActions> = (
   if (!prev.activityState) {
     return prev;
   }
-
-  console.log('match reducer');
 
   const prevMatch = prev.activityState;
 
@@ -75,7 +70,7 @@ export const reducer: MovexReducer<ActivityState, MatchActivityActions> = (
         ...prev.activityState,
         players,
         ongoingPlay: {
-          game: createGame(newGameSettings),
+          game: PlayStore.createGame(newGameSettings),
         },
       },
     };
@@ -219,7 +214,7 @@ reducer.$transformState = (state, masterContext) => {
       ongoingPlay?.game.status === 'idling' &&
       masterContext.now() > ongoingPlay.game.startedAt + MATCH_TIME_TO_ABORT
     ) {
-      const nextAbortedGame: AbortedGame = {
+      const nextAbortedGame: PlayStore.AbortedGame = {
         ...ongoingPlay.game,
         status: 'aborted',
       };
