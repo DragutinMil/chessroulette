@@ -11,8 +11,9 @@ import { initialMatchActivityState } from './state';
 
 // const matchReducer = (prev: any) => prev;
 
-// export const MATCH_TIME_TO_ABORT = 3 * 60 * 1000; // 3 mins
-export const MATCH_TIME_TO_ABORT = 20 * 1000; // 3 mins
+// TODO: Instead of Hard coding this, put in the matchCreation setting as part of the MatchState
+export const MATCH_TIME_TO_ABORT = 3 * 60 * 1000; // 3 mins
+// export const MATCH_TIME_TO_ABORT = 20 * 1000; // 3 mins
 
 export const reducer: MovexReducer<ActivityState, MatchActivityActions> = (
   prev: ActivityState = initialMatchActivityState,
