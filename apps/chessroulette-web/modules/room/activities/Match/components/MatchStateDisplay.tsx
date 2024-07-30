@@ -1,7 +1,10 @@
 import { Text } from 'apps/chessroulette-web/components/Text';
 import { PlayersInfoContainer } from 'apps/chessroulette-web/modules/Play/PlayersInfoContainer';
 import { useMatch } from 'apps/chessroulette-web/modules/room/activities/Match/providers/useMatch';
-import { PlayersBySide } from 'apps/chessroulette-web/modules/Play/types';
+import {
+  PlayersBySide,
+  gameTimeClassRecord,
+} from 'apps/chessroulette-web/modules/Play/types';
 import React, { useMemo } from 'react';
 import { useGame } from 'apps/chessroulette-web/modules/Play/providers/useGame';
 import { DispatchOf, toLongColor } from '@xmatter/util-kit';
@@ -18,7 +21,6 @@ type Props = {
 export const MatchStateDisplay: React.FC<Props> = ({
   dispatch,
   playersBySide,
-  ...props
 }) => {
   const { rounds, currentRound, type, results, draws, players } = useMatch();
   const { realState } = useGame();
@@ -51,6 +53,7 @@ export const MatchStateDisplay: React.FC<Props> = ({
       )}
       <div className="flex flex-row w-full">
         <PlayersInfoContainer
+          key={realState.game.startedAt} // refresh it on each new game
           gameCounterActive={isGameCounterActive}
           players={playersBySide}
           results={results}
@@ -66,6 +69,7 @@ export const MatchStateDisplay: React.FC<Props> = ({
       </div>
       {players && (
         <GameAbortContainer
+          key={realState.game.startedAt} // refresh it on each new game
           players={players}
           dispatch={dispatch}
           className="bg-slate-700 rounded-md p-2"

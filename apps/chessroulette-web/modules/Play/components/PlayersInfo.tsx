@@ -3,7 +3,8 @@ import { PlayerBox } from './PlayerBox';
 import { Game } from '../store';
 import { PlayersBySide, Results } from '../types';
 import { calculateGameTimeLeftAt } from '../lib';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
+import { now } from 'apps/chessroulette-web/lib/time';
 
 export type PlayersInfoProps = {
   players: PlayersBySide;
@@ -23,15 +24,13 @@ export const PlayersInfo = ({
   onTimerFinished,
 }: PlayersInfoProps) => {
   const [calculatedGameTimeLeft, setCalculatedGameTimeLeft] = useState(
-    calculateGameTimeLeftAt(new Date().getTime(), game)
+    calculateGameTimeLeftAt(now(), game)
   );
 
   useEffect(() => {
     const handler = () => {
       if (!document.hidden) {
-        setCalculatedGameTimeLeft(
-          calculateGameTimeLeftAt(new Date().getTime(), game)
-        );
+        setCalculatedGameTimeLeft(calculateGameTimeLeftAt(now(), game));
       }
     };
 

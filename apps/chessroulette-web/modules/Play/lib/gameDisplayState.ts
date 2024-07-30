@@ -61,16 +61,14 @@ export const getGameTurn = (pgn: ChessPGN): LongChessColor =>
   toLongColor(new ChessFENBoard(pgnToFen(pgn)).getFenState().turn);
 
 export const calculateGameTimeLeftAt = (at: number, game: Game) => {
+  // If the game is not ongoing then simply return the existent timeLeft
+  if (game.status !== 'ongoing') {
+    return game.timeLeft;
+  }
+
+  // Otherwise calcualte the diff
+
   const lastGameActivityAt = game.lastMoveAt || game.startedAt;
-
-  if (game.status === 'idling') {
-    return game.timeLeft;
-  }
-
-  if (!lastGameActivityAt) {
-    return game.timeLeft;
-  }
-
   const turn = toLongColor(swapColor(game.lastMoveBy));
   const msSinceLastGameActivity = at - lastGameActivityAt;
 

@@ -3,7 +3,11 @@ import { CountdownDisplay } from './CountdownDisplay';
 import { noop } from 'movex-core-util';
 import { useInterval } from 'apps/chessroulette-web/hooks/useInterval';
 import { GameTimeClass, chessGameTimeLimitMsMap } from '../../types';
-import { lpad, timeLeftToInterval, timeLeftToTimeUnits } from '../../lib/utils';
+import {
+  lpad,
+  timeLeftToIntervalMs,
+  timeLeftToTimeUnits,
+} from '../../lib/utils';
 
 type Props = {
   gameTimeClass: GameTimeClass;
@@ -21,10 +25,34 @@ export const Countdown: React.FC<Props> = ({
 }) => {
   const [finished, setFinished] = useState(false);
   const [timeLeft, setTimeLeft] = useState(props.timeLeft);
-  const [interval, setInterval] = useState(timeLeftToInterval(props.timeLeft));
+  const [interval, setInterval] = useState(
+    timeLeftToIntervalMs(props.timeLeft)
+  );
   const [gameTimeClassInMs, setGameTimeClassInMs] = useState(
     chessGameTimeLimitMsMap[gameTimeClass]
   );
+
+  useEffect(() => {
+    setTimeLeft(props.timeLeft);
+  }, [props.timeLeft]);
+
+  useEffect(() => {
+    if (!props.isActive) {
+      return;
+    }
+
+    if (timeLeft <= 0) {
+      setFinished(true);
+    } else {
+      setInterval(timeLeftToIntervalMs(timeLeft));
+    }
+  }, [timeLeft]);
+
+  useEffect(() => {
+    if (finished) {
+      onFinished();
+    }
+  }, [finished]);
 
   useEffect(() => {
     setGameTimeClassInMs(chessGameTimeLimitMsMap[gameTimeClass]);
@@ -34,26 +62,8 @@ export const Countdown: React.FC<Props> = ({
     () => {
       setTimeLeft((prev) => prev - interval);
     },
-    finished || !props.isActive ? undefined : interval
+    finished || props.isActive ? interval : undefined
   );
-
-  useEffect(() => {
-    setTimeLeft(props.timeLeft);
-  }, [props.timeLeft]);
-
-  useEffect(() => {
-    setInterval(timeLeftToInterval(timeLeft));
-
-    if (timeLeft <= 0 && props.isActive) {
-      setFinished(true);
-    }
-  }, [timeLeft]);
-
-  useEffect(() => {
-    if (finished) {
-      onFinished();
-    }
-  }, [finished]);
 
   const { major, minor, canShowMilliseconds } = useMemo(() => {
     const times = timeLeftToTimeUnits(timeLeft);
