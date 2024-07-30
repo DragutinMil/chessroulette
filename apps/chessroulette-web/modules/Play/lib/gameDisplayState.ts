@@ -63,6 +63,10 @@ export const getGameTurn = (pgn: ChessPGN): LongChessColor =>
 export const calculateGameTimeLeftAt = (at: number, game: Game) => {
   const lastGameActivityAt = game.lastMoveAt || game.startedAt;
 
+  if (game.status === 'idling') {
+    return game.timeLeft;
+  }
+
   if (!lastGameActivityAt) {
     return game.timeLeft;
   }
