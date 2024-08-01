@@ -34,7 +34,9 @@ export const GameAbortView: React.FC<GameAbortViewProps> = ({
       </div>
       {canAbortOnDemand && (
         <div>
-          <Button onClick={() => setShowModal(true)}>Abort Now</Button>
+          <Button bgColor="red" size="sm" onClick={() => setShowModal(true)}>
+            Abort Now
+          </Button>
         </div>
       )}
       {showModal && (
