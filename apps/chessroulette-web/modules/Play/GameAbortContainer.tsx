@@ -4,6 +4,8 @@ import { DispatchOf, invoke } from '@xmatter/util-kit';
 import { MatchState } from '../room/activities/Match/movex';
 import { useGame } from './providers/useGame';
 import { chessGameTimeLimitMsMap } from './types';
+import { useMemo } from 'react';
+import { useMatch } from '../room/activities/Match/providers/useMatch';
 
 type Props = Pick<GameAbortViewProps, 'className'> & {
   // // Not sure if here what we need is the match players
@@ -28,6 +30,7 @@ export const GameAbortContainer = ({
     realState: { game, turn },
     playerId,
   } = useGame();
+  const { completedPlaysCount } = useMatch();
 
   if (game.status !== 'idling') {
     return null;
@@ -43,6 +46,10 @@ export const GameAbortContainer = ({
       (players.white.id === playerId && turn === 'white')
     );
   });
+
+  const firstRound = useMemo(() => {
+    return completedPlaysCount < 1;
+  }, [game]);
 
   // const totalTime =
   //   game.timeClass === 'untimed'
@@ -69,6 +76,7 @@ export const GameAbortContainer = ({
       }}
       canAbortOnDemand={isMyTurn}
       timeLeft={timeLeft}
+      firstRound={firstRound}
     />
   );
 };
