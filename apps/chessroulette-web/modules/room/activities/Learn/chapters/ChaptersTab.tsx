@@ -6,7 +6,8 @@ import { CreateChapterView } from './views/CreateChapterView';
 import { TabsNav } from 'apps/chessroulette-web/components/Tabs';
 import { UpdateChapterView } from './views/UpdateChapterView';
 import { EditChapterStateViewProps } from './views/EditChapterStateView';
-import { Chapter, ChapterState, initialChapterState } from '../movex';
+import { initialChapterState } from '../movex/state';
+import { Chapter, ChapterState,  } from '../movex/types';
 
 export type ChaptersTabProps = {
   chaptersMap: Record<Chapter['id'], Chapter>;
@@ -84,7 +85,7 @@ export const ChaptersTab = ({
               </div>
             )}
             <Button
-              size="md"
+              size="sm"
               className="mt-4"
               icon="PlusIcon"
               onClick={() => {
@@ -127,7 +128,7 @@ export const ChaptersTab = ({
 
                 <div className="flex gap-2 mt-4">
                   <IconButton
-                    // size="sm"
+                    size="sm"
                     type="secondary"
                     onClick={() => {
                       tabsNav.stackBack();
@@ -141,6 +142,7 @@ export const ChaptersTab = ({
                   />
                   <Button
                     className="flex-1"
+                    size='sm'
                     onClick={() => {
                       onCreateChapter();
                       // Go back

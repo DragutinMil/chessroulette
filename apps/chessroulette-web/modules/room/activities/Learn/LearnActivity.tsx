@@ -10,23 +10,21 @@ import {
   findLoadedChapter,
   initialDefaultChapter,
 } from './movex';
-import { WidgetPanel } from './components/WidgetPanel';
+import { WidgetPanel } from './components/WidgetPanel/WidgetPanel';
 import { CameraPanel } from '../../components/CameraPanel';
-import { LearnBoardEditor } from './components/LearnBoardEditor';
 import { LearnBoard, RIGHT_SIDE_SIZE_PX } from './components/LearnBoard';
 import inputReducer, { initialInputState } from './reducers/inputReducer';
 import { ChapterDisplayView } from './chapters/ChapterDisplayView';
-import { Freeboard } from 'apps/chessroulette-web/components/Boards';
-import { IconButton } from 'apps/chessroulette-web/components/Button';
 import { TabsRef } from 'apps/chessroulette-web/components/Tabs';
 import { UserId, UsersMap } from 'apps/chessroulette-web/modules/user/type';
-import { DesktopRoomLayout } from '../../components/DesktopRoomLayout';
+import { ResizableDesktopLayout } from 'apps/chessroulette-web/templates/ResizableDesktopLayout';
+import { InstructorBoard } from './components/InstructorBoard';
 
 type Props = {
   roomId: string;
   userId: UserId;
   iceServers: IceServerRecord[];
-  participants?: UsersMap;
+  participants: UsersMap;
   remoteState: LearnActivityState['activityState'];
   dispatch?: MovexBoundResourceFromConfig<
     (typeof movexConfig)['resources'],
@@ -56,178 +54,55 @@ export const LearnActivity = ({
   const tabsRef = useRef<TabsRef>(null);
 
   return (
-    <DesktopRoomLayout
+    <ResizableDesktopLayout
       rightSideSize={RIGHT_SIDE_SIZE_PX}
       mainComponent={({ boardSize }) => (
         <>
           {settings.isInstructor && inputState.isActive ? (
             // Preparing Mode
-            <>
-              {inputState.isBoardEditorShown ? (
-                <LearnBoardEditor
-                  state={inputState.chapterState}
-                  boardSizePx={boardSize}
-                  boardOrientation={swapColor(
-                    inputState.chapterState.orientation
-                  )}
-                  onUpdated={(fen) => {
-                    dispatchInputState({
-                      type: 'updateChapterFen',
-                      payload: { fen },
-                    });
-                  }}
-                  onArrowsChange={(arrowsMap) => {
-                    dispatchInputState({
-                      type: 'updatePartialChapter',
-                      payload: { arrowsMap },
-                    });
-                  }}
-                  onCircleDraw={(payload) => {
-                    dispatchInputState({
-                      type: 'drawCircle',
-                      payload,
-                    });
-                  }}
-                  onClearCircles={() => {
-                    dispatchInputState({ type: 'clearCircles' });
-                  }}
-                  onFlipBoard={() => {
-                    // TODO: Fix this
-                    dispatchInputState({
-                      type: 'updatePartialChapter',
-                      payload: {
-                        orientation: swapColor(
-                          inputState.chapterState.orientation
-                        ),
-                      },
-                    });
-                  }}
-                  onCancel={() => {
-                    dispatchInputState({
-                      type: 'update',
-                      payload: { isBoardEditorShown: false },
-                    });
-                  }}
-                  onSave={() => {
-                    dispatchInputState({
-                      type: 'update',
-                      payload: { isBoardEditorShown: false },
-                    });
-                  }}
-                />
-              ) : (
-                <Freeboard
-                  sizePx={boardSize}
-                  {...inputState.chapterState}
-                  fen={inputState.chapterState.displayFen}
-                  boardOrientation={swapColor(
-                    inputState.chapterState.orientation
-                  )}
-                  onMove={(move) => {
-                    dispatchInputState({ type: 'move', payload: { move } });
-
-                    // TODO: This can be returned from a more internal component
-                    return true;
-                  }}
-                  onArrowsChange={(arrowsMap) => {
-                    dispatchInputState({
-                      type: 'updatePartialChapter',
-                      payload: { arrowsMap },
-                    });
-                  }}
-                  onCircleDraw={(payload) => {
-                    dispatchInputState({
-                      type: 'drawCircle',
-                      payload,
-                    });
-                  }}
-                  onClearCircles={() => {
-                    dispatchInputState({ type: 'clearCircles' });
-                  }}
-                  rightSideSizePx={RIGHT_SIDE_SIZE_PX}
-                  rightSideClassName="flex flex-col"
-                  rightSideComponent={
-                    <>
-                      <div className="flex-1">
-                        <IconButton
-                          icon="ArrowsUpDownIcon"
-                          iconKind="outline"
-                          type="clear"
-                          size="sm"
-                          tooltip="Flip Board"
-                          tooltipPositon="left"
-                          className="mb-2"
-                          onClick={() => {
-                            dispatchInputState({
-                              type: 'updatePartialChapter',
-                              payload: {
-                                orientation: swapColor(
-                                  inputState.chapterState.orientation
-                                ),
-                              },
-                            });
-                          }}
-                        />
-                        <IconButton
-                          icon="TrashIcon"
-                          iconKind="outline"
-                          type="clear"
-                          size="sm"
-                          tooltip="Clear Board"
-                          tooltipPositon="left"
-                          className="mb-2"
-                          onClick={() => {
-                            dispatchInputState({
-                              type: 'updateChapterFen',
-                              payload: { fen: ChessFENBoard.ONLY_KINGS_FEN },
-                            });
-                          }}
-                        />
-                        <IconButton
-                          icon="ArrowPathIcon"
-                          iconKind="outline"
-                          type="clear"
-                          size="sm"
-                          tooltip="Start Position"
-                          tooltipPositon="left"
-                          className="mb-2"
-                          onClick={() => {
-                            dispatchInputState({
-                              type: 'updateChapterFen',
-                              payload: { fen: ChessFENBoard.STARTING_FEN },
-                            });
-                          }}
-                        />
-
-                        <IconButton
-                          icon="PencilSquareIcon"
-                          iconKind="outline"
-                          type="clear"
-                          size="sm"
-                          tooltip="Board Editor"
-                          tooltipPositon="left"
-                          className="mb-2"
-                          onClick={() => {
-                            dispatchInputState({
-                              type: 'update',
-                              payload: { isBoardEditorShown: true },
-                            });
-                          }}
-                        />
-                      </div>
-
-                      <div className="relative flex flex-col items-center justify-center">
-                        <PanelResizeHandle
-                          className="w-1 h-20 rounded-lg bg-slate-600"
-                          title="Resize"
-                        />
-                      </div>
-                      <div className="flex-1" />
-                    </>
-                  }
-                />
-              )}
-            </>
+            <InstructorBoard
+              // state={inputState}
+              fen={inputState.chapterState.displayFen}
+              boardOrientation={swapColor(inputState.chapterState.orientation)}
+              // dispatch={dispatchInputState}
+              boardSizePx={boardSize}
+              onArrowsChange={(arrowsMap) => {
+                dispatchInputState({
+                  type: 'updatePartialChapter',
+                  payload: { arrowsMap },
+                });
+              }}
+              onCircleDraw={(payload) => {
+                dispatchInputState({
+                  type: 'drawCircle',
+                  payload,
+                });
+              }}
+              onClearCircles={() => {
+                dispatchInputState({ type: 'clearCircles' });
+              }}
+              onFlipBoard={() => {
+                // TODO: Fix this
+                dispatchInputState({
+                  type: 'updatePartialChapter',
+                  payload: {
+                    orientation: swapColor(inputState.chapterState.orientation),
+                  },
+                });
+              }}
+              onUpdateFen={(fen) => {
+                dispatchInputState({
+                  type: 'updateChapterFen',
+                  payload: { fen },
+                });
+              }}
+              onToggleBoardEditor={() => {
+                dispatchInputState({
+                  type: 'update',
+                  payload: { isBoardEditorShown: false },
+                });
+              }}
+            />
           ) : (
             // Learn Mode
             <LearnBoard
@@ -337,6 +212,8 @@ export const LearnActivity = ({
             chaptersMapIndex={remoteState?.chaptersIndex || 0}
             currentLoadedChapterId={remoteState?.loadedChapterId}
             ref={tabsRef}
+            isInstructor={settings.isInstructor}
+            showEngine={settings.showEngine}
             onActivateInputMode={(payload) => {
               dispatchInputState({ type: 'activate', payload });
             }}

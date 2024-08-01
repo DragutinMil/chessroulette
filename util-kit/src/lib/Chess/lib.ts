@@ -13,6 +13,7 @@ import {
   ChessFEN,
   ChessPGN,
   fenBoardPieceSymbolToPieceSymbol,
+  getRandomInt,
 } from '@xmatter/util-kit';
 import { Chess } from 'chess.js';
 
@@ -134,3 +135,6 @@ export const localChessMoveToChessLibraryMove = ({
   to,
   ...(promoteTo && { promotion: fenBoardPieceSymbolToPieceSymbol(promoteTo) }),
 });
+
+export const getRandomColor = (): ShortChessColor =>
+  (['w', 'b'] as const)[getRandomInt(0, 1)];

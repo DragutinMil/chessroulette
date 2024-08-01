@@ -1,12 +1,12 @@
 'use client';
 
 import { ClipboardCopyButton } from 'apps/chessroulette-web/components/ClipboardCopyButton';
-import { useUrl } from 'nextjs-current-url';
-import { RoomActivityType, links } from '../links';
+import { RoomActivityType } from '../links';
 import Link from 'next/link';
 import { Icon } from 'apps/chessroulette-web/components/Icon';
-import { useMemo } from 'react';
 import { useRoomSettings } from '../hooks/useRoomSettings';
+import { IconButton } from 'apps/chessroulette-web/components/Button';
+import { useRoomLinkId } from '../hooks/useRoomLinkId';
 
 type Props = {
   roomId: string;
@@ -14,41 +14,20 @@ type Props = {
 };
 
 export const RoomSideMenu = ({ roomId, activity }: Props) => {
-  const url = useUrl();
   const roomSettings = useRoomSettings(activity);
-
-  const joinRoomLink = useMemo(() => {
-    if (!(roomSettings.showJoinRoomLink && url)) {
-      return undefined;
-    }
-
-    return {
-      url: links.getJoinRoomLink(
-        {
-          id: roomId,
-          activity,
-          theme: roomSettings.theme,
-          ...roomSettings.joinRoomLinkParams,
-        },
-        {
-          origin: url.origin,
-        }
-      ),
-      tooltip: roomSettings.joinRoomLinkTooltip,
-    };
-  }, [roomSettings.showJoinRoomLink, activity, url?.origin]);
+  const { joinRoomLink } = useRoomLinkId(activity);
 
   return (
     <div className="flex flex-col items-center gap-4">
       {joinRoomLink && (
         <ClipboardCopyButton
           buttonComponentType="Button"
-          value={joinRoomLink.url}
+          value={joinRoomLink}
           render={(copied) => (
             <>
               {copied ? (
                 <Link
-                  href={joinRoomLink.url}
+                  href={joinRoomLink}
                   target="_blank"
                   onClick={(e) => e.preventDefault()}
                 >
@@ -62,9 +41,11 @@ export const RoomSideMenu = ({ roomId, activity }: Props) => {
           bgColor="green"
           type="custom"
           size="sm"
-          tooltip={joinRoomLink.tooltip}
+          tooltip={roomSettings.joinRoomLinkTooltip || 'Invite Opponent'}
         />
       )}
+
+      {/* <IconButton icon="BuildingLibraryIcon" size="sm" href="/learn/lessons" /> */}
     </div>
   );
 };

@@ -10,7 +10,7 @@ import {
 } from '@xmatter/util-kit';
 // import { fenBoardPieceSymbolToDetailed } from 'util-kit/src/lib/ChessFENBoard/chessUtils';
 import './styles.css';
-import { pieces } from './assets/pieces';
+import { pieces } from './assets/merida';
 import { BackgroundLayer } from './BackgroundLayer';
 
 export type PreviewChessboardProps = {

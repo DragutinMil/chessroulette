@@ -3561,41 +3561,41 @@
   resolved "https://registry.yarnpkg.com/@prisma/client/-/client-5.9.1.tgz#d92bd2f7f006e0316cb4fda9d73f235965cf2c64"
   integrity sha512-caSOnG4kxcSkhqC/2ShV7rEoWwd3XrftokxJqOCMVvia4NYV/TPtJlS9C2os3Igxw/Qyxumj9GBQzcStzECvtQ==
 
-"@prisma/debug@5.9.1":
-  version "5.9.1"
-  resolved "https://registry.yarnpkg.com/@prisma/debug/-/debug-5.9.1.tgz#906274e73d3267f88b69459199fa3c51cd9511a3"
-  integrity sha512-yAHFSFCg8KVoL0oRUno3m60GAjsUKYUDkQ+9BA2X2JfVR3kRVSJFc/GpQ2fSORi4pSHZR9orfM4UC9OVXIFFTA==
+"@prisma/debug@5.12.1":
+  version "5.12.1"
+  resolved "https://registry.yarnpkg.com/@prisma/debug/-/debug-5.12.1.tgz#007c8ad2e466d565bcd0671b8846c27f8700c722"
+  integrity sha512-kd/wNsR0klrv79o1ITsbWxYyh4QWuBidvxsXSParPsYSu0ircUmNk3q4ojsgNc3/81b0ozg76iastOG43tbf8A==
 
-"@prisma/engines-version@5.9.0-32.23fdc5965b1e05fc54e5f26ed3de66776b93de64":
-  version "5.9.0-32.23fdc5965b1e05fc54e5f26ed3de66776b93de64"
-  resolved "https://registry.yarnpkg.com/@prisma/engines-version/-/engines-version-5.9.0-32.23fdc5965b1e05fc54e5f26ed3de66776b93de64.tgz#54d2164f28d23e09d41cf9eb0bddbbe7f3aaa660"
-  integrity sha512-HFl7275yF0FWbdcNvcSRbbu9JCBSLMcurYwvWc8WGDnpu7APxQo2ONtZrUggU3WxLxUJ2uBX+0GOFIcJeVeOOQ==
+"@prisma/engines-version@5.12.0-21.473ed3124229e22d881cb7addf559799debae1ab":
+  version "5.12.0-21.473ed3124229e22d881cb7addf559799debae1ab"
+  resolved "https://registry.yarnpkg.com/@prisma/engines-version/-/engines-version-5.12.0-21.473ed3124229e22d881cb7addf559799debae1ab.tgz#c78d099a3fe86d446db7442e64e56987e39e7f32"
+  integrity sha512-6yvO8s80Tym61aB4QNtYZfWVmE3pwqe807jEtzm8C5VDe7nw8O1FGX3TXUaXmWV0fQTIAfRbeL2Gwrndabp/0g==
 
-"@prisma/engines@5.9.1":
-  version "5.9.1"
-  resolved "https://registry.yarnpkg.com/@prisma/engines/-/engines-5.9.1.tgz#767539afc6f193a182d0495b30b027f61f279073"
-  integrity sha512-gkdXmjxQ5jktxWNdDA5aZZ6R8rH74JkoKq6LD5mACSvxd2vbqWeWIOV0Py5wFC8vofOYShbt6XUeCIUmrOzOnQ==
+"@prisma/engines@5.12.1":
+  version "5.12.1"
+  resolved "https://registry.yarnpkg.com/@prisma/engines/-/engines-5.12.1.tgz#a50649427d627a9af962a188a84c65d61c6e2b3f"
+  integrity sha512-HQDdglLw2bZR/TXD2Y+YfDMvi5Q8H+acbswqOsWyq9pPjBLYJ6gzM+ptlTU/AV6tl0XSZLU1/7F4qaWa8bqpJA==
   dependencies:
-    "@prisma/debug" "5.9.1"
-    "@prisma/engines-version" "5.9.0-32.23fdc5965b1e05fc54e5f26ed3de66776b93de64"
-    "@prisma/fetch-engine" "5.9.1"
-    "@prisma/get-platform" "5.9.1"
+    "@prisma/debug" "5.12.1"
+    "@prisma/engines-version" "5.12.0-21.473ed3124229e22d881cb7addf559799debae1ab"
+    "@prisma/fetch-engine" "5.12.1"
+    "@prisma/get-platform" "5.12.1"
 
-"@prisma/fetch-engine@5.9.1":
-  version "5.9.1"
-  resolved "https://registry.yarnpkg.com/@prisma/fetch-engine/-/fetch-engine-5.9.1.tgz#5d3b2c9af54a242e37b3f9561b59ab72f8e92818"
-  integrity sha512-l0goQOMcNVOJs1kAcwqpKq3ylvkD9F04Ioe1oJoCqmz05mw22bNAKKGWuDd3zTUoUZr97va0c/UfLNru+PDmNA==
+"@prisma/fetch-engine@5.12.1":
+  version "5.12.1"
+  resolved "https://registry.yarnpkg.com/@prisma/fetch-engine/-/fetch-engine-5.12.1.tgz#c38e9fa17fdc535b4c83cbb7645569ad0a511fa9"
+  integrity sha512-qSs3KcX1HKcea1A+hlJVK/ljj0PNIUHDxAayGMvgJBqmaN32P9tCidlKz1EGv6WoRFICYnk3Dd/YFLBwnFIozA==
   dependencies:
-    "@prisma/debug" "5.9.1"
-    "@prisma/engines-version" "5.9.0-32.23fdc5965b1e05fc54e5f26ed3de66776b93de64"
-    "@prisma/get-platform" "5.9.1"
+    "@prisma/debug" "5.12.1"
+    "@prisma/engines-version" "5.12.0-21.473ed3124229e22d881cb7addf559799debae1ab"
+    "@prisma/get-platform" "5.12.1"
 
-"@prisma/get-platform@5.9.1":
-  version "5.9.1"
-  resolved "https://registry.yarnpkg.com/@prisma/get-platform/-/get-platform-5.9.1.tgz#a66bb46ab4d30db786c84150ef074ab0aad4549e"
-  integrity sha512-6OQsNxTyhvG+T2Ksr8FPFpuPeL4r9u0JF0OZHUBI/Uy9SS43sPyAIutt4ZEAyqWQt104ERh70EZedkHZKsnNbg==
+"@prisma/get-platform@5.12.1":
+  version "5.12.1"
+  resolved "https://registry.yarnpkg.com/@prisma/get-platform/-/get-platform-5.12.1.tgz#33f427f6d744dee62a9e06858889691d78b50804"
+  integrity sha512-pgIR+pSvhYHiUcqXVEZS31NrFOTENC9yFUdEAcx7cdQBoZPmHVjtjN4Ss6NzVDMYPrKJJ51U14EhEoeuBlMioQ==
   dependencies:
-    "@prisma/debug" "5.9.1"
+    "@prisma/debug" "5.12.1"
 
 "@radix-ui/number@1.0.1":
   version "1.0.1"
@@ -7015,20 +7015,10 @@ can-bind-to-host@^1.1.1:
   resolved "https://registry.yarnpkg.com/can-bind-to-host/-/can-bind-to-host-1.1.2.tgz#45919a1fb426eb1b709ddd4853cd5eda0549e606"
   integrity sha512-CqsgmaqiyFRNtP17Ihqa/uHbZxRirntNVNl/kJz31DLKuNRfzvzionkLoUSkElQ6Cz+cpXKA3mhHq4tjbieujA==
 
-caniuse-lite@^1.0.30001406, caniuse-lite@^1.0.30001541:
-  version "1.0.30001561"
-  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001561.tgz#752f21f56f96f1b1a52e97aae98c57c562d5d9da"
-  integrity sha512-NTt0DNoKe958Q0BE0j0c1V9jbUzhBxHIEJy7asmGrpE0yG63KTV7PLHPnK2E1O9RsQrQ081I3NLuXGS6zht3cw==
-
-caniuse-lite@^1.0.30001426:
-  version "1.0.30001563"
-  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001563.tgz#aa68a64188903e98f36eb9c56e48fba0c1fe2a32"
-  integrity sha512-na2WUmOxnwIZtwnFI2CZ/3er0wdNzU7hN+cPYz/z2ajHThnkWjNBOpEPP4n+4r2WPM847JaMotaJE3bnfzjyKw==
-
-caniuse-lite@^1.0.30001565:
-  version "1.0.30001565"
-  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001565.tgz#a528b253c8a2d95d2b415e11d8b9942acc100c4f"
-  integrity sha512-xrE//a3O7TP0vaJ8ikzkD2c2NgcVUvsEe2IvFTntV4Yd1Z9FVzh+gW+enX96L0psrbaFMcVcH2l90xNuGDWc8w==
+caniuse-lite@^1.0.30001406, caniuse-lite@^1.0.30001426, caniuse-lite@^1.0.30001541, caniuse-lite@^1.0.30001565:
+  version "1.0.30001616"
+  resolved "https://registry.npmjs.org/caniuse-lite/-/caniuse-lite-1.0.30001616.tgz"
+  integrity sha512-RHVYKov7IcdNjVHJFNY/78RdG4oGVjbayxv8u5IO74Wv7Hlq4PnJE6mo/OjFijjVFNy5ijnCt6H3IIo4t+wfEw==
 
 case-sensitive-paths-webpack-plugin@^2.4.0:
   version "2.4.0"
@@ -7158,6 +7148,11 @@ cjs-module-lexer@^1.0.0:
   version "1.2.3"
   resolved "https://registry.yarnpkg.com/cjs-module-lexer/-/cjs-module-lexer-1.2.3.tgz#6c370ab19f8a3394e318fe682686ec0ac684d107"
   integrity sha512-0TNiGstbQmCFwt4akjjBg5pLRTSyj/PkWQ1ZoO2zntmg9yLqSRxwEa4iCfQLGjqhiqBfOJa7W/E8wfGrTDmlZQ==
+
+classnames@^2.2.3:
+  version "2.5.1"
+  resolved "https://registry.yarnpkg.com/classnames/-/classnames-2.5.1.tgz#ba774c614be0f016da105c858e7159eae8e7687b"
+  integrity sha512-saHYOzhIQs6wy2sVxTM6bUDsQO4F50V9RQ22qBpEdCW+I+/Wmke2HOl6lS6dTpdxVhb88/I6+Hs+438c3lfUow==
 
 classnames@^2.3.2:
   version "2.3.2"
@@ -12219,28 +12214,29 @@ mkdirp@^1.0.4:
   resolved "https://registry.yarnpkg.com/mkdirp/-/mkdirp-1.0.4.tgz#3eb5ed62622756d79a5f0e2a221dfebad75c2f7e"
   integrity sha512-vVqVZQyf3WLx2Shd0qJ9xuvqgAyKPLAiqITEtqW0oIUjzo3PePDd6fW9iFz30ef7Ysp/oiWqbhszeGWW2T6Gzw==
 
-movex-core-util@0.1.5-4, movex-core-util@^0.1.5-4:
-  version "0.1.5-4"
-  resolved "https://registry.yarnpkg.com/movex-core-util/-/movex-core-util-0.1.5-4.tgz#893217888b6a55f8aac271855016028e9de18162"
-  integrity sha512-kIaErediGsEMHlz1bq/heFQJQ0DJi2EPSJYQzMebjqn5Za8yNYon9CTM5vatNXezoYnEf2pNiBEipsLldOl4Nw==
+movex-core-util@0.1.6-2, movex-core-util@^0.1.6-2:
+  version "0.1.6-2"
+  resolved "https://registry.yarnpkg.com/movex-core-util/-/movex-core-util-0.1.6-2.tgz#5c226d3fda5e8596a3beeb7af7256a4bddc180d6"
+  integrity sha512-6uyLT5YWD2GqCScZzqqCPxJzURwaieda3k50SDgTSJgLpWwQR3Do3cFIV2/o3PdgGYm2CIqbFvjLahzQo/King==
   dependencies:
     fast-json-patch "3.1.1"
     socket.io "4.5.4"
     socket.io-client "4.5.4"
+    ts-async-results "0.7.9"
     ts-pubsy "0.2.0"
     ts-results "3.3.0"
     typed-emitter "2.1.0"
 
-movex-master@0.1.5-4:
-  version "0.1.5-4"
-  resolved "https://registry.yarnpkg.com/movex-master/-/movex-master-0.1.5-4.tgz#4a3d40ab30565054cc788ba2753c16e2583800ec"
-  integrity sha512-QrGSAOPJW8j+lGfilMfGlcKz3/RfMA94Z4NirTbTGQtumnPJbkVaRgv/yMJSUyKCBXt+k6FWA8+Po3AU1oWA1w==
+movex-master@0.1.6-2, movex-master@^0.1.6-2:
+  version "0.1.6-2"
+  resolved "https://registry.yarnpkg.com/movex-master/-/movex-master-0.1.6-2.tgz#782cab7a3e51c94cdea5b8b40f3def544bb3bb3e"
+  integrity sha512-OBcnNywxxh0HUT2rb5+Dt343hKAdFyhU2F321hKqnFsnYf67j26NiU5pt/huytPByiBi7rdH/l42P4Je2tm5eg==
   dependencies:
     deep-object-diff "1.1.9"
     fast-json-patch "3.1.1"
-    movex "0.1.5-4"
-    movex-core-util "0.1.5-4"
-    movex-store "0.1.5-4"
+    movex "0.1.6-2"
+    movex-core-util "0.1.6-2"
+    movex-store "0.1.6-2"
     promise-delegate "1.0.1"
     socket.io "4.5.4"
     socket.io-client "4.5.4"
@@ -12250,18 +12246,18 @@ movex-master@0.1.5-4:
     typed-emitter "2.1.0"
     uuid "9.0.0"
 
-movex-react@^0.1.5-4:
-  version "0.1.5-4"
-  resolved "https://registry.yarnpkg.com/movex-react/-/movex-react-0.1.5-4.tgz#49c8a7907b4c6d82395de251d0815617c04e4afa"
-  integrity sha512-yDnqYvqyIhRFnR6lD0pRreFntZcUqBUvH+R39kxmWykCWVogtKdAq3s++n3QjmjNiLbRwdyg+xQpzhFLBX/VfA==
+movex-react@^0.1.6-2:
+  version "0.1.6-2"
+  resolved "https://registry.yarnpkg.com/movex-react/-/movex-react-0.1.6-2.tgz#d50d4f450936e18be00f9a14cf8182fb69977990"
+  integrity sha512-epaWbNZKM0aUh1tNqy/95evj3uNYTDERvM32/7fNKe4QEhd06pvK5QrcakbreAtGq5ZemidLexG6MxssyM2aog==
   dependencies:
-    movex "0.1.5-4"
-    movex-core-util "0.1.5-4"
+    movex "0.1.6-2"
+    movex-core-util "0.1.6-2"
 
-movex-server@0.1.5-4:
-  version "0.1.5-4"
-  resolved "https://registry.yarnpkg.com/movex-server/-/movex-server-0.1.5-4.tgz#9fa3b5d88207d4961f7ce813581b1d07e8fcb824"
-  integrity sha512-s3SClh/m2cPn6FgCUXjciRvCgTvXdtZcxBdwAPVDbtwY1ROM4bg4LySlbT/pGLDIDgXAzGrPhxR/TomO3go5uQ==
+movex-server@0.1.6-2, movex-server@^0.1.6-2:
+  version "0.1.6-2"
+  resolved "https://registry.yarnpkg.com/movex-server/-/movex-server-0.1.6-2.tgz#888babf279fe50a3163a60dd6501f0be727a86dd"
+  integrity sha512-SxkOlmZSeAoy69eGdC3lFf9QyP+W7PSWiaHLfTqc1L+61TOdUwTPhtTb+rUuEmn6Q+ufYj0qROySGtljUkVlEA==
   dependencies:
     "@es-exec/esbuild-plugin-serve" "0.0.5"
     cors "2.8.5"
@@ -12270,10 +12266,10 @@ movex-server@0.1.5-4:
     esbuild-plugin-copy "2.1.1"
     express "4.18.2"
     fast-json-patch "3.1.1"
-    movex "0.1.5-4"
-    movex-core-util "0.1.5-4"
-    movex-master "0.1.5-4"
-    movex-store "0.1.5-4"
+    movex "0.1.6-2"
+    movex-core-util "0.1.6-2"
+    movex-master "0.1.6-2"
+    movex-store "0.1.6-2"
     promise-delegate "1.0.1"
     react "18.2.0"
     socket.io "4.5.4"
@@ -12284,10 +12280,10 @@ movex-server@0.1.5-4:
     typed-emitter "2.1.0"
     uuid "9.0.0"
 
-movex-service@^0.1.5-4:
-  version "0.1.5-4"
-  resolved "https://registry.yarnpkg.com/movex-service/-/movex-service-0.1.5-4.tgz#8462b68664a84c652d886ce07abd26156a34b674"
-  integrity sha512-t6ZzRu2ISDU1SOZEUbECOI2QoQlYSYW8tB4TCcnqvjGqMFzgVENKms+9c/S8A9OaBwXzklfbLtJ83y9G00vo+Q==
+movex-service@^0.1.6-2:
+  version "0.1.6-2"
+  resolved "https://registry.yarnpkg.com/movex-service/-/movex-service-0.1.6-2.tgz#cafc22bdde6b3cbd38951730d30adbc2e57ad5a9"
+  integrity sha512-kg5D7F3DDjkYxqAVzXAdjH2h8sZ3yaarCtACbRf9QsY8b3xiBWans1RNnTinGdZ6+0Ot9uekJdvqVkDI+dcwMg==
   dependencies:
     "@es-exec/esbuild-plugin-serve" "0.0.5"
     cors "2.8.5"
@@ -12296,11 +12292,11 @@ movex-service@^0.1.5-4:
     esbuild-plugin-copy "2.1.1"
     express "4.18.2"
     fast-json-patch "3.1.1"
-    movex "0.1.5-4"
-    movex-core-util "0.1.5-4"
-    movex-master "0.1.5-4"
-    movex-server "0.1.5-4"
-    movex-store "0.1.5-4"
+    movex "0.1.6-2"
+    movex-core-util "0.1.6-2"
+    movex-master "0.1.6-2"
+    movex-server "0.1.6-2"
+    movex-store "0.1.6-2"
     promise-delegate "1.0.1"
     react "18.2.0"
     socket.io "4.5.4"
@@ -12311,13 +12307,13 @@ movex-service@^0.1.5-4:
     typed-emitter "2.1.0"
     uuid "9.0.0"
 
-movex-store@0.1.5-4:
-  version "0.1.5-4"
-  resolved "https://registry.yarnpkg.com/movex-store/-/movex-store-0.1.5-4.tgz#7233f06a599572bb28803947b43a2aad4dbfa5e5"
-  integrity sha512-/L1x9a/f8147WygjJQ1SYWnwsmXyIpwL/hALPni9nv0JT1G29kZd9+xe3rylM5X/RKKH+0zp+xoq34ON7lKb2A==
+movex-store@0.1.6-2, movex-store@^0.1.6-2:
+  version "0.1.6-2"
+  resolved "https://registry.yarnpkg.com/movex-store/-/movex-store-0.1.6-2.tgz#0e6c0d87f98388bde2f8d3759a9ac2f63932d795"
+  integrity sha512-hpZIUFgp707r648fHa3/DWCZa+HToRBp3iNu5xiivWcz2iJChzFLMagKWcnex2AgofnBRmDYTwY4OXLGcaf2/w==
   dependencies:
     fast-json-patch "3.1.1"
-    movex-core-util "0.1.5-4"
+    movex-core-util "0.1.6-2"
     promise-delegate "1.0.1"
     socket.io "4.5.4"
     socket.io-client "4.5.4"
@@ -12326,14 +12322,14 @@ movex-store@0.1.5-4:
     ts-results "3.3.0"
     typed-emitter "2.1.0"
 
-movex@0.1.5-4, movex@^0.1.5-4:
-  version "0.1.5-4"
-  resolved "https://registry.yarnpkg.com/movex/-/movex-0.1.5-4.tgz#a93bbe1e7b0d7c2aab41de6766b73b551c34f0bd"
-  integrity sha512-utZrk8WNbFoWawsLNqYLgIwOIC3ApN36612o5PlEeo+B1xnH41pmS7n3iMQn97spt27SwIyoDAJB1GpmN7vuKA==
+movex@0.1.6-2, movex@^0.1.6-2:
+  version "0.1.6-2"
+  resolved "https://registry.yarnpkg.com/movex/-/movex-0.1.6-2.tgz#d0fc6e827433730c0a77978398ef3e4fc7ca60e4"
+  integrity sha512-J7/7hrX3bFQpQFqkbCzCV/y+vKDxLyi0MliZIsS1rG+MY/tPgmdVjkwl2VdT70w0vcluZf51qqUUp/petTFm8A==
   dependencies:
     deep-object-diff "1.1.9"
     fast-json-patch "3.1.1"
-    movex-core-util "0.1.5-4"
+    movex-core-util "0.1.6-2"
     promise-delegate "1.0.1"
     socket.io "4.5.4"
     socket.io-client "4.5.4"
@@ -13058,6 +13054,11 @@ parse-json@^5.0.0, parse-json@^5.2.0:
     json-parse-even-better-errors "^2.3.0"
     lines-and-columns "^1.1.6"
 
+parse-ms@^4.0.0:
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/parse-ms/-/parse-ms-4.0.0.tgz#c0c058edd47c2a590151a718990533fd62803df4"
+  integrity sha512-TXfryirbmq34y8QBwgqCVLi+8oA3oWx2eAnSn62ITyEhEYaWRlVZ2DvMM9eZbMs/RfxPu/PK/aBLyGj4IrqMHw==
+
 parse-passwd@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/parse-passwd/-/parse-passwd-1.0.0.tgz#6d5b934a456993b23d37f40a382d6f1666a8e5c6"
@@ -13462,12 +13463,19 @@ pretty-hrtime@^1.0.3:
   resolved "https://registry.yarnpkg.com/pretty-hrtime/-/pretty-hrtime-1.0.3.tgz#b7e3ea42435a4c9b2759d99e0f201eb195802ee1"
   integrity sha512-66hKPCr+72mlfiSjlEB1+45IjXSqvVAIy6mocupoww4tBFE9R9IhwwUGoI4G++Tc9Aq+2rxOt0RFU6gPcrte0A==
 
-prisma@^5.9.1:
-  version "5.9.1"
-  resolved "https://registry.yarnpkg.com/prisma/-/prisma-5.9.1.tgz#baa3dd635fbf71504980978f10f55ea11068f6aa"
-  integrity sha512-Hy/8KJZz0ELtkw4FnG9MS9rNWlXcJhf98Z2QMqi0QiVMoS8PzsBkpla0/Y5hTlob8F3HeECYphBjqmBxrluUrQ==
+pretty-ms@^9.0.0:
+  version "9.0.0"
+  resolved "https://registry.yarnpkg.com/pretty-ms/-/pretty-ms-9.0.0.tgz#53c57f81171c53be7ce3fd20bdd4265422bc5929"
+  integrity sha512-E9e9HJ9R9NasGOgPaPE8VMeiPKAyWR5jcFpNnwIejslIhWqdqOrb2wShBsncMPUb+BcCd2OPYfh7p2W6oemTng==
   dependencies:
-    "@prisma/engines" "5.9.1"
+    parse-ms "^4.0.0"
+
+prisma@^5.12.1:
+  version "5.12.1"
+  resolved "https://registry.yarnpkg.com/prisma/-/prisma-5.12.1.tgz#db4596253bb066afc9f08744642f200a398d8d51"
+  integrity sha512-SkMnb6wyIxTv9ACqiHBI2u9gD6y98qXRoCoLEnZsF6yee5Qg828G+ARrESN+lQHdw4maSZFFSBPPDpvSiVTo0Q==
+  dependencies:
+    "@prisma/engines" "5.12.1"
 
 proc-log@^3.0.0:
   version "3.0.0"
@@ -13752,6 +13760,13 @@ react-drag-drop-files@^2.3.10:
   dependencies:
     prop-types "^15.7.2"
     styled-components "^5.3.0"
+
+react-dropdown@^1.11.0:
+  version "1.11.0"
+  resolved "https://registry.yarnpkg.com/react-dropdown/-/react-dropdown-1.11.0.tgz#b9576de17efd28e5684d101b3f58dfe784af242c"
+  integrity sha512-E2UWetRPxNdIhQahXw6b984ME7WmcgDj9AEAjrtS/oyLCFVo+2qkCfcS06C22JR0Zj+YLnygwv0Ozf6VKKDq7g==
+  dependencies:
+    classnames "^2.2.3"
 
 react-element-to-jsx-string@^15.0.0:
   version "15.0.0"

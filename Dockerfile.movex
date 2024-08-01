@@ -27,7 +27,7 @@ COPY ./util-kit ./
 # Install global deps
 RUN apk add g++ make py3-pip git yarn
 
-RUN rm -rf node_modules && yarn install --frozen-lockfile && yarn add movex-server movex-service chess.js deepmerge-ts
+RUN rm -rf node_modules && yarn install --frozen-lockfile && yarn add movex-server movex-service chess.js deepmerge-ts zod fp-ts
 
 COPY --chown=node:node . .
 

@@ -1,3 +1,5 @@
+import { Action, AnyAction, ToPublicAction } from 'movex-core-util';
+
 export type GetComponentProps<T> = T extends
   | React.ComponentType<infer P>
   | React.Component<infer P>
@@ -19,15 +21,36 @@ export type Ensure<T, K extends keyof T> = T &
 
 /**
  * Taken from https://stackoverflow.com/a/67794430/2093626
- * This ensures the omit doesn't break distributin uniions!
+ * This ensures the omit doesn't break distributive uniions!
  */
-export type DistributiveOmit<T, K extends PropertyKey> = T extends any
+export type DistributiveOmit<T, K extends PropertyKey> = T extends unknown
   ? Omit<T, K>
   : never;
 
+export type DistributivePick<T, K extends keyof T> = T extends unknown
+  ? Pick<T, K>
+  : never;
+
 export type UnknownRecord = Record<string, unknown>;
+export type StringRecord = Record<string, string>;
+
 
 export type StringKeys<TRecord extends UnknownRecord> = Extract<
   keyof TRecord,
   string
+>;
+
+export type DispatchOf<A extends AnyAction> = (
+  action: ToPublicAction<A> // TODO: Should this be ToPublic??
+) => void;
+
+export type IdentifiableRecord<T extends UnknownRecord> = T & { id: string };
+
+export type TimestampedRecord<T extends UnknownRecord> = T & {
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+export type PersistableRecord<T extends UnknownRecord> = TimestampedRecord<
+  IdentifiableRecord<T>
 >;

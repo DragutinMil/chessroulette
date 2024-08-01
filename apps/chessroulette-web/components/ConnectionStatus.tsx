@@ -4,36 +4,60 @@ import { MovexBoundResource, MovexConnection } from 'movex-react';
 import { config } from '../config';
 import movexConfig from '../movex.config';
 import { pluralize } from '@xmatter/util-kit';
+import { Menu, Item, useContextMenu } from 'react-contexify';
+import { movexSubcribersToUserMap } from '../providers/MovexProvider';
+import { useRoomDetails } from '../modules/room/hooks';
 
-type Props = {
-  roomId?: string;
-};
+const MENU_ID = 'movex-participants-menu';
 
-export default (props: Props) => {
+export default () => {
+  const { show } = useContextMenu({ id: MENU_ID });
+  const roomDetails = useRoomDetails();
+
+  if (!roomDetails?.roomId) {
+    return null;
+  }
+
   return (
     <MovexConnection
-      render={({ connected, clientId, ...s }) => (
+      render={({ connected, clientId }) => (
         <div className="text-sm text-slate-300 text-right text-slate-600 items-end justify-end">
           <div className="flex gap-1 text-right justify-end">
             {connected ? (
               <span className="flex gap-1 items-center">
                 Connected
                 <span className="w-2 h-2 rounded-full bg-green-600 block" />
-                {props.roomId && (
+                {roomDetails.roomId && (
                   <MovexBoundResource
                     movexDefinition={movexConfig}
-                    rid={`room:${props.roomId}`}
+                    rid={`room:${roomDetails.roomId}`}
                     render={({ boundResource: { subscribers } }) => {
-                      const participantsCount = Object.keys(
-                        subscribers,
-                      ).length;
+                      // const participants = Object.values(subscribers);
+
+                      const participants = Object.values(
+                        movexSubcribersToUserMap(subscribers)
+                      );
+                      const participantsCount = participants.length;
 
                       return (
-                        <span>
+                        <button
+                          onClick={(event) => {
+                            show({ event });
+                          }}
+                        >
                           ({participantsCount}{' '}
                           {pluralize(!(participantsCount === 1), 'participant')}
                           )
-                        </span>
+                          <Menu id={MENU_ID}>
+                            {participants.map((p) => (
+                              <Item key={p.id}>
+                                {clientId === p.id
+                                  ? `Me (${p.id})`
+                                  : `${p.displayName || 'User'} (${p.id})`}
+                              </Item>
+                            ))}
+                          </Menu>
+                        </button>
                       );
                     }}
                   />

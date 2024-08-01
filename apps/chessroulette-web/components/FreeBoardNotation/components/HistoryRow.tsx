@@ -5,7 +5,6 @@ import {
   FBHIndex,
   FBHMove,
   FBHRecursiveIndexes,
-  FBHRecursiveMove,
   FBHTurn,
 } from '@xmatter/util-kit';
 import { Text } from '../../Text';
@@ -24,6 +23,7 @@ export type RowProps = {
   containerClassName?: string;
   moveCount?: number;
   nextValidMoveAndIndex?: [FBHMove, FBHIndex];
+  canDelete?: boolean;
 } & (
   | {
       isNested: true;
@@ -50,6 +50,7 @@ export const HistoryRow = React.forwardRef<HTMLDivElement | null, RowProps>(
       focusedOnRecursiveIndexes,
       nextValidMoveAndIndex,
       isNested = false,
+      canDelete = true,
     },
     ref
   ) => {
@@ -122,6 +123,7 @@ export const HistoryRow = React.forwardRef<HTMLDivElement | null, RowProps>(
               className="pl-2 mt-2 border-l border-slate-500 ml-1 sbg-red-500"
               rowClassName={containerClassName}
               focusedRecursiveIndexes={focusedOnRecursiveIndexes}
+              canDelete={canDelete}
             />
           )}
           {shouldSplit && (
@@ -150,17 +152,20 @@ export const HistoryRow = React.forwardRef<HTMLDivElement | null, RowProps>(
             className="pl-2 mt-2 border-l border-slate-500 ml-1 sbg-blue-500"
             rowClassName={containerClassName}
             focusedRecursiveIndexes={focusedOnRecursiveIndexes}
+            canDelete={canDelete}
           />
         )}
-        <Menu id={rowId}>
-          <Item
-            id="delete"
-            onClick={handleOnDelete}
-            className="hover:cursor-pointer"
-          >
-            Delete from here
-          </Item>
-        </Menu>
+        {canDelete && (
+          <Menu id={rowId}>
+            <Item
+              id="delete"
+              onClick={handleOnDelete}
+              className="hover:cursor-pointer"
+            >
+              Delete from here
+            </Item>
+          </Menu>
+        )}
       </div>
     );
   }

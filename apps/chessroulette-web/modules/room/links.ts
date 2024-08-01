@@ -1,12 +1,14 @@
 import { objectKeys, toDictIndexedBy } from '@xmatter/util-kit';
 import { ActivityState } from './activities/movex';
-// import { ActivityState } from './activity/reducer';
+import { GameTimeClass } from '../Play/types';
 
 export type RoomActivityType = ActivityState['activityType'];
 
 export type RoomLinkParams = {
   instructor?: boolean;
+  host?: boolean;
   theme?: string;
+  gameTimeClass?: GameTimeClass;
 } & Record<string, string | boolean | number | undefined>;
 
 export const links = {
@@ -61,6 +63,7 @@ const toSearchParams = ({
   instructor,
   edit,
   theme,
+  host,
   ...params
 }: RoomLinkParams) => {
   const searchParams = new URLSearchParams(
@@ -75,9 +78,15 @@ const toSearchParams = ({
     searchParams.set('instructor', '1');
   }
 
+  if (host) {
+    searchParams.set('host', '1');
+  }
+
   if (theme) {
     searchParams.set('theme', theme);
   }
 
   return searchParams;
 };
+
+export type LinksType = typeof links;

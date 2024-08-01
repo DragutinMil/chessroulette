@@ -15,7 +15,6 @@ import {
   fenBoardPieceSymbolToDetailedChessPiece,
   isPromotableMove,
   pieceSanToPiece,
-  pieceSanToFenBoardPieceSymbol,
   promotionalPieceSanToFenBoardPromotionalPieceSymbol,
   toShortColor,
 } from '@xmatter/util-kit';
@@ -43,7 +42,6 @@ export type ChessboardContainerProps = Omit<
 > & {
   fen: ChessFEN;
   sizePx: number;
-  boardTheme: BoardTheme;
   // When this is true the player can only touch the pieces on her side
   strict?: boolean;
   arrowsMap?: ArrowsMap;
@@ -59,6 +57,8 @@ export type ChessboardContainerProps = Omit<
   onArrowsChange?: (arrows: ArrowsMap) => void;
   onCircleDraw?: (circleTuple: CircleDrawTuple) => void;
   onClearCircles?: () => void;
+  boardTheme: BoardTheme;
+  overlayComponent?: React.ReactNode;
 } & (
     | {
         rightSideComponent: React.ReactNode;
@@ -399,6 +399,9 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
           customDarkSquareStyle={customStyles.customDarkSquareStyle}
           customSquare={ChessboardSquare}
           onPieceDrop={(from, to, pieceSan) => {
+            if (circlesMap && Object.keys(circlesMap).length > 0) {
+              resetCircles();
+            }
             onPieceDrop(from, to, pieceSan);
 
             if (isPromotableMove({ from, to }, pieceSanToPiece(pieceSan))) {
@@ -457,6 +460,7 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
             }}
           />
         )}
+        {props.overlayComponent && props.overlayComponent}
       </div>
       <div
         className={`w-full relative h-full ${rightSideClassName}`}

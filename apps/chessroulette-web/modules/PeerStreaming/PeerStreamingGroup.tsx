@@ -81,7 +81,7 @@ export const PeerStreamingGroup: React.FC<Props> = (props) => {
     clientUserId: props.clientUserId,
   });
 
-  console.log('reel', reel, state.peers);
+  // console.log('reel', reel, state.peers);
 
   if (!config.CAMERA_ON) {
     return <>{props.render({ reel })}</>;

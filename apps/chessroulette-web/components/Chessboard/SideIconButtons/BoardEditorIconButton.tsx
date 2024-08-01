@@ -1,6 +1,10 @@
+import { DistributivePick } from '@xmatter/util-kit';
 import { IconButton, IconButtonProps } from '../../Button';
 
-type Props = Pick<IconButtonProps, 'onClick' | 'className'>;
+type Props = DistributivePick<
+  IconButtonProps,
+  'onClick' | 'href' | 'linkClassName' | 'className'
+>;
 
 export const BoardEditorIconButton = (props: Props) => (
   <IconButton

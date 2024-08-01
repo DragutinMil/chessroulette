@@ -21,6 +21,9 @@ jobs:
       - name: Install Dependencies
         run: yarn install
 
+      - name: Prisma Push
+        run: yarn prisma-push
+
       - name: Tsc Check (Chessroulette)
         run: yarn tsc-chessroulette
 

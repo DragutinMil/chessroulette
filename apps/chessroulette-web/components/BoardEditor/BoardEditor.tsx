@@ -36,12 +36,21 @@ export type BoardEditorProps = Pick<
   | 'onClearCircles'
 > & {
   fen: ChessFEN;
-  onUpdated: (fen: ChessFEN) => void;
+  onUpdateFen: (fen: ChessFEN) => void;
   onFlipBoard: () => void;
-  onCancel: () => void;
-  onSave: () => void;
   sizePx: number;
-};
+} & (
+    | {
+        showSaveButtons: true;
+        onCancel: () => void;
+        onSave: () => void;
+      }
+    | {
+        showSaveButtons?: false;
+        onCancel: () => void;
+        onSave: () => void;
+      }
+  );
 
 const whitePieces: PieceSan[] = ['wP', 'wB', 'wN', 'wQ', 'wR'];
 const blackPieces: PieceSan[] = ['bP', 'bB', 'bN', 'bQ', 'bR'];
@@ -49,10 +58,11 @@ const blackPieces: PieceSan[] = ['bP', 'bB', 'bN', 'bQ', 'bR'];
 export const BoardEditor = ({
   fen = ChessFENBoard.STARTING_FEN,
   sizePx,
-  onUpdated,
+  onUpdateFen,
   onFlipBoard,
   onCancel,
   onSave,
+  showSaveButtons = true,
   ...props
 }: BoardEditorProps) => {
   const [initialFen] = useState(fen);
@@ -154,17 +164,14 @@ export const BoardEditor = ({
 
   return (
     <div
-      className="flex flex-col sjustify-between items-center justify-center gap-2 sbg-slate-700 rounded-xl bsg-red-100"
+      className="flex flex-col items-center justify-between gap-2 rounded-xl"
       style={{ height: sizePx }}
     >
       <DndProvider backend={HTML5Backend}>
-        <div className="flex flex-scol flex-1s rounded-lg overflow-hidden bg-slate-600">
+        <div className="flex rounded-lg overflow-hidden bg-slate-600">
           {extraPiecesLayout.top}
         </div>
-        <div
-          className="flex flex-cosl sjustify-between justify-center"
-          style={{ width: sizePx }}
-        >
+        <div className="flex justify-center" style={{ width: sizePx }}>
           <DropContainer
             isActive={isDragging}
             onHover={(_, square) => {
@@ -177,7 +184,7 @@ export const BoardEditor = ({
                   pieceSanToFenBoardPieceSymbol(pieceSan)
                 );
 
-                onUpdated(fenBoard.fen);
+                onUpdateFen(fenBoard.fen);
                 setHoveredSquare(undefined);
               } catch {
                 // TODO: Maybe show an error in the UI
@@ -200,9 +207,8 @@ export const BoardEditor = ({
                 try {
                   fenBoard.move(m);
 
-                  onUpdated(fenBoard.fen);
+                  onUpdateFen(fenBoard.fen);
                   setHoveredSquare(undefined);
-
                   return true;
                 } catch (e) {
                   return false;
@@ -224,8 +230,7 @@ export const BoardEditor = ({
                     fenBoard.clearSquare(from, { validate: true });
 
                     setDraggedPieceState(undefined);
-
-                    onUpdated(fenBoard.fen);
+                    onUpdateFen(fenBoard.fen);
                   } catch {
                     // TODO: Maybe show an error in the UI?
                   }
@@ -247,39 +252,41 @@ export const BoardEditor = ({
 
           <div className="flex flex-col">
             <div className="flex flex-1 flex-col gap-2">
-              <div>
-                <ConfirmButton
-                  iconButton
-                  icon="XCircleIcon"
-                  // iconKind="outline"
-                  type="custom"
-                  tooltip="Cancel"
-                  tooltipPositon="right"
-                  className="text-slate-400 hover:text-white"
-                  iconClassName="w-5 h-5"
-                  confirmModalTitle="Cancel Changes"
-                  confirmModalContent="You're about to cancel the changes. Are you sure?"
-                  size="sm"
-                  onClick={() => {
-                    // Reset to the initial fen
-                    onUpdated(initialFen);
-                    // and then cancel
-                    onCancel();
-                  }}
-                />
-                <IconButton
-                  icon="CheckCircleIcon"
-                  // iconKind="outline"
-                  type="custom"
-                  tooltip="Use Position"
-                  tooltipPositon="right"
-                  className="text-slate-400 hover:text-white"
-                  iconClassName="w-5 h-5"
-                  // iconColor=''
-                  size="sm"
-                  onClick={onSave}
-                />
-              </div>
+              {showSaveButtons && (
+                <div>
+                  <ConfirmButton
+                    iconButton
+                    icon="XCircleIcon"
+                    // iconKind="outline"
+                    type="custom"
+                    tooltip="Cancel"
+                    tooltipPositon="right"
+                    className="text-slate-400 hover:text-white"
+                    iconClassName="w-5 h-5"
+                    confirmModalTitle="Cancel Changes"
+                    confirmModalContent="You're about to cancel the changes. Are you sure?"
+                    size="sm"
+                    onClick={() => {
+                      // Reset to the initial fen
+                      onUpdateFen(initialFen);
+                      // and then cancel
+                      onCancel?.();
+                    }}
+                  />
+                  <IconButton
+                    icon="CheckCircleIcon"
+                    // iconKind="outline"
+                    type="custom"
+                    tooltip="Use Position"
+                    tooltipPositon="right"
+                    className="text-slate-400 hover:text-white"
+                    iconClassName="w-5 h-5"
+                    // iconColor=''
+                    size="sm"
+                    onClick={onSave}
+                  />
+                </div>
+              )}
               {/* <div className="flex items-center justify-center">
                 <div className='flex.5 border-b border-slate-600' />
               </div> */}
@@ -291,7 +298,7 @@ export const BoardEditor = ({
                 <StartPositionIconButton
                   tooltipPositon="right"
                   onClick={() => {
-                    onUpdated(ChessFENBoard.STARTING_FEN);
+                    onUpdateFen(ChessFENBoard.STARTING_FEN);
 
                     resetArrowsAndCircles();
                   }}
@@ -299,7 +306,7 @@ export const BoardEditor = ({
                 <ClearBoardIconButton
                   tooltipPositon="right"
                   onClick={() => {
-                    onUpdated(ChessFENBoard.ONLY_KINGS_FEN);
+                    onUpdateFen(ChessFENBoard.ONLY_KINGS_FEN);
 
                     resetArrowsAndCircles();
                   }}

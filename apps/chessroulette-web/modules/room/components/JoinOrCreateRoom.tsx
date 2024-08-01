@@ -4,9 +4,8 @@ import React, { useEffect, useState } from 'react';
 import movexConfig from 'apps/chessroulette-web/movex.config';
 import { useMovexResourceType } from 'movex-react';
 import { useRouter } from 'next/navigation';
-import { initialRoomState } from '../movex/reducer';
+import { RoomState, initialRoomState } from '../movex/reducer';
 import {
-  objectKeys,
   toResourceIdentifierObj,
   toResourceIdentifierStr,
 } from 'movex-core-util';
@@ -14,26 +13,26 @@ import { useUpdateableSearchParams } from 'apps/chessroulette-web/hooks/useSearc
 import { generateUserId, getRandomStr } from 'apps/chessroulette-web/util';
 import { links } from '../links';
 import { AsyncErr } from 'ts-async-results';
-import { invoke, isOneOf } from '@xmatter/util-kit';
-import {
-  ActivityState,
-  initialActivityStatesByActivityType,
-} from '../activities/movex';
+import { invoke } from '@xmatter/util-kit';
+import { initialActivityStatesByActivityType } from '../activities/movex';
+import { GameTimeClass, chessGameTimeLimitMsMap } from '../../Play/types';
+import { ActivityParamsSchema } from '../io/paramsSchema';
+import { createMatchState } from '../activities/Match/movex';
 
 type Props = {
-  activity: ActivityState['activityType']; // To expand in the future
+  activityParams: ActivityParamsSchema;
 } & (
   | {
       mode: 'join';
-      id: string;
+      roomId: string;
     }
   | {
       mode: 'joinOrCreate';
-      id?: string;
+      roomId?: string;
     }
   | {
       mode: 'create';
-      id?: undefined;
+      roomId?: undefined;
     }
 );
 
@@ -46,8 +45,8 @@ type ErrorType = 'RoomInexistent';
  * @returns
  */
 export const JoinOrCreateRoom: React.FC<Props> = ({
-  activity,
-  id,
+  activityParams,
+  roomId,
   mode,
 }: Props) => {
   const roomResource = useMovexResourceType(movexConfig, 'room');
@@ -57,31 +56,66 @@ export const JoinOrCreateRoom: React.FC<Props> = ({
   const [error, setError] = useState<ErrorType>();
 
   useEffect(() => {
-    if (
-      !(
-        roomResource &&
-        isOneOf(activity, objectKeys(initialActivityStatesByActivityType))
-      )
-    ) {
+    if (!roomResource) {
       return;
     }
 
     invoke(() => {
-      if (mode === 'create') {
-        return roomResource.create(
-          {
+      const createRoomInput: RoomState = invoke(() => {
+        if (activityParams.activity === 'play') {
+          const defaultGame =
+            initialActivityStatesByActivityType['play'].activityState.game;
+
+          const timeClass: GameTimeClass =
+            activityParams.timeClass || defaultGame.timeClass;
+
+          const createGameInput = {
+            ...defaultGame,
+            timeClass,
+            timeLeft: {
+              white: chessGameTimeLimitMsMap[timeClass],
+              black: chessGameTimeLimitMsMap[timeClass],
+            },
+          };
+
+          return {
             ...initialRoomState,
-            activity: initialActivityStatesByActivityType[activity],
-          },
-          getRandomStr(7) // the new room id
-        );
+            activity: {
+              activityType: 'play',
+              activityState: {
+                ...initialActivityStatesByActivityType['play'].activityState,
+                game: createGameInput,
+              },
+            },
+          };
+        }
+
+        if (activityParams.activity === 'match') {
+          return {
+            ...initialRoomState,
+            activity: {
+              activityType: 'match',
+              activityState: createMatchState(activityParams),
+            },
+          };
+        }
+
+        return {
+          ...initialRoomState,
+          activity:
+            initialActivityStatesByActivityType[activityParams.activity],
+        };
+      });
+
+      if (mode === 'create') {
+        return roomResource.create(createRoomInput, getRandomStr(7));
       }
 
       return (
-        id
+        roomId
           ? roomResource.get(
               toResourceIdentifierStr({
-                resourceId: id,
+                resourceId: roomId,
                 resourceType: 'room',
               })
             )
@@ -93,13 +127,7 @@ export const JoinOrCreateRoom: React.FC<Props> = ({
             return new AsyncErr(e);
           }
 
-          return roomResource.create(
-            {
-              ...initialRoomState,
-              activity: initialActivityStatesByActivityType[activity],
-            },
-            id
-          );
+          return roomResource.create(createRoomInput, roomId);
         });
     })
       .map((r) => {
@@ -107,8 +135,12 @@ export const JoinOrCreateRoom: React.FC<Props> = ({
           links.getRoomLink({
             ...updateableSearchParams.toObject(),
             id: toResourceIdentifierObj(r.rid).resourceId,
-            activity,
+            activity: activityParams.activity,
             userId: updateableSearchParams.get('userId') || generateUserId(),
+            // activity,
+            // TODO: This was removed when I introduced the Auth (May 4th)
+            // Don't think it's needed but need to ensure, especially around user given from outpost or guests
+            // userId: updateableSearchParams.get('userId') || generateUserId(),
           })
         );
       })
@@ -117,7 +149,7 @@ export const JoinOrCreateRoom: React.FC<Props> = ({
         setError('RoomInexistent');
         console.error('JoinOrCreateRoom Error', e);
       });
-  }, [roomResource, activity, id]);
+  }, [roomResource, activityParams, roomId]);
 
   // TODO: Use the built in error page˝
   if (error === 'RoomInexistent') {
@@ -129,5 +161,18 @@ export const JoinOrCreateRoom: React.FC<Props> = ({
     );
   }
 
-  return null;
+  if (error) {
+    return (
+      <div className="flex flex-1 items-center justify-center h-screen w-screen text-lg  divide-x">
+        <h1 className="text-2xl pr-2">An Error Occured</h1>
+        <h1 className="pl-2">{error}</h1>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-1 items-center justify-center h-screen w-screen text-lg  divide-x">
+      <span className="text-2xl pr-2">Loading...</span>
+    </div>
+  );
 };

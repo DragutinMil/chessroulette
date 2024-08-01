@@ -53,6 +53,11 @@ yalc.lock
 .env
 .env*
 
-*.tsbuildinfo
 # Sentry Config File
 .sentryclirc
+*.tsbuildinfo
+
+#Local
+TODO.md
+xmatter.sublime-project
+xmatter.sublime-workspace

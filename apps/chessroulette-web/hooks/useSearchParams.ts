@@ -88,7 +88,7 @@ export const useUpdateableSearchParams = () => {
 // return [asObject, setParams];
 // };
 
-const searchParamsToObject = (sp: ReadonlyURLSearchParams) =>
+export const searchParamsToObject = (sp: ReadonlyURLSearchParams) =>
   toDictIndexedBy(
     Array.from(sp.entries()),
     ([key]) => key,

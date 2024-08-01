@@ -108,8 +108,8 @@ export const pluralize = (
 export const objectOmit = <O extends Object, ToOmit extends (keyof O)[]>(
   o: O,
   toOmit: ToOmit
-) => {
-  return objectKeys(o).reduce((prev, nextKey) => {
+) =>
+  objectKeys(o).reduce((prev, nextKey) => {
     if (toOmit.indexOf(nextKey) > -1) {
       return prev;
     }
@@ -118,5 +118,34 @@ export const objectOmit = <O extends Object, ToOmit extends (keyof O)[]>(
       ...prev,
       [nextKey]: o[nextKey],
     };
-  }, {} as DistributiveOmit<O, TupleToUnionType<typeof toOmit>>);
-};
+  }, {} as DistributiveOmit<O, TupleToUnionType<ToOmit>>);
+
+export const objectPick = <O extends Object, ToPick extends (keyof O)[]>(
+  o: O,
+  toPick: ToPick
+) =>
+  objectKeys(o).reduce((prev, nextKey) => {
+    if (toPick.indexOf(nextKey) === -1) {
+      return prev;
+    }
+
+    return {
+      ...prev,
+      [nextKey]: o[nextKey],
+    };
+  }, {} as Pick<O, TupleToUnionType<ToPick>>);
+
+export const objectFilterProps = <O extends Object>(
+  o: O,
+  fn: <K extends keyof O>(k: K, v: O[K]) => boolean
+) =>
+  objectKeys(o).reduce(
+    (prev, nextKey) =>
+      fn(nextKey, o[nextKey])
+        ? {
+            ...prev,
+            [nextKey]: o[nextKey],
+          }
+        : prev,
+    {} as Partial<O>
+  );

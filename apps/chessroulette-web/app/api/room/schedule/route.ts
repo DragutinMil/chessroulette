@@ -84,9 +84,86 @@ export function GET(request: NextRequest) {
     });
   }
 
+  if (activityParams.activity === 'play') {
+    return NextResponse.json({
+      links: [
+        {
+          userRole: 'host',
+          url: links.getOnDemandRoomCreationLink(
+            {
+              ...objectOmit(activityParams, ['client']),
+              id: roomId,
+              host: true,
+            },
+            request.nextUrl
+          ),
+        },
+        {
+          userRole: 'player',
+          url: links.getOnDemandRoomCreationLink(
+            {
+              ...objectOmit(activityParams, ['client']),
+              id: roomId,
+              flipped: 1, // TODO: This can be stored in movex better
+            },
+            request.nextUrl
+          ),
+        },
+      ],
+    });
+  }
+
+  if (activityParams.activity === 'match') {
+    if (
+      activityParams.type === 'bestOf' &&
+      !(
+        activityParams.rounds &&
+        activityParams.rounds > 0 &&
+        activityParams.rounds % 2 !== 0
+      )
+    ) {
+      return NextResponse.json(
+        {
+          Error: 'Invalid number of rounds for BestOf',
+        },
+        {
+          status: 500,
+        }
+      );
+    }
+    return NextResponse.json({
+      links: [
+        {
+          userRole: 'challenger',
+          url: links.getOnDemandRoomCreationLink(
+            {
+              ...objectOmit(activityParams, ['client']),
+              id: roomId,
+              challenger: 1, // TODO: This can be stored in movex better
+            },
+            request.nextUrl
+          ),
+          matchId: roomId,
+        },
+        {
+          userRole: 'challengee',
+          url: links.getOnDemandRoomCreationLink(
+            {
+              ...objectOmit(activityParams, ['client']),
+              id: roomId,
+              flipped: 1, // TODO: This can be stored in movex better
+            },
+            request.nextUrl
+          ),
+          matchId: roomId,
+        },
+      ],
+    });
+  }
+
   return NextResponse.json(
     {
-      Error: `Ooops! this shouldn't happen.`,
+      Error: `Ooops! This shouldn't happen.`,
     },
     { status: 500 }
   );

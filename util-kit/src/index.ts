@@ -6,3 +6,4 @@ export * from './lib/Chess';
 export * from './lib/miscType';
 export * from './lib/Wrap';
 export * from './lib/hooks';
+export * from './lib/compose';

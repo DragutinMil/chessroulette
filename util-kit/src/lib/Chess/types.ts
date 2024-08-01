@@ -45,6 +45,8 @@ export type BlackColor = BlackShortColor | BlackLongColor;
 export type LongChessColor = WhiteLongColor | BlackLongColor;
 export type ShortChessColor = WhiteShortColor | BlackShortColor;
 
+export type ChessSide = 'home' | 'away';
+
 export type ChessColor = WhiteColor | BlackColor;
 
 export type DetailedChessPiece = {

@@ -3,12 +3,13 @@ import { Session } from 'next-auth';
 import React from 'react';
 import { links } from '../room/links';
 import Link from 'next/link';
+import { PlaySetupButton } from '../Play/components/PlaySetupButton/PlaySetupButton';
 
 type Props = {
   session?: Session;
 };
 
-export const MainHomeSection: React.FC<Props> = () => {
+export const MainHomeSection: React.FC<Props> = ({ session }) => {
   return (
     <main className="flex flex-1 justify-center mt-32">
       <div className="flex gap-3 flex-col">
@@ -42,6 +43,8 @@ export const MainHomeSection: React.FC<Props> = () => {
             Start Class as Kids Instructor
           </Button>
         </Link>
+        <br />
+        <PlaySetupButton />
         <br />
         <Link
           href={links.getOnDemandRoomCreationLink({

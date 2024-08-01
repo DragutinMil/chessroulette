@@ -42,6 +42,19 @@ export const CameraPanel = ({
           userId: p.id,
           userDisplayName: p.displayName,
         })
+        //TOOD - don't know which is the right code here!
+        // objectKeys(participants).reduce(
+        //   (prev, nextUserId) => ({
+        //     ...prev,
+        //     [nextUserId]: nextUserId,
+        //   }),
+        //   {} as PeerUserIdsMap
+        // objectKeys(players).reduce(
+        //   (prev, nextUserId) => ({
+        //     ...prev,
+        //     [nextUserId]: nextUserId,
+        //   }),
+        //   {} as PeerUserIdsMap
       ),
     [participants]
   );

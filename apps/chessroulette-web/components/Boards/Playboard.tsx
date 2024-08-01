@@ -12,8 +12,10 @@ import {
 import {
   ChessboardContainer,
   ChessboardContainerProps,
+  CirclesMap,
   useBoardTheme,
 } from '../Chessboard';
+import { useState } from 'react';
 
 type Props = DistributiveOmit<
   ChessboardContainerProps,
@@ -21,6 +23,8 @@ type Props = DistributiveOmit<
 > & {
   playingColor: ChessColor;
   onMove: (m: ShortChessMove, nextFen: ChessFEN) => void;
+  canPlay?: boolean;
+  overlayComponent?: React.ReactNode;
 };
 
 const canMove = (
@@ -64,8 +68,11 @@ export const Playboard = ({
   playingColor,
   boardOrientation = playingColor,
   onMove,
+  canPlay = false,
   ...props
 }: Props) => {
+  const [circlesMap, setCirclesMap] = useState<CirclesMap>({});
+
   const boardTheme = useBoardTheme();
 
   return (
@@ -76,6 +83,15 @@ export const Playboard = ({
       strict
       canMove={(move) => canMove(move, fen, playingColor).valid}
       onMove={(move) => {
+        if (!canPlay) {
+          return false;
+        }
+        const chessInstance = getNewChessGame({ fen });
+
+        if (chessInstance.turn() !== toShortColor(playingColor)) {
+          return false;
+        }
+
         const res = canMove(move, fen, playingColor);
 
         if (!res.valid) {
@@ -85,6 +101,16 @@ export const Playboard = ({
         onMove?.(move, res.fen);
 
         return true;
+      }}
+      circlesMap={circlesMap}
+      onCircleDraw={(c) => {
+        setCirclesMap((prev) => ({
+          ...prev,
+          [c[0]]: c,
+        }));
+      }}
+      onClearCircles={() => {
+        setCirclesMap({});
       }}
       {...props}
     />

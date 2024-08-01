@@ -6,14 +6,11 @@ import { useMovexBoundResourceFromRid, useMovexClientId } from 'movex-react';
 import { IceServerRecord } from 'apps/chessroulette-web/providers/PeerToPeerProvider/type';
 import { ActivityState } from './activities/movex';
 import { LearnActivity } from './activities/Learn';
-import { initialLearnActivityState } from './activities/Learn/movex';
 import { MeetupActivity } from './activities/Meetup/MeetupActivity';
-import { initialMeetupActivityState } from './activities/Meetup/movex';
-import { useEffect, useMemo } from 'react';
-import { objectKeys } from '@xmatter/util-kit';
-import { UsersMap } from '../user/type';
-import { MovexClientInfo } from 'apps/chessroulette-web/providers/MovexProvider';
-import { ChessEngineProvider } from '../ChessEngine/ChessEngineProvider';
+import { useMemo } from 'react';
+import { PlayActivity } from './activities/Play/PlayActivity';
+import { MatchActivity } from './activities/Match/MatchActivity';
+import { movexSubcribersToUserMap } from 'apps/chessroulette-web/providers/MovexProvider';
 
 type Props = {
   rid: ResourceIdentifier<'room'>;
@@ -21,71 +18,74 @@ type Props = {
   activity: ActivityState['activityType'];
 };
 
-export const RoomContainer = ({ iceServers, rid, activity }: Props) => {
+export const RoomContainer = ({ iceServers, rid }: Props) => {
   const movexResource = useMovexBoundResourceFromRid(movexConfig, rid);
   const userId = useMovexClientId(movexConfig);
-  const participants = useMemo(() => {
-    if (!movexResource) {
-      return {};
-    }
-
-    return objectKeys(movexResource.subscribers).reduce(
-      (prev, nextSubscriberId) => ({
-        ...prev,
-        [nextSubscriberId]: {
-          id: nextSubscriberId,
-          displayName: (
-            movexResource.subscribers[nextSubscriberId].info as MovexClientInfo
-          ).displayName,
-        },
-      }),
-      {} as UsersMap
-    );
-  }, [movexResource?.subscribers]);
+  const participants = useMemo(
+    () => movexSubcribersToUserMap(movexResource?.subscribers || {}),
+    [movexResource?.subscribers]
+  );
 
   // This shouldn't really happen
   if (!userId) {
+    // TODO: show an invalid page
     return null;
   }
 
-  if (activity === 'learn') {
-    return (
-      // TODO: Should this be here??
-      // <ChessEngineProvider
-      //   // uciUrl="ws://localhost:5222/senduci"
-      //   uciUrl="wss://chessroulette-engine.fly.dev/senduci"
-      // >
-        <LearnActivity
-          userId={userId}
-          roomId={toResourceIdentifierObj(rid).resourceId}
-          dispatch={movexResource?.dispatch}
-          participants={participants}
-          iceServers={iceServers}
-          remoteState={
-            movexResource?.state.activity.activityType === 'learn'
-              ? movexResource?.state.activity.activityState ??
-                initialLearnActivityState.activityState
-              : initialLearnActivityState.activityState
-          }
-        />
-      // </ChessEngineProvider>
-    );
+  if (!movexResource) {
+    // TODO: This shows nothing on the server render but it could show an empty default page with activity none?
+    // Or show a suspense or something,
+    // But just for Server Renndering I shouldn't make it much harder on the Activity side to work with dispatch and other things
+    return null;
   }
 
-  if (activity === 'meetup') {
+  const { activity } = movexResource.state;
+
+  const commonActivityProps = {
+    userId,
+    roomId: toResourceIdentifierObj(rid).resourceId,
+    dispatch: movexResource.dispatch,
+    participants,
+    iceServers,
+  } as const;
+
+  if (activity.activityType === 'learn') {
     return (
-      <MeetupActivity
+      <LearnActivity
+        {...commonActivityProps}
+        remoteState={activity.activityState}
         userId={userId}
         roomId={toResourceIdentifierObj(rid).resourceId}
         dispatch={movexResource?.dispatch}
         participants={participants}
         iceServers={iceServers}
-        remoteState={
-          movexResource?.state.activity.activityType === 'meetup'
-            ? movexResource?.state.activity.activityState ??
-              initialMeetupActivityState.activityState
-            : initialMeetupActivityState.activityState
-        }
+      />
+    );
+  }
+
+  if (activity.activityType === 'meetup') {
+    return (
+      <MeetupActivity
+        {...commonActivityProps}
+        remoteState={activity.activityState}
+      />
+    );
+  }
+
+  if (activity.activityType === 'play') {
+    return (
+      <PlayActivity
+        {...commonActivityProps}
+        remoteState={activity.activityState}
+      />
+    );
+  }
+
+  if (activity.activityType === 'match' && activity.activityState) {
+    return (
+      <MatchActivity
+        {...commonActivityProps}
+        remoteState={activity.activityState}
       />
     );
   }

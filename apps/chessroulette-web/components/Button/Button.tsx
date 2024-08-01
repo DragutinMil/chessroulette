@@ -11,13 +11,12 @@ const swapDirection = (d: Direction): Direction => {
   return d === 'bottom' ? 'top' : 'bottom';
 };
 
-export type ButtonProps = Omit<
-  React.DetailedHTMLProps<
-    React.ButtonHTMLAttributes<HTMLButtonElement>,
-    HTMLButtonElement
-  >,
-  'type' | 'ref'
-> &
+type NativeButtonProps = React.DetailedHTMLProps<
+  React.ButtonHTMLAttributes<HTMLButtonElement>,
+  HTMLButtonElement
+>;
+
+export type ButtonProps = Omit<NativeButtonProps, 'type' | 'ref'> &
   PropsWithChildren<{
     type?: 'primary' | 'secondary' | 'clear' | 'custom';
     onClick?: () => void;
@@ -30,9 +29,10 @@ export type ButtonProps = Omit<
     bgColor?: BgColor;
     tooltip?: string;
     tooltipPositon?: 'left' | 'top' | 'right' | 'bottom';
+    buttonType?: NativeButtonProps['type'];
   }>;
 
-type BgColor =
+export type BgColor =
   | 'purple'
   | 'green'
   | 'blue'
@@ -43,13 +43,16 @@ type BgColor =
   | 'gray'
   | 'red'; // Add more colors
 
-const getButtonColors = (color: BgColor, cssProp: 'bg' | 'text' = 'bg') => ({
+export const getButtonColors = (
+  color: BgColor,
+  cssProp: 'bg' | 'text' = 'bg'
+) => ({
   initial: `${cssProp}-${color}-500`,
   hover: `${cssProp}-${color}-600`,
   active: `${cssProp}-${color}-800`,
 });
 
-const toStringColors = (p: {
+export const toStringColors = (p: {
   initial: string;
   hover: string;
   active: string;
@@ -83,10 +86,10 @@ export const buttonIconClasses = {
   xs: 'h-3 w-3',
 };
 
-export const Button = React.forwardRef<
-  HTMLButtonElement | null,
-  ButtonProps
->(
+/**
+ * Note: By default doesn't submit forms, unless "submit" buttonType is specified
+ */
+export const Button = React.forwardRef<HTMLButtonElement | null, ButtonProps>(
   (
     {
       children,
@@ -101,6 +104,7 @@ export const Button = React.forwardRef<
       bgColor,
       tooltip,
       tooltipPositon = 'left',
+      buttonType = 'button', // This by default doesn't submit forms, unless "submit" type is specified
       ...props
     },
     ref
@@ -122,12 +126,13 @@ export const Button = React.forwardRef<
         className={`group relative hover:cursor-pointer ${classes[type]} ${
           classes[size]
         } ${
-          disabled ? 'bg-slate-400 hover:bg-slate-400' : ''
+          disabled ? 'bg-slate-400 hover:bg-slate-400 active:bg-slate-400 hover:cursor-default' : ''
         } flex items-center justify-center gap-1 ${className} ${
           bgColor ? toStringColors(getButtonColors(bgColor)) : ''
         } ${isActiveClass}`}
         onClick={onClick}
         disabled={disabled === true}
+        type={buttonType}
         {...props}
       >
         {icon && (
@@ -146,17 +151,13 @@ export const Button = React.forwardRef<
             style={{
               transition: 'all 50ms linear',
               top: '0%',
-
               [swapDirection(tooltipPositon)]: '120%',
-
               zIndex: 999,
             }}
           >
             <div
               className="bg-white text-nowrap text-xs border rounded-lg p-1 text-black font-normal"
-              style={{
-                boxShadow: '0 6px 13px rgba(0, 0, 0, .1)',
-              }}
+              style={{ boxShadow: '0 6px 13px rgba(0, 0, 0, .1)' }}
             >
               {tooltip}
             </div>

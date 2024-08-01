@@ -1,18 +1,9 @@
 import movexConfig from 'apps/chessroulette-web/movex.config';
 import { MovexBoundResourceFromConfig } from 'movex-react';
-import {
-  ChessPGN,
-  FBHHistory,
-  FBHIndex,
-  FreeBoardHistory,
-  noop,
-  pgnToFen,
-  swapColor,
-} from '@xmatter/util-kit';
+import { FBHIndex, noop, swapColor } from '@xmatter/util-kit';
 import { IceServerRecord } from 'apps/chessroulette-web/providers/PeerToPeerProvider/type';
 import { MeetupActivityState } from './movex';
 import { UserId, UsersMap } from 'apps/chessroulette-web/modules/user/type';
-import { DesktopRoomLayout } from '../../components/DesktopRoomLayout';
 import { RIGHT_SIDE_SIZE_PX } from '../Learn/components/LearnBoard';
 import { Playboard } from 'apps/chessroulette-web/components/Boards';
 import { CameraPanel } from '../../components/CameraPanel';
@@ -22,50 +13,19 @@ import { PanelResizeHandle } from 'react-resizable-panels';
 import { GameDisplayView } from './components/GameDisplayView';
 import { StartPositionIconButton } from 'apps/chessroulette-web/components/Chessboard';
 import { FreeBoardNotation } from 'apps/chessroulette-web/components/FreeBoardNotation';
+import { getDisplayStateFromPgn } from './utils';
+import { ResizableDesktopLayout } from 'apps/chessroulette-web/templates/ResizableDesktopLayout';
 
 export type Props = {
   roomId: string;
   userId: UserId;
   iceServers: IceServerRecord[];
-  participants?: UsersMap;
+  participants: UsersMap;
   remoteState: MeetupActivityState['activityState'];
   dispatch?: MovexBoundResourceFromConfig<
-    (typeof movexConfig)['resources'],
+    typeof movexConfig['resources'],
     'room'
   >['dispatch'];
-};
-
-const getDisplayStateFromPgn = (pgn: ChessPGN, focusedIndex?: FBHIndex) => {
-  const allHistory = FreeBoardHistory.pgnToHistory(pgn);
-
-  if (!focusedIndex) {
-    const lastFocusedIndex = FreeBoardHistory.getLastIndexInHistory(allHistory);
-
-    return {
-      fen: pgnToFen(pgn),
-      history: allHistory,
-      focusedIndex: FreeBoardHistory.getLastIndexInHistory(allHistory),
-      lastMove: getLastMove(allHistory, lastFocusedIndex),
-    } as const;
-  }
-
-  const [historyAtIndex, lastFocusedIndex] = FreeBoardHistory.sliceHistory(
-    allHistory,
-    FreeBoardHistory.incrementIndex(focusedIndex)
-  );
-
-  return {
-    fen: FreeBoardHistory.historyToFen(historyAtIndex),
-    history: allHistory,
-    focusedIndex: lastFocusedIndex,
-    lastMove: getLastMove(historyAtIndex, lastFocusedIndex),
-  };
-};
-
-const getLastMove = (history: FBHHistory, atIndex: FBHIndex) => {
-  const lm = FreeBoardHistory.findMoveAtIndex(history, atIndex);
-
-  return lm?.isNonMove ? undefined : lm;
 };
 
 export const MeetupActivity = ({
@@ -103,10 +63,11 @@ export const MeetupActivity = ({
   );
 
   return (
-    <DesktopRoomLayout
+    <ResizableDesktopLayout
       rightSideSize={RIGHT_SIDE_SIZE_PX}
       mainComponent={({ boardSize }) => (
         <Playboard
+          canPlay
           sizePx={boardSize}
           fen={displayState.fen}
           playingColor={orientation}

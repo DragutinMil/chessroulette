@@ -1,8 +1,8 @@
 import { Metadata } from 'next';
 import Header from '../components/Header';
 import { MainHomeSection } from '../modules/Home/MainHomeSection';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '../services/auth';
+import { authOptions } from '../services/Auth';
+import { getCustomServerSession } from '../services/Auth/getCustomServerSession';
 
 export const metadata: Metadata = {
   title: 'Chessroulette',
@@ -10,10 +10,10 @@ export const metadata: Metadata = {
 };
 
 export default async function Home() {
-  const session = (await getServerSession(authOptions)) || undefined;
+  const session = await getCustomServerSession(authOptions);
 
   return (
-    <div className="gap-2 pl-[max(env(safe-area-inset-left),1.5rem)] pr-[max(env(safe-area-inset-right),1.5rem)]">
+    <div>
       <Header showOnboarding session={session} />
       <MainHomeSection session={session} />
     </div>
