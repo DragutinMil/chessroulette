@@ -6,6 +6,7 @@ export type ConfirmButtonProps = ButtonProps & {
   // confirmationContent: React.ReactNode;
   confirmModalTitle: string;
   confirmModalContent: string | React.ReactNode;
+  confirmModalAgreeButtonBgColor?: ButtonProps['bgColor'];
 } & (
     | {
         iconButton: true;
@@ -25,6 +26,7 @@ export const ConfirmButton: React.FC<ConfirmButtonProps> = ({
   onClick,
   confirmModalTitle,
   confirmModalContent,
+  confirmModalAgreeButtonBgColor = 'green',
   iconButton,
   ...props
 }) => {
@@ -71,7 +73,7 @@ export const ConfirmButton: React.FC<ConfirmButtonProps> = ({
                   </Button>
                   <Button
                     type="custom"
-                    bgColor="green"
+                    bgColor={confirmModalAgreeButtonBgColor}
                     onClick={() => {
                       setShowModal(false);
                       onClick?.();
