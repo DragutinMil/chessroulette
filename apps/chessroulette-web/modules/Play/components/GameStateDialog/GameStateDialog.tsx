@@ -1,32 +1,28 @@
 import React, { useEffect, useState } from 'react';
 import { invoke, objectKeys } from '@xmatter/util-kit';
 import { Dialog } from 'apps/chessroulette-web/components/Dialog';
-import { Text } from 'apps/chessroulette-web/components/Text';
-import { useGameActionsContext } from '../../providers/useGameActions';
 import { GameOffer } from '../../store';
+import { ClipboardCopyButton } from 'apps/chessroulette-web/components/ClipboardCopyButton';
+import Link from 'next/link';
+import { useGame } from '../../providers/useGame';
 
-type Props = {
+export type GameStateDialogProps = {
   onAcceptOffer: ({ offer }: { offer: GameOffer['type'] }) => void;
   onDenyOffer: () => void;
-  onRematchRequest: () => void;
   onCancelOffer: () => void;
-  // roomId: string;
+  joinRoomLink: string | undefined;
 };
 
-export const GameStateDialog: React.FC<Props> = ({
-  onRematchRequest,
+export const GameStateDialog: React.FC<GameStateDialogProps> = ({
   onAcceptOffer,
   onDenyOffer,
   onCancelOffer,
-  // roomId,
+  joinRoomLink,
 }) => {
   const [gameResultSeen, setGameResultSeen] = useState(false);
-  const {
-    lastOffer,
-    game: gameState,
-    players,
-    playerId,
-  } = useGameActionsContext();
+  const { lastOffer, realState, players, playerId } = useGame();
+
+  const { game: gameState } = realState;
 
   useEffect(() => {
     // Everytime the game state changes, reset the seen!
@@ -42,45 +38,37 @@ export const GameStateDialog: React.FC<Props> = ({
         <Dialog
           title="Waiting for Opponent"
           content={
-            <div>
-              {/* // TODO: Fix this */}
-              {/* <RoomSideMenu activity="play" roomId={roomId} /> */}
-              TODO: Show invite Link
+            <div className="w-full flex justify-center">
+              {joinRoomLink && (
+                <ClipboardCopyButton
+                  buttonComponentType="Button"
+                  value={joinRoomLink}
+                  render={(copied) => (
+                    <>
+                      {copied ? (
+                        <Link
+                          href={joinRoomLink}
+                          target="_blank"
+                          className="bg-transparent"
+                          onClick={(e) => e.preventDefault()}
+                        >
+                          <div className="bg-green-400 text-black p-3 rounded-xl">
+                            Copied
+                          </div>
+                        </Link>
+                      ) : (
+                        <div className="bg-purple-400 p-3 text-black rounded-xl">
+                          Copy Invite URL
+                        </div>
+                      )}
+                    </>
+                  )}
+                  type="clear"
+                  size="sm"
+                />
+              )}
             </div>
           }
-        />
-      );
-    }
-
-    if (
-      gameState.status === 'complete' &&
-      !gameResultSeen &&
-      (!lastOffer || lastOffer.status !== 'pending')
-    ) {
-      return (
-        <Dialog
-          title="Game Ended"
-          content={
-            <div className="flex justify-center content-center text-center">
-              {gameState.winner &&
-                (gameState.winner === '1/2' ? (
-                  <Text>Game Ended in a Draw</Text>
-                ) : (
-                  <Text className="capitalize">{gameState.winner} Won!</Text>
-                ))}
-            </div>
-          }
-          onClose={() => {
-            setGameResultSeen(true);
-          }}
-          buttons={[
-            {
-              children: 'Offer Rematch',
-              onClick: () => onRematchRequest(),
-              type: 'primary',
-              bgColor: 'blue',
-            },
-          ]}
         />
       );
     }

@@ -1,22 +1,19 @@
 import { DispatchOf, swapColor } from '@xmatter/util-kit';
-import { Game, GameOffer, PlayActions } from './store';
-import { UserId, UsersMap } from '../user/type';
+import { Game, PlayActions } from './store';
 import { Playboard } from 'apps/chessroulette-web/components/Boards';
-import { useCallback, useMemo } from 'react';
-import { GameStateDialog } from './components/GameStateDialog/GameStateDialog';
+import { useMemo } from 'react';
 import { RIGHT_SIDE_SIZE_PX } from '../room/activities/Learn/components/LearnBoard';
 import { PanelResizeHandle } from 'react-resizable-panels';
-import { useCanPlay } from './hooks/useCanPlay';
 import { useGame } from './providers/useGame';
+import { ChessboardContainerProps } from 'apps/chessroulette-web/components/Chessboard';
 
-type Props = {
+export type GameBoardContainerProps = {
   boardSizePx: number;
   game: Game;
+  canPlay: boolean;
   dispatch: DispatchOf<PlayActions>;
-  players?: UsersMap; // TODO: this should be better defined
-  playerId: UserId;
   isBoardFlipped?: boolean;
-};
+} & Pick<ChessboardContainerProps, 'overlayComponent'>;
 
 /**
  * This must be used as a descendant of the GameProvider only
@@ -28,10 +25,10 @@ export const GameBoardContainer = ({
   game,
   isBoardFlipped,
   boardSizePx,
-  players,
-  playerId,
+  overlayComponent,
+  canPlay,
   dispatch,
-}: Props) => {
+}: GameBoardContainerProps) => {
   // TODO: This should come from somewhere else
   const orientation = useMemo(
     () => (isBoardFlipped ? swapColor(game.orientation) : game.orientation),
@@ -40,46 +37,15 @@ export const GameBoardContainer = ({
 
   const { displayState } = useGame();
 
-  const canPlay = useCanPlay(game, players);
-
-  const onAcceptOffer = useCallback(
-    ({ offer }: { offer: GameOffer['type'] }) => {
-      if (offer === 'draw') {
-        dispatch({ type: 'play:acceptOfferDraw' });
-      } else if (offer === 'rematch') {
-        dispatch({ type: 'play:acceptOfferRematch' });
-      } else if (offer === 'takeback') {
-        dispatch({ type: 'play:acceptTakeBack' });
-      }
-    },
-    [dispatch]
-  );
-
-  const onRematchRequest = useCallback(() => {
-    dispatch({
-      type: 'play:sendOffer',
-      payload: { byPlayer: playerId, offerType: 'rematch' },
-    });
-  }, [dispatch]);
-
   return (
     <Playboard
       sizePx={boardSizePx}
       fen={displayState.fen}
       lastMove={displayState.lastMove}
       canPlay={canPlay}
-      overlayComponent={
-        <GameStateDialog
-          onRematchRequest={onRematchRequest}
-          onAcceptOffer={onAcceptOffer}
-          //TODO - at the moment nothing happens, later can decide if extra notifications when offer is cancelled
-          onCancelOffer={() => dispatch({ type: 'play:cancelOffer' })}
-          onDenyOffer={() => dispatch({ type: 'play:denyOffer' })}
-        />
-      }
+      overlayComponent={overlayComponent}
       playingColor={orientation}
       onMove={(payload) => {
-        // console.log('on move', payload, dispatch);
         dispatch({
           type: 'play:move',
           payload: {

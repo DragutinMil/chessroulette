@@ -67,6 +67,7 @@ export const MeetupActivity = ({
       rightSideSize={RIGHT_SIDE_SIZE_PX}
       mainComponent={({ boardSize }) => (
         <Playboard
+          canPlay
           sizePx={boardSize}
           fen={displayState.fen}
           playingColor={orientation}

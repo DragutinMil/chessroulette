@@ -40,6 +40,7 @@ export type GameDisplayState = {
 };
 
 export type PlayerInfo = {
+  id: string;
   color: LongChessColor;
   displayName?: string;
 };
@@ -47,4 +48,9 @@ export type PlayerInfo = {
 export type PlayersBySide = {
   home: PlayerInfo;
   away: PlayerInfo;
+};
+
+export type Results = {
+  white: number;
+  black: number;
 };

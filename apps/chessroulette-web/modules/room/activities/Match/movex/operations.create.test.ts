@@ -41,11 +41,14 @@ describe('Best Of', () => {
       players: {
         white: {
           id: CONSTANTS.challengeeId,
+          score: 0,
         },
         black: {
           id: CONSTANTS.challengerId,
+          score: 0,
         },
       },
+      winner: undefined,
       completedPlays: [],
       ongoingPlay: expectedPlay,
     };
@@ -53,7 +56,6 @@ describe('Best Of', () => {
     expect(actual).toEqual(expected);
   });
 });
-
 
 describe('Open Ended', () => {
   test('with given rounds and color', () => {
@@ -83,11 +85,14 @@ describe('Open Ended', () => {
       players: {
         white: {
           id: CONSTANTS.challengerId,
+          score: 0,
         },
         black: {
           id: CONSTANTS.challengeeId,
+          score: 0,
         },
       },
+      winner: undefined,
       completedPlays: [],
       ongoingPlay: expectedPlay,
     };

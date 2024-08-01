@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { useGameActionsContext } from '../../providers/useGameActions';
 import { ChessColor, toLongColor } from '@xmatter/util-kit';
 import { QuickConfirmButton } from 'apps/chessroulette-web/components/Button/QuickConfirmButton';
+import { useGame } from '../../providers/useGame';
 
 type Props = {
   onOfferDraw: () => void;
@@ -19,8 +19,8 @@ export const GameActions: React.FC<Props> = ({
   playerId,
 }) => {
   //TODO - can merge gameState and offers together as they are part of the same state and only used here
-  const { lastOffer, game } = useGameActionsContext();
-
+  const { lastOffer, realState } = useGame();
+  const { game } = realState;
   const { offers: offers = [] } = game;
   const offerAlreadySend = useRef(false);
   const [allowTakeback, refreshAllowTakeback] = useState(false);

@@ -12,8 +12,10 @@ import {
 import {
   ChessboardContainer,
   ChessboardContainerProps,
+  CirclesMap,
   useBoardTheme,
 } from '../Chessboard';
+import { useState } from 'react';
 
 type Props = DistributiveOmit<
   ChessboardContainerProps,
@@ -66,9 +68,11 @@ export const Playboard = ({
   playingColor,
   boardOrientation = playingColor,
   onMove,
-  canPlay = true,
+  canPlay = false,
   ...props
 }: Props) => {
+  const [circlesMap, setCirclesMap] = useState<CirclesMap>({});
+
   const boardTheme = useBoardTheme();
 
   return (
@@ -97,6 +101,16 @@ export const Playboard = ({
         onMove?.(move, res.fen);
 
         return true;
+      }}
+      circlesMap={circlesMap}
+      onCircleDraw={(c) => {
+        setCirclesMap((prev) => ({
+          ...prev,
+          [c[0]]: c,
+        }));
+      }}
+      onClearCircles={() => {
+        setCirclesMap({});
       }}
       {...props}
     />

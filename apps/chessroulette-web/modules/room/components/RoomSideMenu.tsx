@@ -1,14 +1,12 @@
 'use client';
 
 import { ClipboardCopyButton } from 'apps/chessroulette-web/components/ClipboardCopyButton';
-import { useUrl } from 'nextjs-current-url';
-import { RoomActivityType, links } from '../links';
+import { RoomActivityType } from '../links';
 import Link from 'next/link';
 import { Icon } from 'apps/chessroulette-web/components/Icon';
-import { useMemo } from 'react';
 import { useRoomSettings } from '../hooks/useRoomSettings';
-import { roomSettingsIsPlay } from '../utils';
 import { IconButton } from 'apps/chessroulette-web/components/Button';
+import { useRoomLinkId } from '../hooks/useRoomLinkId';
 
 type Props = {
   roomId: string;
@@ -16,29 +14,8 @@ type Props = {
 };
 
 export const RoomSideMenu = ({ roomId, activity }: Props) => {
-  const url = useUrl();
   const roomSettings = useRoomSettings(activity);
-
-  const joinRoomLink = useMemo(() => {
-    if (!(roomSettings.showJoinRoomLink && url)) {
-      return undefined;
-    }
-    return links.getJoinRoomLink(
-      {
-        id: roomId,
-        activity,
-        ...(activity === 'play' &&
-          roomSettingsIsPlay(roomSettings) && {
-            gameTimeClass: roomSettings.gameTimeClass,
-          }),
-        theme: roomSettings.theme,
-        ...roomSettings.joinRoomLinkParams,
-      },
-      {
-        origin: url.origin,
-      }
-    );
-  }, [roomSettings.showJoinRoomLink, activity, url?.origin]);
+  const { joinRoomLink } = useRoomLinkId(activity);
 
   return (
     <div className="flex flex-col items-center gap-4">
@@ -68,7 +45,7 @@ export const RoomSideMenu = ({ roomId, activity }: Props) => {
         />
       )}
 
-      <IconButton icon="BuildingLibraryIcon" size="sm" href="/learn/lessons" />
+      {/* <IconButton icon="BuildingLibraryIcon" size="sm" href="/learn/lessons" /> */}
     </div>
   );
 };

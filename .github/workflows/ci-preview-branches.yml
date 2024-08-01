@@ -1,7 +1,10 @@
 name: CI for Preview Branches
 on:
   push:
-    branches-ignore: ['main', 'staging']
+    branches-ignore:
+      - 'main'
+      - 'staging'
+      - 'preview/**'
 jobs:
   ci:
     uses: ./.github/workflows/ci.yml

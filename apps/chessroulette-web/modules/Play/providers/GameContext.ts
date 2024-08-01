@@ -6,7 +6,8 @@ import {
   noop,
 } from '@xmatter/util-kit';
 import { GameDisplayState } from '../types';
-import { Game, initialPlayState } from '../store';
+import { Game, GameOffer, initialPlayState } from '../store';
+import { UserId, UsersMap } from '../../user';
 
 export type GameContextProps = {
   displayState: GameDisplayState;
@@ -17,6 +18,9 @@ export type GameContextProps = {
   actions: {
     onRefocus: (i: FBHIndex) => void;
   };
+  players?: UsersMap | undefined;
+  playerId: UserId | undefined;
+  lastOffer: GameOffer | undefined;
 };
 
 export const initialGameContextState: GameContextProps = {
@@ -35,6 +39,9 @@ export const initialGameContextState: GameContextProps = {
   },
 
   // TODO: Add other stuff in here
+  players: undefined,
+  playerId: undefined,
+  lastOffer: undefined,
 };
 
 export const GameContext = createContext<GameContextProps>(

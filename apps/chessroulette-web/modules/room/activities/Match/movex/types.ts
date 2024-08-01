@@ -1,9 +1,12 @@
 import { PlayStore } from 'apps/chessroulette-web/modules/Play';
 import { Action } from 'movex-core-util';
 
-export type Player = {
-  id: string;
+type PlayerId = string;
+
+export type MatchPlayer = {
+  id: PlayerId;
   displayName?: string;
+  score: number;
 };
 
 export type MatchState = (
@@ -18,19 +21,23 @@ export type MatchState = (
     }
 ) & {
   // Add others
-  status: 'pending' | 'ongoing' | 'complete';
+  status: 'pending' | 'ongoing' | 'complete' | 'aborted';
   // players: Record<Player['id'], Player>;
   // maxPlayers: number; // Not needed anymore
   players: {
-    white: Player;
-    black: Player;
+    white: MatchPlayer;
+    black: MatchPlayer;
   };
+
+  // Change name to "endedPlays" because this can inclde aborted as well
   completedPlays: PlayStore.PlayState[];
+
+  winner: undefined | PlayerId;
 
   // timeClass: Game['timeClass'];
 
   // TODO: Should this always hav a pending game??
-  ongoingPlay: PlayStore.PlayState;
+  ongoingPlay: PlayStore.PlayState | undefined;
 };
 
 // export type MatchState = PlayStore.PlayState

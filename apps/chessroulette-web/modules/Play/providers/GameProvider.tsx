@@ -1,8 +1,4 @@
-import { useEffect, useState } from 'react';
-import {
-  GameActionsProvider,
-  GameActionsProviderProps,
-} from './GameActionsProvider';
+import { PropsWithChildren, useEffect, useState } from 'react';
 import {
   GameContext,
   GameContextProps,
@@ -10,8 +6,14 @@ import {
 } from './GameContext';
 import { FBHIndex } from '@xmatter/util-kit';
 import { getGameDisplayState, getGameTurn } from '../lib';
+import { Game } from '../store';
+import { UserId, UsersMap } from '../../user';
 
-type Props = GameActionsProviderProps & {
+type Props = PropsWithChildren & {
+  game: Game;
+  playerId: UserId;
+  players?: UsersMap;
+} & {
   focusedIndex?: FBHIndex;
 };
 
@@ -26,10 +28,20 @@ export const GameProvider = (props: Props) => {
       pgn: props.game.pgn,
       focusedIndex: props.focusedIndex,
     }),
+    players: props.players,
+    playerId: props.playerId,
   });
 
   useEffect(() => {
-    setState({
+    setState((prev) => ({
+      ...prev,
+      lastOffer: props.game.offers?.slice(-1)[0],
+    }));
+  }, [props.game.offers]);
+
+  useEffect(() => {
+    setState((prev) => ({
+      ...prev,
       actions: {
         onRefocus: (nextIndex) => {
           setState((prev) => ({
@@ -49,13 +61,15 @@ export const GameProvider = (props: Props) => {
         pgn: props.game.pgn,
         focusedIndex: props.focusedIndex,
       }),
-    });
-  }, [props.game.pgn, props.focusedIndex]);
+    }));
+  }, [
+    props.game.pgn,
+    props.focusedIndex,
+    props.game.winner,
+    props.game.status,
+  ]);
 
   return (
-    <GameContext.Provider value={state}>
-      {/* // The Game Actions Provider/Context could be absorbed by this provider */}
-      <GameActionsProvider {...props} />
-    </GameContext.Provider>
+    <GameContext.Provider value={state}>{props.children}</GameContext.Provider>
   );
 };
