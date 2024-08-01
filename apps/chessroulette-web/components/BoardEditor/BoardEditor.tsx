@@ -209,7 +209,6 @@ export const BoardEditor = ({
 
                   onUpdateFen(fenBoard.fen);
                   setHoveredSquare(undefined);
-
                   return true;
                 } catch (e) {
                   return false;
@@ -231,7 +230,6 @@ export const BoardEditor = ({
                     fenBoard.clearSquare(from, { validate: true });
 
                     setDraggedPieceState(undefined);
-
                     onUpdateFen(fenBoard.fen);
                   } catch {
                     // TODO: Maybe show an error in the UI?
