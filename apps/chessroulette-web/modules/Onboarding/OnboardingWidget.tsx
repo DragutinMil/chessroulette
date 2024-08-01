@@ -22,9 +22,10 @@ export const OnboardingWidget: React.FC<Props> = ({
       </OnboardingMenuContainer>
     ) : (
       <div className="flex relative w-12 h-12 justify-center items-center text-xs text-slate-400">
-        <Link href="/api/auth/signin" className="text-sm">
+        {/* <Link href="/api/auth/signin" className="text-sm">
           <Text>Sign In</Text>
-        </Link>
+        </Link> */}
+        {/* <Avatar shortName={'Yu'} /> */}
       </div>
     )}
   </div>

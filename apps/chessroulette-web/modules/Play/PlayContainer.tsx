@@ -7,6 +7,7 @@ import {
 import { MatchState } from '../room/activities/Match/movex';
 import { UserId } from '../user';
 import { DistributiveOmit } from 'movex-core-util';
+import { isOneOf } from '@xmatter/util-kit';
 
 type Props = DistributiveOmit<GameBoardContainerProps, 'canPlay'> & {
   players: MatchState['players'];
@@ -28,8 +29,14 @@ export const PlayContainer = ({
   const canPlay = useCanPlay({ game, players, userId });
 
   useEffect(() => {
-    // Advance the game to "idling" if the User is the White Player and the game is still in "pending"
-    if (game.status === 'pending' && userId === players.white.id) {
+    // Advance the game to "idling" if the game is still in pending AND the User is the one of the players
+    if (
+      game.status === 'pending' &&
+      isOneOf(
+        userId,
+        [players.white, players.black].map((p) => p.id)
+      )
+    ) {
       dispatch({
         type: 'play:startWhitePlayerIdlingTimer',
         payload: {

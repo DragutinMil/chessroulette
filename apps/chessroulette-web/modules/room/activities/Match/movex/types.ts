@@ -28,6 +28,8 @@ export type MatchState = (
     white: MatchPlayer;
     black: MatchPlayer;
   };
+
+  // Change name to "endedPlays" because this can inclde aborted as well
   completedPlays: PlayStore.PlayState[];
 
   winner: undefined | PlayerId;

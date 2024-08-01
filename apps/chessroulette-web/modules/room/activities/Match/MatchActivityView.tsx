@@ -5,7 +5,6 @@ import { IceServerRecord } from 'apps/chessroulette-web/providers/PeerToPeerProv
 import { MatchActivityActions, MatchActivityState } from './movex';
 import { DispatchOf } from '@xmatter/util-kit';
 import { RIGHT_SIDE_SIZE_PX } from '../Learn/components/LearnBoard';
-import { GameBoardContainer } from 'apps/chessroulette-web/modules/Play/GameBoardContainer';
 import { CameraPanel } from '../../components/CameraPanel';
 import { GameActionsContainer } from 'apps/chessroulette-web/modules/Play/components/GameActionsContainers';
 import { useMemo } from 'react';
@@ -17,7 +16,6 @@ import { MatchStateDisplay } from './components/MatchStateDisplay';
 import { MatchStateDialogContainer } from './components/MatchStateDialogContainer';
 import { initialPlayState } from 'apps/chessroulette-web/modules/Play/store';
 import { PlayContainer } from 'apps/chessroulette-web/modules/Play/PlayContainer';
-import { GameAbortContainer } from 'apps/chessroulette-web/modules/Play/GameAbortContainer';
 
 type Props = {
   roomId: string;

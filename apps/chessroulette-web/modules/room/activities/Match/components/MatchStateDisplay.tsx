@@ -3,17 +3,15 @@ import { PlayersInfoContainer } from 'apps/chessroulette-web/modules/Play/Player
 import { useMatch } from 'apps/chessroulette-web/modules/room/activities/Match/providers/useMatch';
 import {
   PlayersBySide,
-  chessGameTimeLimitMsMap,
   gameTimeClassRecord,
 } from 'apps/chessroulette-web/modules/Play/types';
 import React, { useMemo } from 'react';
 import { useGame } from 'apps/chessroulette-web/modules/Play/providers/useGame';
-// import { AbortWidget } from 'apps/chessroulette-web/modules/Play/components/AbortWidget/AbortView';
 import { DispatchOf, toLongColor } from '@xmatter/util-kit';
 import { PlayActions } from 'apps/chessroulette-web/modules/Play/store';
-import { invoke } from 'movex-core-util';
 import { getMovesDetailsFromPGN } from '../utils';
 import { GameAbortContainer } from 'apps/chessroulette-web/modules/Play/GameAbortContainer';
+import { MATCH_TIME_TO_ABORT } from '../movex';
 
 type Props = {
   playersBySide: PlayersBySide;
@@ -23,7 +21,6 @@ type Props = {
 export const MatchStateDisplay: React.FC<Props> = ({
   dispatch,
   playersBySide,
-  ...props
 }) => {
   const { rounds, currentRound, type, results, draws, players } = useMatch();
   const { realState } = useGame();
@@ -56,6 +53,7 @@ export const MatchStateDisplay: React.FC<Props> = ({
       )}
       <div className="flex flex-row w-full">
         <PlayersInfoContainer
+          key={realState.game.startedAt} // refresh it on each new game
           gameCounterActive={isGameCounterActive}
           players={playersBySide}
           results={results}
@@ -71,9 +69,11 @@ export const MatchStateDisplay: React.FC<Props> = ({
       </div>
       {players && (
         <GameAbortContainer
+          key={realState.game.startedAt} // refresh it on each new game
           players={players}
           dispatch={dispatch}
           className="bg-slate-700 rounded-md p-2"
+          timeToAbortMs={MATCH_TIME_TO_ABORT}
         />
       )}
     </div>

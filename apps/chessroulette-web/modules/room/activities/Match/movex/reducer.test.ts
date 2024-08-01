@@ -6,7 +6,7 @@ import {
   PlayActions,
   PlayState,
   createGame,
-} from 'apps/chessroulette-web/modules/Play/store';
+} from 'apps/chessroulette-web/modules/Play';
 
 const wrapIntoActivityState = <M extends MatchState>(
   match: M

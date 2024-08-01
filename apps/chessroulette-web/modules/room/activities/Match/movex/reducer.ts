@@ -1,17 +1,22 @@
+import { MovexReducer } from 'movex-core-util';
 import { ChessColor, invoke, swapColor, toLongColor } from '@xmatter/util-kit';
-import { ActivityState, initialActivityState } from '../../movex';
-import { PlayStore } from 'apps/chessroulette-web/modules/Play';
-import { MatchActivityActions, MatchState } from './types';
-import { createGame } from 'apps/chessroulette-web/modules/Play/store';
+import { ActivityState } from '../../movex';
 import {
+  PlayStore,
   GameTimeClass,
   Results,
-} from 'apps/chessroulette-web/modules/Play/types';
+} from 'apps/chessroulette-web/modules/Play';
+import { MatchActivityActions, MatchState } from './types';
+import { initialMatchActivityState } from './state';
 
-const matchReducer = (prev: any) => prev;
+// const matchReducer = (prev: any) => prev;
 
-export const reducer = (
-  prev: ActivityState = initialActivityState,
+// TODO: Instead of Hard coding this, put in the matchCreation setting as part of the MatchState
+export const MATCH_TIME_TO_ABORT = 3 * 60 * 1000; // 3 mins
+// export const MATCH_TIME_TO_ABORT = 20 * 1000; // 3 mins
+
+export const reducer: MovexReducer<ActivityState, MatchActivityActions> = (
+  prev: ActivityState = initialMatchActivityState,
   action: MatchActivityActions
 ): ActivityState => {
   if (prev.activityType !== 'match') {
@@ -66,7 +71,7 @@ export const reducer = (
         ...prev.activityState,
         players,
         ongoingPlay: {
-          game: createGame(newGameSettings),
+          game: PlayStore.createGame(newGameSettings),
         },
       },
     };
@@ -192,6 +197,66 @@ export const reducer = (
       },
     },
   };
+};
+
+reducer.$transformState = (state, masterContext) => {
+  if (state.activityType === 'match' && state.activityState) {
+    // Determine if Match is "aborted" onRead
+    const match = state.activityState;
+
+    if (match.status === 'complete' || match.status === 'aborted') {
+      return state;
+    }
+
+    const ongoingPlay = match.ongoingPlay;
+
+    // if the ongoing game is idling & the abort time has passed
+    if (
+      ongoingPlay?.game.status === 'idling' &&
+      masterContext.now() > ongoingPlay.game.startedAt + MATCH_TIME_TO_ABORT
+    ) {
+      const nextAbortedGame: PlayStore.AbortedGame = {
+        ...ongoingPlay.game,
+        status: 'aborted',
+      };
+
+      const nextAbortedPlay = { game: nextAbortedGame };
+
+      // First game in the match is aborted by idling too long
+      // and thus the whole Match gets aborted
+      if (match.status === 'pending') {
+        return {
+          ...state,
+          activityState: {
+            ...match,
+            status: 'aborted',
+            winner: undefined,
+            completedPlays: [nextAbortedPlay],
+            ongoingPlay: undefined,
+          },
+        };
+      }
+
+      // A subsequent game in the match is aborted by idling too long
+      // and thus the Match Gets completed with the winner the opposite player
+      if (match.status === 'ongoing') {
+        const nextWinner = match.players[ongoingPlay.game.lastMoveBy].id; // defaults to black
+
+        return {
+          ...state,
+          activityState: {
+            ...match,
+            status: 'complete',
+            winner: nextWinner,
+            completedPlays: [...match.completedPlays, nextAbortedPlay],
+            ongoingPlay: undefined,
+          },
+        };
+      }
+    }
+  }
+
+  return state;
 };
 
 // TODO: This also can be memoized, soooo it could be an interesting feature
