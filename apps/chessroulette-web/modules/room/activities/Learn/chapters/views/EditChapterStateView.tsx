@@ -48,7 +48,7 @@ export const EditChapterStateView = ({
     onUpdate({ ...state, ...partial });
 
   const updateFenState = (nextFenState: DeepPartial<FenState>) => {
-    fenBoardInstance.setFenNotation({ fromState: nextFenState });
+    fenBoardInstance.setFenState(nextFenState);
 
     partialUpdate({ displayFen: fenBoardInstance.fen });
   };

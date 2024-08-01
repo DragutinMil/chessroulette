@@ -5,6 +5,7 @@ import {
   StreamingPeer,
 } from 'apps/chessroulette-web/providers/PeerToPeerProvider/type';
 import { MyFaceTime } from '../../../MyFaceTime';
+import { AVStreamingConstraints } from 'apps/chessroulette-web/services/AVStreaming';
 
 type Props = {
   streamingPeers: StreamingPeer[];
@@ -12,6 +13,8 @@ type Props = {
 
   containerClassName?: string;
   itemClassName?: string;
+
+  myFaceTimeConstraints: AVStreamingConstraints;
 };
 
 export const Reel: React.FC<Props> = (props) => {
@@ -34,6 +37,7 @@ export const Reel: React.FC<Props> = (props) => {
       ))}
       <div className={`overflow-hidden relative z-40 ${props.itemClassName}`}>
         <MyFaceTime
+          constraints={props.myFaceTimeConstraints}
           className="relative z-30 border border-white"
           aspectRatio={4 / 3}
         />
