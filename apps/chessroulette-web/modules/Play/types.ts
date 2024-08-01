@@ -40,6 +40,7 @@ export type GameDisplayState = {
 };
 
 export type PlayerInfo = {
+  id: string;
   color: LongChessColor;
   displayName?: string;
 };

@@ -1,16 +1,17 @@
-import { ChessColor, ChessSide, toLongColor } from '@xmatter/util-kit';
+import { ChessColor, ChessSide } from '@xmatter/util-kit';
 import { PlayerBox } from './PlayerBox';
 import { Game } from '../store';
 import { PlayersBySide, Results } from '../types';
-import { useEffect, useRef, useState } from 'react';
-import { getMovesDetailsFromPGN } from '../../room/activities/Match/utils';
+import { calculateGameTimeLeftAt } from '../lib';
+import { useEffect, useState } from 'react';
+import { now } from 'apps/chessroulette-web/lib/time';
 
 export type PlayersInfoProps = {
   players: PlayersBySide;
   turn: ChessColor;
   game: Game;
   onTimerFinished: (side: ChessSide) => void;
-  isGameOngoing: boolean;
+  gameCounterActive: boolean;
   results: Results;
 };
 
@@ -18,26 +19,32 @@ export const PlayersInfo = ({
   players,
   game,
   results,
-  isGameOngoing,
+  gameCounterActive,
   turn,
   onTimerFinished,
 }: PlayersInfoProps) => {
-  const isCounterActive = useRef(false);
+  const [calculatedGameTimeLeft, setCalculatedGameTimeLeft] = useState(
+    calculateGameTimeLeftAt(now(), game)
+  );
 
   useEffect(() => {
-    //save checking after each move
-    if (!isCounterActive.current) {
-      const moves = getMovesDetailsFromPGN(game.pgn);
-      if (
-        isGameOngoing &&
-        moves.totalMoves > 0 &&
-        moves.lastMoveBy &&
-        toLongColor(moves.lastMoveBy) === 'white'
-      ) {
-        isCounterActive.current = true;
+    const handler = () => {
+      if (!document.hidden) {
+        setCalculatedGameTimeLeft(calculateGameTimeLeftAt(now(), game));
       }
-    }
-  }, [isGameOngoing, game.pgn]);
+    };
+
+    // Note: This checks when the tab is inactive and restarts it when reactivates
+    //  This is because since Chrome 57, when the tab is inactive the timer stops or doesn't
+    //  run accurately!
+    // See https://usefulangle.com/post/280/settimeout-setinterval-on-inactive-tab
+    //  or https://stackoverflow.com/questions/10563644/how-to-specify-http-error-code-using-express-js
+    document.addEventListener('visibilitychange', handler);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handler);
+    };
+  }, [game]);
 
   return (
     <div className="flex flex-1 gap-1 flex-col">
@@ -46,12 +53,12 @@ export const PlayersInfo = ({
         playerInfo={players.away}
         score={results[players.away.color]}
         isActive={
-          isCounterActive.current &&
-          isGameOngoing &&
+          gameCounterActive &&
+          game.status === 'ongoing' &&
           turn === players.away.color
         }
         gameTimeClass={game.timeClass}
-        timeLeft={game.timeLeft[players.away.color]}
+        timeLeft={calculatedGameTimeLeft[players.away.color]}
         onTimerFinished={() => onTimerFinished('away')}
       />
       <PlayerBox
@@ -59,12 +66,12 @@ export const PlayersInfo = ({
         playerInfo={players.home}
         score={results[players.home.color]}
         isActive={
-          isCounterActive.current &&
-          isGameOngoing &&
+          gameCounterActive &&
+          game.status === 'ongoing' &&
           turn === players.home.color
         }
         gameTimeClass={game.timeClass}
-        timeLeft={game.timeLeft[players.home.color]}
+        timeLeft={calculatedGameTimeLeft[players.home.color]}
         onTimerFinished={() => onTimerFinished('home')}
       />
     </div>

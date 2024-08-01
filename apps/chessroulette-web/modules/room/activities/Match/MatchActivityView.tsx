@@ -5,7 +5,6 @@ import { IceServerRecord } from 'apps/chessroulette-web/providers/PeerToPeerProv
 import { MatchActivityActions, MatchActivityState } from './movex';
 import { DispatchOf } from '@xmatter/util-kit';
 import { RIGHT_SIDE_SIZE_PX } from '../Learn/components/LearnBoard';
-import { GameBoardContainer } from 'apps/chessroulette-web/modules/Play/GameBoardContainer';
 import { CameraPanel } from '../../components/CameraPanel';
 import { GameActionsContainer } from 'apps/chessroulette-web/modules/Play/components/GameActionsContainers';
 import { useMemo } from 'react';
@@ -16,6 +15,7 @@ import { MatchStateProvider } from 'apps/chessroulette-web/modules/room/activiti
 import { MatchStateDisplay } from './components/MatchStateDisplay';
 import { MatchStateDialogContainer } from './components/MatchStateDialogContainer';
 import { initialPlayState } from 'apps/chessroulette-web/modules/Play/store';
+import { PlayContainer } from 'apps/chessroulette-web/modules/Play/PlayContainer';
 
 type Props = {
   roomId: string;
@@ -94,21 +94,22 @@ export const MatchActivityView = ({
         <ResizableDesktopLayout
           rightSideSize={RIGHT_SIDE_SIZE_PX}
           mainComponent={({ boardSize }) => (
-            <GameBoardContainer
+            <PlayContainer
               boardSizePx={boardSize}
-              joinRoomLink={joinRoomLink}
+              // joinRoomLink={joinRoomLink}
               isBoardFlipped={isBoardFlipped}
               overlayComponent={
                 <MatchStateDialogContainer
                   dispatch={dispatch}
                   playerId={userId}
                   joinRoomLink={joinRoomLink}
+                  playersBySide={playersBySide}
                 />
               }
               // TODO: All of these can be provided from the GamePovider
               game={game}
               dispatch={dispatch}
-              playerId={userId}
+              userId={userId}
               players={matchState.players}
             />
           )}
@@ -128,7 +129,10 @@ export const MatchActivityView = ({
                   />
                 </div>
               )}
-              <MatchStateDisplay playersBySide={playersBySide} />
+              <MatchStateDisplay
+                playersBySide={playersBySide}
+                dispatch={dispatch}
+              />
 
               <div className="bg-slate-700 p-3 flex flex-col gap-2 flex-1 min-h-0 rounded-lg shadow-2xl overflow-y-scroll">
                 <GameNotationContainer />

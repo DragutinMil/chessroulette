@@ -21,13 +21,15 @@ export type MatchState = (
     }
 ) & {
   // Add others
-  status: 'pending' | 'ongoing' | 'complete';
+  status: 'pending' | 'ongoing' | 'complete' | 'aborted';
   // players: Record<Player['id'], Player>;
   // maxPlayers: number; // Not needed anymore
   players: {
     white: MatchPlayer;
     black: MatchPlayer;
   };
+
+  // Change name to "endedPlays" because this can inclde aborted as well
   completedPlays: PlayStore.PlayState[];
 
   winner: undefined | PlayerId;

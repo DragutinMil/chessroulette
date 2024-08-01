@@ -45,7 +45,7 @@ export const RoomSideMenu = ({ roomId, activity }: Props) => {
         />
       )}
 
-      <IconButton icon="BuildingLibraryIcon" size="sm" href="/learn/lessons" />
+      {/* <IconButton icon="BuildingLibraryIcon" size="sm" href="/learn/lessons" /> */}
     </div>
   );
 };

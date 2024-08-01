@@ -1,22 +1,18 @@
 import { DispatchOf, swapColor } from '@xmatter/util-kit';
 import { Game, PlayActions } from './store';
-import { UserId, UsersMap } from '../user/type';
 import { Playboard } from 'apps/chessroulette-web/components/Boards';
 import { useMemo } from 'react';
 import { RIGHT_SIDE_SIZE_PX } from '../room/activities/Learn/components/LearnBoard';
 import { PanelResizeHandle } from 'react-resizable-panels';
-import { useCanPlay } from './hooks/useCanPlay';
 import { useGame } from './providers/useGame';
 import { ChessboardContainerProps } from 'apps/chessroulette-web/components/Chessboard';
 
-type Props = {
+export type GameBoardContainerProps = {
   boardSizePx: number;
   game: Game;
+  canPlay: boolean;
   dispatch: DispatchOf<PlayActions>;
-  players?: UsersMap; // TODO: this should be better defined
-  playerId: UserId;
   isBoardFlipped?: boolean;
-  joinRoomLink: string | undefined;
 } & Pick<ChessboardContainerProps, 'overlayComponent'>;
 
 /**
@@ -29,11 +25,10 @@ export const GameBoardContainer = ({
   game,
   isBoardFlipped,
   boardSizePx,
-  players,
-  playerId,
-  dispatch,
   overlayComponent,
-}: Props) => {
+  canPlay,
+  dispatch,
+}: GameBoardContainerProps) => {
   // TODO: This should come from somewhere else
   const orientation = useMemo(
     () => (isBoardFlipped ? swapColor(game.orientation) : game.orientation),
@@ -41,8 +36,6 @@ export const GameBoardContainer = ({
   );
 
   const { displayState } = useGame();
-
-  const canPlay = useCanPlay(game, players, playerId);
 
   return (
     <Playboard
@@ -53,7 +46,6 @@ export const GameBoardContainer = ({
       overlayComponent={overlayComponent}
       playingColor={orientation}
       onMove={(payload) => {
-        // console.log('on move', payload, dispatch);
         dispatch({
           type: 'play:move',
           payload: {

@@ -8,14 +8,41 @@ import {
   GameStateDialogContainerProps,
 } from 'apps/chessroulette-web/modules/Play/GameStateDialogContainer';
 import { MatchActivityActions } from '../movex';
-import { DispatchOf, DistributiveOmit } from '@xmatter/util-kit';
+import {
+  DispatchOf,
+  DistributiveOmit,
+  LongChessColor,
+  invoke,
+} from '@xmatter/util-kit';
+import {
+  PlayerInfo,
+  PlayersBySide,
+} from 'apps/chessroulette-web/modules/Play/types';
 
 type Props = DistributiveOmit<GameStateDialogContainerProps, 'dispatch'> & {
   dispatch: DispatchOf<MatchActivityActions>;
+  playersBySide: PlayersBySide;
+};
+
+const getPlayerInfoById = (
+  // players: MatchState['players'],
+  { home, away }: PlayersBySide,
+  playerId: string
+): (PlayerInfo & { color: LongChessColor }) | undefined => {
+  if (home.id === playerId) {
+    return home;
+  }
+
+  if (away.id === playerId) {
+    return away;
+  }
+
+  return undefined;
 };
 
 export const MatchStateDialogContainer: React.FC<Props> = ({
   dispatch,
+  playersBySide,
   ...gameStateDialogProps
 }) => {
   const {
@@ -28,6 +55,16 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
     players,
   } = useMatch();
 
+  if (matchStatus === 'aborted') {
+    return (
+      <Dialog
+        title="Match Aborted"
+        content={null} // should there be something?
+      />
+    );
+  }
+
+  // TODO: Here we should just check the match.status
   if (winner) {
     return (
       <Dialog
@@ -36,7 +73,15 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
           <div className="flex flex-col gap-4 items-center">
             <div className="flex justify-center content-center text-center">
               <Text>
-                <span className="capitalize">{winner}</span> Won <span>🏆</span>
+                <span className="capitalize">
+                  {invoke(() => {
+                    const player = getPlayerInfoById(playersBySide, winner);
+
+                    return player?.displayName || player?.color || winner;
+                  })}
+                  {` `}Won{` `}
+                  <span>🏆</span>
+                </span>
               </Text>
             </div>
           </div>
@@ -47,12 +92,15 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
 
   // Show at the end of a game before the next game starts
   if (matchStatus === 'ongoing' && !ongoingPlay && lastCompletedPlay) {
+    const titleSuffix =
+      lastCompletedPlay.game.winner === '1/2' ? ' in a Draw!' : '';
+
     return (
       <Dialog
         title={
           matchType === 'bestOf'
-            ? `Game ${completedPlaysCount} Ended`
-            : 'Game Ended'
+            ? `Game ${completedPlaysCount} Ended${titleSuffix}`
+            : `Game Ended${titleSuffix}!`
         }
         content={
           <div className="flex flex-col gap-4 items-center">
@@ -60,11 +108,9 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
               {lastCompletedPlay.game.winner &&
                 (lastCompletedPlay.game.winner === '1/2' ? (
                   <div className="flex flex-col gap-1">
-                    <Text>Game Ended in a Draw.</Text>
+                    {/* <Text>Game Ended in a Draw.</Text> */}
                     {matchType === 'bestOf' && (
-                      <Text>
-                        Because of draw result, the round is repeating.
-                      </Text>
+                      <Text>The round will repeat!</Text>
                     )}
                   </div>
                 ) : (
@@ -80,8 +126,9 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
             {matchType === 'bestOf' && (
               <div className="flex gap-1">
                 <span>Next game starts in</span>
+                {/* // TODO: Fix - when refreshing the page this refreshes too */}
                 <SimpleCountdown
-                  timeleft={10 * 1000}
+                  msleft={10 * 1000}
                   onFinished={() => {
                     dispatch({ type: 'match:startNewGame' });
                   }}

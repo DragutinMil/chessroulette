@@ -1,14 +1,20 @@
-import { hours, minutes, seconds } from 'apps/chessroulette-web/lib/time';
+import {
+  hours,
+  minutes,
+  second,
+  milliseconds,
+} from 'apps/chessroulette-web/lib/time';
 
-export const timeLeftToInterval = (timeLeftMs: number) => {
+export const timeLeftToIntervalMs = (timeLeftMs: number) => {
   if (timeLeftMs < minutes(1)) {
-    return seconds(0.5);
+    return milliseconds(10);
   }
 
   if (timeLeftMs < hours(1)) {
-    return seconds(1);
+    return milliseconds(100);
   }
-  return minutes(1);
+
+  return second();
 };
 
 export const timeLeftToTimeUnits = (durationMs: number) => {

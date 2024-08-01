@@ -6,9 +6,11 @@ import {
   FreeBoardHistory,
   LongChessColor,
   pgnToFen,
+  swapColor,
   toLongColor,
 } from '@xmatter/util-kit';
 import { GameDisplayState } from '../types';
+import { Game } from '../store';
 
 const getLastMove = (history: FBHHistory, atIndex: FBHIndex) => {
   const lm = FreeBoardHistory.findMoveAtIndex(history, atIndex);
@@ -57,3 +59,21 @@ export const getGameDisplayState = ({
 
 export const getGameTurn = (pgn: ChessPGN): LongChessColor =>
   toLongColor(new ChessFENBoard(pgnToFen(pgn)).getFenState().turn);
+
+export const calculateGameTimeLeftAt = (at: number, game: Game) => {
+  // If the game is not ongoing then simply return the existent timeLeft
+  if (game.status !== 'ongoing') {
+    return game.timeLeft;
+  }
+
+  // Otherwise calcualte the diff
+
+  const lastGameActivityAt = game.lastMoveAt || game.startedAt;
+  const turn = toLongColor(swapColor(game.lastMoveBy));
+  const msSinceLastGameActivity = at - lastGameActivityAt;
+
+  return {
+    ...game.timeLeft,
+    [turn]: game.timeLeft[turn] - msSinceLastGameActivity,
+  };
+};
