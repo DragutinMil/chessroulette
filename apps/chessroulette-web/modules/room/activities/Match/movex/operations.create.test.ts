@@ -16,7 +16,7 @@ describe('Best Of', () => {
     const actual = createMatchState({
       type: 'bestOf',
       rounds: 3,
-      timeClass: 'blitz',
+      timeClass: 'blitz5',
       challengeeId: CONSTANTS.challengeeId,
       challengerId: CONSTANTS.challengerId,
       startColor: 'b',
@@ -25,11 +25,11 @@ describe('Best Of', () => {
     const expectedPlay: PlayState = {
       game: {
         ...initialPlayState.game,
-        timeClass: 'blitz',
+        timeClass: 'blitz5',
         orientation: 'b',
         timeLeft: {
-          black: chessGameTimeLimitMsMap.blitz,
-          white: chessGameTimeLimitMsMap.blitz,
+          black: chessGameTimeLimitMsMap.blitz5,
+          white: chessGameTimeLimitMsMap.blitz5,
         },
       },
     };

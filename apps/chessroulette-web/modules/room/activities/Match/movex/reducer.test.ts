@@ -25,7 +25,7 @@ describe('Match Status: Pending > Ongoing', () => {
   const matchCreateParams: Parameters<typeof createMatchState>[0] = {
     type: 'bestOf',
     rounds: 3,
-    timeClass: 'blitz',
+    timeClass: 'blitz5',
     challengeeId: 'gigi',
     challengerId: 'costel',
     startColor: 'b',
@@ -66,7 +66,7 @@ describe('Match Status: Pending > Ongoing', () => {
       winner: undefined,
       ongoingPlay: wrapIntoPlay({
         ...createGame({
-          timeClass: 'blitz',
+          timeClass: 'blitz5',
           color: 'b',
         }),
         status: 'idling',
@@ -110,7 +110,7 @@ describe('Match Status: Pending > Ongoing', () => {
       winner: undefined,
       ongoingPlay: wrapIntoPlay({
         ...createGame({
-          timeClass: 'blitz',
+          timeClass: 'blitz5',
           color: 'b',
         }),
         status: 'ongoing',
@@ -135,7 +135,7 @@ describe('Match Status: Ongoing > Completed', () => {
   const matchCreateParams: Parameters<typeof createMatchState>[0] = {
     type: 'bestOf',
     rounds: 1,
-    timeClass: 'blitz',
+    timeClass: 'blitz5',
     challengeeId: 'maria',
     challengerId: 'john',
     startColor: 'w',
@@ -173,7 +173,7 @@ describe('Match Status: Ongoing > Completed', () => {
       winner: undefined,
       ongoingPlay: wrapIntoPlay({
         ...createGame({
-          timeClass: 'blitz',
+          timeClass: 'blitz5',
           color: 'w',
         }),
         status: 'idling',
@@ -219,7 +219,7 @@ describe('Match Status: Ongoing > Completed', () => {
         {
           ...wrapIntoPlay({
             ...createGame({
-              timeClass: 'blitz',
+              timeClass: 'blitz5',
               color: 'w',
             }),
             status: 'complete',
@@ -258,7 +258,7 @@ describe('Start New Match => ', () => {
   const matchCreateParams: Parameters<typeof createMatchState>[0] = {
     type: 'bestOf',
     rounds: 3,
-    timeClass: 'blitz',
+    timeClass: 'blitz5',
     challengeeId: 'maria',
     challengerId: 'john',
     startColor: 'w',
@@ -298,7 +298,7 @@ describe('Start New Match => ', () => {
       winner: undefined,
       ongoingPlay: wrapIntoPlay({
         ...createGame({
-          timeClass: 'blitz',
+          timeClass: 'blitz5',
           color: 'w',
         }),
         status: 'idling',
@@ -345,7 +345,7 @@ describe('Start New Match => ', () => {
         {
           ...wrapIntoPlay({
             ...createGame({
-              timeClass: 'blitz',
+              timeClass: 'blitz5',
               color: 'w',
             }),
             status: 'complete',
@@ -370,7 +370,7 @@ describe('Start New Match => ', () => {
       },
       ongoingPlay: {
         game: createGame({
-          timeClass: 'blitz',
+          timeClass: 'blitz5',
           color: 'black',
         }),
       },
@@ -389,7 +389,7 @@ describe('End Match when rounds number reached', () => {
   const matchCreateParams: Parameters<typeof createMatchState>[0] = {
     type: 'bestOf',
     rounds: 1,
-    timeClass: 'blitz',
+    timeClass: 'blitz5',
     challengeeId: 'maria',
     challengerId: 'john',
     startColor: 'w',
@@ -429,7 +429,7 @@ describe('End Match when rounds number reached', () => {
       winner: undefined,
       ongoingPlay: wrapIntoPlay({
         ...createGame({
-          timeClass: 'blitz',
+          timeClass: 'blitz5',
           color: 'w',
         }),
         status: 'idling',
@@ -470,7 +470,7 @@ describe('End Match when rounds number reached', () => {
         {
           ...wrapIntoPlay({
             ...createGame({
-              timeClass: 'blitz',
+              timeClass: 'blitz5',
               color: 'w',
             }),
             status: 'complete',
@@ -530,7 +530,7 @@ describe('End Match when rounds number reached', () => {
       winner: undefined,
       ongoingPlay: wrapIntoPlay({
         ...createGame({
-          timeClass: 'blitz',
+          timeClass: 'blitz5',
           color: 'w',
         }),
         status: 'idling',
@@ -578,7 +578,7 @@ describe('End Match when rounds number reached', () => {
         {
           ...wrapIntoPlay({
             ...createGame({
-              timeClass: 'blitz',
+              timeClass: 'blitz5',
               color: 'w',
             }),
             offers: [{ byPlayer: 'john', status: 'accepted', type: 'draw' }],
@@ -617,7 +617,7 @@ describe('End Match when rounds number reached', () => {
 describe('timer only starts after black moves', () => {
   const matchCreateParams: Parameters<typeof createMatchState>[0] = {
     type: 'openEnded',
-    timeClass: 'blitz',
+    timeClass: 'blitz5',
     challengeeId: 'maria',
     challengerId: 'john',
     startColor: 'w',
@@ -658,7 +658,7 @@ describe('timer only starts after black moves', () => {
       winner: undefined,
       ongoingPlay: wrapIntoPlay({
         ...createGame({
-          timeClass: 'blitz',
+          timeClass: 'blitz5',
           color: 'w',
         }),
         timeLeft: { white: 300000, black: 300000 },
@@ -701,7 +701,7 @@ describe('timer only starts after black moves', () => {
       winner: undefined,
       ongoingPlay: wrapIntoPlay({
         ...createGame({
-          timeClass: 'blitz',
+          timeClass: 'blitz5',
           color: 'w',
         }),
         timeLeft: { white: 300000, black: 300000 },
@@ -743,7 +743,7 @@ describe('abort game -> match', () => {
   const matchCreateParams: Parameters<typeof createMatchState>[0] = {
     type: 'bestOf',
     rounds: 3,
-    timeClass: 'blitz',
+    timeClass: 'blitz5',
     challengeeId: 'maria',
     challengerId: 'john',
     startColor: 'w',
@@ -774,7 +774,7 @@ describe('abort game -> match', () => {
         {
           ...wrapIntoPlay({
             ...createGame({
-              timeClass: 'blitz',
+              timeClass: 'blitz5',
               color: 'w',
             }),
             offers: [],
@@ -834,7 +834,7 @@ describe('abort game -> match', () => {
         {
           ...wrapIntoPlay({
             ...createGame({
-              timeClass: 'blitz',
+              timeClass: 'blitz5',
               color: 'w',
             }),
             offers: [],
@@ -860,7 +860,7 @@ describe('abort game -> match', () => {
       winner: undefined,
       ongoingPlay: wrapIntoPlay({
         ...createGame({
-          timeClass: 'blitz',
+          timeClass: 'blitz5',
           color: 'black',
         }),
       }),
@@ -892,7 +892,7 @@ describe('abort game -> match', () => {
         {
           ...wrapIntoPlay({
             ...createGame({
-              timeClass: 'blitz',
+              timeClass: 'blitz5',
               color: 'w',
             }),
             offers: [],
@@ -907,7 +907,7 @@ describe('abort game -> match', () => {
         {
           ...wrapIntoPlay({
             ...createGame({
-              timeClass: 'blitz',
+              timeClass: 'blitz5',
               color: 'black',
             }),
             offers: [],
@@ -970,7 +970,7 @@ describe('abort game -> match', () => {
         {
           ...wrapIntoPlay({
             ...createGame({
-              timeClass: 'blitz',
+              timeClass: 'blitz5',
               color: 'w',
             }),
             offers: [],
@@ -996,7 +996,7 @@ describe('abort game -> match', () => {
       winner: undefined,
       ongoingPlay: wrapIntoPlay({
         ...createGame({
-          timeClass: 'blitz',
+          timeClass: 'blitz5',
           color: 'black',
         }),
       }),
@@ -1033,7 +1033,7 @@ describe('abort game -> match', () => {
         {
           ...wrapIntoPlay({
             ...createGame({
-              timeClass: 'blitz',
+              timeClass: 'blitz5',
               color: 'w',
             }),
             offers: [],
@@ -1048,7 +1048,7 @@ describe('abort game -> match', () => {
         {
           ...wrapIntoPlay({
             ...createGame({
-              timeClass: 'blitz',
+              timeClass: 'blitz5',
               color: 'black',
             }),
             offers: [],
