@@ -10,7 +10,8 @@ import z from 'zod';
 export type GameStatus = 'pending' | 'ongoing' | 'complete';
 
 export const gameTimeClassRecord = z.union([
-  z.literal('blitz'),
+  z.literal('blitz3'),
+  z.literal('blitz5'),
   z.literal('rapid'),
   z.literal('untimed'),
   z.literal('bullet'),
@@ -26,7 +27,8 @@ export type ChessGameTimeMap = {
 // TODO: Move these values into a CONSTANTS file
 export const chessGameTimeLimitMsMap: ChessGameTimeMap = {
   bullet: 60000,
-  blitz: 300000,
+  blitz5: 300000,
+  blitz3: 180000,
   rapid: 600000,
   untimed: -1,
 };
