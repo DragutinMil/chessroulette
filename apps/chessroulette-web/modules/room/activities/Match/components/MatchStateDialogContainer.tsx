@@ -1,6 +1,5 @@
 import React from 'react';
 import { useMatch } from '../providers/useMatch';
-import { SimpleCountdown } from 'apps/chessroulette-web/modules/Play/components/Countdown/SimpleCountdown';
 import { Dialog } from 'apps/chessroulette-web/components/Dialog';
 import { Text } from 'apps/chessroulette-web/components/Text';
 import {
@@ -18,6 +17,9 @@ import {
   PlayerInfo,
   PlayersBySide,
 } from 'apps/chessroulette-web/modules/Play/types';
+import { SmartCountdown } from 'apps/chessroulette-web/components/SmartCountdown';
+import { BetweenGamesAborter } from './BetweenGamesAborter';
+import { now } from 'apps/chessroulette-web/lib/time';
 
 type Props = DistributiveOmit<GameStateDialogContainerProps, 'dispatch'> & {
   dispatch: DispatchOf<MatchActivityActions>;
@@ -95,6 +97,12 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
     const titleSuffix =
       lastCompletedPlay.game.winner === '1/2' ? ' in a Draw!' : '';
 
+    // TODO: This isn't reliable b/c the game lastMoveAt is not actually the lastGameActivityAt
+    //  since they can resign or lose in a diff way
+    // So this needs to wait until we have lastActivtyAt at the state level
+    const lastGameActivityAt =
+      lastCompletedPlay.game.lastMoveAt || lastCompletedPlay.game.startedAt;
+
     return (
       <Dialog
         title={
@@ -124,16 +132,18 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
                 ))}
             </div>
             {matchType === 'bestOf' && (
-              <div className="flex gap-1">
-                <span>Next game starts in</span>
-                {/* // TODO: Fix - when refreshing the page this refreshes too */}
-                <SimpleCountdown
-                  msleft={10 * 1000}
-                  onFinished={() => {
-                    dispatch({ type: 'match:startNewGame' });
-                  }}
-                />
-              </div>
+              <BetweenGamesAborter
+                totalTimeAllowedMs={10 * 1000}
+                startedAt={now()}
+                // TODO: There shouldn't be a case when there is no lastGameActivityAt should there??
+                // TODO: This isn't reliable b/c the game lastMoveAt is not actually the lastGameActivityAt
+                //  since they can resign or lose in a diff way
+                // So this needs to wait until we have lastActivtyAt at the state level
+                // startedAt={lastGameActivityAt}
+                onFinished={() => {
+                  dispatch({ type: 'match:startNewGame' });
+                }}
+              />
             )}
           </div>
         }

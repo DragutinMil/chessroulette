@@ -7,7 +7,6 @@ type Props = {
   active: boolean;
   major: string;
   minor: string;
-  thumbnail?: boolean;
 };
 
 export const CountdownDisplay: React.FC<Props> = ({

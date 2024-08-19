@@ -1,43 +1,33 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { CountdownDisplay } from './CountdownDisplay';
-import { noop } from 'movex-core-util';
+import { CountdownDisplay } from './Display';
 import { useInterval } from 'apps/chessroulette-web/hooks/useInterval';
-import { GameTimeClass, chessGameTimeLimitMsMap } from '../../types';
-import {
-  lpad,
-  timeLeftToIntervalMs,
-  timeLeftToTimeUnits,
-} from '../../lib/utils';
+import { timeLeftToIntervalMs } from 'apps/chessroulette-web/modules/Play/lib';
+import { lpad, timeLeftToTimeUnits } from './util';
+import { noop } from '@xmatter/util-kit';
 
-type Props = {
-  gameTimeClass: GameTimeClass;
-  timeLeft: number;
+export type SmartCountdownProps = {
+  msLeft: number;
   isActive: boolean;
-  onFinished?: () => void;
   className?: string;
-  thumbnail?: boolean;
+  onFinished?: () => void;
 };
 
-export const Countdown: React.FC<Props> = ({
-  onFinished = () => noop,
-  gameTimeClass,
-  ...props
-}) => {
+export const SmartCountdown = ({
+  onFinished = noop,
+  msLeft,
+  isActive,
+  className,
+}: SmartCountdownProps) => {
   const [finished, setFinished] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(props.timeLeft);
-  const [interval, setInterval] = useState(
-    timeLeftToIntervalMs(props.timeLeft)
-  );
-  const [gameTimeClassInMs, setGameTimeClassInMs] = useState(
-    chessGameTimeLimitMsMap[gameTimeClass]
-  );
+  const [timeLeft, setTimeLeft] = useState(msLeft);
+  const [interval, setInterval] = useState(timeLeftToIntervalMs(msLeft));
 
   useEffect(() => {
-    setTimeLeft(props.timeLeft);
-  }, [props.timeLeft]);
+    setTimeLeft(msLeft);
+  }, [msLeft]);
 
   useEffect(() => {
-    if (!props.isActive) {
+    if (!isActive) {
       return;
     }
 
@@ -54,15 +44,11 @@ export const Countdown: React.FC<Props> = ({
     }
   }, [finished]);
 
-  useEffect(() => {
-    setGameTimeClassInMs(chessGameTimeLimitMsMap[gameTimeClass]);
-  }, [gameTimeClass]);
-
   useInterval(
     () => {
       setTimeLeft((prev) => prev - interval);
     },
-    finished || props.isActive ? interval : undefined
+    finished || isActive ? interval : undefined
   );
 
   const { major, minor, canShowMilliseconds } = useMemo(() => {
@@ -79,17 +65,16 @@ export const Countdown: React.FC<Props> = ({
       minor: lpad(times.seconds),
       canShowMilliseconds: false,
     };
-  }, [timeLeft, gameTimeClassInMs]);
+  }, [timeLeft]);
 
   return (
-    <div className={props.className}>
+    <div className={className}>
       <CountdownDisplay
         major={major}
         minor={minor}
-        active={props.isActive}
+        active={isActive}
         timeLeft={timeLeft}
         canShowMilliseconds={canShowMilliseconds}
-        thumbnail={props.thumbnail}
       />
     </div>
   );

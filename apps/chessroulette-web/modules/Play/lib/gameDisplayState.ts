@@ -66,8 +66,7 @@ export const calculateGameTimeLeftAt = (at: number, game: Game) => {
     return game.timeLeft;
   }
 
-  // Otherwise calcualte the diff
-
+  // Otherwise calculate
   const lastGameActivityAt = game.lastMoveAt || game.startedAt;
   const turn = toLongColor(swapColor(game.lastMoveBy));
   const msSinceLastGameActivity = at - lastGameActivityAt;

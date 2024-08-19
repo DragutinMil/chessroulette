@@ -70,6 +70,6 @@ export type LearnActivityActions =
   | Action<'loadedChapter:drawCircle', CircleDrawTuple>
   | Action<'loadedChapter:clearCircles'>
   | Action<'loadedChapter:setArrows', ArrowsMap>
-  | Action<'loadedChapter:setOrientation', ChessColor>
+  | Action<'loadedChapter:setOrientation', { color: ChessColor }>
   | Action<'loadedChapter:updateFen', ChessFEN>
-  | Action<'loadedChapter:import', ImportedInput>;
+  | Action<'loadedChapter:import', { input: ImportedInput }>;

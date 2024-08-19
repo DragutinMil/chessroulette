@@ -168,11 +168,11 @@ export default (
     }
 
     if (action.payload.type === 'FEN') {
-      if (!ChessFENBoard.validateFenString(action.payload.input).ok) {
+      if (!ChessFENBoard.validateFenString(action.payload.val).ok) {
         return prev;
       }
 
-      const nextFen = action.payload.input;
+      const nextFen = action.payload.val;
 
       const nextChapterState: ChapterState = {
         ...prev.chapterState,
@@ -193,14 +193,14 @@ export default (
     }
 
     if (action.payload.type === 'PGN') {
-      if (!isValidPgn(action.payload.input)) {
+      if (!isValidPgn(action.payload.val)) {
         return prev;
       }
 
       const instance = getNewChessGame({
-        pgn: action.payload.input,
+        pgn: action.payload.val,
       });
-      const nextHistory = FreeBoardHistory.pgnToHistory(action.payload.input);
+      const nextHistory = FreeBoardHistory.pgnToHistory(action.payload.val);
 
       const nextChapterState: ChapterState = {
         ...prev.chapterState,

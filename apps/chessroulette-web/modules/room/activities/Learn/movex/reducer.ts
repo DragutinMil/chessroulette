@@ -91,13 +91,13 @@ export const reducer = (
       return prev;
     }
 
-    if (action.payload.type === 'FEN') {
-      if (!ChessFENBoard.validateFenString(action.payload.input).ok) {
+    if (action.payload.input.type === 'FEN') {
+      if (!ChessFENBoard.validateFenString(action.payload.input.val).ok) {
         console.log('not valid fen');
         return prev;
       }
 
-      const nextFen = action.payload.input;
+      const nextFen = action.payload.input.val;
       const nextChapterState: ChapterState = {
         ...prevChapter,
         displayFen: nextFen,
@@ -125,16 +125,18 @@ export const reducer = (
       };
     }
 
-    if (action.payload.type === 'PGN') {
-      if (!isValidPgn(action.payload.input)) {
+    if (action.payload.input.type === 'PGN') {
+      if (!isValidPgn(action.payload.input.val)) {
         console.log('not valid pgn');
         return prev;
       }
 
       const chessGame = getNewChessGame({
-        pgn: action.payload.input,
+        pgn: action.payload.input.val,
       });
-      const nextHistory = FreeBoardHistory.pgnToHistory(action.payload.input);
+      const nextHistory = FreeBoardHistory.pgnToHistory(
+        action.payload.input.val
+      );
 
       const nextChapterState: ChapterState = {
         ...prevChapter,
@@ -275,7 +277,7 @@ export const reducer = (
 
     const nextChapter: Chapter = {
       ...prevChapter,
-      orientation: action.payload,
+      orientation: action.payload.color,
     };
 
     return {

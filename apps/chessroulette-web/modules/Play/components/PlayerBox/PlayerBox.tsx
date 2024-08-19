@@ -1,14 +1,15 @@
-import React, { useMemo } from 'react';
-import { Countdown } from '../Countdown/Countdown';
+import React from 'react';
 import { GameTimeClass, PlayerInfo } from '../../types';
+import { SmartCountdown } from 'apps/chessroulette-web/components/SmartCountdown';
 
 type Props = {
   playerInfo: PlayerInfo;
   isActive: boolean;
   gameTimeClass: GameTimeClass;
   timeLeft: number;
-  onTimerFinished: () => void;
   score: number;
+  onTimerFinished: () => void;
+  onRefreshTimeLeft: () => void;
 };
 
 export const PlayerBox: React.FC<Props> = (props) => {
@@ -27,11 +28,11 @@ export const PlayerBox: React.FC<Props> = (props) => {
       </div>
       {/* <div className='flex-1' /> */}
       {props.gameTimeClass !== 'untimed' && (
-        <Countdown
+        <SmartCountdown
           isActive={props.isActive}
-          gameTimeClass={props.gameTimeClass}
-          timeLeft={props.timeLeft}
+          msLeft={props.timeLeft}
           onFinished={props.onTimerFinished}
+          onRefreshMsLeft={props.onRefreshTimeLeft}
           className="text-xl"
         />
       )}

@@ -29,6 +29,9 @@ export type MatchState = (
     black: MatchPlayer;
   };
 
+  // TODO: This is needd but neet to make sure I can set it correctly as I cannot set it in the reducer! but jst with createResource and actions
+  // lastUpdateAt: number; // This includes everythin changing in the match: status change, play.game.lastActivityAt update,
+
   // Change name to "endedPlays" because this can inclde aborted as well
   completedPlays: PlayStore.PlayState[];
 

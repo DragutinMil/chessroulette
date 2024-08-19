@@ -1,17 +1,14 @@
+import React, { useMemo } from 'react';
 import { Text } from 'apps/chessroulette-web/components/Text';
 import { PlayersInfoContainer } from 'apps/chessroulette-web/modules/Play/PlayersInfoContainer';
 import { useMatch } from 'apps/chessroulette-web/modules/room/activities/Match/providers/useMatch';
-import {
-  PlayersBySide,
-  gameTimeClassRecord,
-} from 'apps/chessroulette-web/modules/Play/types';
-import React, { useMemo } from 'react';
+import { PlayersBySide } from 'apps/chessroulette-web/modules/Play/types';
 import { useGame } from 'apps/chessroulette-web/modules/Play/providers/useGame';
 import { DispatchOf, toLongColor } from '@xmatter/util-kit';
 import { PlayActions } from 'apps/chessroulette-web/modules/Play/store';
 import { getMovesDetailsFromPGN } from '../utils';
-import { GameAbortContainer } from 'apps/chessroulette-web/modules/Play/GameAbortContainer';
 import { MATCH_TIME_TO_ABORT } from '../movex';
+import { GameAbort } from 'apps/chessroulette-web/modules/Play/components/GameAbort';
 
 type Props = {
   playersBySide: PlayersBySide;
@@ -22,8 +19,16 @@ export const MatchStateDisplay: React.FC<Props> = ({
   dispatch,
   playersBySide,
 }) => {
-  const { rounds, currentRound, type, results, draws, players } = useMatch();
-  const { realState } = useGame();
+  const {
+    rounds,
+    currentRound,
+    type,
+    results,
+    draws,
+    players,
+    completedPlaysCount,
+  } = useMatch();
+  const { realState, playerId } = useGame();
 
   const isGameCounterActive = useMemo(() => {
     const moves = getMovesDetailsFromPGN(realState.game.pgn);
@@ -67,13 +72,17 @@ export const MatchStateDisplay: React.FC<Props> = ({
           }}
         />
       </div>
-      {players && (
-        <GameAbortContainer
-          key={realState.game.startedAt} // refresh it on each new game
+      {players && realState.game.status === 'idling' && (
+        <GameAbort
+          key={realState.game.startedAt + realState.turn} // refresh it on each new game & when the turn changes
+          game={realState.game}
+          turn={realState.turn}
           players={players}
           dispatch={dispatch}
-          className="bg-slate-700 rounded-md p-2"
           timeToAbortMs={MATCH_TIME_TO_ABORT}
+          playerId={playerId}
+          completedPlaysCount={completedPlaysCount}
+          className="bg-slate-700 rounded-md p-2"
         />
       )}
     </div>

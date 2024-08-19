@@ -1,4 +1,5 @@
-import { Action, AnyAction, ToPublicAction } from 'movex-core-util';
+import { AnyAction } from 'movex-core-util';
+import { MovexDispatchAction } from 'movex';
 
 export type GetComponentProps<T> = T extends
   | React.ComponentType<infer P>
@@ -34,15 +35,12 @@ export type DistributivePick<T, K extends keyof T> = T extends unknown
 export type UnknownRecord = Record<string, unknown>;
 export type StringRecord = Record<string, string>;
 
-
 export type StringKeys<TRecord extends UnknownRecord> = Extract<
   keyof TRecord,
   string
 >;
 
-export type DispatchOf<A extends AnyAction> = (
-  action: ToPublicAction<A> // TODO: Should this be ToPublic??
-) => void;
+export type DispatchOf<A extends AnyAction> = MovexDispatchAction<A>;
 
 export type IdentifiableRecord<T extends UnknownRecord> = T & { id: string };
 
