@@ -15,7 +15,7 @@ describe('Game Status: Pending > Idling', () => {
 
     const pendingGame = createGame({
       color: 'white',
-      timeClass: 'blitz5',
+      timeClass: 'blitz',
     });
 
     const actual = playReducer(wrapIntoPlay(pendingGame), action);
@@ -52,7 +52,7 @@ describe('Game Status: Idling > Idling', () => {
 
     const pendingGame = createGame({
       color: 'white',
-      timeClass: 'blitz5',
+      timeClass: 'blitz',
     });
 
     const idle = playReducer(wrapIntoPlay(pendingGame), idleAction);
@@ -80,7 +80,7 @@ describe('Game Status: Idling > Aborted', () => {
   test('It moves from Idling to Aborted after timer ends', () => {
     const pendingGame = createGame({
       color: 'white',
-      timeClass: 'blitz5',
+      timeClass: 'blitz',
     });
     const idleAction: PlayActions = {
       type: 'play:startWhitePlayerIdlingTimer',
@@ -116,7 +116,7 @@ describe('Game Status: Idling > Ongoing', () => {
   test('It Moves from "idling" to "ongoing" on first Black Move (once both players moved once)', () => {
     const pendingGame = createGame({
       color: 'white',
-      timeClass: 'blitz5',
+      timeClass: 'blitz',
     });
 
     const idleAction: PlayActions = {
