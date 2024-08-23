@@ -30,6 +30,7 @@ export const GameAbortView: React.FC<GameAbortViewProps> = ({
         onFinished={onAbort}
         onRefreshMsLeft={onRefreshTimeLeft}
         isActive
+        activeTextClassName="text-red-500 font-bold"
       />
     </div>
     {canAbortOnDemand && (

@@ -1,5 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { CountdownDisplay } from './Display';
+import {
+  SmartCountdownDisplay,
+  SmartCountdownDisplayProps,
+} from './SmartCountdownDisplay';
 import { useInterval } from 'apps/chessroulette-web/hooks/useInterval';
 import { timeLeftToIntervalMs } from 'apps/chessroulette-web/modules/Play/lib';
 import { lpad, timeLeftToTimeUnits } from './util';
@@ -10,13 +13,17 @@ export type SmartCountdownProps = {
   isActive: boolean;
   className?: string;
   onFinished?: () => void;
-};
+} & Pick<
+  SmartCountdownDisplayProps,
+  'activeTextClassName' | 'inactiveTextClassName'
+>;
 
 export const SmartCountdown = ({
   onFinished = noop,
   msLeft,
   isActive,
   className,
+  ...countDownDislplayProps
 }: SmartCountdownProps) => {
   const [finished, setFinished] = useState(false);
   const [timeLeft, setTimeLeft] = useState(msLeft);
@@ -42,7 +49,7 @@ export const SmartCountdown = ({
     if (finished) {
       onFinished();
     }
-  }, [finished]);
+  }, [finished, onFinished]);
 
   useInterval(
     () => {
@@ -51,30 +58,31 @@ export const SmartCountdown = ({
     finished || isActive ? interval : undefined
   );
 
-  const { major, minor, canShowMilliseconds } = useMemo(() => {
+  const { major, minor } = useMemo(() => {
     const times = timeLeftToTimeUnits(timeLeft);
     if (times.hours > 0) {
       return {
         major: `${times.hours}h`,
         minor: `${lpad(times.minutes)}`,
-        canShowMilliseconds: false,
+        // canShowMilliseconds: false,
       };
     }
     return {
       major: lpad(times.minutes),
       minor: lpad(times.seconds),
-      canShowMilliseconds: false,
+      // canShowMilliseconds: false,
     };
   }, [timeLeft]);
 
   return (
     <div className={className}>
-      <CountdownDisplay
+      <SmartCountdownDisplay
         major={major}
         minor={minor}
         active={isActive}
         timeLeft={timeLeft}
-        canShowMilliseconds={canShowMilliseconds}
+        {...countDownDislplayProps}
+        // canShowMilliseconds={canShowMilliseconds}
       />
     </div>
   );
