@@ -3,7 +3,7 @@ import { PlayerBox } from './PlayerBox';
 import { Game } from '../store';
 import { PlayersBySide, Results } from '../types';
 import { calculateGameTimeLeftAt } from '../lib';
-import { useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { now } from 'apps/chessroulette-web/lib/time';
 
 export type PlayersInfoProps = {
@@ -27,24 +27,9 @@ export const PlayersInfo = ({
     calculateGameTimeLeftAt(now(), game)
   );
 
-  useEffect(() => {
-    const handler = () => {
-      if (!document.hidden) {
-        setCalculatedGameTimeLeft(calculateGameTimeLeftAt(now(), game));
-      }
-    };
-
-    // Note: This checks when the tab is inactive and restarts it when reactivates
-    //  This is because since Chrome 57, when the tab is inactive the timer stops or doesn't
-    //  run accurately!
-    // See https://usefulangle.com/post/280/settimeout-setinterval-on-inactive-tab
-    //  or https://stackoverflow.com/questions/10563644/how-to-specify-http-error-code-using-express-js
-    document.addEventListener('visibilitychange', handler);
-
-    return () => {
-      document.removeEventListener('visibilitychange', handler);
-    };
-  }, [game]);
+  const recalculateTimeLeft = useCallback(() => {
+    setCalculatedGameTimeLeft(calculateGameTimeLeftAt(now(), game));
+  }, [setCalculatedGameTimeLeft, game]);
 
   return (
     <div className="flex flex-1 gap-1 flex-col">
@@ -60,6 +45,7 @@ export const PlayersInfo = ({
         gameTimeClass={game.timeClass}
         timeLeft={calculatedGameTimeLeft[players.away.color]}
         onTimerFinished={() => onTimerFinished('away')}
+        onRefreshTimeLeft={recalculateTimeLeft}
       />
       <PlayerBox
         key="home"
@@ -73,6 +59,7 @@ export const PlayersInfo = ({
         gameTimeClass={game.timeClass}
         timeLeft={calculatedGameTimeLeft[players.home.color]}
         onTimerFinished={() => onTimerFinished('home')}
+        onRefreshTimeLeft={recalculateTimeLeft}
       />
     </div>
   );

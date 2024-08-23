@@ -12,8 +12,8 @@ import { Err, Ok, Result } from 'ts-results';
 import useDebouncedEffect from 'use-debounced-effect';
 
 export type ImportedInput =
-  | { type: 'FEN'; input: ChessFEN }
-  | { type: 'PGN'; input: ChessPGN };
+  | { type: 'FEN'; val: ChessFEN }
+  | { type: 'PGN'; val: ChessPGN };
 
 export type PgnInputBoxProps = {
   onChange: (p: ImportedInput) => void;
@@ -80,9 +80,9 @@ export const PgnInputBox: React.FC<PgnInputBoxProps> = ({
               }
 
               if (ChessFENBoard.validateFenString(input).ok) {
-                props.onChange({ type: 'FEN', input });
+                props.onChange({ type: 'FEN', val: input });
               } else if (isValidPgn(input)) {
-                props.onChange({ type: 'PGN', input });
+                props.onChange({ type: 'PGN', val: input });
               }
             }
           };
@@ -141,9 +141,9 @@ export const PgnInputBox: React.FC<PgnInputBoxProps> = ({
             }
 
             if (ChessFENBoard.validateFenString(input).ok) {
-              props.onChange({ type: 'FEN', input });
+              props.onChange({ type: 'FEN', val: input });
             } else if (isValidPgn(input)) {
-              props.onChange({ type: 'PGN', input });
+              props.onChange({ type: 'PGN', val: input });
             }
           }}
         >

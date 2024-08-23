@@ -13,11 +13,12 @@ import { useUpdateableSearchParams } from 'apps/chessroulette-web/hooks/useSearc
 import { generateUserId, getRandomStr } from 'apps/chessroulette-web/util';
 import { links } from '../links';
 import { AsyncErr } from 'ts-async-results';
-import { invoke } from '@xmatter/util-kit';
+import { invoke, objectPick } from '@xmatter/util-kit';
 import { initialActivityStatesByActivityType } from '../activities/movex';
 import { GameTimeClass, chessGameTimeLimitMsMap } from '../../Play/types';
 import { ActivityParamsSchema } from '../io/paramsSchema';
 import { createMatchState } from '../activities/Match/movex';
+import { logsy } from 'apps/chessroulette-web/lib/Logsy';
 
 type Props = {
   activityParams: ActivityParamsSchema;
@@ -120,7 +121,7 @@ export const JoinOrCreateRoom: React.FC<Props> = ({
               })
             )
           : new AsyncErr('RoomInexistent')
-      ) // Fail in order to crreate a new room
+      ) // Fail in order to create a new room
         .flatMapErr((e) => {
           // if the mode is "join" continue to throw
           if (mode === 'join') {
@@ -131,23 +132,34 @@ export const JoinOrCreateRoom: React.FC<Props> = ({
         });
     })
       .map((r) => {
-        router.replace(
-          links.getRoomLink({
-            ...updateableSearchParams.toObject(),
-            id: toResourceIdentifierObj(r.rid).resourceId,
-            activity: activityParams.activity,
-            userId: updateableSearchParams.get('userId') || generateUserId(),
-            // activity,
-            // TODO: This was removed when I introduced the Auth (May 4th)
-            // Don't think it's needed but need to ensure, especially around user given from outpost or guests
-            // userId: updateableSearchParams.get('userId') || generateUserId(),
-          })
-        );
+        router // console.log('here', updateableSearchParams.toObject());
+          .replace(
+            links.getRoomLink({
+              // TODO: This needs to be done in a better, more generic way
+              // But right now the most important thing is that the match doesn't get extra params
+              ...(r.state.activity.activityType === 'match'
+                ? objectPick(updateableSearchParams.toObject(), [
+                    // Room settings
+                    'theme',
+
+                    //activity settings
+                    'flipped',
+                  ])
+                : updateableSearchParams.toObject()),
+              id: toResourceIdentifierObj(r.rid).resourceId,
+              activity: activityParams.activity,
+              userId: updateableSearchParams.get('userId') || generateUserId(),
+              // activity,
+              // TODO: This was removed when I introduced the Auth (May 4th)
+              // Don't think it's needed but need to ensure, especially around user given from outpost or guests
+              // userId: updateableSearchParams.get('userId') || generateUserId(),
+            })
+          );
       })
       .mapErr((e) => {
         // TODO: support the other reasons it might fail
         setError('RoomInexistent');
-        console.error('JoinOrCreateRoom Error', e);
+        logsy.error('JoinOrCreateRoom Error', e);
       });
   }, [roomResource, activityParams, roomId]);
 
@@ -171,7 +183,7 @@ export const JoinOrCreateRoom: React.FC<Props> = ({
   }
 
   return (
-    <div className="flex flex-1 items-center justify-center h-screen w-screen text-lg  divide-x">
+    <div className="flex flex-1 items-center justify-center h-screen w-screen text-lg  divide-x animate-pulse">
       <span className="text-2xl pr-2">Loading...</span>
     </div>
   );

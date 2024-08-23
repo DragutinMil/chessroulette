@@ -46,13 +46,13 @@ export const GameBoardContainer = ({
       overlayComponent={overlayComponent}
       playingColor={orientation}
       onMove={(payload) => {
-        dispatch({
+        dispatch(({ $queries }) => ({
           type: 'play:move',
           payload: {
             ...payload,
-            moveAt: new Date().getTime(),
+            moveAt: $queries.now(),
           },
-        });
+        }));
 
         // TODO: This can be returned from a more internal component
         return true;

@@ -20,10 +20,10 @@ export default () => {
 
   return (
     <MovexConnection
-      render={({ connected, clientId }) => (
+      render={({ status, clientId }) => (
         <div className="text-sm text-slate-300 text-right text-slate-600 items-end justify-end">
           <div className="flex gap-1 text-right justify-end">
-            {connected ? (
+            {status === 'connected' ? (
               <span className="flex gap-1 items-center">
                 Connected
                 <span className="w-2 h-2 rounded-full bg-green-600 block" />
@@ -64,8 +64,8 @@ export default () => {
                 )}
               </span>
             ) : (
-              <span className="flex gap-1 items-center">
-                Not Connected
+              <span className="flex gap-1 items-center capitalize">
+                {status}
                 <span className="w-2 h-2 rounded-full bg-slate-600 block" />
               </span>
             )}

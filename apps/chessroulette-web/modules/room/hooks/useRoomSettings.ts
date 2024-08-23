@@ -1,14 +1,12 @@
 'use client';
 
 import { useUpdateableSearchParams } from 'apps/chessroulette-web/hooks/useSearchParams';
-import {
-  JoinRoomLinkProps,
-  useLearnActivitySettings,
-} from '../activities/Learn';
+import { useLearnActivitySettings } from '../activities/Learn';
 import { ActivityState } from '../activities/movex';
 import { invoke } from '@xmatter/util-kit';
 import { useMeetupActivitySettings } from '../activities/Meetup/useMeetupActivitySettings';
 import { usePlayActivitySettings } from '../activities/Play/usePlayActivitySettings';
+import { JoinRoomLinkProps } from '../activities/Learn/activitySettings';
 
 export type RoomSettings = {
   theme: string | undefined; // TODO: this can be more specific

@@ -10,6 +10,7 @@ import z from 'zod';
 export type GameStatus = 'pending' | 'ongoing' | 'complete';
 
 export const gameTimeClassRecord = z.union([
+  z.literal('blitz3'),
   z.literal('blitz'),
   z.literal('rapid'),
   z.literal('untimed'),
@@ -27,6 +28,7 @@ export type ChessGameTimeMap = {
 export const chessGameTimeLimitMsMap: ChessGameTimeMap = {
   bullet: 60000,
   blitz: 300000,
+  blitz3: 180000,
   rapid: 600000,
   untimed: -1,
 };

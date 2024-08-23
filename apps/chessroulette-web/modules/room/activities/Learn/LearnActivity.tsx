@@ -117,7 +117,7 @@ export const LearnActivity = ({
               onFlip={() => {
                 dispatch({
                   type: 'loadedChapter:setOrientation',
-                  payload: swapColor(currentChapter.orientation),
+                  payload: { color: swapColor(currentChapter.orientation) },
                 });
               }}
               onMove={(payload) => {
@@ -274,10 +274,10 @@ export const LearnActivity = ({
                 payload: { id },
               });
             }}
-            onQuickImport={(payload) => {
+            onQuickImport={(input) => {
               dispatch({
                 type: 'loadedChapter:import',
-                payload,
+                payload: { input },
               });
             }}
           />

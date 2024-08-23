@@ -1,12 +1,13 @@
 'use client';
 
 import { useUpdateableSearchParams } from 'apps/chessroulette-web/hooks/useSearchParams';
-import { JoinRoomLinkProps } from '../Learn';
+// import { JoinRoomLinkProps } from '../Learn';
 import {
   GameTimeClass,
   gameTimeClassRecord,
 } from 'apps/chessroulette-web/modules/Play/types';
 import { invoke } from '@xmatter/util-kit';
+import { JoinRoomLinkProps } from '../Learn/activitySettings';
 
 export type PlayActivitySettings = {
   gameTimeClass: GameTimeClass;

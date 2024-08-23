@@ -12214,10 +12214,10 @@ mkdirp@^1.0.4:
   resolved "https://registry.yarnpkg.com/mkdirp/-/mkdirp-1.0.4.tgz#3eb5ed62622756d79a5f0e2a221dfebad75c2f7e"
   integrity sha512-vVqVZQyf3WLx2Shd0qJ9xuvqgAyKPLAiqITEtqW0oIUjzo3PePDd6fW9iFz30ef7Ysp/oiWqbhszeGWW2T6Gzw==
 
-movex-core-util@0.1.6-2, movex-core-util@^0.1.6-2:
-  version "0.1.6-2"
-  resolved "https://registry.yarnpkg.com/movex-core-util/-/movex-core-util-0.1.6-2.tgz#5c226d3fda5e8596a3beeb7af7256a4bddc180d6"
-  integrity sha512-6uyLT5YWD2GqCScZzqqCPxJzURwaieda3k50SDgTSJgLpWwQR3Do3cFIV2/o3PdgGYm2CIqbFvjLahzQo/King==
+movex-core-util@0.1.6-23, movex-core-util@^0.1.6-23:
+  version "0.1.6-23"
+  resolved "https://registry.yarnpkg.com/movex-core-util/-/movex-core-util-0.1.6-23.tgz#0d20c35f318eac9a09df809aa8018023a5fe360d"
+  integrity sha512-lf+FqS2NPM67CsKNOYrNm3AvgouJ8eIt0Anf/XW5SEbcb22IdlZzJvOlGEiKIgDf+obLudSJEdLOtg5PudCSxQ==
   dependencies:
     fast-json-patch "3.1.1"
     socket.io "4.5.4"
@@ -12227,16 +12227,16 @@ movex-core-util@0.1.6-2, movex-core-util@^0.1.6-2:
     ts-results "3.3.0"
     typed-emitter "2.1.0"
 
-movex-master@0.1.6-2, movex-master@^0.1.6-2:
-  version "0.1.6-2"
-  resolved "https://registry.yarnpkg.com/movex-master/-/movex-master-0.1.6-2.tgz#782cab7a3e51c94cdea5b8b40f3def544bb3bb3e"
-  integrity sha512-OBcnNywxxh0HUT2rb5+Dt343hKAdFyhU2F321hKqnFsnYf67j26NiU5pt/huytPByiBi7rdH/l42P4Je2tm5eg==
+movex-master@0.1.6-23:
+  version "0.1.6-23"
+  resolved "https://registry.yarnpkg.com/movex-master/-/movex-master-0.1.6-23.tgz#d9ceb437a1dbdd98c554e24c8e8f52b5adb5e4e8"
+  integrity sha512-21geCpxxxM9mW1WNm1GwibLkEytBNFblVz/KWzVaXEr6/Ce8ED8RvA8rh8D6j4YsjS5avkPidx/HWxZ1Pee/xQ==
   dependencies:
     deep-object-diff "1.1.9"
     fast-json-patch "3.1.1"
-    movex "0.1.6-2"
-    movex-core-util "0.1.6-2"
-    movex-store "0.1.6-2"
+    movex "0.1.6-23"
+    movex-core-util "0.1.6-23"
+    movex-store "0.1.6-23"
     promise-delegate "1.0.1"
     socket.io "4.5.4"
     socket.io-client "4.5.4"
@@ -12246,18 +12246,18 @@ movex-master@0.1.6-2, movex-master@^0.1.6-2:
     typed-emitter "2.1.0"
     uuid "9.0.0"
 
-movex-react@^0.1.6-2:
-  version "0.1.6-2"
-  resolved "https://registry.yarnpkg.com/movex-react/-/movex-react-0.1.6-2.tgz#d50d4f450936e18be00f9a14cf8182fb69977990"
-  integrity sha512-epaWbNZKM0aUh1tNqy/95evj3uNYTDERvM32/7fNKe4QEhd06pvK5QrcakbreAtGq5ZemidLexG6MxssyM2aog==
+movex-react@^0.1.6-23:
+  version "0.1.6-23"
+  resolved "https://registry.yarnpkg.com/movex-react/-/movex-react-0.1.6-23.tgz#4b6fe69a22a971ab1d46358f4fce32e5f3e48caf"
+  integrity sha512-n5i9rDLJNHc/+7oI6Y1OAWnNwLePnIY1qijMXB+Hp9bo5lf2anqxrXM0xgWrOBOVcB/1o4qagPOOPtbpzHiaaw==
   dependencies:
-    movex "0.1.6-2"
-    movex-core-util "0.1.6-2"
+    movex "0.1.6-23"
+    movex-core-util "0.1.6-23"
 
-movex-server@0.1.6-2, movex-server@^0.1.6-2:
-  version "0.1.6-2"
-  resolved "https://registry.yarnpkg.com/movex-server/-/movex-server-0.1.6-2.tgz#888babf279fe50a3163a60dd6501f0be727a86dd"
-  integrity sha512-SxkOlmZSeAoy69eGdC3lFf9QyP+W7PSWiaHLfTqc1L+61TOdUwTPhtTb+rUuEmn6Q+ufYj0qROySGtljUkVlEA==
+movex-server@0.1.6-23:
+  version "0.1.6-23"
+  resolved "https://registry.yarnpkg.com/movex-server/-/movex-server-0.1.6-23.tgz#847d894c28189b513881816d63bf40e1e639753f"
+  integrity sha512-1DOdaieVlJm5beEDJsRioitgNsx7k/ugIeHRdFbFslaglVsLoa/I+tCv2rI2Dr8gjJ5tb2D4n4SvLQa7b6ui5w==
   dependencies:
     "@es-exec/esbuild-plugin-serve" "0.0.5"
     cors "2.8.5"
@@ -12266,10 +12266,10 @@ movex-server@0.1.6-2, movex-server@^0.1.6-2:
     esbuild-plugin-copy "2.1.1"
     express "4.18.2"
     fast-json-patch "3.1.1"
-    movex "0.1.6-2"
-    movex-core-util "0.1.6-2"
-    movex-master "0.1.6-2"
-    movex-store "0.1.6-2"
+    movex "0.1.6-23"
+    movex-core-util "0.1.6-23"
+    movex-master "0.1.6-23"
+    movex-store "0.1.6-23"
     promise-delegate "1.0.1"
     react "18.2.0"
     socket.io "4.5.4"
@@ -12280,10 +12280,10 @@ movex-server@0.1.6-2, movex-server@^0.1.6-2:
     typed-emitter "2.1.0"
     uuid "9.0.0"
 
-movex-service@^0.1.6-2:
-  version "0.1.6-2"
-  resolved "https://registry.yarnpkg.com/movex-service/-/movex-service-0.1.6-2.tgz#cafc22bdde6b3cbd38951730d30adbc2e57ad5a9"
-  integrity sha512-kg5D7F3DDjkYxqAVzXAdjH2h8sZ3yaarCtACbRf9QsY8b3xiBWans1RNnTinGdZ6+0Ot9uekJdvqVkDI+dcwMg==
+movex-service@^0.1.6-23:
+  version "0.1.6-23"
+  resolved "https://registry.yarnpkg.com/movex-service/-/movex-service-0.1.6-23.tgz#e7171a78cf129fcfa73e18217db352245f50a143"
+  integrity sha512-9CZbAqqTjZEmRFA5EaQOG3bjhVF+2KrnA0wz3zVMSVkEFerJS675u9ARjdfFflhXNDNYjlR6/pY+SUc63L2+FA==
   dependencies:
     "@es-exec/esbuild-plugin-serve" "0.0.5"
     cors "2.8.5"
@@ -12292,11 +12292,11 @@ movex-service@^0.1.6-2:
     esbuild-plugin-copy "2.1.1"
     express "4.18.2"
     fast-json-patch "3.1.1"
-    movex "0.1.6-2"
-    movex-core-util "0.1.6-2"
-    movex-master "0.1.6-2"
-    movex-server "0.1.6-2"
-    movex-store "0.1.6-2"
+    movex "0.1.6-23"
+    movex-core-util "0.1.6-23"
+    movex-master "0.1.6-23"
+    movex-server "0.1.6-23"
+    movex-store "0.1.6-23"
     promise-delegate "1.0.1"
     react "18.2.0"
     socket.io "4.5.4"
@@ -12307,13 +12307,13 @@ movex-service@^0.1.6-2:
     typed-emitter "2.1.0"
     uuid "9.0.0"
 
-movex-store@0.1.6-2, movex-store@^0.1.6-2:
-  version "0.1.6-2"
-  resolved "https://registry.yarnpkg.com/movex-store/-/movex-store-0.1.6-2.tgz#0e6c0d87f98388bde2f8d3759a9ac2f63932d795"
-  integrity sha512-hpZIUFgp707r648fHa3/DWCZa+HToRBp3iNu5xiivWcz2iJChzFLMagKWcnex2AgofnBRmDYTwY4OXLGcaf2/w==
+movex-store@0.1.6-23:
+  version "0.1.6-23"
+  resolved "https://registry.yarnpkg.com/movex-store/-/movex-store-0.1.6-23.tgz#fba76aa59d78c31ef0af464c18e6a28fdfdff3f9"
+  integrity sha512-bKEFGg8+6aj81NGkRfZTa2d2O3cTqrkHBl+Y1eDlcKN8wAixft3HoY/ppamMBgqeB8wPoCRnB538+D3V/DgxQg==
   dependencies:
     fast-json-patch "3.1.1"
-    movex-core-util "0.1.6-2"
+    movex-core-util "0.1.6-23"
     promise-delegate "1.0.1"
     socket.io "4.5.4"
     socket.io-client "4.5.4"
@@ -12322,14 +12322,14 @@ movex-store@0.1.6-2, movex-store@^0.1.6-2:
     ts-results "3.3.0"
     typed-emitter "2.1.0"
 
-movex@0.1.6-2, movex@^0.1.6-2:
-  version "0.1.6-2"
-  resolved "https://registry.yarnpkg.com/movex/-/movex-0.1.6-2.tgz#d0fc6e827433730c0a77978398ef3e4fc7ca60e4"
-  integrity sha512-J7/7hrX3bFQpQFqkbCzCV/y+vKDxLyi0MliZIsS1rG+MY/tPgmdVjkwl2VdT70w0vcluZf51qqUUp/petTFm8A==
+movex@0.1.6-23, movex@^0.1.6-23:
+  version "0.1.6-23"
+  resolved "https://registry.yarnpkg.com/movex/-/movex-0.1.6-23.tgz#0db4e4efe06aad8a12537f39b84d7a27abb52873"
+  integrity sha512-Mbc2zFiHIa1S5U2u7KLxrpxyJi6y1apjOyZ0gphbY3gEEdKcQuDAiYrcfrQmAmFyTRQoZLqSyeg7Wf6wovYQhA==
   dependencies:
     deep-object-diff "1.1.9"
     fast-json-patch "3.1.1"
-    movex-core-util "0.1.6-2"
+    movex-core-util "0.1.6-23"
     promise-delegate "1.0.1"
     socket.io "4.5.4"
     socket.io-client "4.5.4"
