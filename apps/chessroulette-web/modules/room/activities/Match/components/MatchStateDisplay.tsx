@@ -9,6 +9,7 @@ import { PlayActions } from 'apps/chessroulette-web/modules/Play/store';
 import { getMovesDetailsFromPGN } from '../utils';
 import { MATCH_TIME_TO_ABORT } from '../movex';
 import { GameAbort } from 'apps/chessroulette-web/modules/Play/components/GameAbort';
+import { useMovexClient } from 'movex-react';
 
 type Props = {
   playersBySide: PlayersBySide;
@@ -29,6 +30,8 @@ export const MatchStateDisplay: React.FC<Props> = ({
     completedPlaysCount,
   } = useMatch();
   const { realState, playerId } = useGame();
+
+  const movexClient = useMovexClient();
 
   const isGameCounterActive = useMemo(() => {
     const moves = getMovesDetailsFromPGN(realState.game.pgn);

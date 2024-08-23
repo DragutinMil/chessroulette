@@ -5,7 +5,7 @@ import { ResourceIdentifier, toResourceIdentifierObj } from 'movex-core-util';
 import {
   useMovex,
   useMovexBoundResourceFromRid,
-  useMovexClientId,
+  useMovexClient,
 } from 'movex-react';
 import { IceServerRecord } from 'apps/chessroulette-web/providers/PeerToPeerProvider/type';
 import { ActivityState } from './activities/movex';
@@ -27,7 +27,7 @@ type Props = {
 export const RoomContainer = ({ iceServers, rid }: Props) => {
   const movex = useMovex(movexConfig);
   const movexResource = useMovexBoundResourceFromRid(movexConfig, rid);
-  const userId = useMovexClientId(movexConfig);
+  const userId = useMovexClient(movexConfig)?.id;
   const participants = useMemo(
     () => movexSubcribersToUserMap(movexResource?.subscribers || {}),
     [movexResource?.subscribers]
@@ -108,7 +108,7 @@ export const RoomContainer = ({ iceServers, rid }: Props) => {
         <Modal>You got disconnected. Refresh the page!</Modal>
       )}
       {movex.status === 'connectionError' && (
-        <Modal>Cannot connect. Check your Internet Connection!</Modal>
+        <Modal>Cannot connect. Check your Internet Connectio!</Modal>
       )}
     </>
   );

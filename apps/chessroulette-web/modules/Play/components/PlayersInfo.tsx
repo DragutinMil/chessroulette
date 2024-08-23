@@ -13,6 +13,7 @@ export type PlayersInfoProps = {
   onTimerFinished: (side: ChessSide) => void;
   gameCounterActive: boolean;
   results: Results;
+  clientClockOffset: number;
 };
 
 export const PlayersInfo = ({
@@ -22,17 +23,21 @@ export const PlayersInfo = ({
   gameCounterActive,
   turn,
   onTimerFinished,
+  clientClockOffset,
 }: PlayersInfoProps) => {
   const [calculatedGameTimeLeft, setCalculatedGameTimeLeft] = useState(
     calculateGameTimeLeftAt(now(), game)
   );
 
   const recalculateTimeLeft = useCallback(() => {
-    setCalculatedGameTimeLeft(calculateGameTimeLeftAt(now(), game));
-  }, [setCalculatedGameTimeLeft, game]);
+    setCalculatedGameTimeLeft(
+      calculateGameTimeLeftAt(now() - clientClockOffset, game)
+    );
+  }, [setCalculatedGameTimeLeft, game, clientClockOffset]);
 
   return (
     <div className="flex flex-1 gap-1 flex-col">
+      Clock Offset: {clientClockOffset}
       <PlayerBox
         key="away"
         playerInfo={players.away}
