@@ -4,8 +4,7 @@ import {
   SmartCountdownDisplayProps,
 } from './SmartCountdownDisplay';
 import { useInterval } from 'apps/chessroulette-web/hooks/useInterval';
-import { timeLeftToIntervalMs } from 'apps/chessroulette-web/modules/Play/lib';
-import { lpad, timeLeftToTimeUnits } from './util';
+import { lpad, timeLeftToIntervalMs, timeLeftToTimeUnits } from './util';
 import { noop } from '@xmatter/util-kit';
 
 export type SmartCountdownProps = {
@@ -19,10 +18,12 @@ export type SmartCountdownProps = {
 >;
 
 export const SmartCountdown = ({
-  onFinished = noop,
   msLeft,
   isActive,
   className,
+  // Note - the onFinished prop changes do not trigger an update
+  //  This is in order to not enter infinite loops when passing a callback
+  onFinished = noop,
   ...countDownDislplayProps
 }: SmartCountdownProps) => {
   const [finished, setFinished] = useState(false);
@@ -49,12 +50,10 @@ export const SmartCountdown = ({
     if (finished) {
       onFinished();
     }
-  }, [finished, onFinished]);
+  }, [finished]);
 
   useInterval(
-    () => {
-      setTimeLeft((prev) => prev - interval);
-    },
+    () => setTimeLeft((prev) => prev - interval),
     finished || isActive ? interval : undefined
   );
 
