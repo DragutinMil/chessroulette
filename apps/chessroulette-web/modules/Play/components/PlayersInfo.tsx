@@ -31,7 +31,7 @@ export const PlayersInfo = ({
 
   const recalculateTimeLeft = useCallback(() => {
     setCalculatedGameTimeLeft(
-      calculateGameTimeLeftAt(now() - clientClockOffset, game)
+      calculateGameTimeLeftAt(now() + clientClockOffset, game)
     );
   }, [setCalculatedGameTimeLeft, game, clientClockOffset]);
 
