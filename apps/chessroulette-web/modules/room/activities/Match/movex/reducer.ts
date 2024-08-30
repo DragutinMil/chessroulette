@@ -8,6 +8,8 @@ import {
 } from 'apps/chessroulette-web/modules/Play';
 import { MatchActivityActions, MatchState } from './types';
 import { initialMatchActivityState } from './state';
+import { calculateTimeLeftAt } from 'apps/chessroulette-web/modules/Play/store/util';
+// import { calculateGameTimeLeftAt } from 'apps/chessroulette-web/modules/Play/lib';
 
 // const matchReducer = (prev: any) => prev;
 
@@ -26,6 +28,8 @@ export const reducer: MovexReducer<ActivityState, MatchActivityActions> = (
   if (!prev.activityState) {
     return prev;
   }
+
+  console.log('match reducer', { action });
 
   const prevMatch = prev.activityState;
 
@@ -82,9 +86,24 @@ export const reducer: MovexReducer<ActivityState, MatchActivityActions> = (
     return prev;
   }
 
-  const nextCurrentPlay = prevMatch.ongoingPlay
-    ? PlayStore.reducer(prevMatch.ongoingPlay, action as PlayStore.PlayActions)
-    : prevMatch.ongoingPlay;
+  const prevOngoingPlay = prevMatch.ongoingPlay;
+
+  const nextCurrentPlay = invoke(() => {
+    const n = PlayStore.reducer(
+      prevOngoingPlay,
+      action as PlayStore.PlayActions
+    );
+
+    return {
+      ...n,
+      game: {
+        ...n.game,
+
+        // Don't over substract the times
+        // timeLeft: prevOngoingPlay.game.timeLeft,
+      },
+    };
+  });
 
   if (nextCurrentPlay.game.status === 'aborted') {
     //First game abort results in aborted match. Afterwards results in completed match + winner
@@ -200,59 +219,119 @@ export const reducer: MovexReducer<ActivityState, MatchActivityActions> = (
 };
 
 reducer.$transformState = (state, masterContext) => {
-  if (state.activityType === 'match' && state.activityState) {
-    // Determine if Match is "aborted" onRead
-    const match = state.activityState;
+  console.log(
+    'Match $transformState called',
+    JSON.stringify({ masterContext }, null, 2)
+  );
 
-    if (match.status === 'complete' || match.status === 'aborted') {
-      return state;
+  if (!(state.activityType === 'match' && state.activityState)) {
+    return state;
+  }
+
+  // Determine if Match is "aborted" onRead
+  const match = state.activityState;
+
+  if (match.status === 'complete' || match.status === 'aborted') {
+    return state;
+  }
+
+  const ongoingPlay = match.ongoingPlay;
+
+  // This reads the now() each time it runs
+  if (ongoingPlay && ongoingPlay.game.status === 'ongoing') {
+    // const ongoingGame = ongoingPlay;
+    console.log(
+      'Match $transformState going to substract the times',
+      
+    );
+
+    const turn = toLongColor(swapColor(ongoingPlay.game.lastMoveBy));
+
+    console.group('-- match calculate');
+    const nextTimeLeft = calculateTimeLeftAt({
+      at: masterContext.requestAt, // TODO: this can take in account the lag as well
+      lastMoveAt: ongoingPlay.game.lastMoveAt,
+      prevTimeLeft: ongoingPlay.game.timeLeft,
+      turn,
+    });
+    console.log('-- end match calculate');
+    console.groupEnd();
+
+    // if (nextTimeLeft[turn] <= 0) {
+
+    //   const nextWinner = match.players[ongoingPlay.game.lastMoveBy].id; // defaults to black
+
+    //   const nextOngoingPlay 
+
+    //   return {
+    //     ...state,
+    //     activityState: {
+    //       ...match,
+    //       status: 'complete',
+    //       winner: nextWinner,
+    //       completedPlays: [...match.completedPlays, nextAbortedPlay],
+    //       ongoingPlay: undefined,
+    //     },
+    //   };
+    // }
+
+    return {
+      ...state,
+      activityState: {
+        ...match,
+        ongoingPlay: {
+          ...ongoingPlay,
+          game: {
+            ...ongoingPlay.game,
+            timeLeft: nextTimeLeft,
+          },
+        },
+      },
+    };
+  }
+
+  // if the ongoing game is idling & the abort time has passed
+  if (
+    ongoingPlay?.game.status === 'idling' &&
+    masterContext.requestAt > ongoingPlay.game.startedAt + MATCH_TIME_TO_ABORT
+  ) {
+    const nextAbortedGame: PlayStore.AbortedGame = {
+      ...ongoingPlay.game,
+      status: 'aborted',
+    };
+
+    const nextAbortedPlay = { game: nextAbortedGame };
+
+    // First game in the match is aborted by idling too long
+    // and thus the whole Match gets aborted
+    if (match.status === 'pending') {
+      return {
+        ...state,
+        activityState: {
+          ...match,
+          status: 'aborted',
+          winner: undefined,
+          completedPlays: [nextAbortedPlay],
+          ongoingPlay: undefined,
+        },
+      };
     }
 
-    const ongoingPlay = match.ongoingPlay;
+    // A subsequent game in the match is aborted by idling too long
+    // and thus the Match Gets completed with the winner the opposite player
+    if (match.status === 'ongoing') {
+      const nextWinner = match.players[ongoingPlay.game.lastMoveBy].id; // defaults to black
 
-    // if the ongoing game is idling & the abort time has passed
-    if (
-      ongoingPlay?.game.status === 'idling' &&
-      masterContext.now() > ongoingPlay.game.startedAt + MATCH_TIME_TO_ABORT
-    ) {
-      const nextAbortedGame: PlayStore.AbortedGame = {
-        ...ongoingPlay.game,
-        status: 'aborted',
+      return {
+        ...state,
+        activityState: {
+          ...match,
+          status: 'complete',
+          winner: nextWinner,
+          completedPlays: [...match.completedPlays, nextAbortedPlay],
+          ongoingPlay: undefined,
+        },
       };
-
-      const nextAbortedPlay = { game: nextAbortedGame };
-
-      // First game in the match is aborted by idling too long
-      // and thus the whole Match gets aborted
-      if (match.status === 'pending') {
-        return {
-          ...state,
-          activityState: {
-            ...match,
-            status: 'aborted',
-            winner: undefined,
-            completedPlays: [nextAbortedPlay],
-            ongoingPlay: undefined,
-          },
-        };
-      }
-
-      // A subsequent game in the match is aborted by idling too long
-      // and thus the Match Gets completed with the winner the opposite player
-      if (match.status === 'ongoing') {
-        const nextWinner = match.players[ongoingPlay.game.lastMoveBy].id; // defaults to black
-
-        return {
-          ...state,
-          activityState: {
-            ...match,
-            status: 'complete',
-            winner: nextWinner,
-            completedPlays: [...match.completedPlays, nextAbortedPlay],
-            ongoingPlay: undefined,
-          },
-        };
-      }
     }
   }
 

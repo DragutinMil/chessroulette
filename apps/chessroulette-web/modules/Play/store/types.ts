@@ -194,7 +194,8 @@ export type PlayActions =
         moveAt: number;
       }
     >
-  | Action<'play:timeout', { color: ChessColor }>
+  | Action<'play:checkTime', { at: number }>
+  // | Action<'play:timeout', { color: ChessColor }>
   // TODO: Add this feature in
   //  When the timer runs out in the UI or they press the abort button, move the game to abort!
 

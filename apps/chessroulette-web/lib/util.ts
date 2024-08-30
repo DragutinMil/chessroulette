@@ -2,6 +2,8 @@ import { isLeft, Either } from 'fp-ts/lib/Either';
 import { objectKeys } from 'movex-core-util';
 import { Err, Ok, Result } from 'ts-results';
 import { AnyAction, MovexReducer } from 'movex-core-util';
+import * as deepObject from 'deep-object-diff';
+import { isObject } from '@xmatter/util-kit';
 
 // TODO: This might not need to use Eithe
 export const eitherToResult = <T, E>(either: Either<E, T>): Result<T, E> => {
@@ -43,6 +45,12 @@ export const reducerLogger = <S, A extends AnyAction>(
     console.log('Payload:', (a as any).payload);
     console.log('Prev:', s);
     console.log('Next:', next);
+    if (isObject(s) && isObject(next)) {
+      console.log('Detailed Diff', deepObject.detailedDiff(s, next));
+      console.log('Simple Diff', deepObject.diff(s, next));
+    } else {
+      console.log('Diff is between primitives');
+    }
     console.groupEnd();
 
     return next;

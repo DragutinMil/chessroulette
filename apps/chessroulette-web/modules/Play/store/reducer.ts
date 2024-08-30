@@ -8,33 +8,16 @@ import {
   toLongColor,
 } from '@xmatter/util-kit';
 import { initialPlayState } from './state';
-import { Game, GameOffer, OngoingGame, PlayActions, PlayState } from './types';
+import { GameOffer, PlayActions, PlayState } from './types';
 import { createGame } from './operations';
-
-const calculateTimeLeftAfterMove = ({
-  moveAt,
-  lastMoveAt,
-  turn,
-  game,
-}: {
-  moveAt: number;
-  lastMoveAt: number;
-  turn: LongChessColor;
-  game: Game;
-}): OngoingGame['timeLeft'] => {
-  const elapsed = new Date(moveAt).getTime() - new Date(lastMoveAt).getTime();
-  const nextTimeLeftForTurn = game.timeLeft[turn] - elapsed;
-
-  return {
-    ...game.timeLeft,
-    [turn]: nextTimeLeftForTurn,
-  };
-};
+import { calculateTimeLeftAt } from './util';
 
 export const reducer = (
   prev: PlayState = initialPlayState,
   action: PlayActions
 ): PlayState => {
+  console.log('play reducer', JSON.stringify({ action, prev }, null, 2));
+
   // This moves the game from pending to idling
   if (action.type === 'play:startWhitePlayerIdlingTimer') {
     // Only a "pending" game can start
@@ -164,12 +147,14 @@ export const reducer = (
       };
     }
 
-    const nextTimeLeft = calculateTimeLeftAfterMove({
+    console.group('--In Play Reducer');
+    const nextTimeLeft = calculateTimeLeftAt({
       lastMoveAt: prev.game.lastMoveAt,
-      moveAt,
+      at: moveAt,
       turn,
-      game: prev.game,
+      prevTimeLeft: prev.game.timeLeft,
     });
+    console.groupEnd();
 
     // Prev Game Status is "Ongoing"
 
@@ -232,7 +217,7 @@ export const reducer = (
     return prev;
   }
 
-  if (action.type === 'play:timeout') {
+  if (action.type === 'play:checkTime') {
     if (prev.game.status !== 'ongoing') {
       return prev;
     }
@@ -248,22 +233,63 @@ export const reducer = (
           } as GameOffer)
         : undefined;
 
-    return {
-      ...prev,
-      game: {
-        ...prev.game,
-        status: 'complete',
-        winner: toLongColor(swapColor(action.payload.color)),
-        timeLeft: {
-          ...prev.game.timeLeft,
-          [swapColor(prev.game.lastMoveBy)]: 0,
+    const turn = toLongColor(swapColor(prev.game.lastMoveBy));
+
+    const nextTimeLeft = calculateTimeLeftAt({
+      lastMoveAt: prev.game.lastMoveAt,
+      at: action.payload.at,
+      turn,
+      prevTimeLeft: prev.game.timeLeft,
+    });
+
+    if (nextTimeLeft[turn] <= 0) {
+      return {
+        ...prev,
+        game: {
+          ...prev.game,
+          status: 'complete',
+          winner: prev.game.lastMoveBy,
+          timeLeft: nextTimeLeft,
         },
-      },
-      ...(lastOffer && {
-        gameOffers: [...prev.game.offers.slice(0, -1), lastOffer],
-      }),
-    };
+        ...(lastOffer && {
+          gameOffers: [...prev.game.offers.slice(0, -1), lastOffer],
+        }),
+      };
+    }
   }
+
+  // if (action.type === 'play:timeout') {
+  //   if (prev.game.status !== 'ongoing') {
+  //     return prev;
+  //   }
+
+  //   //clear any pending offer leftover
+  //   const lastOffer =
+  //     prev.game.offers.length > 0 &&
+  //     (prev.game.offers[prev.game.offers.length - 1] as GameOffer).status ===
+  //       'pending'
+  //       ? ({
+  //           ...prev.game.offers[prev.game.offers.length - 1],
+  //           status: 'cancelled',
+  //         } as GameOffer)
+  //       : undefined;
+
+  //   return {
+  //     ...prev,
+  //     game: {
+  //       ...prev.game,
+  //       status: 'complete',
+  //       winner: toLongColor(swapColor(action.payload.color)),
+  //       timeLeft: {
+  //         ...prev.game.timeLeft,
+  //         [swapColor(prev.game.lastMoveBy)]: 0,
+  //       },
+  //     },
+  //     ...(lastOffer && {
+  //       gameOffers: [...prev.game.offers.slice(0, -1), lastOffer],
+  //     }),
+  //   };
+  // }
 
   if (action.type === 'play:resignGame') {
     // You can only resign an ongoing game!

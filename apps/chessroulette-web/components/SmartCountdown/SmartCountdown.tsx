@@ -52,10 +52,9 @@ export const SmartCountdown = ({
     }
   }, [finished]);
 
-  useInterval(
-    () => setTimeLeft((prev) => prev - interval),
-    finished || isActive ? interval : undefined
-  );
+  const intervalPlay = isActive && !finished ? interval : undefined;
+
+  useInterval(() => setTimeLeft((prev) => prev - interval), intervalPlay);
 
   const { major, minor } = useMemo(() => {
     const times = timeLeftToTimeUnits(timeLeft);
@@ -75,6 +74,22 @@ export const SmartCountdown = ({
 
   return (
     <div className={className}>
+      {/* <pre className="text-xs">
+        {JSON.stringify({
+          f: finished,
+          a: isActive,
+          in: interval,
+          pl: intervalPlay,
+        })}
+      </pre>
+      <div className="flex flex-col ">
+        <span
+          className={`${isActive ? 'text-white' : 'text-slate-400'} text-md`}
+        >
+          {timeLeft}
+        </span>
+      </div> */}
+
       <SmartCountdownDisplay
         major={major}
         minor={minor}
