@@ -42,8 +42,6 @@ export type MatchState = (
 
   // TODO: Should this always hav a pending game??
   ongoingPlay: PlayStore.PlayState | undefined;
-
-  _prevTimeLefts?: UnknownRecord[];
 };
 
 // export type MatchState = PlayStore.PlayState

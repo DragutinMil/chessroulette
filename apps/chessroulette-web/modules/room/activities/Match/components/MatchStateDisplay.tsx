@@ -92,7 +92,7 @@ export const MatchStateDisplay: React.FC<Props> = ({
         value={JSON.stringify({
           playerId: playerId,
           display: prevTimeLefts,
-          stateTransformer: restMatch._matchState?._prevTimeLefts,
+          stateTransformer: (window as any)._prevTimeLefts,
         })}
         buttonComponentType="Button"
         render={() => <div>Copy Time Data</div>}

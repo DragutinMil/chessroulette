@@ -218,16 +218,14 @@ export const reducer: MovexReducer<ActivityState, MatchActivityActions> = (
   };
 };
 
-const prevTimeLefts: any[] = [];
-
 reducer.$transformState = (state, masterContext) => {
-  const isLocalClient = (masterContext as any)._local === true;
+  // const isLocalClient = (masterContext as any)._local === true;
 
-  console.log(
-    'Match $transformState called',
-    `Local? ${isLocalClient}`,
-    JSON.stringify({ masterContext }, null, 2)
-  );
+  // console.log(
+  //   'Match $transformState called',
+  //   `Local? ${isLocalClient}`,
+  //   JSON.stringify({ masterContext }, null, 2)
+  // );
 
   if (!(state.activityType === 'match' && state.activityState)) {
     return state;
@@ -284,14 +282,16 @@ reducer.$transformState = (state, masterContext) => {
     // console.log(JSON.stringify(prevTimeLefts));
     // console.groupEnd();
 
-    const _nextPrevTimeLefts = !isLocalClient
-      ? []
-      : [
-          ...(state.activityState?._prevTimeLefts || []),
+    try {
+      const isClient = !!window;
+
+      if (isClient) {
+        (window as any)._prevTimeLefts = [
+          ...((window as any)?._prevTimeLefts || []),
           { ...nextTimeLeft, turn },
         ];
-
-    console.log('_nextPrevTimeLefts', _nextPrevTimeLefts);
+      }
+    } catch {}
 
     return {
       ...state,
@@ -304,12 +304,6 @@ reducer.$transformState = (state, masterContext) => {
             timeLeft: nextTimeLeft,
           },
         },
-
-        // Only add these on the local
-        // Take out after it works
-        // ...(isLocalClient && {
-        _prevTimeLefts: _nextPrevTimeLefts,
-        // }),
       },
     };
   }
