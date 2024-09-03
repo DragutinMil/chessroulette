@@ -1,14 +1,15 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Text } from 'apps/chessroulette-web/components/Text';
 import { PlayersInfoContainer } from 'apps/chessroulette-web/modules/Play/PlayersInfoContainer';
 import { useMatch } from 'apps/chessroulette-web/modules/room/activities/Match/providers/useMatch';
 import { PlayersBySide } from 'apps/chessroulette-web/modules/Play/types';
 import { useGame } from 'apps/chessroulette-web/modules/Play/providers/useGame';
-import { DispatchOf, toLongColor } from '@xmatter/util-kit';
+import { ChessColor, DispatchOf, toLongColor } from '@xmatter/util-kit';
 import { PlayActions } from 'apps/chessroulette-web/modules/Play/store';
 import { getMovesDetailsFromPGN } from '../utils';
 import { MATCH_TIME_TO_ABORT } from '../movex';
 import { GameAbort } from 'apps/chessroulette-web/modules/Play/components/GameAbort';
+import { ClipboardCopyButton } from 'apps/chessroulette-web/components/ClipboardCopyButton';
 
 type Props = {
   playersBySide: PlayersBySide;
@@ -27,6 +28,7 @@ export const MatchStateDisplay: React.FC<Props> = ({
     draws,
     players,
     completedPlaysCount,
+    ...restMatch
   } = useMatch();
   const { realState, playerId } = useGame();
   const isGameCounterActive = useMemo(() => {
@@ -45,6 +47,21 @@ export const MatchStateDisplay: React.FC<Props> = ({
       toLongColor(moves.lastMoveBy) === 'black'
     );
   }, [realState.game.status, realState.game.pgn]);
+
+  const [prevTimeLefts, setPrevTimeLefts] = useState(
+    [] as (typeof realState.game.timeLeft & { turn: ChessColor })[]
+  );
+
+  useEffect(() => {
+    setPrevTimeLefts((prev) => [
+      ...prev,
+      { ...realState.game.timeLeft, turn: realState.turn },
+    ]);
+  }, [realState.turn]);
+
+  useEffect(() => {
+    console.log('prev times', JSON.stringify(prevTimeLefts, null, 2));
+  }, [prevTimeLefts]);
 
   return (
     <div className="flex flex-col gap-2">
@@ -71,6 +88,15 @@ export const MatchStateDisplay: React.FC<Props> = ({
           }}
         />
       </div>
+      <ClipboardCopyButton
+        value={JSON.stringify({
+          playerId: playerId,
+          display: prevTimeLefts,
+          stateTransformer: restMatch._matchState?._prevTimeLefts,
+        })}
+        buttonComponentType="Button"
+        render={() => <div>Copy Time Data</div>}
+      />
       {players && realState.game.status === 'idling' && (
         <GameAbort
           key={realState.game.startedAt + realState.turn} // refresh it on each new game & when the turn changes

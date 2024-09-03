@@ -1,3 +1,4 @@
+import { UnknownRecord } from '@xmatter/util-kit';
 import { PlayStore } from 'apps/chessroulette-web/modules/Play';
 import { Action } from 'movex-core-util';
 
@@ -41,6 +42,8 @@ export type MatchState = (
 
   // TODO: Should this always hav a pending game??
   ongoingPlay: PlayStore.PlayState | undefined;
+
+  _prevTimeLefts?: UnknownRecord[];
 };
 
 // export type MatchState = PlayStore.PlayState

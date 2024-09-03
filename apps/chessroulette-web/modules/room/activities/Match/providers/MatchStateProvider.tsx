@@ -24,6 +24,9 @@ export const MatchStateProvider: React.FC<Props> = (props) => {
       },
       winner: props.winner,
       players: props.players,
+
+      // TODO: Take this out
+      _matchState: props,
     }),
     [props]
   );

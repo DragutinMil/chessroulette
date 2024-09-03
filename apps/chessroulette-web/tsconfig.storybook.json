@@ -11,6 +11,10 @@
     "components/**/*.stories.jsx",
     "components/**/*.stories.tsx",
     "components/**/*.stories.mdx",
+    "modules/**/*.stories.ts",
+    "modules/**/*.stories.js",
+    "modules/**/*.stories.jsx",
+    "modules/**/*.stories.tsx",
     ".storybook/*.js",
     ".storybook/*.ts"
   ],

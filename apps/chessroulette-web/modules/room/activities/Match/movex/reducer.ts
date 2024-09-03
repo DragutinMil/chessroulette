@@ -29,7 +29,7 @@ export const reducer: MovexReducer<ActivityState, MatchActivityActions> = (
     return prev;
   }
 
-  console.log('match reducer', { action });
+  // console.log('match reducer', { action });
 
   const prevMatch = prev.activityState;
 
@@ -156,7 +156,7 @@ export const reducer: MovexReducer<ActivityState, MatchActivityActions> = (
     };
   }
 
-  //Current Game is complete - so Match can only be ongoing or complete.
+  // Current Game is complete - so Match can only be ongoing or complete.
 
   const result: Results = {
     white:
@@ -218,9 +218,14 @@ export const reducer: MovexReducer<ActivityState, MatchActivityActions> = (
   };
 };
 
+const prevTimeLefts: any[] = [];
+
 reducer.$transformState = (state, masterContext) => {
+  const isLocalClient = (masterContext as any)._local === true;
+
   console.log(
     'Match $transformState called',
+    `Local? ${isLocalClient}`,
     JSON.stringify({ masterContext }, null, 2)
   );
 
@@ -240,28 +245,27 @@ reducer.$transformState = (state, masterContext) => {
   // This reads the now() each time it runs
   if (ongoingPlay && ongoingPlay.game.status === 'ongoing') {
     // const ongoingGame = ongoingPlay;
-    console.log(
-      'Match $transformState going to substract the times',
-      
-    );
+    // console.log(
+    //   'Match $transformState going to substract the times',
+    // );
 
     const turn = toLongColor(swapColor(ongoingPlay.game.lastMoveBy));
 
-    console.group('-- match calculate');
+    // console.group('-- match calculate');
     const nextTimeLeft = calculateTimeLeftAt({
       at: masterContext.requestAt, // TODO: this can take in account the lag as well
       lastMoveAt: ongoingPlay.game.lastMoveAt,
       prevTimeLeft: ongoingPlay.game.timeLeft,
       turn,
     });
-    console.log('-- end match calculate');
-    console.groupEnd();
+    // console.log('-- end match calculate');
+    // console.groupEnd();
 
     // if (nextTimeLeft[turn] <= 0) {
 
     //   const nextWinner = match.players[ongoingPlay.game.lastMoveBy].id; // defaults to black
 
-    //   const nextOngoingPlay 
+    //   const nextOngoingPlay
 
     //   return {
     //     ...state,
@@ -275,6 +279,20 @@ reducer.$transformState = (state, masterContext) => {
     //   };
     // }
 
+    // prevTimeLefts.push({ ...nextTimeLeft, turn });
+    // console.group('time lefts');
+    // console.log(JSON.stringify(prevTimeLefts));
+    // console.groupEnd();
+
+    const _nextPrevTimeLefts = !isLocalClient
+      ? []
+      : [
+          ...(state.activityState?._prevTimeLefts || []),
+          { ...nextTimeLeft, turn },
+        ];
+
+    console.log('_nextPrevTimeLefts', _nextPrevTimeLefts);
+
     return {
       ...state,
       activityState: {
@@ -286,6 +304,12 @@ reducer.$transformState = (state, masterContext) => {
             timeLeft: nextTimeLeft,
           },
         },
+
+        // Only add these on the local
+        // Take out after it works
+        // ...(isLocalClient && {
+        _prevTimeLefts: _nextPrevTimeLefts,
+        // }),
       },
     };
   }

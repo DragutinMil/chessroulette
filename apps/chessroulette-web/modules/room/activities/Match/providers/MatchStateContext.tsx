@@ -16,6 +16,8 @@ export type MatchStateContextType = Pick<
   // TODO: This should be translated to MatchResults
   results: Results;
   players: MatchState['players'] | undefined;
+
+  _matchState?: MatchState;
 };
 
 export const MatchStateContext = createContext<MatchStateContextType>({

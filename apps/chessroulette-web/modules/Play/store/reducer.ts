@@ -16,7 +16,7 @@ export const reducer = (
   prev: PlayState = initialPlayState,
   action: PlayActions
 ): PlayState => {
-  console.log('play reducer', JSON.stringify({ action, prev }, null, 2));
+  // console.log('play reducer', JSON.stringify({ action, prev }, null, 2));
 
   // This moves the game from pending to idling
   if (action.type === 'play:startWhitePlayerIdlingTimer') {
@@ -147,14 +147,14 @@ export const reducer = (
       };
     }
 
-    console.group('--In Play Reducer');
+    // console.group('--In Play Reducer');
     const nextTimeLeft = calculateTimeLeftAt({
       lastMoveAt: prev.game.lastMoveAt,
       at: moveAt,
       turn,
       prevTimeLeft: prev.game.timeLeft,
     });
-    console.groupEnd();
+    // console.groupEnd();
 
     // Prev Game Status is "Ongoing"
 

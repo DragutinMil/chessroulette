@@ -1,7 +1,7 @@
 import { LongChessColor } from '@xmatter/util-kit';
 import { OngoingGame } from './types';
 
-let prevAt: number | undefined;
+// let prevAt: number | undefined;
 export const calculateTimeLeftAt = ({
   at,
   lastMoveAt,
@@ -21,17 +21,17 @@ export const calculateTimeLeftAt = ({
     [turn]: nextTimeLeftForTurn > 0 ? nextTimeLeftForTurn : 0,
   };
 
-  console.log('CalculateTimeLeftAt()', `${prevAt ? at - prevAt : 'NaN'}ms`, {
-    at,
-    lastMoveAt,
-    turn,
-    prevTimeLeft,
-    timeSince,
-    nextTimeLeftForTurn,
-    next,
-  });
+  // console.log('CalculateTimeLeftAt()', `${prevAt ? at - prevAt : 'NaN'}ms`, {
+  //   at,
+  //   lastMoveAt,
+  //   turn,
+  //   prevTimeLeft,
+  //   timeSince,
+  //   nextTimeLeftForTurn,
+  //   next,
+  // });
 
-  prevAt = at;
+  // prevAt = at;
 
   return next;
 };
