@@ -9,6 +9,7 @@ import {
 import { MatchActivityActions, MatchState } from './types';
 import { initialMatchActivityState } from './state';
 import { calculateTimeLeftAt } from 'apps/chessroulette-web/modules/Play/store/util';
+import { MovexContext } from 'movex-react/lib/MovexContext';
 // import { calculateGameTimeLeftAt } from 'apps/chessroulette-web/modules/Play/lib';
 
 // const matchReducer = (prev: any) => prev;
@@ -283,15 +284,25 @@ reducer.$transformState = (state, masterContext) => {
     // console.groupEnd();
 
     try {
-      const isClient = !!window;
-
-      if (isClient) {
+      if (!!window) {
         (window as any)._prevTimeLefts = [
           ...((window as any)?._prevTimeLefts || []),
           { ...nextTimeLeft, turn },
         ];
       }
-    } catch {}
+    } catch (e) {
+      try {
+        if (!!global) {
+          (global as any)._prevTimeLefts = [
+            ...((global as any)?._prevTimeLefts || []),
+            { ...nextTimeLeft, turn },
+          ];
+          console.log(`[$stateTransfomer] _prevTimeLefts`, JSON.stringify((global as any)._prevTimeLefts), null, 2);
+        }
+      } catch (e) {
+        console.error('eee', e);
+      }
+    }
 
     return {
       ...state,
