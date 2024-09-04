@@ -27,7 +27,7 @@ export type GameOffer = {
  */
 export type PendingGame = {
   status: 'pending';
-  startedAt: undefined;
+  startedAt: null;
   timeClass: GameTimeClass;
 
   // Since lastActivity
@@ -37,8 +37,8 @@ export type PendingGame = {
   };
   pgn: '';
   lastMoveBy: 'black'; // This can be undefined as well
-  lastMoveAt: undefined;
-  winner: undefined;
+  lastMoveAt: null;
+  winner: null;
   offers: GameOffer[]; // TODO: Make this undefined
 
   // TODO: Is this needed here???
@@ -65,8 +65,8 @@ export type IdlingGame = {
   pgn: ChessPGN;
   lastMoveBy: LongChessColor;
   // This is number in case white made its first move and waiting for black, or undefined otherwise
-  lastMoveAt: number | undefined; // TODO: Change this to ISODateTime
-  winner: undefined;
+  lastMoveAt: number | null; // TODO: Change this to ISODateTime
+  winner: null;
   offers: GameOffer[]; // TODO: Make this undefined
 
   // TODO: Is this needed here???
@@ -93,7 +93,7 @@ export type OngoingGame = {
   pgn: ChessPGN;
   lastMoveBy: LongChessColor;
   lastMoveAt: number; // TODO: Change this to ISODateTime
-  winner: undefined;
+  winner: null;
   offers: GameOffer[];
 
   // TODO: Is this needed here???
@@ -149,8 +149,8 @@ export type AbortedGame = {
   pgn: ChessPGN;
   lastMoveBy: LongChessColor;
   // This is number in case white made its first move and waiting for black, or undefined otherwise
-  lastMoveAt: number | undefined; // TODO: Change this to ISODateTime
-  winner: undefined;
+  lastMoveAt: number | null; // TODO: Change this to ISODateTime
+  winner: null;
   offers: GameOffer[];
 
   // TODO: Is this needed here???

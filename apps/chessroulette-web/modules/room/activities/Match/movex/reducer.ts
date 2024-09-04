@@ -112,7 +112,7 @@ export const reducer: MovexReducer<ActivityState, MatchActivityActions> = (
       return prevMatch.completedPlays.length === 0
         ? {
             status: 'aborted',
-            winner: undefined,
+            winner: null,
           }
         : {
             status: 'complete',
@@ -127,7 +127,7 @@ export const reducer: MovexReducer<ActivityState, MatchActivityActions> = (
       activityState: {
         ...prev.activityState,
         completedPlays: [...prevMatch.completedPlays, nextCurrentPlay],
-        ongoingPlay: undefined,
+        ongoingPlay: null,
         ...nextMatchState,
       },
     };
@@ -172,14 +172,14 @@ export const reducer: MovexReducer<ActivityState, MatchActivityActions> = (
 
   const winner = invoke(() => {
     if (prevMatch.type !== 'bestOf') {
-      return undefined;
+      return null;
     }
 
     return result.white === Math.ceil(prevMatch.rounds / 2)
       ? prevMatch.players.white.id
       : result.black === Math.ceil(prevMatch.rounds / 2)
       ? prevMatch.players.black.id
-      : undefined;
+      : null;
   });
 
   const nextMatchStatus: MatchState['status'] = invoke(
@@ -202,7 +202,7 @@ export const reducer: MovexReducer<ActivityState, MatchActivityActions> = (
     activityState: {
       ...prev.activityState,
       completedPlays: [...prevMatch.completedPlays, nextCurrentPlay],
-      ongoingPlay: undefined,
+      ongoingPlay: null,
       status: nextMatchStatus,
       winner,
       players: {
@@ -283,26 +283,26 @@ reducer.$transformState = (state, masterContext) => {
     // console.log(JSON.stringify(prevTimeLefts));
     // console.groupEnd();
 
-    try {
-      if (!!window) {
-        (window as any)._prevTimeLefts = [
-          ...((window as any)?._prevTimeLefts || []),
-          { ...nextTimeLeft, turn },
-        ];
-      }
-    } catch (e) {
-      try {
-        if (!!global) {
-          (global as any)._prevTimeLefts = [
-            ...((global as any)?._prevTimeLefts || []),
-            { ...nextTimeLeft, turn },
-          ];
-          console.log(`[$stateTransfomer] _prevTimeLefts`, JSON.stringify((global as any)._prevTimeLefts), null, 2);
-        }
-      } catch (e) {
-        console.error('eee', e);
-      }
-    }
+    // try {
+    //   if (!!window) {
+    //     (window as any)._prevTimeLefts = [
+    //       ...((window as any)?._prevTimeLefts || []),
+    //       { ...nextTimeLeft, turn },
+    //     ];
+    //   }
+    // } catch (e) {
+    //   try {
+    //     if (!!global) {
+    //       (global as any)._prevTimeLefts = [
+    //         ...((global as any)?._prevTimeLefts || []),
+    //         { ...nextTimeLeft, turn },
+    //       ];
+    //       console.log(`[$stateTransfomer] _prevTimeLefts`, JSON.stringify((global as any)._prevTimeLefts), null, 2);
+    //     }
+    //   } catch (e) {
+    //     console.error('eee', e);
+    //   }
+    // }
 
     return {
       ...state,
@@ -339,9 +339,9 @@ reducer.$transformState = (state, masterContext) => {
         activityState: {
           ...match,
           status: 'aborted',
-          winner: undefined,
+          winner: null,
           completedPlays: [nextAbortedPlay],
-          ongoingPlay: undefined,
+          ongoingPlay: null,
         },
       };
     }
@@ -358,7 +358,7 @@ reducer.$transformState = (state, masterContext) => {
           status: 'complete',
           winner: nextWinner,
           completedPlays: [...match.completedPlays, nextAbortedPlay],
-          ongoingPlay: undefined,
+          ongoingPlay: null,
         },
       };
     }

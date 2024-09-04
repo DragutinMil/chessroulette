@@ -1,8 +1,6 @@
 import {
-  LongChessColor,
   getNewChessGame,
   invoke,
-  isOneOf,
   localChessMoveToChessLibraryMove,
   swapColor,
   toLongColor,
@@ -31,7 +29,7 @@ export const reducer = (
         ...prev.game,
         status: 'idling',
         startedAt: action.payload.at,
-        lastMoveAt: undefined,
+        lastMoveAt: null,
       },
     };
   }
@@ -142,7 +140,7 @@ export const reducer = (
           startedAt: prev.game.startedAt,
           // When moving from Idling to Ongoing (aka. on first black move), the timeLeft doesn't change
           timeLeft: prev.game.timeLeft,
-          winner: undefined,
+          winner: null,
         },
       };
     }
@@ -197,7 +195,7 @@ export const reducer = (
         ...commonNextGameProps,
         status: 'ongoing',
         startedAt: prev.game.startedAt,
-        winner: undefined,
+        winner: null,
         timeLeft: nextTimeLeft,
       },
     };

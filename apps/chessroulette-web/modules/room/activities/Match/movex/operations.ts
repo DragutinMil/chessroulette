@@ -37,7 +37,7 @@ export const createMatchState = (
           type: params.type,
         }),
     players,
-    winner: undefined,
+    winner: null,
     // ...(params.timeClass && {
     //   // timeClass: params.timeClass,
     // }),

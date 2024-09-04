@@ -63,7 +63,7 @@ describe('Match Status: Pending > Ongoing', () => {
           score: 0,
         },
       },
-      winner: undefined,
+      winner: null,
       ongoingPlay: wrapIntoPlay({
         ...createGame({
           timeClass: 'blitz',
@@ -71,7 +71,7 @@ describe('Match Status: Pending > Ongoing', () => {
         }),
         status: 'idling',
         startedAt: 123,
-        winner: undefined,
+        winner: null,
         pgn: '1. e4',
         lastMoveAt: 123,
         lastMoveBy: 'white',
@@ -107,7 +107,7 @@ describe('Match Status: Pending > Ongoing', () => {
           score: 0,
         },
       },
-      winner: undefined,
+      winner: null,
       ongoingPlay: wrapIntoPlay({
         ...createGame({
           timeClass: 'blitz',
@@ -115,7 +115,7 @@ describe('Match Status: Pending > Ongoing', () => {
         }),
         status: 'ongoing',
         startedAt: 123,
-        winner: undefined,
+        winner: null,
         pgn: '1. e4 e6',
         lastMoveAt: 123,
         lastMoveBy: 'black',
@@ -170,7 +170,7 @@ describe('Match Status: Ongoing > Completed', () => {
           score: 0,
         },
       },
-      winner: undefined,
+      winner: null,
       ongoingPlay: wrapIntoPlay({
         ...createGame({
           timeClass: 'blitz',
@@ -182,7 +182,7 @@ describe('Match Status: Ongoing > Completed', () => {
         lastMoveAt: 123,
         lastMoveBy: 'white',
         startedAt: 123,
-        winner: undefined,
+        winner: null,
       }),
     };
     const expected: MatchActivityState = {
@@ -242,7 +242,7 @@ describe('Match Status: Ongoing > Completed', () => {
         },
       },
       winner: 'maria',
-      ongoingPlay: undefined,
+      ongoingPlay: null,
     };
 
     const expectedResult: MatchActivityState = {
@@ -295,7 +295,7 @@ describe('Start New Match => ', () => {
           score: 0,
         },
       },
-      winner: undefined,
+      winner: null,
       ongoingPlay: wrapIntoPlay({
         ...createGame({
           timeClass: 'blitz',
@@ -306,7 +306,7 @@ describe('Start New Match => ', () => {
         lastMoveAt: 123,
         lastMoveBy: 'white',
         startedAt: 123,
-        winner: undefined,
+        winner: null,
       }),
     };
 
@@ -357,7 +357,7 @@ describe('Start New Match => ', () => {
           }),
         },
       ],
-      winner: undefined,
+      winner: null,
       players: {
         white: {
           id: 'maria',
@@ -426,7 +426,7 @@ describe('End Match when rounds number reached', () => {
           score: 0,
         },
       },
-      winner: undefined,
+      winner: null,
       ongoingPlay: wrapIntoPlay({
         ...createGame({
           timeClass: 'blitz',
@@ -437,7 +437,7 @@ describe('End Match when rounds number reached', () => {
         lastMoveAt: 123,
         lastMoveBy: 'white',
         startedAt: 123,
-        winner: undefined,
+        winner: null,
       }),
     };
 
@@ -493,7 +493,7 @@ describe('End Match when rounds number reached', () => {
         },
       },
       winner: 'john',
-      ongoingPlay: undefined,
+      ongoingPlay: null,
     };
 
     const finalMatchState: MatchActivityState = {
@@ -527,7 +527,7 @@ describe('End Match when rounds number reached', () => {
           score: 0,
         },
       },
-      winner: undefined,
+      winner: null,
       ongoingPlay: wrapIntoPlay({
         ...createGame({
           timeClass: 'blitz',
@@ -538,7 +538,7 @@ describe('End Match when rounds number reached', () => {
         lastMoveAt: 123,
         lastMoveBy: 'white',
         startedAt: 123,
-        winner: undefined,
+        winner: null,
       }),
     };
 
@@ -601,8 +601,8 @@ describe('End Match when rounds number reached', () => {
           score: 0,
         },
       },
-      winner: undefined,
-      ongoingPlay: undefined,
+      winner: null,
+      ongoingPlay: null,
     };
 
     const updateMatchState: MatchActivityState = {
@@ -655,7 +655,7 @@ describe('timer only starts after black moves', () => {
           score: 0,
         },
       },
-      winner: undefined,
+      winner: null,
       ongoingPlay: wrapIntoPlay({
         ...createGame({
           timeClass: 'blitz',
@@ -667,7 +667,7 @@ describe('timer only starts after black moves', () => {
         lastMoveAt: moveWhiteTime,
         lastMoveBy: 'white',
         startedAt: 123,
-        winner: undefined,
+        winner: null,
       }),
     };
     const newMatchState: MatchActivityState = {
@@ -698,7 +698,7 @@ describe('timer only starts after black moves', () => {
           score: 0,
         },
       },
-      winner: undefined,
+      winner: null,
       ongoingPlay: wrapIntoPlay({
         ...createGame({
           timeClass: 'blitz',
@@ -710,7 +710,7 @@ describe('timer only starts after black moves', () => {
         lastMoveAt: moveBlackTime,
         lastMoveBy: 'black',
         startedAt: 123,
-        winner: undefined,
+        winner: null,
       }),
     };
     const newMatchStateUpdate: MatchActivityState = {
@@ -780,9 +780,9 @@ describe('abort game -> match', () => {
             offers: [],
             status: 'aborted',
             pgn: '',
-            lastMoveAt: undefined,
+            lastMoveAt: null,
             lastMoveBy: 'black',
-            winner: undefined,
+            winner: null,
             startedAt: 123,
           }),
         },
@@ -797,8 +797,8 @@ describe('abort game -> match', () => {
           score: 0,
         },
       },
-      winner: undefined,
-      ongoingPlay: undefined,
+      winner: null,
+      ongoingPlay: null,
     };
     const expected: MatchActivityState = {
       activityType: 'match',
@@ -857,7 +857,7 @@ describe('abort game -> match', () => {
           score: 0,
         },
       },
-      winner: undefined,
+      winner: null,
       ongoingPlay: wrapIntoPlay({
         ...createGame({
           timeClass: 'blitz',
@@ -913,9 +913,9 @@ describe('abort game -> match', () => {
             offers: [],
             status: 'aborted',
             pgn: '',
-            lastMoveAt: undefined,
+            lastMoveAt: null,
             lastMoveBy: 'black',
-            winner: undefined,
+            winner: null,
             startedAt: 123,
           }),
         },
@@ -931,7 +931,7 @@ describe('abort game -> match', () => {
         },
       },
       winner: 'john',
-      ongoingPlay: undefined,
+      ongoingPlay: null,
     };
 
     const expected: MatchActivityState = {
@@ -993,7 +993,7 @@ describe('abort game -> match', () => {
           score: 0,
         },
       },
-      winner: undefined,
+      winner: null,
       ongoingPlay: wrapIntoPlay({
         ...createGame({
           timeClass: 'blitz',
@@ -1056,7 +1056,7 @@ describe('abort game -> match', () => {
             pgn: '1. e4',
             lastMoveAt: 123,
             lastMoveBy: 'white',
-            winner: undefined,
+            winner: null,
             startedAt: 123,
           }),
         },
@@ -1072,7 +1072,7 @@ describe('abort game -> match', () => {
         },
       },
       winner: 'maria',
-      ongoingPlay: undefined,
+      ongoingPlay: null,
     };
 
     const expected: MatchActivityState = {

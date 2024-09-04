@@ -27,9 +27,9 @@ describe('Game Status: Pending > Idling', () => {
       pgn: '',
       // these 2 are the same for now
       startedAt: 123,
-      lastMoveAt: undefined,
+      lastMoveAt: null,
       lastMoveBy: 'black',
-      winner: undefined,
+      winner: null,
       offers: [],
       orientation: 'white',
     });
@@ -67,7 +67,7 @@ describe('Game Status: Idling > Idling', () => {
       startedAt: 123,
       lastMoveAt: 123,
       lastMoveBy: 'white',
-      winner: undefined,
+      winner: null,
       offers: [],
       orientation: 'white',
     });
@@ -101,9 +101,9 @@ describe('Game Status: Idling > Aborted', () => {
       pgn: '',
       // these 2 are the same for now
       startedAt: 123,
-      lastMoveAt: undefined,
+      lastMoveAt: null,
       lastMoveBy: 'black',
-      winner: undefined,
+      winner: null,
       offers: [],
       orientation: 'white',
     });
@@ -146,7 +146,7 @@ describe('Game Status: Idling > Ongoing', () => {
       startedAt: 123,
       lastMoveAt: 234,
       lastMoveBy: 'black',
-      winner: undefined,
+      winner: null,
       offers: [],
       orientation: 'white',
     });

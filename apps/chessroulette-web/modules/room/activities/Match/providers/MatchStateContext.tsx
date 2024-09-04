@@ -32,6 +32,6 @@ export const MatchStateContext = createContext<MatchStateContextType>({
     black: 0,
     white: 0,
   },
-  winner: undefined,
+  winner: null,
   players: undefined,
 });
