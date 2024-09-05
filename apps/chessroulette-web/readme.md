@@ -64,7 +64,7 @@ export const matchActivityParamsSchema = z.object({
 }
 ```
 
-**Example Call:** `/api/room/schedule?client=op&activity=match&type=bestOf&rounds=3&challengerId=player1&challengeeId=player2&startColor=white&timeClass=blitz5`
+**Example Call:** `/api/room/schedule?client=op&activity=match&type=bestOf&rounds=3&challengerId=player1&challengeeId=player2&startColor=white&timeClass=blitz`
 
 **Example Response:**
 
@@ -73,12 +73,12 @@ export const matchActivityParamsSchema = z.object({
   "links": [
     {
       "userRole": "challenger",
-      "url": "http://localhost:4200/room/new/opX7Tlqpj?activity=match&type=bestOf&rounds=3&timeClass=blitz5&challengerId=player1&challengeeId=player2&startColor=white&challenger=1",
+      "url": "http://localhost:4200/room/new/opX7Tlqpj?activity=match&type=bestOf&rounds=3&timeClass=blitz&challengerId=player1&challengeeId=player2&startColor=white&challenger=1",
       "matchId": "opX7Tlqpj"
     },
     {
       "userRole": "challengee",
-      "url": "http://localhost:4200/room/new/opX7Tlqpj?activity=match&type=bestOf&rounds=3&timeClass=blitz5&challengerId=player1&challengeeId=player2&startColor=white&flipped=1",
+      "url": "http://localhost:4200/room/new/opX7Tlqpj?activity=match&type=bestOf&rounds=3&timeClass=blitz&challengerId=player1&challengeeId=player2&startColor=white&flipped=1",
       "matchId": "opX7Tlqpj"
     }
   ]

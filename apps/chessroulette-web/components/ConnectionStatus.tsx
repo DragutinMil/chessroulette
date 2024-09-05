@@ -20,7 +20,7 @@ export default () => {
 
   return (
     <MovexConnection
-      render={({ status, clientId }) => (
+      render={({ status, client }) => (
         <div className="text-sm text-slate-300 text-right text-slate-600 items-end justify-end">
           <div className="flex gap-1 text-right justify-end">
             {status === 'connected' ? (
@@ -51,7 +51,7 @@ export default () => {
                           <Menu id={MENU_ID}>
                             {participants.map((p) => (
                               <Item key={p.id}>
-                                {clientId === p.id
+                                {client.id === p.id
                                   ? `Me (${p.id})`
                                   : `${p.displayName || 'User'} (${p.id})`}
                               </Item>
@@ -71,7 +71,7 @@ export default () => {
             )}
           </div>
 
-          {config.DEBUG_MODE && <div>Movex Client: {clientId}</div>}
+          {config.DEBUG_MODE && <div>Movex Client: {client?.id}</div>}
           {/* </div> */}
         </div>
       )}

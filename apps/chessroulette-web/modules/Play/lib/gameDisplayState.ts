@@ -60,19 +60,19 @@ export const getGameDisplayState = ({
 export const getGameTurn = (pgn: ChessPGN): LongChessColor =>
   toLongColor(new ChessFENBoard(pgnToFen(pgn)).getFenState().turn);
 
-export const calculateGameTimeLeftAt = (at: number, game: Game) => {
-  // If the game is not ongoing then simply return the existent timeLeft
-  if (game.status !== 'ongoing') {
-    return game.timeLeft;
-  }
+// export const calculateGameTimeLeftAt = (at: number, game: Game) => {
+//   // If the game is not ongoing then simply return the existent timeLeft
+//   if (game.status !== 'ongoing') {
+//     return game.timeLeft;
+//   }
 
-  // Otherwise calculate
-  const lastGameActivityAt = game.lastMoveAt || game.startedAt;
-  const turn = toLongColor(swapColor(game.lastMoveBy));
-  const msSinceLastGameActivity = at - lastGameActivityAt;
+//   // Otherwise calculate
+//   const lastGameActivityAt = game.lastMoveAt || game.startedAt;
+//   const turn = toLongColor(swapColor(game.lastMoveBy));
+//   const msSinceLastGameActivity = at - lastGameActivityAt;
 
-  return {
-    ...game.timeLeft,
-    [turn]: game.timeLeft[turn] - msSinceLastGameActivity,
-  };
-};
+//   return {
+//     ...game.timeLeft,
+//     [turn]: game.timeLeft[turn] - msSinceLastGameActivity,
+//   };
+// };

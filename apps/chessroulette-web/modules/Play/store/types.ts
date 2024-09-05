@@ -27,18 +27,19 @@ export type GameOffer = {
  */
 export type PendingGame = {
   status: 'pending';
-  startedAt: undefined;
+  startedAt: null;
   timeClass: GameTimeClass;
 
   // Since lastActivity
   timeLeft: {
+    lastUpdatedAt: null,
     white: number;
     black: number;
   };
   pgn: '';
   lastMoveBy: 'black'; // This can be undefined as well
-  lastMoveAt: undefined;
-  winner: undefined;
+  lastMoveAt: null;
+  winner: null;
   offers: GameOffer[]; // TODO: Make this undefined
 
   // TODO: Is this needed here???
@@ -59,14 +60,15 @@ export type IdlingGame = {
 
   // Since lastActivity
   timeLeft: {
+    lastUpdatedAt: null; // TODO: Change this to ISODateTime
     white: number;
     black: number;
   };
   pgn: ChessPGN;
   lastMoveBy: LongChessColor;
   // This is number in case white made its first move and waiting for black, or undefined otherwise
-  lastMoveAt: number | undefined; // TODO: Change this to ISODateTime
-  winner: undefined;
+  lastMoveAt: number | null; // TODO: Change this to ISODateTime
+  winner: null;
   offers: GameOffer[]; // TODO: Make this undefined
 
   // TODO: Is this needed here???
@@ -87,13 +89,14 @@ export type OngoingGame = {
 
   // Since lastActivity
   timeLeft: {
+    lastUpdatedAt: number; // this is the same as lastMoveAt but can be different as well
     white: number;
     black: number;
   };
   pgn: ChessPGN;
   lastMoveBy: LongChessColor;
   lastMoveAt: number; // TODO: Change this to ISODateTime
-  winner: undefined;
+  winner: null;
   offers: GameOffer[];
 
   // TODO: Is this needed here???
@@ -113,6 +116,7 @@ export type CompletedGame = {
 
   // Since lastActivity
   timeLeft: {
+    lastUpdatedAt: number; // this is the same as lastMoveAt but can be different as well
     white: number;
     black: number;
   };
@@ -143,14 +147,15 @@ export type AbortedGame = {
 
   // Since lastActivity
   timeLeft: {
+    lastUpdatedAt: number | null; // this is the same as lastMoveAt but can be different as well
     white: number;
     black: number;
   };
   pgn: ChessPGN;
   lastMoveBy: LongChessColor;
   // This is number in case white made its first move and waiting for black, or undefined otherwise
-  lastMoveAt: number | undefined; // TODO: Change this to ISODateTime
-  winner: undefined;
+  lastMoveAt: number | null; // TODO: Change this to ISODateTime
+  winner: null;
   offers: GameOffer[];
 
   // TODO: Is this needed here???
@@ -194,7 +199,8 @@ export type PlayActions =
         moveAt: number;
       }
     >
-  | Action<'play:timeout', { color: ChessColor }>
+  | Action<'play:checkTime', { at: number }>
+  // | Action<'play:timeout', { color: ChessColor }>
   // TODO: Add this feature in
   //  When the timer runs out in the UI or they press the abort button, move the game to abort!
 

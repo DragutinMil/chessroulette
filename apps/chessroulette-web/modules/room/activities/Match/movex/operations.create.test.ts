@@ -22,17 +22,18 @@ describe('Best Of', () => {
       startColor: 'b',
     });
 
-    const expectedPlay: PlayState = {
+    const expectedPlay = {
       game: {
         ...initialPlayState.game,
         timeClass: 'blitz',
         orientation: 'b',
         timeLeft: {
+          lastUpdatedAt: initialPlayState.game.lastMoveAt,
           black: chessGameTimeLimitMsMap.blitz,
           white: chessGameTimeLimitMsMap.blitz,
         },
       },
-    };
+    } as PlayState;
 
     const expected: MatchState = {
       status: 'pending',
@@ -48,7 +49,7 @@ describe('Best Of', () => {
           score: 0,
         },
       },
-      winner: undefined,
+      winner: null,
       completedPlays: [],
       ongoingPlay: expectedPlay,
     };
@@ -73,11 +74,12 @@ describe('Open Ended', () => {
         timeClass: 'bullet',
         orientation: 'w',
         timeLeft: {
+          lastUpdatedAt: initialPlayState.game.lastMoveAt,
           black: chessGameTimeLimitMsMap.bullet,
           white: chessGameTimeLimitMsMap.bullet,
         },
       },
-    };
+    } as PlayState;
 
     const expected: MatchState = {
       status: 'pending',
@@ -92,7 +94,7 @@ describe('Open Ended', () => {
           score: 0,
         },
       },
-      winner: undefined,
+      winner: null,
       completedPlays: [],
       ongoingPlay: expectedPlay,
     };

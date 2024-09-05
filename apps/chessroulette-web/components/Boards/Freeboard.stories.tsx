@@ -1,9 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import {
-  ChessFENBoard,
-  FenBoardPromotionalPieceSymbol,
-  pieceSanToFenBoardPieceSymbol,
-} from '@xmatter/util-kit';
+import { ChessFENBoard } from '@xmatter/util-kit';
 import { useEffect, useState } from 'react';
 import useInstance from '@use-it/instance';
 import { Freeboard } from './Freeboard';

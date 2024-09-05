@@ -1,10 +1,10 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Text } from 'apps/chessroulette-web/components/Text';
 import { PlayersInfoContainer } from 'apps/chessroulette-web/modules/Play/PlayersInfoContainer';
 import { useMatch } from 'apps/chessroulette-web/modules/room/activities/Match/providers/useMatch';
 import { PlayersBySide } from 'apps/chessroulette-web/modules/Play/types';
 import { useGame } from 'apps/chessroulette-web/modules/Play/providers/useGame';
-import { DispatchOf, toLongColor } from '@xmatter/util-kit';
+import { ChessColor, DispatchOf, toLongColor } from '@xmatter/util-kit';
 import { PlayActions } from 'apps/chessroulette-web/modules/Play/store';
 import { getMovesDetailsFromPGN } from '../utils';
 import { MATCH_TIME_TO_ABORT } from '../movex';
@@ -27,9 +27,9 @@ export const MatchStateDisplay: React.FC<Props> = ({
     draws,
     players,
     completedPlaysCount,
+    ...restMatch
   } = useMatch();
   const { realState, playerId } = useGame();
-
   const isGameCounterActive = useMemo(() => {
     const moves = getMovesDetailsFromPGN(realState.game.pgn);
     if (realState.game.status !== 'ongoing') {
@@ -62,13 +62,13 @@ export const MatchStateDisplay: React.FC<Props> = ({
           gameCounterActive={isGameCounterActive}
           players={playersBySide}
           results={results}
-          onTimerFinished={(side) => {
-            dispatch({
-              type: 'play:timeout',
+          onCheckTime={() => {
+            dispatch((masterContext) => ({
+              type: 'play:checkTime',
               payload: {
-                color: playersBySide[side].color,
+                at: masterContext.requestAt(),
               },
-            });
+            }));
           }}
         />
       </div>

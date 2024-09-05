@@ -46,11 +46,11 @@ export const GameBoardContainer = ({
       overlayComponent={overlayComponent}
       playingColor={orientation}
       onMove={(payload) => {
-        dispatch(({ $queries }) => ({
+        dispatch((masterContext) => ({
           type: 'play:move',
           payload: {
             ...payload,
-            moveAt: $queries.now(),
+            moveAt: masterContext.requestAt(),
           },
         }));
 

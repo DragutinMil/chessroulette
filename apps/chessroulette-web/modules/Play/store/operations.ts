@@ -1,15 +1,15 @@
 import { ChessColor } from '@xmatter/util-kit';
 import { GameTimeClass, chessGameTimeLimitMsMap } from '../types';
-import { Game } from './types';
+import { OngoingGame, PendingGame } from './types';
 import { PENDING_UNTIMED_GAME } from './state';
 
-export const createGame = ({
+export const createPendingGame = ({
   timeClass,
   color,
 }: {
   timeClass: GameTimeClass;
   color: ChessColor;
-}): Game => {
+}): PendingGame => {
   const timeLeft = chessGameTimeLimitMsMap[timeClass];
 
   return {
@@ -17,8 +17,34 @@ export const createGame = ({
     timeClass,
     orientation: color,
     timeLeft: {
+      lastUpdatedAt: null,
       white: timeLeft,
       black: timeLeft,
     },
+  };
+};
+
+export const createOngoingGame = ({
+  timeClass,
+  color,
+  lastMoveAt,
+  startedAt,
+}: {
+  timeClass: GameTimeClass;
+  color: ChessColor;
+  lastMoveAt: number;
+  startedAt: number;
+}): OngoingGame => {
+  const pendingGame = createPendingGame({ timeClass, color });
+
+  return {
+    ...pendingGame,
+    status: 'ongoing',
+    startedAt,
+    timeLeft: {
+      ...pendingGame.timeLeft,
+      lastUpdatedAt: lastMoveAt,
+    },
+    lastMoveAt,
   };
 };

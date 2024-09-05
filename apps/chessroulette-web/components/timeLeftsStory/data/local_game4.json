@@ -1,0 +1,318 @@
+{
+  "white": {
+    "playerId": "a",
+    "display": [
+      {
+        "lastUpdatedAt": 1725555890778,
+        "white": 300000,
+        "black": 300000,
+        "turn": "white"
+      },
+      {
+        "lastUpdatedAt": 1725555895605,
+        "white": 295173,
+        "black": 300000,
+        "turn": "black"
+      },
+      {
+        "lastUpdatedAt": 1725555904130,
+        "white": 295173,
+        "black": 291475,
+        "turn": "white"
+      },
+      {
+        "lastUpdatedAt": 1725555908799,
+        "white": 290504,
+        "black": 291475,
+        "turn": "black"
+      },
+      {
+        "lastUpdatedAt": 1725555911085,
+        "white": 290504,
+        "black": 289189,
+        "turn": "white"
+      },
+      {
+        "lastUpdatedAt": 1725555915574,
+        "white": 286015,
+        "black": 289189,
+        "turn": "black"
+      },
+      {
+        "lastUpdatedAt": 1725555927244,
+        "white": 286015,
+        "black": 277519,
+        "turn": "white"
+      },
+      {
+        "lastUpdatedAt": 1725555931602,
+        "white": 281657,
+        "black": 277519,
+        "turn": "black"
+      },
+      {
+        "lastUpdatedAt": 1725555944037,
+        "white": 281657,
+        "black": 265084,
+        "turn": "white"
+      },
+      {
+        "lastUpdatedAt": 1725555952119,
+        "white": 273575,
+        "black": 265084,
+        "turn": "black"
+      }
+    ],
+    "stateTransformer": [
+      {
+        "lastUpdatedAt": 1725555890778,
+        "white": 300000,
+        "black": 300000,
+        "turn": "white"
+      },
+      {
+        "lastUpdatedAt": 1725555895605,
+        "white": 295173,
+        "black": 300000,
+        "turn": "black"
+      },
+      {
+        "lastUpdatedAt": 1725555904130,
+        "white": 295173,
+        "black": 291475,
+        "turn": "white"
+      },
+      {
+        "lastUpdatedAt": 1725555908799,
+        "white": 290504,
+        "black": 291475,
+        "turn": "black"
+      },
+      {
+        "lastUpdatedAt": 1725555911085,
+        "white": 290504,
+        "black": 289189,
+        "turn": "white"
+      },
+      {
+        "lastUpdatedAt": 1725555915574,
+        "white": 286015,
+        "black": 289189,
+        "turn": "black"
+      },
+      {
+        "lastUpdatedAt": 1725555927244,
+        "white": 286015,
+        "black": 277519,
+        "turn": "white"
+      },
+      {
+        "lastUpdatedAt": 1725555931602,
+        "white": 281657,
+        "black": 277519,
+        "turn": "black"
+      },
+      {
+        "lastUpdatedAt": 1725555944037,
+        "white": 281657,
+        "black": 265084,
+        "turn": "white"
+      },
+      {
+        "lastUpdatedAt": 1725555952119,
+        "white": 273575,
+        "black": 265084,
+        "turn": "black"
+      }
+    ]
+  },
+  "black": {
+    "playerId": "b",
+    "display": [
+      {
+        "lastUpdatedAt": 1725555890778,
+        "white": 300000,
+        "black": 300000,
+        "turn": "white"
+      },
+      {
+        "lastUpdatedAt": 1725555895605,
+        "white": 295173,
+        "black": 300000,
+        "turn": "black"
+      },
+      {
+        "lastUpdatedAt": 1725555904130,
+        "white": 295173,
+        "black": 291475,
+        "turn": "white"
+      },
+      {
+        "lastUpdatedAt": 1725555908799,
+        "white": 290504,
+        "black": 291475,
+        "turn": "black"
+      },
+      {
+        "lastUpdatedAt": 1725555911085,
+        "white": 290504,
+        "black": 289189,
+        "turn": "white"
+      },
+      {
+        "lastUpdatedAt": 1725555915574,
+        "white": 286015,
+        "black": 289189,
+        "turn": "black"
+      },
+      {
+        "lastUpdatedAt": 1725555927244,
+        "white": 286015,
+        "black": 277519,
+        "turn": "white"
+      },
+      {
+        "lastUpdatedAt": 1725555931602,
+        "white": 281657,
+        "black": 277519,
+        "turn": "black"
+      },
+      {
+        "lastUpdatedAt": 1725555944037,
+        "white": 281657,
+        "black": 265084,
+        "turn": "white"
+      },
+      {
+        "lastUpdatedAt": 1725555952119,
+        "white": 273575,
+        "black": 265084,
+        "turn": "black"
+      }
+    ],
+    "stateTransformer": [
+      {
+        "lastUpdatedAt": 1725555890778,
+        "white": 300000,
+        "black": 300000,
+        "turn": "white"
+      },
+      {
+        "lastUpdatedAt": 1725555895605,
+        "white": 295173,
+        "black": 300000,
+        "turn": "black"
+      },
+      {
+        "lastUpdatedAt": 1725555904130,
+        "white": 295173,
+        "black": 291475,
+        "turn": "white"
+      },
+      {
+        "lastUpdatedAt": 1725555908799,
+        "white": 290504,
+        "black": 291475,
+        "turn": "black"
+      },
+      {
+        "lastUpdatedAt": 1725555911085,
+        "white": 290504,
+        "black": 289189,
+        "turn": "white"
+      },
+      {
+        "lastUpdatedAt": 1725555915574,
+        "white": 286015,
+        "black": 289189,
+        "turn": "black"
+      },
+      {
+        "lastUpdatedAt": 1725555927244,
+        "white": 286015,
+        "black": 277519,
+        "turn": "white"
+      },
+      {
+        "lastUpdatedAt": 1725555931602,
+        "white": 281657,
+        "black": 277519,
+        "turn": "black"
+      },
+      {
+        "lastUpdatedAt": 1725555944037,
+        "white": 281657,
+        "black": 265084,
+        "turn": "white"
+      },
+      {
+        "lastUpdatedAt": 1725555952119,
+        "white": 273575,
+        "black": 265084,
+        "turn": "black"
+      }
+    ]
+  },
+  "master": [
+    {
+      "lastUpdatedAt": 1725555890778,
+      "white": 300000,
+      "black": 300000,
+      "turn": "white"
+    },
+    {
+      "lastUpdatedAt": 1725555895605,
+      "white": 295173,
+      "black": 300000,
+      "turn": "black"
+    },
+    {
+      "lastUpdatedAt": 1725555904130,
+      "white": 295173,
+      "black": 291475,
+      "turn": "white"
+    },
+    {
+      "lastUpdatedAt": 1725555908799,
+      "white": 290504,
+      "black": 291475,
+      "turn": "black"
+    },
+    {
+      "lastUpdatedAt": 1725555911085,
+      "white": 290504,
+      "black": 289189,
+      "turn": "white"
+    },
+    {
+      "lastUpdatedAt": 1725555915574,
+      "white": 286015,
+      "black": 289189,
+      "turn": "black"
+    },
+    {
+      "lastUpdatedAt": 1725555927244,
+      "white": 286015,
+      "black": 277519,
+      "turn": "white"
+    },
+    {
+      "lastUpdatedAt": 1725555931602,
+      "white": 281657,
+      "black": 277519,
+      "turn": "black"
+    },
+    {
+      "lastUpdatedAt": 1725555944037,
+      "white": 281657,
+      "black": 265084,
+      "turn": "white"
+    },
+    {
+      "lastUpdatedAt": 1725555952119,
+      "white": 273575,
+      "black": 265084,
+      "turn": "black"
+    }
+  ]
+}

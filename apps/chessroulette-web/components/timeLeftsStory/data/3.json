@@ -1,0 +1,39 @@
+{
+  "white": {
+    "di"
+  }
+  "display": [
+    { "white": 600000, "black": 600000, "turn": "white" },
+    { "white": 600000, "black": 600000, "turn": "black" },
+    { "white": 600000, "black": 600000, "turn": "white" },
+    { "white": 598367, "black": 600000, "turn": "black" },
+    { "white": 598365, "black": 598630, "turn": "white" },
+    { "white": 596888, "black": 598630, "turn": "black" },
+    { "white": 596879, "black": 597198, "turn": "white" },
+    { "white": 594454, "black": 597198, "turn": "black" },
+    { "white": 594452, "black": 594961, "turn": "white" },
+    { "white": 592731, "black": 594961, "turn": "black" },
+    { "white": 592727, "black": 592967, "turn": "white" },
+    { "white": 591118, "black": 592967, "turn": "black" },
+    { "white": 591114, "black": 587432, "turn": "white" },
+    { "white": 589504, "black": 587432, "turn": "black" },
+    { "white": 589502, "black": 585243, "turn": "white" },
+    { "white": 587272, "black": 585243, "turn": "black" }
+  ],
+  "stateTransformer": [
+    { "white": 600000, "black": 600000, "turn": "white" },
+    { "white": 598365, "black": 600000, "turn": "black" },
+    { "white": 598365, "black": 598630, "turn": "white" },
+    { "white": 596879, "black": 598630, "turn": "black" },
+    { "white": 596879, "black": 597198, "turn": "white" },
+    { "white": 594452, "black": 597198, "turn": "black" },
+    { "white": 594452, "black": 594961, "turn": "white" },
+    { "white": 592727, "black": 594961, "turn": "black" },
+    { "white": 592727, "black": 592967, "turn": "white" },
+    { "white": 591114, "black": 592967, "turn": "black" },
+    { "white": 591114, "black": 587432, "turn": "white" },
+    { "white": 589502, "black": 587432, "turn": "black" },
+    { "white": 589502, "black": 585243, "turn": "white" },
+    { "white": 587269, "black": 585243, "turn": "black" }
+  ]
+}

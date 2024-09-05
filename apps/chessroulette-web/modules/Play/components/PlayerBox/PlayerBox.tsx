@@ -8,8 +8,9 @@ type Props = {
   gameTimeClass: GameTimeClass;
   timeLeft: number;
   score: number;
-  onTimerFinished: () => void;
-  onRefreshTimeLeft: () => void;
+  // onTimerFinished: () => void;
+  onCheckTime: () => void;
+  // onRefreshTimeLeft: () => void;
 };
 
 export const PlayerBox: React.FC<Props> = (props) => {
@@ -31,8 +32,8 @@ export const PlayerBox: React.FC<Props> = (props) => {
         <SmartCountdown
           isActive={props.isActive}
           msLeft={props.timeLeft}
-          onFinished={props.onTimerFinished}
-          onRefreshMsLeft={props.onRefreshTimeLeft}
+          onFinished={props.onCheckTime}
+          onRefreshMsLeft={props.onCheckTime}
           className="text-xl"
         />
       )}

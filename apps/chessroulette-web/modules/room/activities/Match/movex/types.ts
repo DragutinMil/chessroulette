@@ -16,7 +16,7 @@ export type MatchState = (
     }
   | {
       type: 'openEnded';
-      rounds?: undefined; // There is no end so no need for rounds here
+      rounds?: null; // There is no end so no need for rounds here
       // rounds?: 'unlimited';
     }
 ) & {
@@ -35,18 +35,18 @@ export type MatchState = (
   // Change name to "endedPlays" because this can inclde aborted as well
   completedPlays: PlayStore.PlayState[];
 
-  winner: undefined | PlayerId;
+  winner: null | PlayerId;
 
   // timeClass: Game['timeClass'];
 
   // TODO: Should this always hav a pending game??
-  ongoingPlay: PlayStore.PlayState | undefined;
+  ongoingPlay: PlayStore.PlayState | null;
 };
 
 // export type MatchState = PlayStore.PlayState
 
 // export type MatchActivityActivityState = undefined | MatchState;
-export type MatchActivityActivityState = undefined | MatchState;
+export type MatchActivityActivityState = null | MatchState;
 
 export type MatchActivityState = {
   activityType: 'match';

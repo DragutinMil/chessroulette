@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { CountdownDisplay } from './Display';
+import {
+  SmartCountdownDisplay,
+  SmartCountdownDisplayProps,
+} from './SmartCountdownDisplay';
 import { useInterval } from 'apps/chessroulette-web/hooks/useInterval';
-import { timeLeftToIntervalMs } from 'apps/chessroulette-web/modules/Play/lib';
-import { lpad, timeLeftToTimeUnits } from './util';
+import { lpad, timeLeftToIntervalMs, timeLeftToTimeUnits } from './util';
 import { noop } from '@xmatter/util-kit';
 
 export type SmartCountdownProps = {
@@ -10,13 +12,19 @@ export type SmartCountdownProps = {
   isActive: boolean;
   className?: string;
   onFinished?: () => void;
-};
+} & Pick<
+  SmartCountdownDisplayProps,
+  'activeTextClassName' | 'inactiveTextClassName'
+>;
 
 export const SmartCountdown = ({
-  onFinished = noop,
   msLeft,
   isActive,
   className,
+  // Note - the onFinished prop changes do not trigger an update
+  //  This is in order to not enter infinite loops when passing a callback
+  onFinished = noop,
+  ...countDownDislplayProps
 }: SmartCountdownProps) => {
   const [finished, setFinished] = useState(false);
   const [timeLeft, setTimeLeft] = useState(msLeft);
@@ -44,37 +52,51 @@ export const SmartCountdown = ({
     }
   }, [finished]);
 
-  useInterval(
-    () => {
-      setTimeLeft((prev) => prev - interval);
-    },
-    finished || isActive ? interval : undefined
-  );
+  const intervalPlay = isActive && !finished ? interval : undefined;
 
-  const { major, minor, canShowMilliseconds } = useMemo(() => {
+  useInterval(() => setTimeLeft((prev) => prev - interval), intervalPlay);
+
+  const { major, minor } = useMemo(() => {
     const times = timeLeftToTimeUnits(timeLeft);
     if (times.hours > 0) {
       return {
         major: `${times.hours}h`,
         minor: `${lpad(times.minutes)}`,
-        canShowMilliseconds: false,
+        // canShowMilliseconds: false,
       };
     }
     return {
       major: lpad(times.minutes),
       minor: lpad(times.seconds),
-      canShowMilliseconds: false,
+      // canShowMilliseconds: false,
     };
   }, [timeLeft]);
 
   return (
     <div className={className}>
-      <CountdownDisplay
+      {/* <pre className="text-xs">
+        {JSON.stringify({
+          f: finished,
+          a: isActive,
+          in: interval,
+          pl: intervalPlay,
+        })}
+      </pre>
+      <div className="flex flex-col ">
+        <span
+          className={`${isActive ? 'text-white' : 'text-slate-400'} text-md`}
+        >
+          {timeLeft}
+        </span>
+      </div> */}
+
+      <SmartCountdownDisplay
         major={major}
         minor={minor}
         active={isActive}
         timeLeft={timeLeft}
-        canShowMilliseconds={canShowMilliseconds}
+        {...countDownDislplayProps}
+        // canShowMilliseconds={canShowMilliseconds}
       />
     </div>
   );

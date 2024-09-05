@@ -5,7 +5,8 @@ import {
   Game,
   PlayActions,
   PlayState,
-  createGame,
+  createOngoingGame,
+  createPendingGame,
 } from 'apps/chessroulette-web/modules/Play';
 
 const wrapIntoActivityState = <M extends MatchState>(
@@ -63,15 +64,15 @@ describe('Match Status: Pending > Ongoing', () => {
           score: 0,
         },
       },
-      winner: undefined,
+      winner: null,
       ongoingPlay: wrapIntoPlay({
-        ...createGame({
+        ...createPendingGame({
           timeClass: 'blitz',
           color: 'b',
         }),
         status: 'idling',
         startedAt: 123,
-        winner: undefined,
+        winner: null,
         pgn: '1. e4',
         lastMoveAt: 123,
         lastMoveBy: 'white',
@@ -107,17 +108,17 @@ describe('Match Status: Pending > Ongoing', () => {
           score: 0,
         },
       },
-      winner: undefined,
+      winner: null,
       ongoingPlay: wrapIntoPlay({
-        ...createGame({
+        ...createOngoingGame({
           timeClass: 'blitz',
           color: 'b',
+          startedAt: 123,
+          lastMoveAt: 123,
         }),
         status: 'ongoing',
-        startedAt: 123,
-        winner: undefined,
+        winner: null,
         pgn: '1. e4 e6',
-        lastMoveAt: 123,
         lastMoveBy: 'black',
       }),
     };
@@ -170,9 +171,9 @@ describe('Match Status: Ongoing > Completed', () => {
           score: 0,
         },
       },
-      winner: undefined,
+      winner: null,
       ongoingPlay: wrapIntoPlay({
-        ...createGame({
+        ...createPendingGame({
           timeClass: 'blitz',
           color: 'w',
         }),
@@ -182,7 +183,7 @@ describe('Match Status: Ongoing > Completed', () => {
         lastMoveAt: 123,
         lastMoveBy: 'white',
         startedAt: 123,
-        winner: undefined,
+        winner: null,
       }),
     };
     const expected: MatchActivityState = {
@@ -218,16 +219,16 @@ describe('Match Status: Ongoing > Completed', () => {
       completedPlays: [
         {
           ...wrapIntoPlay({
-            ...createGame({
+            ...createOngoingGame({
               timeClass: 'blitz',
               color: 'w',
+              lastMoveAt: 1234,
+              startedAt: 123,
             }),
             status: 'complete',
             pgn: '1. g4 e6 2. f3 Qh4#',
-            lastMoveAt: 1234,
             lastMoveBy: 'black',
             winner: 'black',
-            startedAt: 123,
           }),
         },
       ],
@@ -242,7 +243,7 @@ describe('Match Status: Ongoing > Completed', () => {
         },
       },
       winner: 'maria',
-      ongoingPlay: undefined,
+      ongoingPlay: null,
     };
 
     const expectedResult: MatchActivityState = {
@@ -295,9 +296,9 @@ describe('Start New Match => ', () => {
           score: 0,
         },
       },
-      winner: undefined,
+      winner: null,
       ongoingPlay: wrapIntoPlay({
-        ...createGame({
+        ...createPendingGame({
           timeClass: 'blitz',
           color: 'w',
         }),
@@ -306,7 +307,7 @@ describe('Start New Match => ', () => {
         lastMoveAt: 123,
         lastMoveBy: 'white',
         startedAt: 123,
-        winner: undefined,
+        winner: null,
       }),
     };
 
@@ -344,20 +345,20 @@ describe('Start New Match => ', () => {
       completedPlays: [
         {
           ...wrapIntoPlay({
-            ...createGame({
+            ...createOngoingGame({
               timeClass: 'blitz',
               color: 'w',
+              startedAt: 123,
+              lastMoveAt: 123,
             }),
             status: 'complete',
             pgn: '1. e4 e6',
-            lastMoveAt: 123,
             lastMoveBy: 'black',
             winner: 'black',
-            startedAt: 123,
           }),
         },
       ],
-      winner: undefined,
+      winner: null,
       players: {
         white: {
           id: 'maria',
@@ -369,7 +370,7 @@ describe('Start New Match => ', () => {
         },
       },
       ongoingPlay: {
-        game: createGame({
+        game: createPendingGame({
           timeClass: 'blitz',
           color: 'black',
         }),
@@ -426,9 +427,9 @@ describe('End Match when rounds number reached', () => {
           score: 0,
         },
       },
-      winner: undefined,
+      winner: null,
       ongoingPlay: wrapIntoPlay({
-        ...createGame({
+        ...createPendingGame({
           timeClass: 'blitz',
           color: 'w',
         }),
@@ -437,7 +438,7 @@ describe('End Match when rounds number reached', () => {
         lastMoveAt: 123,
         lastMoveBy: 'white',
         startedAt: 123,
-        winner: undefined,
+        winner: null,
       }),
     };
 
@@ -469,16 +470,16 @@ describe('End Match when rounds number reached', () => {
       completedPlays: [
         {
           ...wrapIntoPlay({
-            ...createGame({
+            ...createOngoingGame({
               timeClass: 'blitz',
               color: 'w',
+              startedAt: 123,
+              lastMoveAt: 123,
             }),
             status: 'complete',
             pgn: '1. e4 e6',
-            lastMoveAt: 123,
             lastMoveBy: 'black',
             winner: 'white',
-            startedAt: 123,
           }),
         },
       ],
@@ -493,7 +494,7 @@ describe('End Match when rounds number reached', () => {
         },
       },
       winner: 'john',
-      ongoingPlay: undefined,
+      ongoingPlay: null,
     };
 
     const finalMatchState: MatchActivityState = {
@@ -527,9 +528,9 @@ describe('End Match when rounds number reached', () => {
           score: 0,
         },
       },
-      winner: undefined,
+      winner: null,
       ongoingPlay: wrapIntoPlay({
-        ...createGame({
+        ...createPendingGame({
           timeClass: 'blitz',
           color: 'w',
         }),
@@ -538,7 +539,7 @@ describe('End Match when rounds number reached', () => {
         lastMoveAt: 123,
         lastMoveBy: 'white',
         startedAt: 123,
-        winner: undefined,
+        winner: null,
       }),
     };
 
@@ -577,17 +578,17 @@ describe('End Match when rounds number reached', () => {
       completedPlays: [
         {
           ...wrapIntoPlay({
-            ...createGame({
+            ...createOngoingGame({
               timeClass: 'blitz',
               color: 'w',
+              startedAt: 123,
+              lastMoveAt: 123,
             }),
             offers: [{ byPlayer: 'john', status: 'accepted', type: 'draw' }],
             status: 'complete',
             pgn: '1. e4 e6',
-            lastMoveAt: 123,
             lastMoveBy: 'black',
             winner: '1/2',
-            startedAt: 123,
           }),
         },
       ],
@@ -601,8 +602,8 @@ describe('End Match when rounds number reached', () => {
           score: 0,
         },
       },
-      winner: undefined,
-      ongoingPlay: undefined,
+      winner: null,
+      ongoingPlay: null,
     };
 
     const updateMatchState: MatchActivityState = {
@@ -655,19 +656,23 @@ describe('timer only starts after black moves', () => {
           score: 0,
         },
       },
-      winner: undefined,
+      winner: null,
       ongoingPlay: wrapIntoPlay({
-        ...createGame({
+        ...createPendingGame({
           timeClass: 'blitz',
           color: 'w',
         }),
-        timeLeft: { white: 300000, black: 300000 },
+        timeLeft: {
+          lastUpdatedAt: null,
+          white: 300000,
+          black: 300000,
+        },
         status: 'idling',
         pgn: '1. e4',
         lastMoveAt: moveWhiteTime,
         lastMoveBy: 'white',
         startedAt: 123,
-        winner: undefined,
+        winner: null,
       }),
     };
     const newMatchState: MatchActivityState = {
@@ -698,19 +703,21 @@ describe('timer only starts after black moves', () => {
           score: 0,
         },
       },
-      winner: undefined,
+      winner: null,
       ongoingPlay: wrapIntoPlay({
-        ...createGame({
+        ...createOngoingGame({
           timeClass: 'blitz',
           color: 'w',
+          startedAt: 123,
+          lastMoveAt: moveBlackTime,
         }),
-        timeLeft: { white: 300000, black: 300000 },
+        // timeLeft: { white: 300000, black: 300000 },
         status: 'ongoing',
         pgn: '1. e4 e6',
-        lastMoveAt: moveBlackTime,
+        // lastMoveAt: moveBlackTime,
         lastMoveBy: 'black',
-        startedAt: 123,
-        winner: undefined,
+        // startedAt: 123,
+        winner: null,
       }),
     };
     const newMatchStateUpdate: MatchActivityState = {
@@ -773,16 +780,16 @@ describe('abort game -> match', () => {
       completedPlays: [
         {
           ...wrapIntoPlay({
-            ...createGame({
+            ...createPendingGame({
               timeClass: 'blitz',
               color: 'w',
             }),
             offers: [],
             status: 'aborted',
             pgn: '',
-            lastMoveAt: undefined,
+            lastMoveAt: null,
             lastMoveBy: 'black',
-            winner: undefined,
+            winner: null,
             startedAt: 123,
           }),
         },
@@ -797,8 +804,8 @@ describe('abort game -> match', () => {
           score: 0,
         },
       },
-      winner: undefined,
-      ongoingPlay: undefined,
+      winner: null,
+      ongoingPlay: null,
     };
     const expected: MatchActivityState = {
       activityType: 'match',
@@ -833,17 +840,17 @@ describe('abort game -> match', () => {
       completedPlays: [
         {
           ...wrapIntoPlay({
-            ...createGame({
+            ...createOngoingGame({
               timeClass: 'blitz',
               color: 'w',
+              startedAt: 123,
+              lastMoveAt: 123,
             }),
             offers: [],
             status: 'complete',
             pgn: '1. e4 e6',
-            lastMoveAt: 123,
             lastMoveBy: 'black',
             winner: 'white',
-            startedAt: 123,
           }),
         },
       ],
@@ -857,9 +864,9 @@ describe('abort game -> match', () => {
           score: 0,
         },
       },
-      winner: undefined,
+      winner: null,
       ongoingPlay: wrapIntoPlay({
-        ...createGame({
+        ...createPendingGame({
           timeClass: 'blitz',
           color: 'black',
         }),
@@ -891,31 +898,31 @@ describe('abort game -> match', () => {
       completedPlays: [
         {
           ...wrapIntoPlay({
-            ...createGame({
+            ...createOngoingGame({
               timeClass: 'blitz',
               color: 'w',
+              startedAt: 123,
+              lastMoveAt: 123,
             }),
             offers: [],
             status: 'complete',
             pgn: '1. e4 e6',
-            lastMoveAt: 123,
             lastMoveBy: 'black',
             winner: 'white',
-            startedAt: 123,
           }),
         },
         {
           ...wrapIntoPlay({
-            ...createGame({
+            ...createPendingGame({
               timeClass: 'blitz',
               color: 'black',
             }),
             offers: [],
             status: 'aborted',
             pgn: '',
-            lastMoveAt: undefined,
+            lastMoveAt: null,
             lastMoveBy: 'black',
-            winner: undefined,
+            winner: null,
             startedAt: 123,
           }),
         },
@@ -931,7 +938,7 @@ describe('abort game -> match', () => {
         },
       },
       winner: 'john',
-      ongoingPlay: undefined,
+      ongoingPlay: null,
     };
 
     const expected: MatchActivityState = {
@@ -969,17 +976,17 @@ describe('abort game -> match', () => {
       completedPlays: [
         {
           ...wrapIntoPlay({
-            ...createGame({
+            ...createOngoingGame({
               timeClass: 'blitz',
               color: 'w',
+              startedAt: 123,
+              lastMoveAt: 123,
             }),
             offers: [],
             status: 'complete',
             pgn: '1. e4 e6',
-            lastMoveAt: 123,
             lastMoveBy: 'black',
             winner: 'white',
-            startedAt: 123,
           }),
         },
       ],
@@ -993,9 +1000,9 @@ describe('abort game -> match', () => {
           score: 0,
         },
       },
-      winner: undefined,
+      winner: null,
       ongoingPlay: wrapIntoPlay({
-        ...createGame({
+        ...createPendingGame({
           timeClass: 'blitz',
           color: 'black',
         }),
@@ -1032,22 +1039,22 @@ describe('abort game -> match', () => {
       completedPlays: [
         {
           ...wrapIntoPlay({
-            ...createGame({
+            ...createOngoingGame({
               timeClass: 'blitz',
               color: 'w',
+              startedAt: 123,
+              lastMoveAt: 123,
             }),
             offers: [],
             status: 'complete',
             pgn: '1. e4 e6',
-            lastMoveAt: 123,
             lastMoveBy: 'black',
             winner: 'white',
-            startedAt: 123,
           }),
         },
         {
           ...wrapIntoPlay({
-            ...createGame({
+            ...createPendingGame({
               timeClass: 'blitz',
               color: 'black',
             }),
@@ -1056,7 +1063,7 @@ describe('abort game -> match', () => {
             pgn: '1. e4',
             lastMoveAt: 123,
             lastMoveBy: 'white',
-            winner: undefined,
+            winner: null,
             startedAt: 123,
           }),
         },
@@ -1072,7 +1079,7 @@ describe('abort game -> match', () => {
         },
       },
       winner: 'maria',
-      ongoingPlay: undefined,
+      ongoingPlay: null,
     };
 
     const expected: MatchActivityState = {
