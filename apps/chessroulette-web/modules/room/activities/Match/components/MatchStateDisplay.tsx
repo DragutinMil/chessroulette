@@ -53,15 +53,26 @@ export const MatchStateDisplay: React.FC<Props> = ({
   );
 
   useEffect(() => {
-    setPrevTimeLefts((prev) => [
-      ...prev,
-      { ...realState.game.timeLeft, turn: realState.turn },
-    ]);
-  }, [realState.turn]);
+    // This replaces the last one if it's of the same turn
+    setPrevTimeLefts((prev) => {
+      const last = prev.slice(-1)[0];
+      const prevWithoutLast = prev.slice(0, -1);
+      const current = realState.game.timeLeft;
+
+      return [
+        ...prevWithoutLast,
+        ...(last?.turn !== realState.turn ? [last] : []),
+        { ...current, turn: realState.turn },
+      ];
+    });
+  }, [realState.game.timeLeft, realState.turn]);
 
   useEffect(() => {
     console.log('prev times', JSON.stringify(prevTimeLefts, null, 2));
   }, [prevTimeLefts]);
+  // useEffect(() => {
+  //   console.log('[MatchDisplay] timeLeft', JSON.stringify(realState.game.timeLeft, null, 2))
+  // }, [realState.game.timeLeft])
 
   return (
     <div className="flex flex-col gap-2">

@@ -32,6 +32,7 @@ export type PendingGame = {
 
   // Since lastActivity
   timeLeft: {
+    lastUpdatedAt: null,
     white: number;
     black: number;
   };
@@ -59,6 +60,7 @@ export type IdlingGame = {
 
   // Since lastActivity
   timeLeft: {
+    lastUpdatedAt: null; // TODO: Change this to ISODateTime
     white: number;
     black: number;
   };
@@ -87,6 +89,7 @@ export type OngoingGame = {
 
   // Since lastActivity
   timeLeft: {
+    lastUpdatedAt: number; // this is the same as lastMoveAt but can be different as well
     white: number;
     black: number;
   };
@@ -113,6 +116,7 @@ export type CompletedGame = {
 
   // Since lastActivity
   timeLeft: {
+    lastUpdatedAt: number; // this is the same as lastMoveAt but can be different as well
     white: number;
     black: number;
   };
@@ -143,6 +147,7 @@ export type AbortedGame = {
 
   // Since lastActivity
   timeLeft: {
+    lastUpdatedAt: number | null; // this is the same as lastMoveAt but can be different as well
     white: number;
     black: number;
   };

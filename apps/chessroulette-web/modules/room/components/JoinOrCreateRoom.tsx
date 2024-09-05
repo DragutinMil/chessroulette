@@ -19,6 +19,7 @@ import { GameTimeClass, chessGameTimeLimitMsMap } from '../../Play/types';
 import { ActivityParamsSchema } from '../io/paramsSchema';
 import { createMatchState } from '../activities/Match/movex';
 import { logsy } from 'apps/chessroulette-web/lib/Logsy';
+import { createPendingGame } from '../../Play';
 
 type Props = {
   activityParams: ActivityParamsSchema;
@@ -70,14 +71,14 @@ export const JoinOrCreateRoom: React.FC<Props> = ({
           const timeClass: GameTimeClass =
             activityParams.timeClass || defaultGame.timeClass;
 
-          const createGameInput = {
-            ...defaultGame,
-            timeClass,
-            timeLeft: {
-              white: chessGameTimeLimitMsMap[timeClass],
-              black: chessGameTimeLimitMsMap[timeClass],
-            },
-          };
+          // const createGameInput = {
+          //   ...defaultGame,
+          //   timeClass,
+          //   timeLeft: {
+          //     white: chessGameTimeLimitMsMap[timeClass],
+          //     black: chessGameTimeLimitMsMap[timeClass],
+          //   },
+          // };
 
           return {
             ...initialRoomState,
@@ -85,7 +86,7 @@ export const JoinOrCreateRoom: React.FC<Props> = ({
               activityType: 'play',
               activityState: {
                 ...initialActivityStatesByActivityType['play'].activityState,
-                game: createGameInput,
+                game: createPendingGame({ timeClass, color: 'white' }), // Not sure this is good
               },
             },
           };

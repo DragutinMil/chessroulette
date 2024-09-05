@@ -1,6 +1,6 @@
 import { Game, PlayActions, PlayState } from './types';
 import { reducer as playReducer } from './reducer';
-import { createGame } from './operations';
+import { createPendingGame } from './operations';
 
 const wrapIntoPlay = <G extends Game>(game: G): PlayState => ({
   game,
@@ -13,7 +13,7 @@ describe('Game Status: Pending > Idling', () => {
       payload: { at: 123 },
     };
 
-    const pendingGame = createGame({
+    const pendingGame = createPendingGame({
       color: 'white',
       timeClass: 'blitz',
     });
@@ -23,7 +23,10 @@ describe('Game Status: Pending > Idling', () => {
     const expected: PlayState = wrapIntoPlay({
       status: 'idling',
       timeClass: pendingGame.timeClass,
-      timeLeft: pendingGame.timeLeft,
+      timeLeft: {
+        ...pendingGame.timeLeft,
+        lastUpdatedAt: null,
+      },
       pgn: '',
       // these 2 are the same for now
       startedAt: 123,
@@ -50,7 +53,7 @@ describe('Game Status: Idling > Idling', () => {
       payload: { at: 123 },
     };
 
-    const pendingGame = createGame({
+    const pendingGame = createPendingGame({
       color: 'white',
       timeClass: 'blitz',
     });
@@ -61,7 +64,10 @@ describe('Game Status: Idling > Idling', () => {
     const expected: PlayState = wrapIntoPlay({
       status: 'idling',
       timeClass: pendingGame.timeClass,
-      timeLeft: pendingGame.timeLeft,
+      timeLeft: {
+        ...pendingGame.timeLeft,
+        lastUpdatedAt: null,
+      },
       pgn: '1. e4',
       // these 2 are the same for now
       startedAt: 123,
@@ -78,7 +84,7 @@ describe('Game Status: Idling > Idling', () => {
 
 describe('Game Status: Idling > Aborted', () => {
   test('It moves from Idling to Aborted after timer ends', () => {
-    const pendingGame = createGame({
+    const pendingGame = createPendingGame({
       color: 'white',
       timeClass: 'blitz',
     });
@@ -114,7 +120,7 @@ describe('Game Status: Idling > Aborted', () => {
 
 describe('Game Status: Idling > Ongoing', () => {
   test('It Moves from "idling" to "ongoing" on first Black Move (once both players moved once)', () => {
-    const pendingGame = createGame({
+    const pendingGame = createPendingGame({
       color: 'white',
       timeClass: 'blitz',
     });
@@ -140,7 +146,10 @@ describe('Game Status: Idling > Ongoing', () => {
       status: 'ongoing',
       // No changes here
       timeClass: pendingGame.timeClass,
-      timeLeft: pendingGame.timeLeft,
+      timeLeft: {
+        ...pendingGame.timeLeft,
+        lastUpdatedAt: 234,
+      },
       pgn: '1. e4 e6',
       // these 2 are the same for now
       startedAt: 123,

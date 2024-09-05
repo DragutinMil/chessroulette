@@ -76,7 +76,7 @@ export const reducer: MovexReducer<ActivityState, MatchActivityActions> = (
         ...prev.activityState,
         players,
         ongoingPlay: {
-          game: PlayStore.createGame(newGameSettings),
+          game: PlayStore.createPendingGame(newGameSettings),
         },
       },
     };
@@ -89,22 +89,26 @@ export const reducer: MovexReducer<ActivityState, MatchActivityActions> = (
 
   const prevOngoingPlay = prevMatch.ongoingPlay;
 
-  const nextCurrentPlay = invoke(() => {
-    const n = PlayStore.reducer(
-      prevOngoingPlay,
-      action as PlayStore.PlayActions
-    );
+  // const nextCurrentPlay = invoke(() => {
+  //   const n = PlayStore.reducer(
+  //     prevOngoingPlay,
+  //     action as PlayStore.PlayActions
+  //   );
 
-    return {
-      ...n,
-      game: {
-        ...n.game,
+  //   return {
+  //     ...n,
+  //     game: {
+  //       ...n.game,
 
-        // Don't over substract the times
-        // timeLeft: prevOngoingPlay.game.timeLeft,
-      },
-    };
-  });
+  //       // Don't over substract the times
+  //       // timeLeft: prevOngoingPlay.game.timeLeft,
+  //     },
+  //   };
+  // });
+  const nextCurrentPlay = PlayStore.reducer(
+    prevOngoingPlay,
+    action as PlayStore.PlayActions
+  );
 
   if (nextCurrentPlay.game.status === 'aborted') {
     //First game abort results in aborted match. Afterwards results in completed match + winner
@@ -242,7 +246,7 @@ reducer.$transformState = (state, masterContext) => {
   const ongoingPlay = match.ongoingPlay;
 
   // This reads the now() each time it runs
-  if (ongoingPlay && ongoingPlay.game.status === 'ongoing') {
+  if (ongoingPlay?.game.status === 'ongoing') {
     // const ongoingGame = ongoingPlay;
     // console.log(
     //   'Match $transformState going to substract the times',
@@ -253,7 +257,7 @@ reducer.$transformState = (state, masterContext) => {
     // console.group('-- match calculate');
     const nextTimeLeft = calculateTimeLeftAt({
       at: masterContext.requestAt, // TODO: this can take in account the lag as well
-      lastMoveAt: ongoingPlay.game.lastMoveAt,
+      // lastMoveAt: ongoingPlay.game.timeLeft.lastUpdatedAt,
       prevTimeLeft: ongoingPlay.game.timeLeft,
       turn,
     });
@@ -283,26 +287,41 @@ reducer.$transformState = (state, masterContext) => {
     // console.log(JSON.stringify(prevTimeLefts));
     // console.groupEnd();
 
-    // try {
-    //   if (!!window) {
-    //     (window as any)._prevTimeLefts = [
-    //       ...((window as any)?._prevTimeLefts || []),
-    //       { ...nextTimeLeft, turn },
-    //     ];
-    //   }
-    // } catch (e) {
-    //   try {
-    //     if (!!global) {
-    //       (global as any)._prevTimeLefts = [
-    //         ...((global as any)?._prevTimeLefts || []),
-    //         { ...nextTimeLeft, turn },
-    //       ];
-    //       console.log(`[$stateTransfomer] _prevTimeLefts`, JSON.stringify((global as any)._prevTimeLefts), null, 2);
-    //     }
-    //   } catch (e) {
-    //     console.error('eee', e);
-    //   }
-    // }
+    try {
+      if (!!window) {
+        (window as any)._prevTimeLefts = [
+          ...((window as any)?._prevTimeLefts || []),
+          { ...nextTimeLeft, turn },
+        ];
+        console.log(
+          `[$stateTransfomer] _prevTimeLefts`,
+          JSON.stringify((global as any)._prevTimeLefts, null, 2)
+        );
+        console.log(
+          `[$stateTransfomer]`,
+          JSON.stringify({ masterContext }, null, 2)
+        );
+      }
+    } catch (e) {
+      try {
+        if (!!global) {
+          (global as any)._prevTimeLefts = [
+            ...((global as any)?._prevTimeLefts || []),
+            { ...nextTimeLeft, turn },
+          ];
+          console.log(
+            `[$stateTransfomer] _prevTimeLefts`,
+            JSON.stringify((global as any)._prevTimeLefts, null, 2)
+          );
+          console.log(
+            `[$stateTransfomer]`,
+            JSON.stringify({ masterContext }, null, 2)
+          );
+        }
+      } catch (e) {
+        console.error('eee', e);
+      }
+    }
 
     return {
       ...state,

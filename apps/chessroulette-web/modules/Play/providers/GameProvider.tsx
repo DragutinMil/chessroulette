@@ -62,12 +62,7 @@ export const GameProvider = (props: Props) => {
         focusedIndex: props.focusedIndex,
       }),
     }));
-  }, [
-    props.game.pgn,
-    props.focusedIndex,
-    props.game.winner,
-    props.game.status,
-  ]);
+  }, [props.game, props.focusedIndex]);
 
   return (
     <GameContext.Provider value={state}>{props.children}</GameContext.Provider>

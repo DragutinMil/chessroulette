@@ -4,34 +4,25 @@ import { OngoingGame } from './types';
 // let prevAt: number | undefined;
 export const calculateTimeLeftAt = ({
   at,
-  lastMoveAt,
+  // lastMoveAt,
   turn,
   prevTimeLeft,
 }: {
   at: number;
-  lastMoveAt: number;
+  // lastMoveAt: number;
   turn: LongChessColor;
   prevTimeLeft: OngoingGame['timeLeft'];
 }): OngoingGame['timeLeft'] => {
-  const timeSince = new Date(at).getTime() - new Date(lastMoveAt).getTime();
+  const timeSince = at - prevTimeLeft.lastUpdatedAt;
   const nextTimeLeftForTurn = prevTimeLeft[turn] - timeSince;
 
-  const next = {
+  return {
     ...prevTimeLeft,
     [turn]: nextTimeLeftForTurn > 0 ? nextTimeLeftForTurn : 0,
+
+    // Only update this if actually it is different
+    ...(nextTimeLeftForTurn !== prevTimeLeft[turn] && {
+      lastUpdatedAt: at,
+    }),
   };
-
-  // console.log('CalculateTimeLeftAt()', `${prevAt ? at - prevAt : 'NaN'}ms`, {
-  //   at,
-  //   lastMoveAt,
-  //   turn,
-  //   prevTimeLeft,
-  //   timeSince,
-  //   nextTimeLeftForTurn,
-  //   next,
-  // });
-
-  // prevAt = at;
-
-  return next;
 };

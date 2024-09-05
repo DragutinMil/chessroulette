@@ -7,7 +7,7 @@ import {
 } from '@xmatter/util-kit';
 import { initialPlayState } from './state';
 import { GameOffer, PlayActions, PlayState } from './types';
-import { createGame } from './operations';
+import { createPendingGame } from './operations';
 import { calculateTimeLeftAt } from './util';
 
 export const reducer = (
@@ -69,14 +69,11 @@ export const reducer = (
     try {
       instance.move(localChessMoveToChessLibraryMove(action.payload));
     } catch (e) {
-      console.error(
-        'Action Error:',
-        action.type,
-        'Move Invalid:',
-        action.payload,
-        prev,
-        e
-      );
+      console.error('Action Error:', {
+        action,
+        prevGame: prev.game,
+        error: e,
+      });
       return prev;
     }
 
@@ -139,7 +136,10 @@ export const reducer = (
           // Copy this over from the "idling" state
           startedAt: prev.game.startedAt,
           // When moving from Idling to Ongoing (aka. on first black move), the timeLeft doesn't change
-          timeLeft: prev.game.timeLeft,
+          timeLeft: {
+            ...prev.game.timeLeft,
+            lastUpdatedAt: moveAt,
+          },
           winner: null,
         },
       };
@@ -147,7 +147,7 @@ export const reducer = (
 
     // console.group('--In Play Reducer');
     const nextTimeLeft = calculateTimeLeftAt({
-      lastMoveAt: prev.game.lastMoveAt,
+      // lastMoveAt: prev.game.lastMoveAt,
       at: moveAt,
       turn,
       prevTimeLeft: prev.game.timeLeft,
@@ -234,7 +234,7 @@ export const reducer = (
     const turn = toLongColor(swapColor(prev.game.lastMoveBy));
 
     const nextTimeLeft = calculateTimeLeftAt({
-      lastMoveAt: prev.game.lastMoveAt,
+      // lastMoveAt: prev.game.lastMoveAt,
       at: action.payload.at,
       turn,
       prevTimeLeft: prev.game.timeLeft,
@@ -334,7 +334,7 @@ export const reducer = (
     //   status: 'accepted',
     // };
 
-    const newGame = createGame({
+    const newGame = createPendingGame({
       timeClass: prev.game.timeClass,
       color: swapColor(prev.game.orientation),
     });

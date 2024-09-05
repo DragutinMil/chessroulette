@@ -7,6 +7,7 @@ export const PENDING_UNTIMED_GAME: PendingGame = {
   pgn: '',
   orientation: 'w',
   timeLeft: {
+    lastUpdatedAt: null,
     white: 0,
     black: 0,
   },

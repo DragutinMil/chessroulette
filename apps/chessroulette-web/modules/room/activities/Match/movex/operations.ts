@@ -5,7 +5,7 @@ import {
   isWhiteColor,
 } from '@xmatter/util-kit';
 import { MatchState } from './types';
-import { createGame } from 'apps/chessroulette-web/modules/Play/store';
+import { createPendingGame } from 'apps/chessroulette-web/modules/Play/store';
 import { MatchActivityParamsSchema } from '../activityParamsSchema';
 
 export const createMatchState = (
@@ -43,7 +43,7 @@ export const createMatchState = (
     // }),
     completedPlays: [],
     ongoingPlay: {
-      game: createGame({
+      game: createPendingGame({
         timeClass: params.timeClass || 'untimed',
         color: challengerColor,
       }),
