@@ -1,6 +1,6 @@
 {
   "white": {
-    "stateTransfomer": [
+    "stateTransformer": [
       { "white": 600000, "black": 600000, "turn": "white" },
       { "white": 595415, "black": 600000, "turn": "black" },
       { "white": 595415, "black": 597766, "turn": "white" },
@@ -162,7 +162,7 @@
         "turn": "black"
       }
     ],
-    "stateTransfomer": [
+    "stateTransformer": [
       { "white": 600000, "black": 600000, "turn": "white" },
       { "white": 595415, "black": 600000, "turn": "black" },
       { "white": 595415, "black": 597766, "turn": "white" },

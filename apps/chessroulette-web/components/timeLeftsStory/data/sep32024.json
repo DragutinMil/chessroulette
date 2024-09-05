@@ -24,7 +24,7 @@
       { "white": 509748, "black": 515134, "turn": "white" },
       { "white": 502634, "black": 515134, "turn": "black" }
     ],
-    "stateTransfomer": [
+    "stateTransformer": [
       { "white": 600000, "black": 600000, "turn": "white" },
       { "white": 585763, "black": 600000, "turn": "black" },
       { "white": 585763, "black": 594583, "turn": "white" },
@@ -74,7 +74,7 @@
       { "white": 509748, "black": 515139, "turn": "white" },
       { "white": 502631, "black": 515134, "turn": "black" }
     ],
-    "stateTransfomer": [
+    "stateTransformer": [
       { "white": 600000, "black": 600000, "turn": "white" },
       { "white": 585763, "black": 600000, "turn": "black" },
       { "white": 585763, "black": 594583, "turn": "white" },
