@@ -70,9 +70,10 @@ export const MatchStateDisplay: React.FC<Props> = ({
   useEffect(() => {
     console.log('prev times', JSON.stringify(prevTimeLefts, null, 2));
   }, [prevTimeLefts]);
-  // useEffect(() => {
-  //   console.log('[MatchDisplay] timeLeft', JSON.stringify(realState.game.timeLeft, null, 2))
-  // }, [realState.game.timeLeft])
+  
+  useEffect(() => {
+    console.log('[MatchDisplay] timeLeft', JSON.stringify(realState.game.timeLeft, null, 2))
+  }, [realState.game.timeLeft])
 
   return (
     <div className="flex flex-col gap-2">

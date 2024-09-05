@@ -26,19 +26,19 @@ export const PlayersInfo = ({
   onCheckTime,
   clientClockOffset,
 }: PlayersInfoProps) => {
-  const [calculatedGameTimeLeft, setCalculatedGameTimeLeft] = useState(
-    game.timeLeft
-    // calculateGameTimeLeftAt(now(), game)
-  );
+  // const [calculatedGameTimeLeft, setCalculatedGameTimeLeft] = useState(
+  //   game.timeLeft
+  //   // calculateGameTimeLeftAt(now(), game)
+  // );
 
-  const recalculateTimeLeft = useCallback(() => {
-    console.log(
-      'attempt to recalculate the timeLeft but I need to ask the server!'
-    );
-    // setCalculatedGameTimeLeft(
-    //   calculateGameTimeLeftAt(now() + clientClockOffset, game)
-    // );
-  }, [setCalculatedGameTimeLeft, game, clientClockOffset]);
+  // const recalculateTimeLeft = useCallback(() => {
+  //   console.log(
+  //     'attempt to recalculate the timeLeft but I need to ask the server!'
+  //   );
+  //   // setCalculatedGameTimeLeft(
+  //   //   calculateGameTimeLeftAt(now() + clientClockOffset, game)
+  //   // );
+  // }, [setCalculatedGameTimeLeft, game, clientClockOffset]);
 
   return (
     <div className="flex flex-1 gap-1 flex-col">
@@ -54,7 +54,7 @@ export const PlayersInfo = ({
           turn === players.away.color
         }
         gameTimeClass={game.timeClass}
-        timeLeft={calculatedGameTimeLeft[players.away.color]}
+        timeLeft={game.timeLeft[players.away.color]}
         // onTimerFinished={onCheckTime}
         onCheckTime={onCheckTime}
       />
@@ -69,7 +69,7 @@ export const PlayersInfo = ({
           turn === players.home.color
         }
         gameTimeClass={game.timeClass}
-        timeLeft={calculatedGameTimeLeft[players.home.color]}
+        timeLeft={game.timeLeft[players.home.color]}
         // onTimerFinished={onCheckTime}
         onCheckTime={onCheckTime}
       />
