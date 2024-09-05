@@ -9,10 +9,6 @@ import {
 import { MatchActivityActions, MatchState } from './types';
 import { initialMatchActivityState } from './state';
 import { calculateTimeLeftAt } from 'apps/chessroulette-web/modules/Play/store/util';
-import { MovexContext } from 'movex-react/lib/MovexContext';
-// import { calculateGameTimeLeftAt } from 'apps/chessroulette-web/modules/Play/lib';
-
-// const matchReducer = (prev: any) => prev;
 
 // TODO: Instead of Hard coding this, put in the matchCreation setting as part of the MatchState
 export const MATCH_TIME_TO_ABORT = 3 * 60 * 1000; // 3 mins
@@ -29,8 +25,6 @@ export const reducer: MovexReducer<ActivityState, MatchActivityActions> = (
   if (!prev.activityState) {
     return prev;
   }
-
-  // console.log('match reducer', { action });
 
   const prevMatch = prev.activityState;
 
@@ -89,22 +83,6 @@ export const reducer: MovexReducer<ActivityState, MatchActivityActions> = (
 
   const prevOngoingPlay = prevMatch.ongoingPlay;
 
-  // const nextCurrentPlay = invoke(() => {
-  //   const n = PlayStore.reducer(
-  //     prevOngoingPlay,
-  //     action as PlayStore.PlayActions
-  //   );
-
-  //   return {
-  //     ...n,
-  //     game: {
-  //       ...n.game,
-
-  //       // Don't over substract the times
-  //       // timeLeft: prevOngoingPlay.game.timeLeft,
-  //     },
-  //   };
-  // });
   const nextCurrentPlay = PlayStore.reducer(
     prevOngoingPlay,
     action as PlayStore.PlayActions
@@ -224,14 +202,6 @@ export const reducer: MovexReducer<ActivityState, MatchActivityActions> = (
 };
 
 reducer.$transformState = (state, masterContext) => {
-  // const isLocalClient = (masterContext as any)._local === true;
-
-  // console.log(
-  //   'Match $transformState called',
-  //   `Local? ${isLocalClient}`,
-  //   JSON.stringify({ masterContext }, null, 2)
-  // );
-
   if (!(state.activityType === 'match' && state.activityState)) {
     return state;
   }
@@ -247,81 +217,13 @@ reducer.$transformState = (state, masterContext) => {
 
   // This reads the now() each time it runs
   if (ongoingPlay?.game.status === 'ongoing') {
-    // const ongoingGame = ongoingPlay;
-    // console.log(
-    //   'Match $transformState going to substract the times',
-    // );
-
     const turn = toLongColor(swapColor(ongoingPlay.game.lastMoveBy));
 
-    // console.group('-- match calculate');
     const nextTimeLeft = calculateTimeLeftAt({
       at: masterContext.requestAt, // TODO: this can take in account the lag as well
-      // lastMoveAt: ongoingPlay.game.timeLeft.lastUpdatedAt,
       prevTimeLeft: ongoingPlay.game.timeLeft,
       turn,
     });
-    // console.log('-- end match calculate');
-    // console.groupEnd();
-
-    // if (nextTimeLeft[turn] <= 0) {
-
-    //   const nextWinner = match.players[ongoingPlay.game.lastMoveBy].id; // defaults to black
-
-    //   const nextOngoingPlay
-
-    //   return {
-    //     ...state,
-    //     activityState: {
-    //       ...match,
-    //       status: 'complete',
-    //       winner: nextWinner,
-    //       completedPlays: [...match.completedPlays, nextAbortedPlay],
-    //       ongoingPlay: undefined,
-    //     },
-    //   };
-    // }
-
-    // prevTimeLefts.push({ ...nextTimeLeft, turn });
-    // console.group('time lefts');
-    // console.log(JSON.stringify(prevTimeLefts));
-    // console.groupEnd();
-
-    try {
-      if (!!window) {
-        (window as any)._prevTimeLefts = [
-          ...((window as any)?._prevTimeLefts || []),
-          { ...nextTimeLeft, turn },
-        ];
-        console.log(
-          `[$stateTransfomer] _prevTimeLefts`,
-          JSON.stringify((global as any)._prevTimeLefts, null, 2)
-        );
-        console.log(
-          `[$stateTransfomer]`,
-          JSON.stringify({ masterContext }, null, 2)
-        );
-      }
-    } catch (e) {
-      try {
-        if (!!global) {
-          (global as any)._prevTimeLefts = [
-            ...((global as any)?._prevTimeLefts || []),
-            { ...nextTimeLeft, turn },
-          ];
-          console.log(
-            `[$stateTransfomer] _prevTimeLefts`,
-            JSON.stringify((global as any)._prevTimeLefts, null, 2)
-          );
-          console.log(
-            `[$stateTransfomer]`,
-            JSON.stringify({ masterContext }, null, 2)
-          );
-        }
-      } catch (e) {
-        console.error('eee', e);
-      }
-    }
 
     return {
       ...state,

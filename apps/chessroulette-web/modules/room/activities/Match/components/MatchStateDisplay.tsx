@@ -9,7 +9,6 @@ import { PlayActions } from 'apps/chessroulette-web/modules/Play/store';
 import { getMovesDetailsFromPGN } from '../utils';
 import { MATCH_TIME_TO_ABORT } from '../movex';
 import { GameAbort } from 'apps/chessroulette-web/modules/Play/components/GameAbort';
-import { ClipboardCopyButton } from 'apps/chessroulette-web/components/ClipboardCopyButton';
 
 type Props = {
   playersBySide: PlayersBySide;
@@ -48,33 +47,6 @@ export const MatchStateDisplay: React.FC<Props> = ({
     );
   }, [realState.game.status, realState.game.pgn]);
 
-  const [prevTimeLefts, setPrevTimeLefts] = useState(
-    [] as (typeof realState.game.timeLeft & { turn: ChessColor })[]
-  );
-
-  useEffect(() => {
-    // This replaces the last one if it's of the same turn
-    setPrevTimeLefts((prev) => {
-      const last = prev.slice(-1)[0];
-      const prevWithoutLast = prev.slice(0, -1);
-      const current = realState.game.timeLeft;
-
-      return [
-        ...prevWithoutLast,
-        ...(last?.turn !== realState.turn ? [last] : []),
-        { ...current, turn: realState.turn },
-      ];
-    });
-  }, [realState.game.timeLeft, realState.turn]);
-
-  useEffect(() => {
-    console.log('prev times', JSON.stringify(prevTimeLefts, null, 2));
-  }, [prevTimeLefts]);
-  
-  useEffect(() => {
-    console.log('[MatchDisplay] timeLeft', JSON.stringify(realState.game.timeLeft, null, 2))
-  }, [realState.game.timeLeft])
-
   return (
     <div className="flex flex-col gap-2">
       {type === 'bestOf' && (
@@ -91,24 +63,15 @@ export const MatchStateDisplay: React.FC<Props> = ({
           players={playersBySide}
           results={results}
           onCheckTime={() => {
-            dispatch((master) => ({
+            dispatch((masterContext) => ({
               type: 'play:checkTime',
               payload: {
-                at: master.$queries.now(),
+                at: masterContext.requestAt(),
               },
             }));
           }}
         />
       </div>
-      <ClipboardCopyButton
-        value={JSON.stringify({
-          playerId: playerId,
-          display: prevTimeLefts,
-          stateTransformer: (window as any)._prevTimeLefts,
-        })}
-        buttonComponentType="Button"
-        render={() => <div>Copy Time Data</div>}
-      />
       {players && realState.game.status === 'idling' && (
         <GameAbort
           key={realState.game.startedAt + realState.turn} // refresh it on each new game & when the turn changes
