@@ -12227,8 +12227,10 @@ movex-core-util@0.1.6-57, movex-core-util@^0.1.6-57:
     ts-results "3.3.0"
     typed-emitter "2.1.0"
 
-movex-master@0.1.6-57, "movex-master@file:.yalc/movex-master":
+movex-master@0.1.6-57:
   version "0.1.6-57"
+  resolved "https://registry.yarnpkg.com/movex-master/-/movex-master-0.1.6-57.tgz#75a8f65fb79eeb28ea2b2121ca4c5d5636de1ee0"
+  integrity sha512-eSth0v3ms5ir7nf9yDDIvcp/wqUNnMWacT8jjNV/VWb2UtjVdbEPrNPsPSZpb16ygguashY4/lbjB8PFA9y31Q==
   dependencies:
     deep-object-diff "1.1.9"
     fast-json-patch "3.1.1"
@@ -12252,8 +12254,10 @@ movex-react@^0.1.6-57:
     movex "0.1.6-57"
     movex-core-util "0.1.6-57"
 
-movex-server@0.1.6-57, "movex-server@file:.yalc/movex-server":
+movex-server@0.1.6-57:
   version "0.1.6-57"
+  resolved "https://registry.yarnpkg.com/movex-server/-/movex-server-0.1.6-57.tgz#49c80fee9c7c78de54e2879e257c16d484cb9453"
+  integrity sha512-61UaF8xiXZusA2vE+vP47omcYwHaJ96P4TZbX13R3TR/RZBx4iW4l35oeX4BuujhKSxBEWdTR54G+Ztpu1rAVw==
   dependencies:
     "@es-exec/esbuild-plugin-serve" "0.0.5"
     cors "2.8.5"
@@ -12307,19 +12311,6 @@ movex-store@0.1.6-57:
   version "0.1.6-57"
   resolved "https://registry.yarnpkg.com/movex-store/-/movex-store-0.1.6-57.tgz#0ad78b83956159e6e546bb222fe4a3f7c7dd1105"
   integrity sha512-VbjMcgmD1S4aI/9tbxJObPAS5e7vXpDwvuB0/BDbssaSZh2GxkakQZRepOHr2I+nTBpE+KjSmzEyPKJhiOx0ig==
-  dependencies:
-    fast-json-patch "3.1.1"
-    movex-core-util "0.1.6-57"
-    promise-delegate "1.0.1"
-    socket.io "4.5.4"
-    socket.io-client "4.5.4"
-    ts-async-results "0.7.9"
-    ts-pubsy "0.2.0"
-    ts-results "3.3.0"
-    typed-emitter "2.1.0"
-
-"movex-store@file:.yalc/movex-store":
-  version "0.1.6-57"
   dependencies:
     fast-json-patch "3.1.1"
     movex-core-util "0.1.6-57"
