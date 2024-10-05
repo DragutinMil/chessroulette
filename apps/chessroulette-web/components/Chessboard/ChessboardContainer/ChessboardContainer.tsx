@@ -398,11 +398,16 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
           customLightSquareStyle={customStyles.customLightSquareStyle}
           customDarkSquareStyle={customStyles.customDarkSquareStyle}
           customSquare={ChessboardSquare}
+          onPieceDragBegin={(_, b) => {
+            onSquareClick(b);
+          }}
           onPieceDrop={(from, to, pieceSan) => {
             if (circlesMap && Object.keys(circlesMap).length > 0) {
               resetCircles();
             }
             onPieceDrop(from, to, pieceSan);
+
+            setPendingMove(undefined);
 
             if (isPromotableMove({ from, to }, pieceSanToPiece(pieceSan))) {
               // Set the Promotion Move
