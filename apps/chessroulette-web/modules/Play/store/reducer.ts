@@ -1,5 +1,6 @@
 import {
   getNewChessGame,
+  isOneOf,
   localChessMoveToChessLibraryMove,
   swapColor,
   toLongColor,
@@ -328,41 +329,14 @@ export const reducer = (
     };
   }
 
-  if (action.type === 'play:denyOffer') {
-    // You can only accept take back of an ongoing game
-    if (prev.game.status !== 'ongoing') {
-      return prev;
-    }
-
-    const lastOffer: GameOffer = {
-      ...prev.game.offers[prev.game.offers.length - 1],
-      status: 'denied',
-    };
-
-    const nextOffers = [...prev.game.offers.slice(0, -1), lastOffer];
-
+  if (isOneOf(action.type, ['play:denyOffer', 'play:cancelOffer'])) {
     return {
       ...prev,
       game: {
         ...prev.game,
-        offers: nextOffers,
-      },
-    };
-  }
-
-  if (action.type === 'play:cancelOffer') {
-    const lastOffer: GameOffer = {
-      ...prev.game.offers[prev.game.offers.length - 1],
-      status: 'cancelled',
-    };
-
-    const nextOffers = [...prev.game.offers.slice(0, -1), lastOffer];
-
-    return {
-      ...prev,
-      game: {
-        ...prev.game,
-        offers: nextOffers,
+        // Remove the last offer
+        // TODO: But in fact should be able to reset them because there can only be one offer at a time
+        offers: prev.game.offers.slice(0, -1),
       },
     };
   }
