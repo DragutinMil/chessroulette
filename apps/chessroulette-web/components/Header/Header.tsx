@@ -3,6 +3,9 @@ import { Logo } from '@app/components/Logo';
 import { CustomSession } from '@app/services/Auth';
 import { OnboardingWidget } from '@app/modules/Onboarding';
 import ConnectionStatus from './ConnectionStatus';
+import Image from 'next/image';
+import GithubLogo from './assets/github-mark-white.svg';
+import DiscordLogo from './assets/discord-icon-svgrepo-com.svg';
 
 type Props = {
   themeName?: string;
@@ -24,9 +27,21 @@ export default (props: Props) => {
       <Link href="/">
         <Logo themeName={props.themeName} />
       </Link>
-      <div className="flex gap-4">
+      <div className="flex gap-6 items-center justify-end">
         {props.showConnectionStatus && <ConnectionStatus />}
-        {props.showOnboarding && <OnboardingWidget session={props.session} />}
+        <Link
+          href="https://github.com/movesthatmatter/chessroulette"
+          target="_blank"
+        >
+          <Image src={GithubLogo} alt="Github" width={24} />
+        </Link>
+        <Link
+          href="https://discord.gg/hudVbHH4m8"
+          target="_blank"
+        >
+          <Image src={DiscordLogo} alt="Discord" width={24} />
+        </Link>
+        {/* {props.showOnboarding && <OnboardingWidget session={props.session} />} */}
       </div>
     </header>
   );
