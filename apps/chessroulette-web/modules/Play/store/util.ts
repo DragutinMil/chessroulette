@@ -1,5 +1,7 @@
 import { LongChessColor } from '@xmatter/util-kit';
-import { OngoingGame } from './types';
+import { GameOverReason, OngoingGame } from './types';
+import { Chess } from 'chess.js';
+import { Err, Ok, Result } from 'ts-results';
 
 // let prevAt: number | undefined;
 export const calculateTimeLeftAt = ({
@@ -25,4 +27,35 @@ export const calculateTimeLeftAt = ({
       lastUpdatedAt: at,
     }),
   };
+};
+
+export const checkIsGameOverWithReason = (
+  instance: Chess,
+  hasTimedOut: boolean
+): Result<GameOverReason, void> => {
+  if (hasTimedOut) {
+    return new Ok('timeout');
+  }
+
+  if (instance.isCheckmate()) {
+    return new Ok('checkmate');
+  }
+
+  if (instance.isDraw()) {
+    return new Ok('draw');
+  }
+
+  if (instance.isInsufficientMaterial()) {
+    return new Ok('insufficientMaterial');
+  }
+
+  if (instance.isStalemate()) {
+    return new Ok('stalemate');
+  }
+
+  if (instance.isInsufficientMaterial()) {
+    return new Ok('insufficientMaterial');
+  }
+
+  return Err.EMPTY;
 };

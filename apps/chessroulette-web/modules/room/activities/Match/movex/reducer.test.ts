@@ -2,6 +2,8 @@ import { createMatchState } from './operations';
 import { reducer as matchReducer } from './reducer';
 import { MatchActivityActions, MatchActivityState, MatchState } from './types';
 import {
+  AbortedPlayState,
+  CompletedPlayState,
   Game,
   PlayActions,
   PlayState,
@@ -53,7 +55,7 @@ describe('Match Status: Pending > Ongoing', () => {
       status: 'pending',
       type: 'bestOf',
       rounds: 3,
-      completedPlays: [],
+      endedPlays: [],
       players: {
         white: {
           id: 'gigi',
@@ -97,7 +99,7 @@ describe('Match Status: Pending > Ongoing', () => {
       status: 'ongoing',
       type: 'bestOf',
       rounds: 3,
-      completedPlays: [],
+      endedPlays: [],
       players: {
         white: {
           id: 'gigi',
@@ -160,7 +162,7 @@ describe('Match Status: Ongoing > Completed', () => {
       status: 'pending',
       type: 'bestOf',
       rounds: 1,
-      completedPlays: [],
+      endedPlays: [],
       players: {
         white: {
           id: 'john',
@@ -216,7 +218,7 @@ describe('Match Status: Ongoing > Completed', () => {
       status: 'complete',
       type: 'bestOf',
       rounds: 1,
-      completedPlays: [
+      endedPlays: [
         {
           ...wrapIntoPlay({
             ...createOngoingGame({
@@ -229,8 +231,9 @@ describe('Match Status: Ongoing > Completed', () => {
             pgn: '1. g4 e6 2. f3 Qh4#',
             lastMoveBy: 'black',
             winner: 'black',
+            gameOverReason: 'checkmate',
           }),
-        },
+        } as CompletedPlayState,
       ],
       players: {
         white: {
@@ -285,7 +288,7 @@ describe('Start New Match => ', () => {
       status: 'pending',
       type: 'bestOf',
       rounds: 3,
-      completedPlays: [],
+      endedPlays: [],
       players: {
         white: {
           id: 'john',
@@ -323,26 +326,24 @@ describe('Start New Match => ', () => {
       payload: { from: 'e7', to: 'e6', moveAt: 123 },
     });
 
-    const resignAction: PlayActions = {
+    const update = matchReducer(actual2, {
       type: 'play:resignGame',
       payload: {
         color: 'white',
       },
-    };
+    });
 
-    const update = matchReducer(actual2, resignAction);
+    // const startNewMatchs: MatchActivityActions = ;
 
-    const startNewMatch: MatchActivityActions = {
+    const actualNewMatch = matchReducer(update, {
       type: 'match:startNewGame',
-    };
-
-    const actualNewMatch = matchReducer(update, startNewMatch);
+    });
 
     const expectedMatchUpdate: MatchState = {
       status: 'ongoing',
       type: 'bestOf',
       rounds: 3,
-      completedPlays: [
+      endedPlays: [
         {
           ...wrapIntoPlay({
             ...createOngoingGame({
@@ -355,8 +356,9 @@ describe('Start New Match => ', () => {
             pgn: '1. e4 e6',
             lastMoveBy: 'black',
             winner: 'black',
+            gameOverReason: 'resignation',
           }),
-        },
+        } as CompletedPlayState,
       ],
       winner: null,
       players: {
@@ -416,7 +418,7 @@ describe('End Match when rounds number reached', () => {
       status: 'pending',
       type: 'bestOf',
       rounds: 1,
-      completedPlays: [],
+      endedPlays: [],
       players: {
         white: {
           id: 'john',
@@ -454,20 +456,18 @@ describe('End Match when rounds number reached', () => {
       payload: { from: 'e7', to: 'e6', moveAt: 123 },
     });
 
-    const actionResign: PlayActions = {
+    const update = matchReducer(actual2, {
       type: 'play:resignGame',
       payload: {
         color: 'black',
       },
-    };
-
-    const update = matchReducer(actual2, actionResign);
+    });
 
     const expectedMatchUpdate: MatchState = {
       status: 'complete',
       type: 'bestOf',
       rounds: 1,
-      completedPlays: [
+      endedPlays: [
         {
           ...wrapIntoPlay({
             ...createOngoingGame({
@@ -480,8 +480,9 @@ describe('End Match when rounds number reached', () => {
             pgn: '1. e4 e6',
             lastMoveBy: 'black',
             winner: 'white',
+            gameOverReason: 'resignation',
           }),
-        },
+        } as CompletedPlayState,
       ],
       players: {
         white: {
@@ -517,7 +518,7 @@ describe('End Match when rounds number reached', () => {
       status: 'pending',
       type: 'bestOf',
       rounds: 1,
-      completedPlays: [],
+      endedPlays: [],
       players: {
         white: {
           id: 'john',
@@ -575,7 +576,7 @@ describe('End Match when rounds number reached', () => {
       status: 'ongoing',
       type: 'bestOf',
       rounds: 1,
-      completedPlays: [
+      endedPlays: [
         {
           ...wrapIntoPlay({
             ...createOngoingGame({
@@ -589,8 +590,9 @@ describe('End Match when rounds number reached', () => {
             pgn: '1. e4 e6',
             lastMoveBy: 'black',
             winner: '1/2',
+            gameOverReason: 'acceptedDraw',
           }),
-        },
+        } as CompletedPlayState,
       ],
       players: {
         white: {
@@ -645,7 +647,7 @@ describe('timer only starts after black moves', () => {
       // TODO: This should still be "pending" with the new Ideas
       status: 'pending',
       type: 'openEnded',
-      completedPlays: [],
+      endedPlays: [],
       players: {
         white: {
           id: 'john',
@@ -692,7 +694,7 @@ describe('timer only starts after black moves', () => {
     const expectedMatchUpdate: MatchState = {
       status: 'ongoing',
       type: 'openEnded',
-      completedPlays: [],
+      endedPlays: [],
       players: {
         white: {
           id: 'john',
@@ -777,7 +779,7 @@ describe('abort game -> match', () => {
       status: 'aborted',
       type: 'bestOf',
       rounds: 3,
-      completedPlays: [
+      endedPlays: [
         {
           ...wrapIntoPlay({
             ...createPendingGame({
@@ -792,7 +794,7 @@ describe('abort game -> match', () => {
             winner: null,
             startedAt: 123,
           }),
-        },
+        } as AbortedPlayState,
       ],
       players: {
         white: {
@@ -818,10 +820,12 @@ describe('abort game -> match', () => {
       type: 'play:move',
       payload: { from: 'e2', to: 'e4', moveAt: 123 },
     });
+
     const matchUpdateBlackMove = matchReducer(matchUpdateWhiteMove, {
       type: 'play:move',
       payload: { from: 'e7', to: 'e6', moveAt: 123 },
     });
+
     const matchUpdateResign = matchReducer(matchUpdateBlackMove, {
       type: 'play:resignGame',
       payload: {
@@ -837,7 +841,7 @@ describe('abort game -> match', () => {
       status: 'ongoing',
       type: 'bestOf',
       rounds: 3,
-      completedPlays: [
+      endedPlays: [
         {
           ...wrapIntoPlay({
             ...createOngoingGame({
@@ -851,8 +855,9 @@ describe('abort game -> match', () => {
             pgn: '1. e4 e6',
             lastMoveBy: 'black',
             winner: 'white',
+            gameOverReason: 'resignation',
           }),
-        },
+        } as CompletedPlayState,
       ],
       players: {
         black: {
@@ -891,59 +896,58 @@ describe('abort game -> match', () => {
       },
     });
 
-    const expectedMatch: MatchState = {
-      status: 'complete',
-      type: 'bestOf',
-      rounds: 3,
-      completedPlays: [
-        {
-          ...wrapIntoPlay({
-            ...createOngoingGame({
-              timeClass: 'blitz',
-              color: 'w',
-              startedAt: 123,
-              lastMoveAt: 123,
-            }),
-            offers: [],
-            status: 'complete',
-            pgn: '1. e4 e6',
-            lastMoveBy: 'black',
-            winner: 'white',
-          }),
-        },
-        {
-          ...wrapIntoPlay({
-            ...createPendingGame({
-              timeClass: 'blitz',
-              color: 'black',
-            }),
-            offers: [],
-            status: 'aborted',
-            pgn: '',
-            lastMoveAt: null,
-            lastMoveBy: 'black',
-            winner: null,
-            startedAt: 123,
-          }),
-        },
-      ],
-      players: {
-        black: {
-          id: 'john',
-          score: 1,
-        },
-        white: {
-          id: 'maria',
-          score: 0,
-        },
-      },
-      winner: 'john',
-      ongoingPlay: null,
-    };
-
     const expected: MatchActivityState = {
       activityType: 'match',
-      activityState: expectedMatch,
+      activityState: {
+        status: 'complete',
+        type: 'bestOf',
+        rounds: 3,
+        endedPlays: [
+          {
+            ...wrapIntoPlay({
+              ...createOngoingGame({
+                timeClass: 'blitz',
+                color: 'w',
+                startedAt: 123,
+                lastMoveAt: 123,
+              }),
+              offers: [],
+              status: 'complete',
+              pgn: '1. e4 e6',
+              lastMoveBy: 'black',
+              winner: 'white',
+              gameOverReason: 'resignation',
+            }),
+          } as CompletedPlayState,
+          {
+            ...wrapIntoPlay({
+              ...createPendingGame({
+                timeClass: 'blitz',
+                color: 'black',
+              }),
+              offers: [],
+              status: 'aborted',
+              pgn: '',
+              lastMoveAt: null,
+              lastMoveBy: 'black',
+              winner: null,
+              startedAt: 123,
+            }),
+          } as AbortedPlayState,
+        ],
+        players: {
+          black: {
+            id: 'john',
+            score: 1,
+          },
+          white: {
+            id: 'maria',
+            score: 0,
+          },
+        },
+        winner: 'john',
+        ongoingPlay: null,
+      },
     };
 
     expect(actual).toEqual(expected);
@@ -969,48 +973,48 @@ describe('abort game -> match', () => {
       type: 'match:startNewGame',
     });
 
-    const expectedNewMatchState: MatchState = {
-      status: 'ongoing',
-      type: 'bestOf',
-      rounds: 3,
-      completedPlays: [
-        {
-          ...wrapIntoPlay({
-            ...createOngoingGame({
-              timeClass: 'blitz',
-              color: 'w',
-              startedAt: 123,
-              lastMoveAt: 123,
-            }),
-            offers: [],
-            status: 'complete',
-            pgn: '1. e4 e6',
-            lastMoveBy: 'black',
-            winner: 'white',
-          }),
-        },
-      ],
-      players: {
-        black: {
-          id: 'john',
-          score: 1,
-        },
-        white: {
-          id: 'maria',
-          score: 0,
-        },
-      },
-      winner: null,
-      ongoingPlay: wrapIntoPlay({
-        ...createPendingGame({
-          timeClass: 'blitz',
-          color: 'black',
-        }),
-      }),
-    };
     const expectedNewMatch: MatchActivityState = {
       activityType: 'match',
-      activityState: expectedNewMatchState,
+      activityState: {
+        status: 'ongoing',
+        type: 'bestOf',
+        rounds: 3,
+        endedPlays: [
+          {
+            ...wrapIntoPlay({
+              ...createOngoingGame({
+                timeClass: 'blitz',
+                color: 'w',
+                startedAt: 123,
+                lastMoveAt: 123,
+              }),
+              offers: [],
+              status: 'complete',
+              pgn: '1. e4 e6',
+              lastMoveBy: 'black',
+              winner: 'white',
+              gameOverReason: 'resignation',
+            }),
+          } as CompletedPlayState,
+        ],
+        players: {
+          black: {
+            id: 'john',
+            score: 1,
+          },
+          white: {
+            id: 'maria',
+            score: 0,
+          },
+        },
+        winner: null,
+        ongoingPlay: wrapIntoPlay({
+          ...createPendingGame({
+            timeClass: 'blitz',
+            color: 'black',
+          }),
+        }),
+      },
     };
 
     expect(newMatch).toEqual(expectedNewMatch);
@@ -1036,7 +1040,7 @@ describe('abort game -> match', () => {
       status: 'complete',
       type: 'bestOf',
       rounds: 3,
-      completedPlays: [
+      endedPlays: [
         {
           ...wrapIntoPlay({
             ...createOngoingGame({
@@ -1050,8 +1054,9 @@ describe('abort game -> match', () => {
             pgn: '1. e4 e6',
             lastMoveBy: 'black',
             winner: 'white',
+            gameOverReason: 'resignation',
           }),
-        },
+        } as CompletedPlayState,
         {
           ...wrapIntoPlay({
             ...createPendingGame({
@@ -1066,7 +1071,7 @@ describe('abort game -> match', () => {
             winner: null,
             startedAt: 123,
           }),
-        },
+        } as AbortedPlayState,
       ],
       players: {
         black: {

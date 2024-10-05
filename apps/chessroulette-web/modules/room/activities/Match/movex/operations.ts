@@ -41,7 +41,7 @@ export const createMatchState = (
     // ...(params.timeClass && {
     //   // timeClass: params.timeClass,
     // }),
-    completedPlays: [],
+    endedPlays: [],
     ongoingPlay: {
       game: createPendingGame({
         timeClass: params.timeClass || 'untimed',

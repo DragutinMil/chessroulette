@@ -14,6 +14,7 @@ export const PENDING_UNTIMED_GAME: PendingGame = {
   lastMoveBy: 'black',
   lastMoveAt: null,
   timeClass: 'untimed',
+  gameOverReason: null,
 
   // TODO: This doesn't need to be an array and it doesn't need to be always defined
   offers: [],

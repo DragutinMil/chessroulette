@@ -10,6 +10,17 @@ import { User } from 'apps/chessroulette-web/modules/user/type';
 
 type GameStateWinner = 'white' | 'black' | '1/2';
 
+export type GameOverReason =
+  | 'timeout'
+  | 'checkmate'
+  | 'draw'
+  | 'stalemate'
+  | 'insufficientMaterial'
+  | 'threefoldRepetition'
+  | 'resignation'
+  | 'acceptedDraw'
+  | 'aborted';
+
 export type GameOffer = {
   // TODO: this should not be byPlayer but byColor, since inside the Game there is no notion of player but just of color
   byPlayer: User['id'];
@@ -32,7 +43,7 @@ export type PendingGame = {
 
   // Since lastActivity
   timeLeft: {
-    lastUpdatedAt: null,
+    lastUpdatedAt: null;
     white: number;
     black: number;
   };
@@ -41,6 +52,8 @@ export type PendingGame = {
   lastMoveAt: null;
   winner: null;
   offers: GameOffer[]; // TODO: Make this undefined
+
+  gameOverReason: null;
 
   // TODO: Is this needed here???
   // @deprecate as each player can chose individualy
@@ -71,6 +84,8 @@ export type IdlingGame = {
   winner: null;
   offers: GameOffer[]; // TODO: Make this undefined
 
+  gameOverReason: null;
+
   // TODO: Is this needed here???
   // @deprecate as each player can chose individualy
   orientation: ChessColor;
@@ -99,6 +114,8 @@ export type OngoingGame = {
   winner: null;
   offers: GameOffer[];
 
+  gameOverReason: null;
+
   // TODO: Is this needed here???
   // @deprecate as each player can chose individualy
   orientation: ChessColor;
@@ -125,6 +142,8 @@ export type CompletedGame = {
   lastMoveAt: number; // TODO: Change this to ISODateTime
   winner: GameStateWinner;
   offers: GameOffer[];
+
+  gameOverReason: GameOverReason;
 
   // TODO: Is this needed here???
   // @deprecate as each player can chose individualy
@@ -158,6 +177,8 @@ export type AbortedGame = {
   winner: null;
   offers: GameOffer[];
 
+  gameOverReason: null;
+
   // TODO: Is this needed here???
   // @deprecate as each player can chose individualy
   orientation: ChessColor;
@@ -190,6 +211,10 @@ export type Game =
 export type PlayState = {
   game: Game;
 };
+
+export type CompletedPlayState = { game: CompletedGame };
+export type AbortedPlayState = { game: AbortedGame };
+export type EndedPlayState = CompletedPlayState | AbortedPlayState;
 
 export type PlayActions =
   | Action<'play:startWhitePlayerIdlingTimer', { at: number }>

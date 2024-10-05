@@ -43,10 +43,10 @@ export const MatchActivityView = ({
   const game = useMemo(
     () =>
       ongoingPlay?.game ||
-      matchState.completedPlays.slice(-1)[0].game ||
+      matchState.endedPlays.slice(-1)[0].game ||
       // Default to Initial Play State if no ongoing or completed
       initialPlayState.game,
-    [ongoingPlay, matchState.completedPlays]
+    [ongoingPlay, matchState.endedPlays]
   );
 
   const { joinRoomLink } = useRoomLinkId('match');

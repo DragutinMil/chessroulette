@@ -85,7 +85,7 @@ export const GameStateDialog: React.FC<GameStateDialogProps> = ({
                 title="Rematch ?"
                 content={
                   <div className="flex justify-center content-center">
-                    Waiting for the other player to respond.
+                    Waiting for your opponent to respond.
                   </div>
                 }
                 buttons={[
@@ -103,10 +103,10 @@ export const GameStateDialog: React.FC<GameStateDialogProps> = ({
           }
           return (
             <Dialog
-              title="Rematch ?"
+              title="Rematch Offer"
               content={
                 <div className="flex justify-center content-center">
-                  You have been invited for a rematch.
+                  You have been invited for a rematch!
                 </div>
               }
               buttons={[
@@ -160,10 +160,10 @@ export const GameStateDialog: React.FC<GameStateDialogProps> = ({
         if (lastOffer.byPlayer === playerId) {
           return (
             <Dialog
-              title="Draw ?"
+              title="Draw Offer"
               content={
                 <div className="flex justify-center content-center">
-                  Waiting for the other player to respond.
+                  Waiting for your opponent to respond.
                 </div>
               }
               buttons={[
@@ -182,10 +182,10 @@ export const GameStateDialog: React.FC<GameStateDialogProps> = ({
 
         return (
           <Dialog
-            title="Draw ?"
+            title="Draw Offer"
             content={
               <div className="flex justify-center content-center">
-                You've been send an offer for a draw ?
+                Your opponent offers you a draw!
               </div>
             }
             buttons={[
@@ -215,10 +215,10 @@ export const GameStateDialog: React.FC<GameStateDialogProps> = ({
           if (lastOffer.byPlayer === playerId) {
             return (
               <Dialog
-                title="Takeback ?"
+                title="Takeback Offer"
                 content={
                   <div className="flex justify-center content-center">
-                    Waiting for the other player to respond.
+                    Waiting for your opponent to respond.
                   </div>
                 }
                 buttons={[
@@ -237,10 +237,10 @@ export const GameStateDialog: React.FC<GameStateDialogProps> = ({
 
           return (
             <Dialog
-              title="Takeback ?"
+              title="Takeback Offer"
               content={
                 <div className="flex justify-center content-center">
-                  You have asked to approve a takeback.
+                  Your opponent asks you for a takeback!
                 </div>
               }
               buttons={[

@@ -5,6 +5,8 @@ import {
   PlayStore,
   GameTimeClass,
   Results,
+  AbortedPlayState,
+  CompletedPlayState,
 } from 'apps/chessroulette-web/modules/Play';
 import { MatchActivityActions, MatchState } from './types';
 import { initialMatchActivityState } from './state';
@@ -37,7 +39,7 @@ export const reducer: MovexReducer<ActivityState, MatchActivityActions> = (
 
     if (
       (prevPlay && prevPlay.game.status !== 'complete') ||
-      (!prevPlay && prevMatch.completedPlays.length === 0)
+      (!prevPlay && prevMatch.endedPlays.length === 0)
     ) {
       return prev;
     }
@@ -56,7 +58,7 @@ export const reducer: MovexReducer<ActivityState, MatchActivityActions> = (
             timeClass: prevPlay.game.timeClass,
           };
         }
-        const lastGamePlayed = prevMatch.completedPlays.slice(-1)[0].game;
+        const lastGamePlayed = prevMatch.endedPlays.slice(-1)[0].game;
         return {
           color: swapColor(lastGamePlayed.orientation),
           timeClass: lastGamePlayed.timeClass,
@@ -89,9 +91,12 @@ export const reducer: MovexReducer<ActivityState, MatchActivityActions> = (
   );
 
   if (nextCurrentPlay.game.status === 'aborted') {
+    // TODO: See why this doesn't simply infer it as completed and I have to typecast it?
+    const abortedCurrentPlay = nextCurrentPlay as AbortedPlayState;
+
     //First game abort results in aborted match. Afterwards results in completed match + winner
     const nextMatchState = invoke((): Pick<MatchState, 'winner' | 'status'> => {
-      return prevMatch.completedPlays.length === 0
+      return prevMatch.endedPlays.length === 0
         ? {
             status: 'aborted',
             winner: null,
@@ -108,7 +113,7 @@ export const reducer: MovexReducer<ActivityState, MatchActivityActions> = (
       ...prev,
       activityState: {
         ...prev.activityState,
-        completedPlays: [...prevMatch.completedPlays, nextCurrentPlay],
+        endedPlays: [...prevMatch.endedPlays, abortedCurrentPlay],
         ongoingPlay: null,
         ...nextMatchState,
       },
@@ -120,7 +125,7 @@ export const reducer: MovexReducer<ActivityState, MatchActivityActions> = (
       if (nextCurrentPlay.game.status === 'ongoing') {
         return 'ongoing';
       }
-      return prevMatch.completedPlays.length > 0 ? 'ongoing' : 'pending';
+      return prevMatch.endedPlays.length > 0 ? 'ongoing' : 'pending';
     });
 
     return {
@@ -164,26 +169,17 @@ export const reducer: MovexReducer<ActivityState, MatchActivityActions> = (
       : null;
   });
 
-  const nextMatchStatus: MatchState['status'] = invoke(
-    (): MatchState['status'] => {
-      // TODO: Is this actually ok?
-      // if (prevMatch.type === 'openEnded') {
-      //   return prevMatch.status;
-      // }
-
-      if (winner) {
-        return 'complete';
-      }
-
-      return 'ongoing';
-    }
-  );
+  const nextMatchStatus = winner ? 'complete' : 'ongoing';
 
   return {
     ...prev,
     activityState: {
       ...prev.activityState,
-      completedPlays: [...prevMatch.completedPlays, nextCurrentPlay],
+      // TODO: See why this doesn't simply infer it as completed and I have to typecast it?
+      endedPlays: [
+        ...prevMatch.endedPlays,
+        nextCurrentPlay as CompletedPlayState,
+      ],
       ongoingPlay: null,
       status: nextMatchStatus,
       winner,
@@ -261,7 +257,7 @@ reducer.$transformState = (state, masterContext) => {
           ...match,
           status: 'aborted',
           winner: null,
-          completedPlays: [nextAbortedPlay],
+          endedPlays: [nextAbortedPlay],
           ongoingPlay: null,
         },
       };
@@ -278,7 +274,7 @@ reducer.$transformState = (state, masterContext) => {
           ...match,
           status: 'complete',
           winner: nextWinner,
-          completedPlays: [...match.completedPlays, nextAbortedPlay],
+          endedPlays: [...match.endedPlays, nextAbortedPlay],
           ongoingPlay: null,
         },
       };

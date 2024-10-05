@@ -50,7 +50,7 @@ describe('Best Of', () => {
         },
       },
       winner: null,
-      completedPlays: [],
+      endedPlays: [],
       ongoingPlay: expectedPlay,
     };
 
@@ -95,7 +95,7 @@ describe('Open Ended', () => {
         },
       },
       winner: null,
-      completedPlays: [],
+      endedPlays: [],
       ongoingPlay: expectedPlay,
     };
 
