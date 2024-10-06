@@ -144,7 +144,7 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
             </div>
             {matchType === 'bestOf' && (
               <BetweenGamesAborter
-                totalTimeAllowedMs={1000 * 1000}
+                totalTimeAllowedMs={10 * 1000}
                 startedAt={now()}
                 onFinished={() => {
                   dispatch({ type: 'match:startNewGame' });

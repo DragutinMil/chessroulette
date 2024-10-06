@@ -91,7 +91,7 @@ export const MatchActivityView = ({
   return (
     <GameProvider
       game={game}
-      // players={matchState.players}
+      // players={matchState.players}p
       playerId={userId}
     >
       <MatchStateProvider {...matchState} ongoingPlay={ongoingPlay}>
@@ -99,6 +99,8 @@ export const MatchActivityView = ({
           rightSideSize={RIGHT_SIDE_SIZE_PX}
           mainComponent={({ boardSize }) => (
             <PlayContainer
+              // Add this iin order to reset the PlayContainer on each new game
+              key={playersBySide.away.color}
               boardSizePx={boardSize}
               // joinRoomLink={joinRoomLink}
               isBoardFlipped={isBoardFlipped}

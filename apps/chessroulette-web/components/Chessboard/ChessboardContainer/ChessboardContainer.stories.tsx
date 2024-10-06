@@ -1,8 +1,6 @@
-import type { Meta, StoryObj, StoryFn } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react';
 import {
   ChessFENBoard,
-  FenBoardPromotionalPieceSymbol,
-  pieceSanToFenBoardPieceSymbol,
 } from '@xmatter/util-kit';
 import { ChessboardContainer } from './ChessboardContainer';
 import { themes } from 'apps/chessroulette-web/hooks/useTheme/defaultTheme';

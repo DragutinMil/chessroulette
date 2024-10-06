@@ -1,3 +1,4 @@
+import React, { useCallback } from 'react';
 import {
   ChessFEN,
   PieceSan,
@@ -6,22 +7,23 @@ import {
   toLongColor,
 } from '@xmatter/util-kit';
 import { Square } from 'chess.js';
-import React, { useCallback, useState } from 'react';
 import { useArrowAndCircleColor } from '../hooks/useArrowAndCircleColor';
 import { ArrowsMap, CircleDrawTuple, CirclesMap } from '../types';
 import { noop } from 'movex-core-util';
 import { ChessboardSquare } from './ChessboardSquare';
 import { BoardTheme } from 'apps/chessroulette-web/hooks/useTheme/defaultTheme';
 import { useCustomArrows } from './hooks/useArrows';
-import { ReactChessBoardProps } from './types';
 import { useCustomStyles } from './hooks/useCustomStyles';
-import { ChessboardDisplay } from './ChessboardDisplay';
+import { ChessboardDisplay, ChessboardDisplayProps } from './ChessboardDisplay';
 import { useMoves } from './hooks/useMoves';
 
-// TODO: Need to Pick/Omit the DisplayProps instead of the ChessboardProps directly
 export type ChessboardContainerProps = Omit<
-  ReactChessBoardProps,
-  'position' | 'onArrowsChange' | 'boardOrientation' | 'onPieceDrop'
+  ChessboardDisplayProps,
+  | 'onArrowsChange'
+  | 'boardOrientation'
+  | 'onPieceDrop'
+  | 'onCancelPromoMove'
+  | 'onSubmitPromoMove'
 > & {
   fen: ChessFEN;
   sizePx: number;
@@ -68,6 +70,8 @@ export type ChessboardContainerProps = Omit<
       }
   );
 
+const BOARD_ANIMATION_DELAY = 200;
+
 export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
   fen,
   lastMove,
@@ -105,7 +109,6 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
   );
 
   const resetArrowsAndCircles = () => {
-    console.log('resetArrowsAndCircles');
     // Reset the Arrows and Circles if present
     if (Object.keys(circlesMap || {}).length > 0) {
       onClearCircles();
@@ -118,29 +121,30 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
   };
 
   // Moves
-  const { ...moves } = useMoves({
-    fen,
-    turn,
+  const { preMove, promoMove, pendingMove, ...moveActions } = useMoves({
+    playingColor: boardOrientation,
     isMyTurn,
-    onMove,
+    premoveAnimationDelay: BOARD_ANIMATION_DELAY + 1,
     onValidateMove,
+    onMove,
+    onPreMove: onMove,
 
     // Event to reset the circles and arrows when any square is clicked or dragged
     onSquareClickOrDrag: resetArrowsAndCircles,
   });
 
   // Styles
-  const [hoveredSquare, setHoveredSquare] = useState<Square>();
+  // const [hoveredSquare, setHoveredSquare] = useState<Square>();
 
   const customStyles = useCustomStyles({
     boardTheme,
     fen,
     lastMove,
-    pendingMove: moves.pendingMove,
-    // preMove, // TODO: Add back
+    pendingMove,
+    preMove,
     circlesMap,
     isMyTurn,
-    hoveredSquare,
+    // hoveredSquare,
     customSquareStyles,
     ...props,
   });
@@ -156,12 +160,12 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
       boardTheme={boardTheme}
       boardOrientation={toLongColor(boardOrientation)}
       // Moves
-      onPieceDragBegin={moves.onPieceDrag}
-      onSquareClick={moves.onSquareClick}
-      onPieceDrop={moves.onPieceDrop}
+      onPieceDragBegin={moveActions.onPieceDrag}
+      onSquareClick={moveActions.onSquareClick}
+      onPieceDrop={moveActions.onPieceDrop}
       // Promo Move
-      promoMove={moves.promoMove}
-      onCancelPromoMove={moves.onClearPromoMove}
+      promoMove={promoMove}
+      onCancelPromoMove={moveActions.onClearPromoMove}
       onSubmitPromoMove={onMove}
       // Overlay & Right Components
       rightSideClassName={rightSideClassName}
@@ -174,7 +178,7 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
       customDarkSquareStyle={customStyles.customDarkSquareStyle}
       customSquareStyles={customStyles.customSquareStyles}
       customSquare={ChessboardSquare}
-      onMouseOverSquare={setHoveredSquare}
+      // onMouseOverSquare={setHoveredSquare}
       // Arrows
       customArrowColor={arrowAndCircleColor}
       customArrows={customArrows.arrowsToRender}
@@ -182,6 +186,7 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
       // circles
       onSquareRightClick={drawCircle}
       customPieces={boardTheme.customPieces}
+      animationDuration={BOARD_ANIMATION_DELAY}
       {...props}
     />
   );

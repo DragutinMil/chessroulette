@@ -8,7 +8,7 @@ import { BoardTheme } from 'apps/chessroulette-web/hooks/useTheme/defaultTheme';
 import { Chessboard as ReactChessboard } from 'react-chessboard';
 import { PromotionDialogLayer } from './PromotionDialogLayer';
 
-export type ChessboardDisplayProps = ReactChessBoardProps & {
+export type ChessboardDisplayProps = Omit<ReactChessBoardProps, 'fen'> & {
   fen: ChessFEN;
   sizePx: number;
   boardTheme: BoardTheme;
@@ -17,11 +17,7 @@ export type ChessboardDisplayProps = ReactChessBoardProps & {
   promoMove?: ShortChessMove;
   onCancelPromoMove: () => void;
   onSubmitPromoMove: (move: ShortChessMove) => void;
-  // arrowsMap?: ArrowsMap;
-  // circlesMap?: CirclesMap;
-  // arrowColor?: string;
-  // lastMove?: ShortChessMove;
-  // boardOrientation?: LongChessColor;
+
   containerClassName?: string;
   overlayComponent?: React.ReactNode;
 } & (
@@ -90,18 +86,12 @@ export const ChessboardDisplay = ({
           promotionSquare={promoMove.to}
           boardOrientation={boardOrientation}
           renderPromotablePiece={boardTheme.renderPiece}
-          onCancel={() => {
-            // setPromoMove(undefined);
-            onCancelPromoMove();
-          }}
+          onCancel={onCancelPromoMove}
           onPromotePiece={(p) => {
             onSubmitPromoMove({
               ...promoMove,
               promoteTo: promotionalPieceSanToFenBoardPromotionalPieceSymbol(p),
             });
-
-            // onClearPromoMove?.();
-            // setPromoMove(undefined);
           }}
         />
       )}

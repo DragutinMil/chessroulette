@@ -1,81 +1,82 @@
-import { useEffect, useRef, useState } from 'react';
-import {
+import { useEffect, useState } from 'react';
+import type {
   ChessBoardPendingMove,
   ChessboardPreMove,
   ChessboardShortMoveWithPiece,
 } from '../types';
 import {
-  ChessFEN,
-  ChessFENBoard,
   PieceSan,
   ShortChessColor,
   ShortChessMove,
   isPromotableMove,
   pieceSanToPiece,
 } from '@xmatter/util-kit';
-import useInstance from '@use-it/instance';
 import { Square } from 'chess.js';
-import { invoke } from 'movex-core-util';
+import { Err, Ok, Result } from 'ts-results';
 
 type Props = {
-  fen: ChessFEN;
-  turn?: ShortChessColor;
   isMyTurn: boolean;
-  strict?: boolean;
-
   // This is the color than can move the pieces
-  // playingColor: ShortChessColor;
+  playingColor: ShortChessColor;
+
+  // This is needed in order for the board animation to not get choppy
+  premoveAnimationDelay?: number;
 
   onMove: (m: ShortChessMove) => void;
+  onPreMove?: (m: ShortChessMove) => void;
   onValidateMove: (m: ShortChessMove) => boolean;
 
   onSquareClickOrDrag?: () => void;
 };
 
 export const useMoves = ({
-  fen,
-  turn,
-  // isMyTurn,
+  isMyTurn,
+  playingColor,
+  premoveAnimationDelay = 151,
   onMove,
+  onPreMove,
   onValidateMove,
   onSquareClickOrDrag,
 }: Props) => {
   const [pendingMove, setPendingMove] = useState<ChessBoardPendingMove>();
   const [promoMove, setPromoMove] = useState<ShortChessMove>();
 
+  // pre move
+  const allowsPremoves = !!onPreMove;
   const [preMove, setPreMove] = useState<ChessboardPreMove>();
-  const prevTurn = useRef(turn);
-  // Come back to this one after the move and promo move are done
-  // useEffect(() => {
-  //   // if (!onPremove) {
-  //   //   return;
-  //   // }
 
-  //   // Only call this when the turn actually changes
-  //   if (prevTurn.current === turn) {
-  //     return;
-  //   }
-
-  //   if (preMove && preMove.to) {
-  //     const { to } = preMove;
-
-  //     setTimeout(() => {
-  //       setPreMove(undefined);
-  //       onPremove({ ...preMove, to });
-  //     }, 1 * 250);
-  //   }
-
-  //   prevTurn.current = turn;
-  // }, [turn, preMove, onPremove]);
-
-  // TODO: This is only a HACK until the library implements the square/piece in the onClick Handlers
-  const fenBoardInstance = useInstance<ChessFENBoard>(new ChessFENBoard(fen));
+  // Promo Move calling
   useEffect(() => {
-    fenBoardInstance.loadFen(fen);
+    // If the premove is not active cannot move
+    if (!onPreMove) {
+      return;
+    }
 
-    // Clear the pending Move if the Fen has changed (by opponent)
-    setPendingMove(undefined);
-  }, [fen]);
+    // If it's not my turn cannot move
+    if (!isMyTurn) {
+      return;
+    }
+
+    if (preMove && preMove.to) {
+      const { to } = preMove;
+
+      setTimeout(() => {
+        setPreMove(undefined);
+        onPreMove({ ...preMove, to });
+        // For some reason it it's not waiting 300ms, the animatino is choppy
+      }, premoveAnimationDelay);
+    }
+  }, [isMyTurn, preMove, allowsPremoves, onPreMove]);
+
+  const onMoveIfValid = (m: ShortChessMove): Result<void, void> => {
+    if (onValidateMove(m)) {
+      onMove(m);
+
+      return Ok.EMPTY;
+    }
+
+    return Err.EMPTY;
+  };
 
   const isValidPromoMove = (m: ChessboardShortMoveWithPiece) =>
     isPromotableMove(m, m.piece) &&
@@ -91,53 +92,39 @@ export const useMoves = ({
     square: Square;
     pieceSan?: PieceSan;
   }) => {
-    console.log('on click or drag', square);
     onSquareClickOrDrag?.();
 
-    // if (!onMove) {
-    //   return;
-    // }
-
-    // TODO: Remove this as now the board natively supports the piece
-    // const piece = invoke(() => {
-    //   const _pieceSan = fenBoardInstance.piece(square);
-
-    //   if (!_pieceSan) {
-    //     return undefined;
-    //   }
-
-    //   return fenBoardPieceSymbolToDetailedChessPiece(_pieceSan);
-    // });
-
-    // const isMyPiece = piece?.color === boardOrientation;
-
-    // removs the knoweledge of strictness here and my color only as that can be part of the move validator, that comes from the outside
-    // Only allow the pieces of the same color as the board orientation to be touched
-    // if (!pendingMove && strict && !isMyPiece) {
-    //   return;
-    // }
-
-    // if (!pendingMove) {
-    //   return;
-    // }
+    const piece = pieceSan ? pieceSanToPiece(pieceSan) : undefined;
+    const isMyPiece = piece?.color === playingColor;
 
     // Premoves
-    // if (!isMyTurn) {
-    //   if (isMyPiece && !preMove) {
-    //     setPreMove({ from: square, piece });
-    //   } else if (preMove) {
-    //     setPreMove({
-    //       ...preMove,
-    //       to: square,
-    //     });
-    //   }
-    // }
-    const piece = pieceSan ? pieceSanToPiece(pieceSan) : undefined;
+    // TODO: Shuld I have other checks like it's my piece etc?
+    if (allowsPremoves && !isMyTurn) {
+      // When there's no premove and the square is a piece, set it
+      if (preMove) {
+        if (preMove.from === square) {
+          // Reset it if same square
+          setPreMove(undefined);
+        } else if (piece && isMyPiece) {
+          // If clicking on my piece, just reset it to that piece
+          setPreMove({ from: square, piece });
+        } else {
+          // Otherwise finish the premove
+          setPreMove({
+            ...preMove,
+            to: square,
+          });
+        }
+      } else if (!preMove && piece && isMyPiece) {
+        // When there is a premove it doesn't matter if the square is a piece (capture) or not
+        setPreMove({ from: square, piece });
+      }
+    }
 
     // If there is no existent Pending Move ('from' set)
-    if (!pendingMove?.from) {
-      // If the square isn't a piece return early
-      if (!piece) {
+    else if (!pendingMove?.from) {
+      // If there none of myPieces on the square return early
+      if (!isMyPiece) {
         return;
       }
 
@@ -145,7 +132,7 @@ export const useMoves = ({
       return;
     }
 
-    // otherwise If there is an existent Pending Move without the 'to' set
+    // Otherwise If there is an existent Pending Move without the 'to' set
     else if (!pendingMove?.to) {
       // Return early if the from and to square are the same
       if (square === pendingMove.from) {
@@ -173,26 +160,24 @@ export const useMoves = ({
         return;
       }
 
-      // Otherwise it's a regular move
-      else if (
-        onValidateMove({
-          from: pendingMove.from,
-          to: square,
-        })
-      ) {
-        onMove({
-          from: pendingMove.from,
-          to: square,
+      // Otherwise simply move
+      else {
+        onMoveIfValid({ from: pendingMove.from, to: square }).map(() => {
+          setPendingMove(undefined);
         });
-
-        setPendingMove(undefined);
-
-        return;
       }
     }
   };
 
   const onPieceDrop = (from: Square, to: Square, pieceSan: PieceSan) => {
+    // Check for premoves first
+    if (preMove) {
+      setPreMove({ ...preMove, to });
+
+      // As this is not yet a valid move, return false
+      return false;
+    }
+
     setPendingMove(undefined);
 
     // Check first if vald Promo Move
@@ -202,13 +187,7 @@ export const useMoves = ({
     }
 
     // Otherwie simply move
-    if (onValidateMove({ from, to })) {
-      onMove({ from, to });
-
-      return true;
-    }
-
-    return false;
+    return onMoveIfValid({ from, to }).ok;
   };
 
   return {
@@ -220,5 +199,6 @@ export const useMoves = ({
     onClearPromoMove: () => setPromoMove(undefined),
     promoMove,
     pendingMove,
+    preMove,
   };
 };

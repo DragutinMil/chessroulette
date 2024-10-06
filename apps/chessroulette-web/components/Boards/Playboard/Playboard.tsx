@@ -1,9 +1,7 @@
 import {
   ChessColor,
-  ChessFEN,
   ChessFENBoard,
   DistributiveOmit,
-  ShortChessColor,
   ShortChessMove,
   toShortColor,
 } from '@xmatter/util-kit';
@@ -22,10 +20,7 @@ type Props = DistributiveOmit<
 > & {
   playingColor: ChessColor;
   turn: ChessColor;
-  onMove: (
-    m: ShortChessMove
-    // nextFen: ChessFEN
-  ) => void;
+  onMove: (m: ShortChessMove) => void;
   canPlay?: boolean;
   overlayComponent?: React.ReactNode;
 };
@@ -42,29 +37,6 @@ export const Playboard = ({
   const boardTheme = useBoardTheme();
   const [circlesMap, setCirclesMap] = useState<CirclesMap>({});
 
-  // const onMoveHandler = useCallback(
-  //   (move: ShortChessMove) => {
-  //     if (!canPlay) {
-  //       return false;
-  //     }
-
-  //     if (turn !== playingColor) {
-  //       return false;
-  //     }
-
-  //     const res = validateMove(move, fen, playingColor);
-
-  //     if (!res.valid) {
-  //       return false;
-  //     }
-
-  //     onMove(move, res.fen);
-
-  //     return true;
-  //   },
-  //   [canPlay, turn, onMove]
-  // );
-
   const onValidateMove = useCallback(
     (move: ShortChessMove) => {
       if (!canPlay) {
@@ -75,11 +47,9 @@ export const Playboard = ({
         return false;
       }
 
-      // TODO: Add validation for the player's color not being the same as the piece color (especially if s/he plays with a flipped board)
-
       return validateMove(move, fen, toShortColor(playingColor)).valid;
     },
-    [canPlay, turn]
+    [canPlay, turn, fen, playingColor]
   );
 
   return (
@@ -89,7 +59,6 @@ export const Playboard = ({
       fen={fen}
       boardOrientation={boardOrientation}
       boardTheme={boardTheme}
-      // canMove={(move) => validateMove(move, fen, playingColor).valid}
       onValidateMove={onValidateMove}
       onMove={onMove}
       circlesMap={circlesMap}
