@@ -1,6 +1,6 @@
 import { PieceSymbol, Square } from 'chess.js';
 import { Arrow } from 'react-chessboard/dist/chessboard/types';
-import {
+import type {
   BlackColor,
   ChessArrowId,
   ChessColor,

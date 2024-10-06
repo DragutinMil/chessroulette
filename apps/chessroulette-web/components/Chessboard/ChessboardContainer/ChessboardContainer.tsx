@@ -1,5 +1,4 @@
 import {
-  ChessColor,
   ChessFEN,
   ChessFENBoard,
   GetComponentProps,
@@ -16,10 +15,16 @@ import {
   isPromotableMove,
   pieceSanToPiece,
   promotionalPieceSanToFenBoardPromotionalPieceSymbol,
-  toShortColor,
+  ShortChessColor,
 } from '@xmatter/util-kit';
 import { Piece, Square } from 'chess.js';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { Chessboard } from 'react-chessboard';
 import { Arrow } from 'react-chessboard/dist/chessboard/types';
 import { useArrowColor } from '../hooks/useArrowColor';
@@ -42,17 +47,21 @@ export type ChessboardContainerProps = Omit<
 > & {
   fen: ChessFEN;
   sizePx: number;
-  // When this is true the player can only touch the pieces on her side
-  strict?: boolean;
   arrowsMap?: ArrowsMap;
   circlesMap?: CirclesMap;
   arrowColor?: string;
   lastMove?: ShortChessMove;
-  boardOrientation?: ChessColor;
+  boardOrientation?: ShortChessColor;
   containerClassName?: string;
-  canMove?: (m: ShortChessMove) => boolean;
+  // Defaults to always be able to move
+  canMove?: (
+    m: ShortChessMove & {
+      // color: ShortChessColor
+    }
+  ) => boolean;
   // If canMove is present, only then the onMove gets called
   onMove?: (m: ShortChessMove) => boolean;
+  onPremove?: (m: ShortChessMove) => boolean;
   onPieceDrop?: (from: Square, to: Square, piece: PieceSan) => void;
   onArrowsChange?: (arrows: ArrowsMap) => void;
   onCircleDraw?: (circleTuple: CircleDrawTuple) => void;
@@ -70,6 +79,17 @@ export type ChessboardContainerProps = Omit<
         rightSideSizePx?: undefined;
         rightSideClassName?: undefined;
       }
+  ) &
+  (
+    | {
+        // When this is true the player can only touch the pieces on her side
+        strict: true;
+        turn: ShortChessColor;
+      }
+    | {
+        strict?: false;
+        turn?: ShortChessColor;
+      }
   );
 
 export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
@@ -80,9 +100,10 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
   onArrowsChange = noop,
   onCircleDraw = noop,
   onPieceDrop = noop,
-  onMove = noop,
+  onMove,
+  onPremove,
   canMove = () => true, // Defaults to always be able to move
-  boardOrientation = 'white',
+  boardOrientation = 'w',
   containerClassName,
   customSquareStyles,
   rightSideComponent,
@@ -90,6 +111,7 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
   rightSideClassName,
   boardTheme,
   sizePx,
+  turn,
   ...props
 }) => {
   const inCheckSquares = useMemo(() => getInCheckSquareMap(fen), [fen]);
@@ -112,8 +134,6 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
   );
 
   const arrowColor = useArrowColor();
-
-  const [promoMove, setPromoMove] = useState<ShortChessMove>();
   const [localBoardArrowsMap, setLocalBoardArrowsMap] = useState<ArrowsMap>({});
 
   useDeepCompareEffect(() => {
@@ -190,6 +210,36 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
     to?: Square;
   }>();
 
+  const [preMove, setPreMove] = useState<{
+    from: Square;
+    piece: Piece;
+    to?: Square;
+  }>();
+
+  const [promoMove, setPromoMove] = useState<ShortChessMove>();
+  const prevTurn = useRef(turn);
+  useEffect(() => {
+    if (!onPremove) {
+      return;
+    }
+
+    // Only call this when the turn actually changes
+    if (prevTurn.current === turn) {
+      return;
+    }
+
+    if (preMove && preMove.to) {
+      const { to } = preMove;
+
+      setTimeout(() => {
+        setPreMove(undefined);
+        onPremove({ ...preMove, to });
+      }, 1 * 250);
+    }
+
+    prevTurn.current = turn;
+  }, [turn, preMove, onPremove]);
+
   // TODO: This is only a HACK until the library implements the square/piece in the onClick Handlers
   const fenBoardInstance = useInstance<ChessFENBoard>(new ChessFENBoard(fen));
   useEffect(() => {
@@ -199,7 +249,11 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
     setPendingMove(undefined);
   }, [fen]);
 
-  const onSquareClick = (square: Square) => {
+  const onSquareTouch = (square: Square) => {
+    if (!onMove) {
+      return;
+    }
+
     // TODO: Remove this as now the board natively supports the piece
     const piece = invoke(() => {
       const _pieceSan = fenBoardInstance.piece(square);
@@ -211,15 +265,24 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
       return fenBoardPieceSymbolToDetailedChessPiece(_pieceSan);
     });
 
+    const isMyPiece = piece?.color === boardOrientation;
+
     // Only allow the pieces of the same color as the board orientation to be touched
-    if (
-      strict &&
-      !pendingMove &&
-      piece &&
-      toShortColor(piece.color) !== toShortColor(boardOrientation)
-    ) {
+    if (!pendingMove && strict && !isMyPiece) {
       return;
     }
+
+    // Premoves
+    // if (!isMyTurn) {
+    //   if (isMyPiece && !preMove) {
+    //     setPreMove({ from: square, piece });
+    //   } else if (preMove) {
+    //     setPreMove({
+    //       ...preMove,
+    //       to: square,
+    //     });
+    //   }
+    // }
 
     // If there is no existent Pending Move ('from' set)
     if (!pendingMove?.from) {
@@ -256,7 +319,12 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
           { from: pendingMove.from, to: square },
           pendingMove.piece
         ) &&
-        canMove({ from: pendingMove.from, to: square, promoteTo: 'q' })
+        canMove({
+          from: pendingMove.from,
+          // color: pendingMove.piece.color,
+          to: square,
+          promoteTo: 'q',
+        })
       ) {
         // Set the Promotion Move
         setPromoMove({
@@ -271,6 +339,7 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
         !canMove({
           from: pendingMove.from,
           to: square,
+          // color: pendingMove.piece.color,
         })
       ) {
         return;
@@ -286,6 +355,10 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
       }
     }
   };
+
+  const isMyTurn = boardOrientation === turn;
+
+  const [hoveredSquare, setHoveredSquare] = useState<Square>();
 
   const mergedCustomSquareStyles = useMemo(() => {
     const lastMoveStyle = lastMove && {
@@ -339,11 +412,35 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
         })
       );
 
-    const clickedSquareStyle = {
+    const touchedSquareStyle = {
       ...(pendingMove?.from && {
         [pendingMove?.from]: {
           background: boardTheme.clickedPieceSquare,
         },
+      }),
+    };
+
+    const hoveredSquareStyle = {
+      ...(isMyTurn &&
+        pendingMove &&
+        hoveredSquare &&
+        hoveredSquare !== pendingMove.from && {
+          [hoveredSquare]: {
+            background: boardTheme.clickedPieceSquare,
+          },
+        }),
+    };
+
+    const premoveSquaresStyle = {
+      ...(preMove && {
+        [preMove.from]: {
+          background: boardTheme.preMoveFromSquare,
+        },
+        ...(preMove.to && {
+          [preMove.to]: {
+            background: boardTheme.preMoveToSquare,
+          },
+        }),
       }),
     };
 
@@ -352,7 +449,9 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
       circledStyle || {},
       checkedStyle || {},
       customSquareStyles || {},
-      clickedSquareStyle || {}
+      touchedSquareStyle,
+      hoveredSquareStyle,
+      premoveSquaresStyle
     );
   }, [
     lastMove,
@@ -361,7 +460,10 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
     inCheckSquares,
     customSquareStyles,
     boardTheme,
+    hoveredSquare,
     pendingMove?.from,
+    isMyTurn,
+    preMove,
   ]);
 
   if (sizePx === 0) {
@@ -370,7 +472,6 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
 
   return (
     <div
-      id="chessboard-container"
       className="flex"
       style={{
         height: sizePx + rightSideSizePx,
@@ -398,31 +499,32 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
           customLightSquareStyle={customStyles.customLightSquareStyle}
           customDarkSquareStyle={customStyles.customDarkSquareStyle}
           customSquare={ChessboardSquare}
-          onPieceDragBegin={(_, b) => {
-            onSquareClick(b);
-          }}
-          onPieceDrop={(from, to, pieceSan) => {
-            if (circlesMap && Object.keys(circlesMap).length > 0) {
-              resetCircles();
-            }
-            onPieceDrop(from, to, pieceSan);
+          onPieceDragBegin={(_, b) => onSquareTouch(b)}
+          onMouseOverSquare={setHoveredSquare}
+          {...(onMove && {
+            onPieceDrop: (from, to, pieceSan) => {
+              if (circlesMap && Object.keys(circlesMap).length > 0) {
+                resetCircles();
+              }
+              onPieceDrop(from, to, pieceSan);
 
-            setPendingMove(undefined);
+              setPendingMove(undefined);
 
-            if (isPromotableMove({ from, to }, pieceSanToPiece(pieceSan))) {
-              // Set the Promotion Move
-              setPromoMove({
-                from,
-                to,
-                // piece: pieceSan,
-              });
-              return true;
-            } else {
-              return !!onMove({ from, to });
-            }
-          }}
+              if (isPromotableMove({ from, to }, pieceSanToPiece(pieceSan))) {
+                // Set the Promotion Move
+                setPromoMove({
+                  from,
+                  to,
+                  // piece: pieceSan,
+                });
+                return true;
+              } else {
+                return !!onMove({ from, to });
+              }
+            },
+          })}
           onSquareClick={(sq) => {
-            onSquareClick(sq);
+            onSquareTouch(sq);
 
             // Reset the Arrows and Circles if present
             if (circlesMap && Object.keys(circlesMap).length > 0) {
@@ -440,12 +542,12 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
           onSquareRightClick={onSquareRightClick}
           customPieces={boardTheme.customPieces}
           {...props}
-          // Take out the native promotion dialog in favor of the custom FUNCTIONING one
+          // Take out the native promotion dialog out in favor of the custom one
           autoPromoteToQueen={false}
           onPromotionCheck={() => false}
         />
 
-        {promoMove && (
+        {onMove && promoMove && (
           <PromotionDialogLayer
             boardSizePx={sizePx}
             promotionSquare={promoMove.to}

@@ -1,6 +1,6 @@
 import movexConfig from 'apps/chessroulette-web/movex.config';
 import { MovexBoundResourceFromConfig } from 'movex-react';
-import { FBHIndex, noop, swapColor } from '@xmatter/util-kit';
+import { FBHIndex, noop, swapColor, toShortColor } from '@xmatter/util-kit';
 import { IceServerRecord } from 'apps/chessroulette-web/providers/PeerToPeerProvider/type';
 import { MeetupActivityState } from './movex';
 import { UserId, UsersMap } from 'apps/chessroulette-web/modules/user/type';
@@ -23,7 +23,7 @@ export type Props = {
   participants: UsersMap;
   remoteState: MeetupActivityState['activityState'];
   dispatch?: MovexBoundResourceFromConfig<
-    typeof movexConfig['resources'],
+    (typeof movexConfig)['resources'],
     'room'
   >['dispatch'];
 };
@@ -46,9 +46,11 @@ export const MeetupActivity = ({
 
   const orientation = useMemo(
     () =>
-      activitySettings.isBoardFlipped
-        ? swapColor(game.orientation)
-        : game.orientation,
+      toShortColor(
+        activitySettings.isBoardFlipped
+          ? swapColor(game.orientation)
+          : game.orientation
+      ),
     [activitySettings.isBoardFlipped, game.orientation]
   );
 

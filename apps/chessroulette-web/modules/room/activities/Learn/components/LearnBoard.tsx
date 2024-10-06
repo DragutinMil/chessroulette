@@ -1,7 +1,7 @@
 import { ChapterBoardState, ChapterState } from '../movex';
 import { useLearnActivitySettings } from '../hooks/useLearnActivitySettings';
 import { Freeboard, Playboard } from 'apps/chessroulette-web/components/Boards';
-import { FreeBoardHistory } from '@xmatter/util-kit';
+import { FreeBoardHistory, toShortColor } from '@xmatter/util-kit';
 import {
   BoardEditorIconButton,
   ClearBoardIconButton,
@@ -51,17 +51,21 @@ export const LearnBoard = ({
 
   const Board = settings.canMakeInvalidMoves ? Freeboard : Playboard;
 
+  const orientationShortColor = toShortColor(orientation);
+  const turn = orientationShortColor;
+
   return (
     <Board
       containerClassName="shadow-2xl"
-      boardOrientation={orientation}
-      playingColor={orientation}
+      boardOrientation={orientationShortColor}
+      playingColor={orientationShortColor}
       sizePx={sizePx}
       fen={fen}
       lastMove={lastMove}
       arrowsMap={arrowsMap}
       circlesMap={circlesMap}
       {...chessBoardProps}
+      turn={turn}
       rightSideSizePx={RIGHT_SIDE_SIZE_PX}
       canPlay
       rightSideClassName={`flex flex-col ${rightSideClassName}`}

@@ -1,11 +1,15 @@
 import { Piece } from 'chess.js';
-import {
-  BlackColor,
+import type {
+  BlackLongColor,
+  BlackShortColor,
   ChessColor,
   ChessMove,
-  WhiteColor,
-} from '../../Chess/types';
-import { toShortColor } from '../../Chess/lib';
+  LongChessColor,
+  ShortChessColor,
+  WhiteLongColor,
+  WhiteShortColor,
+} from '../../Chess';
+import { isShortChessColor } from '../../Chess';
 
 export const isPromotableMove = (m: ChessMove, piece: Piece) => {
   return (
@@ -15,12 +19,22 @@ export const isPromotableMove = (m: ChessMove, piece: Piece) => {
   );
 };
 
-// I don't know why this needs to be typed like this
-//  with a function declaration but if it's declared
-//  as an anonymous function it throws a tsc error
+export function swapColor<C extends LongChessColor>(
+  c: C
+): C extends LongChessColor ? BlackLongColor : WhiteLongColor;
+export function swapColor<C extends ShortChessColor>(
+  c: C
+): C extends ShortChessColor ? BlackShortColor : WhiteShortColor;
 export function swapColor<C extends ChessColor>(
   c: C
-): C extends WhiteColor ? BlackColor : WhiteColor;
+): C extends LongChessColor ? BlackLongColor : WhiteLongColor;
+export function swapColor<C extends ChessColor>(
+  c: C
+): C extends ShortChessColor ? BlackShortColor : WhiteShortColor;
 export function swapColor<C extends ChessColor>(c: C) {
-  return toShortColor(c) === 'w' ? 'black' : 'white';
+  if (isShortChessColor(c)) {
+    return c === 'w' ? 'b' : 'w';
+  } else {
+    return c === 'white' ? 'black' : 'white';
+  }
 }

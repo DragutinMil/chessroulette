@@ -3,9 +3,9 @@ import {
   ChessColor,
   ChessFEN,
   ChessFENBoard,
-  FenBoardPromotionalPieceSymbol,
-  pieceSanToFenBoardPieceSymbol,
+  ShortChessColor,
   swapColor,
+  toShortColor,
 } from '@xmatter/util-kit';
 import { useEffect, useState } from 'react';
 import useInstance from '@use-it/instance';
@@ -39,13 +39,16 @@ export const Main: Story = {
     // boardOrientation: 'w',
   },
   render: ({ fen: argFen, ...args }) => {
-    const [state, setState] = useState<{ fen: ChessFEN; turn: ChessColor }>({
+    const [state, setState] = useState<{
+      fen: ChessFEN;
+      turn: ShortChessColor;
+    }>({
       fen: argFen,
       turn: 'w',
     });
-    const chessFenBoardInstance = useInstance<ChessFENBoard>(
-      new ChessFENBoard(state.fen)
-    );
+    // const chessFenBoardInstance = useInstance<ChessFENBoard>(
+    //   new ChessFENBoard(state.fen)
+    // );
 
     useEffect(() => {
       setState((prev) => ({ ...prev, fen: argFen }));
@@ -57,18 +60,85 @@ export const Main: Story = {
           {...args}
           fen={state.fen}
           canPlay
+          turn={state.turn}
           playingColor={state.turn}
           onMove={(_, nextFen) => {
             setState((prev) => ({
               ...prev,
               fen: nextFen,
-              turn: swapColor(state.turn),
+              turn: toShortColor(swapColor(state.turn)),
             }));
           }}
         />
         <div className="pt-2" />
         <FenPreview fen={state.fen} className="pt-2" />
       </>
+    );
+  },
+};
+
+export const PlaySideBySide: Story = {
+  args: {
+    sizePx: 500,
+    fen: ChessFENBoard.STARTING_FEN,
+    // boardTheme: themes.chessroulette.board,
+    // boardOrientation: 'w',
+  },
+  render: ({ fen: argFen, ...args }) => {
+    const [state, setState] = useState<{
+      fen: ChessFEN;
+      turn: ShortChessColor;
+    }>({
+      fen: argFen,
+      turn: 'w',
+    });
+    // const chessFenBoardInstance = useInstance<ChessFENBoard>(
+    //   new ChessFENBoard(state.fen)
+    // );
+
+    useEffect(() => {
+      setState((prev) => ({ ...prev, fen: argFen }));
+    }, [argFen]);
+
+    return (
+      <div className="w-full h-full">
+        <div className="flex flex-1 gap-4 contetnt-between">
+          <Playboard
+            {...args}
+            fen={state.fen}
+            canPlay
+            playingColor="w"
+            turn={state.turn}
+            onMove={(_, nextFen) => {
+              setState((prev) => ({
+                ...prev,
+                fen: nextFen,
+                turn: swapColor(state.turn),
+              }));
+            }}
+          />
+          <Playboard
+            {...args}
+            fen={state.fen}
+            playingColor="b"
+            canPlay
+            turn={state.turn}
+            onMove={(_, nextFen) => {
+              console.log('[story] on move???');
+              setState((prev) => ({
+                ...prev,
+                fen: nextFen,
+                turn: swapColor(state.turn),
+              }));
+            }}
+          />
+        </div>
+
+        <div className="pt-2" />
+        <div className="flex-1 flex items-center justify-center">
+          <FenPreview fen={state.fen} className="pt-2" />
+        </div>
+      </div>
     );
   },
 };
@@ -81,7 +151,10 @@ export const CheckPromotion: Story = {
     // boardOrientation: 'w',
   },
   render: ({ fen: argFen, ...args }) => {
-    const [state, setState] = useState<{ fen: ChessFEN; turn: ChessColor }>({
+    const [state, setState] = useState<{
+      fen: ChessFEN;
+      turn: ShortChessColor;
+    }>({
       fen: argFen,
       turn: 'w',
     });
@@ -100,7 +173,7 @@ export const CheckPromotion: Story = {
             setState((prev) => ({
               ...prev,
               fen: nextFen,
-              turn: swapColor(state.turn),
+              turn: toShortColor(swapColor(state.turn)),
             }));
           }}
         />
