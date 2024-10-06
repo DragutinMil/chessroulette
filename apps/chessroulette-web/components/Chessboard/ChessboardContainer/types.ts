@@ -1,8 +1,10 @@
-import { GetComponentProps } from '@xmatter/util-kit';
+import { GetComponentProps, ShortChessMove } from '@xmatter/util-kit';
 import { Piece, Square } from 'chess.js';
 import { Chessboard } from 'react-chessboard';
 
 export type ReactChessBoardProps = GetComponentProps<typeof Chessboard>;
+
+export type ChessboardShortMoveWithPiece = ShortChessMove & { piece: Piece };
 
 export type ChessBoardPendingMove = {
   from: Square;
@@ -13,3 +15,4 @@ export type ChessBoardPendingMove = {
 export type ChessboardPreMove =
   | ChessBoardPendingMove
   | Required<ChessBoardPendingMove>;
+

@@ -1,9 +1,11 @@
 import {
+  ChessColor,
   ChessFEN,
   ChessFENBoard,
   DistributiveOmit,
   ShortChessColor,
   ShortChessMove,
+  toShortColor,
 } from '@xmatter/util-kit';
 import {
   ChessboardContainer,
@@ -18,9 +20,12 @@ type Props = DistributiveOmit<
   ChessboardContainerProps,
   'boardTheme' | 'onMove' | 'strict' | 'turn'
 > & {
-  playingColor: ShortChessColor;
-  turn: ShortChessColor;
-  onMove: (m: ShortChessMove, nextFen: ChessFEN) => void;
+  playingColor: ChessColor;
+  turn: ChessColor;
+  onMove: (
+    m: ShortChessMove
+    // nextFen: ChessFEN
+  ) => void;
   canPlay?: boolean;
   overlayComponent?: React.ReactNode;
 };
@@ -28,7 +33,7 @@ type Props = DistributiveOmit<
 export const Playboard = ({
   fen = ChessFENBoard.STARTING_FEN,
   playingColor,
-  boardOrientation = playingColor,
+  boardOrientation = toShortColor(playingColor),
   onMove,
   canPlay = false,
   turn,
@@ -37,7 +42,30 @@ export const Playboard = ({
   const boardTheme = useBoardTheme();
   const [circlesMap, setCirclesMap] = useState<CirclesMap>({});
 
-  const onMoveHandler = useCallback(
+  // const onMoveHandler = useCallback(
+  //   (move: ShortChessMove) => {
+  //     if (!canPlay) {
+  //       return false;
+  //     }
+
+  //     if (turn !== playingColor) {
+  //       return false;
+  //     }
+
+  //     const res = validateMove(move, fen, playingColor);
+
+  //     if (!res.valid) {
+  //       return false;
+  //     }
+
+  //     onMove(move, res.fen);
+
+  //     return true;
+  //   },
+  //   [canPlay, turn, onMove]
+  // );
+
+  const onValidateMove = useCallback(
     (move: ShortChessMove) => {
       if (!canPlay) {
         return false;
@@ -47,29 +75,23 @@ export const Playboard = ({
         return false;
       }
 
-      const res = validateMove(move, fen, playingColor);
+      // TODO: Add validation for the player's color not being the same as the piece color (especially if s/he plays with a flipped board)
 
-      if (!res.valid) {
-        return false;
-      }
-
-      onMove(move, res.fen);
-
-      return true;
+      return validateMove(move, fen, toShortColor(playingColor)).valid;
     },
-    [canPlay, turn, onMove]
+    [canPlay, turn]
   );
 
   return (
     <ChessboardContainer
       strict
-      turn={turn}
+      turn={toShortColor(turn)}
       fen={fen}
       boardOrientation={boardOrientation}
       boardTheme={boardTheme}
-      canMove={(move) => validateMove(move, fen, playingColor).valid}
-      onMove={onMoveHandler}
-      onPremove={onMoveHandler}
+      // canMove={(move) => validateMove(move, fen, playingColor).valid}
+      onValidateMove={onValidateMove}
+      onMove={onMove}
       circlesMap={circlesMap}
       onCircleDraw={(c) => {
         setCirclesMap((prev) => ({

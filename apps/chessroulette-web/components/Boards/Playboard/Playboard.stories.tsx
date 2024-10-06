@@ -4,6 +4,8 @@ import {
   ChessFEN,
   ChessFENBoard,
   ShortChessColor,
+  ShortChessMove,
+  getNewChessGame,
   swapColor,
   toShortColor,
 } from '@xmatter/util-kit';
@@ -62,7 +64,12 @@ export const Main: Story = {
           canPlay
           turn={state.turn}
           playingColor={state.turn}
-          onMove={(_, nextFen) => {
+          onMove={(move) => {
+            const instance = getNewChessGame({ fen: state.fen });
+            instance.move(move);
+
+            const nextFen = instance.fen();
+
             setState((prev) => ({
               ...prev,
               fen: nextFen,
@@ -88,6 +95,7 @@ export const PlaySideBySide: Story = {
     const [state, setState] = useState<{
       fen: ChessFEN;
       turn: ShortChessColor;
+      lastMove?: ShortChessMove;
     }>({
       fen: argFen,
       turn: 'w',
@@ -100,37 +108,45 @@ export const PlaySideBySide: Story = {
       setState((prev) => ({ ...prev, fen: argFen }));
     }, [argFen]);
 
+    const onMove = (move: ShortChessMove) => {
+      const instance = getNewChessGame({ fen: state.fen });
+
+      try {
+        instance.move(move);
+
+        const nextFen = instance.fen();
+
+        setState((prev) => ({
+          ...prev,
+          fen: nextFen,
+          turn: swapColor(state.turn),
+          lastMove: instance.history({ verbose: true }).slice(-1)[0],
+        }));
+      } catch (e) {
+        console.log('[story.onMove] Error', e);
+      }
+    };
+
     return (
       <div className="w-full h-full">
         <div className="flex flex-1 gap-4 contetnt-between">
           <Playboard
             {...args}
             fen={state.fen}
+            lastMove={state.lastMove}
             canPlay
             playingColor="w"
             turn={state.turn}
-            onMove={(_, nextFen) => {
-              setState((prev) => ({
-                ...prev,
-                fen: nextFen,
-                turn: swapColor(state.turn),
-              }));
-            }}
+            onMove={onMove}
           />
           <Playboard
             {...args}
             fen={state.fen}
+            lastMove={state.lastMove}
             playingColor="b"
             canPlay
             turn={state.turn}
-            onMove={(_, nextFen) => {
-              console.log('[story] on move???');
-              setState((prev) => ({
-                ...prev,
-                fen: nextFen,
-                turn: swapColor(state.turn),
-              }));
-            }}
+            onMove={onMove}
           />
         </div>
 
@@ -169,7 +185,12 @@ export const CheckPromotion: Story = {
           {...args}
           fen={state.fen}
           playingColor={state.turn}
-          onMove={(_, nextFen) => {
+          onMove={(move) => {
+            const instance = getNewChessGame({ fen: state.fen });
+            instance.move(move);
+
+            const nextFen = instance.fen();
+
             setState((prev) => ({
               ...prev,
               fen: nextFen,

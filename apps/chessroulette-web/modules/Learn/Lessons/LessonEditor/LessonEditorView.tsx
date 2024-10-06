@@ -42,6 +42,7 @@ import {
 } from './draftLessonReducer';
 import { LessonState } from './draftLessonReducer';
 import { reducerLogger } from 'apps/chessroulette-web/lib/util';
+import { noop } from 'movex-core-util';
 
 type Props = {
   // lesson: LessonModel;
@@ -143,6 +144,8 @@ export const LessonEditorView = ({
             //   payload: { isBoardEditorShown: false },
             // });
           }}
+          // TODO: This was added now, bt I'm wondering how till the pieces move if it's nothing??
+          onMove={noop}
         />
       )}
       rightSideSize={32}

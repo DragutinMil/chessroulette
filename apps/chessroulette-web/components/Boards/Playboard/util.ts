@@ -36,9 +36,6 @@ export const validateMove = (
       fen: chess.fen(),
     };
   } catch (e) {
-    console.debug('[Playboard Error] onMove()', e, { move });
-    return {
-      valid: false,
-    };
+    return { valid: false };
   }
 };

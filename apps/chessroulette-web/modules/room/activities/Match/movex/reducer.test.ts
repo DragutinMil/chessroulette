@@ -374,7 +374,7 @@ describe('Start New Match => ', () => {
       ongoingPlay: {
         game: createPendingGame({
           timeClass: 'blitz',
-          color: 'black',
+          color: 'b',
         }),
       },
     };
@@ -873,7 +873,7 @@ describe('abort game -> match', () => {
       ongoingPlay: wrapIntoPlay({
         ...createPendingGame({
           timeClass: 'blitz',
-          color: 'black',
+          color: 'b',
         }),
       }),
     };
@@ -923,7 +923,7 @@ describe('abort game -> match', () => {
             ...wrapIntoPlay({
               ...createPendingGame({
                 timeClass: 'blitz',
-                color: 'black',
+                color: 'b',
               }),
               offers: [],
               status: 'aborted',
@@ -1011,7 +1011,7 @@ describe('abort game -> match', () => {
         ongoingPlay: wrapIntoPlay({
           ...createPendingGame({
             timeClass: 'blitz',
-            color: 'black',
+            color: 'b',
           }),
         }),
       },
@@ -1061,7 +1061,7 @@ describe('abort game -> match', () => {
           ...wrapIntoPlay({
             ...createPendingGame({
               timeClass: 'blitz',
-              color: 'black',
+              color: 'b',
             }),
             offers: [],
             status: 'aborted',

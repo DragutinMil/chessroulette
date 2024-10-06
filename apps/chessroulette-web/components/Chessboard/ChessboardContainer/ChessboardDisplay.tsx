@@ -75,6 +75,7 @@ export const ChessboardDisplay = ({
         position={fen}
         boardWidth={sizePx}
         showBoardNotation
+        boardOrientation={boardOrientation}
         snapToCursor={false}
         arePiecesDraggable
         {...boardProps}
