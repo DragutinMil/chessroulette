@@ -5,7 +5,6 @@ import { usePlayActivitySettings } from '../../Play/usePlayActivitySettings';
 import { JoinRoomLinkProps } from '../../Learn/activitySettings';
 
 export type MatchActivitySettings = {
-  // gameTimeClass: GameTimeClass;
   isBoardFlipped: boolean;
 } & JoinRoomLinkProps;
 
