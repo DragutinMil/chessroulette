@@ -32,29 +32,29 @@ export const calculateTimeLeftAt = ({
 export const checkIsGameOverWithReason = (
   instance: Chess,
   hasTimedOut: boolean
-): Result<GameOverReason, void> => {
+): Result<[reason: GameOverReason, isDraw: boolean], void> => {
   if (hasTimedOut) {
-    return new Ok('timeout');
+    return new Ok([GameOverReason['timeout'], false]);
   }
 
   if (instance.isCheckmate()) {
-    return new Ok('checkmate');
+    return new Ok([GameOverReason['checkmate'], instance.isDraw()]);
   }
 
   if (instance.isDraw()) {
-    return new Ok('draw');
+    return new Ok([GameOverReason['draw'], true]);
   }
 
   if (instance.isInsufficientMaterial()) {
-    return new Ok('insufficientMaterial');
+    return new Ok([GameOverReason['insufficientMaterial'], instance.isDraw()]);
   }
 
   if (instance.isStalemate()) {
-    return new Ok('stalemate');
+    return new Ok([GameOverReason['stalemate'], instance.isDraw()]);
   }
 
-  if (instance.isInsufficientMaterial()) {
-    return new Ok('insufficientMaterial');
+  if (instance.isThreefoldRepetition()) {
+    return new Ok([GameOverReason['threefoldRepetition'], instance.isDraw()]);
   }
 
   return Err.EMPTY;

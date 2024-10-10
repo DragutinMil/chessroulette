@@ -42,15 +42,18 @@ const getPlayerInfoById = (
 };
 
 const gameOverReasonsToDisplay: { [k in GameOverReason]: string } = {
-  aborted: 'Game was aborted',
-  acceptedDraw: 'Players agreed to draw',
-  checkmate: 'Game ended in checkmate',
-  draw: 'Game ended in a draw',
-  insufficientMaterial: 'Game ended in a draw due to insufficient material',
-  threefoldRepetition: 'Game ended in a draw due to a threefold repetition',
-  resignation: 'Player Resigned',
-  stalemate: 'Game ended in a draw due to a stalemate position',
-  timeout: 'Game ended due to timeout',
+  [GameOverReason['aborted']]: 'Game was aborted',
+  [GameOverReason['acceptedDraw']]: 'Players agreed to draw',
+  [GameOverReason['checkmate']]: 'Game ended in checkmate',
+  [GameOverReason['draw']]: 'Game ended in a draw',
+  [GameOverReason['insufficientMaterial']]:
+    'Game ended in a draw due to insufficient material',
+  [GameOverReason['threefoldRepetition']]:
+    'Game ended in a draw due to a threefold repetition',
+  [GameOverReason['resignation']]: 'Player Resigned',
+  [GameOverReason['stalemate']]:
+    'Game ended in a draw due to a stalemate position',
+  [GameOverReason['timeout']]: 'Game ended due to timeout',
 };
 
 export const MatchStateDialogContainer: React.FC<Props> = ({

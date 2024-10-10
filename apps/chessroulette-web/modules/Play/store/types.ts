@@ -5,21 +5,22 @@ import {
   LongChessColor,
 } from '@xmatter/util-kit';
 import { Action } from 'movex-core-util';
-import { GameStatus, GameTimeClass } from '../types';
+import { GameTimeClass } from '../types';
 import { User } from 'apps/chessroulette-web/modules/user/type';
 
-type GameStateWinner = 'white' | 'black' | '1/2';
+export type GameStateWinner = 'white' | 'black' | '1/2';
 
-export type GameOverReason =
-  | 'timeout'
-  | 'checkmate'
-  | 'draw'
-  | 'stalemate'
-  | 'insufficientMaterial'
-  | 'threefoldRepetition'
-  | 'resignation'
-  | 'acceptedDraw'
-  | 'aborted';
+export enum GameOverReason {
+  'timeout',
+  'checkmate',
+  'draw',
+  'stalemate',
+  'insufficientMaterial',
+  'threefoldRepetition',
+  'resignation',
+  'acceptedDraw',
+  'aborted',
+}
 
 export type GameOffer = {
   // TODO: this should not be byPlayer but byColor, since inside the Game there is no notion of player but just of color

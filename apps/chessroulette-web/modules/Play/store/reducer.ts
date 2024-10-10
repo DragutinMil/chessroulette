@@ -1,12 +1,19 @@
 import {
   getNewChessGame,
+  invoke,
   isOneOf,
   localChessMoveToChessLibraryMove,
   swapColor,
   toLongColor,
 } from '@xmatter/util-kit';
 import { initialPlayState } from './state';
-import { GameOffer, PlayActions, PlayState } from './types';
+import {
+  GameOffer,
+  GameOverReason,
+  GameStateWinner,
+  PlayActions,
+  PlayState,
+} from './types';
 import { createPendingGame } from './operations';
 import { calculateTimeLeftAt, checkIsGameOverWithReason } from './util';
 
@@ -117,8 +124,17 @@ export const reducer = (
     );
 
     if (isGameOverResult.ok) {
-      const nextWinner =
-        isGameOverResult.val === 'timeout' ? prev.game.lastMoveBy : turn;
+      const [gameOverReason, isDraw] = isGameOverResult.val;
+      const nextWinner: GameStateWinner = invoke(() => {
+        // There is no winner if the game is a draw!
+        if (isDraw) {
+          return '1/2';
+        }
+
+        return gameOverReason === GameOverReason['timeout']
+          ? prev.game.lastMoveBy
+          : turn;
+      });
 
       // Next > "Complete"
       return {
@@ -130,7 +146,7 @@ export const reducer = (
           status: 'complete',
           winner: nextWinner,
           timeLeft: nextTimeLeft,
-          gameOverReason: isGameOverResult.val,
+          gameOverReason,
         },
       };
     }
@@ -197,7 +213,7 @@ export const reducer = (
           status: 'complete',
           winner: prev.game.lastMoveBy,
           timeLeft: nextTimeLeft,
-          gameOverReason: 'timeout',
+          gameOverReason: GameOverReason['timeout'],
         },
         ...(lastOffer && {
           gameOffers: [...prev.game.offers.slice(0, -1), lastOffer],
@@ -218,7 +234,7 @@ export const reducer = (
         ...prev.game,
         status: 'complete',
         winner: toLongColor(swapColor(action.payload.color)),
-        gameOverReason: 'resignation',
+        gameOverReason: GameOverReason['resignation'],
       },
     };
   }
@@ -284,7 +300,7 @@ export const reducer = (
         status: 'complete',
         winner: '1/2',
         offers: nextOffers,
-        gameOverReason: 'acceptedDraw',
+        gameOverReason: GameOverReason['acceptedDraw'],
       },
     };
   }
