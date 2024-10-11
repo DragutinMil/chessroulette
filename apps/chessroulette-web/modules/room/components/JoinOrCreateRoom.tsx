@@ -15,7 +15,7 @@ import { links } from '../links';
 import { AsyncErr } from 'ts-async-results';
 import { invoke, objectPick } from '@xmatter/util-kit';
 import { initialActivityStatesByActivityType } from '../activities/movex';
-import { GameTimeClass, chessGameTimeLimitMsMap } from '../../Play/types';
+import { GameTimeClass } from '../../Play/types';
 import { ActivityParamsSchema } from '../io/paramsSchema';
 import { createMatchState } from '../activities/Match/movex';
 import { logsy } from 'apps/chessroulette-web/lib/Logsy';
@@ -70,15 +70,6 @@ export const JoinOrCreateRoom: React.FC<Props> = ({
 
           const timeClass: GameTimeClass =
             activityParams.timeClass || defaultGame.timeClass;
-
-          // const createGameInput = {
-          //   ...defaultGame,
-          //   timeClass,
-          //   timeLeft: {
-          //     white: chessGameTimeLimitMsMap[timeClass],
-          //     black: chessGameTimeLimitMsMap[timeClass],
-          //   },
-          // };
 
           return {
             ...initialRoomState,
@@ -140,6 +131,9 @@ export const JoinOrCreateRoom: React.FC<Props> = ({
               // But right now the most important thing is that the match doesn't get extra params
               ...(r.state.activity.activityType === 'match'
                 ? objectPick(updateableSearchParams.toObject(), [
+                    // User
+                    'userDisplayName',
+
                     // Room settings
                     'theme',
 
@@ -150,10 +144,6 @@ export const JoinOrCreateRoom: React.FC<Props> = ({
               id: toResourceIdentifierObj(r.rid).resourceId,
               activity: activityParams.activity,
               userId: updateableSearchParams.get('userId') || generateUserId(),
-              // activity,
-              // TODO: This was removed when I introduced the Auth (May 4th)
-              // Don't think it's needed but need to ensure, especially around user given from outpost or guests
-              // userId: updateableSearchParams.get('userId') || generateUserId(),
             })
           );
       })

@@ -43,10 +43,10 @@ export const MatchActivityView = ({
   const game = useMemo(
     () =>
       ongoingPlay?.game ||
-      matchState.completedPlays.slice(-1)[0].game ||
+      matchState.endedPlays.slice(-1)[0].game ||
       // Default to Initial Play State if no ongoing or completed
       initialPlayState.game,
-    [ongoingPlay, matchState.completedPlays]
+    [ongoingPlay, matchState.endedPlays]
   );
 
   const { joinRoomLink } = useRoomLinkId('match');
@@ -89,12 +89,18 @@ export const MatchActivityView = ({
   }, [userId, matchState.players, participants]);
 
   return (
-    <GameProvider game={game} players={matchState.players} playerId={userId}>
+    <GameProvider
+      game={game}
+      // players={matchState.players}p
+      playerId={userId}
+    >
       <MatchStateProvider {...matchState} ongoingPlay={ongoingPlay}>
         <ResizableDesktopLayout
           rightSideSize={RIGHT_SIDE_SIZE_PX}
           mainComponent={({ boardSize }) => (
             <PlayContainer
+              // Add this iin order to reset the PlayContainer on each new game
+              key={playersBySide.away.color}
               boardSizePx={boardSize}
               // joinRoomLink={joinRoomLink}
               isBoardFlipped={isBoardFlipped}

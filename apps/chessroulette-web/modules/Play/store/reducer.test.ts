@@ -35,6 +35,7 @@ describe('Game Status: Pending > Idling', () => {
       winner: null,
       offers: [],
       orientation: 'white',
+      gameOverReason: null,
     });
 
     expect(actual).toEqual(expected);
@@ -76,6 +77,7 @@ describe('Game Status: Idling > Idling', () => {
       winner: null,
       offers: [],
       orientation: 'white',
+      gameOverReason: null,
     });
 
     expect(actual).toEqual(expected);
@@ -112,6 +114,7 @@ describe('Game Status: Idling > Aborted', () => {
       winner: null,
       offers: [],
       orientation: 'white',
+      gameOverReason: null,
     });
 
     expect(actual).toEqual(expected);
@@ -158,6 +161,7 @@ describe('Game Status: Idling > Ongoing', () => {
       winner: null,
       offers: [],
       orientation: 'white',
+      gameOverReason: null,
     });
 
     expect(actual).toEqual(expected);

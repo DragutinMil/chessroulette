@@ -15,7 +15,7 @@ const outpostColors: ArrowColorsInOrder = [
   // 5: '#ffc695',
 ];
 
-export const useArrowColor = (colors = outpostColors) => {
+export const useArrowAndCircleColor = (colors = outpostColors) => {
   const [colorIndex, setColorIndex] = useState(0);
   const [controlKeyPressed, setControlKeyPressed] = useState(false);
 

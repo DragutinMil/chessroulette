@@ -32,20 +32,14 @@ export type MatchState = (
   // TODO: This is needd but neet to make sure I can set it correctly as I cannot set it in the reducer! but jst with createResource and actions
   // lastUpdateAt: number; // This includes everythin changing in the match: status change, play.game.lastActivityAt update,
 
-  // Change name to "endedPlays" because this can inclde aborted as well
-  completedPlays: PlayStore.PlayState[];
+  endedPlays: PlayStore.EndedPlayState[];
 
   winner: null | PlayerId;
-
-  // timeClass: Game['timeClass'];
 
   // TODO: Should this always hav a pending game??
   ongoingPlay: PlayStore.PlayState | null;
 };
 
-// export type MatchState = PlayStore.PlayState
-
-// export type MatchActivityActivityState = undefined | MatchState;
 export type MatchActivityActivityState = null | MatchState;
 
 export type MatchActivityState = {

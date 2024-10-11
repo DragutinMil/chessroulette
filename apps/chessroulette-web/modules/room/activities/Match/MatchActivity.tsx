@@ -6,7 +6,6 @@ import { UserId, UsersMap } from 'apps/chessroulette-web/modules/user/type';
 import { MatchActivityActions, MatchActivityState } from './movex';
 import { MatchActivityView } from './MatchActivityView';
 import { useMatchActivitySettings } from './hooks/useMatchActivitySettings';
-import { useEffect, useRef } from 'react';
 
 export type Props = {
   roomId: string;
@@ -19,14 +18,6 @@ export type Props = {
 
 export const MatchActivity = ({ remoteState, dispatch, ...props }: Props) => {
   const { isBoardFlipped } = useMatchActivitySettings();
-
-  // const prev = useRef(remoteState);
-  // useEffect(() => {
-  //   console.group('remoteState updated', remoteState);
-  //   console.log('ongoing game ', remoteState.ongoingPlay?.game);
-  //   // console.log('diff', )
-  //   console.groupEnd();
-  // }, [remoteState]);
 
   return (
     <MatchActivityView

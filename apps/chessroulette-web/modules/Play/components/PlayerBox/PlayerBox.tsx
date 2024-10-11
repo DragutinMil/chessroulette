@@ -8,9 +8,7 @@ type Props = {
   gameTimeClass: GameTimeClass;
   timeLeft: number;
   score: number;
-  // onTimerFinished: () => void;
   onCheckTime: () => void;
-  // onRefreshTimeLeft: () => void;
 };
 
 export const PlayerBox: React.FC<Props> = (props) => {
@@ -27,7 +25,6 @@ export const PlayerBox: React.FC<Props> = (props) => {
       >
         {display}
       </div>
-      {/* <div className='flex-1' /> */}
       {props.gameTimeClass !== 'untimed' && (
         <SmartCountdown
           isActive={props.isActive}

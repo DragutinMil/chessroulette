@@ -1,6 +1,6 @@
 import movexConfig from 'apps/chessroulette-web/movex.config';
 import { MovexBoundResourceFromConfig } from 'movex-react';
-import { FBHIndex, noop, swapColor } from '@xmatter/util-kit';
+import { FBHIndex, noop, swapColor, toShortColor } from '@xmatter/util-kit';
 import { IceServerRecord } from 'apps/chessroulette-web/providers/PeerToPeerProvider/type';
 import { MeetupActivityState } from './movex';
 import { UserId, UsersMap } from 'apps/chessroulette-web/modules/user/type';
@@ -13,8 +13,8 @@ import { PanelResizeHandle } from 'react-resizable-panels';
 import { GameDisplayView } from './components/GameDisplayView';
 import { StartPositionIconButton } from 'apps/chessroulette-web/components/Chessboard';
 import { FreeBoardNotation } from 'apps/chessroulette-web/components/FreeBoardNotation';
-import { getDisplayStateFromPgn } from './utils';
 import { ResizableDesktopLayout } from 'apps/chessroulette-web/templates/ResizableDesktopLayout';
+import { getGameDisplayState } from 'apps/chessroulette-web/modules/Play/lib';
 
 export type Props = {
   roomId: string;
@@ -23,7 +23,7 @@ export type Props = {
   participants: UsersMap;
   remoteState: MeetupActivityState['activityState'];
   dispatch?: MovexBoundResourceFromConfig<
-    typeof movexConfig['resources'],
+    (typeof movexConfig)['resources'],
     'room'
   >['dispatch'];
 };
@@ -40,25 +40,26 @@ export const MeetupActivity = ({
   const dispatch = optionalDispatch || noop;
   const { game } = remoteState;
 
-  const [displayState, setDisplayState] = useState(
-    getDisplayStateFromPgn(game.pgn)
-  );
+  const [displayState, setDisplayState] = useState(getGameDisplayState(game));
 
   const orientation = useMemo(
     () =>
-      activitySettings.isBoardFlipped
-        ? swapColor(game.orientation)
-        : game.orientation,
+      toShortColor(
+        activitySettings.isBoardFlipped
+          ? swapColor(game.orientation)
+          : game.orientation
+      ),
     [activitySettings.isBoardFlipped, game.orientation]
   );
 
   useEffect(() => {
     // Reset it when the pgn updates from outside
-    setDisplayState(getDisplayStateFromPgn(game.pgn));
+    setDisplayState(getGameDisplayState(game));
   }, [game.pgn]);
 
   const onRefocus = useCallback(
-    (i: FBHIndex) => setDisplayState(getDisplayStateFromPgn(game.pgn, i)),
+    (i: FBHIndex) =>
+      setDisplayState(getGameDisplayState({ pgn: game.pgn, focusedIndex: i })),
     [game.pgn, setDisplayState]
   );
 
@@ -68,6 +69,7 @@ export const MeetupActivity = ({
       mainComponent={({ boardSize }) => (
         <Playboard
           canPlay
+          turn={displayState.turn}
           sizePx={boardSize}
           fen={displayState.fen}
           playingColor={orientation}

@@ -3,6 +3,7 @@ import {
   BoardEditorProps,
 } from 'apps/chessroulette-web/components/BoardEditor';
 import { ChapterBoardState } from '../movex';
+import { toShortColor } from '@xmatter/util-kit';
 
 export type LearnBoardEditorProps = {
   boardSizePx: number;
@@ -32,7 +33,7 @@ export const LearnBoardEditor = ({
   <BoardEditor
     fen={displayFen}
     sizePx={boardSizePx}
-    boardOrientation={boardOrientation || orientation}
+    boardOrientation={toShortColor(boardOrientation || orientation)}
     arrowsMap={arrowsMap}
     circlesMap={circlesMap}
     {...boardProps}

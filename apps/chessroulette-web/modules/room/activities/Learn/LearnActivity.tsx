@@ -102,6 +102,8 @@ export const LearnActivity = ({
                   payload: { isBoardEditorShown: false },
                 });
               }}
+              // TODO: This was added now, bt I'm wondering how till the pieces move if it's nothing??
+              onMove={noop}
             />
           ) : (
             // Learn Mode

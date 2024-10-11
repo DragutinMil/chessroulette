@@ -1,21 +1,26 @@
 import {
   getNewChessGame,
   invoke,
+  isOneOf,
   localChessMoveToChessLibraryMove,
   swapColor,
   toLongColor,
 } from '@xmatter/util-kit';
 import { initialPlayState } from './state';
-import { GameOffer, PlayActions, PlayState } from './types';
+import {
+  GameOffer,
+  GameOverReason,
+  GameStateWinner,
+  PlayActions,
+  PlayState,
+} from './types';
 import { createPendingGame } from './operations';
-import { calculateTimeLeftAt } from './util';
+import { calculateTimeLeftAt, checkIsGameOverWithReason } from './util';
 
 export const reducer = (
   prev: PlayState = initialPlayState,
   action: PlayActions
 ): PlayState => {
-  // console.log('play reducer', JSON.stringify({ action, prev }, null, 2));
-
   // This moves the game from pending to idling
   if (action.type === 'play:startWhitePlayerIdlingTimer') {
     // Only a "pending" game can start
@@ -35,35 +40,13 @@ export const reducer = (
   }
 
   if (action.type === 'play:move') {
-    if (
-      !(
-        // prev.game.status === 'pending' ||
-        (prev.game.status === 'idling' || prev.game.status === 'ongoing')
-      )
-    ) {
+    if (!(prev.game.status === 'idling' || prev.game.status === 'ongoing')) {
       // Cannot move otherwise
       return prev;
     }
 
     const { lastMoveBy, pgn } = prev.game;
     const { moveAt } = action.payload;
-
-    // I took this out as it's not how ti works anymore with the new "idling" status
-    // //if black hasn't moved yet, don't update the timeLeft
-    // const nextTimeLeft = invoke(() => {
-    //   if (movesHistory.totalMoves > 1 || lastMoveBy === 'black') {
-    //     const movedAtAsDate = new Date(moveAt);
-    //     const lastMoveAtAsDate =
-    //       prev.game.status === 'pending'
-    //         ? movedAtAsDate
-    //         : new Date(lastMoveAt);
-
-    //     const elapsedTime =
-    //       movedAtAsDate.getTime() - lastMoveAtAsDate.getTime();
-    //     return timeLeft[lastMoveBy] - elapsedTime;
-    //   }
-    //   return timeLeft[lastMoveBy];
-    // });
 
     const instance = getNewChessGame({ pgn });
     try {
@@ -90,24 +73,6 @@ export const reducer = (
       lastMoveBy: turn,
       lastMoveAt: moveAt,
     } as const;
-
-    // if (prev.game.status === 'pending') {
-    //   // From Pending the Game advances to Idling (on Move)
-    //   // Next > "Idling"
-    //   return {
-    //     ...prev,
-    //     game: {
-    //       ...commonPrevGameProps,
-    //       ...commonNextGameProps,
-    //       status: 'idling',
-    //       // The StartedAt is the saame as the first move
-    //       startedAt: action.payload.moveAt,
-    //       winner: undefined,
-    //       // The time left doesn't change yet
-    //       timeLeft: prev.game.timeLeft,
-    //     },
-    //   };
-    // }
 
     if (prev.game.status === 'idling') {
       // The Game Status advances to "ongoing" only if both players moved
@@ -141,36 +106,34 @@ export const reducer = (
             lastUpdatedAt: moveAt,
           },
           winner: null,
+          gameOverReason: null,
         },
       };
     }
 
-    // console.group('--In Play Reducer');
     const nextTimeLeft = calculateTimeLeftAt({
-      // lastMoveAt: prev.game.lastMoveAt,
       at: moveAt,
       turn,
       prevTimeLeft: prev.game.timeLeft,
     });
-    // console.groupEnd();
 
     // Prev Game Status is "Ongoing"
+    const isGameOverResult = checkIsGameOverWithReason(
+      instance,
+      prev.game.timeClass !== 'untimed' && nextTimeLeft[turn] < 0
+    );
 
-    const isCheckMate = instance.isCheckmate();
-    const isTimeOut =
-      prev.game.timeClass !== 'untimed' && nextTimeLeft[turn] < 0;
-
-    const isGameComplete = isCheckMate || isTimeOut;
-
-    if (isGameComplete) {
-      const winner = invoke(() => {
-        // If is timeout then the opponent won!
-        if (isTimeOut) {
-          return prev.game.lastMoveBy;
+    if (isGameOverResult.ok) {
+      const [gameOverReason, isDraw] = isGameOverResult.val;
+      const nextWinner: GameStateWinner = invoke(() => {
+        // There is no winner if the game is a draw!
+        if (isDraw) {
+          return '1/2';
         }
 
-        // Is Checkmate
-        return turn;
+        return gameOverReason === GameOverReason['timeout']
+          ? prev.game.lastMoveBy
+          : turn;
       });
 
       // Next > "Complete"
@@ -181,8 +144,9 @@ export const reducer = (
           ...commonNextGameProps,
           startedAt: prev.game.startedAt,
           status: 'complete',
-          winner,
+          winner: nextWinner,
           timeLeft: nextTimeLeft,
+          gameOverReason,
         },
       };
     }
@@ -197,6 +161,7 @@ export const reducer = (
         startedAt: prev.game.startedAt,
         winner: null,
         timeLeft: nextTimeLeft,
+        gameOverReason: null,
       },
     };
   }
@@ -248,6 +213,7 @@ export const reducer = (
           status: 'complete',
           winner: prev.game.lastMoveBy,
           timeLeft: nextTimeLeft,
+          gameOverReason: GameOverReason['timeout'],
         },
         ...(lastOffer && {
           gameOffers: [...prev.game.offers.slice(0, -1), lastOffer],
@@ -255,39 +221,6 @@ export const reducer = (
       };
     }
   }
-
-  // if (action.type === 'play:timeout') {
-  //   if (prev.game.status !== 'ongoing') {
-  //     return prev;
-  //   }
-
-  //   //clear any pending offer leftover
-  //   const lastOffer =
-  //     prev.game.offers.length > 0 &&
-  //     (prev.game.offers[prev.game.offers.length - 1] as GameOffer).status ===
-  //       'pending'
-  //       ? ({
-  //           ...prev.game.offers[prev.game.offers.length - 1],
-  //           status: 'cancelled',
-  //         } as GameOffer)
-  //       : undefined;
-
-  //   return {
-  //     ...prev,
-  //     game: {
-  //       ...prev.game,
-  //       status: 'complete',
-  //       winner: toLongColor(swapColor(action.payload.color)),
-  //       timeLeft: {
-  //         ...prev.game.timeLeft,
-  //         [swapColor(prev.game.lastMoveBy)]: 0,
-  //       },
-  //     },
-  //     ...(lastOffer && {
-  //       gameOffers: [...prev.game.offers.slice(0, -1), lastOffer],
-  //     }),
-  //   };
-  // }
 
   if (action.type === 'play:resignGame') {
     // You can only resign an ongoing game!
@@ -301,6 +234,7 @@ export const reducer = (
         ...prev.game,
         status: 'complete',
         winner: toLongColor(swapColor(action.payload.color)),
+        gameOverReason: GameOverReason['resignation'],
       },
     };
   }
@@ -366,6 +300,7 @@ export const reducer = (
         status: 'complete',
         winner: '1/2',
         offers: nextOffers,
+        gameOverReason: GameOverReason['acceptedDraw'],
       },
     };
   }
@@ -410,41 +345,14 @@ export const reducer = (
     };
   }
 
-  if (action.type === 'play:denyOffer') {
-    // You can only accept take back of an ongoing game
-    if (prev.game.status !== 'ongoing') {
-      return prev;
-    }
-
-    const lastOffer: GameOffer = {
-      ...prev.game.offers[prev.game.offers.length - 1],
-      status: 'denied',
-    };
-
-    const nextOffers = [...prev.game.offers.slice(0, -1), lastOffer];
-
+  if (isOneOf(action.type, ['play:denyOffer', 'play:cancelOffer'])) {
     return {
       ...prev,
       game: {
         ...prev.game,
-        offers: nextOffers,
-      },
-    };
-  }
-
-  if (action.type === 'play:cancelOffer') {
-    const lastOffer: GameOffer = {
-      ...prev.game.offers[prev.game.offers.length - 1],
-      status: 'cancelled',
-    };
-
-    const nextOffers = [...prev.game.offers.slice(0, -1), lastOffer];
-
-    return {
-      ...prev,
-      game: {
-        ...prev.game,
-        offers: nextOffers,
+        // Remove the last offer
+        // TODO: But in fact should be able to reset them because there can only be one offer at a time
+        offers: prev.game.offers.slice(0, -1),
       },
     };
   }

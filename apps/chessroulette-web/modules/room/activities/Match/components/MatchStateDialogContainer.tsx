@@ -17,9 +17,9 @@ import {
   PlayerInfo,
   PlayersBySide,
 } from 'apps/chessroulette-web/modules/Play/types';
-import { SmartCountdown } from 'apps/chessroulette-web/components/SmartCountdown';
 import { BetweenGamesAborter } from './BetweenGamesAborter';
 import { now } from 'apps/chessroulette-web/lib/time';
+import { GameOverReason } from 'apps/chessroulette-web/modules/Play';
 
 type Props = DistributiveOmit<GameStateDialogContainerProps, 'dispatch'> & {
   dispatch: DispatchOf<MatchActivityActions>;
@@ -27,7 +27,6 @@ type Props = DistributiveOmit<GameStateDialogContainerProps, 'dispatch'> & {
 };
 
 const getPlayerInfoById = (
-  // players: MatchState['players'],
   { home, away }: PlayersBySide,
   playerId: string
 ): (PlayerInfo & { color: LongChessColor }) | undefined => {
@@ -42,6 +41,21 @@ const getPlayerInfoById = (
   return undefined;
 };
 
+const gameOverReasonsToDisplay: { [k in GameOverReason]: string } = {
+  [GameOverReason['aborted']]: 'Game was aborted',
+  [GameOverReason['acceptedDraw']]: 'Players agreed to draw',
+  [GameOverReason['checkmate']]: 'Game ended in checkmate',
+  [GameOverReason['draw']]: 'Game ended in a draw',
+  [GameOverReason['insufficientMaterial']]:
+    'Game ended in a draw due to insufficient material',
+  [GameOverReason['threefoldRepetition']]:
+    'Game ended in a draw due to a threefold repetition',
+  [GameOverReason['resignation']]: 'Player Resigned',
+  [GameOverReason['stalemate']]:
+    'Game ended in a draw due to a stalemate position',
+  [GameOverReason['timeout']]: 'Game ended due to timeout',
+};
+
 export const MatchStateDialogContainer: React.FC<Props> = ({
   dispatch,
   playersBySide,
@@ -52,7 +66,7 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
     status: matchStatus,
     completedPlaysCount,
     ongoingPlay,
-    lastCompletedPlay,
+    lastEndedPlay,
     winner,
     players,
   } = useMatch();
@@ -93,15 +107,14 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
   }
 
   // Show at the end of a game before the next game starts
-  if (matchStatus === 'ongoing' && !ongoingPlay && lastCompletedPlay) {
+  if (matchStatus === 'ongoing' && !ongoingPlay && lastEndedPlay) {
     const titleSuffix =
-      lastCompletedPlay.game.winner === '1/2' ? ' in a Draw!' : '';
+      lastEndedPlay.game.winner === '1/2' ? ' in a Draw!' : '';
 
-    // TODO: This isn't reliable b/c the game lastMoveAt is not actually the lastGameActivityAt
-    //  since they can resign or lose in a diff way
-    // So this needs to wait until we have lastActivtyAt at the state level
-    const lastGameActivityAt =
-      lastCompletedPlay.game.lastMoveAt || lastCompletedPlay.game.startedAt;
+    const gameOverReason =
+      lastEndedPlay.game.status === 'complete'
+        ? gameOverReasonsToDisplay[lastEndedPlay.game.gameOverReason]
+        : 'Game was aborted';
 
     return (
       <Dialog
@@ -112,9 +125,10 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
         }
         content={
           <div className="flex flex-col gap-4 items-center">
+            <div>{gameOverReason}</div>
             <div className="flex justify-center content-center text-center">
-              {lastCompletedPlay.game.winner &&
-                (lastCompletedPlay.game.winner === '1/2' ? (
+              {lastEndedPlay.game.winner &&
+                (lastEndedPlay.game.winner === '1/2' ? (
                   <div className="flex flex-col gap-1">
                     {/* <Text>Game Ended in a Draw.</Text> */}
                     {matchType === 'bestOf' && (
@@ -124,9 +138,9 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
                 ) : (
                   <Text className="capitalize">
                     {players
-                      ? players[lastCompletedPlay.game.winner].displayName ||
-                        lastCompletedPlay.game.winner
-                      : lastCompletedPlay.game.winner}{' '}
+                      ? players[lastEndedPlay.game.winner].displayName ||
+                        lastEndedPlay.game.winner
+                      : lastEndedPlay.game.winner}{' '}
                     Won!
                   </Text>
                 ))}
@@ -135,11 +149,6 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
               <BetweenGamesAborter
                 totalTimeAllowedMs={10 * 1000}
                 startedAt={now()}
-                // TODO: There shouldn't be a case when there is no lastGameActivityAt should there??
-                // TODO: This isn't reliable b/c the game lastMoveAt is not actually the lastGameActivityAt
-                //  since they can resign or lose in a diff way
-                // So this needs to wait until we have lastActivtyAt at the state level
-                // startedAt={lastGameActivityAt}
                 onFinished={() => {
                   dispatch({ type: 'match:startNewGame' });
                 }}
@@ -147,9 +156,6 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
             )}
           </div>
         }
-        onClose={() => {
-          // setGameResultSeen(true);
-        }}
         {...(matchType === 'openEnded' && {
           buttons: [
             {

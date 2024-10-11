@@ -17,6 +17,8 @@ export type BoardTheme = {
   arrowColors: [string, string, string];
   lastMoveToSquare: string;
   lastMoveFromSquare: string;
+  preMoveToSquare: string;
+  preMoveFromSquare: string;
   hoveredSquare: string;
   clickedPieceSquare: string;
   customPieces?: ChessBoardProps['customPieces'];
@@ -65,6 +67,8 @@ const chessrouletteTheme: Theme = {
     arrowColors: ['#11c6d1', '#f2358d', '#6f7381'],
     lastMoveToSquare: 'rgba(234, 183, 255, .5)',
     lastMoveFromSquare: 'rgba(234, 183, 255, .5)',
+    preMoveFromSquare: 'rgba(21, 183, 155, .5)',
+    preMoveToSquare: 'rgba(21, 183, 155, .5)',
     hoveredSquare: 'rgba(204, 183, 255, .9)',
     // clickedPieceSquare: 'rgba(204, 183, 255, .9)',
     clickedPieceSquare: 'rgba(0, 163, 255, .7)',
@@ -86,6 +90,8 @@ const outpostTheme: Theme = {
     arrowColors: ['#11c6d1', '#f2358d', '#6f7381'],
     lastMoveToSquare: 'rgba(95, 15, 15, .6)',
     lastMoveFromSquare: 'rgba(95, 15, 15, .6)',
+    preMoveFromSquare: 'rgba(21, 183, 155, .5)',
+    preMoveToSquare: 'rgba(21, 183, 155, .5)',
     hoveredSquare: 'rgba(134, 583, 255, .5)',
     clickedPieceSquare: 'rgba(134, 583, 255, .5)',
     renderPiece: renderRCHPiece,

@@ -1,4 +1,4 @@
-import { DispatchOf, swapColor } from '@xmatter/util-kit';
+import { DispatchOf, swapColor, toShortColor } from '@xmatter/util-kit';
 import { Game, PlayActions } from './store';
 import { Playboard } from 'apps/chessroulette-web/components/Boards';
 import { useMemo } from 'react';
@@ -31,15 +31,22 @@ export const GameBoardContainer = ({
 }: GameBoardContainerProps) => {
   // TODO: This should come from somewhere else
   const orientation = useMemo(
-    () => (isBoardFlipped ? swapColor(game.orientation) : game.orientation),
+    () =>
+      toShortColor(
+        isBoardFlipped ? swapColor(game.orientation) : game.orientation
+      ),
     [isBoardFlipped, game.orientation]
   );
 
-  const { displayState } = useGame();
+  const {
+    displayState,
+    realState: { turn },
+  } = useGame();
 
   return (
     <Playboard
       sizePx={boardSizePx}
+      turn={toShortColor(turn)}
       fen={displayState.fen}
       lastMove={displayState.lastMove}
       canPlay={canPlay}

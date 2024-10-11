@@ -1,23 +1,20 @@
 import { createContext } from 'react';
 import { MatchState } from '../movex';
 import { Results } from '../../../../Play/types';
+import { EndedPlayState } from 'apps/chessroulette-web/modules/Play';
 
 export type MatchStateContextType = Pick<
   MatchState,
   'type' | 'rounds' | 'status' | 'winner'
 > & {
+  players: MatchState['players'] | undefined;
   completedPlaysCount: number;
   currentRound: number;
-
   draws: number;
-
   ongoingPlay?: MatchState['ongoingPlay'];
-  lastCompletedPlay?: MatchState['ongoingPlay'];
+  lastEndedPlay?: EndedPlayState;
   // TODO: This should be translated to MatchResults
   results: Results;
-  players: MatchState['players'] | undefined;
-
-  _matchState?: MatchState;
 };
 
 export const MatchStateContext = createContext<MatchStateContextType>({
@@ -27,7 +24,7 @@ export const MatchStateContext = createContext<MatchStateContextType>({
   draws: 0,
   currentRound: 1,
   ongoingPlay: undefined,
-  lastCompletedPlay: undefined,
+  lastEndedPlay: undefined,
   results: {
     black: 0,
     white: 0,

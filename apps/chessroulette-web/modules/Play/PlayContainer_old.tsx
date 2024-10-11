@@ -98,66 +98,72 @@ export const PlayContainer_old = ({
   );
 
   return (
-    <GameProvider game={state.game} players={players} playerId={userId}>
+    <GameProvider
+      game={state.game}
+      // players={players}
+      playerId={userId}
+    >
       <ResizableDesktopLayout
         rightSideSize={RIGHT_SIDE_SIZE_PX}
         mainComponent={({ boardSize }) => (
-          <Playboard
-            sizePx={boardSize}
-            fen={displayState.fen}
-            lastMove={displayState.lastMove}
-            canPlay={canPlayGame}
-            overlayComponent={
-              <GameStateDialog
-                joinRoomLink={joinRoomLink}
-                // onRematchRequest={() => {
-                //   dispatch({
-                //     type: 'play:sendOffer',
-                //     payload: { byPlayer: userId, offerType: 'rematch' },
-                //   });
-                // }}
-                onAcceptOffer={({ offer }) => {
-                  if (offer === 'draw') {
-                    dispatch({ type: 'play:acceptOfferDraw' });
-                  } else if (offer === 'rematch') {
-                    dispatch({ type: 'play:acceptOfferRematch' });
-                  } else if (offer === 'takeback') {
-                    dispatch({ type: 'play:acceptTakeBack' });
-                  }
-                }}
-                //TODO - at the moment nothing happens, later can decide if extra notifications when offer is cancelled
-                onCancelOffer={() => dispatch({ type: 'play:cancelOffer' })}
-                onDenyOffer={() => dispatch({ type: 'play:denyOffer' })}
-              />
-            }
-            playingColor={orientation}
-            onMove={(payload) => {
-              dispatch({
-                type: 'play:move',
-                payload: {
-                  ...payload,
-                  moveAt: new Date().getTime(),
-                },
-              });
+          null
+          // TODO: Took this out when I added the premove. Need to remove this file completely anyway
+          // <Playboard
+          //   sizePx={boardSize}
+          //   fen={displayState.fen}
+          //   lastMove={displayState.lastMove}
+          //   canPlay={canPlayGame}
+          //   overlayComponent={
+          //     <GameStateDialog
+          //       joinRoomLink={joinRoomLink}
+          //       // onRematchRequest={() => {
+          //       //   dispatch({
+          //       //     type: 'play:sendOffer',
+          //       //     payload: { byPlayer: userId, offerType: 'rematch' },
+          //       //   });
+          //       // }}
+          //       onAcceptOffer={({ offer }) => {
+          //         if (offer === 'draw') {
+          //           dispatch({ type: 'play:acceptOfferDraw' });
+          //         } else if (offer === 'rematch') {
+          //           dispatch({ type: 'play:acceptOfferRematch' });
+          //         } else if (offer === 'takeback') {
+          //           dispatch({ type: 'play:acceptTakeBack' });
+          //         }
+          //       }}
+          //       //TODO - at the moment nothing happens, later can decide if extra notifications when offer is cancelled
+          //       onCancelOffer={() => dispatch({ type: 'play:cancelOffer' })}
+          //       onDenyOffer={() => dispatch({ type: 'play:denyOffer' })}
+          //     />
+          //   }
+          //   playingColor={orientation}
+          //   onMove={(payload) => {
+          //     dispatch({
+          //       type: 'play:move',
+          //       payload: {
+          //         ...payload,
+          //         moveAt: new Date().getTime(),
+          //       },
+          //     });
 
-              // TODO: This can be returned from a more internal component
-              return true;
-            }}
-            rightSideSizePx={RIGHT_SIDE_SIZE_PX}
-            rightSideClassName="flex flex-col"
-            rightSideComponent={
-              <>
-                <div className="flex-1" />
-                <div className="relative flex flex-col items-center justify-center">
-                  <PanelResizeHandle
-                    className="w-1 h-20 rounded-lg bg-slate-600"
-                    title="Resize"
-                  />
-                </div>
-                <div className="flex-1" />
-              </>
-            }
-          />
+          //     // TODO: This can be returned from a more internal component
+          //     return true;
+          //   }}
+          //   rightSideSizePx={RIGHT_SIDE_SIZE_PX}
+          //   rightSideClassName="flex flex-col"
+          //   rightSideComponent={
+          //     <>
+          //       <div className="flex-1" />
+          //       <div className="relative flex flex-col items-center justify-center">
+          //         <PanelResizeHandle
+          //           className="w-1 h-20 rounded-lg bg-slate-600"
+          //           title="Resize"
+          //         />
+          //       </div>
+          //       <div className="flex-1" />
+          //     </>
+          //   }
+          // />
         )}
         rightComponent={
           <div className="flex flex-col flex-1 min-h-0 gap-4">

@@ -3,7 +3,7 @@ import {
   ChessboardContainer,
   ChessboardContainerProps,
   useBoardTheme,
-} from '../Chessboard';
+} from '../../Chessboard';
 
 type Props = DistributiveOmit<ChessboardContainerProps, 'boardTheme'>;
 

@@ -5,6 +5,7 @@ import {
   ChessFENBoard,
   noop,
   swapColor,
+  toShortColor,
 } from '@xmatter/util-kit';
 import { RIGHT_SIDE_SIZE_PX } from './LearnBoard';
 import { IconButton } from 'apps/chessroulette-web/components/Button';
@@ -37,6 +38,7 @@ export const InstructorBoard = ({
   showBoardEditor = false,
   // dispatch,
   onToggleBoardEditor = noop,
+  boardOrientation,
   ...chessBoardProps
 }: Props) => {
   if (showBoardEditor) {
@@ -44,6 +46,7 @@ export const InstructorBoard = ({
       <BoardEditor
         sizePx={boardSizePx}
         // boardOrientation={swapColor(state.orientation)}
+        boardOrientation={boardOrientation ? toShortColor(boardOrientation) : undefined}
         {...chessBoardProps}
         // onArrowsChange={(arrowsMap) => {
         //   dispatch({
