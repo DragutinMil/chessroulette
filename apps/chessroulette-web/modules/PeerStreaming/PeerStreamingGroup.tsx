@@ -22,6 +22,61 @@ type PeersConnectionProps = React.PropsWithChildren<{
   peerUsersMap: PeerUsersMap;
 }>;
 
+type Props = {
+  groupId: string;
+  clientUserId: UserId;
+  peerUsersMap: PeerUsersMap; // This excludes the Local Client Peer (Me)
+  p2pCommunicationType: P2PCommunicationType;
+  iceServers: IceServerRecord[];
+  render: (p: { reel: Reel | undefined }) => React.ReactNode;
+};
+
+// This should be a Memoized/Pure Component
+export const PeerStreamingGroup: React.FC<Props> = (props) => {
+  const [state, dispatch] = useReducer(
+    peerStreamingReducer,
+    initialPeerStreamingState
+  );
+
+  useEffect(() => {
+    dispatch({
+      type: 'updatePeers',
+      payload: {
+        peerUsersMap: props.peerUsersMap,
+      },
+    });
+  }, [props.peerUsersMap, dispatch]);
+
+  const reel = useReel({
+    peersMap: state.peers,
+    clientUserId: props.clientUserId,
+  });
+
+  if (!config.CAMERA_ON) {
+    return <>{props.render({ reel })}</>;
+  }
+
+  return (
+    // TODO: Ensure this doesn't get rendered multiple times (thus opening the peerjs connection multiple times)
+    <PeerToPeerProvider
+      clientUserId={props.clientUserId}
+      iceServers={props.iceServers}
+      uniqId={props.groupId}
+      onPeerConnectionChannelsUpdated={(payload) => {
+        dispatch({ type: 'updatePeerConnection', payload });
+      }}
+    >
+      <PeersConnection
+        id={props.groupId}
+        p2pCommunicationType={props.p2pCommunicationType}
+        peerUsersMap={props.peerUsersMap}
+      >
+        {props.render({ reel })}
+      </PeersConnection>
+    </PeerToPeerProvider>
+  );
+};
+
 const PeersConnection: React.FC<PeersConnectionProps> = (props) => {
   const p2pConnections = usePeerToPeerConnections();
 
@@ -48,62 +103,4 @@ const PeersConnection: React.FC<PeersConnectionProps> = (props) => {
   useWillUnmount(disconnectFromAllPeersInRoom, [disconnectFromAllPeersInRoom]);
 
   return <>{props.children}</>;
-};
-
-type Props = {
-  groupId: string;
-  clientUserId: UserId;
-  peerUsersMap: PeerUsersMap; // This excludes the Local Client Peer (Me)
-  p2pCommunicationType: P2PCommunicationType;
-  iceServers: IceServerRecord[];
-  render: (p: { reel: Reel | undefined }) => React.ReactNode;
-};
-
-// This should be a Memoized/Pure Component
-export const PeerStreamingGroup: React.FC<Props> = (props) => {
-  // const dispatch = useDispatch();
-  const [state, dispatch] = useReducer(
-    peerStreamingReducer,
-    initialPeerStreamingState
-  );
-
-  useEffect(() => {
-    dispatch({
-      type: 'updatePeers',
-      payload: {
-        peerUsersMap: props.peerUsersMap,
-      },
-    });
-  }, [props.peerUsersMap, dispatch]);
-
-  const reel = useReel({
-    peersMap: state.peers,
-    clientUserId: props.clientUserId,
-  });
-
-  // console.log('reel', reel, state.peers);
-
-  if (!config.CAMERA_ON) {
-    return <>{props.render({ reel })}</>;
-  }
-
-  return (
-    // TODO: Ensure this doesn't get rendered multiple times (thus opening the peerjs connection multiple times)
-    <PeerToPeerProvider
-      clientUserId={props.clientUserId}
-      iceServers={props.iceServers}
-      uniqId={props.groupId}
-      onPeerConnectionChannelsUpdated={(payload) => {
-        dispatch({ type: 'updatePeerConnection', payload });
-      }}
-    >
-      <PeersConnection
-        id={props.groupId}
-        p2pCommunicationType={props.p2pCommunicationType}
-        peerUsersMap={props.peerUsersMap}
-      >
-        {props.render({ reel })}
-      </PeersConnection>
-    </PeerToPeerProvider>
-  );
 };

@@ -1,9 +1,9 @@
 import * as io from 'io-ts';
 import {
-  ISODate as ISODateType,
+  type ISODate as ISODateType,
   isoDateTimeFromISOString,
   toISODate,
-} from '../../lib/date';
+} from './util/isoDateTime';
 import { parseISO } from 'date-fns';
 import { either } from 'fp-ts/lib/Either';
 

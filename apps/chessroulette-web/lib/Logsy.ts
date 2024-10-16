@@ -1,5 +1,3 @@
-// const movexLogsy = Logger.get('Movex');
-
 type LogsyMethods =
   | 'log'
   | 'info'
@@ -17,8 +15,6 @@ const globalLogsyConfigWrapper = {
     verbose: false,
   },
 };
-
-// Depreacte from here! maybe make own library
 
 class Logsy {
   constructor(

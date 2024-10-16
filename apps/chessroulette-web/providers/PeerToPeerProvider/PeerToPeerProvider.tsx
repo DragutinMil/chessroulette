@@ -11,12 +11,7 @@ import {
   PeerConnectionsStateProps,
 } from './PeerConnectionsHandler';
 import { PeerConnectionsErrors } from './PeerConnections';
-import {
-  IceServerRecord,
-  Peer,
-  PeerUserId,
-  PeerUserIdsMap,
-} from './type';
+import { IceServerRecord, Peer, PeerUserId, PeerUserIdsMap } from './type';
 import { User } from 'apps/chessroulette-web/modules/user/type';
 
 type Props = React.PropsWithChildren<{
@@ -66,14 +61,6 @@ export class PeerToPeerProvider extends React.Component<Props, State> {
 
     // Other
     this.onStateUpdated = this.onStateUpdated.bind(this);
-  }
-
-  componentDidMount() {
-    // console.log('Peer2PeerProvder Ice Servers:', this.props.iceServers);
-    // TODO: This could be cached localy
-    // getIceURLS().map((iceServers) => {
-    //   this.setState({ iceServers });
-    // });
   }
 
   componentDidUpdate(_: Props, prevState: State) {
@@ -180,10 +167,6 @@ export class PeerToPeerProvider extends React.Component<Props, State> {
   render() {
     return (
       <>
-        {/* <pre>
-          {this.props.iceServers?.length}{' '}
-          {JSON.stringify(this.props.iceServers, null, 2)}
-        </pre> */}
         {this.props.iceServers && (
           <PeerConnectionsHandler
             // Reset this once the id changes

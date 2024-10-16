@@ -4,7 +4,7 @@ import { StringRecord } from '@xmatter/util-kit';
 import { authOptions } from 'apps/chessroulette-web/services/Auth';
 import { RoomTemplate } from 'apps/chessroulette-web/templates/RoomTemplate';
 import { RoomContainer } from 'apps/chessroulette-web/modules/room/RoomContainer';
-import { twilio } from 'apps/chessroulette-web/services/twiliio';
+import { twilio } from 'apps/chessroulette-web/services/twilio';
 import { metadata as rootMetadata } from '../../../../page';
 import { getCustomServerSession } from 'apps/chessroulette-web/services/Auth/getCustomServerSession';
 import { roomIdParamsSchema } from 'apps/chessroulette-web/modules/room/io/paramsSchema';

@@ -1,13 +1,8 @@
 export type PeerUserId = string;
 
-// export type PeerUser = {
-//   id: string;
-// };
-
 export type PeerUserRecord = {
   userId: PeerUserId;
   userDisplayName?: string;
-  // user: PeerUser;
 };
 
 export type IceServerRecord = {
@@ -36,8 +31,6 @@ export type PeerStreamingConfig =
   | PeerStreamingConfigOff;
 
 export type Peer = PeerUserRecord & {
-  // isMe: boolean; // TODO: Why do we need this? A Peer is always a Peer is not me!
-  // userId: string;
   connection: PeerStreamingConnection;
 };
 

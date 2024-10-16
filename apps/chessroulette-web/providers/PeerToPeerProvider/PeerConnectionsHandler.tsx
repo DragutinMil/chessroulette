@@ -1,6 +1,5 @@
 'use client';
 
-// import { IceServerRecord, UserRecord } from 'chessroulette-io';
 import { Component } from 'react';
 import { type PeerConnections } from './PeerConnections';
 import { IceServerRecord } from './type';
@@ -36,10 +35,6 @@ export type PeerConnectionsState =
       connect: PeerConnections['connect'];
       disconnect: PeerConnections['disconnect'];
       destroy: () => void;
-      // client: Omit<
-      //   PeerConnections,
-      //   'onOpen' | 'onClose' | 'onPeerConnected' | 'onPeerStream' | 'onError' | 'connect'
-      // >;
       client: PeerConnections;
     };
 
