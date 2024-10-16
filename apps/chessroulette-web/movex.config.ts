@@ -1,4 +1,4 @@
-import { reducer as roomReducer } from './modules/room/movex/reducer';
+import { reducer as roomReducer } from './modules/room/movex';
 import { config } from './config';
 import { reducerLogger } from './lib/util';
 

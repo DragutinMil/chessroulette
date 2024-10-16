@@ -1,20 +1,7 @@
-import {
-  generateGuestUserId,
-  generateUserId,
-  getRandomStr,
-} from '@app/util';
+import { generateGuestUserId, generateUserId } from '@app/util';
 import { User } from '@app/modules/user/type';
 import { useUpdateableSearchParams } from '@app/hooks/useSearchParams';
 import { CustomSession } from '@app/services/Auth';
-
-// I don't want to use this anymore, as the guest doesn't make sense - I want to use the same clientId the Movex uses at all times
-// export const useUserId = () => {
-//   // TODO: This is just temporary as the user ids are passed in the url
-//   const params = useSearchParams();
-
-//   // return params.get('userId') || `guest-${getRandomStr(5)}`;
-//   return params.get('userId');
-// };
 
 const getOrSetUserIdInSearchParams = (
   params: ReturnType<typeof useUpdateableSearchParams>,
@@ -51,7 +38,6 @@ export const useUser = (idIfInexistent?: string): User => {
 };
 
 export const useSessionUserOrSetAsGuest = (session?: CustomSession): User => {
-  // const userId = useExistentUserIdOr(`guest-${getRandomStr(12)}`);
   const params = useUpdateableSearchParams();
 
   if (session?.user) {

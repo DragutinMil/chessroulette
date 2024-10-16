@@ -21,17 +21,12 @@ type Props = {
   fallback?: React.ReactNode;
 };
 
-const hashDemoImgId = (id: string) => {
-  return Number(id.match(/\d/)?.[0] || 0);
-};
-
 export const CameraPanel = ({
   iceServers,
   aspectRatio,
   userId,
   peerGroupId,
   participants,
-  fallback,
 }: Props) => {
   const { [userId]: removedMe, ...peerUsersMap } = useMemo<PeerUsersMap>(
     () =>
@@ -42,19 +37,6 @@ export const CameraPanel = ({
           userId: p.id,
           userDisplayName: p.displayName,
         })
-        //TOOD - don't know which is the right code here!
-        // objectKeys(participants).reduce(
-        //   (prev, nextUserId) => ({
-        //     ...prev,
-        //     [nextUserId]: nextUserId,
-        //   }),
-        //   {} as PeerUserIdsMap
-        // objectKeys(players).reduce(
-        //   (prev, nextUserId) => ({
-        //     ...prev,
-        //     [nextUserId]: nextUserId,
-        //   }),
-        //   {} as PeerUserIdsMap
       ),
     [participants]
   );
@@ -82,17 +64,12 @@ export const CameraPanel = ({
           reel={reel}
           aspectRatio={aspectRatio}
           onFocus={() => {
-            // console.log('on focus');
+            // TBD
           }}
-
-          // onReady={() => setCamerasReady(true)}
-          // {...(camerasReady && {
-          //   mainOverlay: () => (
-
-          //   ),
-          // })}
         />
       )}
     />
   );
 };
+
+const hashDemoImgId = (id: string) => Number(id.match(/\d/)?.[0] || 0);

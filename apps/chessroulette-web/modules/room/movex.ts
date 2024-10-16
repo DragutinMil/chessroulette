@@ -4,7 +4,7 @@ import {
   ActivityState,
   initialActivityState,
   roomActivityReducer,
-} from '../activities/movex';
+} from './activities/movex';
 
 export type RoomState = {
   activity: ActivityState;

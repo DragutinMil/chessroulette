@@ -40,18 +40,6 @@ export const playActivityParamsSchema = z.object({
   timeClass: gameTimeClassRecord.optional(),
 });
 
-// const matchUnionParams = z.discriminatedUnion('matchType', [
-//   z.object({
-//     matchType: z.literal('bestOf'),
-//     round: z.number(), // TODO: Enforect positive odd numbers only
-//   }),
-//   z.object({
-//     matchType: z.literal('friendly'),
-//   }),
-// ]);
-
-// const x = {} as Zod.infer<typeof matchActivityParamsSchema>;
-
 export const activityParamsSchema = z
   .discriminatedUnion('activity', [
     learnActivityParamsSchema,

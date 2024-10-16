@@ -1,19 +1,17 @@
 'use client';
 
-import { ClipboardCopyButton } from '@app/components/ClipboardCopyButton';
-import { RoomActivityType } from '../links';
 import Link from 'next/link';
-import { Icon } from '@app/components/Icon/Icon';
-import { useRoomSettings } from '../hooks/useRoomSettings';
-import { IconButton } from '@app/components/Button';
-import { useRoomLinkId } from '../hooks/useRoomLinkId';
+import { ClipboardCopyButton } from '@app/components/ClipboardCopyButton';
+import { Icon } from '@app/components/Icon';
+import { RoomActivityType } from '../links';
+import { useRoomSettings, useRoomLinkId } from '../hooks';
 
 type Props = {
   roomId: string;
   activity: RoomActivityType;
 };
 
-export const RoomSideMenu = ({ roomId, activity }: Props) => {
+export const RoomSideMenu = ({ activity }: Props) => {
   const roomSettings = useRoomSettings(activity);
   const { joinRoomLink } = useRoomLinkId(activity);
 
@@ -44,8 +42,6 @@ export const RoomSideMenu = ({ roomId, activity }: Props) => {
           tooltip={roomSettings.joinRoomLinkTooltip || 'Invite Opponent'}
         />
       )}
-
-      {/* <IconButton icon="BuildingLibraryIcon" size="sm" href="/learn/lessons" /> */}
     </div>
   );
 };

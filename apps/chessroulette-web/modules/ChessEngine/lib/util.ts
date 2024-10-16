@@ -26,9 +26,6 @@ export const evaluate = (
   if (event.data.startsWith('info depth')) {
     let adv, messageEvalType;
     let message = event.data.split(' ');
-    // const chess = new Chess();
-    // chess.load(fen);
-    // const turn = chess.turn();
 
     if (message.includes('mate')) {
       messageEvalType = `M${message[message.indexOf('mate') + 1]}`;
@@ -42,33 +39,19 @@ export const evaluate = (
       if (evaluation === 'M0') {
         if (turn === 'b') {
           setWhiteHeight(100);
-          // heightsPct = {
-          //   w: 100,
-          //   b: 0,
-          // };
-          // setWHeight(100);
         } else {
-          // heightsPct = {
-          //   w: 0,
-          //   b: 100,
-          // };
           setWhiteHeight(0);
-          // setWHeight(0);
         }
 
         evalAsStr = evaluation.replace('-', '').replace('M', '#');
-        // setSfEval(evaluation.replace('-', '').replace('M', '#'));
       } else {
-        // console.log('mate', evaluation);
         if (
           (turn === 'w' && evaluation[1] != '-') ||
           (turn === 'b' && evaluation[1] === '-')
         ) {
           setWhiteHeight(100);
-          // setWHeight(100);
         } else {
           setWhiteHeight(0);
-          // setWHeight(0);
         }
         evalAsStr = evaluation.replace('-', '').replace('M', '#');
       }
@@ -83,16 +66,13 @@ export const evaluate = (
         evaluation = String(Math.abs(Number(evaluation)));
       }
 
-      // setSfEval((parseFloat(evaluation) / 100).toFixed(1));
       evalAsStr = (parseFloat(evaluation) / 100).toFixed(1);
 
       const evaluated = evaluateFunc(Math.abs(parseFloat(evaluation) / 100));
 
       if (adv === 'w') {
-        // setWHeight(50 + evaluated);
         setWhiteHeight(50 + evaluated);
       } else {
-        // setWHeight(50 - evaluated);
         setWhiteHeight(50 - evaluated);
       }
     }

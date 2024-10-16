@@ -1,6 +1,6 @@
+import { useEffect } from 'react';
 import { ChessFEN, noop } from '@xmatter/util-kit';
 import { useChessEngineFromFen } from '../hooks/useChessEngine';
-import { useEffect } from 'react';
 import { EngineResultState } from '../lib/types';
 
 type Props = {

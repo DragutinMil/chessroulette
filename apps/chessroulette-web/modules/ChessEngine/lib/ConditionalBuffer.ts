@@ -14,8 +14,6 @@ export class ConditionalBuffer<T> {
    */
   constructor(private props: { until: (item: T) => boolean }) {}
 
-  // until() {}
-
   push(item: T) {
     this.backlog.push(item);
 

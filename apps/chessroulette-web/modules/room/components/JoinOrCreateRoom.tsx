@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import movexConfig from '@app/movex.config';
 import { useMovexResourceType } from 'movex-react';
 import { useRouter } from 'next/navigation';
-import { RoomState, initialRoomState } from '../movex/reducer';
+import { RoomState, initialRoomState } from '../movex';
 import {
   toResourceIdentifierObj,
   toResourceIdentifierStr,
@@ -124,28 +124,27 @@ export const JoinOrCreateRoom: React.FC<Props> = ({
         });
     })
       .map((r) => {
-        router // console.log('here', updateableSearchParams.toObject());
-          .replace(
-            links.getRoomLink({
-              // TODO: This needs to be done in a better, more generic way
-              // But right now the most important thing is that the match doesn't get extra params
-              ...(r.state.activity.activityType === 'match'
-                ? objectPick(updateableSearchParams.toObject(), [
-                    // User
-                    'userDisplayName',
+        router.replace(
+          links.getRoomLink({
+            // TODO: This needs to be done in a better, more generic way
+            // But right now the most important thing is that the match doesn't get extra params
+            ...(r.state.activity.activityType === 'match'
+              ? objectPick(updateableSearchParams.toObject(), [
+                  // User
+                  'userDisplayName',
 
-                    // Room settings
-                    'theme',
+                  // Room settings
+                  'theme',
 
-                    //activity settings
-                    'flipped',
-                  ])
-                : updateableSearchParams.toObject()),
-              id: toResourceIdentifierObj(r.rid).resourceId,
-              activity: activityParams.activity,
-              userId: updateableSearchParams.get('userId') || generateUserId(),
-            })
-          );
+                  //activity settings
+                  'flipped',
+                ])
+              : updateableSearchParams.toObject()),
+            id: toResourceIdentifierObj(r.rid).resourceId,
+            activity: activityParams.activity,
+            userId: updateableSearchParams.get('userId') || generateUserId(),
+          })
+        );
       })
       .mapErr((e) => {
         // TODO: support the other reasons it might fail
