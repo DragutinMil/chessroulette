@@ -1,7 +1,7 @@
 import {
   BoardEditor,
   BoardEditorProps,
-} from 'apps/chessroulette-web/components/BoardEditor';
+} from '@app/components/BoardEditor';
 import { ChapterBoardState } from '../movex';
 import { toShortColor } from '@xmatter/util-kit';
 

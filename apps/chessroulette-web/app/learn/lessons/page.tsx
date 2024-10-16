@@ -1,10 +1,10 @@
 import z from 'zod';
 import { Metadata } from 'next';
 import { findUserLessons } from '../../../modules/Learn/Lessons/apiActions';
-import { User } from 'apps/chessroulette-web/modules/user';
-import { LessonsList } from 'apps/chessroulette-web/modules/Learn/Lessons/components/LessonsList';
-import { get_UNSAFE_URL_SESSION } from 'apps/chessroulette-web/services/Auth/lib';
-import { GeneralPageTemplate } from 'apps/chessroulette-web/templates/GeneralPageTemplate';
+import { User } from '@app/modules/user';
+import { LessonsList } from '@app/modules/Learn/Lessons/components/LessonsList';
+import { get_UNSAFE_URL_SESSION } from '@app/services/Auth/lib';
+import { GeneralPageTemplate } from '@app/templates/GeneralPageTemplate';
 
 export const metadata: Metadata = {
   title: 'Lessons | Chessroulette',

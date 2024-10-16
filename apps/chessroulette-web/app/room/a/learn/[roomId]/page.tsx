@@ -1,14 +1,14 @@
 import { Metadata } from 'next';
 import { ResourceIdentifier } from 'movex-core-util';
 import { StringRecord } from '@xmatter/util-kit';
-import { authOptions } from 'apps/chessroulette-web/services/Auth';
-import { RoomTemplate } from 'apps/chessroulette-web/templates/RoomTemplate';
-import { RoomContainer } from 'apps/chessroulette-web/modules/room/RoomContainer';
+import { authOptions } from '@app/services/Auth';
+import { RoomTemplate } from '@app/templates/RoomTemplate';
+import { RoomContainer } from '@app/modules/room/RoomContainer';
 import { metadata as rootMetadata } from '../../../../page';
-import { twilio } from 'apps/chessroulette-web/services/twilio';
-import { getCustomServerSession } from 'apps/chessroulette-web/services/Auth/getCustomServerSession';
-import { roomIdParamsSchema } from 'apps/chessroulette-web/modules/room/io/paramsSchema';
-import { ErrorPage } from 'apps/chessroulette-web/appPages/ErrorPage';
+import { twilio } from '@app/services/twilio';
+import { getCustomServerSession } from '@app/services/Auth/getCustomServerSession';
+import { roomIdParamsSchema } from '@app/modules/room/io/paramsSchema';
+import { ErrorPage } from '@app/appPages/ErrorPage';
 
 export const metadata: Metadata = {
   title: `Room | ${rootMetadata.title}`,

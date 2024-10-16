@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
-import { authOptions } from 'apps/chessroulette-web/services/Auth';
-import { getCustomServerSession } from 'apps/chessroulette-web/services/Auth/getCustomServerSession';
-import { MovexProvider } from 'apps/chessroulette-web/providers/MovexProvider';
+import { authOptions } from '@app/services/Auth';
+import { getCustomServerSession } from '@app/services/Auth/getCustomServerSession';
+import { MovexProvider } from '@app/providers/MovexProvider';
 
 export const metadata: Metadata = {
   title: 'Room | Chessroulette',

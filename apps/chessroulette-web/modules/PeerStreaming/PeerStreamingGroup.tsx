@@ -1,20 +1,20 @@
 import React, { useCallback, useEffect, useReducer } from 'react';
-import { useWillUnmount } from 'apps/chessroulette-web/hooks/useWillUnmount';
-import { P2PCommunicationType } from 'apps/chessroulette-web/modules/room/type';
+import { useWillUnmount } from '@app/hooks/useWillUnmount';
+import { P2PCommunicationType } from '@app/modules/room/type';
 import {
   PeerToPeerProvider,
   usePeerToPeerConnections,
-} from 'apps/chessroulette-web/providers/PeerToPeerProvider';
+} from '@app/providers/PeerToPeerProvider';
 import {
   IceServerRecord,
   PeerUsersMap,
-} from 'apps/chessroulette-web/providers/PeerToPeerProvider/type';
+} from '@app/providers/PeerToPeerProvider/type';
 import { initialPeerStreamingState, peerStreamingReducer } from './reducer';
 import { UserId } from '../user/type';
-import { Reel } from 'apps/chessroulette-web/components/FaceTime/MultiFaceTimeCompact';
+import { Reel } from '@app/components/FaceTime/MultiFaceTimeCompact';
 import { useReel } from './hooks';
-import { config } from 'apps/chessroulette-web/config';
-import { peerUsersMapToPeerIdsMap } from 'apps/chessroulette-web/providers/PeerToPeerProvider/util';
+import { config } from '@app/config';
+import { peerUsersMapToPeerIdsMap } from '@app/providers/PeerToPeerProvider/util';
 
 type PeersConnectionProps = React.PropsWithChildren<{
   id: string;

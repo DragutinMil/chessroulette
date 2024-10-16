@@ -1,7 +1,7 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import React, { useState } from 'react';
 import { useWillUnmount } from './useWillUnmount';
-import { Button } from 'apps/chessroulette-web/components/Button';
+import { Button } from '@app/components/Button';
 
 const Component: React.FC = () => {
   const [color, setColor] = useState<string>('');

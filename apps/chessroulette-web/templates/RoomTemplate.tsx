@@ -3,7 +3,7 @@ import { RoomSideMenu } from '../modules/room/components/RoomSideMenu';
 import { toImgPath } from '../lib/misc';
 import { CSSProperties } from 'react';
 import { OnboardingWidget } from '../modules/Onboarding';
-import bkg_2 from 'apps/chessroulette-web/templates/bkg_2.svg';
+import bkg_2 from '@app/templates/bkg_2.svg';
 import { ActivityState } from '../modules/room/activities/movex';
 import { CustomSession } from '../services/Auth';
 

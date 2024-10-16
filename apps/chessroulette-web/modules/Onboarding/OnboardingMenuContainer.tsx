@@ -5,7 +5,7 @@ import { Menu, Item, useContextMenu } from 'react-contexify';
 import 'react-contexify/dist/ReactContexify.css';
 import { signOut } from 'next-auth/react';
 import Link from 'next/link';
-import { CustomSession } from 'apps/chessroulette-web/services/Auth';
+import { CustomSession } from '@app/services/Auth';
 
 type Props = React.PropsWithChildren & {
   session: CustomSession;

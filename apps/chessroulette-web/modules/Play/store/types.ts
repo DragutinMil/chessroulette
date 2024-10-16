@@ -6,7 +6,7 @@ import {
 } from '@xmatter/util-kit';
 import { Action } from 'movex-core-util';
 import { GameTimeClass } from '../types';
-import { User } from 'apps/chessroulette-web/modules/user/type';
+import { User } from '@app/modules/user/type';
 
 export type GameStateWinner = 'white' | 'black' | '1/2';
 

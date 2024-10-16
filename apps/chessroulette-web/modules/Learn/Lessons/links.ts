@@ -1,5 +1,5 @@
-import { CustomSession } from 'apps/chessroulette-web/services/Auth';
-import { sessionToSearchParams } from 'apps/chessroulette-web/services/Auth/lib';
+import { CustomSession } from '@app/services/Auth';
+import { sessionToSearchParams } from '@app/services/Auth/lib';
 
 // const root = '/';
 const learn = '/learn';

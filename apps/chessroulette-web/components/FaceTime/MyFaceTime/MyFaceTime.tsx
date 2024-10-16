@@ -7,8 +7,8 @@ import {
   AVStreamingConstraints,
   DEFAULT_AV_STREAMING_CONSTRAINTS,
   getAVStreamingInstance,
-} from 'apps/chessroulette-web/services/AVStreaming';
-import { PeerStreamingConfig } from 'apps/chessroulette-web/providers/PeerToPeerProvider/type';
+} from '@app/services/AVStreaming';
+import { PeerStreamingConfig } from '@app/providers/PeerToPeerProvider/type';
 import useInstance from '@use-it/instance';
 
 type Props = Omit<FaceTimeProps, 'streamConfig'> & {

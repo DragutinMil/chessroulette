@@ -1,5 +1,5 @@
-import { SmartCountdown } from 'apps/chessroulette-web/components/SmartCountdown';
-import { now } from 'apps/chessroulette-web/lib/time';
+import { SmartCountdown } from '@app/components/SmartCountdown';
+import { now } from '@app/lib/time';
 import { useState } from 'react';
 
 type Props = {

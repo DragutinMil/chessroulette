@@ -1,4 +1,4 @@
-import { User } from 'apps/chessroulette-web/modules/user/type';
+import { User } from '@app/modules/user/type';
 import { Session as NextAuthSession } from 'next-auth';
 
 export type CustomSessionUser = NextAuthSession['user'] & User;

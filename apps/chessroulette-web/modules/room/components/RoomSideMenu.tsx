@@ -1,11 +1,11 @@
 'use client';
 
-import { ClipboardCopyButton } from 'apps/chessroulette-web/components/ClipboardCopyButton';
+import { ClipboardCopyButton } from '@app/components/ClipboardCopyButton';
 import { RoomActivityType } from '../links';
 import Link from 'next/link';
-import { Icon } from 'apps/chessroulette-web/components/Icon/Icon';
+import { Icon } from '@app/components/Icon/Icon';
 import { useRoomSettings } from '../hooks/useRoomSettings';
-import { IconButton } from 'apps/chessroulette-web/components/Button';
+import { IconButton } from '@app/components/Button';
 import { useRoomLinkId } from '../hooks/useRoomLinkId';
 
 type Props = {

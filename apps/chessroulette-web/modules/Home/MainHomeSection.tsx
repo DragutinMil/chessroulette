@@ -1,8 +1,8 @@
-import { Button } from 'apps/chessroulette-web/components/Button';
-import { Session } from 'next-auth';
 import React from 'react';
-import { links } from '../room/links';
+import { Session } from 'next-auth';
 import Link from 'next/link';
+import { Button } from '@app/components/Button';
+import { links } from '../room/links';
 import { PlaySetupButton } from '../Play/components/PlaySetupButton/PlaySetupButton';
 
 type Props = {
@@ -20,7 +20,7 @@ export const MainHomeSection: React.FC<Props> = ({ session }) => {
           })}
         >
           <Button type="custom" bgColor="blue" className="font-bold w-full">
-            Start Class as Instructor
+            Start Class as Instructor 2
           </Button>
         </Link>
         <Link

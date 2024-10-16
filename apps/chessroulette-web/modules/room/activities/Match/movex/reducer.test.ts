@@ -10,7 +10,7 @@ import {
   PlayState,
   createOngoingGame,
   createPendingGame,
-} from 'apps/chessroulette-web/modules/Play';
+} from '@app/modules/Play';
 
 const wrapIntoActivityState = <M extends MatchState>(
   match: M

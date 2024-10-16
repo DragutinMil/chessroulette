@@ -1,6 +1,6 @@
 'use client';
 
-import { ResizableDesktopLayout } from 'apps/chessroulette-web/templates/ResizableDesktopLayout';
+import { ResizableDesktopLayout } from '@app/templates/ResizableDesktopLayout';
 import {
   ChapterCreateInput,
   ChapterModel,
@@ -12,7 +12,7 @@ import {
   AcvtiveInputState,
   initialInputState,
 } from '../../../room/activities/Learn/reducers/inputReducer';
-import { FreeBoardNotation } from 'apps/chessroulette-web/components/FreeBoardNotation';
+import { FreeBoardNotation } from '@app/components/FreeBoardNotation';
 import {
   ChessColor,
   ChessFENBoard,
@@ -31,8 +31,8 @@ import type {
   LearnActivityState,
 } from '../../../room/activities/Learn/movex';
 import { ChaptersTab } from '../../../room/activities/Learn/chapters/ChaptersTab';
-import { Button } from 'apps/chessroulette-web/components/Button';
-import { Tabs } from 'apps/chessroulette-web/components/Tabs';
+import { Button } from '@app/components/Button';
+import { Tabs } from '@app/components/Tabs';
 import { useEffect, useReducer } from 'react';
 // import uncommitedLessonStateReducer from './uncommitedLessonStateReducer_old';
 import {
@@ -41,7 +41,7 @@ import {
   initialLessonState,
 } from './draftLessonReducer';
 import { LessonState } from './draftLessonReducer';
-import { reducerLogger } from 'apps/chessroulette-web/lib/util';
+import { reducerLogger } from '@app/lib/util';
 import { noop } from 'movex-core-util';
 
 type Props = {

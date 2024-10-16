@@ -1,6 +1,6 @@
 import React, { ReactNode, useState } from 'react';
 import { noop } from '@xmatter/util-kit';
-import { PeerStreamingConfig } from 'apps/chessroulette-web/providers/PeerToPeerProvider/type';
+import { PeerStreamingConfig } from '@app/providers/PeerToPeerProvider/type';
 import { VideoBox, VideoBoxProps } from '../../VideoBox';
 import { AspectRatio, AspectRatioProps } from '../../AspectRatio';
 import { Text } from '../../Text';

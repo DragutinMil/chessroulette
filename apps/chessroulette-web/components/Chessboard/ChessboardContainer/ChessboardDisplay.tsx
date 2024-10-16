@@ -4,7 +4,7 @@ import {
   promotionalPieceSanToFenBoardPromotionalPieceSymbol,
 } from '@xmatter/util-kit';
 import { ReactChessBoardProps } from './types';
-import { BoardTheme } from 'apps/chessroulette-web/hooks/useTheme/defaultTheme';
+import { BoardTheme } from '@app/hooks/useTheme/defaultTheme';
 import { Chessboard as ReactChessboard } from 'react-chessboard';
 import { PromotionDialogLayer } from './PromotionDialogLayer';
 

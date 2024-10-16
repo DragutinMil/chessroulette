@@ -1,11 +1,11 @@
 import React from 'react';
 import { useMatch } from '../providers/useMatch';
-import { Dialog } from 'apps/chessroulette-web/components/Dialog';
-import { Text } from 'apps/chessroulette-web/components/Text';
+import { Dialog } from '@app/components/Dialog';
+import { Text } from '@app/components/Text';
 import {
   GameStateDialogContainer,
   GameStateDialogContainerProps,
-} from 'apps/chessroulette-web/modules/Play/GameStateDialogContainer';
+} from '@app/modules/Play/GameStateDialogContainer';
 import { MatchActivityActions } from '../movex';
 import {
   DispatchOf,
@@ -16,10 +16,10 @@ import {
 import {
   PlayerInfo,
   PlayersBySide,
-} from 'apps/chessroulette-web/modules/Play/types';
+} from '@app/modules/Play/types';
 import { BetweenGamesAborter } from './BetweenGamesAborter';
-import { now } from 'apps/chessroulette-web/lib/time';
-import { GameOverReason } from 'apps/chessroulette-web/modules/Play';
+import { now } from '@app/lib/time';
+import { GameOverReason } from '@app/modules/Play';
 
 type Props = DistributiveOmit<GameStateDialogContainerProps, 'dispatch'> & {
   dispatch: DispatchOf<MatchActivityActions>;

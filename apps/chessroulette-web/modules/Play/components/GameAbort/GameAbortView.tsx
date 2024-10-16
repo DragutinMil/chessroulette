@@ -2,8 +2,8 @@ import React from 'react';
 import {
   ConfirmButton,
   ConfirmButtonProps,
-} from 'apps/chessroulette-web/components/Button/ConfirmButton';
-import { SmartCountdown } from 'apps/chessroulette-web/components/SmartCountdown';
+} from '@app/components/Button/ConfirmButton';
+import { SmartCountdown } from '@app/components/SmartCountdown';
 
 export type GameAbortViewProps = {
   timeLeft: number;

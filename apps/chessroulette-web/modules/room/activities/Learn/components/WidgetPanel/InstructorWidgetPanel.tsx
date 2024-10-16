@@ -1,21 +1,21 @@
 import React, { useCallback, useMemo } from 'react';
-import { Button } from 'apps/chessroulette-web/components/Button';
+import { Button } from '@app/components/Button';
 import {
   FreeBoardNotation,
   FreeBoardNotationProps,
-} from 'apps/chessroulette-web/components/FreeBoardNotation';
-import { Tabs, TabsRef } from 'apps/chessroulette-web/components/Tabs';
+} from '@app/components/FreeBoardNotation';
+import { Tabs, TabsRef } from '@app/components/Tabs';
 import type { Chapter, ChapterState } from '../../movex/types';
 import {
   PgnInputBox,
   PgnInputBoxProps,
-} from 'apps/chessroulette-web/components/PgnInputBox/PgnInputBox';
+} from '@app/components/PgnInputBox/PgnInputBox';
 import { ChaptersTab, ChaptersTabProps } from '../../chapters/ChaptersTab';
 import { useWidgetPanelTabsNavAsSearchParams } from '../useWidgetPanelTabsNav';
 import { EngineData } from '../../../../../ChessEngine/lib/io';
-import { useUpdateableSearchParams } from 'apps/chessroulette-web/hooks/useSearchParams';
-import { ChessEngineWithProvider } from 'apps/chessroulette-web/modules/ChessEngine/ChesEngineWithProvider';
-import { Switch } from 'apps/chessroulette-web/components/Switch';
+import { useUpdateableSearchParams } from '@app/hooks/useSearchParams';
+import { ChessEngineWithProvider } from '@app/modules/ChessEngine/ChesEngineWithProvider';
+import { Switch } from '@app/components/Switch';
 
 type Props = {
   chaptersMap: Record<Chapter['id'], Chapter>;

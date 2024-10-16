@@ -3,7 +3,7 @@ import {
   SmartCountdownDisplay,
   SmartCountdownDisplayProps,
 } from './SmartCountdownDisplay';
-import { useInterval } from 'apps/chessroulette-web/hooks/useInterval';
+import { useInterval } from '@app/hooks/useInterval';
 import { lpad, timeLeftToIntervalMs, timeLeftToTimeUnits } from './util';
 import { noop } from '@xmatter/util-kit';
 

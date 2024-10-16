@@ -10,8 +10,8 @@ import {
   isValidPgn,
   pieceSanToFenBoardPieceSymbol,
 } from '@xmatter/util-kit';
-import { ImportedInput } from 'apps/chessroulette-web/components/PgnInputBox/PgnInputBox';
-import { CircleDrawTuple } from 'apps/chessroulette-web/components/Chessboard/types';
+import { ImportedInput } from '@app/components/PgnInputBox/PgnInputBox';
+import { CircleDrawTuple } from '@app/components/Chessboard/types';
 
 export type InputState =
   | {

@@ -1,7 +1,7 @@
 'use client';
 
 import { CSSProperties, useEffect } from 'react';
-import { getRandomInt } from 'apps/chessroulette-web/util';
+import { getRandomInt } from '@app/util';
 import demo1 from './assets/1.jpg';
 import demo2 from './assets/2.jpg';
 import demo3 from './assets/3.jpg';

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
 import useInstance from '@use-it/instance';
-import { themes } from 'apps/chessroulette-web/hooks/useTheme/defaultTheme';
+import { themes } from '@app/hooks/useTheme/defaultTheme';
 import { ChessFENBoard } from '@xmatter/util-kit';
 import { ChessboardContainer } from './ChessboardContainer';
 

@@ -3,7 +3,7 @@ import {
   ActivityState,
   initialActivityState,
 } from '../../movex';
-import { PlayStore } from 'apps/chessroulette-web/modules/Play';
+import { PlayStore } from '@app/modules/Play';
 
 export const reducer = (
   prev: ActivityState = initialActivityState,

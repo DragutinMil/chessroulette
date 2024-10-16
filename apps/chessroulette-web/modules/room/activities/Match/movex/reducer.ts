@@ -7,10 +7,10 @@ import {
   Results,
   AbortedPlayState,
   CompletedPlayState,
-} from 'apps/chessroulette-web/modules/Play';
+} from '@app/modules/Play';
 import { MatchActivityActions, MatchState } from './types';
 import { initialMatchActivityState } from './state';
-import { calculateTimeLeftAt } from 'apps/chessroulette-web/modules/Play/store/util';
+import { calculateTimeLeftAt } from '@app/modules/Play/store/util';
 
 // TODO: Instead of Hard coding this, put in the matchCreation setting as part of the MatchState
 export const MATCH_TIME_TO_ABORT = 3 * 60 * 1000; // 3 mins

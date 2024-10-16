@@ -1,8 +1,8 @@
-import movexConfig from 'apps/chessroulette-web/movex.config';
+import movexConfig from '@app/movex.config';
 import { MovexBoundResourceFromConfig } from 'movex-react';
 import { ChessFENBoard, noop, swapColor } from '@xmatter/util-kit';
 import { useReducer, useRef } from 'react';
-import { IceServerRecord } from 'apps/chessroulette-web/providers/PeerToPeerProvider/type';
+import { IceServerRecord } from '@app/providers/PeerToPeerProvider/type';
 import { useLearnActivitySettings } from './hooks/useLearnActivitySettings';
 import { PanelResizeHandle } from 'react-resizable-panels';
 import {
@@ -15,9 +15,9 @@ import { CameraPanel } from '../../components/CameraPanel';
 import { LearnBoard, RIGHT_SIDE_SIZE_PX } from './components/LearnBoard';
 import inputReducer, { initialInputState } from './reducers/inputReducer';
 import { ChapterDisplayView } from './chapters/ChapterDisplayView';
-import { TabsRef } from 'apps/chessroulette-web/components/Tabs';
-import { UserId, UsersMap } from 'apps/chessroulette-web/modules/user/type';
-import { ResizableDesktopLayout } from 'apps/chessroulette-web/templates/ResizableDesktopLayout';
+import { TabsRef } from '@app/components/Tabs';
+import { UserId, UsersMap } from '@app/modules/user/type';
+import { ResizableDesktopLayout } from '@app/templates/ResizableDesktopLayout';
 import { InstructorBoard } from './components/InstructorBoard';
 
 type Props = {

@@ -1,10 +1,10 @@
 import {
   PlayState,
   initialPlayState,
-} from 'apps/chessroulette-web/modules/Play/store';
+} from '@app/modules/Play/store';
 import { createMatchState } from './operations';
 import { MatchState } from './types';
-import { chessGameTimeLimitMsMap } from 'apps/chessroulette-web/modules/Play/types';
+import { chessGameTimeLimitMsMap } from '@app/modules/Play/types';
 
 const CONSTANTS = {
   challengeeId: 'challengee-user',

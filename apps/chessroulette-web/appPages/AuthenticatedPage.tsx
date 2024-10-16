@@ -1,6 +1,6 @@
 import { PropsWithChildren } from 'react';
-import { GeneralPageTemplate } from 'apps/chessroulette-web/templates/GeneralPageTemplate';
-import { getCustomServerSession } from 'apps/chessroulette-web/services/Auth/getCustomServerSession';
+import { GeneralPageTemplate } from '@app/templates/GeneralPageTemplate';
+import { getCustomServerSession } from '@app/services/Auth/getCustomServerSession';
 import { authOptions } from '../services/Auth';
 
 export const AuthenticatedPage = async ({ children }: PropsWithChildren) => {

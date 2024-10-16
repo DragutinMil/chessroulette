@@ -1,13 +1,13 @@
 import { objectKeys } from '@xmatter/util-kit';
-import { Dialog } from 'apps/chessroulette-web/components/Dialog/Dialog';
-import { SelectInput } from 'apps/chessroulette-web/components/SelectInput';
+import { Dialog } from '@app/components/Dialog/Dialog';
+import { SelectInput } from '@app/components/SelectInput';
 import React, { useState } from 'react';
 import {
   GameTimeClass,
   chessGameTimeLimitMsMap,
   gameTimeClassRecord,
 } from '../../types';
-import { Button } from 'apps/chessroulette-web/components/Button';
+import { Button } from '@app/components/Button';
 
 type Props = {
   onSelect: ({

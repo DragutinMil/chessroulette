@@ -2,7 +2,7 @@ import { AuthOptions } from 'next-auth';
 import { PrismaClient } from '@prisma/client';
 import { PrismaAdapter } from '@auth/prisma-adapter';
 import EmailProvider from 'next-auth/providers/email';
-import { config } from 'apps/chessroulette-web/config';
+import { config } from '@app/config';
 import { serverConfig } from '../../config/config.server';
 import { CustomSessionUser } from './types';
 

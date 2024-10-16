@@ -5,9 +5,9 @@ import {
   toDictIndexedBy,
 } from '@xmatter/util-kit';
 import { Chessboard } from 'react-chessboard';
-import { Piece } from 'apps/chessroulette-web/components/Chessboard/Piece';
-import { pieces as MahaPieces } from 'apps/chessroulette-web/components/Chessboard/assets/mahaPieces';
-import { pieces as RegularPieces } from 'apps/chessroulette-web/components/Chessboard/assets/merida';
+import { Piece } from '@app/components/Chessboard/Piece';
+import { pieces as MahaPieces } from '@app/components/Chessboard/assets/mahaPieces';
+import { pieces as RegularPieces } from '@app/components/Chessboard/assets/merida';
 
 export type ChessBoardProps = GetComponentProps<typeof Chessboard>;
 

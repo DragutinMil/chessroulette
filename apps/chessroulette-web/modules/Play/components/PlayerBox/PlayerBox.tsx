@@ -1,6 +1,6 @@
 import React from 'react';
 import { GameTimeClass, PlayerInfo } from '../../types';
-import { SmartCountdown } from 'apps/chessroulette-web/components/SmartCountdown';
+import { SmartCountdown } from '@app/components/SmartCountdown';
 
 type Props = {
   playerInfo: PlayerInfo;

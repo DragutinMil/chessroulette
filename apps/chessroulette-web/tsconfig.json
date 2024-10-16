@@ -19,7 +19,30 @@
     "types": [
       "jest",
       "node"
-    ]
+    ],
+    "paths": {
+      "@xmatter/util-kit": [
+        "util-kit/src/index.ts"
+      ],
+      "@app/*": [
+        "apps/chessroulette-web/*"
+      ],
+      // "@components/*": [
+      //   "apps/chessroulette-web/components/*"
+      // ],
+      // "@modules/*": [
+      //   "apps/chessroulette-web/modules/*"
+      // ],
+      // "@services/*": [
+      //   "apps/chessroulette-web/services/*"
+      // ],
+      // "@providers/*": [
+      //   "apps/chessroulette-web/providers/*"
+      // ],
+      // "@config": [
+      //   "apps/chessroulette-web/config/index.ts"
+      // ]
+    }
   },
   "include": [
     "**/*.ts",
@@ -28,7 +51,6 @@
     "**/*.jsx",
     "next-env.d.ts",
     "../../util-kit/**/*.ts",
-    ".next/types/**/*.ts",
     "../../apps/chessroulette-web/.next/types/**/*.ts"
   ],
   "exclude": [

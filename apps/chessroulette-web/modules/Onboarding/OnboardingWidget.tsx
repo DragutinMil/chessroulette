@@ -1,9 +1,9 @@
 import React from 'react';
-import { Avatar } from 'apps/chessroulette-web/components/Avatar';
+import { Avatar } from '@app/components/Avatar';
 import Link from 'next/link';
 import { OnboardingMenuContainer } from './OnboardingMenuContainer';
-import { CustomSession } from 'apps/chessroulette-web/services/Auth';
-import { Text } from 'apps/chessroulette-web/components/Text';
+import { CustomSession } from '@app/services/Auth';
+import { Text } from '@app/components/Text';
 import 'react-contexify/dist/ReactContexify.css';
 
 type Props = {

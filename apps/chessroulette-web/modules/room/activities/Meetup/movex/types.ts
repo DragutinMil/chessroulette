@@ -3,7 +3,7 @@ import {
   ArrowsMap,
   CircleDrawTuple,
   CirclesMap,
-} from 'apps/chessroulette-web/components/Chessboard/types';
+} from '@app/components/Chessboard/types';
 import { Action } from 'movex-core-util';
 import { ChapterBoardState } from '../../Learn/movex';
 

@@ -1,10 +1,10 @@
 import { type DataConnection } from 'peerjs';
 import { Pubsy } from 'ts-pubsy';
 import { Err } from 'ts-results';
-import { logsy } from 'apps/chessroulette-web/lib/Logsy';
+import { logsy } from '@app/lib/Logsy';
 import { peerMessageEnvelope, PeerMessageEnvelope } from './records';
-import { getAVStreamingInstance } from 'apps/chessroulette-web/services/AVStreaming';
-import { eitherToResult } from 'apps/chessroulette-web/lib/util';
+import { getAVStreamingInstance } from '@app/services/AVStreaming';
+import { eitherToResult } from '@app/lib/util';
 import { PeerUserId } from './type';
 
 type Events = {

@@ -1,4 +1,4 @@
-import { Text } from 'apps/chessroulette-web/components/Text';
+import { Text } from '@app/components/Text';
 
 export type SmartCountdownDisplayProps = {
   timeLeft: number;

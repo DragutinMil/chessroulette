@@ -1,6 +1,6 @@
 import { ChapterBoardState, ChapterState } from '../movex';
 import { useLearnActivitySettings } from '../hooks/useLearnActivitySettings';
-import { Freeboard, Playboard } from 'apps/chessroulette-web/components/Boards';
+import { Freeboard, Playboard } from '@app/components/Boards';
 import { FreeBoardHistory, toShortColor } from '@xmatter/util-kit';
 import {
   BoardEditorIconButton,
@@ -8,7 +8,7 @@ import {
   FlipBoardIconButton,
   StartPositionIconButton,
   ChessboardContainerProps,
-} from 'apps/chessroulette-web/components/Chessboard';
+} from '@app/components/Chessboard';
 
 type Props = Required<
   Pick<

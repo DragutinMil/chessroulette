@@ -3,7 +3,7 @@
 import { max } from '@xmatter/util-kit';
 import { useEffect, useRef, useState } from 'react';
 import { Panel, PanelGroup } from 'react-resizable-panels';
-import { useContainerDimensions } from 'apps/chessroulette-web/components/ContainerWithDimensions';
+import { useContainerDimensions } from '@app/components/ContainerWithDimensions';
 
 type Props = {
   rightSideSize: number;

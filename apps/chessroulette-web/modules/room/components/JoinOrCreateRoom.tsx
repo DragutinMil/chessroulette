@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import movexConfig from 'apps/chessroulette-web/movex.config';
+import movexConfig from '@app/movex.config';
 import { useMovexResourceType } from 'movex-react';
 import { useRouter } from 'next/navigation';
 import { RoomState, initialRoomState } from '../movex/reducer';
@@ -9,8 +9,8 @@ import {
   toResourceIdentifierObj,
   toResourceIdentifierStr,
 } from 'movex-core-util';
-import { useUpdateableSearchParams } from 'apps/chessroulette-web/hooks/useSearchParams';
-import { generateUserId, getRandomStr } from 'apps/chessroulette-web/util';
+import { useUpdateableSearchParams } from '@app/hooks/useSearchParams';
+import { generateUserId, getRandomStr } from '@app/util';
 import { links } from '../links';
 import { AsyncErr } from 'ts-async-results';
 import { invoke, objectPick } from '@xmatter/util-kit';
@@ -18,7 +18,7 @@ import { initialActivityStatesByActivityType } from '../activities/movex';
 import { GameTimeClass } from '../../Play/types';
 import { ActivityParamsSchema } from '../io/paramsSchema';
 import { createMatchState } from '../activities/Match/movex';
-import { logsy } from 'apps/chessroulette-web/lib/Logsy';
+import { logsy } from '@app/lib/Logsy';
 import { createPendingGame } from '../../Play';
 
 type Props = {

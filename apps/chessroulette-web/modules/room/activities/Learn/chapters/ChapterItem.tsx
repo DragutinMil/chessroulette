@@ -1,6 +1,6 @@
-import { IconButton } from 'apps/chessroulette-web/components/Button';
-import { QuickConfirmButton } from 'apps/chessroulette-web/components/Button/QuickConfirmButton';
-import { Icon } from 'apps/chessroulette-web/components/Icon/Icon';
+import { IconButton } from '@app/components/Button';
+import { QuickConfirmButton } from '@app/components/Button/QuickConfirmButton';
+import { Icon } from '@app/components/Icon/Icon';
 import { Chapter } from '../movex';
 
 export type Props = {

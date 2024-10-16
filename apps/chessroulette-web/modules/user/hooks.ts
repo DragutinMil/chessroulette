@@ -2,10 +2,10 @@ import {
   generateGuestUserId,
   generateUserId,
   getRandomStr,
-} from 'apps/chessroulette-web/util';
-import { User } from 'apps/chessroulette-web/modules/user/type';
-import { useUpdateableSearchParams } from 'apps/chessroulette-web/hooks/useSearchParams';
-import { CustomSession } from 'apps/chessroulette-web/services/Auth';
+} from '@app/util';
+import { User } from '@app/modules/user/type';
+import { useUpdateableSearchParams } from '@app/hooks/useSearchParams';
+import { CustomSession } from '@app/services/Auth';
 
 // I don't want to use this anymore, as the guest doesn't make sense - I want to use the same clientId the Movex uses at all times
 // export const useUserId = () => {

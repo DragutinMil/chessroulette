@@ -3,7 +3,7 @@ import { IdlingGame, PlayActions } from '../../store';
 import { DispatchOf, LongChessColor } from '@xmatter/util-kit';
 import { MatchState } from '../../../room/activities/Match/movex';
 import { useMemo, useState } from 'react';
-import { now } from 'apps/chessroulette-web/lib/time';
+import { now } from '@app/lib/time';
 
 type Props = Pick<GameAbortViewProps, 'className'> & {
   // // Not sure if here what we need is the match players

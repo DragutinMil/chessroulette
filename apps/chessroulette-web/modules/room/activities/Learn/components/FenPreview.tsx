@@ -1,6 +1,6 @@
 import { CheckIcon, DocumentDuplicateIcon } from '@heroicons/react/16/solid';
 import { ChessFEN } from '@xmatter/util-kit';
-import { ClipboardCopyButton } from 'apps/chessroulette-web/components/ClipboardCopyButton';
+import { ClipboardCopyButton } from '@app/components/ClipboardCopyButton';
 
 type Props = {
   fen: ChessFEN;

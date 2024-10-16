@@ -1,14 +1,14 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Text } from 'apps/chessroulette-web/components/Text';
-import { PlayersInfoContainer } from 'apps/chessroulette-web/modules/Play/PlayersInfoContainer';
-import { useMatch } from 'apps/chessroulette-web/modules/room/activities/Match/providers/useMatch';
-import { PlayersBySide } from 'apps/chessroulette-web/modules/Play/types';
-import { useGame } from 'apps/chessroulette-web/modules/Play/providers/useGame';
+import { Text } from '@app/components/Text';
+import { PlayersInfoContainer } from '@app/modules/Play/PlayersInfoContainer';
+import { useMatch } from '@app/modules/room/activities/Match/providers/useMatch';
+import { PlayersBySide } from '@app/modules/Play/types';
+import { useGame } from '@app/modules/Play/providers/useGame';
 import { ChessColor, DispatchOf, toLongColor } from '@xmatter/util-kit';
-import { PlayActions } from 'apps/chessroulette-web/modules/Play/store';
+import { PlayActions } from '@app/modules/Play/store';
 import { getMovesDetailsFromPGN } from '../utils';
 import { MATCH_TIME_TO_ABORT } from '../movex';
-import { GameAbort } from 'apps/chessroulette-web/modules/Play/components/GameAbort';
+import { GameAbort } from '@app/modules/Play/components/GameAbort';
 
 type Props = {
   playersBySide: PlayersBySide;

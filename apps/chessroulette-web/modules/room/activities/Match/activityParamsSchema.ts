@@ -1,4 +1,4 @@
-import { gameTimeClassRecord } from 'apps/chessroulette-web/modules/Play/types';
+import { gameTimeClassRecord } from '@app/modules/Play/types';
 import z from 'zod';
 
 export const whiteChessColorSchema = z.literal('white').or(z.literal('w'));

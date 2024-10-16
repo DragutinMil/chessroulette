@@ -1,6 +1,6 @@
 import { ChessFEN } from '@xmatter/util-kit';
+import { config } from '@app/config';
 import { ChessEngineProvider } from './ChessEngineProvider';
-import { config } from 'apps/chessroulette-web/config';
 import { ChessEngineAnalysisDisplay } from './components/ChessEngineAnalysisDisplay';
 
 type Props = {

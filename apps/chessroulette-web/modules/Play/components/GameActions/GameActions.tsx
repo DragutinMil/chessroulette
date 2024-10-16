@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ChessColor, toLongColor } from '@xmatter/util-kit';
-import { QuickConfirmButton } from 'apps/chessroulette-web/components/Button/QuickConfirmButton';
+import { QuickConfirmButton } from '@app/components/Button/QuickConfirmButton';
 import { useGame } from '../../providers/useGame';
 
 type Props = {

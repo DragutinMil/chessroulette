@@ -1,6 +1,6 @@
 'use client';
 
-import { useUpdateableSearchParams } from 'apps/chessroulette-web/hooks/useSearchParams';
+import { useUpdateableSearchParams } from '@app/hooks/useSearchParams';
 import { useLearnActivitySettings } from '../activities/Learn';
 import { ActivityState } from '../activities/movex';
 import { invoke } from '@xmatter/util-kit';

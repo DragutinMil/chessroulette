@@ -1,20 +1,20 @@
-import movexConfig from 'apps/chessroulette-web/movex.config';
+import movexConfig from '@app/movex.config';
 import { MovexBoundResourceFromConfig } from 'movex-react';
 import { FBHIndex, noop, swapColor, toShortColor } from '@xmatter/util-kit';
-import { IceServerRecord } from 'apps/chessroulette-web/providers/PeerToPeerProvider/type';
+import { IceServerRecord } from '@app/providers/PeerToPeerProvider/type';
 import { MeetupActivityState } from './movex';
-import { UserId, UsersMap } from 'apps/chessroulette-web/modules/user/type';
+import { UserId, UsersMap } from '@app/modules/user/type';
 import { RIGHT_SIDE_SIZE_PX } from '../Learn/components/LearnBoard';
-import { Playboard } from 'apps/chessroulette-web/components/Boards';
+import { Playboard } from '@app/components/Boards';
 import { CameraPanel } from '../../components/CameraPanel';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useMeetupActivitySettings } from './useMeetupActivitySettings';
 import { PanelResizeHandle } from 'react-resizable-panels';
 import { GameDisplayView } from './components/GameDisplayView';
-import { StartPositionIconButton } from 'apps/chessroulette-web/components/Chessboard';
-import { FreeBoardNotation } from 'apps/chessroulette-web/components/FreeBoardNotation';
-import { ResizableDesktopLayout } from 'apps/chessroulette-web/templates/ResizableDesktopLayout';
-import { getGameDisplayState } from 'apps/chessroulette-web/modules/Play/lib';
+import { StartPositionIconButton } from '@app/components/Chessboard';
+import { FreeBoardNotation } from '@app/components/FreeBoardNotation';
+import { ResizableDesktopLayout } from '@app/templates/ResizableDesktopLayout';
+import { getGameDisplayState } from '@app/modules/Play/lib';
 
 export type Props = {
   roomId: string;

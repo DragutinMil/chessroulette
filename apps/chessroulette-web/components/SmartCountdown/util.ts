@@ -3,7 +3,7 @@ import {
   minutes,
   second,
   milliseconds,
-} from 'apps/chessroulette-web/lib/time';
+} from '@app/lib/time';
 
 export const lpad = function (digit: number, length = 2, padding = '0') {
   let res = String(digit);

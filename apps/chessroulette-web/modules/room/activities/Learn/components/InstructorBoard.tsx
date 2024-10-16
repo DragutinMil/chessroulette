@@ -1,4 +1,4 @@
-import { Freeboard } from 'apps/chessroulette-web/components/Boards';
+import { Freeboard } from '@app/components/Boards';
 import {
   ChessColor,
   ChessFEN,
@@ -8,10 +8,10 @@ import {
   toShortColor,
 } from '@xmatter/util-kit';
 import { RIGHT_SIDE_SIZE_PX } from './LearnBoard';
-import { IconButton } from 'apps/chessroulette-web/components/Button';
+import { IconButton } from '@app/components/Button';
 import { PanelResizeHandle } from 'react-resizable-panels';
-import { BoardEditor } from 'apps/chessroulette-web/components/BoardEditor';
-import { ChessboardContainerProps } from 'apps/chessroulette-web/components/Chessboard';
+import { BoardEditor } from '@app/components/BoardEditor';
+import { ChessboardContainerProps } from '@app/components/Chessboard';
 import { ChapterState } from '../movex';
 
 type CommonBoardProps = Pick<

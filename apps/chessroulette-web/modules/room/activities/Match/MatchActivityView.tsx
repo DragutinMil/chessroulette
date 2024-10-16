@@ -1,21 +1,21 @@
-import { GameProvider } from 'apps/chessroulette-web/modules/Play';
-import { GameNotationContainer } from 'apps/chessroulette-web/modules/Play/GameNotationContainer';
-import { UserId, UsersMap } from 'apps/chessroulette-web/modules/user/type';
-import { IceServerRecord } from 'apps/chessroulette-web/providers/PeerToPeerProvider/type';
+import { GameProvider } from '@app/modules/Play';
+import { GameNotationContainer } from '@app/modules/Play/GameNotationContainer';
+import { UserId, UsersMap } from '@app/modules/user/type';
+import { IceServerRecord } from '@app/providers/PeerToPeerProvider/type';
 import { MatchActivityActions, MatchActivityState } from './movex';
 import { DispatchOf } from '@xmatter/util-kit';
 import { RIGHT_SIDE_SIZE_PX } from '../Learn/components/LearnBoard';
 import { CameraPanel } from '../../components/CameraPanel';
-import { GameActionsContainer } from 'apps/chessroulette-web/modules/Play/components/GameActionsContainers';
+import { GameActionsContainer } from '@app/modules/Play/components/GameActionsContainers';
 import { useMemo } from 'react';
-import { PlayersBySide } from 'apps/chessroulette-web/modules/Play/types';
-import { ResizableDesktopLayout } from 'apps/chessroulette-web/templates/ResizableDesktopLayout';
+import { PlayersBySide } from '@app/modules/Play/types';
+import { ResizableDesktopLayout } from '@app/templates/ResizableDesktopLayout';
 import { useRoomLinkId } from '../../hooks/useRoomLinkId';
-import { MatchStateProvider } from 'apps/chessroulette-web/modules/room/activities/Match/providers/MatchStateProvider';
+import { MatchStateProvider } from '@app/modules/room/activities/Match/providers/MatchStateProvider';
 import { MatchStateDisplay } from './components/MatchStateDisplay';
 import { MatchStateDialogContainer } from './components/MatchStateDialogContainer';
-import { initialPlayState } from 'apps/chessroulette-web/modules/Play/store';
-import { PlayContainer } from 'apps/chessroulette-web/modules/Play/PlayContainer';
+import { initialPlayState } from '@app/modules/Play/store';
+import { PlayContainer } from '@app/modules/Play/PlayContainer';
 
 type Props = {
   roomId: string;

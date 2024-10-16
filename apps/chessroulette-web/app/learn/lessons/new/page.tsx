@@ -1,8 +1,8 @@
 import { Metadata } from 'next';
-import { createLesson } from 'apps/chessroulette-web/modules/Learn/Lessons/apiActions';
-import { get_UNSAFE_URL_SESSION } from 'apps/chessroulette-web/services/Auth/lib';
-import Header from 'apps/chessroulette-web/components/Header/Header';
-import { CreateLessonContainer } from 'apps/chessroulette-web/modules/Learn/Lessons/CreateLessonContainer';
+import { createLesson } from '@app/modules/Learn/Lessons/apiActions';
+import { get_UNSAFE_URL_SESSION } from '@app/services/Auth/lib';
+import Header from '@app/components/Header/Header';
+import { CreateLessonContainer } from '@app/modules/Learn/Lessons/CreateLessonContainer';
 
 export const metadata: Metadata = {
   title: 'Lessons | Chessroulette',

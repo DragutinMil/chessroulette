@@ -1,15 +1,15 @@
 import { toDictIndexedBy } from '@xmatter/util-kit';
-import { AspectRatio } from 'apps/chessroulette-web/components/AspectRatio';
-import { CameraView } from 'apps/chessroulette-web/components/CameraView';
-import { FaceTimeProps } from 'apps/chessroulette-web/components/FaceTime';
-import { MultiFaceTimeCompact } from 'apps/chessroulette-web/components/FaceTime/MultiFaceTimeCompact';
-import { config } from 'apps/chessroulette-web/config';
-import { PeerStreamingGroup } from 'apps/chessroulette-web/modules/PeerStreaming';
-import { UserId, UsersMap } from 'apps/chessroulette-web/modules/user/type';
+import { AspectRatio } from '@app/components/AspectRatio';
+import { CameraView } from '@app/components/CameraView';
+import { FaceTimeProps } from '@app/components/FaceTime';
+import { MultiFaceTimeCompact } from '@app/components/FaceTime/MultiFaceTimeCompact';
+import { config } from '@app/config';
+import { PeerStreamingGroup } from '@app/modules/PeerStreaming';
+import { UserId, UsersMap } from '@app/modules/user/type';
 import {
   IceServerRecord,
   PeerUsersMap,
-} from 'apps/chessroulette-web/providers/PeerToPeerProvider/type';
+} from '@app/providers/PeerToPeerProvider/type';
 import { useMemo } from 'react';
 
 type Props = {

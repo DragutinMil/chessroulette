@@ -5,11 +5,11 @@ import { MyFaceTime } from '../MyFaceTime';
 import {
   PeerUserId,
   StreamingPeer,
-} from 'apps/chessroulette-web/providers/PeerToPeerProvider/type';
+} from '@app/providers/PeerToPeerProvider/type';
 import {
   AVStreaming,
   getAVStreamingInstance,
-} from 'apps/chessroulette-web/services/AVStreaming';
+} from '@app/services/AVStreaming';
 import useInstance from '@use-it/instance';
 import {
   SpeakerWaveIcon,

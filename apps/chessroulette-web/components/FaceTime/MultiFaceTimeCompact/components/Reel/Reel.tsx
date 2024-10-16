@@ -2,10 +2,10 @@ import React from 'react';
 import {
   PeerUserId,
   StreamingPeer,
-} from 'apps/chessroulette-web/providers/PeerToPeerProvider/type';
+} from '@app/providers/PeerToPeerProvider/type';
 import { FaceTime } from '../../../FaceTime';
 import { MyFaceTime } from '../../../MyFaceTime';
-import { AVStreamingConstraints } from 'apps/chessroulette-web/services/AVStreaming';
+import { AVStreamingConstraints } from '@app/services/AVStreaming';
 
 type Props = {
   streamingPeers: StreamingPeer[];

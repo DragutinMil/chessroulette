@@ -1,7 +1,7 @@
 import { createContext } from 'react';
 import { MatchState } from '../movex';
 import { Results } from '../../../../Play/types';
-import { EndedPlayState } from 'apps/chessroulette-web/modules/Play';
+import { EndedPlayState } from '@app/modules/Play';
 
 export type MatchStateContextType = Pick<
   MatchState,

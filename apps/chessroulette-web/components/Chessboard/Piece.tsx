@@ -1,6 +1,6 @@
 import React, { CSSProperties } from 'react';
 import { PieceSan } from '@xmatter/util-kit';
-import { toImgPath } from 'apps/chessroulette-web/lib/misc';
+import { toImgPath } from '@app/lib/misc';
 
 type Props = {
   pieceSan: PieceSan;

@@ -1,8 +1,8 @@
-import movexConfig from 'apps/chessroulette-web/movex.config';
+import movexConfig from '@app/movex.config';
 import { MovexBoundResourceFromConfig } from 'movex-react';
 import { noop } from '@xmatter/util-kit';
-import { IceServerRecord } from 'apps/chessroulette-web/providers/PeerToPeerProvider/type';
-import { UserId, UsersMap } from 'apps/chessroulette-web/modules/user/type';
+import { IceServerRecord } from '@app/providers/PeerToPeerProvider/type';
+import { UserId, UsersMap } from '@app/modules/user/type';
 import { PlayContainer_old } from '../../../Play/PlayContainer_old';
 import { usePlayActivitySettings } from './usePlayActivitySettings';
 import { PlayActivityState } from './movex';

@@ -5,7 +5,7 @@ import {
   isWhiteColor,
 } from '@xmatter/util-kit';
 import { MatchState } from './types';
-import { createPendingGame } from 'apps/chessroulette-web/modules/Play/store';
+import { createPendingGame } from '@app/modules/Play/store';
 import { MatchActivityParamsSchema } from '../activityParamsSchema';
 
 export const createMatchState = (

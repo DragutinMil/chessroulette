@@ -1,11 +1,11 @@
 import { DispatchOf, swapColor, toShortColor } from '@xmatter/util-kit';
 import { Game, PlayActions } from './store';
-import { Playboard } from 'apps/chessroulette-web/components/Boards';
+import { Playboard } from '@app/components/Boards';
 import { useMemo } from 'react';
 import { RIGHT_SIDE_SIZE_PX } from '../room/activities/Learn/components/LearnBoard';
 import { PanelResizeHandle } from 'react-resizable-panels';
 import { useGame } from './providers/useGame';
-import { ChessboardContainerProps } from 'apps/chessroulette-web/components/Chessboard';
+import { ChessboardContainerProps } from '@app/components/Chessboard';
 
 export type GameBoardContainerProps = {
   boardSizePx: number;

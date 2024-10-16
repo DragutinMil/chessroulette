@@ -11,7 +11,7 @@ import { useArrowAndCircleColor } from '../hooks/useArrowAndCircleColor';
 import { ArrowsMap, CircleDrawTuple, CirclesMap } from '../types';
 import { noop } from 'movex-core-util';
 import { ChessboardSquare } from './ChessboardSquare';
-import { BoardTheme } from 'apps/chessroulette-web/hooks/useTheme/defaultTheme';
+import { BoardTheme } from '@app/hooks/useTheme/defaultTheme';
 import { useCustomArrows } from './hooks/useArrows';
 import { useCustomStyles } from './hooks/useCustomStyles';
 import { ChessboardDisplay, ChessboardDisplayProps } from './ChessboardDisplay';

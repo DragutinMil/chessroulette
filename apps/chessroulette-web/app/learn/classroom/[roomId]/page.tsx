@@ -1,11 +1,11 @@
 import { Metadata } from 'next';
 import { ResourceIdentifier } from 'movex-core-util';
-import { authOptions } from 'apps/chessroulette-web/services/Auth';
-import { RoomTemplate } from 'apps/chessroulette-web/templates/RoomTemplate';
-import { RoomContainer } from 'apps/chessroulette-web/modules/room/RoomContainer';
+import { authOptions } from '@app/services/Auth';
+import { RoomTemplate } from '@app/templates/RoomTemplate';
+import { RoomContainer } from '@app/modules/room/RoomContainer';
 import { metadata as rootMetadata } from '../../../page';
-import { twilio } from 'apps/chessroulette-web/services/twilio';
-import { getCustomServerSession } from 'apps/chessroulette-web/services/Auth/getCustomServerSession';
+import { twilio } from '@app/services/twilio';
+import { getCustomServerSession } from '@app/services/Auth/getCustomServerSession';
 
 export const metadata: Metadata = {
   title: `Room | ${rootMetadata.title}`,

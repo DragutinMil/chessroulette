@@ -1,8 +1,8 @@
 'use client';
 
 import { DispatchOf, noop } from '@xmatter/util-kit';
-import { IceServerRecord } from 'apps/chessroulette-web/providers/PeerToPeerProvider/type';
-import { UserId, UsersMap } from 'apps/chessroulette-web/modules/user/type';
+import { IceServerRecord } from '@app/providers/PeerToPeerProvider/type';
+import { UserId, UsersMap } from '@app/modules/user/type';
 import { MatchActivityActions, MatchActivityState } from './movex';
 import { MatchActivityView } from './MatchActivityView';
 import { useMatchActivitySettings } from './hooks/useMatchActivitySettings';

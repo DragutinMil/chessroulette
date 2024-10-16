@@ -1,7 +1,7 @@
 import { objectKeys } from '@xmatter/util-kit';
 import { MovexBoundResource } from 'movex';
 import { MovexClientInfo } from './types';
-import { UsersMap } from 'apps/chessroulette-web/modules/user';
+import { UsersMap } from '@app/modules/user';
 
 export const movexSubcribersToUserMap = (
   subscribers: MovexBoundResource['subscribers']

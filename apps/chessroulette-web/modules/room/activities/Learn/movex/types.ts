@@ -9,8 +9,8 @@ import {
   ArrowsMap,
   CircleDrawTuple,
   CirclesMap,
-} from 'apps/chessroulette-web/components/Chessboard/types';
-import { ImportedInput } from 'apps/chessroulette-web/components/PgnInputBox/PgnInputBox';
+} from '@app/components/Chessboard/types';
+import { ImportedInput } from '@app/components/PgnInputBox/PgnInputBox';
 import { Action } from 'movex-core-util';
 
 export type LearnActivityState = {

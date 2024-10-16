@@ -1,7 +1,7 @@
 import {
   FreeBoardNotation,
   FreeBoardNotationProps,
-} from 'apps/chessroulette-web/components/FreeBoardNotation';
+} from '@app/components/FreeBoardNotation';
 import { useGame } from './providers/useGame';
 import { noop } from '@xmatter/util-kit';
 

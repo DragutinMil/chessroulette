@@ -7,7 +7,7 @@
 //   'P2pCommunicationType'
 // );
 
-import { PeersMap } from 'apps/chessroulette-web/providers/PeerToPeerProvider/type';
+import { PeersMap } from '@app/providers/PeerToPeerProvider/type';
 
 export type P2PCommunicationType = 'none' | 'audioOnly' | 'audioVideo';
 

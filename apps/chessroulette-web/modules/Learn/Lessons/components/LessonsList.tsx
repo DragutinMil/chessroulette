@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { LessonModel } from '../types';
 import { LessonItem } from './LessonItem';
-import { CustomSession } from 'apps/chessroulette-web/services/Auth';
+import { CustomSession } from '@app/services/Auth';
 import { getLearnRoutes_WITH_UNSAFE_SESSION_IN_URL } from '../links';
 
 type Props = {

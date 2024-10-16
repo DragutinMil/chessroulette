@@ -1,22 +1,22 @@
 'use client';
 
-import movexConfig from 'apps/chessroulette-web/movex.config';
+import movexConfig from '@app/movex.config';
 import { ResourceIdentifier, toResourceIdentifierObj } from 'movex-core-util';
 import {
   useMovex,
   useMovexBoundResourceFromRid,
   useMovexClient,
 } from 'movex-react';
-import { IceServerRecord } from 'apps/chessroulette-web/providers/PeerToPeerProvider/type';
+import { IceServerRecord } from '@app/providers/PeerToPeerProvider/type';
 import { ActivityState } from './activities/movex';
 import { LearnActivity } from './activities/Learn';
 import { MeetupActivity } from './activities/Meetup/MeetupActivity';
 import { useMemo } from 'react';
 import { PlayActivity } from './activities/Play/PlayActivity';
 import { MatchActivity } from './activities/Match/MatchActivity';
-import { movexSubcribersToUserMap } from 'apps/chessroulette-web/providers/MovexProvider';
+import { movexSubcribersToUserMap } from '@app/providers/MovexProvider';
 import { invoke } from '@xmatter/util-kit';
-import { Modal } from 'apps/chessroulette-web/components/Modal';
+import { Modal } from '@app/components/Modal';
 
 type Props = {
   rid: ResourceIdentifier<'room'>;

@@ -1,4 +1,4 @@
-import { useUpdateableSearchParams } from 'apps/chessroulette-web/hooks/useSearchParams';
+import { useUpdateableSearchParams } from '@app/hooks/useSearchParams';
 import { useMemo } from 'react';
 
 export const useWidgetPanelTabsNavAsSearchParams = () => {

@@ -4,8 +4,8 @@ import PeerSDK from 'peerjs';
 import { wNamespace, woNamespace } from './util';
 import { ActivePeerConnection } from './ActivePeerConnection';
 import { IceServerRecord, PeerUserId } from './type';
-import { logsy } from 'apps/chessroulette-web/lib/Logsy';
-import { config } from 'apps/chessroulette-web/config';
+import { logsy } from '@app/lib/Logsy';
+import { config } from '@app/config';
 
 export type PeerConnectionsErrors = 'PEER_ID_TAKEN' | 'GENERIC_ERROR';
 

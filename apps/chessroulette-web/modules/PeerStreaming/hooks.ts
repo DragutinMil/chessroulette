@@ -3,9 +3,9 @@ import {
   PeersMap,
   StreamingPeer,
   StreamingPeersMap,
-} from 'apps/chessroulette-web/providers/PeerToPeerProvider/type';
+} from '@app/providers/PeerToPeerProvider/type';
 import { useMemo } from 'react';
-import { Reel } from 'apps/chessroulette-web/components/FaceTime/MultiFaceTimeCompact';
+import { Reel } from '@app/components/FaceTime/MultiFaceTimeCompact';
 
 type Props = {
   peersMap: PeersMap;

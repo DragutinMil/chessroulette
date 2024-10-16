@@ -1,9 +1,9 @@
 import { useMemo } from 'react';
 import { objectKeys } from 'movex-core-util';
 import { ChapterItem } from './ChapterItem';
-import { Button, IconButton } from 'apps/chessroulette-web/components/Button';
+import { Button, IconButton } from '@app/components/Button';
 import { CreateChapterView } from './views/CreateChapterView';
-import { TabsNav } from 'apps/chessroulette-web/components/Tabs';
+import { TabsNav } from '@app/components/Tabs';
 import { UpdateChapterView } from './views/UpdateChapterView';
 import { EditChapterStateViewProps } from './views/EditChapterStateView';
 import { initialChapterState } from '../movex/state';

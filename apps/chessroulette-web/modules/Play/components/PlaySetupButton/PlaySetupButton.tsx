@@ -2,8 +2,8 @@
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
 import { GameSelectDialog } from '../GameSelectDialog';
-import { Button } from 'apps/chessroulette-web/components/Button';
-import { links } from 'apps/chessroulette-web/modules/room/links';
+import { Button } from '@app/components/Button';
+import { links } from '@app/modules/room/links';
 
 type Props = {};
 

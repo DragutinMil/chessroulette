@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { invoke, objectKeys } from '@xmatter/util-kit';
-import { Dialog } from 'apps/chessroulette-web/components/Dialog';
+import { Dialog } from '@app/components/Dialog';
 import { GameOffer } from '../../store';
-import { ClipboardCopyButton } from 'apps/chessroulette-web/components/ClipboardCopyButton';
+import { ClipboardCopyButton } from '@app/components/ClipboardCopyButton';
 import Link from 'next/link';
 import { useGame } from '../../providers/useGame';
 

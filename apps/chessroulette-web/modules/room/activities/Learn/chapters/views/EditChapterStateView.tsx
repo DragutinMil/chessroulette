@@ -9,7 +9,7 @@ import { FenPreview } from '../../components/FenPreview';
 import {
   PgnInputBox,
   PgnInputBoxProps,
-} from 'apps/chessroulette-web/components/PgnInputBox/PgnInputBox';
+} from '@app/components/PgnInputBox/PgnInputBox';
 import useInstance from '@use-it/instance';
 import { SQUARES, Square } from 'chess.js';
 import { ChapterState } from '../../movex';

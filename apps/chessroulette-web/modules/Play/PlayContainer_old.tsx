@@ -1,17 +1,17 @@
 import { DispatchOf, FBHIndex, objectKeys, swapColor } from '@xmatter/util-kit';
-import { IceServerRecord } from 'apps/chessroulette-web/providers/PeerToPeerProvider/type';
-import { UserId, UsersMap } from 'apps/chessroulette-web/modules/user/type';
+import { IceServerRecord } from '@app/providers/PeerToPeerProvider/type';
+import { UserId, UsersMap } from '@app/modules/user/type';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { PanelResizeHandle } from 'react-resizable-panels';
 import { GameStateWidget } from './components/GameStateWidget/GameStateWidget';
 import { GameStateDialog } from './components/GameStateDialog/GameStateDialog';
-import { Playboard } from 'apps/chessroulette-web/components/Boards';
-import { FreeBoardNotation } from 'apps/chessroulette-web/components/FreeBoardNotation';
+import { Playboard } from '@app/components/Boards';
+import { FreeBoardNotation } from '@app/components/FreeBoardNotation';
 import { getDisplayStateFromPgn } from '../room/activities/Meetup/utils';
 import { RIGHT_SIDE_SIZE_PX } from '../room/activities/Learn/components/LearnBoard';
 import { CameraPanel } from '../room/components/CameraPanel';
 import { PlayActions, PlayState } from './store';
-import { ResizableDesktopLayout } from 'apps/chessroulette-web/templates/ResizableDesktopLayout';
+import { ResizableDesktopLayout } from '@app/templates/ResizableDesktopLayout';
 import { useRoomLinkId } from '../room/hooks/useRoomLinkId';
 import { GameProvider } from './providers/GameProvider';
 

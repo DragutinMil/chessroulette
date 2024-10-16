@@ -10,13 +10,13 @@ import {
   isValidPgn,
   pieceSanToFenBoardPieceSymbol,
 } from '@xmatter/util-kit';
-import { ImportedInput } from 'apps/chessroulette-web/components/PgnInputBox/PgnInputBox';
-import { CircleDrawTuple } from 'apps/chessroulette-web/components/Chessboard/types';
+import { ImportedInput } from '@app/components/PgnInputBox/PgnInputBox';
+import { CircleDrawTuple } from '@app/components/Chessboard/types';
 import {
   type ChapterState,
   type Chapter,
   initialChapterState,
-} from 'apps/chessroulette-web/modules/room/activities/Learn/movex';
+} from '@app/modules/room/activities/Learn/movex';
 
 export type InputState = {
   // this means the instructor creates or edits chapters atm

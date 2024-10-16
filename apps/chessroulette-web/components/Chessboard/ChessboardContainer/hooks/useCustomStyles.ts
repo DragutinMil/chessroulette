@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { getInCheckSquareMap } from '../util';
-import { BoardTheme } from 'apps/chessroulette-web/hooks/useTheme/defaultTheme';
+import { BoardTheme } from '@app/hooks/useTheme/defaultTheme';
 import { ChessFEN, ShortChessMove, toDictIndexedBy } from '@xmatter/util-kit';
 import {
   ChessboardPreMove,

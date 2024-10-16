@@ -1,13 +1,13 @@
 'use client';
 
-import { searchParamsToObject } from 'apps/chessroulette-web/hooks/useSearchParams';
+import { searchParamsToObject } from '@app/hooks/useSearchParams';
 import { ReadonlyURLSearchParams, useSearchParams } from 'next/navigation';
-// import { get_UNSAFE_URL_SESSION } from 'apps/chessroulette-web/services/Auth/lib';
+// import { get_UNSAFE_URL_SESSION } from '@app/services/Auth/lib';
 import { StringRecord } from '@xmatter/util-kit';
-import { CustomSession } from 'apps/chessroulette-web/services/Auth';
-import { get_UNSAFE_URL_SESSION } from 'apps/chessroulette-web/services/Auth/lib';
+import { CustomSession } from '@app/services/Auth';
+import { get_UNSAFE_URL_SESSION } from '@app/services/Auth/lib';
 import { getLearnRoutes_WITH_UNSAFE_SESSION_IN_URL } from '../links';
-// import { get_UNSAFE_URL_SESSION_asd } from 'apps/chessroulette-web/services/Auth/asd';
+// import { get_UNSAFE_URL_SESSION_asd } from '@app/services/Auth/asd';
 // import { toDictIndexedBy } from '@xmatter/util-kit';
 // import {
 //   getLearnRoutes_WITH_UNSAFE_SESSION_IN_URL,

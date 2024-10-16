@@ -1,4 +1,4 @@
-import { PlayStore } from 'apps/chessroulette-web/modules/Play';
+import { PlayStore } from '@app/modules/Play';
 import { Action } from 'movex-core-util';
 
 type PlayerId = string;

@@ -4,7 +4,7 @@ import {
   PeerUserIdsMap,
   PeersMap,
   PeerUsersMap,
-} from 'apps/chessroulette-web/providers/PeerToPeerProvider/type';
+} from '@app/providers/PeerToPeerProvider/type';
 import { Action } from 'movex-core-util';
 
 export type PeerStreamingState = {

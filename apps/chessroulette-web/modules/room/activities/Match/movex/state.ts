@@ -1,5 +1,5 @@
 import { MatchActivityState, MatchState } from './types';
-import { PlayStore } from 'apps/chessroulette-web/modules/Play';
+import { PlayStore } from '@app/modules/Play';
 
 // export const initialMatchState: MatchActivityState = {
 
