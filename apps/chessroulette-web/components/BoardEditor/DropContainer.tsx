@@ -1,3 +1,6 @@
+import { useMemo, useRef } from 'react';
+import { useDrop } from 'react-dnd';
+import { Square } from 'chess.js';
 import {
   PieceSan,
   absoluteCoordsToSquare,
@@ -5,11 +8,8 @@ import {
   getBoardCoordsFromAbsoluteCoords,
   getSquareSize,
 } from '@xmatter/util-kit';
-import { Square } from 'chess.js';
-import { useMemo, useRef } from 'react';
 import { Rect, useContainerRect } from '../ContainerWithDimensions';
-import { useDrop } from 'react-dnd';
-import { DndItem } from './types';
+import type { DndItem } from './types';
 
 const getAbsoluteCoords = (
   rect: Rect,
@@ -49,7 +49,6 @@ export const DropContainer = (
       accept: 'piece',
       // Props to collect
       drop: (item: DndItem, monitor) => {
-        // return;
         const offsets = monitor.getClientOffset();
 
         if (!offsets) {
@@ -105,7 +104,7 @@ export const DropContainer = (
     <div ref={drop} role={'Dustbin'} className="relative">
       <div ref={containerRef}>
         {props.children}
-        {/* This is needed in orderd to stop/start the native Board Dnd */}
+        {/* This is needed in order to stop/start the native Board Dnd */}
         {props.isActive && (
           <div className="absolute inset-0 flex items-center justify-center" />
         )}

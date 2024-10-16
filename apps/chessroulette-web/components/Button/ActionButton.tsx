@@ -7,7 +7,7 @@ import {
   getButtonColors,
   toStringColors,
 } from './Button';
-import { IconProps, Icon } from '../Icon';
+import { IconProps, Icon } from '../Icon/Icon';
 import { useOnClickOutside } from '@xmatter/util-kit';
 import { Text } from '../Text';
 

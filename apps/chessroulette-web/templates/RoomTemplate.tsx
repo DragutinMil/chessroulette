@@ -1,4 +1,4 @@
-import Header from '../components/Header';
+import Header from '../components/Header/Header';
 import { RoomSideMenu } from '../modules/room/components/RoomSideMenu';
 import { toImgPath } from '../lib/misc';
 import { CSSProperties } from 'react';

@@ -1,8 +1,5 @@
 import React from 'react';
-// import config from 'src/config';
-// import { createUseStyles } from 'src/lib/jss';
 import { VideoElement } from './VideoElement';
-import cx from 'classnames';
 
 type VideoAttributes = React.DetailedHTMLProps<
   React.VideoHTMLAttributes<HTMLVideoElement>,
@@ -20,29 +17,20 @@ export const VideoBox: React.FunctionComponent<VideoBoxProps> = ({
   mirrorImage = false,
   ...videoProps
 }) => {
-  // const cls = useStyles();
-
   return (
     <VideoElement
       // Make sure the video refreshes if the stream id changes
       key={stream.id}
-      // className={cx(mirrorImage && cls.mirrored, className)}
-      className={cx(className)}
-      // Hardcode this here for now to stop the hallow effect in dev mode
-      // But let them be overwritten by specifc props
-      // {...(config.ENV === 'dev' && {
-      //   muted: true,
-      // })}
+      className={className}
       {...videoProps}
       onMounted={(ref) => {
         ref.srcObject = stream;
       }}
+      style={{
+        ...(mirrorImage && {
+          transform: 'rotateY(180deg)',
+        }),
+      }}
     />
   );
 };
-
-// const useStyles = createUseStyles({
-//   mirrored: {
-//     transform: 'rotateY(180deg)',
-//   },
-// });

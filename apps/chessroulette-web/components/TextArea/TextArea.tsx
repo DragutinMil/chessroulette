@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Text } from '../Text/Text';
+import React from 'react';
+import { Text } from '../Text';
 
 type Props = React.DetailedHTMLProps<
   React.TextareaHTMLAttributes<HTMLTextAreaElement>,
@@ -21,18 +21,12 @@ export const TextArea: React.FC<Props> = ({
   validationError,
   ...props
 }) => {
-  // const cls = useStyles();
-  // const [isFocused, setIsFocused] = useState(false);
-  // const isInvalid = hasValidationError || validationError;
-
   return (
     <div className={`flex flex-col ${containerClassName}`}>
       {label && <Text size="small2">{label}</Text>}
       <textarea
         value={value}
         className="flex-1 border-none bg-transparent w-full focus:outline-none"
-        // onFocus={() => setIsFocused(true)}
-        // onBlur={() => setIsFocused(false)}
         {...props}
       />
     </div>

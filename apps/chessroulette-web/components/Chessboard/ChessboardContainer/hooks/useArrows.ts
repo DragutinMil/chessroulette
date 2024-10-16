@@ -5,11 +5,11 @@ import {
   useCallbackIf,
 } from '@xmatter/util-kit';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Arrow } from 'react-chessboard/dist/chessboard/types';
-import { ArrowsMap } from '../../types';
+import { objectKeys } from 'movex-core-util';
 import useDeepCompareEffect from 'use-deep-compare-effect';
 import { shallowEqualObjects } from 'shallow-equal';
-import { objectKeys } from 'movex-core-util';
+import { Arrow } from 'react-chessboard/dist/chessboard/types';
+import { ArrowsMap } from '../../types';
 
 export const useCustomArrows = (
   onUpdate?: (next: ArrowsMap) => void,

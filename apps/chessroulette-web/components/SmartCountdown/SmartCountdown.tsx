@@ -62,41 +62,22 @@ export const SmartCountdown = ({
       return {
         major: `${times.hours}h`,
         minor: `${lpad(times.minutes)}`,
-        // canShowMilliseconds: false,
       };
     }
     return {
       major: lpad(times.minutes),
       minor: lpad(times.seconds),
-      // canShowMilliseconds: false,
     };
   }, [timeLeft]);
 
   return (
     <div className={className}>
-      {/* <pre className="text-xs">
-        {JSON.stringify({
-          f: finished,
-          a: isActive,
-          in: interval,
-          pl: intervalPlay,
-        })}
-      </pre>
-      <div className="flex flex-col ">
-        <span
-          className={`${isActive ? 'text-white' : 'text-slate-400'} text-md`}
-        >
-          {timeLeft}
-        </span>
-      </div> */}
-
       <SmartCountdownDisplay
         major={major}
         minor={minor}
         active={isActive}
         timeLeft={timeLeft}
         {...countDownDislplayProps}
-        // canShowMilliseconds={canShowMilliseconds}
       />
     </div>
   );

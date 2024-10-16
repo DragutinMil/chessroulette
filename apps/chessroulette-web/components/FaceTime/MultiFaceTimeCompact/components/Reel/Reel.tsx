@@ -1,20 +1,18 @@
 import React from 'react';
-import { FaceTime } from '../../../FaceTime';
 import {
   PeerUserId,
   StreamingPeer,
 } from 'apps/chessroulette-web/providers/PeerToPeerProvider/type';
+import { FaceTime } from '../../../FaceTime';
 import { MyFaceTime } from '../../../MyFaceTime';
 import { AVStreamingConstraints } from 'apps/chessroulette-web/services/AVStreaming';
 
 type Props = {
   streamingPeers: StreamingPeer[];
   onClick: (userId: PeerUserId) => void;
-
+  myFaceTimeConstraints: AVStreamingConstraints;
   containerClassName?: string;
   itemClassName?: string;
-
-  myFaceTimeConstraints: AVStreamingConstraints;
 };
 
 export const Reel: React.FC<Props> = (props) => {
@@ -31,7 +29,6 @@ export const Reel: React.FC<Props> = (props) => {
             className="absolute inset-0 z-50 border border-white"
             aspectRatio={4 / 3}
             label={peer.userDisplayName}
-            // label={"Test Label Reel"}
           />
         </div>
       ))}

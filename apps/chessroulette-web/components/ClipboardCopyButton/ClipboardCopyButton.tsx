@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Button, ButtonProps, IconButton } from '../Button';
 import { noop } from '@xmatter/util-kit';
+import { Button, ButtonProps, IconButton } from '../Button';
 
 type BaseProps = Omit<ButtonProps, 'onClick'> & {
   value: string;

@@ -64,28 +64,17 @@ export const MultiFaceTimeCompact: React.FC<MultiFaceTimeCompactProps> = ({
 
   ...faceTimeProps
 }) => {
-  // const cls = useStyles();
   const containerStyles = useMemo(() => ({ width: width || '100%' }), [width]);
 
   const label = useMemo(() => {
-    // return 'FIX LABEL';
     if (!reel) {
       return '';
     }
 
     return reel.focusedStreamingPeer.userDisplayName || '';
-
-    // return reel.focusedStreamingPeer.userId === reel.myStreamingPeerUserId
-    //   ? // ? getUserDisplayName(reel.focusedStreamingPeer.user)
-    //     reel.focusedStreamingPeer.userId
-    //   : '';
   }, [reel]);
 
-  const inFocusUserOverlay = useMemo(
-    // () => ({ inFocus: reel?.focusedStreamingPeer.user }),
-    () => ({ inFocus: undefined }),
-    [reel]
-  );
+  const inFocusUserOverlay = useMemo(() => ({ inFocus: undefined }), [reel]);
 
   const avStreaminginstance = useInstance<AVStreaming>(getAVStreamingInstance);
   const [myFaceTimeConstraints, setMyFaceTimeConstraints] = useState(
@@ -163,22 +152,7 @@ export const MultiFaceTimeCompact: React.FC<MultiFaceTimeCompactProps> = ({
                 width: '25%',
               }}
             >
-              <div
-                // className={cls.reelScroller}
-                //     minHeight: '100%',
-                //     display: 'flex',
-                //     flexDirection: 'column-reverse',
-                //     flex: 1,
-                //     overflowY: 'auto',
-
-                //     // overscroll: auto;
-                //     msOverflowStyle: '-ms-autohiding-scrollbar',
-
-                //     '&:hover': {
-                //       // overflowY: 'scroll',
-                //     },
-                className="flex flex-col-reverse flex-1 overflow-y-auto hover:"
-              >
+              <div className="flex flex-col-reverse flex-1 overflow-y-auto hover:">
                 <Reel
                   streamingPeers={reel.streamingPeers}
                   myFaceTimeConstraints={myFaceTimeConstraints}

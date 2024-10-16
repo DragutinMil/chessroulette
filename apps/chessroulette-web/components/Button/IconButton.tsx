@@ -1,8 +1,8 @@
+import Link from 'next/link';
 import React from 'react';
 import { Ensure } from '@xmatter/util-kit';
-import { Icon, IconProps } from '../Icon';
+import { Icon, IconProps } from '../Icon/Icon';
 import { Button, ButtonProps, buttonIconClasses } from './Button';
-import Link from 'next/link';
 
 export type IconButtonSpecificProps = {
   iconColor?: IconProps['color'];

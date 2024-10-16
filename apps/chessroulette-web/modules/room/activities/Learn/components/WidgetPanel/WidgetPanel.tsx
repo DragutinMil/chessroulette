@@ -4,7 +4,7 @@ import {
 } from 'apps/chessroulette-web/components/FreeBoardNotation';
 import { TabsRef } from 'apps/chessroulette-web/components/Tabs';
 import { Chapter, ChapterState } from '../../movex';
-import { PgnInputBoxProps } from 'apps/chessroulette-web/components/PgnInputBox';
+import { PgnInputBoxProps } from 'apps/chessroulette-web/components/PgnInputBox/PgnInputBox';
 import { ChaptersTabProps } from '../../chapters/ChaptersTab';
 import React from 'react';
 import { EngineData } from '../../../../../ChessEngine/lib/io';

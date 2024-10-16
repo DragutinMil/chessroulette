@@ -2,7 +2,6 @@ import { Text } from 'apps/chessroulette-web/components/Text';
 
 export type SmartCountdownDisplayProps = {
   timeLeft: number;
-  // canShowMilliseconds: boolean;
   active: boolean;
   major: string;
   minor: string;

@@ -134,8 +134,6 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
   });
 
   // Styles
-  // const [hoveredSquare, setHoveredSquare] = useState<Square>();
-
   const customStyles = useCustomStyles({
     boardTheme,
     fen,
@@ -144,7 +142,6 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
     preMove,
     circlesMap,
     isMyTurn,
-    // hoveredSquare,
     customSquareStyles,
     ...props,
   });

@@ -1,20 +1,13 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import {
-  ChessFENBoard,
-} from '@xmatter/util-kit';
-import { ChessboardContainer } from './ChessboardContainer';
-import { themes } from 'apps/chessroulette-web/hooks/useTheme/defaultTheme';
 import { useEffect, useState } from 'react';
+import type { Meta, StoryObj } from '@storybook/react';
 import useInstance from '@use-it/instance';
+import { themes } from 'apps/chessroulette-web/hooks/useTheme/defaultTheme';
+import { ChessFENBoard } from '@xmatter/util-kit';
+import { ChessboardContainer } from './ChessboardContainer';
 
 const meta: Meta<typeof ChessboardContainer> = {
   component: ChessboardContainer,
   title: 'ChessboardContainer',
-  // args: {
-  //   //👇 Now all Button stories will be primary.
-  //   sizePx: 500,
-  //   fen: ChessFENBoard.STARTING_FEN,
-  // },
 };
 
 export default meta;

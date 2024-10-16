@@ -1,12 +1,12 @@
 'use client';
 
 import { MovexBoundResource, MovexConnection } from 'movex-react';
-import { config } from '../config';
-import movexConfig from '../movex.config';
 import { pluralize } from '@xmatter/util-kit';
 import { Menu, Item, useContextMenu } from 'react-contexify';
-import { movexSubcribersToUserMap } from '../providers/MovexProvider';
-import { useRoomDetails } from '../modules/room/hooks';
+import { config } from '../../config';
+import movexConfig from '../../movex.config';
+import { movexSubcribersToUserMap } from '../../providers/MovexProvider';
+import { useRoomDetails } from '../../modules/room/hooks';
 
 const MENU_ID = 'movex-participants-menu';
 
@@ -32,19 +32,13 @@ export default () => {
                     movexDefinition={movexConfig}
                     rid={`room:${roomDetails.roomId}`}
                     render={({ boundResource: { subscribers } }) => {
-                      // const participants = Object.values(subscribers);
-
                       const participants = Object.values(
                         movexSubcribersToUserMap(subscribers)
                       );
                       const participantsCount = participants.length;
 
                       return (
-                        <button
-                          onClick={(event) => {
-                            show({ event });
-                          }}
-                        >
+                        <button onClick={(event) => show({ event })}>
                           ({participantsCount}{' '}
                           {pluralize(!(participantsCount === 1), 'participant')}
                           )
@@ -72,7 +66,6 @@ export default () => {
           </div>
 
           {config.DEBUG_MODE && <div>Movex Client: {client?.id}</div>}
-          {/* </div> */}
         </div>
       )}
     />

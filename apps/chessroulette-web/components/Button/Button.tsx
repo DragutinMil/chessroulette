@@ -1,6 +1,6 @@
 import React, { PropsWithChildren } from 'react';
 import { invoke, isOneOf } from '@xmatter/util-kit';
-import { Icon, IconProps } from '../Icon';
+import { Icon, IconProps } from '../Icon/Icon';
 
 type Direction = 'left' | 'right' | 'top' | 'bottom';
 const swapDirection = (d: Direction): Direction => {
@@ -75,8 +75,6 @@ const typeToColors: {
   primary: 'indigo',
   secondary: 'slate',
   clear: 'slate',
-  // custom: 'slate',
-  // custom: '',
 };
 
 export const buttonIconClasses = {
@@ -126,7 +124,9 @@ export const Button = React.forwardRef<HTMLButtonElement | null, ButtonProps>(
         className={`group relative hover:cursor-pointer ${classes[type]} ${
           classes[size]
         } ${
-          disabled ? 'bg-slate-400 hover:bg-slate-400 active:bg-slate-400 hover:cursor-default' : ''
+          disabled
+            ? 'bg-slate-400 hover:bg-slate-400 active:bg-slate-400 hover:cursor-default'
+            : ''
         } flex items-center justify-center gap-1 ${className} ${
           bgColor ? toStringColors(getButtonColors(bgColor)) : ''
         } ${isActiveClass}`}

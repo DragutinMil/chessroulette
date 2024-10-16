@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { TextArea } from './TextArea';
-import { Button } from './Button';
+import { TextArea } from '../TextArea';
+import { Button } from '../Button';
 import {
   ChessFEN,
   ChessFENBoard,
@@ -22,20 +22,6 @@ export type PgnInputBoxProps = {
   containerClassName?: string;
   contentClassName?: string;
   compact?: boolean;
-};
-
-const isValidFenOrPGN = (input: string): Result<'FEN' | 'PGN', void> => {
-  if (!input) {
-    return Err.EMPTY;
-  }
-
-  if (ChessFENBoard.validateFenString(input).ok) {
-    return new Ok('FEN');
-  } else if (isValidPgn(input)) {
-    return new Ok('PGN');
-  }
-
-  return Err.EMPTY;
 };
 
 export const PgnInputBox: React.FC<PgnInputBoxProps> = ({
@@ -72,7 +58,6 @@ export const PgnInputBox: React.FC<PgnInputBoxProps> = ({
           const fileData = new FileReader();
           fileData.onloadend = (s) => {
             if (s.target && typeof s.target.result === 'string') {
-              // setInput(s.target.result);
               const input = s.target.result;
 
               if (!input) {
@@ -161,4 +146,18 @@ export const PgnInputBox: React.FC<PgnInputBoxProps> = ({
       </div>
     </div>
   );
+};
+
+const isValidFenOrPGN = (input: string): Result<'FEN' | 'PGN', void> => {
+  if (!input) {
+    return Err.EMPTY;
+  }
+
+  if (ChessFENBoard.validateFenString(input).ok) {
+    return new Ok('FEN');
+  } else if (isValidPgn(input)) {
+    return new Ok('PGN');
+  }
+
+  return Err.EMPTY;
 };

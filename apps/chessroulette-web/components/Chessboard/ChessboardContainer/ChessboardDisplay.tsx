@@ -46,8 +46,6 @@ export const ChessboardDisplay = ({
   boardTheme,
   onCancelPromoMove,
   onSubmitPromoMove,
-
-  // customStyles,
   ...boardProps
 }: ChessboardDisplayProps) => (
   <div

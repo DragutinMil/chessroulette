@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { List, ListProps } from './components/HistoryList';
 import { useKeysToRefocusHistory } from './hooks';
-import { FBHHistory, FBHIndex, FreeBoardHistory } from '@xmatter/util-kit';
+import { FBHHistory, FreeBoardHistory } from '@xmatter/util-kit';
 
 export type FreeBoardNotationProps = {
   history?: FBHHistory;

@@ -1,9 +1,9 @@
 import React, { ReactNode, useState } from 'react';
-import { VideoBox, VideoBoxProps } from '../../VideoBox';
+import { noop } from '@xmatter/util-kit';
 import { PeerStreamingConfig } from 'apps/chessroulette-web/providers/PeerToPeerProvider/type';
+import { VideoBox, VideoBoxProps } from '../../VideoBox';
 import { AspectRatio, AspectRatioProps } from '../../AspectRatio';
 import { Text } from '../../Text';
-import { noop } from '@xmatter/util-kit';
 
 export type FaceTimeProps = Omit<VideoBoxProps, 'stream'> & {
   streamConfig: PeerStreamingConfig;
@@ -42,20 +42,11 @@ export const FaceTime: React.FC<FaceTimeProps> = ({
   onReady = noop,
   ...avStreamProps
 }) => {
-  // const cls = useStyles();
   const [loadingVideo, setLoadingVideo] = useState(true);
-
-  // console.log('avStreamProps', avStreamProps);
 
   const loader = (
     <div className="absolute flex right-0 top-0 bottom-0 left-0 z-50">
-      {
-        loadingFallback || null
-        // <div className='flex-1 flex text-center'>Loading...</div>
-        // <div className={cls.loader}>
-        //   {/* <Loader type="line-scale-pulse-out" active innerClassName={cls.loader} /> */}
-        // </div>
-      }
+      {loadingFallback}
     </div>
   );
 
@@ -80,46 +71,12 @@ export const FaceTime: React.FC<FaceTimeProps> = ({
           streamingOffFallback || loader
         )}
 
-        <div
-          // className={cls.overlayedContainer}
-          className="absolute inset-0 flex flex-col"
-        >
-          {/* {headerOverlay && <div className={cls.headerWrapper}>{headerOverlay}</div>} */}
-          <div
-            // className={cls.mainWrapper}
-            className="flex-1"
-          >
-            {mainOverlay}
-          </div>
-          <div
-          // className={cls.footerWrapper}
-          >
+        <div className="absolute inset-0 flex flex-col">
+          <div className="flex-1">{mainOverlay}</div>
+          <div>
             {label && (
-              <div
-                // className={cx(
-                //   cls.labelWrapper,
-                //   labelPosition === 'bottom-left' && cls.labelWrapperLeft,
-                //   labelPosition === 'bottom-right' && cls.labelWrapperRight
-                // )}
-                className="relative center z-50"
-              >
-                <Text
-                  // className={cx(cls.label, labelClassName)}
-                  //     color: colors.universal.white,
-                  //     ...fonts.subtitle1,
-
-                  //     paddingLeft: '12px',
-                  //     paddingRight: '12px',
-                  //     paddingBottom: '6px',
-
-                  //     ...onlyMobile({
-                  //       paddingLeft: '8px',
-                  //       paddingBottom: '2px',
-                  //     }),
-                  className={`px-1 pb-2 ${labelClassName}`}
-                >
-                  {label}
-                </Text>
+              <div className="relative center z-50">
+                <Text className={`px-1 pb-2 ${labelClassName}`}>{label}</Text>
               </div>
             )}
             {footerOverlay}

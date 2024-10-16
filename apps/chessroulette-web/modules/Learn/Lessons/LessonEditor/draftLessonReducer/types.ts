@@ -10,7 +10,7 @@ import type {
   CircleDrawTuple,
   CirclesMap,
 } from 'apps/chessroulette-web/components/Chessboard';
-import type { ImportedInput } from 'apps/chessroulette-web/components/PgnInputBox';
+import type { ImportedInput } from 'apps/chessroulette-web/components/PgnInputBox/PgnInputBox';
 import type { Action } from 'movex-core-util';
 
 export type LessonState = {

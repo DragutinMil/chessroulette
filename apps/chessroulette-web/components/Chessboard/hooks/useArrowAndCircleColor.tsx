@@ -6,28 +6,16 @@ import { useState } from 'react';
 
 type ArrowColorsInOrder = [string, string, string];
 
-// TODO: Don't hardcode here
-const outpostColors: ArrowColorsInOrder = [
-  '#11c6d1',
-  '#f2358d',
-  '#6f7381',
-  // 4: '#c8a07d',
-  // 5: '#ffc695',
-];
+const DEFAULT_COLORS: ArrowColorsInOrder = ['#11c6d1', '#f2358d', '#6f7381'];
 
-export const useArrowAndCircleColor = (colors = outpostColors) => {
+export const useArrowAndCircleColor = (colors = DEFAULT_COLORS) => {
   const [colorIndex, setColorIndex] = useState(0);
   const [controlKeyPressed, setControlKeyPressed] = useState(false);
-
-  // const [rightClickPressed, setRightClickPressed] =
-  // const [rightClickedPressed, setRightClickedPressed] = useState(false);
 
   useEventListener('keydown', (event: object) => {
     if (!keyInObject(event, 'key')) {
       return;
     }
-
-    // console.log('Key Down:', event.key);
 
     if (event.key === 'Meta') {
       setColorIndex((prev) => prev + 1);
@@ -66,13 +54,5 @@ export const useArrowAndCircleColor = (colors = outpostColors) => {
     }
   });
 
-  // useEventListener('contextmenu', () => {
-  //   setRightClickedPressed(true);
-  // });
-
-  // useEventListener('mouseup', () => {
-  //   setRightClickedPressed(false);
-  // });
-
-  return colors[colorIndex]
+  return colors[colorIndex];
 };

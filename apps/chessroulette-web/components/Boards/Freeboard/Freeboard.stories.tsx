@@ -10,19 +10,9 @@ const meta: Meta<typeof Freeboard> = {
   parameters: {
     nextjs: {
       appDirectory: true,
-      navigation: {
-        // pathname: '/profile',
-        // query: {
-        //   theme: 'op',
-        // },
-      },
+      navigation: {},
     },
   },
-  // args: {
-  //   //👇 Now all Button stories will be primary.
-  //   sizePx: 500,
-  //   fen: ChessFENBoard.STARTING_FEN,
-  // },
 };
 
 export default meta;
@@ -32,7 +22,6 @@ export const Main: Story = {
   args: {
     sizePx: 500,
     fen: ChessFENBoard.STARTING_FEN,
-    // boardTheme: themes.chessroulette.board,
     boardOrientation: 'b',
   },
   render: ({ fen: argFen, ...args }) => {

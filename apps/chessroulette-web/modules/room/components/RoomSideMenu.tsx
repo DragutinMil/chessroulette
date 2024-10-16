@@ -3,7 +3,7 @@
 import { ClipboardCopyButton } from 'apps/chessroulette-web/components/ClipboardCopyButton';
 import { RoomActivityType } from '../links';
 import Link from 'next/link';
-import { Icon } from 'apps/chessroulette-web/components/Icon';
+import { Icon } from 'apps/chessroulette-web/components/Icon/Icon';
 import { useRoomSettings } from '../hooks/useRoomSettings';
 import { IconButton } from 'apps/chessroulette-web/components/Button';
 import { useRoomLinkId } from '../hooks/useRoomLinkId';

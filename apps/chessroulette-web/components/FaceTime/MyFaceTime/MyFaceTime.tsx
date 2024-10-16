@@ -17,7 +17,7 @@ type Props = Omit<FaceTimeProps, 'streamConfig'> & {
 
 // Automatically opens a local stream
 export const MyFaceTime: React.FC<Props> = ({
-  mirrorImage = true, // by defualt it's mirrored
+  mirrorImage = true, // by default it's mirrored
   constraints,
   ...props
 }) => {

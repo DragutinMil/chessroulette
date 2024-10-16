@@ -9,7 +9,7 @@ import type { Chapter, ChapterState } from '../../movex/types';
 import {
   PgnInputBox,
   PgnInputBoxProps,
-} from 'apps/chessroulette-web/components/PgnInputBox';
+} from 'apps/chessroulette-web/components/PgnInputBox/PgnInputBox';
 import { ChaptersTab, ChaptersTabProps } from '../../chapters/ChaptersTab';
 import { useWidgetPanelTabsNavAsSearchParams } from '../useWidgetPanelTabsNav';
 import { EngineData } from '../../../../../ChessEngine/lib/io';

@@ -45,11 +45,3 @@ export const Text: React.FC<TextProps> = ({
     </span>
   );
 };
-
-// const useStyles = createUseStyles({
-//   container: {},
-//   asLink: {
-//     cursor: 'pointer',
-//   },
-//   ...fonts,
-// });

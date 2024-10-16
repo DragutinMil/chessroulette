@@ -1,5 +1,8 @@
 import { DistributivePick } from '@xmatter/util-kit';
-import { IconButton, IconButtonProps } from '../../Button';
+import {
+  IconButton,
+  IconButtonProps,
+} from 'apps/chessroulette-web/components/Button';
 
 type Props = DistributivePick<
   IconButtonProps,

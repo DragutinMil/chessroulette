@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button, ButtonProps } from '../Button';
-import { Icon } from '../Icon';
+import { Icon } from '../Icon/Icon';
 
 type Props = {
   title: string;
@@ -42,13 +42,9 @@ export const Dialog: React.FC<Props> = ({ modalBG = 'dark', ...props }) => {
             <div className="flex flex-col gap-2">{props.content}</div>
             {props.buttons && (
               <div className="flex flex-row justify-center gap-3">
-                {props.buttons.map((buttonProps, i) => {
-                  if (typeof buttonProps !== 'object') {
-                    return null;
-                  }
-
-                  return <Button key={i} {...buttonProps} />;
-                })}
+                {props.buttons.map((buttonProps, i) =>
+                  buttonProps ? <Button key={i} {...buttonProps} /> : null
+                )}
               </div>
             )}
           </div>

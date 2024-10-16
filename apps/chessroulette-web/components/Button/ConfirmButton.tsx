@@ -3,7 +3,6 @@ import { Button, ButtonProps } from './Button';
 import { IconButton, IconButtonProps } from './IconButton';
 
 export type ConfirmButtonProps = ButtonProps & {
-  // confirmationContent: React.ReactNode;
   confirmModalTitle: string;
   confirmModalContent: string | React.ReactNode;
   confirmModalAgreeButtonBgColor?: ButtonProps['bgColor'];
@@ -48,10 +47,8 @@ export const ConfirmButton: React.FC<ConfirmButtonProps> = ({
             className="justify-center items-center flex overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none"
             tabIndex={-1}
             aria-hidden="true"
-            // className="fixed pin z-50 overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center h-screen w-screen bg-black bg-opacity-70 flex"
           >
             <div className="relative w-auto my-6 mx-auto max-w-3xl">
-              {/*content*/}
               <div className="sborder-0 rounded-lg shadow-lg relative flex flex-col w-full bg-slate-600 outline-none focus:outline-none">
                 {/*header*/}
                 <div className="flex flex-1  bg-slate-500 sitems-start justify-between p-3 rounded-t-lg text-center justify-center content-center items-center">
@@ -59,6 +56,7 @@ export const ConfirmButton: React.FC<ConfirmButtonProps> = ({
                     {confirmModalTitle}
                   </h3>
                 </div>
+
                 {/*body*/}
                 {confirmModalContent && (
                   <div className="relative p-4 flex-auto text-slate-300">
@@ -85,7 +83,7 @@ export const ConfirmButton: React.FC<ConfirmButtonProps> = ({
               </div>
             </div>
           </div>
-          <div className="opacity-30 fixed inset-0 z-40 bg-black"></div>
+          <div className="opacity-30 fixed inset-0 z-40 bg-black" />
         </>
       )}
     </>

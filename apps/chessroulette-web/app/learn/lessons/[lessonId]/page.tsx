@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import { findLesson } from 'apps/chessroulette-web/modules/Learn/Lessons/apiActions';
-import Header from 'apps/chessroulette-web/components/Header';
+import Header from 'apps/chessroulette-web/components/Header/Header';
 import { UpdateLessonContainer } from 'apps/chessroulette-web/modules/Learn/Lessons/UpdateLessonContainer';
 import { get_UNSAFE_URL_SESSION } from 'apps/chessroulette-web/services/Auth/lib';
 

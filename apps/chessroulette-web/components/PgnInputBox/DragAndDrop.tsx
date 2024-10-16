@@ -8,8 +8,6 @@ export type Props = {
   className?: string;
 };
 
-// const fileTypes = ["PGN", "TXT"];
-
 export function DragAndDrop(props: Props) {
   return (
     <FileUploader

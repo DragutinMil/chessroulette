@@ -1,5 +1,5 @@
-import { Awaitable } from 'next-auth';
 import { PropsWithChildren } from 'react';
+import { Awaitable } from 'next-auth';
 import {
   CustomSession,
   authOptions,

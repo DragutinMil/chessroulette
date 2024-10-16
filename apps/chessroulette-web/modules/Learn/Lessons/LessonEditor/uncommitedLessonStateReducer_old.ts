@@ -10,7 +10,7 @@ import {
   isValidPgn,
   pieceSanToFenBoardPieceSymbol,
 } from '@xmatter/util-kit';
-import { ImportedInput } from 'apps/chessroulette-web/components/PgnInputBox';
+import { ImportedInput } from 'apps/chessroulette-web/components/PgnInputBox/PgnInputBox';
 import { CircleDrawTuple } from 'apps/chessroulette-web/components/Chessboard/types';
 import {
   type ChapterState,

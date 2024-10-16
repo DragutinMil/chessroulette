@@ -32,9 +32,7 @@ export const useArrowsListener = (
     if (
       keyInObject(event, 'key') &&
       isOneOf(event.key, ['ArrowRight', 'ArrowLeft', 'ArrowUp', 'ArrowDown'])
-      // (event.key === 'ArrowRight' || event.key === 'ArrowLeft')
     ) {
-      // onPress(event.key === 'ArrowLeft' ? 'left' : 'right');
       onPress(arrowsMap[event.key]);
     }
   });
@@ -44,7 +42,6 @@ export const useKeysToRefocusHistory = (
   history: FBHHistory,
   currentIndex: FBHIndex,
   onRefocus: (i: FBHIndex, move?: FBHRecursiveMove) => void
-  // onChooseVariant: () => void,
 ) => {
   useArrowsListener((arrow) => {
     if (!isOneOf(arrow, ['left', 'right'])) {
@@ -78,20 +75,7 @@ export const useKeysToRefocusHistory = (
     const foundMove = FreeBoardHistory.findMoveAtIndex(history, nextIndex);
 
     if ((foundMove || isStartingIndex) && isDifferentThanCurrent) {
-      // const menuId = '0.f3-e6';
-      // console.log('show id', menuId);
-      // contextMenu.show({
-      //   id: menuId,
-      //   event,
-      //   position: {
-      //     x: 100,
-      //     y: 10,
-      //   },
-      // });
-
       onRefocus(nextIndex, foundMove);
     }
   });
-
-  // TODO: might need to optimize the onRefocus callback updates
 };

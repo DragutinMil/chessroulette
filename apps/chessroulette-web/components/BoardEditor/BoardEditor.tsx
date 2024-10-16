@@ -68,7 +68,6 @@ export const BoardEditor = ({
   const [initialFen] = useState(fen);
 
   const fenBoard = useInstance<ChessFENBoard>(new ChessFENBoard(fen));
-  // const [editedFen, setEditedFen] = useState(fenBoard.fen);
   const [draggingPieces, setDraggingPieces] = useState<
     Partial<Record<PieceSan, boolean>>
   >({});
@@ -257,7 +256,6 @@ export const BoardEditor = ({
                   <ConfirmButton
                     iconButton
                     icon="XCircleIcon"
-                    // iconKind="outline"
                     type="custom"
                     tooltip="Cancel"
                     tooltipPositon="right"
@@ -275,21 +273,17 @@ export const BoardEditor = ({
                   />
                   <IconButton
                     icon="CheckCircleIcon"
-                    // iconKind="outline"
                     type="custom"
                     tooltip="Use Position"
                     tooltipPositon="right"
                     className="text-slate-400 hover:text-white"
                     iconClassName="w-5 h-5"
-                    // iconColor=''
                     size="sm"
                     onClick={onSave}
                   />
                 </div>
               )}
-              {/* <div className="flex items-center justify-center">
-                <div className='flex.5 border-b border-slate-600' />
-              </div> */}
+
               <div className="flex flex-1 flex-col">
                 <FlipBoardIconButton
                   onClick={onFlipBoard}

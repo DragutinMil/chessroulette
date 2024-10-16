@@ -67,8 +67,6 @@ export type TabsRef = {
 };
 
 export const Tabs = React.forwardRef<TabsRef, Props>((props, ref) => {
-  // const currentIndex = props.currentIndex || tabIdToIndex(tabs, props.currentTabId)
-
   const [currentTabIndex, setCurrentTabIndex] = useState(
     isInBoundariesOr(props.currentIndex || 0, props.tabs, 0)
   );
@@ -173,21 +171,9 @@ export const Tabs = React.forwardRef<TabsRef, Props>((props, ref) => {
     },
     stackPop: () => {
       changeStackIndex(0);
-      // setCurrentStackIndex(0);
     },
-    // stackTo: setCurrentStackIndex,
     stackTo: changeStackIndex,
     stackIndex: currentStackIndex,
-
-    // stackToRoute:
-    // TODO: The chapters are done in the simplest/easiest way now - don't use stack routes,
-    // just mapping ot an index,. b/c atm we only have one use case so let's not complicate things.
-    // stackRoot: 'list',
-    // stackRoutes: {
-    //   list: () => {},
-    //   create: () => {},
-    //   edit: () => {},
-    // }
   };
 
   // This sets the Ref

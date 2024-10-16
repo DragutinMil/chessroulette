@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import Header from '../components/Header';
+import Header from '../components/Header/Header';
 import { MainHomeSection } from '../modules/Home/MainHomeSection';
 import { authOptions } from '../services/Auth';
 import { getCustomServerSession } from '../services/Auth/getCustomServerSession';

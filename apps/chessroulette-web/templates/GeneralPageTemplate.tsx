@@ -1,4 +1,4 @@
-import Header from '../components/Header';
+import Header from '../components/Header/Header';
 import { CustomSession } from '../services/Auth';
 
 type Props = React.PropsWithChildren & {

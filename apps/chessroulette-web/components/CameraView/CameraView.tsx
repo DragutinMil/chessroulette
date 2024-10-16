@@ -1,12 +1,11 @@
 'use client';
-import { CSSProperties, useEffect } from 'react';
 
+import { CSSProperties, useEffect } from 'react';
+import { getRandomInt } from 'apps/chessroulette-web/util';
 import demo1 from './assets/1.jpg';
 import demo2 from './assets/2.jpg';
 import demo3 from './assets/3.jpg';
 import demo4 from './assets/4.jpg';
-
-import { getRandomInt } from 'apps/chessroulette-web/util';
 
 const DemoImgs = [
   demo1,
@@ -22,13 +21,18 @@ const DemoImgs = [
 ];
 
 export type Props = {
-  // sizePx: number;
   style?: CSSProperties;
   className?: string;
   demoImgId?: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
   onReady?: () => void;
 };
 
+/**
+ * This is should only be used in Dev mode!
+ * 
+ * @param props 
+ * @returns 
+ */
 export const CameraView = (props: Props) => {
   const imgSrc =
     DemoImgs[
@@ -49,8 +53,6 @@ export const CameraView = (props: Props) => {
         backgroundImage: `url(${imgSrc.src})`,
         backgroundSize: 'cover',
       }}
-    >
-      {/* <img src={imgSrc.src}/> */}
-    </div>
+    />
   );
 };
