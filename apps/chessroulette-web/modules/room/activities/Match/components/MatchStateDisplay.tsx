@@ -1,14 +1,14 @@
 import React, { useMemo } from 'react';
 import { Text } from '@app/components/Text';
 import { PlayersInfoContainer } from '@app/modules/Play/containers/PlayersInfoContainer';
-import { useMatch } from '@app/modules/room/activities/Match/providers/useMatch';
-import { PlayersBySide } from '@app/modules/Play/types';
 import { useGame } from '@app/modules/Play/providers/useGame';
 import { DispatchOf, toLongColor } from '@xmatter/util-kit';
+import { PlayersBySide } from '@app/modules/Play';
 import { PlayActions } from '@app/modules/Play/movex';
-import { getMovesDetailsFromPGN } from '../utils';
-import { MATCH_TIME_TO_ABORT } from '../movex';
 import { GameAbort } from '@app/modules/Play/components/GameAbort';
+import { MATCH_TIME_TO_ABORT } from '../movex';
+import { getMovesDetailsFromPGN } from '../utils';
+import { useMatch } from '../hooks/useMatch';
 
 type Props = {
   playersBySide: PlayersBySide;

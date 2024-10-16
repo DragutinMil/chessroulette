@@ -1,4 +1,4 @@
 import { useContext } from 'react';
-import { MatchStateContext } from './MatchStateContext';
+import { MatchStateContext } from '../providers/MatchStateContext';
 
 export const useMatch = () => useContext(MatchStateContext);

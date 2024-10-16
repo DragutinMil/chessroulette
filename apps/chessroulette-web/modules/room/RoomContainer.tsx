@@ -108,7 +108,7 @@ export const RoomContainer = ({ iceServers, rid }: Props) => {
         <Modal>You got disconnected. Refresh the page!</Modal>
       )}
       {movex.status === 'connectionError' && (
-        <Modal>Cannot connect. Check your Internet Connectio!</Modal>
+        <Modal>Cannot connect. Check your Internet Connection!</Modal>
       )}
     </>
   );

@@ -1,25 +1,23 @@
 import React from 'react';
-import { useMatch } from '../providers/useMatch';
+import { useMatch } from '../hooks/useMatch';
 import { Dialog } from '@app/components/Dialog';
 import { Text } from '@app/components/Text';
+import { now } from '@app/lib/time';
 import {
   GameStateDialogContainer,
   GameStateDialogContainerProps,
 } from '@app/modules/Play/containers/GameStateDialogContainer';
-import { MatchActivityActions } from '../movex';
 import {
   DispatchOf,
   DistributiveOmit,
   LongChessColor,
   invoke,
 } from '@xmatter/util-kit';
-import {
-  PlayerInfo,
-  PlayersBySide,
-} from '@app/modules/Play/types';
-import { BetweenGamesAborter } from './BetweenGamesAborter';
-import { now } from '@app/lib/time';
+import { PlayerInfo, PlayersBySide } from '@app/modules/Play';
 import { GameOverReason } from '@app/modules/Play/movex';
+
+import { MatchActivityActions } from '../movex';
+import { BetweenGamesAborter } from './BetweenGamesAborter';
 
 type Props = DistributiveOmit<GameStateDialogContainerProps, 'dispatch'> & {
   dispatch: DispatchOf<MatchActivityActions>;
