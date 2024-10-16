@@ -1,5 +1,4 @@
 import { Metadata } from 'next';
-import z from 'zod';
 import { createLesson } from 'apps/chessroulette-web/modules/Learn/Lessons/apiActions';
 import { get_UNSAFE_URL_SESSION } from 'apps/chessroulette-web/services/Auth/lib';
 import Header from 'apps/chessroulette-web/components/Header';
@@ -7,12 +6,8 @@ import { CreateLessonContainer } from 'apps/chessroulette-web/modules/Learn/Less
 
 export const metadata: Metadata = {
   title: 'Lessons | Chessroulette',
-  description: 'Moves That Matter Lessons That Last',
+  description: '',
 };
-
-const paramsSchema = z.object({
-  // tag: z.string().optional(),
-});
 
 export default async function LessonPage({
   searchParams,
@@ -21,7 +16,6 @@ export default async function LessonPage({
   searchParams: Record<string, string>;
   params: { lessonId: string };
 }) {
-  // const session = await getCustomServerSession(authOptions);
   const session = await get_UNSAFE_URL_SESSION(searchParams);
 
   if (!session) {
@@ -30,11 +24,7 @@ export default async function LessonPage({
 
   return (
     <div className="flex flex-col flex-1 w-full min-h-full">
-      <Header
-        // themeName={props.themeName}
-        showOnboarding
-        session={session}
-      />
+      <Header showOnboarding session={session} />
       <div
         className={`
            ml-[max(env(safe-area-inset-left),1.5rem)]
@@ -45,7 +35,6 @@ export default async function LessonPage({
       >
         <div className="absolute inset-0">
           <CreateLessonContainer
-            // onSubmit={createLesson}
             userId={session.user.id}
             onSubmit={createLesson}
           />

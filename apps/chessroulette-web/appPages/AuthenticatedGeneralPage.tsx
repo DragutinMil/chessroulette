@@ -1,8 +1,11 @@
-import { CustomSession, authOptions } from '../services/Auth';
-import { getCustomServerSession } from 'apps/chessroulette-web/services/Auth/getCustomServerSession';
-import { GeneralPageTemplate } from 'apps/chessroulette-web/templates/GeneralPageTemplate';
 import { Awaitable } from 'next-auth';
 import { PropsWithChildren } from 'react';
+import {
+  CustomSession,
+  authOptions,
+  getCustomServerSession,
+} from '../services/Auth';
+import { GeneralPageTemplate } from '../templates';
 
 type Props =
   | {
@@ -20,8 +23,6 @@ type Props =
 
 export const AuthenticatedGeneralPage = async (props: Props) => {
   const session = await getCustomServerSession(authOptions);
-
-  // console.log('session here', session);
 
   if (props.render) {
     return (

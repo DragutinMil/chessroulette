@@ -3,7 +3,7 @@ import '../styles.css';
 
 export const metadata: Metadata = {
   title: 'Home | Chessroulette',
-  description: 'Moves That Matter Lessons That Last',
+  description: '',
 };
 
 export default function RootLayout({

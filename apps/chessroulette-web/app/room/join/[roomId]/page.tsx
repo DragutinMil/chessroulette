@@ -1,9 +1,9 @@
-import { JoinOrCreateRoom } from 'apps/chessroulette-web/modules/room/components/JoinOrCreateRoom';
 import { Metadata } from 'next';
-import { metadata as rootMetadata } from '../../../page';
+import { StringRecord } from '@xmatter/util-kit';
+import { JoinOrCreateRoom } from 'apps/chessroulette-web/modules/room/components/JoinOrCreateRoom';
 import { roomIdentifiableActivityParamsSchema } from 'apps/chessroulette-web/modules/room/io/paramsSchema';
 import { ErrorPage } from 'apps/chessroulette-web/appPages/ErrorPage';
-import { StringRecord } from '@xmatter/util-kit';
+import { metadata as rootMetadata } from '../../../page';
 
 export const metadata: Metadata = {
   title: `Join Room | ${rootMetadata.title}`,

@@ -6,7 +6,7 @@ import { getCustomServerSession } from '../services/Auth/getCustomServerSession'
 
 export const metadata: Metadata = {
   title: 'Chessroulette',
-  description: 'Moves That Matter Lessons That Last',
+  description: '',
 };
 
 export default async function Home() {
@@ -18,5 +18,4 @@ export default async function Home() {
       <MainHomeSection session={session} />
     </div>
   );
-  // return works with movex as well</MovexProvider>;
 }

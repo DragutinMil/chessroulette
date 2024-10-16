@@ -1,7 +1,7 @@
-import { ResourceIdentifier } from 'movex-core-util';
 import { Metadata } from 'next';
+import { ResourceIdentifier } from 'movex-core-util';
 import { authOptions } from 'apps/chessroulette-web/services/Auth';
-import RoomTemplate from 'apps/chessroulette-web/templates/RoomTemplate';
+import { RoomTemplate } from 'apps/chessroulette-web/templates/RoomTemplate';
 import { RoomContainer } from 'apps/chessroulette-web/modules/room/RoomContainer';
 import { metadata as rootMetadata } from '../../../page';
 import { twilio } from 'apps/chessroulette-web/services/twiliio';

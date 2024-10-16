@@ -1,20 +1,14 @@
-import { Metadata } from 'next';
-import { AuthenticatedGeneralPage } from 'apps/chessroulette-web/appPages/AuthenticatedGeneralPage';
-import { findUserLessons } from '../../../modules/Learn/Lessons/apiActions';
 import z from 'zod';
+import { Metadata } from 'next';
+import { findUserLessons } from '../../../modules/Learn/Lessons/apiActions';
 import { User } from 'apps/chessroulette-web/modules/user';
-import { LessonItem } from 'apps/chessroulette-web/modules/Learn/Lessons/components/LessonItem';
 import { LessonsList } from 'apps/chessroulette-web/modules/Learn/Lessons/components/LessonsList';
 import { get_UNSAFE_URL_SESSION } from 'apps/chessroulette-web/services/Auth/lib';
-import { CustomSession, authOptions } from '../../../services/Auth';
 import { GeneralPageTemplate } from 'apps/chessroulette-web/templates/GeneralPageTemplate';
-import { invoke } from '@xmatter/util-kit';
-import { Lesson } from '@prisma/client';
-import { LessonModel } from 'apps/chessroulette-web/modules/Learn/Lessons/types';
 
 export const metadata: Metadata = {
   title: 'Lessons | Chessroulette',
-  description: 'Moves That Matter Lessons That Last',
+  description: '',
 };
 
 const paramsSchema = z.object({
@@ -47,42 +41,8 @@ export default async function LessonsPage({
     return <div>No User</div>;
   }
 
-  console.log('Lessons Page >');
-
   return (
     <GeneralPageTemplate session={session}>
-      {/* <>
-          {allParams && (
-            <div className="pb-2">
-              Params:
-              {JSON.stringify(allParams, null, 2)}
-            </div>
-          )}
-
-          {invoke(async () => {
-            const lessons = await getLessons(session.user);
-
-            return <LessonsList lessons={lessons} />;
-          })}
-        </> */}
-
-      {/* <div>logged in {session.user.id}</div> */}
-      {/* {invoke(async () => {
-          // const lessons = await getLessons(session.user);
-
-          return (
-            <>
-              {allParams && (
-                <div className="pb-2">
-                  Params:
-                  {JSON.stringify(allParams, null, 2)}
-                </div>
-              )}
-
-              <LessonsList lessons={[]} />
-            </>
-          );
-        })} */}
       <>
         {allParams && (
           <div className="pb-2">
@@ -98,28 +58,4 @@ export default async function LessonsPage({
       </>
     </GeneralPageTemplate>
   );
-
-  // return <div>not logged in</div>;
-
-  // return (
-  //   <AuthenticatedGeneralPage
-  //     resolveData={async (session) => await getLessons(session.user)}
-  //     render={async (session, data) => {
-  //       // const lessons = ;
-
-  //       return (
-  //         <>
-  //           {allParams && (
-  //             <div className="pb-2">
-  //               Params:
-  //               {JSON.stringify(allParams, null, 2)}
-  //             </div>
-  //           )}
-
-  //           <LessonsList lessons={data as LessonModel[]} />
-  //         </>
-  //       );
-  //     }}
-  //   />
-  // );
 }

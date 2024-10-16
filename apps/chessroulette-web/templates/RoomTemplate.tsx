@@ -15,7 +15,7 @@ type Props = React.PropsWithChildren & {
   session?: CustomSession;
 };
 
-export default function RoomTemplate(props: Props) {
+export function RoomTemplate(props: Props) {
   const style: CSSProperties | undefined =
     props.themeName === 'kids'
       ? {

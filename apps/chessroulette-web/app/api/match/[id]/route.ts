@@ -6,11 +6,6 @@ const env = process.env.NEXT_PUBLIC_ENV;
 const HTTP_PROTOCOL = env === 'staging' || env === 'prod' ? 'https' : 'http';
 const MOVEX_ENDPOINT_URL = process.env.NEXT_PUBLIC_MOVEX_ENDPOINT_URL as string;
 
-// const paramsSchema = z.object({
-//   // TODO: this can be used later when they hit the api, now just the op prefixed id
-//   id: z.string(), // Outpost
-// });
-
 export function GET(_: NextRequest, { params }: { params: { id: string } }) {
   const movexRoomUrl = `${HTTP_PROTOCOL}://${MOVEX_ENDPOINT_URL}/api/resources/room:${params.id}/state`;
 

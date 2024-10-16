@@ -1,12 +1,12 @@
+import { Metadata } from 'next';
+import { StringRecord } from '@xmatter/util-kit';
 import { ResourceIdentifier } from 'movex-core-util';
 import { authOptions } from 'apps/chessroulette-web/services/Auth';
-import RoomTemplate from 'apps/chessroulette-web/templates/RoomTemplate';
-import { Metadata } from 'next';
+import { RoomTemplate } from 'apps/chessroulette-web/templates/RoomTemplate';
 import { RoomContainer } from 'apps/chessroulette-web/modules/room/RoomContainer';
 import { twilio } from 'apps/chessroulette-web/services/twiliio';
 import { metadata as rootMetadata } from '../../../../page';
 import { getCustomServerSession } from 'apps/chessroulette-web/services/Auth/getCustomServerSession';
-import { StringRecord } from '@xmatter/util-kit';
 import { roomIdParamsSchema } from 'apps/chessroulette-web/modules/room/io/paramsSchema';
 import { ErrorPage } from 'apps/chessroulette-web/appPages/ErrorPage';
 

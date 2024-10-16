@@ -5,7 +5,7 @@ import { MovexProvider } from 'apps/chessroulette-web/providers/MovexProvider';
 
 export const metadata: Metadata = {
   title: 'Room | Chessroulette',
-  description: 'Moves That Matter Lessons That Last',
+  description: '',
 };
 
 export default async function RoomLayout({
