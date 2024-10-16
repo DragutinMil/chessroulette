@@ -54,8 +54,6 @@ export const useUpdateableSearchParams = () => {
 
         // Change the URL
         router.push(`${pathName}?${searchParams.toString()}`);
-
-        // return searchParams.toString();
       },
 
       current: () => currentSearchParams,
@@ -69,24 +67,6 @@ export const useUpdateableSearchParams = () => {
     [currentSearchParams]
   );
 };
-
-// const useSearchParamsAsState = () => {
-// const searchParams = useUpdateableSearchParams();
-
-// const [asObject, setAsObject] = useState(searchParams.toObject());
-
-// // changed from outside
-// useEffect(() => {
-//   setAsObject(searchParams.toObject())
-// }, [searchParams])
-
-// // changed from here
-// const setParams = useCallback((nextState) => {
-//   searchParams.
-// }, [searchParams]);
-
-// return [asObject, setParams];
-// };
 
 export const searchParamsToObject = (sp: ReadonlyURLSearchParams) =>
   toDictIndexedBy(

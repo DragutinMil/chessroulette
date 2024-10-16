@@ -11,20 +11,8 @@ const Component: React.FC = () => {
 
   return (
     <>
-      <Button
-        // label=""
-        // stype="negative"
-        onClick={() => setColor('red')}
-      >
-        Set Color to Red
-      </Button>
-      <Button
-        // label=""
-        // stype="negative"
-        onClick={() => setColor('yellow')}
-      >
-        Set Color to Yellow
-      </Button>
+      <Button onClick={() => setColor('red')}>Set Color to Red</Button>
+      <Button onClick={() => setColor('yellow')}>Set Color to Yellow</Button>
       <code>Color: {color}</code>
     </>
   );
