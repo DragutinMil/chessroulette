@@ -3,10 +3,10 @@
 import { MovexBoundResource, MovexConnection } from 'movex-react';
 import { pluralize } from '@xmatter/util-kit';
 import { Menu, Item, useContextMenu } from 'react-contexify';
-import { config } from '../../config';
-import movexConfig from '../../movex.config';
+import { config } from '@app/config';
+import movexConfig from '@app/movex.config';
 import { movexSubcribersToUserMap } from '../../providers/MovexProvider';
-import { useRoomDetails } from '../../modules/room/hooks';
+import { useRoomDetails } from '@app/modules/room/hooks';
 
 const MENU_ID = 'movex-participants-menu';
 

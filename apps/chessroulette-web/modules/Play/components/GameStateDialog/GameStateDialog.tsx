@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { invoke, objectKeys } from '@xmatter/util-kit';
 import { Dialog } from '@app/components/Dialog';
-import { GameOffer } from '../../store';
+import { GameOffer } from '../../movex';
 import { ClipboardCopyButton } from '@app/components/ClipboardCopyButton';
 import Link from 'next/link';
 import { useGame } from '../../providers/useGame';

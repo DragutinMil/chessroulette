@@ -5,7 +5,7 @@ import { Text } from '@app/components/Text';
 import {
   GameStateDialogContainer,
   GameStateDialogContainerProps,
-} from '@app/modules/Play/GameStateDialogContainer';
+} from '@app/modules/Play/containers/GameStateDialogContainer';
 import { MatchActivityActions } from '../movex';
 import {
   DispatchOf,
@@ -19,7 +19,7 @@ import {
 } from '@app/modules/Play/types';
 import { BetweenGamesAborter } from './BetweenGamesAborter';
 import { now } from '@app/lib/time';
-import { GameOverReason } from '@app/modules/Play';
+import { GameOverReason } from '@app/modules/Play/movex';
 
 type Props = DistributiveOmit<GameStateDialogContainerProps, 'dispatch'> & {
   dispatch: DispatchOf<MatchActivityActions>;

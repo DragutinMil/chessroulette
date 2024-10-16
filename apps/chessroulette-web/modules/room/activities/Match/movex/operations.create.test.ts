@@ -1,7 +1,7 @@
 import {
   PlayState,
   initialPlayState,
-} from '@app/modules/Play/store';
+} from '@app/modules/Play/movex';
 import { createMatchState } from './operations';
 import { MatchState } from './types';
 import { chessGameTimeLimitMsMap } from '@app/modules/Play/types';

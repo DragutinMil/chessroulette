@@ -1,21 +1,32 @@
-import { GameProvider } from '@app/modules/Play';
-import { GameNotationContainer } from '@app/modules/Play/GameNotationContainer';
-import { UserId, UsersMap } from '@app/modules/user/type';
-import { IceServerRecord } from '@app/providers/PeerToPeerProvider/type';
-import { MatchActivityActions, MatchActivityState } from './movex';
-import { DispatchOf } from '@xmatter/util-kit';
-import { RIGHT_SIDE_SIZE_PX } from '../Learn/components/LearnBoard';
-import { CameraPanel } from '../../components/CameraPanel';
-import { GameActionsContainer } from '@app/modules/Play/components/GameActionsContainers';
 import { useMemo } from 'react';
-import { PlayersBySide } from '@app/modules/Play/types';
+import { DispatchOf } from '@xmatter/util-kit';
+import {
+  GameProvider,
+  PlayersBySide,
+  PlayContainer,
+  GameNotationContainer,
+  GameActionsContainer,
+} from '@app/modules/Play';
+import * as PlayStore from '@app/modules/Play/movex';
+
+// import { GameNotationContainer } from '@app/modules/Play/GameNotationContainer';
+import { UserId, UsersMap } from '@app/modules/user';
+import { IceServerRecord } from '@app/providers/PeerToPeerProvider';
 import { ResizableDesktopLayout } from '@app/templates/ResizableDesktopLayout';
+
+// import { GameActionsContainer } from '@app/modules/Play/containers/GameActionsContainer';
+// import { MatchStateProvider } from '@app/modules/room/activities/Match/providers/MatchStateProvider';
+
+import { RIGHT_SIDE_SIZE_PX } from '../../CONSTANTS';
+import { CameraPanel } from '../../components/CameraPanel';
+import { MatchActivityActions, MatchActivityState } from './movex';
+
 import { useRoomLinkId } from '../../hooks/useRoomLinkId';
-import { MatchStateProvider } from '@app/modules/room/activities/Match/providers/MatchStateProvider';
 import { MatchStateDisplay } from './components/MatchStateDisplay';
 import { MatchStateDialogContainer } from './components/MatchStateDialogContainer';
-import { initialPlayState } from '@app/modules/Play/store';
-import { PlayContainer } from '@app/modules/Play/PlayContainer';
+// import {  } from '@app/modules/Play/store';
+// import {  } from '@app/modules/Play/PlayContainer';
+import { MatchStateProvider } from './providers/MatchStateProvider';
 
 type Props = {
   roomId: string;
@@ -45,7 +56,7 @@ export const MatchActivityView = ({
       ongoingPlay?.game ||
       matchState.endedPlays.slice(-1)[0].game ||
       // Default to Initial Play State if no ongoing or completed
-      initialPlayState.game,
+      PlayStore.initialPlayState.game,
     [ongoingPlay, matchState.endedPlays]
   );
 
@@ -89,20 +100,15 @@ export const MatchActivityView = ({
   }, [userId, matchState.players, participants]);
 
   return (
-    <GameProvider
-      game={game}
-      // players={matchState.players}p
-      playerId={userId}
-    >
+    <GameProvider game={game} playerId={userId}>
       <MatchStateProvider {...matchState} ongoingPlay={ongoingPlay}>
         <ResizableDesktopLayout
           rightSideSize={RIGHT_SIDE_SIZE_PX}
           mainComponent={({ boardSize }) => (
             <PlayContainer
-              // Add this iin order to reset the PlayContainer on each new game
+              // Add this in order to reset the PlayContainer on each new game
               key={playersBySide.away.color}
               boardSizePx={boardSize}
-              // joinRoomLink={joinRoomLink}
               isBoardFlipped={isBoardFlipped}
               overlayComponent={
                 <MatchStateDialogContainer

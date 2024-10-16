@@ -1,5 +1,9 @@
-import { PlayStore } from '@app/modules/Play';
 import { Action } from 'movex-core-util';
+import {
+  PlayState,
+  EndedPlayState,
+  PlayActions,
+} from '@app/modules/Play/movex';
 
 type PlayerId = string;
 
@@ -17,27 +21,21 @@ export type MatchState = (
   | {
       type: 'openEnded';
       rounds?: null; // There is no end so no need for rounds here
-      // rounds?: 'unlimited';
     }
 ) & {
-  // Add others
+  // Add other statuses if needed
   status: 'pending' | 'ongoing' | 'complete' | 'aborted';
-  // players: Record<Player['id'], Player>;
-  // maxPlayers: number; // Not needed anymore
   players: {
     white: MatchPlayer;
     black: MatchPlayer;
   };
 
-  // TODO: This is needd but neet to make sure I can set it correctly as I cannot set it in the reducer! but jst with createResource and actions
-  // lastUpdateAt: number; // This includes everythin changing in the match: status change, play.game.lastActivityAt update,
-
-  endedPlays: PlayStore.EndedPlayState[];
+  endedPlays: EndedPlayState[];
 
   winner: null | PlayerId;
 
   // TODO: Should this always hav a pending game??
-  ongoingPlay: PlayStore.PlayState | null;
+  ongoingPlay: PlayState | null;
 };
 
 export type MatchActivityActivityState = null | MatchState;
@@ -47,6 +45,4 @@ export type MatchActivityState = {
   activityState: MatchActivityActivityState;
 };
 
-export type MatchActivityActions =
-  | PlayStore.PlayActions
-  | Action<'match:startNewGame'>;
+export type MatchActivityActions = PlayActions | Action<'match:startNewGame'>;

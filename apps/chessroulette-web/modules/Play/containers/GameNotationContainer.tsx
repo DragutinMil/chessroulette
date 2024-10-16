@@ -1,9 +1,9 @@
+import { noop } from '@xmatter/util-kit';
 import {
   FreeBoardNotation,
   FreeBoardNotationProps,
 } from '@app/components/FreeBoardNotation';
-import { useGame } from './providers/useGame';
-import { noop } from '@xmatter/util-kit';
+import { useGame } from '../providers/useGame';
 
 type Props = Pick<
   FreeBoardNotationProps,

@@ -6,8 +6,8 @@ import {
   noop,
 } from '@xmatter/util-kit';
 import { GameDisplayState } from '../types';
-import { Game, GameOffer, initialPlayState } from '../store';
-import { UserId, UsersMap } from '../../user';
+import { Game, GameOffer, initialPlayState } from '../movex';
+import { UserId, UsersMap } from '@app/modules/user';
 
 export type GameContextProps = {
   displayState: GameDisplayState;

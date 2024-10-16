@@ -4,7 +4,7 @@ import { FBHIndex, noop, swapColor, toShortColor } from '@xmatter/util-kit';
 import { IceServerRecord } from '@app/providers/PeerToPeerProvider/type';
 import { MeetupActivityState } from './movex';
 import { UserId, UsersMap } from '@app/modules/user/type';
-import { RIGHT_SIDE_SIZE_PX } from '../Learn/components/LearnBoard';
+import { RIGHT_SIDE_SIZE_PX } from '../../CONSTANTS';
 import { Playboard } from '@app/components/Boards';
 import { CameraPanel } from '../../components/CameraPanel';
 import { useCallback, useEffect, useMemo, useState } from 'react';

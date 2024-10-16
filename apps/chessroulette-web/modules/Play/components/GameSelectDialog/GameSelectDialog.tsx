@@ -1,13 +1,13 @@
-import { objectKeys } from '@xmatter/util-kit';
-import { Dialog } from '@app/components/Dialog/Dialog';
-import { SelectInput } from '@app/components/SelectInput';
 import React, { useState } from 'react';
+import { objectKeys } from '@xmatter/util-kit';
+import { Dialog } from '@app/components/Dialog';
+import { SelectInput } from '@app/components/SelectInput';
+import { Button } from '@app/components/Button';
 import {
   GameTimeClass,
   chessGameTimeLimitMsMap,
   gameTimeClassRecord,
 } from '../../types';
-import { Button } from '@app/components/Button';
 
 type Props = {
   onSelect: ({

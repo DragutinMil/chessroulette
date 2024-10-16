@@ -9,6 +9,7 @@ import {
   StartPositionIconButton,
   ChessboardContainerProps,
 } from '@app/components/Chessboard';
+import { RIGHT_SIDE_SIZE_PX } from '../../../CONSTANTS';
 
 type Props = Required<
   Pick<
@@ -25,8 +26,6 @@ type Props = Required<
     onResetBoard: () => void;
     onBoardEditor: () => void;
   };
-
-export const RIGHT_SIDE_SIZE_PX = 32;
 
 export const LearnBoard = ({
   displayFen: fen,

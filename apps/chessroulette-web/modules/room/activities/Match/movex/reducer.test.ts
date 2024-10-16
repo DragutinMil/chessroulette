@@ -10,7 +10,7 @@ import {
   PlayState,
   createOngoingGame,
   createPendingGame,
-} from '@app/modules/Play';
+} from '@app/modules/Play/movex';
 
 const wrapIntoActivityState = <M extends MatchState>(
   match: M

@@ -1,6 +1,6 @@
 import { ChessColor } from '@xmatter/util-kit';
 import { PlayerBox } from './PlayerBox';
-import { Game } from '../store';
+import { Game } from '../movex';
 import { PlayersBySide, Results } from '../types';
 
 export type PlayersInfoProps = {

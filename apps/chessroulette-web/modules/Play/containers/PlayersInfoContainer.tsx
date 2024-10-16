@@ -1,6 +1,6 @@
-import { PlayersInfo, PlayersInfoProps } from './components/PlayersInfo';
-import { useGame } from './providers/useGame';
-import { Results } from './types';
+import { PlayersInfo, PlayersInfoProps } from '../components/PlayersInfo';
+import { useGame } from '../providers/useGame';
+import { Results } from '../types';
 
 type Props = Omit<
   PlayersInfoProps,

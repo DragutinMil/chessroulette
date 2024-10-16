@@ -1,13 +1,15 @@
 import { useEffect } from 'react';
-import { useCanPlay } from './hooks/useCanPlay';
+import { DistributiveOmit } from 'movex-core-util';
+import { useCanPlay } from '../hooks/useCanPlay';
 import {
   GameBoardContainer,
   GameBoardContainerProps,
 } from './GameBoardContainer';
-import { MatchState } from '../room/activities/Match/movex';
-import { UserId } from '../user';
-import { DistributiveOmit } from 'movex-core-util';
+import { UserId } from '../../user';
 import { isOneOf } from '@xmatter/util-kit';
+
+// TODO: This should not be here!!!
+import type { MatchState } from '../../room/activities/Match/movex';
 
 type Props = DistributiveOmit<GameBoardContainerProps, 'canPlay'> & {
   players: MatchState['players'];

@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Game } from '../store';
+import { Game } from '../movex';
 import { UserId } from '../../user/type';
 import { MatchState } from '../../room/activities/Match/movex';
 

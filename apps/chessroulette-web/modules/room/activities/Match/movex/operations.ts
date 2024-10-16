@@ -5,7 +5,7 @@ import {
   isWhiteColor,
 } from '@xmatter/util-kit';
 import { MatchState } from './types';
-import { createPendingGame } from '@app/modules/Play/store';
+import { createPendingGame } from '@app/modules/Play/movex';
 import { MatchActivityParamsSchema } from '../activityParamsSchema';
 
 export const createMatchState = (
@@ -38,9 +38,6 @@ export const createMatchState = (
         }),
     players,
     winner: null,
-    // ...(params.timeClass && {
-    //   // timeClass: params.timeClass,
-    // }),
     endedPlays: [],
     ongoingPlay: {
       game: createPendingGame({

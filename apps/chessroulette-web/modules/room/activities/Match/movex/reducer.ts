@@ -1,20 +1,13 @@
 import { MovexReducer } from 'movex-core-util';
 import { ChessColor, invoke, swapColor, toLongColor } from '@xmatter/util-kit';
-import { ActivityState } from '../../movex';
-import {
-  PlayStore,
-  GameTimeClass,
-  Results,
-  AbortedPlayState,
-  CompletedPlayState,
-} from '@app/modules/Play';
+import { type ActivityState } from '../../movex';
+import { GameTimeClass, Results } from '@app/modules/Play';
 import { MatchActivityActions, MatchState } from './types';
 import { initialMatchActivityState } from './state';
-import { calculateTimeLeftAt } from '@app/modules/Play/store/util';
+import * as PlayStore from '@app/modules/Play/movex';
 
 // TODO: Instead of Hard coding this, put in the matchCreation setting as part of the MatchState
 export const MATCH_TIME_TO_ABORT = 3 * 60 * 1000; // 3 mins
-// export const MATCH_TIME_TO_ABORT = 20 * 1000; // 3 mins
 
 export const reducer: MovexReducer<ActivityState, MatchActivityActions> = (
   prev: ActivityState = initialMatchActivityState,
@@ -92,7 +85,7 @@ export const reducer: MovexReducer<ActivityState, MatchActivityActions> = (
 
   if (nextCurrentPlay.game.status === 'aborted') {
     // TODO: See why this doesn't simply infer it as completed and I have to typecast it?
-    const abortedCurrentPlay = nextCurrentPlay as AbortedPlayState;
+    const abortedCurrentPlay = nextCurrentPlay as PlayStore.AbortedPlayState;
 
     //First game abort results in aborted match. Afterwards results in completed match + winner
     const nextMatchState = invoke((): Pick<MatchState, 'winner' | 'status'> => {
@@ -178,7 +171,7 @@ export const reducer: MovexReducer<ActivityState, MatchActivityActions> = (
       // TODO: See why this doesn't simply infer it as completed and I have to typecast it?
       endedPlays: [
         ...prevMatch.endedPlays,
-        nextCurrentPlay as CompletedPlayState,
+        nextCurrentPlay as PlayStore.CompletedPlayState,
       ],
       ongoingPlay: null,
       status: nextMatchStatus,
@@ -215,7 +208,7 @@ reducer.$transformState = (state, masterContext) => {
   if (ongoingPlay?.game.status === 'ongoing') {
     const turn = toLongColor(swapColor(ongoingPlay.game.lastMoveBy));
 
-    const nextTimeLeft = calculateTimeLeftAt({
+    const nextTimeLeft = PlayStore.calculateTimeLeftAt({
       at: masterContext.requestAt, // TODO: this can take in account the lag as well
       prevTimeLeft: ongoingPlay.game.timeLeft,
       turn,
@@ -283,13 +276,3 @@ reducer.$transformState = (state, masterContext) => {
 
   return state;
 };
-
-// TODO: This also can be memoized, soooo it could be an interesting feature
-//  to avoid cron jobs and other time based logic?
-// const $getDerivedState = (state: ActivityState): ActivityState => {
-//   if (state.activityType === 'match') {
-//     if (state.activityState?.ongoingPlay?.game.)
-//   }
-
-//   return state;
-// }

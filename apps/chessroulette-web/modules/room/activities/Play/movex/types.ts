@@ -1,4 +1,4 @@
-import { PlayStore } from '@app/modules/Play';
+import * as PlayStore from '@app/modules/Play/movex';
 
 export type PlayActivityState = {
   activityType: 'play';

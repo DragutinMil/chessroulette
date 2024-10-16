@@ -1,10 +1,13 @@
-import { DispatchOf, swapColor, toShortColor } from '@xmatter/util-kit';
-import { Game, PlayActions } from './store';
+import {
+  DispatchOf,
+  DistributivePick,
+  swapColor,
+  toShortColor,
+} from '@xmatter/util-kit';
+import type { Game, PlayActions } from '../movex';
 import { Playboard } from '@app/components/Boards';
 import { useMemo } from 'react';
-import { RIGHT_SIDE_SIZE_PX } from '../room/activities/Learn/components/LearnBoard';
-import { PanelResizeHandle } from 'react-resizable-panels';
-import { useGame } from './providers/useGame';
+import { useGame } from '../providers/useGame';
 import { ChessboardContainerProps } from '@app/components/Chessboard';
 
 export type GameBoardContainerProps = {
@@ -13,7 +16,13 @@ export type GameBoardContainerProps = {
   canPlay: boolean;
   dispatch: DispatchOf<PlayActions>;
   isBoardFlipped?: boolean;
-} & Pick<ChessboardContainerProps, 'overlayComponent'>;
+} & DistributivePick<
+  ChessboardContainerProps,
+  | 'overlayComponent'
+  | 'rightSideSizePx'
+  | 'rightSideClassName'
+  | 'rightSideComponent'
+>;
 
 /**
  * This must be used as a descendant of the GameProvider only
@@ -28,6 +37,7 @@ export const GameBoardContainer = ({
   overlayComponent,
   canPlay,
   dispatch,
+  ...boardProps
 }: GameBoardContainerProps) => {
   // TODO: This should come from somewhere else
   const orientation = useMemo(
@@ -64,21 +74,22 @@ export const GameBoardContainer = ({
         // TODO: This can be returned from a more internal component
         return true;
       }}
+      {...boardProps}
       // TODO: Move this into the Play Acticity or somewhere inside the Room only
-      rightSideSizePx={RIGHT_SIDE_SIZE_PX}
-      rightSideClassName="flex flex-col"
-      rightSideComponent={
-        <>
-          <div className="flex-1" />
-          <div className="relative flex flex-col items-center justify-center">
-            <PanelResizeHandle
-              className="w-1 h-20 rounded-lg bg-slate-600"
-              title="Resize"
-            />
-          </div>
-          <div className="flex-1" />
-        </>
-      }
+      // rightSideSizePx={RIGHT_SIDE_SIZE_PX}
+      // rightSideClassName="flex flex-col"
+      // rightSideComponent={
+      //   <>
+      //     <div className="flex-1" />
+      //     <div className="relative flex flex-col items-center justify-center">
+      //       <PanelResizeHandle
+      //         className="w-1 h-20 rounded-lg bg-slate-600"
+      //         title="Resize"
+      //       />
+      //     </div>
+      //     <div className="flex-1" />
+      //   </>
+      // }
     />
   );
 };

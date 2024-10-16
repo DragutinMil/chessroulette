@@ -1,7 +1,7 @@
 import { ChessColor, DispatchOf } from '@xmatter/util-kit';
-import { PlayActions } from '../store';
-import { GameActions } from './GameActions/GameActions';
-import { UserId } from '../../user/type';
+import { UserId } from '@app/modules/user';
+import { GameActions } from '../components/GameActions';
+import type { PlayActions } from '../movex';
 
 type Props = {
   dispatch: DispatchOf<PlayActions>;

@@ -1,5 +1,5 @@
 import { DependencyList, useEffect, useState } from 'react';
-import { Game } from '../store';
+import { Game } from '../movex';
 
 const getPlayersTimeLeftByColor = (game: Game) => {
   const now = new Date().getTime();

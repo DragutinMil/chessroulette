@@ -12,7 +12,8 @@ import {
 } from './movex';
 import { WidgetPanel } from './components/WidgetPanel/WidgetPanel';
 import { CameraPanel } from '../../components/CameraPanel';
-import { LearnBoard, RIGHT_SIDE_SIZE_PX } from './components/LearnBoard';
+import { LearnBoard } from './components/LearnBoard';
+import { RIGHT_SIDE_SIZE_PX } from '../../CONSTANTS';
 import inputReducer, { initialInputState } from './reducers/inputReducer';
 import { ChapterDisplayView } from './chapters/ChapterDisplayView';
 import { TabsRef } from '@app/components/Tabs';

@@ -1,8 +1,8 @@
 import Link from 'next/link';
-import { Logo } from '../Logo';
-import { OnboardingWidget } from '../../modules/Onboarding';
+import { Logo } from '@app/components/Logo';
+import { CustomSession } from '@app/services/Auth';
+import { OnboardingWidget } from '@app/modules/Onboarding';
 import ConnectionStatus from './ConnectionStatus';
-import { CustomSession } from '../../services/Auth';
 
 type Props = {
   themeName?: string;

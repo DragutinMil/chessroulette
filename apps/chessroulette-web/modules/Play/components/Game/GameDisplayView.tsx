@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { ChessFENBoard, pgnToFen, toLongColor } from '@xmatter/util-kit';
-import { Game } from '../../store';
+import { Game } from '../../movex';
 
 type Props = {
   game: Game;

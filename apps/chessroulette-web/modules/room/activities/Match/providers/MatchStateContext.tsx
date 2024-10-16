@@ -1,7 +1,7 @@
 import { createContext } from 'react';
 import { MatchState } from '../movex';
 import { Results } from '../../../../Play/types';
-import { EndedPlayState } from '@app/modules/Play';
+import { EndedPlayState } from '@app/modules/Play/movex';
 
 export type MatchStateContextType = Pick<
   MatchState,

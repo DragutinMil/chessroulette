@@ -1,5 +1,5 @@
 import { GameAbortView, GameAbortViewProps } from './GameAbortView';
-import { IdlingGame, PlayActions } from '../../store';
+import { IdlingGame, PlayActions } from '../../movex';
 import { DispatchOf, LongChessColor } from '@xmatter/util-kit';
 import { MatchState } from '../../../room/activities/Match/movex';
 import { useMemo, useState } from 'react';

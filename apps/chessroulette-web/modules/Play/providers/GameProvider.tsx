@@ -6,7 +6,7 @@ import {
 } from './GameContext';
 import { FBHIndex } from '@xmatter/util-kit';
 import { getGameDisplayState, getGameTurn } from '../lib';
-import { Game } from '../store';
+import { Game } from '../movex';
 import { UserId, UsersMap } from '../../user';
 
 type Props = PropsWithChildren & {

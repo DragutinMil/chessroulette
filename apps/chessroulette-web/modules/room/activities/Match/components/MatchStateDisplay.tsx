@@ -1,11 +1,11 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import { Text } from '@app/components/Text';
-import { PlayersInfoContainer } from '@app/modules/Play/PlayersInfoContainer';
+import { PlayersInfoContainer } from '@app/modules/Play/containers/PlayersInfoContainer';
 import { useMatch } from '@app/modules/room/activities/Match/providers/useMatch';
 import { PlayersBySide } from '@app/modules/Play/types';
 import { useGame } from '@app/modules/Play/providers/useGame';
-import { ChessColor, DispatchOf, toLongColor } from '@xmatter/util-kit';
-import { PlayActions } from '@app/modules/Play/store';
+import { DispatchOf, toLongColor } from '@xmatter/util-kit';
+import { PlayActions } from '@app/modules/Play/movex';
 import { getMovesDetailsFromPGN } from '../utils';
 import { MATCH_TIME_TO_ABORT } from '../movex';
 import { GameAbort } from '@app/modules/Play/components/GameAbort';
@@ -27,7 +27,6 @@ export const MatchStateDisplay: React.FC<Props> = ({
     draws,
     players,
     completedPlaysCount,
-    ...restMatch
   } = useMatch();
   const { realState, playerId } = useGame();
   const isGameCounterActive = useMemo(() => {
