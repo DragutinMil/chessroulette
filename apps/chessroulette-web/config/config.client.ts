@@ -34,6 +34,6 @@ export const config = {
   SENTRY_DSN,
 };
 
-// if (DEBUG_MODE) {
-//   console.debug('Client Config', config);
-// }
+if (DEBUG_MODE) {
+  console.debug('Client Config', config);
+}
