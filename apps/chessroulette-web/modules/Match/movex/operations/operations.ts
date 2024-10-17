@@ -1,18 +1,11 @@
-import {
-  DistributiveOmit,
-  getRandomColor,
-  invoke,
-  isWhiteColor,
-} from '@xmatter/util-kit';
-import { MatchState } from './types';
+import { getRandomColor, invoke, isWhiteColor } from '@xmatter/util-kit';
 import { createPendingGame } from '@app/modules/Play/movex';
-import { MatchActivityParamsSchema } from '../activityParamsSchema';
+import { MatchState } from '../types';
+import { CreateMatchParamsSchema } from './operationsSchemas';
 
-export const createMatchState = (
-  params: DistributiveOmit<MatchActivityParamsSchema, 'activity'>
-): MatchState => {
+export const createMatchState = (params: CreateMatchParamsSchema): MatchState => {
   const challengerColor = params.startColor || getRandomColor();
-  const players = invoke((): MatchState['players'] => {
+  const players = invoke((): NonNullable<MatchState>['players'] => {
     if (isWhiteColor(challengerColor)) {
       return {
         white: { id: params.challengerId, score: 0 },

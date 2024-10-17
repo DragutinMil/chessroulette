@@ -5,19 +5,11 @@ import {
   LongChessColor,
   ShortChessMove,
 } from '@xmatter/util-kit';
-import z from 'zod';
+import { GameTimeClass } from './io';
+
+export { type GameTimeClass } from './io';
 
 export type GameStatus = 'pending' | 'ongoing' | 'complete';
-
-export const gameTimeClassRecord = z.union([
-  z.literal('blitz3'),
-  z.literal('blitz'),
-  z.literal('rapid'),
-  z.literal('untimed'),
-  z.literal('bullet'),
-]);
-
-export type GameTimeClass = z.infer<typeof gameTimeClassRecord>;
 
 export type ChessGameTimeMap = {
   [k in GameTimeClass]: number;
@@ -52,7 +44,10 @@ export type PlayersBySide = {
   away: PlayerInfo;
 };
 
-export type Results = {
+// TODO: These are not needed anymore here are they?
+// @depreacate as it doesn't make sense anymore
+// The match results should be based on challenger and challengee
+export type Old_Play_Results = {
   white: number;
   black: number;
 };

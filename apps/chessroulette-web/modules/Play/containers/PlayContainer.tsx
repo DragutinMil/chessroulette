@@ -7,12 +7,13 @@ import {
 } from './GameBoardContainer';
 import { UserId } from '../../user';
 import { isOneOf } from '@xmatter/util-kit';
+import { MatchPlayers } from '@app/modules/Match';
 
 // TODO: This should not be here!!!
-import type { MatchState } from '../../room/activities/Match/movex';
+// import type { MatchState } from '../../room/activities/Match/movex';
 
 type Props = DistributiveOmit<GameBoardContainerProps, 'canPlay'> & {
-  players: MatchState['players'];
+  players: MatchPlayers;
   userId: UserId;
 };
 

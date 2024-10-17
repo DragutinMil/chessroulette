@@ -1,5 +1,5 @@
 import z from 'zod';
-import { gameTimeClassRecord } from '../../Play/types';
+import { gameTimeClassRecord } from '@app/modules/Play/io';
 import { matchActivityParamsSchema } from '../activities/Match/activityParamsSchema';
 
 const truthyParam = z

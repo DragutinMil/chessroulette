@@ -1,6 +1,6 @@
-import { createMatchState } from './operations';
+import { createMatchState } from './operations/operations';
 import { reducer as matchReducer } from './reducer';
-import { MatchActivityState, MatchState } from './types';
+import { MatchState } from './types';
 import {
   AbortedPlayState,
   CompletedPlayState,
@@ -12,12 +12,12 @@ import {
   createPendingGame,
 } from '@app/modules/Play/movex';
 
-const wrapIntoActivityState = <M extends MatchState>(
-  match: M
-): MatchActivityState => ({
-  activityType: 'match',
-  activityState: match,
-});
+// const =<M extends MatchState>(
+//   match: M
+// ): MatchActivityStat => ({
+//   activityType: 'match',
+//   activityState: match,
+// });
 
 const wrapIntoPlay = <G extends Game>(game: G): PlayState => ({
   game,
@@ -37,7 +37,7 @@ describe('Match Status: Pending > Ongoing', () => {
 
   const pendingMatch = createMatchState(matchCreateParams);
 
-  const idlingMatch = matchReducer(wrapIntoActivityState(pendingMatch), {
+  const idlingMatch = matchReducer(pendingMatch, {
     type: 'play:startWhitePlayerIdlingTimer',
     payload: {
       at: 123,
@@ -52,7 +52,7 @@ describe('Match Status: Pending > Ongoing', () => {
 
     const actual = matchReducer(idlingMatch, action);
 
-    const expectedMatch: MatchState = {
+    const expected: MatchState = {
       status: 'pending',
       type: 'bestOf',
       rounds: 3,
@@ -80,11 +80,6 @@ describe('Match Status: Pending > Ongoing', () => {
         lastMoveAt: 123,
         lastMoveBy: 'white',
       }),
-    };
-
-    const expected: MatchActivityState = {
-      activityType: 'match',
-      activityState: expectedMatch,
     };
 
     expect(actual).toEqual(expected);
@@ -126,12 +121,7 @@ describe('Match Status: Pending > Ongoing', () => {
       }),
     };
 
-    const expectedStateUpdate: MatchActivityState = {
-      activityType: 'match',
-      activityState: expectedUpdate,
-    };
-
-    expect(update).toEqual(expectedStateUpdate);
+    expect(update).toEqual(expectedUpdate);
   });
 });
 
@@ -146,7 +136,7 @@ describe('Match Status: Ongoing > Completed', () => {
   };
 
   const pendingMatch = createMatchState(matchCreateParams);
-  const idlingMatch = matchReducer(wrapIntoActivityState(pendingMatch), {
+  const idlingMatch = matchReducer(pendingMatch, {
     type: 'play:startWhitePlayerIdlingTimer',
     payload: {
       at: 123,
@@ -159,7 +149,7 @@ describe('Match Status: Ongoing > Completed', () => {
       payload: { from: 'g2', to: 'g4', moveAt: 123 },
     };
     const actual = matchReducer(idlingMatch, action);
-    const expectedMatch: MatchState = {
+    const expected: MatchState = {
       status: 'pending',
       type: 'bestOf',
       rounds: 1,
@@ -189,10 +179,7 @@ describe('Match Status: Ongoing > Completed', () => {
         winner: null,
       }),
     };
-    const expected: MatchActivityState = {
-      activityType: 'match',
-      activityState: expectedMatch,
-    };
+
     expect(actual).toEqual(expected);
 
     const actionBlack: PlayActions = {
@@ -215,7 +202,7 @@ describe('Match Status: Ongoing > Completed', () => {
 
     const lastUpdate = matchReducer(actualUpdateAgain, killerAction);
 
-    const expectedMatchState: MatchState = {
+    const expectedUpdated: MatchState = {
       status: 'complete',
       type: 'bestOf',
       rounds: 1,
@@ -250,12 +237,7 @@ describe('Match Status: Ongoing > Completed', () => {
       ongoingPlay: null,
     };
 
-    const expectedResult: MatchActivityState = {
-      activityType: 'match',
-      activityState: expectedMatchState,
-    };
-
-    expect(lastUpdate).toEqual(expectedResult);
+    expect(lastUpdate).toEqual(expectedUpdated);
   });
 });
 
@@ -270,7 +252,7 @@ describe('Start New Match => ', () => {
   };
 
   const pendingMatch = createMatchState(matchCreateParams);
-  const idlingMatch = matchReducer(wrapIntoActivityState(pendingMatch), {
+  const idlingMatch = matchReducer(pendingMatch, {
     type: 'play:startWhitePlayerIdlingTimer',
     payload: {
       at: 123,
@@ -285,7 +267,7 @@ describe('Start New Match => ', () => {
 
     const actual = matchReducer(idlingMatch, action);
 
-    const expectedMatch: MatchState = {
+    const expected: MatchState = {
       status: 'pending',
       type: 'bestOf',
       rounds: 3,
@@ -315,12 +297,7 @@ describe('Start New Match => ', () => {
       }),
     };
 
-    const newMatchState: MatchActivityState = {
-      activityType: 'match',
-      activityState: expectedMatch,
-    };
-
-    expect(actual).toEqual(newMatchState);
+    expect(actual).toEqual(expected);
 
     const actual2 = matchReducer(actual, {
       type: 'play:move',
@@ -333,8 +310,6 @@ describe('Start New Match => ', () => {
         color: 'white',
       },
     });
-
-    // const startNewMatchs: MatchActivityActions = ;
 
     const actualNewMatch = matchReducer(update, {
       type: 'match:startNewGame',
@@ -380,12 +355,7 @@ describe('Start New Match => ', () => {
       },
     };
 
-    const finalMatchState: MatchActivityState = {
-      activityType: 'match',
-      activityState: expectedMatchUpdate,
-    };
-
-    expect(actualNewMatch).toEqual(finalMatchState);
+    expect(actualNewMatch).toEqual(expectedMatchUpdate);
   });
 });
 
@@ -400,7 +370,7 @@ describe('End Match when rounds number reached', () => {
   };
 
   const pendingMatch = createMatchState(matchCreateParams);
-  const idlingMatch = matchReducer(wrapIntoActivityState(pendingMatch), {
+  const idlingMatch = matchReducer(pendingMatch, {
     type: 'play:startWhitePlayerIdlingTimer',
     payload: {
       at: 123,
@@ -415,7 +385,7 @@ describe('End Match when rounds number reached', () => {
 
     const actual = matchReducer(idlingMatch, action);
 
-    const expectedMatch: MatchState = {
+    const expected: MatchState = {
       status: 'pending',
       type: 'bestOf',
       rounds: 1,
@@ -445,12 +415,7 @@ describe('End Match when rounds number reached', () => {
       }),
     };
 
-    const newMatchState: MatchActivityState = {
-      activityType: 'match',
-      activityState: expectedMatch,
-    };
-
-    expect(actual).toEqual(newMatchState);
+    expect(actual).toEqual(expected);
 
     const actual2 = matchReducer(actual, {
       type: 'play:move',
@@ -499,12 +464,7 @@ describe('End Match when rounds number reached', () => {
       ongoingPlay: null,
     };
 
-    const finalMatchState: MatchActivityState = {
-      activityType: 'match',
-      activityState: expectedMatchUpdate,
-    };
-
-    expect(update).toEqual(finalMatchState);
+    expect(update).toEqual(expectedMatchUpdate);
   });
 
   test('draw game doesnt impact score', () => {
@@ -515,7 +475,7 @@ describe('End Match when rounds number reached', () => {
 
     const actual = matchReducer(idlingMatch, action);
 
-    const expectedMatch: MatchState = {
+    const expected: MatchState = {
       status: 'pending',
       type: 'bestOf',
       rounds: 1,
@@ -545,12 +505,7 @@ describe('End Match when rounds number reached', () => {
       }),
     };
 
-    const newMatchState: MatchActivityState = {
-      activityType: 'match',
-      activityState: expectedMatch,
-    };
-
-    expect(actual).toEqual(newMatchState);
+    expect(actual).toEqual(expected);
 
     const actual2 = matchReducer(actual, {
       type: 'play:move',
@@ -609,12 +564,7 @@ describe('End Match when rounds number reached', () => {
       ongoingPlay: null,
     };
 
-    const updateMatchState: MatchActivityState = {
-      activityType: 'match',
-      activityState: expectedUpdate,
-    };
-
-    expect(update).toEqual(updateMatchState);
+    expect(update).toEqual(expectedUpdate);
   });
 });
 
@@ -628,7 +578,7 @@ describe('timer only starts after black moves', () => {
   };
 
   const pendingMatch = createMatchState(matchCreateParams);
-  const idlingMatch = matchReducer(wrapIntoActivityState(pendingMatch), {
+  const idlingMatch = matchReducer(pendingMatch, {
     type: 'play:startWhitePlayerIdlingTimer',
     payload: {
       at: 123,
@@ -644,7 +594,7 @@ describe('timer only starts after black moves', () => {
 
     const actual = matchReducer(idlingMatch, action);
 
-    const expectedMatch: MatchState = {
+    const expected: MatchState = {
       // TODO: This should still be "pending" with the new Ideas
       status: 'pending',
       type: 'openEnded',
@@ -678,11 +628,8 @@ describe('timer only starts after black moves', () => {
         winner: null,
       }),
     };
-    const newMatchState: MatchActivityState = {
-      activityType: 'match',
-      activityState: expectedMatch,
-    };
-    expect(actual).toEqual(newMatchState);
+
+    expect(actual).toEqual(expected);
 
     const moveBlackTime = new Date().getTime();
     const action2: PlayActions = {
@@ -692,7 +639,7 @@ describe('timer only starts after black moves', () => {
 
     const update = matchReducer(actual, action2);
 
-    const expectedMatchUpdate: MatchState = {
+    const expectedUpdate: MatchState = {
       status: 'ongoing',
       type: 'openEnded',
       endedPlays: [],
@@ -723,11 +670,8 @@ describe('timer only starts after black moves', () => {
         winner: null,
       }),
     };
-    const newMatchStateUpdate: MatchActivityState = {
-      activityType: 'match',
-      activityState: expectedMatchUpdate,
-    };
-    expect(update).toEqual(newMatchStateUpdate);
+
+    expect(update).toEqual(expectedUpdate);
 
     const lastMoveTime = new Date().getTime() + 1;
     const lastMoveAction: PlayActions = {
@@ -736,16 +680,11 @@ describe('timer only starts after black moves', () => {
     };
 
     const final = matchReducer(update, lastMoveAction);
-    if (final.activityType !== 'match') {
-      return;
-    }
-    if (!final.activityState?.ongoingPlay) {
-      return;
-    }
-    const { timeLeft } = final.activityState.ongoingPlay.game;
 
-    expect(timeLeft.black).toEqual(300000);
-    expect(timeLeft.white).not.toEqual(30000);
+    const { timeLeft } = final?.ongoingPlay?.game || {};
+
+    expect(timeLeft?.black).toEqual(300000);
+    expect(timeLeft?.white).not.toEqual(30000);
   });
 });
 
@@ -760,7 +699,7 @@ describe('abort game -> match', () => {
   };
 
   const pendingMatch = createMatchState(matchCreateParams);
-  const idlingMatch = matchReducer(wrapIntoActivityState(pendingMatch), {
+  const idlingMatch = matchReducer(pendingMatch, {
     type: 'play:startWhitePlayerIdlingTimer',
     payload: {
       at: 123,
@@ -776,7 +715,7 @@ describe('abort game -> match', () => {
 
     const actual = matchReducer(idlingMatch, action);
 
-    const expectedMatch: MatchState = {
+    const expected: MatchState = {
       status: 'aborted',
       type: 'bestOf',
       rounds: 3,
@@ -810,12 +749,10 @@ describe('abort game -> match', () => {
       winner: null,
       ongoingPlay: null,
     };
-    const expected: MatchActivityState = {
-      activityType: 'match',
-      activityState: expectedMatch,
-    };
+
     expect(expected).toEqual(actual);
   });
+
   test('aborting second game will complete the match and have a winner - abort with white', () => {
     const matchUpdateWhiteMove = matchReducer(idlingMatch, {
       type: 'play:move',
@@ -838,7 +775,7 @@ describe('abort game -> match', () => {
       type: 'match:startNewGame',
     });
 
-    const expectedNewMatchState: MatchState = {
+    const expectedNew: MatchState = {
       status: 'ongoing',
       type: 'bestOf',
       rounds: 3,
@@ -878,12 +815,8 @@ describe('abort game -> match', () => {
         }),
       }),
     };
-    const expectedNewMatch: MatchActivityState = {
-      activityType: 'match',
-      activityState: expectedNewMatchState,
-    };
 
-    expect(newMatch).toEqual(expectedNewMatch);
+    expect(newMatch).toEqual(expectedNew);
 
     const idleMatch = matchReducer(newMatch, {
       type: 'play:startWhitePlayerIdlingTimer',
@@ -897,58 +830,55 @@ describe('abort game -> match', () => {
       },
     });
 
-    const expected: MatchActivityState = {
-      activityType: 'match',
-      activityState: {
-        status: 'complete',
-        type: 'bestOf',
-        rounds: 3,
-        endedPlays: [
-          {
-            ...wrapIntoPlay({
-              ...createOngoingGame({
-                timeClass: 'blitz',
-                color: 'w',
-                startedAt: 123,
-                lastMoveAt: 123,
-              }),
-              offers: [],
-              status: 'complete',
-              pgn: '1. e4 e6',
-              lastMoveBy: 'black',
-              winner: 'white',
-              gameOverReason: GameOverReason['resignation'],
-            }),
-          } as CompletedPlayState,
-          {
-            ...wrapIntoPlay({
-              ...createPendingGame({
-                timeClass: 'blitz',
-                color: 'b',
-              }),
-              offers: [],
-              status: 'aborted',
-              pgn: '',
-              lastMoveAt: null,
-              lastMoveBy: 'black',
-              winner: null,
+    const expected: MatchState = {
+      status: 'complete',
+      type: 'bestOf',
+      rounds: 3,
+      endedPlays: [
+        {
+          ...wrapIntoPlay({
+            ...createOngoingGame({
+              timeClass: 'blitz',
+              color: 'w',
               startedAt: 123,
+              lastMoveAt: 123,
             }),
-          } as AbortedPlayState,
-        ],
-        players: {
-          black: {
-            id: 'john',
-            score: 1,
-          },
-          white: {
-            id: 'maria',
-            score: 0,
-          },
+            offers: [],
+            status: 'complete',
+            pgn: '1. e4 e6',
+            lastMoveBy: 'black',
+            winner: 'white',
+            gameOverReason: GameOverReason['resignation'],
+          }),
+        } as CompletedPlayState,
+        {
+          ...wrapIntoPlay({
+            ...createPendingGame({
+              timeClass: 'blitz',
+              color: 'b',
+            }),
+            offers: [],
+            status: 'aborted',
+            pgn: '',
+            lastMoveAt: null,
+            lastMoveBy: 'black',
+            winner: null,
+            startedAt: 123,
+          }),
+        } as AbortedPlayState,
+      ],
+      players: {
+        black: {
+          id: 'john',
+          score: 1,
         },
-        winner: 'john',
-        ongoingPlay: null,
+        white: {
+          id: 'maria',
+          score: 0,
+        },
       },
+      winner: 'john',
+      ongoingPlay: null,
     };
 
     expect(actual).toEqual(expected);
@@ -974,48 +904,45 @@ describe('abort game -> match', () => {
       type: 'match:startNewGame',
     });
 
-    const expectedNewMatch: MatchActivityState = {
-      activityType: 'match',
-      activityState: {
-        status: 'ongoing',
-        type: 'bestOf',
-        rounds: 3,
-        endedPlays: [
-          {
-            ...wrapIntoPlay({
-              ...createOngoingGame({
-                timeClass: 'blitz',
-                color: 'w',
-                startedAt: 123,
-                lastMoveAt: 123,
-              }),
-              offers: [],
-              status: 'complete',
-              pgn: '1. e4 e6',
-              lastMoveBy: 'black',
-              winner: 'white',
-              gameOverReason: GameOverReason['resignation'],
+    const expectedNewMatch: MatchState = {
+      status: 'ongoing',
+      type: 'bestOf',
+      rounds: 3,
+      endedPlays: [
+        {
+          ...wrapIntoPlay({
+            ...createOngoingGame({
+              timeClass: 'blitz',
+              color: 'w',
+              startedAt: 123,
+              lastMoveAt: 123,
             }),
-          } as CompletedPlayState,
-        ],
-        players: {
-          black: {
-            id: 'john',
-            score: 1,
-          },
-          white: {
-            id: 'maria',
-            score: 0,
-          },
-        },
-        winner: null,
-        ongoingPlay: wrapIntoPlay({
-          ...createPendingGame({
-            timeClass: 'blitz',
-            color: 'b',
+            offers: [],
+            status: 'complete',
+            pgn: '1. e4 e6',
+            lastMoveBy: 'black',
+            winner: 'white',
+            gameOverReason: GameOverReason['resignation'],
           }),
-        }),
+        } as CompletedPlayState,
+      ],
+      players: {
+        black: {
+          id: 'john',
+          score: 1,
+        },
+        white: {
+          id: 'maria',
+          score: 0,
+        },
       },
+      winner: null,
+      ongoingPlay: wrapIntoPlay({
+        ...createPendingGame({
+          timeClass: 'blitz',
+          color: 'b',
+        }),
+      }),
     };
 
     expect(newMatch).toEqual(expectedNewMatch);
@@ -1037,7 +964,7 @@ describe('abort game -> match', () => {
       },
     });
 
-    const expectedMatch: MatchState = {
+    const expected: MatchState = {
       status: 'complete',
       type: 'bestOf',
       rounds: 3,
@@ -1086,11 +1013,6 @@ describe('abort game -> match', () => {
       },
       winner: 'maria',
       ongoingPlay: null,
-    };
-
-    const expected: MatchActivityState = {
-      activityType: 'match',
-      activityState: expectedMatch,
     };
 
     expect(actual).toEqual(expected);

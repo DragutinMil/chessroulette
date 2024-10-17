@@ -1,20 +1,20 @@
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import movexConfig from '@app/movex.config';
 import { MovexBoundResourceFromConfig } from 'movex-react';
-import { FBHIndex, noop, swapColor, toShortColor } from '@xmatter/util-kit';
-import { IceServerRecord } from '@app/providers/PeerToPeerProvider/type';
-import { MeetupActivityState } from './movex';
-import { UserId, UsersMap } from '@app/modules/user/type';
-import { RIGHT_SIDE_SIZE_PX } from '../../CONSTANTS';
-import { Playboard } from '@app/components/Boards';
-import { CameraPanel } from '../../components/CameraPanel';
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useMeetupActivitySettings } from './useMeetupActivitySettings';
 import { PanelResizeHandle } from 'react-resizable-panels';
-import { GameDisplayView } from './components/GameDisplayView';
+import { FBHIndex, noop, swapColor, toShortColor } from '@xmatter/util-kit';
+import { Playboard } from '@app/components/Boards';
 import { StartPositionIconButton } from '@app/components/Chessboard';
 import { FreeBoardNotation } from '@app/components/FreeBoardNotation';
 import { ResizableDesktopLayout } from '@app/templates/ResizableDesktopLayout';
-import { getGameDisplayState } from '@app/modules/Play/lib';
+import { IceServerRecord } from '@app/providers/PeerToPeerProvider';
+import { UserId, UsersMap } from '@app/modules/user';
+import { getGameDisplayState } from '@app/modules/Play';
+import { GameDisplayView } from '@app/modules/Meetup';
+import { CameraPanel } from '../../components/CameraPanel';
+import { RIGHT_SIDE_SIZE_PX } from '../../CONSTANTS';
+import { MeetupActivityState } from './movex';
+import { useMeetupActivitySettings } from './useMeetupActivitySettings';
 
 export type Props = {
   roomId: string;

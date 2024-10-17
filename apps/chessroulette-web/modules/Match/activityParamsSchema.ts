@@ -1,14 +1,17 @@
-import { chessColorSchema, createMatchParamsSchema } from '@app/modules/Match';
-import { gameTimeClassRecord } from '@app/modules/Play/io';
 import z from 'zod';
+import { gameTimeClassRecord } from '../Play/io';
 
-// Note: This is an exact copy of modules/Match/ createMatchParamsSchema
-//  the reason for it being a copy is that I cannot compose that with zode intersection
-//  and still be able to discriminateUnion on it. Stupid but these are the limitations
-//  atm. 
-// See https://github.com/colinhacks/zod/issues/2106 & https://github.com/colinhacks/zod/issues/2567 for more details
+// Move these from here in a more gernal place
+export const whiteChessColorSchema = z.literal('white').or(z.literal('w'));
+export const blackChessColorSchema = z.literal('black').or(z.literal('b'));
+export const chessColorSchema = z.union([
+  whiteChessColorSchema,
+  blackChessColorSchema,
+]);
+
 export const matchActivityParamsSchema = z.object({
   activity: z.literal('match'),
+
   // TODO: Type these better
   type: z.union([
     z.literal('bestOf'), // BestOf = best out of N Rounds (e.g. 2 out of 3, 3 out of 5, etc...)
@@ -24,7 +27,7 @@ export const matchActivityParamsSchema = z.object({
   challengeeId: z.string(),
 
   // This is the color of the challenger
-  // If no color specified it's assigned randomly
+  // If no color specified it's assigned randomly 
   startColor: chessColorSchema.optional(),
 });
 

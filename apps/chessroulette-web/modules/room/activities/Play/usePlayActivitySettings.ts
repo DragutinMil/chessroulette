@@ -3,8 +3,8 @@
 import { useUpdateableSearchParams } from '@app/hooks/useSearchParams';
 import {
   GameTimeClass,
-  gameTimeClassRecord,
 } from '@app/modules/Play/types';
+import { gameTimeClassRecord } from '@app/modules/Play/io';
 import { invoke } from '@xmatter/util-kit';
 import { JoinRoomLinkProps } from '../Learn/activitySettings';
 

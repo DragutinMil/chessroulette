@@ -8,25 +8,18 @@ import {
   GameActionsContainer,
 } from '@app/modules/Play';
 import * as PlayStore from '@app/modules/Play/movex';
-
-// import { GameNotationContainer } from '@app/modules/Play/GameNotationContainer';
 import { UserId, UsersMap } from '@app/modules/user';
 import { IceServerRecord } from '@app/providers/PeerToPeerProvider';
 import { ResizableDesktopLayout } from '@app/templates/ResizableDesktopLayout';
-
-// import { GameActionsContainer } from '@app/modules/Play/containers/GameActionsContainer';
-// import { MatchStateProvider } from '@app/modules/room/activities/Match/providers/MatchStateProvider';
-
 import { RIGHT_SIDE_SIZE_PX } from '../../CONSTANTS';
 import { CameraPanel } from '../../components/CameraPanel';
 import { MatchActivityActions, MatchActivityState } from './movex';
-
 import { useRoomLinkId } from '../../hooks/useRoomLinkId';
-import { MatchStateDisplay } from './components/MatchStateDisplay';
-import { MatchStateDialogContainer } from './components/MatchStateDialogContainer';
-// import {  } from '@app/modules/Play/store';
-// import {  } from '@app/modules/Play/PlayContainer';
-import { MatchStateProvider } from './providers/MatchStateProvider';
+import {
+  MatchStateDialogContainer,
+  MatchStateDisplay,
+  MatchStateProvider,
+} from '@app/modules/Match';
 
 type Props = {
   roomId: string;
@@ -145,7 +138,6 @@ export const MatchActivityView = ({
                 playersBySide={playersBySide}
                 dispatch={dispatch}
               />
-
               <div className="bg-slate-700 p-3 flex flex-col gap-2 flex-1 min-h-0 rounded-lg shadow-2xl overflow-y-scroll">
                 <GameNotationContainer />
                 <div className="flex gap-2 bor">

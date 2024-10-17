@@ -6,8 +6,8 @@ import { Button } from '@app/components/Button';
 import {
   GameTimeClass,
   chessGameTimeLimitMsMap,
-  gameTimeClassRecord,
 } from '../../types';
+import { gameTimeClassRecord } from '../../io';
 
 type Props = {
   onSelect: ({

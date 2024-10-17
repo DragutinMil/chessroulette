@@ -1,7 +1,8 @@
 import { useMemo } from 'react';
 import { Game } from '../movex';
 import { UserId } from '../../user/type';
-import { MatchState } from '../../room/activities/Match/movex';
+import { MatchPlayers } from '@app/modules/Match';
+// import { MatchState } from '../../room/activities/Match/movex';
 
 // TODO: the Players can be a tuple?? or by color?
 export const useCanPlay = ({
@@ -13,7 +14,7 @@ export const useCanPlay = ({
   userId: UserId;
   // TODO: Not sure if the players here should be the MatchState['players'] or represented differently at this level!
   //  by dide or by id?
-  players: MatchState['players'];
+  players: MatchPlayers;
 }) =>
   useMemo(() => {
     //TODO - repair this - somehow none of the players can play

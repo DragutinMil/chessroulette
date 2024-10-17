@@ -1,5 +1,4 @@
 import React from 'react';
-import { useMatch } from '../hooks/useMatch';
 import { Dialog } from '@app/components/Dialog';
 import { Text } from '@app/components/Text';
 import { now } from '@app/lib/time';
@@ -15,28 +14,13 @@ import {
 } from '@xmatter/util-kit';
 import { PlayerInfo, PlayersBySide } from '@app/modules/Play';
 import { GameOverReason } from '@app/modules/Play/movex';
-
-import { MatchActivityActions } from '../movex';
 import { BetweenGamesAborter } from './BetweenGamesAborter';
+import { MatchActions } from '../movex';
+import { useMatch } from '../hooks/useMatch';
 
 type Props = DistributiveOmit<GameStateDialogContainerProps, 'dispatch'> & {
-  dispatch: DispatchOf<MatchActivityActions>;
+  dispatch: DispatchOf<MatchActions>;
   playersBySide: PlayersBySide;
-};
-
-const getPlayerInfoById = (
-  { home, away }: PlayersBySide,
-  playerId: string
-): (PlayerInfo & { color: LongChessColor }) | undefined => {
-  if (home.id === playerId) {
-    return home;
-  }
-
-  if (away.id === playerId) {
-    return away;
-  }
-
-  return undefined;
 };
 
 const gameOverReasonsToDisplay: { [k in GameOverReason]: string } = {
@@ -179,4 +163,19 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
   return (
     <GameStateDialogContainer {...gameStateDialogProps} dispatch={dispatch} />
   );
+};
+
+const getPlayerInfoById = (
+  { home, away }: PlayersBySide,
+  playerId: string
+): (PlayerInfo & { color: LongChessColor }) | undefined => {
+  if (home.id === playerId) {
+    return home;
+  }
+
+  if (away.id === playerId) {
+    return away;
+  }
+
+  return undefined;
 };

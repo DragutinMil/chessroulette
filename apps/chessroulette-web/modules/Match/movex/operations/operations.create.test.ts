@@ -3,7 +3,7 @@ import {
   initialPlayState,
 } from '@app/modules/Play/movex';
 import { createMatchState } from './operations';
-import { MatchState } from './types';
+import { MatchState } from '../types';
 import { chessGameTimeLimitMsMap } from '@app/modules/Play/types';
 
 const CONSTANTS = {

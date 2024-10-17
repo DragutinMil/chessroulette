@@ -1,7 +1,7 @@
 import { ChessColor } from '@xmatter/util-kit';
 import { PlayerBox } from './PlayerBox';
 import { Game } from '../movex';
-import { PlayersBySide, Results } from '../types';
+import { PlayersBySide, Old_Play_Results } from '../types';
 
 export type PlayersInfoProps = {
   players: PlayersBySide;
@@ -9,7 +9,7 @@ export type PlayersInfoProps = {
   game: Game;
   onCheckTime: () => void;
   gameCounterActive: boolean;
-  results: Results;
+  results: Old_Play_Results;
 };
 
 export const PlayersInfo = ({

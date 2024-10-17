@@ -1,13 +1,14 @@
 import { GameAbortView, GameAbortViewProps } from './GameAbortView';
 import { IdlingGame, PlayActions } from '../../movex';
 import { DispatchOf, LongChessColor } from '@xmatter/util-kit';
-import { MatchState } from '../../../room/activities/Match/movex';
+// import { MatchState } from '../../../room/activities/Match/movex';
 import { useMemo, useState } from 'react';
 import { now } from '@app/lib/time';
+import { MatchPlayers } from '@app/modules/Match';
 
 type Props = Pick<GameAbortViewProps, 'className'> & {
   // // Not sure if here what we need is the match players
-  players: MatchState['players'];
+  players: MatchPlayers;
   dispatch: DispatchOf<PlayActions>;
   timeToAbortMs: number;
   game: IdlingGame;
