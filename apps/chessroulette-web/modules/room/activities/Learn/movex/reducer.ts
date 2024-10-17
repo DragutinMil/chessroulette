@@ -11,13 +11,14 @@ import {
   ActivityState,
   initialActivityState,
 } from '../../movex';
+import { MovexReducer } from 'movex-core-util';
 
 export const findLoadedChapter = (
   activityState: LearnActivityState['activityState']
 ): Chapter | undefined =>
   activityState.chaptersMap[activityState.loadedChapterId];
 
-export const reducer = (
+export const reducer: MovexReducer<ActivityState, ActivityActions> = (
   prev: ActivityState = initialActivityState,
   action: ActivityActions
 ): ActivityState => {

@@ -4,9 +4,10 @@ import { reducerLogger } from './lib/util';
 
 export default {
   resources: {
-    room: roomReducer,
-    // room: config.DEBUG_MODE
-    //   ? reducerLogger(roomReducer, 'Room Movex')
-    //   : roomReducer,
+    // room: roomReducer,
+    // room: reducerLogger(roomReducer, 'Room Movex'),
+    room: config.DEBUG_MODE
+      ? reducerLogger(roomReducer, 'Room Movex')
+      : roomReducer,
   },
 };

@@ -185,23 +185,6 @@ export type AbortedGame = {
   orientation: ChessColor;
 };
 
-/**
- * Few notes about the game
- *
- * The Game State can be updated by a Movex Client sending an ACTION (e..g a time finished action) but this is not always reliable
- * especially if that client has left the game room.
- *
- * An ideal scenario is where these actions get triggered by the server, but that is more consuming and complicated.
- *
- * So a third option is an interesting idea, where the states get calculated on demand:
- *    - whenever the state is read, a certain type of actions can be dispatched to the reducer to change the state like for ex.
- *       - to check if an ongoing game is still ongoing or did the timers finished and it can move to completed
- *       - or to check if an idling game is still idling or it moved into ongoing or aborted
- *  Actually, after thinking more of this it doesn't need to be an ACTION but a transformer (like getDerivedState) that gets calculated (and memoized)
- *   on each read, so it always returns the calculated version!
- *    - the downside to this is that it doesn't get saved in the Movex Store, but memoized or run multiple times, but is this a real downside?
- *    - Movex Can still show both versions, and the cached/memoized version is stored in just another store - or the same? :)
- */
 export type Game =
   | PendingGame
   | IdlingGame

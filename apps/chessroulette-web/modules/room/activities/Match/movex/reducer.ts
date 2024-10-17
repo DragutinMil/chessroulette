@@ -1,17 +1,17 @@
 import { MovexReducer } from 'movex-core-util';
 import { ChessColor, invoke, swapColor, toLongColor } from '@xmatter/util-kit';
-import { type ActivityState } from '../../movex';
+import { ActivityActions, type ActivityState } from '../../movex';
 import { GameTimeClass, Results } from '@app/modules/Play';
-import { MatchActivityActions, MatchState } from './types';
+import { MatchState } from './types';
 import { initialMatchActivityState } from './state';
 import * as PlayStore from '@app/modules/Play/movex';
 
 // TODO: Instead of Hard coding this, put in the matchCreation setting as part of the MatchState
 export const MATCH_TIME_TO_ABORT = 3 * 60 * 1000; // 3 mins
 
-export const reducer: MovexReducer<ActivityState, MatchActivityActions> = (
+export const reducer: MovexReducer<ActivityState, ActivityActions> = (
   prev: ActivityState = initialMatchActivityState,
-  action: MatchActivityActions
+  action: ActivityActions
 ): ActivityState => {
   if (prev.activityType !== 'match') {
     return prev;
@@ -191,6 +191,8 @@ export const reducer: MovexReducer<ActivityState, MatchActivityActions> = (
 };
 
 reducer.$transformState = (state, masterContext) => {
+  console.log('match.$transform', state, masterContext);
+
   if (!(state.activityType === 'match' && state.activityState)) {
     return state;
   }
