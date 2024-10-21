@@ -1,4 +1,4 @@
-import { MatchActions, MatchState } from '@app/modules/Match';
+import { MatchActions, MatchState } from '@app/modules/Match/movex';
 
 export type MatchActivityActivityState = MatchState;
 

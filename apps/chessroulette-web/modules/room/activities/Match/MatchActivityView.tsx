@@ -18,8 +18,8 @@ import { useRoomLinkId } from '../../hooks/useRoomLinkId';
 import {
   MatchStateDialogContainer,
   MatchStateDisplay,
-  MatchStateProvider,
-} from '@app/modules/Match';
+} from '@app/modules/Match/components';
+import { MatchStateProvider } from '@app/modules/Match/providers';
 
 type Props = {
   roomId: string;

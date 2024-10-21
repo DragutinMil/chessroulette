@@ -21,7 +21,7 @@ import { links } from '../links';
 import { initialActivityStatesByActivityType } from '../activities/movex';
 // import { GameTimeClass } from '../../Play/types';
 import { ActivityParamsSchema } from '../io/paramsSchema';
-import { createMatchState } from '@app/modules/Match';
+import { createMatchState } from '@app/modules/Match/movex';
 // import { createMatchState } from '../activities/Match/movex';
 
 

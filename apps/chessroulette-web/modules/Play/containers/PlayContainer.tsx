@@ -7,7 +7,8 @@ import {
 } from './GameBoardContainer';
 import { UserId } from '../../user';
 import { isOneOf } from '@xmatter/util-kit';
-import { MatchPlayers } from '@app/modules/Match';
+import { MatchPlayers } from '@app/modules/Match/movex';
+// import { MatchPlayers } from '@app/modules/Match';
 
 // TODO: This should not be here!!!
 // import type { MatchState } from '../../room/activities/Match/movex';

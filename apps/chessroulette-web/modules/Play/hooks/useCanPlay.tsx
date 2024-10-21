@@ -1,7 +1,8 @@
 import { useMemo } from 'react';
 import { Game } from '../movex';
 import { UserId } from '../../user/type';
-import { MatchPlayers } from '@app/modules/Match';
+import { MatchPlayers } from '@app/modules/Match/movex';
+// import { MatchPlayers } from '@app/modules/Match';
 // import { MatchState } from '../../room/activities/Match/movex';
 
 // TODO: the Players can be a tuple?? or by color?
