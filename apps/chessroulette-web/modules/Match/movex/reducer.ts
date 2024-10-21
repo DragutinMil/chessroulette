@@ -1,10 +1,10 @@
 import { MovexReducer } from 'movex-core-util';
 import { ChessColor, invoke, swapColor, toLongColor } from '@xmatter/util-kit';
-import { GameTimeClass, Old_Play_Results } from '@app/modules/Play';
+import { Old_Play_Results } from '@app/modules/Play';
 import { MatchActions, MatchState } from './types';
 import { initialMatchState } from './state';
 import * as PlayStore from '@app/modules/Play/movex';
-import { AbortedGame } from '@app/modules/Game';
+import { AbortedGame, GameTimeClass } from '@app/modules/Game';
 
 // TODO: Instead of Hard coding this, put in the matchCreation setting as part of the MatchState
 export const MATCH_TIME_TO_ABORT = 3 * 60 * 1000; // 3 mins

@@ -1,5 +1,5 @@
 import z from 'zod';
-import { gameTimeClassRecord } from '../Play/io';
+import { gameTimeClassRecord } from '../Game/io';
 
 // Move these from here in a more gernal place
 export const whiteChessColorSchema = z.literal('white').or(z.literal('w'));

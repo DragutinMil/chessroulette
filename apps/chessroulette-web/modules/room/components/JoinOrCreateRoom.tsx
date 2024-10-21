@@ -9,7 +9,6 @@ import { invoke, objectPick } from '@xmatter/util-kit';
 import { generateUserId, getRandomStr } from '@app/util';
 import { useUpdateableSearchParams } from '@app/hooks/useSearchParams';
 import { logsy } from '@app/lib/Logsy';
-import { GameTimeClass } from '@app/modules/Play';
 import { createPendingGame } from '@app/modules/Play/movex';
 
 import { RoomState, initialRoomState } from '../movex';
@@ -22,8 +21,8 @@ import { initialActivityStatesByActivityType } from '../activities/movex';
 // import { GameTimeClass } from '../../Play/types';
 import { ActivityParamsSchema } from '../io/paramsSchema';
 import { createMatchState } from '@app/modules/Match/movex';
+import { GameTimeClass } from '@app/modules/Game';
 // import { createMatchState } from '../activities/Match/movex';
-
 
 // import { createPendingGame } from '../../Play';
 

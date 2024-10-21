@@ -1,4 +1,3 @@
-import { GameDisplayState } from '@app/modules/Play';
 import {
   ChessFEN,
   ChessFENBoard,
@@ -10,6 +9,7 @@ import {
   pgnToFen,
   toLongColor,
 } from '@xmatter/util-kit';
+import { GameDisplayState } from '../types';
 
 const getLastMove = (history: FBHHistory, atIndex: FBHIndex) => {
   const lm = FreeBoardHistory.findMoveAtIndex(history, atIndex);

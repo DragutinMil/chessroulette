@@ -3,8 +3,9 @@ import { objectKeys } from '@xmatter/util-kit';
 import { Dialog } from '@app/components/Dialog';
 import { SelectInput } from '@app/components/SelectInput';
 import { Button } from '@app/components/Button';
-import { GameTimeClass, chessGameTimeLimitMsMap } from '@app/modules/Play';
-import { gameTimeClassRecord } from '@app/modules/Play/io';
+// import { GameTimeClass, chessGameTimeLimitMsMap } from '@app/modules/Play';
+import { GameTimeClass, gameTimeClassRecord } from '@app/modules/Game/io';
+import { chessGameTimeLimitMsMap } from '../../constants';
 // import {
 //   GameTimeClass,
 //   chessGameTimeLimitMsMap,

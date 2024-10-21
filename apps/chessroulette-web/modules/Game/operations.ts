@@ -1,8 +1,7 @@
 import { ChessColor } from '@xmatter/util-kit';
-import { GameTimeClass, chessGameTimeLimitMsMap } from '../Play/types';
-
-import { OngoingGame, PendingGame } from './types';
+import { GameTimeClass, OngoingGame, PendingGame } from './types';
 import { PENDING_UNTIMED_GAME } from './state';
+import { chessGameTimeLimitMsMap } from './constants';
 
 export const createPendingGame = ({
   timeClass,

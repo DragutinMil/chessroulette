@@ -1,10 +1,7 @@
 'use client';
 
 import { useUpdateableSearchParams } from '@app/hooks/useSearchParams';
-import {
-  GameTimeClass,
-} from '@app/modules/Play/types';
-import { gameTimeClassRecord } from '@app/modules/Play/io';
+import { GameTimeClass, gameTimeClassRecord } from '@app/modules/Game/io';
 import { invoke } from '@xmatter/util-kit';
 import { JoinRoomLinkProps } from '../Learn/activitySettings';
 

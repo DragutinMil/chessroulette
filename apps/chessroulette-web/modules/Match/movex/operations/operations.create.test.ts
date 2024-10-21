@@ -4,7 +4,7 @@ import {
 } from '@app/modules/Play/movex';
 import { createMatchState } from './operations';
 import { MatchState } from '../types';
-import { chessGameTimeLimitMsMap } from '@app/modules/Play/types';
+import { chessGameTimeLimitMsMap } from '@app/modules/Game/constants';
 
 const CONSTANTS = {
   challengeeId: 'challengee-user',

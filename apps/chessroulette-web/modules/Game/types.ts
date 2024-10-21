@@ -1,6 +1,29 @@
-import { ChessColor, ChessPGN, LongChessColor } from '@xmatter/util-kit';
-import { User } from '@app/modules/user/type';
-import { GameTimeClass } from '../Play';
+import {
+  ChessColor,
+  ChessFEN,
+  ChessPGN,
+  FBHHistory,
+  FBHIndex,
+  LongChessColor,
+  ShortChessMove,
+} from '@xmatter/util-kit';
+import { User } from '@app/modules/user';
+
+import { GameTimeClass } from './io';
+
+export { type GameTimeClass } from './io';
+
+export type GameDisplayState = {
+  fen: ChessFEN;
+  history: FBHHistory;
+  focusedIndex: FBHIndex;
+  turn: LongChessColor;
+  lastMove?: ShortChessMove;
+};
+
+export type ChessGameTimeMap = {
+  [k in GameTimeClass]: number;
+};
 
 export type GameStateWinner = 'white' | 'black' | '1/2';
 
@@ -46,6 +69,7 @@ export type PendingGame = {
   lastMoveBy: 'black'; // This can be undefined as well
   lastMoveAt: null;
   winner: null;
+
   offers: GameOffer[]; // TODO: Make this undefined
 
   gameOverReason: null;

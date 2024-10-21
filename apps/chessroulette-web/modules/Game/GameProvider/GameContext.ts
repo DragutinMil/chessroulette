@@ -8,8 +8,8 @@ import {
 // import { GameDisplayState } from '../types';
 // import { Game, GameOffer, initialPlayState } from '../movex';
 import { UserId, UsersMap } from '@app/modules/user';
-import { GameDisplayState } from '@app/modules/Play';
-import { Game, GameOffer } from '../types';
+// import { GameDisplayState } from '@app/modules/Play';
+import { Game, GameDisplayState, GameOffer } from '../types';
 import { initialPlayState } from '@app/modules/Play/movex';
 
 export type GameContextProps = {

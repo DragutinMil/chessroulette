@@ -1,4 +1,4 @@
-import { gameTimeClassRecord } from '@app/modules/Play/io';
+import { gameTimeClassRecord } from '@app/modules/Game/io';
 import z from 'zod';
 
 // TODO: Move these from here in a more gernal place

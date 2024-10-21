@@ -1,6 +1,6 @@
 // import { chessColorSchema, createMatchParamsSchema } from '@app/modules/Match';
 import { chessColorSchema } from '@app/modules/Match/movex';
-import { gameTimeClassRecord } from '@app/modules/Play/io';
+import { gameTimeClassRecord } from '@app/modules/Game/io';
 import z from 'zod';
 
 // Note: This is an exact copy of modules/Match/ createMatchParamsSchema
