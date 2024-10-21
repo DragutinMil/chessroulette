@@ -1,1 +1,1 @@
-export * from './GameAbort';
+export * from '../../../Match/containers/MatchAbortContainer/MatchAbort';

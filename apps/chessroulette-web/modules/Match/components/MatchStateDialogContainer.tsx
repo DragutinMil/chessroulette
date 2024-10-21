@@ -25,6 +25,7 @@ type Props = DistributiveOmit<GameStateDialogContainerProps, 'dispatch'> & {
   playersBySide: PlayersBySide;
 };
 
+// TODO: Move somewher eelse
 const gameOverReasonsToDisplay: { [k in GameOverReason]: string } = {
   [GameOverReason['aborted']]: 'Game was aborted',
   [GameOverReason['acceptedDraw']]: 'Players agreed to draw',

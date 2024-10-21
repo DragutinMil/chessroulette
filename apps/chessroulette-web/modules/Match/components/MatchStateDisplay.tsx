@@ -11,8 +11,8 @@ import { getMovesDetailsFromPGN } from '../utils';
 import { useMatch } from '../hooks/useMatch';
 import { useGame } from '@app/modules/Game/hooks';
 import { PlayersInfoContainer } from '@app/modules/Play/containers';
-import { GameAbort } from '@app/modules/Game/components/GameAbort';
-import { GameAbortContainer } from '@app/modules/Play/containers/GameAbortContainer';
+// import { GameAbort } from '@app/modules/Game/components/GameAbort';
+import { MatchAbortContainer } from '@app/modules/Match/containers/MatchAbortContainer/MatchAbortContainer';
 
 type Props = {
   playersBySide: PlayersBySide;
@@ -76,7 +76,7 @@ export const MatchStateDisplay: React.FC<Props> = ({
         />
       </div>
       {players && realState.game.status === 'idling' && (
-        <GameAbortContainer
+        <MatchAbortContainer
           key={realState.game.startedAt + realState.turn} // refresh it on each new game & when the turn changes
           game={realState.game}
           turn={realState.turn}

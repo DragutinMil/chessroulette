@@ -24,7 +24,7 @@ import {
 } from '@app/modules/Match/components';
 import { MatchStateProvider } from '@app/modules/Match/providers';
 import { GameProvider } from '../Game/GameProvider';
-import { PlayContainer } from '../Play/PlayContainer';
+import { PlayContainer } from './PlayContainer';
 import { GameActionsContainer, GameNotationContainer } from '../Play/containers';
 
 type Props = {

@@ -1,15 +1,19 @@
 import {
   GameAbort,
   GameAbortViewProps,
-} from '../../Game/components/GameAbort/GameAbort';
+} from './MatchAbort';
 // import { IdlingGame, PlayActions } from '../../movex';
 import { DispatchOf, LongChessColor } from '@xmatter/util-kit';
 import { useMemo, useState } from 'react';
 import { now } from '@app/lib/time';
 import { MatchPlayers } from '@app/modules/Match/movex';
-import { IdlingGame } from '../../Game/types';
-import { PlayActions } from '../movex';
+import { IdlingGame } from '@app/modules/Game';
+import { PlayActions } from '@app/modules/Play/movex';
+// import { IdlingGame } from '../../../Game/types';
+// import { PlayActions } from '../../../Play/movex';
 
+
+// TODO: I believe this can be either provided more, or just expose the onAbort rather then receiving the dispatch
 type Props = Pick<GameAbortViewProps, 'className'> & {
   // // Not sure if here what we need is the match players
   players: MatchPlayers;
@@ -21,7 +25,7 @@ type Props = Pick<GameAbortViewProps, 'className'> & {
   playerId?: string;
 };
 
-export const GameAbortContainer = ({
+export const MatchAbortContainer = ({
   players,
   dispatch,
   timeToAbortMs,
