@@ -7,6 +7,8 @@ type Props = {
   className?: string;
 };
 
+// TODO: @depreecate in favor of MatchDisplat
+// TODO: This is also a duplicate of game/GameDisplayView
 export const GameDisplayView = ({ game, className }: Props) => {
   const turn = useMemo(
     () => toLongColor(new ChessFENBoard(pgnToFen(game.pgn)).getFenState().turn),

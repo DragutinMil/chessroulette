@@ -1,6 +1,7 @@
-import { Game, PlayActions, PlayState } from './types';
+import { PlayActions, PlayState } from './types';
 import { reducer as playReducer } from './reducer';
-import { createPendingGame } from './operations';
+import { createPendingGame } from '../../Game/operations';
+import { Game } from '@app/modules/Game';
 
 const wrapIntoPlay = <G extends Game>(game: G): PlayState => ({
   game,

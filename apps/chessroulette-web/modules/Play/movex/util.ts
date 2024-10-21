@@ -1,5 +1,6 @@
+import { GameOverReason, OngoingGame } from '@app/modules/Game';
 import { LongChessColor } from '@xmatter/util-kit';
-import { GameOverReason, OngoingGame } from './types';
+// import { GameOverReason, OngoingGame } from './types';
 import { Chess } from 'chess.js';
 import { Err, Ok, Result } from 'ts-results';
 

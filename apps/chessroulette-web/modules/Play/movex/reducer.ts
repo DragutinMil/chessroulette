@@ -8,14 +8,15 @@ import {
 } from '@xmatter/util-kit';
 import { initialPlayState } from './state';
 import {
-  GameOffer,
-  GameOverReason,
-  GameStateWinner,
+  // GameOffer,
+  // GameOverReason,
+  // GameStateWinner,
   PlayActions,
   PlayState,
 } from './types';
-import { createPendingGame } from './operations';
+import { createPendingGame } from '../../Game/operations';
 import { calculateTimeLeftAt, checkIsGameOverWithReason } from './util';
+import { GameOffer, GameOverReason, GameStateWinner } from '@app/modules/Game';
 
 export const reducer = (
   prev: PlayState = initialPlayState,

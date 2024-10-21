@@ -1,6 +1,8 @@
-import { PlayersInfo, PlayersInfoProps } from '../components/PlayersInfo';
-import { useGame } from '../providers/useGame';
+// import { PlayersInfo, PlayersInfoProps } from '../components/PlayersInfo';
+// import { useGame } from '../providers/useGame';
+import { useGame } from '@app/modules/Game/hooks';
 import { Old_Play_Results } from '../types';
+import { PlayersInfo, PlayersInfoProps } from '@app/modules/Game/components/PlayersInfo';
 
 type Props = Omit<
   PlayersInfoProps,

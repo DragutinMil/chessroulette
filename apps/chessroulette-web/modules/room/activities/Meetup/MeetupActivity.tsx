@@ -9,12 +9,13 @@ import { FreeBoardNotation } from '@app/components/FreeBoardNotation';
 import { ResizableDesktopLayout } from '@app/templates/ResizableDesktopLayout';
 import { IceServerRecord } from '@app/providers/PeerToPeerProvider';
 import { UserId, UsersMap } from '@app/modules/user';
-import { getGameDisplayState } from '@app/modules/Play';
+// import { getGameDisplayState } from '@app/modules/Play';
 import { GameDisplayView } from '@app/modules/Meetup';
 import { CameraPanel } from '../../components/CameraPanel';
 import { RIGHT_SIDE_SIZE_PX } from '../../CONSTANTS';
 import { MeetupActivityState } from './movex';
 import { useMeetupActivitySettings } from './useMeetupActivitySettings';
+import { getGameDisplayState } from '@app/modules/Game/lib';
 
 export type Props = {
   roomId: string;

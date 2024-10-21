@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { AsyncResult } from 'ts-async-results';
 import {

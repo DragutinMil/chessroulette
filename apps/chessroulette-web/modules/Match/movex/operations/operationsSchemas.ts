@@ -1,7 +1,7 @@
 import { gameTimeClassRecord } from '@app/modules/Play/io';
 import z from 'zod';
 
-// Move these from here in a more gernal place
+// TODO: Move these from here in a more gernal place
 export const whiteChessColorSchema = z.literal('white').or(z.literal('w'));
 export const blackChessColorSchema = z.literal('black').or(z.literal('b'));
 export const chessColorSchema = z.union([

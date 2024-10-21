@@ -1,6 +1,6 @@
 import React, { PropsWithChildren, useMemo } from 'react';
 import { MatchStateContext, MatchStateContextType } from './MatchStateContext';
-import { MatchState } from '../movex';
+import type { MatchState } from '../movex';
 
 type Props = PropsWithChildren<MatchState>;
 

@@ -1,10 +1,10 @@
 'use client';
 
-import { DispatchOf, noop } from '@xmatter/util-kit';
-import { IceServerRecord } from '@app/providers/PeerToPeerProvider/type';
-import { UserId, UsersMap } from '@app/modules/user/type';
-import { MatchActivityActions, MatchActivityState } from './movex';
-import { MatchActivityView } from './MatchActivityView';
+import { type DispatchOf, noop } from '@xmatter/util-kit';
+import type { IceServerRecord } from '@app/providers/PeerToPeerProvider';
+import type { UserId, UsersMap } from '@app/modules/user';
+import type { MatchActivityActions, MatchActivityState } from './movex';
+import { MatchContainer } from '@app/modules/Match';
 import { useMatchActivitySettings } from './useMatchActivitySettings';
 
 export type Props = {
@@ -20,7 +20,7 @@ export const MatchActivity = ({ remoteState, dispatch, ...props }: Props) => {
   const { isBoardFlipped } = useMatchActivitySettings();
 
   return (
-    <MatchActivityView
+    <MatchContainer
       dispatch={dispatch || noop}
       state={remoteState}
       isBoardFlipped={isBoardFlipped}

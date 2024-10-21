@@ -2,10 +2,10 @@ import React from 'react';
 import { Dialog } from '@app/components/Dialog';
 import { Text } from '@app/components/Text';
 import { now } from '@app/lib/time';
-import {
-  GameStateDialogContainer,
-  GameStateDialogContainerProps,
-} from '@app/modules/Play/containers/GameStateDialogContainer';
+// import {
+//   GameStateDialogContainer,
+//   GameStateDialogContainerProps,
+// } from '@app/modules/Play/containers/GameStateDialogContainer';
 import {
   DispatchOf,
   DistributiveOmit,
@@ -13,10 +13,12 @@ import {
   invoke,
 } from '@xmatter/util-kit';
 import { PlayerInfo, PlayersBySide } from '@app/modules/Play';
-import { GameOverReason } from '@app/modules/Play/movex';
+// import { GameOverReason } from '@app/modules/Play/movex';
 import { BetweenGamesAborter } from './BetweenGamesAborter';
 import { MatchActions } from '../movex';
 import { useMatch } from '../hooks/useMatch';
+import { GameStateDialogContainer, GameStateDialogContainerProps } from '@app/modules/Play/containers';
+import { GameOverReason } from '@app/modules/Game';
 
 type Props = DistributiveOmit<GameStateDialogContainerProps, 'dispatch'> & {
   dispatch: DispatchOf<MatchActions>;

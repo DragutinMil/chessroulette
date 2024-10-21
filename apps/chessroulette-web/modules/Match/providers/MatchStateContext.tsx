@@ -1,8 +1,8 @@
 import { createContext } from 'react';
-import { MatchPlayers, MatchState } from '../movex';
-// import { Results } from '../../../../Play/types';
+import type { MatchPlayers, MatchState } from '../movex';
 import { EndedPlayState } from '@app/modules/Play/movex';
 import { Old_Play_Results } from '@app/modules/Play';
+// import { Results } from '../../../../Play/types';
 
 export type MatchStateContextType = Pick<
   NonNullable<MatchState>,

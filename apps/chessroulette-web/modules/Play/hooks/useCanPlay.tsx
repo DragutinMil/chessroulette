@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
-import { Game } from '../movex';
 import { UserId } from '../../user/type';
 import { MatchPlayers } from '@app/modules/Match/movex';
+import { Game } from '@app/modules/Game';
 // import { MatchPlayers } from '@app/modules/Match';
 // import { MatchState } from '../../room/activities/Match/movex';
 

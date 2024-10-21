@@ -1,7 +1,8 @@
 import { ChessColor, DispatchOf } from '@xmatter/util-kit';
 import { UserId } from '@app/modules/user';
-import { GameActions } from '../components/GameActions';
+// import { GameActions } from '../components/GameActions';
 import type { PlayActions } from '../movex';
+import { GameActions } from '@app/modules/Game/components/GameActions';
 
 type Props = {
   dispatch: DispatchOf<PlayActions>;
@@ -19,31 +20,33 @@ export const GameActionsContainer = ({
   dispatch,
   homeColor,
   playerId,
-}: Props) => (
-  <GameActions
-    homeColor={homeColor}
-    playerId={playerId}
-    onOfferDraw={() => {
-      dispatch({
-        type: 'play:sendOffer',
-        payload: { byPlayer: playerId, offerType: 'draw' },
-      });
-    }}
-    onTakeback={() => {
-      dispatch({
-        type: 'play:sendOffer',
-        payload: {
-          byPlayer: playerId,
-          offerType: 'takeback',
-          timestamp: new Date().getTime(),
-        },
-      });
-    }}
-    onResign={() => {
-      dispatch({
-        type: 'play:resignGame',
-        payload: { color: homeColor },
-      });
-    }}
-  />
-);
+}: Props) => {
+  return (
+    <GameActions
+      homeColor={homeColor}
+      playerId={playerId}
+      onOfferDraw={() => {
+        dispatch({
+          type: 'play:sendOffer',
+          payload: { byPlayer: playerId, offerType: 'draw' },
+        });
+      }}
+      onTakeback={() => {
+        dispatch({
+          type: 'play:sendOffer',
+          payload: {
+            byPlayer: playerId,
+            offerType: 'takeback',
+            timestamp: new Date().getTime(),
+          },
+        });
+      }}
+      onResign={() => {
+        dispatch({
+          type: 'play:resignGame',
+          payload: { color: homeColor },
+        });
+      }}
+    />
+  );
+};

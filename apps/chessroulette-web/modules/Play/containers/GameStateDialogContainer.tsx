@@ -1,8 +1,10 @@
 import { DispatchOf } from '@xmatter/util-kit';
-import { GameOffer, PlayActions } from '../movex';
+import { PlayActions } from '../movex';
 import { UserId } from '../../user/type';
 import { useCallback } from 'react';
-import { GameStateDialog } from '../components/GameStateDialog';
+import { GameOffer } from '@app/modules/Game';
+import { GameStateDialog } from '@app/modules/Game/components/GameStateDialog';
+// import { GameStateDialog } from '../components/GameStateDialog';
 
 export type GameStateDialogContainerProps = {
   dispatch: DispatchOf<PlayActions>;

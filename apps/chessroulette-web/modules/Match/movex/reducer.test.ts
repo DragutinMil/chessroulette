@@ -1,11 +1,12 @@
+import { Game, GameOverReason } from '@app/modules/Game';
 import { createMatchState } from './operations/operations';
 import { reducer as matchReducer } from './reducer';
 import { MatchState } from './types';
 import {
   AbortedPlayState,
   CompletedPlayState,
-  Game,
-  GameOverReason,
+  // Game,
+  // GameOverReason,
   PlayActions,
   PlayState,
   createOngoingGame,

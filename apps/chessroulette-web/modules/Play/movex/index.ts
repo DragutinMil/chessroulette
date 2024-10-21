@@ -1,5 +1,5 @@
 export * from './types';
 export * from './reducer';
 export * from './state';
-export * from './operations';
+export * from '../../Game/operations';
 export * from './util';

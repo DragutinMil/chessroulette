@@ -9,7 +9,13 @@ import { GameTimeClass } from './io';
 
 export { type GameTimeClass } from './io';
 
-export type GameStatus = 'pending' | 'ongoing' | 'complete';
+export type GameDisplayState = {
+  fen: ChessFEN;
+  history: FBHHistory;
+  focusedIndex: FBHIndex;
+  turn: LongChessColor;
+  lastMove?: ShortChessMove;
+};
 
 export type ChessGameTimeMap = {
   [k in GameTimeClass]: number;
@@ -23,14 +29,6 @@ export const chessGameTimeLimitMsMap: ChessGameTimeMap = {
   blitz3: 180000,
   rapid: 600000,
   untimed: -1,
-};
-
-export type GameDisplayState = {
-  fen: ChessFEN;
-  history: FBHHistory;
-  focusedIndex: FBHIndex;
-  turn: LongChessColor;
-  lastMove?: ShortChessMove;
 };
 
 export type PlayerInfo = {

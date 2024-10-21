@@ -3,7 +3,7 @@ import {
   FreeBoardNotation,
   FreeBoardNotationProps,
 } from '@app/components/FreeBoardNotation';
-import { useGame } from '../providers/useGame';
+import { useGame } from '@app/modules/Game/hooks';
 
 type Props = Pick<
   FreeBoardNotationProps,

@@ -4,11 +4,13 @@ import {
   swapColor,
   toShortColor,
 } from '@xmatter/util-kit';
-import type { Game, PlayActions } from '../movex';
+import type { PlayActions } from '../movex';
 import { Playboard } from '@app/components/Boards';
 import { useMemo } from 'react';
-import { useGame } from '../providers/useGame';
 import { ChessboardContainerProps } from '@app/components/Chessboard';
+import { Game } from '@app/modules/Game';
+import { useGame } from '@app/modules/Game/hooks';
+// import { useGame } from '../hooks';
 
 export type GameBoardContainerProps = {
   boardSizePx: number;
@@ -25,10 +27,7 @@ export type GameBoardContainerProps = {
 >;
 
 /**
- * This must be used as a descendant of the GameProvider only
- *
- * @param param0
- * @returns
+ * Depends on the GameProvider
  */
 export const GameBoardContainer = ({
   game,
