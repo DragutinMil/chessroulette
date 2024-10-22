@@ -3,11 +3,11 @@ import { ResourceIdentifier } from 'movex-core-util';
 import { StringRecord } from '@xmatter/util-kit';
 import { authOptions } from '@app/services/Auth';
 import { RoomTemplate } from '@app/templates/RoomTemplate';
-import { RoomContainer } from '@app/modules/room/RoomContainer';
+import { RoomContainer } from '@app/modules/Room/RoomContainer';
 import { twilio } from '@app/services/twilio';
 import { metadata as rootMetadata } from '../../../../page';
 import { getCustomServerSession } from '@app/services/Auth/getCustomServerSession';
-import { roomIdParamsSchema } from '@app/modules/room/io/paramsSchema';
+import { roomIdParamsSchema } from '@app/modules/Room/io/paramsSchema';
 import { ErrorPage } from '@app/appPages/ErrorPage';
 
 export const metadata: Metadata = {

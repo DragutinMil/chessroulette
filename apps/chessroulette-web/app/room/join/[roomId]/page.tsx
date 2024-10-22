@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 import { StringRecord } from '@xmatter/util-kit';
-import { JoinOrCreateRoom } from '@app/modules/room/components/JoinOrCreateRoom';
-import { roomIdentifiableActivityParamsSchema } from '@app/modules/room/io/paramsSchema';
+import { JoinOrCreateRoom } from '@app/modules/Room/components/JoinOrCreateRoom';
+import { roomIdentifiableActivityParamsSchema } from '@app/modules/Room/io/paramsSchema';
 import { ErrorPage } from '@app/appPages/ErrorPage';
 import { metadata as rootMetadata } from '../../../page';
 

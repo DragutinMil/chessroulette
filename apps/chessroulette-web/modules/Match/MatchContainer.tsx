@@ -11,13 +11,13 @@ import * as PlayStore from '@app/modules/Match/Play/store';
 import { UserId, UsersMap } from '@app/modules/user';
 import { IceServerRecord } from '@app/providers/PeerToPeerProvider';
 import { ResizableDesktopLayout } from '@app/templates/ResizableDesktopLayout';
-import { RIGHT_SIDE_SIZE_PX } from '../room/CONSTANTS';
-import { CameraPanel } from '../room/components/CameraPanel';
+import { RIGHT_SIDE_SIZE_PX } from '../Room/CONSTANTS';
+import { CameraPanel } from '../Room/components/CameraPanel';
 import {
   MatchActivityActions,
   MatchActivityState,
-} from '../room/activities/Match/movex';
-import { useRoomLinkId } from '../room/hooks/useRoomLinkId';
+} from '../Room/activities/Match/movex';
+import { useRoomLinkId } from '../Room/hooks/useRoomLinkId';
 import {
   MatchStateDialogContainer,
   MatchStateDisplay,

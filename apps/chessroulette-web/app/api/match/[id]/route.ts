@@ -1,4 +1,4 @@
-import { RoomState } from '@app/modules/room/movex';
+import { RoomState } from '@app/modules/Room/movex';
 import { MovexClientResourceShape } from 'movex-core-util';
 import { NextRequest, NextResponse } from 'next/server';
 

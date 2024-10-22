@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { Session } from 'next-auth';
 import React from 'react';
 import { Button } from '@app/components/Button';
-import { links } from '../room/links';
+import { links } from '../Room/links';
 import { PlaySetupButton } from '../Game/components/PlaySetupButton/PlaySetupButton';
 // import { PlaySetupButton } from '../Play/components/PlaySetupButton/PlaySetupButton';
 

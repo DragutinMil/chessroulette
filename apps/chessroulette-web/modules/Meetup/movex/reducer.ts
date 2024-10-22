@@ -9,7 +9,7 @@ import {
   swapColor,
 } from '@xmatter/util-kit';
 import { initialMeetupActivityState } from './state';
-import { ActivityActions, ActivityState, initialActivityState } from '@app/modules/room/activities/movex';
+import { ActivityActions, ActivityState, initialActivityState } from '@app/modules/Room/activities/movex';
 
 export const reducer = (
   prev: ActivityState = initialActivityState,

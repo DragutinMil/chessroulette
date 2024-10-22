@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import { ResourceIdentifier } from 'movex-core-util';
 import { authOptions } from '@app/services/Auth';
 import { RoomTemplate } from '@app/templates/RoomTemplate';
-import { RoomContainer } from '@app/modules/room/RoomContainer';
+import { RoomContainer } from '@app/modules/Room/RoomContainer';
 import { metadata as rootMetadata } from '../../../page';
 import { twilio } from '@app/services/twilio';
 import { getCustomServerSession } from '@app/services/Auth/getCustomServerSession';

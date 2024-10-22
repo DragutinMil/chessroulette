@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useReducer } from 'react';
 import { useWillUnmount } from '@app/hooks/useWillUnmount';
-import { P2PCommunicationType } from '@app/modules/room/type';
+import { P2PCommunicationType } from '@app/modules/Room/type';
 import {
   PeerToPeerProvider,
   usePeerToPeerConnections,

@@ -10,7 +10,7 @@ import {
 } from '@xmatter/util-kit';
 import { useEffect, useState } from 'react';
 import { Playboard } from './Playboard';
-import { FenPreview } from '@app/modules/room/activities/Learn/components/FenPreview';
+import { FenPreview } from '@app/modules/Room/activities/Learn/components/FenPreview';
 
 const meta: Meta<typeof Playboard> = {
   component: Playboard,

@@ -7,11 +7,11 @@ import {
   LessonCreateInput,
   LessonModel,
 } from '../types';
-import { InstructorBoard } from '../../../room/activities/Learn/components/InstructorBoard';
+import { InstructorBoard } from '../../../Room/activities/Learn/components/InstructorBoard';
 import {
   AcvtiveInputState,
   initialInputState,
-} from '../../../room/activities/Learn/reducers/inputReducer';
+} from '../../../Room/activities/Learn/reducers/inputReducer';
 import { FreeBoardNotation } from '@app/components/FreeBoardNotation';
 import {
   ChessColor,
@@ -20,17 +20,17 @@ import {
   swapColor,
   toDictIndexedBy,
 } from '@xmatter/util-kit';
-import { WidgetPanel } from '../../../room/activities/Learn/components/WidgetPanel/WidgetPanel';
-import { InstructorWidgetPanel } from '../../../room/activities/Learn/components/WidgetPanel/InstructorWidgetPanel';
+import { WidgetPanel } from '../../../Room/activities/Learn/components/WidgetPanel/WidgetPanel';
+import { InstructorWidgetPanel } from '../../../Room/activities/Learn/components/WidgetPanel/InstructorWidgetPanel';
 import {
   initialDefaultChapter,
   initialLearnStateActivityState,
-} from '../../../room/activities/Learn/movex/state';
+} from '../../../Room/activities/Learn/movex/state';
 import type {
   Chapter,
   LearnActivityState,
-} from '../../../room/activities/Learn/movex';
-import { ChaptersTab } from '../../../room/activities/Learn/chapters/ChaptersTab';
+} from '../../../Room/activities/Learn/movex';
+import { ChaptersTab } from '../../../Room/activities/Learn/chapters/ChaptersTab';
 import { Button } from '@app/components/Button';
 import { Tabs } from '@app/components/Tabs';
 import { useEffect, useReducer } from 'react';

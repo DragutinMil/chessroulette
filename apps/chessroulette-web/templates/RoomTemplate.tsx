@@ -1,10 +1,10 @@
 import Header from '../components/Header/Header';
-import { RoomSideMenu } from '../modules/room/components/RoomSideMenu';
+import { RoomSideMenu } from '../modules/Room/components/RoomSideMenu';
 import { toImgPath } from '../lib/misc';
 import { CSSProperties } from 'react';
 import { OnboardingWidget } from '../modules/Onboarding';
 import bkg_2 from '@app/templates/bkg_2.svg';
-import { ActivityState } from '../modules/room/activities/movex';
+import { ActivityState } from '../modules/Room/activities/movex';
 import { CustomSession } from '../services/Auth';
 
 type Props = React.PropsWithChildren & {

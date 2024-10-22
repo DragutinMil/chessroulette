@@ -1,6 +1,6 @@
 import { objectOmit } from '@xmatter/util-kit';
-import { activityParamsSchema } from '@app/modules/room/io/paramsSchema';
-import { links } from '@app/modules/room/links';
+import { activityParamsSchema } from '@app/modules/Room/io/paramsSchema';
+import { links } from '@app/modules/Room/links';
 import { getRandomStr } from '@app/util';
 import { NextRequest, NextResponse } from 'next/server';
 import z from 'zod';

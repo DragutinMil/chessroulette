@@ -3,7 +3,7 @@ import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
 import { GameSelectDialog } from '../GameSelectDialog';
 import { Button } from '@app/components/Button';
-import { links } from '@app/modules/room/links';
+import { links } from '@app/modules/Room/links';
 
 type Props = {};
 
