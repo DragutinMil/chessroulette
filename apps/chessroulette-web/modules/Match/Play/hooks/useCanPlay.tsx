@@ -1,13 +1,9 @@
 import { useMemo } from 'react';
-import { UserId } from '../../../User/type';
-import { MatchPlayers } from '@app/modules/Match/movex';
 import { Game } from '@app/modules/Game';
 import { PlayersByColor } from '../store';
 import { isOneOf } from '@xmatter/util-kit';
-// import { MatchPlayers } from '@app/modules/Match';
-// import { MatchState } from '../../room/activities/Match/movex';
+import { UserId } from '@app/modules/User';
 
-// TODO: the Players can be a tuple?? or by color?
 export const useCanPlay = ({
   game,
   players,
