@@ -2,7 +2,7 @@
 
 import { type DispatchOf, noop } from '@xmatter/util-kit';
 import type { IceServerRecord } from '@app/providers/PeerToPeerProvider';
-import type { UserId, UsersMap } from '@app/modules/user';
+import type { UserId, UsersMap } from '@app/modules/User';
 import type { MatchActivityActions, MatchActivityState } from './movex';
 import { MatchContainer } from '@app/modules/Match';
 import { useMatchActivitySettings } from './useMatchActivitySettings';

@@ -8,7 +8,7 @@ import {
   ShortChessColor,
   ShortChessMove,
 } from '@xmatter/util-kit';
-import { User } from '@app/modules/user';
+import { User } from '@app/modules/User';
 
 import { GameTimeClass } from './io';
 

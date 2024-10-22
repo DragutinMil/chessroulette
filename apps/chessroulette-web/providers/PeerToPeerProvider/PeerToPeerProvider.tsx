@@ -12,7 +12,7 @@ import {
 } from './PeerConnectionsHandler';
 import { PeerConnectionsErrors } from './PeerConnections';
 import { IceServerRecord, Peer, PeerUserId, PeerUserIdsMap } from './type';
-import { User } from '@app/modules/user/type';
+import { User } from '@app/modules/User/type';
 
 type Props = React.PropsWithChildren<{
   uniqId: string; // Make sure this changes each time is need (i.e. when the room changes)

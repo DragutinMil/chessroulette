@@ -8,7 +8,7 @@ import { StartPositionIconButton } from '@app/components/Chessboard';
 import { FreeBoardNotation } from '@app/components/FreeBoardNotation';
 import { ResizableDesktopLayout } from '@app/templates/ResizableDesktopLayout';
 import { IceServerRecord } from '@app/providers/PeerToPeerProvider';
-import { UserId, UsersMap } from '@app/modules/user';
+import { UserId, UsersMap } from '@app/modules/User';
 // import { getGameDisplayState } from '@app/modules/Play';
 import { GameDisplayView } from '@app/modules/Meetup';
 import { CameraPanel } from '../../components/CameraPanel';

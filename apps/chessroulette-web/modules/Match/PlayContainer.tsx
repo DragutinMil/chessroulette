@@ -5,7 +5,7 @@ import { useCanPlay } from './Play/hooks/useCanPlay';
 //   GameBoardContainer,
 //   GameBoardContainerProps,
 // } from './containers/GameBoardContainer';
-import { UserId } from '../user';
+import { UserId } from '../User';
 import { ShortChessColor, isOneOf } from '@xmatter/util-kit';
 import { MatchPlayers } from '@app/modules/Match/movex';
 import { GameBoardContainer, GameBoardContainerProps } from './Play/containers';

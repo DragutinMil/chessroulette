@@ -8,7 +8,7 @@ import {
   // GameActionsContainer,
 } from '@app/modules/Match/Play';
 import * as PlayStore from '@app/modules/Match/Play/store';
-import { UserId, UsersMap } from '@app/modules/user';
+import { UserId, UsersMap } from '@app/modules/User';
 import { IceServerRecord } from '@app/providers/PeerToPeerProvider';
 import { ResizableDesktopLayout } from '@app/templates/ResizableDesktopLayout';
 import { RIGHT_SIDE_SIZE_PX } from '../Room/CONSTANTS';

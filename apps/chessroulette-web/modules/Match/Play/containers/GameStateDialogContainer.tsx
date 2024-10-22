@@ -1,6 +1,6 @@
 import { DispatchOf } from '@xmatter/util-kit';
 import { PlayActions } from '../store';
-import { UserId } from '../../../user/type';
+import { UserId } from '../../../User/type';
 import { useCallback } from 'react';
 import { GameOffer } from '@app/modules/Game';
 import { GameStateDialog } from '@app/modules/Game/components/GameStateDialog';

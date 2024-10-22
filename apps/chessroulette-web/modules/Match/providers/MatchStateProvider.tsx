@@ -3,7 +3,7 @@ import { GameProvider } from '@app/modules/Game/GameProvider';
 import { PENDING_UNTIMED_GAME } from '@app/modules/Game';
 import { MatchStateContext, MatchStateContextType } from './MatchStateContext';
 import type { MatchState } from '../movex';
-import { User } from '@app/modules/user';
+import { User } from '@app/modules/User';
 
 type Props = PropsWithChildren<{
   match: NonNullable<MatchState>;

@@ -10,7 +10,7 @@ import {
   PeerUsersMap,
 } from '@app/providers/PeerToPeerProvider/type';
 import { initialPeerStreamingState, peerStreamingReducer } from './reducer';
-import { UserId } from '../user/type';
+import { UserId } from '../User/type';
 import { Reel } from '@app/components/FaceTime/MultiFaceTimeCompact';
 import { useReel } from './hooks';
 import { config } from '@app/config';

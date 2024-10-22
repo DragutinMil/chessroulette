@@ -5,7 +5,7 @@ import {
   GameContextProps,
   initialGameContextState,
 } from './GameContext';
-import { UserId, UsersMap } from '@app/modules/user';
+import { UserId, UsersMap } from '@app/modules/User';
 import { Game } from '../types';
 import { getGameDisplayState, getTurnFromPgn } from '../lib';
 

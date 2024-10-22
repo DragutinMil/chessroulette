@@ -5,7 +5,7 @@ import { FaceTimeProps } from '@app/components/FaceTime';
 import { MultiFaceTimeCompact } from '@app/components/FaceTime/MultiFaceTimeCompact';
 import { config } from '@app/config';
 import { PeerStreamingGroup } from '@app/modules/PeerStreaming';
-import { UserId, UsersMap } from '@app/modules/user/type';
+import { UserId, UsersMap } from '@app/modules/User/type';
 import {
   IceServerRecord,
   PeerUsersMap,

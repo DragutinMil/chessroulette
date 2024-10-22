@@ -1,5 +1,5 @@
 import { ChessColor, DispatchOf } from '@xmatter/util-kit';
-import { UserId } from '@app/modules/user';
+import { UserId } from '@app/modules/User';
 // import { GameActions } from '../components/GameActions';
 import type { PlayActions } from '../store';
 import { GameActions } from '@app/modules/Game/components/GameActions';

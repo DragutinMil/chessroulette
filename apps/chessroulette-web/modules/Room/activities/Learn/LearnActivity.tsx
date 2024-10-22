@@ -17,7 +17,7 @@ import { RIGHT_SIDE_SIZE_PX } from '../../CONSTANTS';
 import inputReducer, { initialInputState } from './reducers/inputReducer';
 import { ChapterDisplayView } from './chapters/ChapterDisplayView';
 import { TabsRef } from '@app/components/Tabs';
-import { UserId, UsersMap } from '@app/modules/user/type';
+import { UserId, UsersMap } from '@app/modules/User/type';
 import { ResizableDesktopLayout } from '@app/templates/ResizableDesktopLayout';
 import { InstructorBoard } from './components/InstructorBoard';
 

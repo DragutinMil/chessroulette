@@ -1,6 +1,6 @@
 import { Action } from 'movex-core-util';
 import { ChessColor, ChessMove, ShortChessColor } from '@xmatter/util-kit';
-import { User } from '@app/modules/user';
+import { User } from '@app/modules/User';
 import {
   AbortedGame,
   CompletedGame,
