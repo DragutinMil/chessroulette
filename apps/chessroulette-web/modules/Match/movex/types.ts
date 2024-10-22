@@ -4,7 +4,7 @@ import {
   // EndedPlayState,
   PlayActions,
 } from '@app/modules/Match/Play/store';
-import { EndedGame, Game } from '@app/modules/Game';
+import { EndedGame, Game, NotEndedGame } from '@app/modules/Game';
 
 type PlayerId = string;
 
@@ -37,17 +37,14 @@ export type MatchState =
 
       // @deprecate in favor of challenger|challengee
       players: MatchPlayers;
-      
+
       // TODO: Change the value of this to "challenger|challengee"
       winner: PlayerId | null;
-      
+
       // TODO: Rename this to endedGames
       // endedPlays: EndedPlayState[];
       endedGames: EndedGame[];
-      // TODO: Should this always have a pending game??
-      // TODO: Rename this to ongoingGame
-      // ongoingPlay: PlayState | null;
-      ongoingGame: Game | null;
+      gameInPlay: NotEndedGame | null;
 
       challenger: MatchPlayer;
       challengee: MatchPlayer;

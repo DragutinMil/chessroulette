@@ -9,12 +9,13 @@ import { UserId } from '../user';
 import { ShortChessColor, isOneOf } from '@xmatter/util-kit';
 import { MatchPlayers } from '@app/modules/Match/movex';
 import { GameBoardContainer, GameBoardContainerProps } from './Play/containers';
+import { useGame } from '../Game/hooks';
 // import { MatchPlayers } from '@app/modules/Match';
 
 // TODO: This should not be here!!!
 // import type { MatchState } from '../../room/activities/Match/movex';
 
-type Props = DistributiveOmit<GameBoardContainerProps, 'canPlay'> & {
+type Props = DistributiveOmit<GameBoardContainerProps, 'canPlay' | 'game'> & {
   players: MatchPlayers;
   userId: UserId;
   challengerColor: ShortChessColor;
@@ -32,7 +33,9 @@ export const PlayContainer = ({
   challengerColor,
   ...gameBoardProps
 }: Props) => {
-  const { game, dispatch } = gameBoardProps;
+  const { dispatch } = gameBoardProps;
+  // TODO: Check if the Display still works here - moving around in history resets the board?
+  const game = useGame().committedState.game;
   const canPlay = useCanPlay({ game, players, userId });
 
   useEffect(() => {

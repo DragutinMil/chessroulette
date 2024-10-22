@@ -23,7 +23,7 @@ export const GameActions: React.FC<Props> = ({
   // game: {  },
 }) => {
   //TODO - can merge gameState and offers together as they are part of the same state and only used here
-  const { lastOffer, realState } = useGame();
+  const { lastOffer, committedState: realState } = useGame();
   const { game } = realState;
   const { offers: offers = [] } = game;
 

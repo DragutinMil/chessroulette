@@ -21,7 +21,7 @@ export const GameStateDialog: React.FC<GameStateDialogProps> = ({
   joinRoomLink,
 }) => {
   const [gameResultSeen, setGameResultSeen] = useState(false);
-  const { lastOffer, realState, players, playerId } = useGame();
+  const { lastOffer, committedState: realState, players, playerId } = useGame();
 
   const { game: gameState } = realState;
 

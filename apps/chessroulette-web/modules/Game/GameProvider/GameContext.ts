@@ -14,16 +14,16 @@ import { initialPlayState } from '@app/modules/Match/Play/store';
 
 export type GameContextProps = {
   displayState: GameDisplayState;
-  realState: {
+  committedState: {
     turn: LongChessColor;
     game: Game;
   };
   actions: {
     onRefocus: (i: FBHIndex) => void;
   };
-  players?: UsersMap | undefined;
-  playerId: UserId | undefined;
-  lastOffer: GameOffer | undefined;
+  players?: UsersMap;
+  playerId?: UserId;
+  lastOffer?: GameOffer;
 };
 
 export const initialGameContextState: GameContextProps = {
@@ -33,7 +33,7 @@ export const initialGameContextState: GameContextProps = {
     focusedIndex: FreeBoardHistory.getStartingIndex(),
     turn: 'white',
   },
-  realState: {
+  committedState: {
     turn: 'white',
     game: initialPlayState,
   },

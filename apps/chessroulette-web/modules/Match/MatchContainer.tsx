@@ -22,7 +22,7 @@ import {
   MatchStateDialogContainer,
   MatchStateDisplay,
 } from '@app/modules/Match/components';
-import { MatchStateProvider } from '@app/modules/Match/providers';
+import { MatchProvider } from '@app/modules/Match/providers';
 import { GameProvider } from '../Game/GameProvider';
 import { PlayContainer } from './PlayContainer';
 import { GameActionsContainer, GameNotationContainer } from './Play/containers';
@@ -49,11 +49,11 @@ export const MatchContainer = ({
   participants,
   isBoardFlipped,
 }: Props) => {
-  const { ongoingGame: ongoingPlay, ...matchState } = match;
+  const { gameInPlay: ongoingGame, ...matchState } = match;
 
   // const game = useMemo(
   //   () =>
-  //     ongoingPlay?.game ||
+  //     ongoingGame?.game ||
   //     matchState.endedPlays.slice(-1)[0].game ||
   //     // Default to Initial Play State if no ongoing or completed
   //     PlayStore.initialPlayState.game,
@@ -62,11 +62,11 @@ export const MatchContainer = ({
 
   const game = useMemo(
     () =>
-      ongoingPlay ||
+      ongoingGame ||
       matchState.endedGames.slice(-1)[0] ||
       // Default to Initial Play State if no ongoing or completed
       PlayStore.initialPlayState,
-    [ongoingPlay, matchState.endedGames]
+    [ongoingGame, matchState.endedGames]
   );
 
   const { joinRoomLink } = useRoomLinkId('match');
@@ -113,68 +113,65 @@ export const MatchContainer = ({
   // }, [match.challenger.id]);
 
   return (
-    // TODO: The GameProvider should already be part of MatchStateProvider -> And that renamed to MatchProvider
-    <GameProvider game={game} playerId={userId}>
-      <MatchStateProvider match={match}>
-        <ResizableDesktopLayout
-          rightSideSize={RIGHT_SIDE_SIZE_PX}
-          mainComponent={({ boardSize }) => (
-            <PlayContainer
-              // Add this in order to reset the PlayContainer on each new game
-              key={playersBySide.away.color}
-              boardSizePx={boardSize}
-              isBoardFlipped={isBoardFlipped}
-              overlayComponent={
-                <MatchStateDialogContainer
-                  dispatch={dispatch}
-                  playerId={userId}
-                  joinRoomLink={joinRoomLink}
-                  playersBySide={playersBySide}
-                />
-              }
-              challengerColor={'w'} // TODO: Fix this!!
-              // TODO: All of these can be provided from the GamePovider
-              game={game}
-              dispatch={dispatch}
-              userId={userId}
-              players={matchState.players}
-            />
-          )}
-          rightComponent={
-            <div className="flex flex-col flex-1 min-h-0 gap-4">
-              {participants && participants[userId] && (
-                <div className="overflow-hidden rounded-lg shadow-2xl">
-                  {/* // This needs to show only when the user is a players //
-                  otherwise it's too soon and won't connect to the Peers */}
-                  {/* // TODO: Provide this so I don't have to pass in the iceServers each time */}
-                  <CameraPanel
-                    participants={participants}
-                    userId={userId}
-                    peerGroupId={roomId}
-                    iceServers={iceServers}
-                    aspectRatio={16 / 9}
-                  />
-                </div>
-              )}
-              <MatchStateDisplay
-                playersBySide={playersBySide}
+    <MatchProvider match={match} userId={userId}>
+      <ResizableDesktopLayout
+        rightSideSize={RIGHT_SIDE_SIZE_PX}
+        mainComponent={({ boardSize }) => (
+          <PlayContainer
+            // Add this in order to reset the PlayContainer on each new game
+            key={playersBySide.away.color}
+            boardSizePx={boardSize}
+            isBoardFlipped={isBoardFlipped}
+            overlayComponent={
+              <MatchStateDialogContainer
                 dispatch={dispatch}
+                playerId={userId}
+                joinRoomLink={joinRoomLink}
+                playersBySide={playersBySide}
               />
-              <div className="bg-slate-700 p-3 flex flex-col gap-2 flex-1 min-h-0 rounded-lg shadow-2xl overflow-y-scroll">
-                <GameNotationContainer />
-                <div className="flex gap-2 bor">
-                  <GameActionsContainer
-                    // TODO: All of these can be provided from the GamePovider
-                    dispatch={dispatch}
-                    homeColor={playersBySide.home.color}
-                    playerId={userId}
-                  />
-                </div>
+            }
+            challengerColor={'w'} // TODO: Fix this!!
+            // TODO: All of these can be provided from the GamePovider
+            // game={game}
+            userId={userId}
+            dispatch={dispatch}
+            players={matchState.players}
+          />
+        )}
+        rightComponent={
+          <div className="flex flex-col flex-1 min-h-0 gap-4">
+            {participants && participants[userId] && (
+              <div className="overflow-hidden rounded-lg shadow-2xl">
+                {/* // This needs to show only when the user is a players //
+                  otherwise it's too soon and won't connect to the Peers */}
+                {/* // TODO: Provide this so I don't have to pass in the iceServers each time */}
+                <CameraPanel
+                  participants={participants}
+                  userId={userId}
+                  peerGroupId={roomId}
+                  iceServers={iceServers}
+                  aspectRatio={16 / 9}
+                />
+              </div>
+            )}
+            <MatchStateDisplay
+              playersBySide={playersBySide}
+              dispatch={dispatch}
+            />
+            <div className="bg-slate-700 p-3 flex flex-col gap-2 flex-1 min-h-0 rounded-lg shadow-2xl overflow-y-scroll">
+              <GameNotationContainer />
+              <div className="flex gap-2 bor">
+                <GameActionsContainer
+                  // TODO: All of these can be provided from the GamePovider
+                  dispatch={dispatch}
+                  homeColor={playersBySide.home.color}
+                  playerId={userId}
+                />
               </div>
             </div>
-          }
-        />
-      </MatchStateProvider>
-    </GameProvider>
+          </div>
+        }
+      />
+    </MatchProvider>
   );
 };

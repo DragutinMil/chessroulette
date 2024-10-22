@@ -231,4 +231,5 @@ export type Game =
   | CompletedGame
   | AbortedGame;
 
+export type NotEndedGame = Exclude<Game, EndedGame>;
 export type EndedGame = AbortedGame | CompletedGame;

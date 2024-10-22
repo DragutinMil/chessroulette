@@ -25,10 +25,10 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
       return prev;
     }
 
-    const prevPlay = prevMatch.ongoingGame;
+    const prevPlay = prevMatch.gameInPlay;
 
     if (
-      (prevPlay && prevPlay.status !== 'complete') ||
+      // (prevPlay && prevPlay.status !== 'complete') ||
       (!prevPlay && prevMatch.endedGames.length === 0)
     ) {
       return prev;
@@ -59,16 +59,16 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
     return {
       ...prev,
       players,
-      ongoingGame: PlayStore.createPendingGame(newGameParams),
+      gameInPlay: PlayStore.createPendingGame(newGameParams),
     };
   }
 
   //TODO - test more here, not sure if the best
-  if (!prevMatch.ongoingGame) {
+  if (!prevMatch.gameInPlay) {
     return prev;
   }
 
-  const prevOngoingGame = prevMatch.ongoingGame;
+  const prevOngoingGame = prevMatch.gameInPlay;
   const nextOngoingGame = PlayStore.reducer(prevOngoingGame, action);
 
   if (nextOngoingGame.status === 'aborted') {
@@ -94,7 +94,7 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
     return {
       ...prev,
       endedGames: [...prevMatch.endedGames, abortedCurrentPlay],
-      ongoingGame: null,
+      gameInPlay: null,
       ...nextMatchState,
     };
   }
@@ -109,7 +109,7 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
 
     return {
       ...prev,
-      ongoingGame: nextOngoingGame,
+      gameInPlay: nextOngoingGame,
       status: nextStatus,
       ...(nextStatus === 'aborted' && {
         winner:
@@ -149,7 +149,7 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
   return {
     ...prev,
     endedGames: [...prevMatch.endedGames, nextOngoingGame],
-    ongoingGame: null,
+    gameInPlay: null,
     status: nextMatchStatus,
     winner,
     players: {
@@ -177,7 +177,7 @@ reducer.$transformState = (state, masterContext): MatchState => {
     return state;
   }
 
-  const ongoingPlay = match.ongoingGame;
+  const ongoingPlay = match.gameInPlay;
 
   // This reads the now() each time it runs
   if (ongoingPlay?.status === 'ongoing') {
@@ -191,7 +191,7 @@ reducer.$transformState = (state, masterContext): MatchState => {
 
     return {
       ...match,
-      ongoingGame: {
+      gameInPlay: {
         ...ongoingPlay,
         timeLeft: nextTimeLeft,
       },
@@ -218,7 +218,7 @@ reducer.$transformState = (state, masterContext): MatchState => {
         status: 'aborted',
         winner: null,
         endedGames: [nextAbortedGame],
-        ongoingGame: null,
+        gameInPlay: null,
       };
     }
 
@@ -232,7 +232,7 @@ reducer.$transformState = (state, masterContext): MatchState => {
         status: 'complete',
         winner: nextWinner,
         endedGames: [...match.endedGames, nextAbortedGame],
-        ongoingGame: null,
+        gameInPlay: null,
       };
     }
   }

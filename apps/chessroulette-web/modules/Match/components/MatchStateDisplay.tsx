@@ -28,11 +28,11 @@ export const MatchStateDisplay: React.FC<Props> = ({
     currentRound,
     type,
     results,
-    draws,
+    drawsCount: draws,
     players,
-    endedPlaysCount: completedPlaysCount,
+    endedGamesCount: completedPlaysCount,
   } = useMatch();
-  const { realState, playerId } = useGame();
+  const { committedState: realState, playerId } = useGame();
   const isGameCounterActive = useMemo(() => {
     const moves = getMovesDetailsFromPGN(realState.game.pgn);
     if (realState.game.status !== 'ongoing') {

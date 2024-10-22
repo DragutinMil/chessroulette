@@ -17,27 +17,33 @@ type Props = PropsWithChildren & {
   focusedIndex?: FBHIndex;
 };
 
-export const GameProvider = (props: Props) => {
+export const GameProvider = ({
+  game,
+  focusedIndex,
+  playerId,
+  players,
+  children,
+}: Props) => {
   const [state, setState] = useState<GameContextProps>({
     ...initialGameContextState,
-    realState: {
-      turn: getTurnFromPgn(props.game.pgn),
-      game: props.game,
+    committedState: {
+      turn: getTurnFromPgn(game.pgn),
+      game: game,
     },
     displayState: getGameDisplayState({
-      pgn: props.game.pgn,
-      focusedIndex: props.focusedIndex,
+      pgn: game.pgn,
+      focusedIndex: focusedIndex,
     }),
-    players: props.players,
-    playerId: props.playerId,
+    players,
+    playerId,
   });
 
   useEffect(() => {
     setState((prev) => ({
       ...prev,
-      lastOffer: props.game.offers?.slice(-1)[0],
+      lastOffer: game.offers?.slice(-1)[0],
     }));
-  }, [props.game.offers]);
+  }, [game.offers]);
 
   useEffect(() => {
     setState((prev) => ({
@@ -47,24 +53,22 @@ export const GameProvider = (props: Props) => {
           setState((prev) => ({
             ...prev,
             displayState: getGameDisplayState({
-              pgn: props.game.pgn,
+              pgn: game.pgn,
               focusedIndex: nextIndex,
             }),
           }));
         },
       },
-      realState: {
-        turn: getTurnFromPgn(props.game.pgn),
-        game: props.game,
+      committedState: {
+        turn: getTurnFromPgn(game.pgn),
+        game: game,
       },
       displayState: getGameDisplayState({
-        pgn: props.game.pgn,
-        focusedIndex: props.focusedIndex,
+        pgn: game.pgn,
+        focusedIndex,
       }),
     }));
-  }, [props.game, props.focusedIndex]);
+  }, [game, focusedIndex]);
 
-  return (
-    <GameContext.Provider value={state}>{props.children}</GameContext.Provider>
-  );
+  return <GameContext.Provider value={state} children={children} />;
 };

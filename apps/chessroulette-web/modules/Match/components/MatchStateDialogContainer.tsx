@@ -28,22 +28,6 @@ type Props = DistributiveOmit<GameStateDialogContainerProps, 'dispatch'> & {
   playersBySide: PlayersBySide;
 };
 
-// TODO: Move somewher eelse
-const gameOverReasonsToDisplay: { [k in GameOverReason]: string } = {
-  [GameOverReason['aborted']]: 'Game was aborted',
-  [GameOverReason['acceptedDraw']]: 'Players agreed to draw',
-  [GameOverReason['checkmate']]: 'Game ended in checkmate',
-  [GameOverReason['draw']]: 'Game ended in a draw',
-  [GameOverReason['insufficientMaterial']]:
-    'Game ended in a draw due to insufficient material',
-  [GameOverReason['threefoldRepetition']]:
-    'Game ended in a draw due to a threefold repetition',
-  [GameOverReason['resignation']]: 'Player Resigned',
-  [GameOverReason['stalemate']]:
-    'Game ended in a draw due to a stalemate position',
-  [GameOverReason['timeout']]: 'Game ended due to timeout',
-};
-
 export const MatchStateDialogContainer: React.FC<Props> = ({
   dispatch,
   playersBySide,
@@ -52,9 +36,9 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
   const {
     type: matchType,
     status: matchStatus,
-    endedPlaysCount: completedPlaysCount,
-    ongoingPlay,
-    lastEndedPlay,
+    endedGamesCount: completedPlaysCount,
+    gameInPlay,
+    lastEndedGame,
     winner,
     players,
   } = useMatch();
@@ -95,12 +79,12 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
   }
 
   // Show at the end of a game before the next game starts
-  if (matchStatus === 'ongoing' && !ongoingPlay && lastEndedPlay) {
-    const titleSuffix = lastEndedPlay.winner === '1/2' ? ' in a Draw!' : '';
+  if (matchStatus === 'ongoing' && !gameInPlay && lastEndedGame) {
+    const titleSuffix = lastEndedGame.winner === '1/2' ? ' in a Draw!' : '';
 
     const gameOverReason =
-      lastEndedPlay.status === 'complete'
-        ? gameOverReasonsToDisplay[lastEndedPlay.gameOverReason]
+      lastEndedGame.status === 'complete'
+        ? gameOverReasonsToDisplay[lastEndedGame.gameOverReason]
         : 'Game was aborted';
 
     return (
@@ -114,8 +98,8 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
           <div className="flex flex-col gap-4 items-center">
             <div>{gameOverReason}</div>
             <div className="flex justify-center content-center text-center">
-              {lastEndedPlay.winner &&
-                (lastEndedPlay.winner === '1/2' ? (
+              {lastEndedGame.winner &&
+                (lastEndedGame.winner === '1/2' ? (
                   <div className="flex flex-col gap-1">
                     {/* <Text>Game Ended in a Draw.</Text> */}
                     {matchType === 'bestOf' && (
@@ -125,9 +109,9 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
                 ) : (
                   <Text className="capitalize">
                     {players
-                      ? players[lastEndedPlay.winner].displayName ||
-                        lastEndedPlay.winner
-                      : lastEndedPlay.winner}{' '}
+                      ? players[lastEndedGame.winner].displayName ||
+                        lastEndedGame.winner
+                      : lastEndedGame.winner}{' '}
                     Won!
                   </Text>
                 ))}
@@ -183,4 +167,20 @@ const getPlayerInfoById = (
   }
 
   return undefined;
+};
+
+// TODO: Move somewher eelse
+const gameOverReasonsToDisplay: { [k in GameOverReason]: string } = {
+  [GameOverReason['aborted']]: 'Game was aborted',
+  [GameOverReason['acceptedDraw']]: 'Players agreed to draw',
+  [GameOverReason['checkmate']]: 'Game ended in checkmate',
+  [GameOverReason['draw']]: 'Game ended in a draw',
+  [GameOverReason['insufficientMaterial']]:
+    'Game ended in a draw due to insufficient material',
+  [GameOverReason['threefoldRepetition']]:
+    'Game ended in a draw due to a threefold repetition',
+  [GameOverReason['resignation']]: 'Player Resigned',
+  [GameOverReason['stalemate']]:
+    'Game ended in a draw due to a stalemate position',
+  [GameOverReason['timeout']]: 'Game ended due to timeout',
 };

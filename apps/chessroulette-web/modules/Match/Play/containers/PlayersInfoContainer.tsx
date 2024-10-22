@@ -13,7 +13,7 @@ type Props = Omit<
 };
 
 export const PlayersInfoContainer = (props: Props) => {
-  const { realState } = useGame();
+  const { committedState: realState } = useGame();
 
   return <PlayersInfo {...props} turn={realState.turn} game={realState.game} />;
 };

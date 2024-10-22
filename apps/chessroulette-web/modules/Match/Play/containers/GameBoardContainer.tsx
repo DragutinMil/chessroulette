@@ -14,7 +14,7 @@ import { useGame } from '@app/modules/Game/hooks';
 
 export type GameBoardContainerProps = {
   boardSizePx: number;
-  game: Game;
+  // game: Game;
   canPlay: boolean;
   dispatch: DispatchOf<PlayActions>;
   isBoardFlipped?: boolean;
@@ -30,7 +30,7 @@ export type GameBoardContainerProps = {
  * Depends on the GameProvider
  */
 export const GameBoardContainer = ({
-  game,
+  // game,
   isBoardFlipped,
   boardSizePx,
   overlayComponent,
@@ -38,24 +38,23 @@ export const GameBoardContainer = ({
   dispatch,
   ...boardProps
 }: GameBoardContainerProps) => {
+  const { displayState, committedState } = useGame();
+
   // TODO: This should come from somewhere else
   const orientation = useMemo(
     () =>
       toShortColor(
-        isBoardFlipped ? swapColor(game.orientation) : game.orientation
+        isBoardFlipped
+          ? swapColor(committedState.game.orientation)
+          : committedState.game.orientation
       ),
-    [isBoardFlipped, game.orientation]
+    [isBoardFlipped, committedState.game]
   );
-
-  const {
-    displayState,
-    realState: { turn },
-  } = useGame();
 
   return (
     <Playboard
       sizePx={boardSizePx}
-      turn={toShortColor(turn)}
+      turn={toShortColor(committedState.turn)}
       fen={displayState.fen}
       lastMove={displayState.lastMove}
       canPlay={canPlay}
