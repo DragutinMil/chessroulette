@@ -6,7 +6,7 @@ import { useCanPlay } from './Play/hooks/useCanPlay';
 //   GameBoardContainerProps,
 // } from './containers/GameBoardContainer';
 import { UserId } from '../user';
-import { isOneOf } from '@xmatter/util-kit';
+import { ShortChessColor, isOneOf } from '@xmatter/util-kit';
 import { MatchPlayers } from '@app/modules/Match/movex';
 import { GameBoardContainer, GameBoardContainerProps } from './Play/containers';
 // import { MatchPlayers } from '@app/modules/Match';
@@ -17,6 +17,7 @@ import { GameBoardContainer, GameBoardContainerProps } from './Play/containers';
 type Props = DistributiveOmit<GameBoardContainerProps, 'canPlay'> & {
   players: MatchPlayers;
   userId: UserId;
+  challengerColor: ShortChessColor;
 };
 
 /**
@@ -28,6 +29,7 @@ type Props = DistributiveOmit<GameBoardContainerProps, 'canPlay'> & {
 export const PlayContainer = ({
   players,
   userId,
+  challengerColor,
   ...gameBoardProps
 }: Props) => {
   const { game, dispatch } = gameBoardProps;
@@ -47,7 +49,7 @@ export const PlayContainer = ({
         payload: {
           // TODO: Make this a MasterAction and depend on the context.requestAt
           at: new Date().getTime(),
-          
+          challengerColor,
         },
       });
     }

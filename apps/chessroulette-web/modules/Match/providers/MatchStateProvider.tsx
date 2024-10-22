@@ -2,35 +2,28 @@ import React, { PropsWithChildren, useMemo } from 'react';
 import { MatchStateContext, MatchStateContextType } from './MatchStateContext';
 import type { MatchState } from '../movex';
 
-type Props = PropsWithChildren<MatchState>;
+type Props = PropsWithChildren<{ match: NonNullable<MatchState> }>;
 
-export const MatchStateProvider: React.FC<Props> = (props) => {
+export const MatchStateProvider: React.FC<Props> = ({ match, children }) => {
   const value = useMemo<MatchStateContextType>(
     () => ({
-      type: props.type,
-      status: props.status,
-      rounds: props.rounds,
-      draws: props.endedPlays.filter((play) => play.game.winner === '1/2')
-        .length,
-      completedPlaysCount: props.endedPlays.length,
+      ...match,
+      draws: match.endedPlays.filter((game) => game.winner === '1/2').length,
+      endedPlaysCount: match.endedPlays.length,
       currentRound:
-        props.endedPlays.filter((play) => play.game.winner !== '1/2').length +
-        1,
-      ongoingPlay: props.ongoingPlay,
-      lastEndedPlay: props.endedPlays.slice(-1)[0],
+        match.endedPlays.filter((game) => game.winner !== '1/2').length + 1,
+      lastEndedPlay: match.endedPlays.slice(-1)[0],
       results: {
-        white: props.players.white.points,
-        black: props.players.black.points,
+        white: match.players.white.points,
+        black: match.players.black.points,
       },
-      winner: props.winner,
-      players: props.players,
     }),
-    [props]
+    [match]
   );
 
   return (
     <MatchStateContext.Provider value={value}>
-      {props.children}
+      {children}
     </MatchStateContext.Provider>
   );
 };

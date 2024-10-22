@@ -50,10 +50,19 @@ export const MatchContainer = ({
 }: Props) => {
   const { ongoingPlay, ...matchState } = state;
 
+  // const game = useMemo(
+  //   () =>
+  //     ongoingPlay?.game ||
+  //     matchState.endedPlays.slice(-1)[0].game ||
+  //     // Default to Initial Play State if no ongoing or completed
+  //     PlayStore.initialPlayState.game,
+  //   [ongoingPlay, matchState.endedPlays]
+  // );
+
   const game = useMemo(
     () =>
-      ongoingPlay?.game ||
-      matchState.endedPlays.slice(-1)[0].game ||
+      ongoingPlay ||
+      matchState.endedPlays.slice(-1)[0] ||
       // Default to Initial Play State if no ongoing or completed
       PlayStore.initialPlayState.game,
     [ongoingPlay, matchState.endedPlays]
@@ -99,8 +108,9 @@ export const MatchContainer = ({
   }, [userId, matchState.players, participants]);
 
   return (
+    // TODO: The GameProvider should already be part of MatchStateProvider -> And that renamed to MatchProvider
     <GameProvider game={game} playerId={userId}>
-      <MatchStateProvider {...matchState} ongoingPlay={ongoingPlay}>
+      <MatchStateProvider match={state}>
         <ResizableDesktopLayout
           rightSideSize={RIGHT_SIDE_SIZE_PX}
           mainComponent={({ boardSize }) => (
@@ -117,6 +127,7 @@ export const MatchContainer = ({
                   playersBySide={playersBySide}
                 />
               }
+              challengerColor={'w'} // TODO: Fix this!!
               // TODO: All of these can be provided from the GamePovider
               game={game}
               dispatch={dispatch}

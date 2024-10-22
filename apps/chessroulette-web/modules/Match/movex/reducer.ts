@@ -28,7 +28,7 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
     const prevPlay = prevMatch.ongoingPlay;
 
     if (
-      (prevPlay && prevPlay.game.status !== 'complete') ||
+      (prevPlay && prevPlay.status !== 'complete') ||
       (!prevPlay && prevMatch.endedPlays.length === 0)
     ) {
       return prev;
@@ -44,11 +44,11 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
       (): { timeClass: GameTimeClass; color: ChessColor } => {
         if (prevPlay) {
           return {
-            color: swapColor(prevPlay.game.orientation),
-            timeClass: prevPlay.game.timeClass,
+            color: swapColor(prevPlay.orientation),
+            timeClass: prevPlay.timeClass,
           };
         }
-        const lastGamePlayed = prevMatch.endedPlays.slice(-1)[0].game;
+        const lastGamePlayed = prevMatch.endedPlays.slice(-1)[0];
         return {
           color: swapColor(lastGamePlayed.orientation),
           timeClass: lastGamePlayed.timeClass,
@@ -59,13 +59,7 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
     return {
       ...prev,
       players,
-      ongoingPlay: createPendingPlay({
-        ...newGameParams,
-        players: {
-          w: players.white.id,
-          b: players.black.id,
-        },
-      }),
+      ongoingPlay: PlayStore.createPendingGame(newGameParams),
       // ongoingPlay: {
 
       //   game: PlayStore.createPendingGame(newGameSettings),
@@ -85,9 +79,9 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
     action as PlayStore.PlayActions
   );
 
-  if (nextCurrentPlay.game.status === 'aborted') {
+  if (nextCurrentPlay.status === 'aborted') {
     // TODO: See why this doesn't simply infer it as completed and I have to typecast it?
-    const abortedCurrentPlay = nextCurrentPlay as PlayStore.AbortedPlayState;
+    const abortedCurrentPlay = nextCurrentPlay;
 
     //First game abort results in aborted match. Afterwards results in completed match + winner
     const nextMatchState = invoke(
@@ -100,8 +94,7 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
           : {
               status: 'complete',
               winner:
-                prevMatch.players[toLongColor(nextCurrentPlay.game.lastMoveBy)]
-                  .id,
+                prevMatch.players[toLongColor(nextCurrentPlay.lastMoveBy)].id,
             };
       }
     );
@@ -114,9 +107,9 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
     };
   }
 
-  if (nextCurrentPlay.game.status !== 'complete') {
+  if (nextCurrentPlay.status !== 'complete') {
     const nextStatus = invoke((): NonNullable<MatchState>['status'] => {
-      if (nextCurrentPlay.game.status === 'ongoing') {
+      if (nextCurrentPlay.status === 'ongoing') {
         return 'ongoing';
       }
       return prevMatch.endedPlays.length > 0 ? 'ongoing' : 'pending';
@@ -128,9 +121,8 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
       status: nextStatus,
       ...(nextStatus === 'aborted' && {
         winner:
-          prevMatch.players[
-            toLongColor(swapColor(nextCurrentPlay.game.lastMoveBy))
-          ].id,
+          prevMatch.players[toLongColor(swapColor(nextCurrentPlay.lastMoveBy))]
+            .id,
       }),
     };
   }
@@ -139,11 +131,11 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
 
   const result: Old_Play_Results = {
     white:
-      nextCurrentPlay.game.winner === 'white'
+      nextCurrentPlay.winner === 'white'
         ? prevMatch.players.white.points + 1
         : prevMatch.players.white.points,
     black:
-      nextCurrentPlay.game.winner === 'black'
+      nextCurrentPlay.winner === 'black'
         ? prevMatch.players.black.points + 1
         : prevMatch.players.black.points,
   };
@@ -164,11 +156,7 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
 
   return {
     ...prev,
-    // TODO: See why this doesn't simply infer it as completed and I have to typecast it?
-    endedPlays: [
-      ...prevMatch.endedPlays,
-      nextCurrentPlay as PlayStore.CompletedPlayState,
-    ],
+    endedPlays: [...prevMatch.endedPlays, nextCurrentPlay],
     ongoingPlay: null,
     status: nextMatchStatus,
     winner,
@@ -200,12 +188,12 @@ reducer.$transformState = (state, masterContext): MatchState => {
   const ongoingPlay = match.ongoingPlay;
 
   // This reads the now() each time it runs
-  if (ongoingPlay?.game.status === 'ongoing') {
-    const turn = toLongColor(swapColor(ongoingPlay.game.lastMoveBy));
+  if (ongoingPlay?.status === 'ongoing') {
+    const turn = toLongColor(swapColor(ongoingPlay.lastMoveBy));
 
     const nextTimeLeft = PlayStore.calculateTimeLeftAt({
       at: masterContext.requestAt, // TODO: this can take in account the lag as well
-      prevTimeLeft: ongoingPlay.game.timeLeft,
+      prevTimeLeft: ongoingPlay.timeLeft,
       turn,
     });
 
@@ -213,25 +201,22 @@ reducer.$transformState = (state, masterContext): MatchState => {
       ...match,
       ongoingPlay: {
         ...ongoingPlay,
-        game: {
-          ...ongoingPlay.game,
-          timeLeft: nextTimeLeft,
-        },
+        timeLeft: nextTimeLeft,
       },
     };
   }
 
   // if the ongoing game is idling & the abort time has passed
   if (
-    ongoingPlay?.game.status === 'idling' &&
-    masterContext.requestAt > ongoingPlay.game.startedAt + MATCH_TIME_TO_ABORT
+    ongoingPlay?.status === 'idling' &&
+    masterContext.requestAt > ongoingPlay.startedAt + MATCH_TIME_TO_ABORT
   ) {
     const nextAbortedGame: AbortedGame = {
-      ...ongoingPlay.game,
+      ...ongoingPlay,
       status: 'aborted',
     };
 
-    const nextAbortedPlay = { ...ongoingPlay, game: nextAbortedGame };
+    // const nextAbortedPlay = nextAbortedGame;
 
     // First game in the match is aborted by idling too long
     // and thus the whole Match gets aborted
@@ -240,7 +225,7 @@ reducer.$transformState = (state, masterContext): MatchState => {
         ...match,
         status: 'aborted',
         winner: null,
-        endedPlays: [nextAbortedPlay],
+        endedPlays: [nextAbortedGame],
         ongoingPlay: null,
       };
     }
@@ -248,13 +233,13 @@ reducer.$transformState = (state, masterContext): MatchState => {
     // A subsequent game in the match is aborted by idling too long
     // and thus the Match Gets completed with the winner the opposite player
     if (match.status === 'ongoing') {
-      const nextWinner = match.players[ongoingPlay.game.lastMoveBy].id; // defaults to black
+      const nextWinner = match.players[ongoingPlay.lastMoveBy].id; // defaults to black
 
       return {
         ...match,
         status: 'complete',
         winner: nextWinner,
-        endedPlays: [...match.endedPlays, nextAbortedPlay],
+        endedPlays: [...match.endedPlays, nextAbortedGame],
         ongoingPlay: null,
       };
     }

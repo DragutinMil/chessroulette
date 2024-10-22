@@ -1,7 +1,7 @@
 import { getRandomColor, invoke, isWhiteColor } from '@xmatter/util-kit';
 import { MatchState } from '../types';
 import { CreateMatchParamsSchema } from './operationsSchemas';
-import { createPendingPlay } from '@app/modules/Match/Play/operations';
+import { createPendingGame } from '../../Play/movex';
 
 export const createMatchState = (
   params: CreateMatchParamsSchema
@@ -44,13 +44,9 @@ export const createMatchState = (
     },
     winner: null,
     endedPlays: [],
-    ongoingPlay: createPendingPlay({
+    ongoingPlay: createPendingGame({
       timeClass: params.timeClass || 'untimed',
       color: challengerColor,
-      players: {
-        w: players.white.id,
-        b: players.black.id,
-      },
     }),
   };
 };

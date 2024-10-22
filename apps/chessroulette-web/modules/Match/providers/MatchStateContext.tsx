@@ -1,7 +1,7 @@
 import { createContext } from 'react';
 import type { MatchPlayers, MatchState } from '../movex';
-import { EndedPlayState } from '@app/modules/Match/Play/movex';
 import { Old_Play_Results } from '@app/modules/Match/Play';
+import { EndedGame } from '@app/modules/Game';
 // import { Results } from '../../../../Play/types';
 
 export type MatchStateContextType = Pick<
@@ -9,11 +9,14 @@ export type MatchStateContextType = Pick<
   'type' | 'rounds' | 'status' | 'winner'
 > & {
   players: MatchPlayers | undefined;
-  completedPlaysCount: number;
+  endedPlaysCount: number;
   currentRound: number;
   draws: number;
+  // TODO: Rename to ongoingGame
   ongoingPlay?: NonNullable<MatchState>['ongoingPlay'];
-  lastEndedPlay?: EndedPlayState;
+  // TODO: Rename to lastEndedGame
+  // lastEndedPlay?: EndedPlayState;
+  lastEndedPlay?: EndedGame;
   // TODO: This should be translated to MatchResults
   results: Old_Play_Results;
 };
@@ -21,7 +24,7 @@ export type MatchStateContextType = Pick<
 export const MatchStateContext = createContext<MatchStateContextType>({
   type: 'openEnded',
   status: 'pending',
-  completedPlaysCount: 0,
+  endedPlaysCount: 0,
   draws: 0,
   currentRound: 1,
   ongoingPlay: undefined,

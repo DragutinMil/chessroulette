@@ -4,6 +4,7 @@ import {
   EndedPlayState,
   PlayActions,
 } from '@app/modules/Match/Play/movex';
+import { EndedGame, Game } from '@app/modules/Game';
 
 type PlayerId = string;
 
@@ -37,12 +38,16 @@ export type MatchState =
       // @deprecate in favor of challenger|challengee
       players: MatchPlayers;
 
-      endedPlays: EndedPlayState[];
-
+      
       winner: null | PlayerId;
-
+      
+      // TODO: Rename this to endedGames
+      // endedPlays: EndedPlayState[];
+      endedPlays: EndedGame[];
       // TODO: Should this always have a pending game??
-      ongoingPlay: PlayState | null;
+      // TODO: Rename this to ongoingGame
+      // ongoingPlay: PlayState | null;
+      ongoingPlay: Game | null;
 
       challenger: MatchPlayer;
       challengee: MatchPlayer;

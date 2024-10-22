@@ -30,7 +30,7 @@ export const MatchStateDisplay: React.FC<Props> = ({
     results,
     draws,
     players,
-    completedPlaysCount,
+    endedPlaysCount: completedPlaysCount,
   } = useMatch();
   const { realState, playerId } = useGame();
   const isGameCounterActive = useMemo(() => {

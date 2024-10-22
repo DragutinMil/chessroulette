@@ -17,7 +17,10 @@ import { PlayerInfo, PlayersBySide } from '@app/modules/Match/Play';
 import { BetweenGamesAborter } from './BetweenGamesAborter';
 import { MatchActions } from '../movex';
 import { useMatch } from '../hooks/useMatch';
-import { GameStateDialogContainer, GameStateDialogContainerProps } from '@app/modules/Match/Play/containers';
+import {
+  GameStateDialogContainer,
+  GameStateDialogContainerProps,
+} from '@app/modules/Match/Play/containers';
 import { GameOverReason } from '@app/modules/Game';
 
 type Props = DistributiveOmit<GameStateDialogContainerProps, 'dispatch'> & {
@@ -49,7 +52,7 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
   const {
     type: matchType,
     status: matchStatus,
-    completedPlaysCount,
+    endedPlaysCount: completedPlaysCount,
     ongoingPlay,
     lastEndedPlay,
     winner,
@@ -93,12 +96,11 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
 
   // Show at the end of a game before the next game starts
   if (matchStatus === 'ongoing' && !ongoingPlay && lastEndedPlay) {
-    const titleSuffix =
-      lastEndedPlay.game.winner === '1/2' ? ' in a Draw!' : '';
+    const titleSuffix = lastEndedPlay.winner === '1/2' ? ' in a Draw!' : '';
 
     const gameOverReason =
-      lastEndedPlay.game.status === 'complete'
-        ? gameOverReasonsToDisplay[lastEndedPlay.game.gameOverReason]
+      lastEndedPlay.status === 'complete'
+        ? gameOverReasonsToDisplay[lastEndedPlay.gameOverReason]
         : 'Game was aborted';
 
     return (
@@ -112,8 +114,8 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
           <div className="flex flex-col gap-4 items-center">
             <div>{gameOverReason}</div>
             <div className="flex justify-center content-center text-center">
-              {lastEndedPlay.game.winner &&
-                (lastEndedPlay.game.winner === '1/2' ? (
+              {lastEndedPlay.winner &&
+                (lastEndedPlay.winner === '1/2' ? (
                   <div className="flex flex-col gap-1">
                     {/* <Text>Game Ended in a Draw.</Text> */}
                     {matchType === 'bestOf' && (
@@ -123,9 +125,9 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
                 ) : (
                   <Text className="capitalize">
                     {players
-                      ? players[lastEndedPlay.game.winner].displayName ||
-                        lastEndedPlay.game.winner
-                      : lastEndedPlay.game.winner}{' '}
+                      ? players[lastEndedPlay.winner].displayName ||
+                        lastEndedPlay.winner
+                      : lastEndedPlay.winner}{' '}
                     Won!
                   </Text>
                 ))}

@@ -231,3 +231,5 @@ export type Game =
   | OngoingGame
   | CompletedGame
   | AbortedGame;
+
+export type EndedGame = AbortedGame | CompletedGame;
