@@ -11,29 +11,24 @@ import * as PlayStore from '@app/modules/Match/Play/store';
 import { UserId, UsersMap } from '@app/modules/User';
 import { IceServerRecord } from '@app/providers/PeerToPeerProvider';
 import { ResizableDesktopLayout } from '@app/templates/ResizableDesktopLayout';
-import { RIGHT_SIDE_SIZE_PX } from '../Room/CONSTANTS';
-import { CameraPanel } from '../Room/components/CameraPanel';
-import {
-  MatchActivityActions,
-  MatchActivityState,
-} from '../Room/activities/Match/movex';
-import { useRoomLinkId } from '../Room/hooks/useRoomLinkId';
-import {
-  MatchStateDialogContainer,
-  MatchStateDisplay,
-} from '@app/modules/Match/components';
-import { MatchProvider } from '@app/modules/Match/providers';
-import { GameProvider } from '../Game/GameProvider';
+
 import { PlayContainer } from './PlayContainer';
 import { GameActionsContainer, GameNotationContainer } from './Play/containers';
-import { MatchState } from './movex';
+import { MatchActions, MatchState } from './movex';
+import { MatchProvider } from './providers';
+import { MatchStateDialogContainer, MatchStateDisplay } from './components';
+
+// This should not be here
+import { RIGHT_SIDE_SIZE_PX } from '../Room/CONSTANTS';
+import { CameraPanel } from '../Room/components/CameraPanel';
+import { useRoomLinkId } from '../Room/hooks/useRoomLinkId';
 
 type Props = {
   roomId: string;
   userId: UserId;
   iceServers: IceServerRecord[];
   match: NonNullable<MatchState>;
-  dispatch: DispatchOf<MatchActivityActions>;
+  dispatch: DispatchOf<MatchActions>;
   participants: UsersMap;
 
   // TODO: deprecate once I have a better system for determingin player colors
