@@ -22,7 +22,7 @@ export const MatchActivity = ({ remoteState, dispatch, ...props }: Props) => {
   return (
     <MatchContainer
       dispatch={dispatch || noop}
-      state={remoteState}
+      match={remoteState}
       isBoardFlipped={isBoardFlipped}
       {...props}
     />

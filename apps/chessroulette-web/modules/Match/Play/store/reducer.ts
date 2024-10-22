@@ -21,7 +21,7 @@ import {
 //  oor maybe they just aren't for pending game or idling!
 
 export const reducer = (
-  prev: Game = initialPlayState.game,
+  prev: Game = initialPlayState,
   action: PlayActions
 ): Game => {
   // This moves the game from pending to idling

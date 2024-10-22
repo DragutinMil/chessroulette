@@ -2,6 +2,8 @@ import { useMemo } from 'react';
 import { UserId } from '../../../user/type';
 import { MatchPlayers } from '@app/modules/Match/movex';
 import { Game } from '@app/modules/Game';
+import { PlayersByColor } from '../store';
+import { isOneOf } from '@xmatter/util-kit';
 // import { MatchPlayers } from '@app/modules/Match';
 // import { MatchState } from '../../room/activities/Match/movex';
 
@@ -15,7 +17,8 @@ export const useCanPlay = ({
   userId: UserId;
   // TODO: Not sure if the players here should be the MatchState['players'] or represented differently at this level!
   //  by dide or by id?
-  players: MatchPlayers;
+  // players: MatchPlayers;
+  players: PlayersByColor;
 }) =>
   useMemo(() => {
     //TODO - repair this - somehow none of the players can play
@@ -28,7 +31,7 @@ export const useCanPlay = ({
       return false;
     }
 
-    if (game.status === 'complete') {
+    if (isOneOf(game.status, ['complete', 'aborted'])) {
       return false;
     }
 

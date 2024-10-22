@@ -1,7 +1,7 @@
 import { PlayActivityState } from './types';
-import * as PlayStore from '@app/modules/Match/Play/movex';
+import * as PlayStore from '@app/modules/Match/Play/store';
 
 export const initialPlayActivityState: PlayActivityState = {
   activityType: 'play',
-  activityState: PlayStore.initialPlayState,
+  activityState: { game: PlayStore.initialPlayState },
 };

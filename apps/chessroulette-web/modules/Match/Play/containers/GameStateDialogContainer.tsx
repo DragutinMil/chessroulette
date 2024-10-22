@@ -1,5 +1,5 @@
 import { DispatchOf } from '@xmatter/util-kit';
-import { PlayActions } from '../movex';
+import { PlayActions } from '../store';
 import { UserId } from '../../../user/type';
 import { useCallback } from 'react';
 import { GameOffer } from '@app/modules/Game';

@@ -13,7 +13,7 @@ export type MatchStateContextType = Pick<
   currentRound: number;
   draws: number;
   // TODO: Rename to ongoingGame
-  ongoingPlay?: NonNullable<MatchState>['ongoingPlay'];
+  ongoingPlay?: NonNullable<MatchState>['ongoingGame'];
   // TODO: Rename to lastEndedGame
   // lastEndedPlay?: EndedPlayState;
   lastEndedPlay?: EndedGame;

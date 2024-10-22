@@ -12,14 +12,14 @@ import {
 } from '@app/modules/Game';
 import { PlayerId } from '../types';
 
-type BasePlayState = {
-  // players: PlayersByColor;
-  offer?: PlayOffer;
-};
+// type BasePlayState = {
+//   // players: PlayersByColor;
+//   offer?: PlayOffer;
+// };
 
 export type PlayersByColor = {
-  w: PlayerId;
-  b: PlayerId;
+  white: { id: PlayerId };
+  black: { id: PlayerId };
 };
 
 export type PlayOffer = {
@@ -28,25 +28,28 @@ export type PlayOffer = {
 };
 
 // TODO: Is there no better way to define these?
-export type IdlingPlayState = BasePlayState & { game: IdlingGame };
-export type PendingPlayState = BasePlayState & { game: PendingGame };
-export type OngoingPlayState = BasePlayState & { game: OngoingGame };
-export type CompletedPlayState = BasePlayState & { game: CompletedGame };
-export type AbortedPlayState = BasePlayState & { game: AbortedGame };
+// export type IdlingPlayState = BasePlayState & { game: IdlingGame };
+// export type PendingPlayState = BasePlayState & { game: PendingGame };
+// export type OngoingPlayState = BasePlayState & { game: OngoingGame };
+// export type CompletedPlayState = BasePlayState & { game: CompletedGame };
+// export type AbortedPlayState = BasePlayState & { game: AbortedGame };
 
-export type EndedPlayState = CompletedPlayState | AbortedPlayState;
+// export type EndedPlayState = CompletedPlayState | AbortedPlayState;
 
-export type PlayState = BasePlayState & { game: Game };
+// export type PlayState = BasePlayState & { game: Game };
 // | IdlingPlayState
 // | PendingPlayState
 // | OngoingPlayState
 // | EndedPlayState;
 
 export type PlayActions =
-  | Action<'play:start', { 
-    at: number;
-    challengerColor: ShortChessColor
-  }>
+  | Action<
+      'play:start',
+      {
+        at: number;
+        challengerColor: ShortChessColor;
+      }
+    >
   | Action<
       'play:move',
       ChessMove & {

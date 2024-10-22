@@ -3,9 +3,9 @@ import { ChessColor, invoke, swapColor, toLongColor } from '@xmatter/util-kit';
 import { Old_Play_Results } from '@app/modules/Match/Play';
 import { MatchActions, MatchState } from './types';
 import { initialMatchState } from './state';
-import * as PlayStore from '@app/modules/Match/Play/movex';
+import * as PlayStore from '@app/modules/Match/Play/store';
 import { AbortedGame, GameTimeClass } from '@app/modules/Game';
-import { createPendingPlay } from '@app/modules/Match/Play/operations';
+// import { createPendingPlay } from '@app/modules/Match/Play/operations';
 
 // TODO: Instead of Hard coding this, put in the matchCreation setting as part of the MatchState
 export const MATCH_TIME_TO_ABORT = 3 * 60 * 1000; // 3 mins
@@ -25,11 +25,11 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
       return prev;
     }
 
-    const prevPlay = prevMatch.ongoingPlay;
+    const prevPlay = prevMatch.ongoingGame;
 
     if (
       (prevPlay && prevPlay.status !== 'complete') ||
-      (!prevPlay && prevMatch.endedPlays.length === 0)
+      (!prevPlay && prevMatch.endedGames.length === 0)
     ) {
       return prev;
     }
@@ -48,7 +48,7 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
             timeClass: prevPlay.timeClass,
           };
         }
-        const lastGamePlayed = prevMatch.endedPlays.slice(-1)[0];
+        const lastGamePlayed = prevMatch.endedGames.slice(-1)[0];
         return {
           color: swapColor(lastGamePlayed.orientation),
           timeClass: lastGamePlayed.timeClass,
@@ -59,34 +59,26 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
     return {
       ...prev,
       players,
-      ongoingPlay: PlayStore.createPendingGame(newGameParams),
-      // ongoingPlay: {
-
-      //   game: PlayStore.createPendingGame(newGameSettings),
-      // },
+      ongoingGame: PlayStore.createPendingGame(newGameParams),
     };
   }
 
   //TODO - test more here, not sure if the best
-  if (!prevMatch.ongoingPlay) {
+  if (!prevMatch.ongoingGame) {
     return prev;
   }
 
-  const prevOngoingPlay = prevMatch.ongoingPlay;
+  const prevOngoingGame = prevMatch.ongoingGame;
+  const nextOngoingGame = PlayStore.reducer(prevOngoingGame, action);
 
-  const nextCurrentPlay = PlayStore.reducer(
-    prevOngoingPlay,
-    action as PlayStore.PlayActions
-  );
-
-  if (nextCurrentPlay.status === 'aborted') {
+  if (nextOngoingGame.status === 'aborted') {
     // TODO: See why this doesn't simply infer it as completed and I have to typecast it?
-    const abortedCurrentPlay = nextCurrentPlay;
+    const abortedCurrentPlay = nextOngoingGame;
 
     //First game abort results in aborted match. Afterwards results in completed match + winner
     const nextMatchState = invoke(
       (): Pick<NonNullable<MatchState>, 'winner' | 'status'> => {
-        return prevMatch.endedPlays.length === 0
+        return prevMatch.endedGames.length === 0
           ? {
               status: 'aborted',
               winner: null,
@@ -94,34 +86,34 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
           : {
               status: 'complete',
               winner:
-                prevMatch.players[toLongColor(nextCurrentPlay.lastMoveBy)].id,
+                prevMatch.players[toLongColor(nextOngoingGame.lastMoveBy)].id,
             };
       }
     );
 
     return {
       ...prev,
-      endedPlays: [...prevMatch.endedPlays, abortedCurrentPlay],
-      ongoingPlay: null,
+      endedGames: [...prevMatch.endedGames, abortedCurrentPlay],
+      ongoingGame: null,
       ...nextMatchState,
     };
   }
 
-  if (nextCurrentPlay.status !== 'complete') {
+  if (nextOngoingGame.status !== 'complete') {
     const nextStatus = invoke((): NonNullable<MatchState>['status'] => {
-      if (nextCurrentPlay.status === 'ongoing') {
+      if (nextOngoingGame.status === 'ongoing') {
         return 'ongoing';
       }
-      return prevMatch.endedPlays.length > 0 ? 'ongoing' : 'pending';
+      return prevMatch.endedGames.length > 0 ? 'ongoing' : 'pending';
     });
 
     return {
       ...prev,
-      ongoingPlay: nextCurrentPlay,
+      ongoingGame: nextOngoingGame,
       status: nextStatus,
       ...(nextStatus === 'aborted' && {
         winner:
-          prevMatch.players[toLongColor(swapColor(nextCurrentPlay.lastMoveBy))]
+          prevMatch.players[toLongColor(swapColor(nextOngoingGame.lastMoveBy))]
             .id,
       }),
     };
@@ -131,11 +123,11 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
 
   const result: Old_Play_Results = {
     white:
-      nextCurrentPlay.winner === 'white'
+      nextOngoingGame.winner === 'white'
         ? prevMatch.players.white.points + 1
         : prevMatch.players.white.points,
     black:
-      nextCurrentPlay.winner === 'black'
+      nextOngoingGame.winner === 'black'
         ? prevMatch.players.black.points + 1
         : prevMatch.players.black.points,
   };
@@ -156,8 +148,8 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
 
   return {
     ...prev,
-    endedPlays: [...prevMatch.endedPlays, nextCurrentPlay],
-    ongoingPlay: null,
+    endedGames: [...prevMatch.endedGames, nextOngoingGame],
+    ongoingGame: null,
     status: nextMatchStatus,
     winner,
     players: {
@@ -185,7 +177,7 @@ reducer.$transformState = (state, masterContext): MatchState => {
     return state;
   }
 
-  const ongoingPlay = match.ongoingPlay;
+  const ongoingPlay = match.ongoingGame;
 
   // This reads the now() each time it runs
   if (ongoingPlay?.status === 'ongoing') {
@@ -199,7 +191,7 @@ reducer.$transformState = (state, masterContext): MatchState => {
 
     return {
       ...match,
-      ongoingPlay: {
+      ongoingGame: {
         ...ongoingPlay,
         timeLeft: nextTimeLeft,
       },
@@ -225,8 +217,8 @@ reducer.$transformState = (state, masterContext): MatchState => {
         ...match,
         status: 'aborted',
         winner: null,
-        endedPlays: [nextAbortedGame],
-        ongoingPlay: null,
+        endedGames: [nextAbortedGame],
+        ongoingGame: null,
       };
     }
 
@@ -239,8 +231,8 @@ reducer.$transformState = (state, masterContext): MatchState => {
         ...match,
         status: 'complete',
         winner: nextWinner,
-        endedPlays: [...match.endedPlays, nextAbortedGame],
-        ongoingPlay: null,
+        endedGames: [...match.endedGames, nextAbortedGame],
+        ongoingGame: null,
       };
     }
   }

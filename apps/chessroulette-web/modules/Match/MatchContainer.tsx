@@ -7,7 +7,7 @@ import {
   // GameNotationContainer,
   // GameActionsContainer,
 } from '@app/modules/Match/Play';
-import * as PlayStore from '@app/modules/Match/Play/movex';
+import * as PlayStore from '@app/modules/Match/Play/store';
 import { UserId, UsersMap } from '@app/modules/user';
 import { IceServerRecord } from '@app/providers/PeerToPeerProvider';
 import { ResizableDesktopLayout } from '@app/templates/ResizableDesktopLayout';
@@ -26,12 +26,13 @@ import { MatchStateProvider } from '@app/modules/Match/providers';
 import { GameProvider } from '../Game/GameProvider';
 import { PlayContainer } from './PlayContainer';
 import { GameActionsContainer, GameNotationContainer } from './Play/containers';
+import { MatchState } from './movex';
 
 type Props = {
   roomId: string;
   userId: UserId;
   iceServers: IceServerRecord[];
-  state: NonNullable<MatchActivityState['activityState']>;
+  match: NonNullable<MatchState>;
   dispatch: DispatchOf<MatchActivityActions>;
   participants: UsersMap;
 
@@ -40,7 +41,7 @@ type Props = {
 };
 
 export const MatchContainer = ({
-  state,
+  match,
   dispatch,
   userId,
   iceServers,
@@ -48,7 +49,7 @@ export const MatchContainer = ({
   participants,
   isBoardFlipped,
 }: Props) => {
-  const { ongoingPlay, ...matchState } = state;
+  const { ongoingGame: ongoingPlay, ...matchState } = match;
 
   // const game = useMemo(
   //   () =>
@@ -62,10 +63,10 @@ export const MatchContainer = ({
   const game = useMemo(
     () =>
       ongoingPlay ||
-      matchState.endedPlays.slice(-1)[0] ||
+      matchState.endedGames.slice(-1)[0] ||
       // Default to Initial Play State if no ongoing or completed
-      PlayStore.initialPlayState.game,
-    [ongoingPlay, matchState.endedPlays]
+      PlayStore.initialPlayState,
+    [ongoingPlay, matchState.endedGames]
   );
 
   const { joinRoomLink } = useRoomLinkId('match');
@@ -107,10 +108,14 @@ export const MatchContainer = ({
     };
   }, [userId, matchState.players, participants]);
 
+  // const challengerColor = useMemo(() => {
+  //   matchState.players.white.id
+  // }, [match.challenger.id]);
+
   return (
     // TODO: The GameProvider should already be part of MatchStateProvider -> And that renamed to MatchProvider
     <GameProvider game={game} playerId={userId}>
-      <MatchStateProvider match={state}>
+      <MatchStateProvider match={match}>
         <ResizableDesktopLayout
           rightSideSize={RIGHT_SIDE_SIZE_PX}
           mainComponent={({ boardSize }) => (

@@ -10,7 +10,7 @@ import {
 import { UserId, UsersMap } from '@app/modules/user';
 // import { GameDisplayState } from '@app/modules/Play';
 import { Game, GameDisplayState, GameOffer } from '../types';
-import { initialPlayState } from '@app/modules/Match/Play/movex';
+import { initialPlayState } from '@app/modules/Match/Play/store';
 
 export type GameContextProps = {
   displayState: GameDisplayState;
@@ -35,7 +35,7 @@ export const initialGameContextState: GameContextProps = {
   },
   realState: {
     turn: 'white',
-    game: initialPlayState.game,
+    game: initialPlayState,
   },
   actions: {
     onRefocus: noop,

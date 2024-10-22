@@ -53,7 +53,7 @@ export const PlayContainer = ({
         },
       });
     }
-  }, [canPlay, game.status, dispatch]);
+  }, [canPlay, game.status, challengerColor, dispatch]);
 
   return <GameBoardContainer {...gameBoardProps} canPlay={canPlay} />;
 };

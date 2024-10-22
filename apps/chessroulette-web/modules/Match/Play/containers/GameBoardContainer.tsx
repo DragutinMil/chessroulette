@@ -4,7 +4,7 @@ import {
   swapColor,
   toShortColor,
 } from '@xmatter/util-kit';
-import type { PlayActions } from '../movex';
+import type { PlayActions } from '../store';
 import { Playboard } from '@app/components/Boards';
 import { useMemo } from 'react';
 import { ChessboardContainerProps } from '@app/components/Chessboard';

@@ -4,7 +4,7 @@ import { Text } from '@app/components/Text';
 // import { useGame } from '@app/modules/Play/providers/useGame';
 import { DispatchOf, toLongColor } from '@xmatter/util-kit';
 import { PlayersBySide } from '@app/modules/Match/Play';
-import { PlayActions } from '@app/modules/Match/Play/movex';
+import { PlayActions } from '@app/modules/Match/Play/store';
 // import { GameAbort } from '@app/modules/Play/components/GameAbort';
 import { MATCH_TIME_TO_ABORT } from '../movex';
 import { getMovesDetailsFromPGN } from '../utils';
