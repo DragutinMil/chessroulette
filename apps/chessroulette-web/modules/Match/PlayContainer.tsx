@@ -43,8 +43,9 @@ export const PlayContainer = ({
       )
     ) {
       dispatch({
-        type: 'play:startWhitePlayerIdlingTimer',
+        type: 'play:start',
         payload: {
+          // TODO: Make this a MasterAction and depend on the context.requestAt
           at: new Date().getTime(),
         },
       });

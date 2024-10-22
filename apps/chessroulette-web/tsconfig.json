@@ -26,7 +26,7 @@
       ],
       "@app/*": [
         "apps/chessroulette-web/*"
-      ],
+      ]
       // "@components/*": [
       //   "apps/chessroulette-web/components/*"
       // ],
@@ -51,6 +51,7 @@
     "**/*.jsx",
     "next-env.d.ts",
     "../../util-kit/**/*.ts",
+    "../../apps/chessroulette-web/.next/types/**/*.ts"
     // "../../apps/chessroulette-web/.next/types/**/*.ts"
   ],
   "exclude": [
@@ -62,6 +63,9 @@
     "src/**/*.test.ts",
     "**/*.stories.ts",
     "**/*.stories.js",
-    ".next"
+    ".next",
+
+    // TODO: Take this out once ready
+    "**/*.test.ts",
   ]
 }

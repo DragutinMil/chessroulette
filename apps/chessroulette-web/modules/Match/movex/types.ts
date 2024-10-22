@@ -9,8 +9,10 @@ type PlayerId = string;
 
 export type MatchPlayer = {
   id: PlayerId;
+  points: number;
+
+  // Maybe this needs to come only on the client? In a MatchPlayerDisplay, but not be part of movex
   displayName?: string;
-  score: number;
 };
 
 export type MatchPlayers = {
@@ -31,15 +33,20 @@ export type MatchState =
     ) & {
       // Add other statuses if needed
       status: 'pending' | 'ongoing' | 'complete' | 'aborted';
+
+      // @deprecate in favor of challenger|challengee
       players: MatchPlayers;
 
       endedPlays: EndedPlayState[];
 
       winner: null | PlayerId;
 
-      // TODO: Should this always hav a pending game??
+      // TODO: Should this always have a pending game??
       ongoingPlay: PlayState | null;
+
+      challenger: MatchPlayer;
+      challengee: MatchPlayer;
     })
-  | null;
+  | null; // TODO: This should not be null, but another status
 
 export type MatchActions = PlayActions | Action<'match:startNewGame'>;

@@ -5,11 +5,13 @@ import {
   FBHHistory,
   FBHIndex,
   LongChessColor,
+  ShortChessColor,
   ShortChessMove,
 } from '@xmatter/util-kit';
 import { User } from '@app/modules/user';
 
 import { GameTimeClass } from './io';
+import { PlayersByColor } from '../Play/movex';
 
 export { type GameTimeClass } from './io';
 
@@ -77,6 +79,10 @@ export type PendingGame = {
   // TODO: Is this needed here???
   // @deprecate as each player can chose individualy
   orientation: ChessColor;
+
+  // new
+  // players: null;
+  challengerColor: null;
 };
 
 /**
@@ -108,6 +114,10 @@ export type IdlingGame = {
   // TODO: Is this needed here???
   // @deprecate as each player can chose individualy
   orientation: ChessColor;
+
+  // new
+  // players: PlayersByColor;
+  challengerColor: ShortChessColor;
 };
 
 /**
@@ -138,6 +148,10 @@ export type OngoingGame = {
   // TODO: Is this needed here???
   // @deprecate as each player can chose individualy
   orientation: ChessColor;
+
+  // new
+  // players: PlayersByColor;
+  challengerColor: ShortChessColor;
 };
 
 /**
@@ -167,6 +181,10 @@ export type CompletedGame = {
   // TODO: Is this needed here???
   // @deprecate as each player can chose individualy
   orientation: ChessColor;
+
+  // new
+  // players: PlayersByColor;
+  challengerColor: ShortChessColor;
 };
 
 /**
@@ -201,6 +219,10 @@ export type AbortedGame = {
   // TODO: Is this needed here???
   // @deprecate as each player can chose individualy
   orientation: ChessColor;
+
+  // new
+  // players: PlayersByColor;
+  challengerColor: ShortChessColor;
 };
 
 export type Game =

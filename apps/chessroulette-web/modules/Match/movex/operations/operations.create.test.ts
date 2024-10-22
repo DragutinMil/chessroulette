@@ -42,11 +42,11 @@ describe('Best Of', () => {
       players: {
         white: {
           id: CONSTANTS.challengeeId,
-          score: 0,
+          points: 0,
         },
         black: {
           id: CONSTANTS.challengerId,
-          score: 0,
+          points: 0,
         },
       },
       winner: null,
@@ -87,11 +87,11 @@ describe('Open Ended', () => {
       players: {
         white: {
           id: CONSTANTS.challengerId,
-          score: 0,
+          points: 0,
         },
         black: {
           id: CONSTANTS.challengeeId,
-          score: 0,
+          points: 0,
         },
       },
       winner: null,

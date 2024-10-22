@@ -19,8 +19,8 @@ export const MatchStateProvider: React.FC<Props> = (props) => {
       ongoingPlay: props.ongoingPlay,
       lastEndedPlay: props.endedPlays.slice(-1)[0],
       results: {
-        white: props.players.white.score,
-        black: props.players.black.score,
+        white: props.players.white.points,
+        black: props.players.black.points,
       },
       winner: props.winner,
       players: props.players,

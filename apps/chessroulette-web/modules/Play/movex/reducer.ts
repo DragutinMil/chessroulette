@@ -7,23 +7,20 @@ import {
   toLongColor,
 } from '@xmatter/util-kit';
 import { initialPlayState } from './state';
-import {
-  // GameOffer,
-  // GameOverReason,
-  // GameStateWinner,
-  PlayActions,
-  PlayState,
-} from './types';
+import { PlayActions, PlayState } from './types';
 import { createPendingGame } from '../../Game/operations';
 import { calculateTimeLeftAt, checkIsGameOverWithReason } from './util';
 import { GameOffer, GameOverReason, GameStateWinner } from '@app/modules/Game';
+
+// todo: left it here - what I need to do is create another game status where the players aren't yet given?
+//  oor maybe they just aren't for pending game or idling!
 
 export const reducer = (
   prev: PlayState = initialPlayState,
   action: PlayActions
 ): PlayState => {
   // This moves the game from pending to idling
-  if (action.type === 'play:startWhitePlayerIdlingTimer') {
+  if (action.type === 'play:start') {
     // Only a "pending" game can start
     if (prev.game.status !== 'pending') {
       return prev;
@@ -36,6 +33,7 @@ export const reducer = (
         status: 'idling',
         startedAt: action.payload.at,
         lastMoveAt: null,
+        challengerColor: action.payload.challengerColor,
       },
     };
   }
@@ -67,6 +65,7 @@ export const reducer = (
       timeClass: prev.game.timeClass,
       offers: prev.game.offers,
       orientation: prev.game.orientation,
+      challengerColor: prev.game.challengerColor,
     } as const;
 
     const commonNextGameProps = {
@@ -186,7 +185,7 @@ export const reducer = (
       return prev;
     }
 
-    //clear any pending offer leftover
+    // clear any pending offer leftover
     const lastOffer =
       prev.game.offers.length > 0 &&
       (prev.game.offers[prev.game.offers.length - 1] as GameOffer).status ===

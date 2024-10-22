@@ -1,21 +1,24 @@
 import { getRandomColor, invoke, isWhiteColor } from '@xmatter/util-kit';
-import { createPendingGame } from '@app/modules/Play/movex';
 import { MatchState } from '../types';
 import { CreateMatchParamsSchema } from './operationsSchemas';
+import { createPendingPlay } from '@app/modules/Play/operations';
 
-export const createMatchState = (params: CreateMatchParamsSchema): MatchState => {
+export const createMatchState = (
+  params: CreateMatchParamsSchema
+): MatchState => {
   const challengerColor = params.startColor || getRandomColor();
+
   const players = invoke((): NonNullable<MatchState>['players'] => {
     if (isWhiteColor(challengerColor)) {
       return {
-        white: { id: params.challengerId, score: 0 },
-        black: { id: params.challengeeId, score: 0 },
+        white: { id: params.challengerId, points: 0 },
+        black: { id: params.challengeeId, points: 0 },
       };
     }
 
     return {
-      white: { id: params.challengeeId, score: 0 },
-      black: { id: params.challengerId, score: 0 },
+      white: { id: params.challengeeId, points: 0 },
+      black: { id: params.challengerId, points: 0 },
     };
   });
 
@@ -29,14 +32,25 @@ export const createMatchState = (params: CreateMatchParamsSchema): MatchState =>
       : {
           type: params.type,
         }),
+
     players,
+    challengee: {
+      id: params.challengeeId,
+      points: 0,
+    },
+    challenger: {
+      id: params.challengerId,
+      points: 0,
+    },
     winner: null,
     endedPlays: [],
-    ongoingPlay: {
-      game: createPendingGame({
-        timeClass: params.timeClass || 'untimed',
-        color: challengerColor,
-      }),
-    },
+    ongoingPlay: createPendingPlay({
+      timeClass: params.timeClass || 'untimed',
+      color: challengerColor,
+      players: {
+        w: players.white.id,
+        b: players.black.id,
+      },
+    }),
   };
 };

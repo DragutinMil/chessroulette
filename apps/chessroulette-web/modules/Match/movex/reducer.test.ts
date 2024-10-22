@@ -39,7 +39,7 @@ describe('Match Status: Pending > Ongoing', () => {
   const pendingMatch = createMatchState(matchCreateParams);
 
   const idlingMatch = matchReducer(pendingMatch, {
-    type: 'play:startWhitePlayerIdlingTimer',
+    type: 'play:start',
     payload: {
       at: 123,
     },
@@ -61,11 +61,11 @@ describe('Match Status: Pending > Ongoing', () => {
       players: {
         white: {
           id: 'gigi',
-          score: 0,
+          points: 0,
         },
         black: {
           id: 'costel',
-          score: 0,
+          points: 0,
         },
       },
       winner: null,
@@ -100,11 +100,11 @@ describe('Match Status: Pending > Ongoing', () => {
       players: {
         white: {
           id: 'gigi',
-          score: 0,
+          points: 0,
         },
         black: {
           id: 'costel',
-          score: 0,
+          points: 0,
         },
       },
       winner: null,
@@ -138,7 +138,7 @@ describe('Match Status: Ongoing > Completed', () => {
 
   const pendingMatch = createMatchState(matchCreateParams);
   const idlingMatch = matchReducer(pendingMatch, {
-    type: 'play:startWhitePlayerIdlingTimer',
+    type: 'play:start',
     payload: {
       at: 123,
     },
@@ -158,11 +158,11 @@ describe('Match Status: Ongoing > Completed', () => {
       players: {
         white: {
           id: 'john',
-          score: 0,
+          points: 0,
         },
         black: {
           id: 'maria',
-          score: 0,
+          points: 0,
         },
       },
       winner: null,
@@ -227,11 +227,11 @@ describe('Match Status: Ongoing > Completed', () => {
       players: {
         white: {
           id: 'john',
-          score: 0,
+          points: 0,
         },
         black: {
           id: 'maria',
-          score: 1,
+          points: 1,
         },
       },
       winner: 'maria',
@@ -254,7 +254,7 @@ describe('Start New Match => ', () => {
 
   const pendingMatch = createMatchState(matchCreateParams);
   const idlingMatch = matchReducer(pendingMatch, {
-    type: 'play:startWhitePlayerIdlingTimer',
+    type: 'play:start',
     payload: {
       at: 123,
     },
@@ -276,11 +276,11 @@ describe('Start New Match => ', () => {
       players: {
         white: {
           id: 'john',
-          score: 0,
+          points: 0,
         },
         black: {
           id: 'maria',
-          score: 0,
+          points: 0,
         },
       },
       winner: null,
@@ -341,11 +341,11 @@ describe('Start New Match => ', () => {
       players: {
         white: {
           id: 'maria',
-          score: 1,
+          points: 1,
         },
         black: {
           id: 'john',
-          score: 0,
+          points: 0,
         },
       },
       ongoingPlay: {
@@ -372,7 +372,7 @@ describe('End Match when rounds number reached', () => {
 
   const pendingMatch = createMatchState(matchCreateParams);
   const idlingMatch = matchReducer(pendingMatch, {
-    type: 'play:startWhitePlayerIdlingTimer',
+    type: 'play:start',
     payload: {
       at: 123,
     },
@@ -394,11 +394,11 @@ describe('End Match when rounds number reached', () => {
       players: {
         white: {
           id: 'john',
-          score: 0,
+          points: 0,
         },
         black: {
           id: 'maria',
-          score: 0,
+          points: 0,
         },
       },
       winner: null,
@@ -454,11 +454,11 @@ describe('End Match when rounds number reached', () => {
       players: {
         white: {
           id: 'john',
-          score: 1,
+          points: 1,
         },
         black: {
           id: 'maria',
-          score: 0,
+          points: 0,
         },
       },
       winner: 'john',
@@ -484,11 +484,11 @@ describe('End Match when rounds number reached', () => {
       players: {
         white: {
           id: 'john',
-          score: 0,
+          points: 0,
         },
         black: {
           id: 'maria',
-          score: 0,
+          points: 0,
         },
       },
       winner: null,
@@ -554,11 +554,11 @@ describe('End Match when rounds number reached', () => {
       players: {
         white: {
           id: 'john',
-          score: 0,
+          points: 0,
         },
         black: {
           id: 'maria',
-          score: 0,
+          points: 0,
         },
       },
       winner: null,
@@ -580,7 +580,7 @@ describe('timer only starts after black moves', () => {
 
   const pendingMatch = createMatchState(matchCreateParams);
   const idlingMatch = matchReducer(pendingMatch, {
-    type: 'play:startWhitePlayerIdlingTimer',
+    type: 'play:start',
     payload: {
       at: 123,
     },
@@ -603,11 +603,11 @@ describe('timer only starts after black moves', () => {
       players: {
         white: {
           id: 'john',
-          score: 0,
+          points: 0,
         },
         black: {
           id: 'maria',
-          score: 0,
+          points: 0,
         },
       },
       winner: null,
@@ -647,11 +647,11 @@ describe('timer only starts after black moves', () => {
       players: {
         white: {
           id: 'john',
-          score: 0,
+          points: 0,
         },
         black: {
           id: 'maria',
-          score: 0,
+          points: 0,
         },
       },
       winner: null,
@@ -701,7 +701,7 @@ describe('abort game -> match', () => {
 
   const pendingMatch = createMatchState(matchCreateParams);
   const idlingMatch = matchReducer(pendingMatch, {
-    type: 'play:startWhitePlayerIdlingTimer',
+    type: 'play:start',
     payload: {
       at: 123,
     },
@@ -740,11 +740,11 @@ describe('abort game -> match', () => {
       players: {
         white: {
           id: 'john',
-          score: 0,
+          points: 0,
         },
         black: {
           id: 'maria',
-          score: 0,
+          points: 0,
         },
       },
       winner: null,
@@ -801,11 +801,11 @@ describe('abort game -> match', () => {
       players: {
         black: {
           id: 'john',
-          score: 1,
+          points: 1,
         },
         white: {
           id: 'maria',
-          score: 0,
+          points: 0,
         },
       },
       winner: null,
@@ -820,7 +820,7 @@ describe('abort game -> match', () => {
     expect(newMatch).toEqual(expectedNew);
 
     const idleMatch = matchReducer(newMatch, {
-      type: 'play:startWhitePlayerIdlingTimer',
+      type: 'play:start',
       payload: { at: 123 },
     });
 
@@ -871,11 +871,11 @@ describe('abort game -> match', () => {
       players: {
         black: {
           id: 'john',
-          score: 1,
+          points: 1,
         },
         white: {
           id: 'maria',
-          score: 0,
+          points: 0,
         },
       },
       winner: 'john',
@@ -930,11 +930,11 @@ describe('abort game -> match', () => {
       players: {
         black: {
           id: 'john',
-          score: 1,
+          points: 1,
         },
         white: {
           id: 'maria',
-          score: 0,
+          points: 0,
         },
       },
       winner: null,
@@ -949,7 +949,7 @@ describe('abort game -> match', () => {
     expect(newMatch).toEqual(expectedNewMatch);
 
     const idleMatch = matchReducer(newMatch, {
-      type: 'play:startWhitePlayerIdlingTimer',
+      type: 'play:start',
       payload: { at: 123 },
     });
 
@@ -1005,11 +1005,11 @@ describe('abort game -> match', () => {
       players: {
         black: {
           id: 'john',
-          score: 1,
+          points: 1,
         },
         white: {
           id: 'maria',
-          score: 0,
+          points: 0,
         },
       },
       winner: 'maria',

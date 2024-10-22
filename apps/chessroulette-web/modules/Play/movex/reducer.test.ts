@@ -8,9 +8,9 @@ const wrapIntoPlay = <G extends Game>(game: G): PlayState => ({
 });
 
 describe('Game Status: Pending > Idling', () => {
-  test('It advances to "idling" on calling "play:startWhitePlayerIdlingTimer"', () => {
+  test('It advances to "idling" on calling "play:start"', () => {
     const action: PlayActions = {
-      type: 'play:startWhitePlayerIdlingTimer',
+      type: 'play:start',
       payload: { at: 123 },
     };
 
@@ -51,7 +51,7 @@ describe('Game Status: Idling > Idling', () => {
     };
 
     const idleAction: PlayActions = {
-      type: 'play:startWhitePlayerIdlingTimer',
+      type: 'play:start',
       payload: { at: 123 },
     };
 
@@ -92,7 +92,7 @@ describe('Game Status: Idling > Aborted', () => {
       timeClass: 'blitz',
     });
     const idleAction: PlayActions = {
-      type: 'play:startWhitePlayerIdlingTimer',
+      type: 'play:start',
       payload: { at: 123 },
     };
     const action: PlayActions = {
@@ -130,7 +130,7 @@ describe('Game Status: Idling > Ongoing', () => {
     });
 
     const idleAction: PlayActions = {
-      type: 'play:startWhitePlayerIdlingTimer',
+      type: 'play:start',
       payload: { at: 123 },
     };
 

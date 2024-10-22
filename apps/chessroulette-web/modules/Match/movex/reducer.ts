@@ -5,6 +5,7 @@ import { MatchActions, MatchState } from './types';
 import { initialMatchState } from './state';
 import * as PlayStore from '@app/modules/Play/movex';
 import { AbortedGame, GameTimeClass } from '@app/modules/Game';
+import { createPendingPlay } from '@app/modules/Play/operations';
 
 // TODO: Instead of Hard coding this, put in the matchCreation setting as part of the MatchState
 export const MATCH_TIME_TO_ABORT = 3 * 60 * 1000; // 3 mins
@@ -39,7 +40,7 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
       black: { ...prevMatch.players.white },
     };
 
-    const newGameSettings = invoke(
+    const newGameParams = invoke(
       (): { timeClass: GameTimeClass; color: ChessColor } => {
         if (prevPlay) {
           return {
@@ -58,9 +59,17 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
     return {
       ...prev,
       players,
-      ongoingPlay: {
-        game: PlayStore.createPendingGame(newGameSettings),
-      },
+      ongoingPlay: createPendingPlay({
+        ...newGameParams,
+        players: {
+          w: players.white.id,
+          b: players.black.id,
+        },
+      }),
+      // ongoingPlay: {
+
+      //   game: PlayStore.createPendingGame(newGameSettings),
+      // },
     };
   }
 
@@ -131,12 +140,12 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
   const result: Old_Play_Results = {
     white:
       nextCurrentPlay.game.winner === 'white'
-        ? prevMatch.players.white.score + 1
-        : prevMatch.players.white.score,
+        ? prevMatch.players.white.points + 1
+        : prevMatch.players.white.points,
     black:
       nextCurrentPlay.game.winner === 'black'
-        ? prevMatch.players.black.score + 1
-        : prevMatch.players.black.score,
+        ? prevMatch.players.black.points + 1
+        : prevMatch.players.black.points,
   };
 
   const winner = invoke(() => {
@@ -166,11 +175,11 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
     players: {
       white: {
         ...prev.players.white,
-        score: result.white,
+        points: result.white,
       },
       black: {
         ...prev.players.black,
-        score: result.black,
+        points: result.black,
       },
     },
   };
@@ -222,7 +231,7 @@ reducer.$transformState = (state, masterContext): MatchState => {
       status: 'aborted',
     };
 
-    const nextAbortedPlay = { game: nextAbortedGame };
+    const nextAbortedPlay = { ...ongoingPlay, game: nextAbortedGame };
 
     // First game in the match is aborted by idling too long
     // and thus the whole Match gets aborted
