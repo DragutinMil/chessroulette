@@ -6,8 +6,8 @@ import {
   // PlayContainer,
   // GameNotationContainer,
   // GameActionsContainer,
-} from '@app/modules/Play';
-import * as PlayStore from '@app/modules/Play/movex';
+} from '@app/modules/Match/Play';
+import * as PlayStore from '@app/modules/Match/Play/movex';
 import { UserId, UsersMap } from '@app/modules/user';
 import { IceServerRecord } from '@app/providers/PeerToPeerProvider';
 import { ResizableDesktopLayout } from '@app/templates/ResizableDesktopLayout';
@@ -25,7 +25,7 @@ import {
 import { MatchStateProvider } from '@app/modules/Match/providers';
 import { GameProvider } from '../Game/GameProvider';
 import { PlayContainer } from './PlayContainer';
-import { GameActionsContainer, GameNotationContainer } from '../Play/containers';
+import { GameActionsContainer, GameNotationContainer } from './Play/containers';
 
 type Props = {
   roomId: string;

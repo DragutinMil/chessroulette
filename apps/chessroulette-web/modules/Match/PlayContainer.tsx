@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { DistributiveOmit } from 'movex-core-util';
-import { useCanPlay } from '../Play/hooks/useCanPlay';
+import { useCanPlay } from './Play/hooks/useCanPlay';
 // import {
 //   GameBoardContainer,
 //   GameBoardContainerProps,
@@ -8,7 +8,7 @@ import { useCanPlay } from '../Play/hooks/useCanPlay';
 import { UserId } from '../user';
 import { isOneOf } from '@xmatter/util-kit';
 import { MatchPlayers } from '@app/modules/Match/movex';
-import { GameBoardContainer, GameBoardContainerProps } from '../Play/containers';
+import { GameBoardContainer, GameBoardContainerProps } from './Play/containers';
 // import { MatchPlayers } from '@app/modules/Match';
 
 // TODO: This should not be here!!!
@@ -47,6 +47,7 @@ export const PlayContainer = ({
         payload: {
           // TODO: Make this a MasterAction and depend on the context.requestAt
           at: new Date().getTime(),
+          
         },
       });
     }

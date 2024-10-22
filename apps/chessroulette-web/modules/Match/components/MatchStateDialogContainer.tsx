@@ -12,12 +12,12 @@ import {
   LongChessColor,
   invoke,
 } from '@xmatter/util-kit';
-import { PlayerInfo, PlayersBySide } from '@app/modules/Play';
+import { PlayerInfo, PlayersBySide } from '@app/modules/Match/Play';
 // import { GameOverReason } from '@app/modules/Play/movex';
 import { BetweenGamesAborter } from './BetweenGamesAborter';
 import { MatchActions } from '../movex';
 import { useMatch } from '../hooks/useMatch';
-import { GameStateDialogContainer, GameStateDialogContainerProps } from '@app/modules/Play/containers';
+import { GameStateDialogContainer, GameStateDialogContainerProps } from '@app/modules/Match/Play/containers';
 import { GameOverReason } from '@app/modules/Game';
 
 type Props = DistributiveOmit<GameStateDialogContainerProps, 'dispatch'> & {

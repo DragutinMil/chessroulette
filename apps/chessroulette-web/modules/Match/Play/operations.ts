@@ -1,4 +1,4 @@
-import { CreatePendingGameParams, createPendingGame } from '../Game';
+import { CreatePendingGameParams, createPendingGame } from '../../Game';
 import { PendingPlayState, PlayersByColor } from './movex';
 
 export const createPendingPlay = ({

@@ -8,7 +8,7 @@ import { useMemo, useState } from 'react';
 import { now } from '@app/lib/time';
 import { MatchPlayers } from '@app/modules/Match/movex';
 import { IdlingGame } from '@app/modules/Game';
-import { PlayActions } from '@app/modules/Play/movex';
+import { PlayActions } from '@app/modules/Match/Play/movex';
 // import { IdlingGame } from '../../../Game/types';
 // import { PlayActions } from '../../../Play/movex';
 

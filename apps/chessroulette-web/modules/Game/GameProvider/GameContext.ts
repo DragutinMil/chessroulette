@@ -10,7 +10,7 @@ import {
 import { UserId, UsersMap } from '@app/modules/user';
 // import { GameDisplayState } from '@app/modules/Play';
 import { Game, GameDisplayState, GameOffer } from '../types';
-import { initialPlayState } from '@app/modules/Play/movex';
+import { initialPlayState } from '@app/modules/Match/Play/movex';
 
 export type GameContextProps = {
   displayState: GameDisplayState;

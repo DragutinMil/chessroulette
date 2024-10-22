@@ -3,14 +3,14 @@ import { Text } from '@app/components/Text';
 // import { PlayersInfoContainer } from '@app/modules/Play/containers/PlayersInfoContainer';
 // import { useGame } from '@app/modules/Play/providers/useGame';
 import { DispatchOf, toLongColor } from '@xmatter/util-kit';
-import { PlayersBySide } from '@app/modules/Play';
-import { PlayActions } from '@app/modules/Play/movex';
+import { PlayersBySide } from '@app/modules/Match/Play';
+import { PlayActions } from '@app/modules/Match/Play/movex';
 // import { GameAbort } from '@app/modules/Play/components/GameAbort';
 import { MATCH_TIME_TO_ABORT } from '../movex';
 import { getMovesDetailsFromPGN } from '../utils';
 import { useMatch } from '../hooks/useMatch';
 import { useGame } from '@app/modules/Game/hooks';
-import { PlayersInfoContainer } from '@app/modules/Play/containers';
+import { PlayersInfoContainer } from '@app/modules/Match/Play/containers';
 // import { GameAbort } from '@app/modules/Game/components/GameAbort';
 import { MatchAbortContainer } from '@app/modules/Match/containers/MatchAbortContainer/MatchAbortContainer';
 

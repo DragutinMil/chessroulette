@@ -2,7 +2,7 @@ import { ChessColor } from '@xmatter/util-kit';
 import { PlayerBox } from './PlayerBox';
 // import { Game } from '../movex';
 import {  Game } from '../types';
-import { Old_Play_Results, PlayersBySide } from '@app/modules/Play';
+import { Old_Play_Results, PlayersBySide } from '@app/modules/Match/Play';
 
 export type PlayersInfoProps = {
   players: PlayersBySide;

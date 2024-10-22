@@ -9,7 +9,7 @@ import { invoke, objectPick } from '@xmatter/util-kit';
 import { generateUserId, getRandomStr } from '@app/util';
 import { useUpdateableSearchParams } from '@app/hooks/useSearchParams';
 import { logsy } from '@app/lib/Logsy';
-import { createPendingGame } from '@app/modules/Play/movex';
+import { createPendingGame } from '@app/modules/Match/Play/movex';
 
 import { RoomState, initialRoomState } from '../movex';
 import {

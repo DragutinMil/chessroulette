@@ -8,7 +8,7 @@ import {
 } from '@xmatter/util-kit';
 import { initialPlayState } from './state';
 import { PlayActions, PlayState } from './types';
-import { createPendingGame } from '../../Game/operations';
+import { createPendingGame } from '../../../Game/operations';
 import { calculateTimeLeftAt, checkIsGameOverWithReason } from './util';
 import { GameOffer, GameOverReason, GameStateWinner } from '@app/modules/Game';
 

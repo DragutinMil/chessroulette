@@ -3,7 +3,7 @@ import {
   PlayState,
   EndedPlayState,
   PlayActions,
-} from '@app/modules/Play/movex';
+} from '@app/modules/Match/Play/movex';
 
 type PlayerId = string;
 

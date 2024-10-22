@@ -3,7 +3,7 @@ import {
   ActivityState,
   initialActivityState,
 } from '../../movex';
-import * as PlayStore from '@app/modules/Play/movex';
+import * as PlayStore from '@app/modules/Match/Play/movex';
 
 export const reducer = (
   prev: ActivityState = initialActivityState,

@@ -1,7 +1,7 @@
 import { getRandomColor, invoke, isWhiteColor } from '@xmatter/util-kit';
 import { MatchState } from '../types';
 import { CreateMatchParamsSchema } from './operationsSchemas';
-import { createPendingPlay } from '@app/modules/Play/operations';
+import { createPendingPlay } from '@app/modules/Match/Play/operations';
 
 export const createMatchState = (
   params: CreateMatchParamsSchema

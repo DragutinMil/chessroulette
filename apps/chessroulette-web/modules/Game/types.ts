@@ -11,7 +11,7 @@ import {
 import { User } from '@app/modules/user';
 
 import { GameTimeClass } from './io';
-import { PlayersByColor } from '../Play/movex';
+import { PlayersByColor } from '../Match/Play/movex';
 
 export { type GameTimeClass } from './io';
 
