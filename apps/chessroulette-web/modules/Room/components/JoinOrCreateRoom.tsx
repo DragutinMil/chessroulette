@@ -82,7 +82,7 @@ export const JoinOrCreateRoom: React.FC<Props> = ({
               activityType: 'play',
               activityState: {
                 ...initialActivityStatesByActivityType['play'].activityState,
-                game: createPendingGame({ timeClass, color: 'white' }), // Not sure this is good
+                game: createPendingGame({ timeClass, challengerColor: 'white' }), // Not sure this is good
               },
             },
           };

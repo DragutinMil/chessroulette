@@ -1,17 +1,17 @@
-import { Game, GameOverReason } from '@app/modules/Game';
+import { CompletedGame, Game, GameOverReason } from '@app/modules/Game';
 import { createMatchState } from './operations/operations';
 import { reducer as matchReducer } from './reducer';
 import { MatchState } from './types';
 import {
-  AbortedPlayState,
-  CompletedPlayState,
+  // AbortedPlayState,
+  // CompletedPlayState,
+  // PlayState,
   // Game,
   // GameOverReason,
   PlayActions,
-  PlayState,
   createOngoingGame,
   createPendingGame,
-} from '@app/modules/Play/movex';
+} from '../Play/store';
 
 // const =<M extends MatchState>(
 //   match: M
@@ -20,9 +20,12 @@ import {
 //   activityState: match,
 // });
 
-const wrapIntoPlay = <G extends Game>(game: G): PlayState => ({
-  game,
-});
+const CONSTANTS = {
+  challengeeId: 'challengee-user',
+  challengerId: 'challenger-user',
+};
+
+const wrapIntoPlay = <G extends Game>(game: G): G => game;
 
 test('match does NOT become "pending" if the game has NOT started yet', () => {});
 
@@ -31,8 +34,8 @@ describe('Match Status: Pending > Ongoing', () => {
     type: 'bestOf',
     rounds: 3,
     timeClass: 'blitz',
-    challengeeId: 'gigi',
-    challengerId: 'costel',
+    challengeeId: CONSTANTS.challengeeId,
+    challengerId: CONSTANTS.challengerId,
     startColor: 'b',
   };
 
@@ -42,6 +45,7 @@ describe('Match Status: Pending > Ongoing', () => {
     type: 'play:start',
     payload: {
       at: 123,
+      challengerColor: 'b',
     },
   });
 
@@ -57,22 +61,28 @@ describe('Match Status: Pending > Ongoing', () => {
       status: 'pending',
       type: 'bestOf',
       rounds: 3,
-      endedPlays: [],
+      endedGames: [],
+      // players: {
+      //   white: {
+      //     id: 'gigi',
+      //     points: 0,
+      //   },
+      //   black: {
+      //     id: 'costel',
+      //     points: 0,
+      //   },
+      // },
       players: {
-        white: {
-          id: 'gigi',
-          points: 0,
-        },
-        black: {
-          id: 'costel',
-          points: 0,
-        },
+        white: { id: CONSTANTS.challengeeId, points: 0 },
+        black: { id: CONSTANTS.challengerId, points: 0 },
       },
+      challenger: { id: CONSTANTS.challengerId, points: 0 },
+      challengee: { id: CONSTANTS.challengeeId, points: 0 },
       winner: null,
-      ongoingPlay: wrapIntoPlay({
+      gameInPlay: wrapIntoPlay({
         ...createPendingGame({
           timeClass: 'blitz',
-          color: 'b',
+          challengerColor: 'b',
         }),
         status: 'idling',
         startedAt: 123,
@@ -96,22 +106,18 @@ describe('Match Status: Pending > Ongoing', () => {
       status: 'ongoing',
       type: 'bestOf',
       rounds: 3,
-      endedPlays: [],
+      endedGames: [],
       players: {
-        white: {
-          id: 'gigi',
-          points: 0,
-        },
-        black: {
-          id: 'costel',
-          points: 0,
-        },
+        white: { id: CONSTANTS.challengeeId, points: 0 },
+        black: { id: CONSTANTS.challengerId, points: 0 },
       },
+      challenger: { id: CONSTANTS.challengerId, points: 0 },
+      challengee: { id: CONSTANTS.challengeeId, points: 0 },
       winner: null,
-      ongoingPlay: wrapIntoPlay({
+      gameInPlay: wrapIntoPlay({
         ...createOngoingGame({
           timeClass: 'blitz',
-          color: 'b',
+          challengerColor: 'b',
           startedAt: 123,
           lastMoveAt: 123,
         }),
@@ -131,8 +137,8 @@ describe('Match Status: Ongoing > Completed', () => {
     type: 'bestOf',
     rounds: 1,
     timeClass: 'blitz',
-    challengeeId: 'maria',
-    challengerId: 'john',
+    challengeeId: CONSTANTS.challengeeId,
+    challengerId: CONSTANTS.challengerId,
     startColor: 'w',
   };
 
@@ -141,6 +147,7 @@ describe('Match Status: Ongoing > Completed', () => {
     type: 'play:start',
     payload: {
       at: 123,
+      challengerColor: 'w',
     },
   });
 
@@ -154,22 +161,28 @@ describe('Match Status: Ongoing > Completed', () => {
       status: 'pending',
       type: 'bestOf',
       rounds: 1,
-      endedPlays: [],
+      endedGames: [],
+      // players: {
+      //   white: {
+      //     id: 'john',
+      //     points: 0,
+      //   },
+      //   black: {
+      //     id: 'maria',
+      //     points: 0,
+      //   },
+      // },
       players: {
-        white: {
-          id: 'john',
-          points: 0,
-        },
-        black: {
-          id: 'maria',
-          points: 0,
-        },
+        white: { id: CONSTANTS.challengerId, points: 0 },
+        black: { id: CONSTANTS.challengeeId, points: 0 },
       },
+      challenger: { id: CONSTANTS.challengerId, points: 0 },
+      challengee: { id: CONSTANTS.challengeeId, points: 0 },
       winner: null,
-      ongoingPlay: wrapIntoPlay({
+      gameInPlay: wrapIntoPlay({
         ...createPendingGame({
           timeClass: 'blitz',
-          color: 'w',
+          challengerColor: 'w',
         }),
         status: 'idling',
 
@@ -207,12 +220,12 @@ describe('Match Status: Ongoing > Completed', () => {
       status: 'complete',
       type: 'bestOf',
       rounds: 1,
-      endedPlays: [
+      endedGames: [
         {
           ...wrapIntoPlay({
             ...createOngoingGame({
               timeClass: 'blitz',
-              color: 'w',
+              challengerColor: 'w',
               lastMoveAt: 1234,
               startedAt: 123,
             }),
@@ -222,20 +235,26 @@ describe('Match Status: Ongoing > Completed', () => {
             winner: 'black',
             gameOverReason: GameOverReason['checkmate'],
           }),
-        } as CompletedPlayState,
+        },
       ],
+      // players: {
+      //   white: {
+      //     id: 'john',
+      //     points: 0,
+      //   },
+      //   black: {
+      //     id: 'maria',
+      //     points: 1,
+      //   },
+      // },
       players: {
-        white: {
-          id: 'john',
-          points: 0,
-        },
-        black: {
-          id: 'maria',
-          points: 1,
-        },
+        white: { id: CONSTANTS.challengerId, points: 0 },
+        black: { id: CONSTANTS.challengeeId, points: 1 },
       },
-      winner: 'maria',
-      ongoingPlay: null,
+      challenger: { id: CONSTANTS.challengerId, points: 0 },
+      challengee: { id: CONSTANTS.challengeeId, points: 1 }, // TODO: Start adding the points here as well
+      winner: CONSTANTS.challengeeId,
+      gameInPlay: null,
     };
 
     expect(lastUpdate).toEqual(expectedUpdated);
@@ -247,8 +266,8 @@ describe('Start New Match => ', () => {
     type: 'bestOf',
     rounds: 3,
     timeClass: 'blitz',
-    challengeeId: 'maria',
-    challengerId: 'john',
+    challengeeId: CONSTANTS.challengeeId,
+    challengerId: CONSTANTS.challengerId,
     startColor: 'w',
   };
 
@@ -257,37 +276,42 @@ describe('Start New Match => ', () => {
     type: 'play:start',
     payload: {
       at: 123,
+      challengerColor: 'w',
     },
   });
 
   test('Swap players colors when starting new game if not the first of the series', () => {
-    const action: PlayActions = {
+    const actualAfterFirstMove = matchReducer(idlingMatch, {
       type: 'play:move',
       payload: { from: 'e2', to: 'e4', moveAt: 123 },
-    };
+    });
 
-    const actual = matchReducer(idlingMatch, action);
-
-    const expected: MatchState = {
+    const expectedAfterFirstMove: MatchState = {
       status: 'pending',
       type: 'bestOf',
       rounds: 3,
-      endedPlays: [],
+      endedGames: [],
+      // players: {
+      //   white: {
+      //     id: 'john',
+      //     points: 0,
+      //   },
+      //   black: {
+      //     id: 'maria',
+      //     points: 0,
+      //   },
+      // },
       players: {
-        white: {
-          id: 'john',
-          points: 0,
-        },
-        black: {
-          id: 'maria',
-          points: 0,
-        },
+        white: { id: CONSTANTS.challengerId, points: 0 },
+        black: { id: CONSTANTS.challengeeId, points: 0 },
       },
+      challenger: { id: CONSTANTS.challengerId, points: 0 },
+      challengee: { id: CONSTANTS.challengeeId, points: 0 },
       winner: null,
-      ongoingPlay: wrapIntoPlay({
+      gameInPlay: wrapIntoPlay({
         ...createPendingGame({
           timeClass: 'blitz',
-          color: 'w',
+          challengerColor: 'w',
         }),
         status: 'idling',
         pgn: '1. e4',
@@ -298,34 +322,34 @@ describe('Start New Match => ', () => {
       }),
     };
 
-    expect(actual).toEqual(expected);
+    expect(actualAfterFirstMove).toEqual(expectedAfterFirstMove);
 
-    const actual2 = matchReducer(actual, {
+    const matchAfterSecondMove = matchReducer(actualAfterFirstMove, {
       type: 'play:move',
       payload: { from: 'e7', to: 'e6', moveAt: 123 },
     });
 
-    const update = matchReducer(actual2, {
+    const actualAfterResignation = matchReducer(matchAfterSecondMove, {
       type: 'play:resignGame',
       payload: {
         color: 'white',
       },
     });
 
-    const actualNewMatch = matchReducer(update, {
+    const actual = matchReducer(actualAfterResignation, {
       type: 'match:startNewGame',
     });
 
-    const expectedMatchUpdate: MatchState = {
+    const expected: MatchState = {
       status: 'ongoing',
       type: 'bestOf',
       rounds: 3,
-      endedPlays: [
+      endedGames: [
         {
           ...wrapIntoPlay({
             ...createOngoingGame({
               timeClass: 'blitz',
-              color: 'w',
+              challengerColor: 'w',
               startedAt: 123,
               lastMoveAt: 123,
             }),
@@ -335,28 +359,32 @@ describe('Start New Match => ', () => {
             winner: 'black',
             gameOverReason: GameOverReason['resignation'],
           }),
-        } as CompletedPlayState,
+        },
       ],
       winner: null,
+      // players: {
+      //   white: {
+      //     id: 'maria',
+      //     points: 1,
+      //   },
+      //   black: {
+      //     id: 'john',
+      //     points: 0,
+      //   },
+      // },
       players: {
-        white: {
-          id: 'maria',
-          points: 1,
-        },
-        black: {
-          id: 'john',
-          points: 0,
-        },
+        white: { id: CONSTANTS.challengeeId, points: 1 },
+        black: { id: CONSTANTS.challengerId, points: 0 },
       },
-      ongoingPlay: {
-        game: createPendingGame({
-          timeClass: 'blitz',
-          color: 'b',
-        }),
-      },
+      challenger: { id: CONSTANTS.challengerId, points: 0 },
+      challengee: { id: CONSTANTS.challengeeId, points: 1 },
+      gameInPlay: createPendingGame({
+        timeClass: 'blitz',
+        challengerColor: 'b',
+      }),
     };
 
-    expect(actualNewMatch).toEqual(expectedMatchUpdate);
+    expect(actual).toEqual(expected);
   });
 });
 
@@ -365,8 +393,8 @@ describe('End Match when rounds number reached', () => {
     type: 'bestOf',
     rounds: 1,
     timeClass: 'blitz',
-    challengeeId: 'maria',
-    challengerId: 'john',
+    challengeeId: CONSTANTS.challengeeId,
+    challengerId: CONSTANTS.challengerId,
     startColor: 'w',
   };
 
@@ -375,6 +403,7 @@ describe('End Match when rounds number reached', () => {
     type: 'play:start',
     payload: {
       at: 123,
+      challengerColor: 'w',
     },
   });
 
@@ -390,22 +419,28 @@ describe('End Match when rounds number reached', () => {
       status: 'pending',
       type: 'bestOf',
       rounds: 1,
-      endedPlays: [],
+      endedGames: [],
+      // players: {
+      //   white: {
+      //     id: 'john',
+      //     points: 0,
+      //   },
+      //   black: {
+      //     id: 'maria',
+      //     points: 0,
+      //   },
+      // },
       players: {
-        white: {
-          id: 'john',
-          points: 0,
-        },
-        black: {
-          id: 'maria',
-          points: 0,
-        },
+        white: { id: CONSTANTS.challengerId, points: 1 },
+        black: { id: CONSTANTS.challengeeId, points: 0 },
       },
+      challenger: { id: CONSTANTS.challengerId, points: 1 },
+      challengee: { id: CONSTANTS.challengeeId, points: 0 },
       winner: null,
-      ongoingPlay: wrapIntoPlay({
+      gameInPlay: wrapIntoPlay({
         ...createPendingGame({
           timeClass: 'blitz',
-          color: 'w',
+          challengerColor: 'w',
         }),
         status: 'idling',
         pgn: '1. e4',
@@ -434,12 +469,12 @@ describe('End Match when rounds number reached', () => {
       status: 'complete',
       type: 'bestOf',
       rounds: 1,
-      endedPlays: [
+      endedGames: [
         {
           ...wrapIntoPlay({
             ...createOngoingGame({
               timeClass: 'blitz',
-              color: 'w',
+              challengerColor: 'w',
               startedAt: 123,
               lastMoveAt: 123,
             }),
@@ -449,20 +484,32 @@ describe('End Match when rounds number reached', () => {
             winner: 'white',
             gameOverReason: GameOverReason['resignation'],
           }),
-        } as CompletedPlayState,
+        },
       ],
+      // players: {
+      //   white: {
+      //     id: 'john',
+      //     points: 1,
+      //   },
+      //   black: {
+      //     id: 'maria',
+      //     points: 0,
+      //   },
+      // },
       players: {
         white: {
-          id: 'john',
+          id: CONSTANTS.challengerId,
           points: 1,
         },
         black: {
-          id: 'maria',
+          id: CONSTANTS.challengeeId,
           points: 0,
         },
       },
+      challenger: { id: CONSTANTS.challengerId, points: 1 },
+      challengee: { id: CONSTANTS.challengeeId, points: 0 },
       winner: 'john',
-      ongoingPlay: null,
+      gameInPlay: null,
     };
 
     expect(update).toEqual(expectedMatchUpdate);
@@ -480,22 +527,28 @@ describe('End Match when rounds number reached', () => {
       status: 'pending',
       type: 'bestOf',
       rounds: 1,
-      endedPlays: [],
+      endedGames: [],
+      // players: {
+      //   white: {
+      //     id: 'john',
+      //     points: 0,
+      //   },
+      //   black: {
+      //     id: 'maria',
+      //     points: 0,
+      //   },
+      // },
       players: {
-        white: {
-          id: 'john',
-          points: 0,
-        },
-        black: {
-          id: 'maria',
-          points: 0,
-        },
+        white: { id: CONSTANTS.challengerId, points: 0 },
+        black: { id: CONSTANTS.challengeeId, points: 0 },
       },
+      challenger: { id: CONSTANTS.challengerId, points: 0 },
+      challengee: { id: CONSTANTS.challengeeId, points: 0 },
       winner: null,
-      ongoingPlay: wrapIntoPlay({
+      gameInPlay: wrapIntoPlay({
         ...createPendingGame({
           timeClass: 'blitz',
-          color: 'w',
+          challengerColor: 'w',
         }),
         status: 'idling',
         pgn: '1. e4',
@@ -533,12 +586,12 @@ describe('End Match when rounds number reached', () => {
       status: 'ongoing',
       type: 'bestOf',
       rounds: 1,
-      endedPlays: [
+      endedGames: [
         {
           ...wrapIntoPlay({
             ...createOngoingGame({
               timeClass: 'blitz',
-              color: 'w',
+              challengerColor: 'w',
               startedAt: 123,
               lastMoveAt: 123,
             }),
@@ -549,20 +602,26 @@ describe('End Match when rounds number reached', () => {
             winner: '1/2',
             gameOverReason: GameOverReason['acceptedDraw'],
           }),
-        } as CompletedPlayState,
+        },
       ],
+      // players: {
+      //   white: {
+      //     id: 'john',
+      //     points: 0,
+      //   },
+      //   black: {
+      //     id: 'maria',
+      //     points: 0,
+      //   },
+      // },
       players: {
-        white: {
-          id: 'john',
-          points: 0,
-        },
-        black: {
-          id: 'maria',
-          points: 0,
-        },
+        white: { id: CONSTANTS.challengerId, points: 0 },
+        black: { id: CONSTANTS.challengeeId, points: 0 },
       },
+      challenger: { id: CONSTANTS.challengerId, points: 0 },
+      challengee: { id: CONSTANTS.challengeeId, points: 0 },
       winner: null,
-      ongoingPlay: null,
+      gameInPlay: null,
     };
 
     expect(update).toEqual(expectedUpdate);
@@ -573,8 +632,8 @@ describe('timer only starts after black moves', () => {
   const matchCreateParams: Parameters<typeof createMatchState>[0] = {
     type: 'openEnded',
     timeClass: 'blitz',
-    challengeeId: 'maria',
-    challengerId: 'john',
+    challengeeId: CONSTANTS.challengeeId,
+    challengerId: CONSTANTS.challengerId,
     startColor: 'w',
   };
 
@@ -583,6 +642,7 @@ describe('timer only starts after black moves', () => {
     type: 'play:start',
     payload: {
       at: 123,
+      challengerColor: 'w',
     },
   });
 
@@ -599,22 +659,28 @@ describe('timer only starts after black moves', () => {
       // TODO: This should still be "pending" with the new Ideas
       status: 'pending',
       type: 'openEnded',
-      endedPlays: [],
+      endedGames: [],
+      // players: {
+      //   white: {
+      //     id: 'john',
+      //     points: 0,
+      //   },
+      //   black: {
+      //     id: 'maria',
+      //     points: 0,
+      //   },
+      // },
       players: {
-        white: {
-          id: 'john',
-          points: 0,
-        },
-        black: {
-          id: 'maria',
-          points: 0,
-        },
+        white: { id: CONSTANTS.challengerId, points: 0 },
+        black: { id: CONSTANTS.challengeeId, points: 0 },
       },
+      challenger: { id: CONSTANTS.challengerId, points: 0 },
+      challengee: { id: CONSTANTS.challengeeId, points: 0 },
       winner: null,
-      ongoingPlay: wrapIntoPlay({
+      gameInPlay: wrapIntoPlay({
         ...createPendingGame({
           timeClass: 'blitz',
-          color: 'w',
+          challengerColor: 'w',
         }),
         timeLeft: {
           lastUpdatedAt: null,
@@ -643,22 +709,28 @@ describe('timer only starts after black moves', () => {
     const expectedUpdate: MatchState = {
       status: 'ongoing',
       type: 'openEnded',
-      endedPlays: [],
+      endedGames: [],
+      // players: {
+      //   white: {
+      //     id: 'john',
+      //     points: 0,
+      //   },
+      //   black: {
+      //     id: 'maria',
+      //     points: 0,
+      //   },
+      // },
       players: {
-        white: {
-          id: 'john',
-          points: 0,
-        },
-        black: {
-          id: 'maria',
-          points: 0,
-        },
+        white: { id: CONSTANTS.challengerId, points: 0 },
+        black: { id: CONSTANTS.challengeeId, points: 0 },
       },
+      challenger: { id: CONSTANTS.challengerId, points: 0 },
+      challengee: { id: CONSTANTS.challengeeId, points: 0 },
       winner: null,
-      ongoingPlay: wrapIntoPlay({
+      gameInPlay: wrapIntoPlay({
         ...createOngoingGame({
           timeClass: 'blitz',
-          color: 'w',
+          challengerColor: 'w',
           startedAt: 123,
           lastMoveAt: moveBlackTime,
         }),
@@ -682,7 +754,7 @@ describe('timer only starts after black moves', () => {
 
     const final = matchReducer(update, lastMoveAction);
 
-    const { timeLeft } = final?.ongoingPlay?.game || {};
+    const { timeLeft } = final?.gameInPlay || {};
 
     expect(timeLeft?.black).toEqual(300000);
     expect(timeLeft?.white).not.toEqual(30000);
@@ -694,8 +766,8 @@ describe('abort game -> match', () => {
     type: 'bestOf',
     rounds: 3,
     timeClass: 'blitz',
-    challengeeId: 'maria',
-    challengerId: 'john',
+    challengeeId: CONSTANTS.challengeeId,
+    challengerId: CONSTANTS.challengerId,
     startColor: 'w',
   };
 
@@ -704,6 +776,7 @@ describe('abort game -> match', () => {
     type: 'play:start',
     payload: {
       at: 123,
+      challengerColor: 'w',
     },
   });
   test('aborting first game will abort the whole match', () => {
@@ -720,35 +793,39 @@ describe('abort game -> match', () => {
       status: 'aborted',
       type: 'bestOf',
       rounds: 3,
-      endedPlays: [
-        {
-          ...wrapIntoPlay({
-            ...createPendingGame({
-              timeClass: 'blitz',
-              color: 'w',
-            }),
-            offers: [],
-            status: 'aborted',
-            pgn: '',
-            lastMoveAt: null,
-            lastMoveBy: 'black',
-            winner: null,
-            startedAt: 123,
+      endedGames: [
+        wrapIntoPlay({
+          ...createPendingGame({
+            timeClass: 'blitz',
+            challengerColor: 'w',
           }),
-        } as AbortedPlayState,
+          offers: [],
+          status: 'aborted',
+          pgn: '',
+          lastMoveAt: null,
+          lastMoveBy: 'black',
+          winner: null,
+          startedAt: 123,
+        }),
       ],
+      // players: {
+      //   white: {
+      //     id: 'john',
+      //     points: 0,
+      //   },
+      //   black: {
+      //     id: 'maria',
+      //     points: 0,
+      //   },
+      // },
       players: {
-        white: {
-          id: 'john',
-          points: 0,
-        },
-        black: {
-          id: 'maria',
-          points: 0,
-        },
+        white: { id: CONSTANTS.challengerId, points: 0 },
+        black: { id: CONSTANTS.challengeeId, points: 0 },
       },
+      challenger: { id: CONSTANTS.challengerId, points: 0 },
+      challengee: { id: CONSTANTS.challengeeId, points: 0 },
       winner: null,
-      ongoingPlay: null,
+      gameInPlay: null,
     };
 
     expect(expected).toEqual(actual);
@@ -780,39 +857,43 @@ describe('abort game -> match', () => {
       status: 'ongoing',
       type: 'bestOf',
       rounds: 3,
-      endedPlays: [
-        {
-          ...wrapIntoPlay({
-            ...createOngoingGame({
-              timeClass: 'blitz',
-              color: 'w',
-              startedAt: 123,
-              lastMoveAt: 123,
-            }),
-            offers: [],
-            status: 'complete',
-            pgn: '1. e4 e6',
-            lastMoveBy: 'black',
-            winner: 'white',
-            gameOverReason: GameOverReason['resignation'],
+      endedGames: [
+        wrapIntoPlay({
+          ...createOngoingGame({
+            timeClass: 'blitz',
+            challengerColor: 'w',
+            startedAt: 123,
+            lastMoveAt: 123,
           }),
-        } as CompletedPlayState,
+          offers: [],
+          status: 'complete',
+          pgn: '1. e4 e6',
+          lastMoveBy: 'black',
+          winner: 'white',
+          gameOverReason: GameOverReason['resignation'],
+        }),
       ],
+      // players: {
+      //   black: {
+      //     id: 'john',
+      //     points: 1,
+      //   },
+      //   white: {
+      //     id: 'maria',
+      //     points: 0,
+      //   },
+      // },
       players: {
-        black: {
-          id: 'john',
-          points: 1,
-        },
-        white: {
-          id: 'maria',
-          points: 0,
-        },
+        white: { id: CONSTANTS.challengerId, points: 0 },
+        black: { id: CONSTANTS.challengeeId, points: 1 },
       },
+      challenger: { id: CONSTANTS.challengerId, points: 0 },
+      challengee: { id: CONSTANTS.challengeeId, points: 1 },
       winner: null,
-      ongoingPlay: wrapIntoPlay({
+      gameInPlay: wrapIntoPlay({
         ...createPendingGame({
           timeClass: 'blitz',
-          color: 'b',
+          challengerColor: 'b',
         }),
       }),
     };
@@ -821,7 +902,11 @@ describe('abort game -> match', () => {
 
     const idleMatch = matchReducer(newMatch, {
       type: 'play:start',
-      payload: { at: 123 },
+      payload: {
+        at: 123,
+        // TODO: Should this really be "black" - added after refactoring
+        challengerColor: 'b',
+      },
     });
 
     const actual = matchReducer(idleMatch, {
@@ -835,51 +920,53 @@ describe('abort game -> match', () => {
       status: 'complete',
       type: 'bestOf',
       rounds: 3,
-      endedPlays: [
-        {
-          ...wrapIntoPlay({
-            ...createOngoingGame({
-              timeClass: 'blitz',
-              color: 'w',
-              startedAt: 123,
-              lastMoveAt: 123,
-            }),
-            offers: [],
-            status: 'complete',
-            pgn: '1. e4 e6',
-            lastMoveBy: 'black',
-            winner: 'white',
-            gameOverReason: GameOverReason['resignation'],
-          }),
-        } as CompletedPlayState,
-        {
-          ...wrapIntoPlay({
-            ...createPendingGame({
-              timeClass: 'blitz',
-              color: 'b',
-            }),
-            offers: [],
-            status: 'aborted',
-            pgn: '',
-            lastMoveAt: null,
-            lastMoveBy: 'black',
-            winner: null,
+      endedGames: [
+        wrapIntoPlay({
+          ...createOngoingGame({
+            timeClass: 'blitz',
+            challengerColor: 'w',
             startedAt: 123,
+            lastMoveAt: 123,
           }),
-        } as AbortedPlayState,
+          offers: [],
+          status: 'complete',
+          pgn: '1. e4 e6',
+          lastMoveBy: 'black',
+          winner: 'white',
+          gameOverReason: GameOverReason['resignation'],
+        }),
+        wrapIntoPlay({
+          ...createPendingGame({
+            timeClass: 'blitz',
+            challengerColor: 'b',
+          }),
+          offers: [],
+          status: 'aborted',
+          pgn: '',
+          lastMoveAt: null,
+          lastMoveBy: 'black',
+          winner: null,
+          startedAt: 123,
+        }),
       ],
+      // players: {
+      //   black: {
+      //     id: 'john',
+      //     points: 1,
+      //   },
+      //   white: {
+      //     id: 'maria',
+      //     points: 0,
+      //   },
+      // },
       players: {
-        black: {
-          id: 'john',
-          points: 1,
-        },
-        white: {
-          id: 'maria',
-          points: 0,
-        },
+        white: { id: CONSTANTS.challengerId, points: 0 },
+        black: { id: CONSTANTS.challengeeId, points: 1 },
       },
+      challenger: { id: CONSTANTS.challengerId, points: 0 },
+      challengee: { id: CONSTANTS.challengeeId, points: 1 },
       winner: 'john',
-      ongoingPlay: null,
+      gameInPlay: null,
     };
 
     expect(actual).toEqual(expected);
@@ -909,39 +996,43 @@ describe('abort game -> match', () => {
       status: 'ongoing',
       type: 'bestOf',
       rounds: 3,
-      endedPlays: [
-        {
-          ...wrapIntoPlay({
-            ...createOngoingGame({
-              timeClass: 'blitz',
-              color: 'w',
-              startedAt: 123,
-              lastMoveAt: 123,
-            }),
-            offers: [],
-            status: 'complete',
-            pgn: '1. e4 e6',
-            lastMoveBy: 'black',
-            winner: 'white',
-            gameOverReason: GameOverReason['resignation'],
+      endedGames: [
+        wrapIntoPlay({
+          ...createOngoingGame({
+            timeClass: 'blitz',
+            challengerColor: 'w',
+            startedAt: 123,
+            lastMoveAt: 123,
           }),
-        } as CompletedPlayState,
+          offers: [],
+          status: 'complete',
+          pgn: '1. e4 e6',
+          lastMoveBy: 'black',
+          winner: 'white',
+          gameOverReason: GameOverReason['resignation'],
+        }),
       ],
+      // players: {
+      //   black: {
+      //     id: 'john',
+      //     points: 1,
+      //   },
+      //   white: {
+      //     id: 'maria',
+      //     points: 0,
+      //   },
+      // },
       players: {
-        black: {
-          id: 'john',
-          points: 1,
-        },
-        white: {
-          id: 'maria',
-          points: 0,
-        },
+        white: { id: CONSTANTS.challengerId, points: 0 },
+        black: { id: CONSTANTS.challengeeId, points: 1 },
       },
+      challenger: { id: CONSTANTS.challengerId, points: 0 },
+      challengee: { id: CONSTANTS.challengeeId, points: 1 },
       winner: null,
-      ongoingPlay: wrapIntoPlay({
+      gameInPlay: wrapIntoPlay({
         ...createPendingGame({
           timeClass: 'blitz',
-          color: 'b',
+          challengerColor: 'b',
         }),
       }),
     };
@@ -950,7 +1041,7 @@ describe('abort game -> match', () => {
 
     const idleMatch = matchReducer(newMatch, {
       type: 'play:start',
-      payload: { at: 123 },
+      payload: { at: 123, challengerColor: 'b' },
     });
 
     const moveWhite = matchReducer(idleMatch, {
@@ -969,51 +1060,56 @@ describe('abort game -> match', () => {
       status: 'complete',
       type: 'bestOf',
       rounds: 3,
-      endedPlays: [
-        {
-          ...wrapIntoPlay({
-            ...createOngoingGame({
-              timeClass: 'blitz',
-              color: 'w',
-              startedAt: 123,
-              lastMoveAt: 123,
-            }),
-            offers: [],
-            status: 'complete',
-            pgn: '1. e4 e6',
-            lastMoveBy: 'black',
-            winner: 'white',
-            gameOverReason: GameOverReason['resignation'],
-          }),
-        } as CompletedPlayState,
-        {
-          ...wrapIntoPlay({
-            ...createPendingGame({
-              timeClass: 'blitz',
-              color: 'b',
-            }),
-            offers: [],
-            status: 'aborted',
-            pgn: '1. e4',
-            lastMoveAt: 123,
-            lastMoveBy: 'white',
-            winner: null,
+      endedGames: [
+        // {
+        wrapIntoPlay({
+          ...createOngoingGame({
+            timeClass: 'blitz',
+            challengerColor: 'w',
             startedAt: 123,
+            lastMoveAt: 123,
           }),
-        } as AbortedPlayState,
+          offers: [],
+          status: 'complete',
+          pgn: '1. e4 e6',
+          lastMoveBy: 'black',
+          winner: 'white',
+          gameOverReason: GameOverReason['resignation'],
+        }),
+        // } as CompletedPlayState,
+
+        wrapIntoPlay({
+          ...createPendingGame({
+            timeClass: 'blitz',
+            challengerColor: 'b',
+          }),
+          offers: [],
+          status: 'aborted',
+          pgn: '1. e4',
+          lastMoveAt: 123,
+          lastMoveBy: 'white',
+          winner: null,
+          startedAt: 123,
+        }),
       ],
+      // players: {
+      //   black: {
+      //     id: 'john',
+      //     points: 1,
+      //   },
+      //   white: {
+      //     id: 'maria',
+      //     points: 0,
+      //   },
+      // },
       players: {
-        black: {
-          id: 'john',
-          points: 1,
-        },
-        white: {
-          id: 'maria',
-          points: 0,
-        },
+        white: { id: CONSTANTS.challengerId, points: 0 },
+        black: { id: CONSTANTS.challengeeId, points: 1 },
       },
+      challenger: { id: CONSTANTS.challengerId, points: 0 },
+      challengee: { id: CONSTANTS.challengeeId, points: 1 },
       winner: 'maria',
-      ongoingPlay: null,
+      gameInPlay: null,
     };
 
     expect(actual).toEqual(expected);

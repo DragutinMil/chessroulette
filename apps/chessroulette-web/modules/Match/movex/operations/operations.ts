@@ -46,7 +46,7 @@ export const createMatchState = (
     endedGames: [],
     gameInPlay: createPendingGame({
       timeClass: params.timeClass || 'untimed',
-      color: challengerColor,
+      challengerColor: challengerColor,
     }),
   };
 };

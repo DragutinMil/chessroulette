@@ -81,7 +81,7 @@ export type PendingGame = {
 
   // new
   // players: null;
-  challengerColor: null;
+  challengerColor: ShortChessColor; // TODO: Should this be null here? For not leave it as something
 };
 
 /**

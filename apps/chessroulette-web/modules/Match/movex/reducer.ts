@@ -29,7 +29,8 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
 
     if (
       // (prevPlay && prevPlay.status !== 'complete') ||
-      (!prevPlay && prevMatch.endedGames.length === 0)
+      !prevPlay &&
+      prevMatch.endedGames.length === 0
     ) {
       return prev;
     }
@@ -40,21 +41,19 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
       black: { ...prevMatch.players.white },
     };
 
-    const newGameParams = invoke(
-      (): { timeClass: GameTimeClass; color: ChessColor } => {
-        if (prevPlay) {
-          return {
-            color: swapColor(prevPlay.orientation),
-            timeClass: prevPlay.timeClass,
-          };
-        }
-        const lastGamePlayed = prevMatch.endedGames.slice(-1)[0];
+    const newGameParams = invoke((): PlayStore.CreatePendingGameParams => {
+      if (prevPlay) {
         return {
-          color: swapColor(lastGamePlayed.orientation),
-          timeClass: lastGamePlayed.timeClass,
+          challengerColor: swapColor(prevPlay.orientation),
+          timeClass: prevPlay.timeClass,
         };
       }
-    );
+      const lastGamePlayed = prevMatch.endedGames.slice(-1)[0];
+      return {
+        challengerColor: swapColor(lastGamePlayed.orientation),
+        timeClass: lastGamePlayed.timeClass,
+      };
+    });
 
     return {
       ...prev,

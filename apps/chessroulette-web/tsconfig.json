@@ -66,6 +66,6 @@
     ".next",
 
     // TODO: Take this out once ready
-    "**/*.test.ts",
+    // "**/*.test.ts",
   ]
 }

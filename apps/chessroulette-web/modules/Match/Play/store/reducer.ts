@@ -248,7 +248,7 @@ export const reducer = (
 
     const newGame = createPendingGame({
       timeClass: prev.timeClass,
-      color: swapColor(prev.orientation),
+      challengerColor: swapColor(prev.orientation),
     });
 
     return newGame;
