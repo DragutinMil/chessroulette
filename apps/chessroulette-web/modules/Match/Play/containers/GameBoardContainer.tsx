@@ -8,9 +8,7 @@ import type { PlayActions } from '../store';
 import { Playboard } from '@app/components/Boards';
 import { useMemo } from 'react';
 import { ChessboardContainerProps } from '@app/components/Chessboard';
-import { Game } from '@app/modules/Game';
 import { useGame } from '@app/modules/Game/hooks';
-// import { useGame } from '../hooks';
 
 export type GameBoardContainerProps = {
   boardSizePx: number;

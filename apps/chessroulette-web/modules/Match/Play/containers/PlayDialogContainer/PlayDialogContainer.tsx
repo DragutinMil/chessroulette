@@ -1,10 +1,9 @@
-import { DispatchOf } from '@xmatter/util-kit';
-import { PlayActions } from '../store';
-import { UserId } from '../../../User/type';
 import { useCallback } from 'react';
+import { DispatchOf } from '@xmatter/util-kit';
 import { GameOffer } from '@app/modules/Game';
-import { GameStateDialog } from '@app/modules/Game/components/GameStateDialog';
-// import { GameStateDialog } from '../components/GameStateDialog';
+import { UserId } from '@app/modules/User';
+import { PlayActions } from '../../store';
+import { PlayDialog } from './PlayDialog';
 
 export type GameStateDialogContainerProps = {
   dispatch: DispatchOf<PlayActions>;
@@ -18,7 +17,7 @@ export type GameStateDialogContainerProps = {
  * @param param0
  * @returns
  */
-export const GameStateDialogContainer = ({
+export const PlayDialogContainer = ({
   dispatch,
   joinRoomLink,
 }: GameStateDialogContainerProps) => {
@@ -36,7 +35,7 @@ export const GameStateDialogContainer = ({
   );
 
   return (
-    <GameStateDialog
+    <PlayDialog
       onAcceptOffer={onAcceptOffer}
       joinRoomLink={joinRoomLink}
       onCancelOffer={() => dispatch({ type: 'play:cancelOffer' })}

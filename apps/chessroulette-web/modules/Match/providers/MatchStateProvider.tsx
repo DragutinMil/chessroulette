@@ -40,8 +40,8 @@ export const MatchProvider: React.FC<Props> = ({ match, userId, children }) => {
   return (
     <GameProvider
       game={
-        contextState.gameInPlay ||
-        contextState.lastEndedGame ||
+        contextState?.gameInPlay ||
+        contextState?.lastEndedGame ||
         PENDING_UNTIMED_GAME
       }
       playerId={userId}

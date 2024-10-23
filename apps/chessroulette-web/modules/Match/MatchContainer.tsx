@@ -13,15 +13,19 @@ import { IceServerRecord } from '@app/providers/PeerToPeerProvider';
 import { ResizableDesktopLayout } from '@app/templates/ResizableDesktopLayout';
 
 import { PlayContainer } from './PlayContainer';
-import { GameActionsContainer, GameNotationContainer } from './Play/containers';
+import { GameNotationContainer } from './Play/containers';
 import { MatchActions, MatchState } from './movex';
 import { MatchProvider } from './providers';
-import { MatchStateDialogContainer, MatchStateDisplay } from './components';
+import {
+  MatchStateDialogContainer,
+  MatchStateDisplayContainer,
+} from './containers';
 
 // This should not be here
 import { RIGHT_SIDE_SIZE_PX } from '../Room/CONSTANTS';
 import { CameraPanel } from '../Room/components/CameraPanel';
 import { useRoomLinkId } from '../Room/hooks/useRoomLinkId';
+import { PlayControlsContainer } from './Play/containers';
 
 type Props = {
   roomId: string;
@@ -55,14 +59,14 @@ export const MatchContainer = ({
   //   [ongoingPlay, matchState.endedPlays]
   // );
 
-  const game = useMemo(
-    () =>
-      ongoingGame ||
-      matchState.endedGames.slice(-1)[0] ||
-      // Default to Initial Play State if no ongoing or completed
-      PlayStore.initialPlayState,
-    [ongoingGame, matchState.endedGames]
-  );
+  // const game = useMemo(
+  //   () =>
+  //     ongoingGame ||
+  //     matchState.endedGames.slice(-1)[0] ||
+  //     // Default to Initial Play State if no ongoing or completed
+  //     PlayStore.initialPlayState,
+  //   [ongoingGame, matchState.endedGames]
+  // );
 
   const { joinRoomLink } = useRoomLinkId('match');
 
@@ -149,14 +153,14 @@ export const MatchContainer = ({
                 />
               </div>
             )}
-            <MatchStateDisplay
+            <MatchStateDisplayContainer
               playersBySide={playersBySide}
               dispatch={dispatch}
             />
             <div className="bg-slate-700 p-3 flex flex-col gap-2 flex-1 min-h-0 rounded-lg shadow-2xl overflow-y-scroll">
               <GameNotationContainer />
               <div className="flex gap-2 bor">
-                <GameActionsContainer
+                <PlayControlsContainer
                   // TODO: All of these can be provided from the GamePovider
                   dispatch={dispatch}
                   homeColor={playersBySide.home.color}

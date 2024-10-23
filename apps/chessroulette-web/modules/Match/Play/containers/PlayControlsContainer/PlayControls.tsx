@@ -1,45 +1,42 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ChessColor, toLongColor } from '@xmatter/util-kit';
 import { QuickConfirmButton } from '@app/components/Button/QuickConfirmButton';
-import { useGame } from '../../hooks';
-import { Game } from '../../types';
+import { Game, GameOffer } from '@app/modules/Game';
 
 type Props = {
-  onOfferDraw: () => void;
-  onResign: () => void;
-  onTakeback: () => void;
+  game: Game;
   homeColor: ChessColor;
   playerId: string;
-  // game: Game;
+  lastOffer?: GameOffer;
+  onDrawOffer: () => void;
+  onTakebackOffer: () => void;
+  onResign: () => void;
 };
 
-// TODO: This needs to move into MatchActions anyway
-export const GameActions: React.FC<Props> = ({
+export const PlayControls: React.FC<Props> = ({
   onResign,
-  onOfferDraw,
-  onTakeback,
+  onDrawOffer: onOfferDraw,
+  onTakebackOffer: onOfferTakeback,
   homeColor,
   playerId,
-  // game: {  },
+  game,
+  lastOffer,
 }) => {
-  //TODO - can merge gameState and offers together as they are part of the same state and only used here
-  const { lastOffer, committedState: realState } = useGame();
-  const { game } = realState;
   const { offers: offers = [] } = game;
 
-  const offerAlreadySend = useRef(false);
   const [allowTakeback, refreshAllowTakeback] = useState(false);
   const [allowDraw, refreshAllowDraw] = useState(true);
 
+  const offerAlreadySent = useRef(false);
   const setOfferSent = useCallback(() => {
-    if (!offerAlreadySend.current) {
-      offerAlreadySend.current = true;
+    if (!offerAlreadySent.current) {
+      offerAlreadySent.current = true;
     }
   }, []);
 
   const resetOfferSent = useCallback(() => {
-    if (offerAlreadySend.current) {
-      offerAlreadySend.current = false;
+    if (offerAlreadySent.current) {
+      offerAlreadySent.current = false;
     }
   }, []);
 
@@ -48,7 +45,7 @@ export const GameActions: React.FC<Props> = ({
       return false;
     }
 
-    if (lastOffer?.status === 'pending' || offerAlreadySend.current) {
+    if (lastOffer?.status === 'pending' || offerAlreadySent.current) {
       return false;
     }
 
@@ -78,7 +75,7 @@ export const GameActions: React.FC<Props> = ({
       return false;
     }
 
-    if (lastOffer?.status === 'pending' || offerAlreadySend.current) {
+    if (lastOffer?.status === 'pending' || offerAlreadySent.current) {
       return false;
     }
 
@@ -93,7 +90,7 @@ export const GameActions: React.FC<Props> = ({
   };
 
   useEffect(() => {
-    if (offerAlreadySend.current) {
+    if (offerAlreadySent.current) {
       resetOfferSent();
     }
   }, [game.lastMoveBy]);
@@ -130,7 +127,7 @@ export const GameActions: React.FC<Props> = ({
         iconKind="solid"
         onClick={() => {
           setOfferSent();
-          onTakeback();
+          onOfferTakeback();
         }}
         disabled={game.status !== 'ongoing' || !allowTakeback}
       >

@@ -1,10 +1,6 @@
 import { Action } from 'movex-core-util';
-import {
-  // PlayState,
-  // EndedPlayState,
-  PlayActions,
-} from '@app/modules/Match/Play/store';
-import { EndedGame, Game, NotEndedGame } from '@app/modules/Game';
+import { PlayActions } from '@app/modules/Match/Play/store';
+import { EndedGame, NotEndedGame } from '@app/modules/Game';
 
 type PlayerId = string;
 

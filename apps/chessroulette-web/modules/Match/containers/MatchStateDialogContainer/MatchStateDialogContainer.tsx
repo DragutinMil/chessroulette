@@ -2,10 +2,6 @@ import React from 'react';
 import { Dialog } from '@app/components/Dialog';
 import { Text } from '@app/components/Text';
 import { now } from '@app/lib/time';
-// import {
-//   GameStateDialogContainer,
-//   GameStateDialogContainerProps,
-// } from '@app/modules/Play/containers/GameStateDialogContainer';
 import {
   DispatchOf,
   DistributiveOmit,
@@ -13,12 +9,11 @@ import {
   invoke,
 } from '@xmatter/util-kit';
 import { PlayerInfo, PlayersBySide } from '@app/modules/Match/Play';
-// import { GameOverReason } from '@app/modules/Play/movex';
-import { BetweenGamesAborter } from './BetweenGamesAborter';
-import { MatchActions } from '../movex';
-import { useMatch } from '../hooks/useMatch';
+import { BetweenGamesAborter } from './components/BetweenGamesAborter';
+import { MatchActions } from '../../movex';
+import { useMatch } from '../../hooks/useMatch';
 import {
-  GameStateDialogContainer,
+  PlayDialogContainer,
   GameStateDialogContainerProps,
 } from '@app/modules/Match/Play/containers';
 import { GameOverReason } from '@app/modules/Game';
@@ -33,17 +28,9 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
   playersBySide,
   ...gameStateDialogProps
 }) => {
-  const {
-    type: matchType,
-    status: matchStatus,
-    endedGamesCount: completedPlaysCount,
-    gameInPlay,
-    lastEndedGame,
-    winner,
-    players,
-  } = useMatch();
+  const match = useMatch();
 
-  if (matchStatus === 'aborted') {
+  if (match?.status === 'aborted') {
     return (
       <Dialog
         title="Match Aborted"
@@ -53,7 +40,8 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
   }
 
   // TODO: Here we should just check the match.status
-  if (winner) {
+  if (match?.winner) {
+    const matchWinner = match.winner;
     return (
       <Dialog
         title="Match Completed"
@@ -63,9 +51,12 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
               <Text>
                 <span className="capitalize">
                   {invoke(() => {
-                    const player = getPlayerInfoById(playersBySide, winner);
+                    const player = getPlayerInfoById(
+                      playersBySide,
+                      matchWinner
+                    );
 
-                    return player?.displayName || player?.color || winner;
+                    return player?.displayName || player?.color || matchWinner;
                   })}
                   {` `}Won{` `}
                   <span>🏆</span>
@@ -79,44 +70,45 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
   }
 
   // Show at the end of a game before the next game starts
-  if (matchStatus === 'ongoing' && !gameInPlay && lastEndedGame) {
-    const titleSuffix = lastEndedGame.winner === '1/2' ? ' in a Draw!' : '';
+  if (match?.status === 'ongoing' && !match.gameInPlay && match.lastEndedGame) {
+    const titleSuffix =
+      match.lastEndedGame.winner === '1/2' ? ' in a Draw!' : '';
 
     const gameOverReason =
-      lastEndedGame.status === 'complete'
-        ? gameOverReasonsToDisplay[lastEndedGame.gameOverReason]
+      match.lastEndedGame.status === 'complete'
+        ? gameOverReasonsToDisplay[match.lastEndedGame.gameOverReason]
         : 'Game was aborted';
 
     return (
       <Dialog
         title={
-          matchType === 'bestOf'
-            ? `Game ${completedPlaysCount} Ended${titleSuffix}`
+          match.type === 'bestOf'
+            ? `Game ${match.endedGamesCount} Ended${titleSuffix}`
             : `Game Ended${titleSuffix}!`
         }
         content={
           <div className="flex flex-col gap-4 items-center">
             <div>{gameOverReason}</div>
             <div className="flex justify-center content-center text-center">
-              {lastEndedGame.winner &&
-                (lastEndedGame.winner === '1/2' ? (
+              {match.lastEndedGame.winner &&
+                (match.lastEndedGame.winner === '1/2' ? (
                   <div className="flex flex-col gap-1">
                     {/* <Text>Game Ended in a Draw.</Text> */}
-                    {matchType === 'bestOf' && (
+                    {match.type === 'bestOf' && (
                       <Text>The round will repeat!</Text>
                     )}
                   </div>
                 ) : (
                   <Text className="capitalize">
-                    {players
-                      ? players[lastEndedGame.winner].displayName ||
-                        lastEndedGame.winner
-                      : lastEndedGame.winner}{' '}
+                    {match.players
+                      ? match.players[match.lastEndedGame.winner].displayName ||
+                        match.lastEndedGame.winner
+                      : match.lastEndedGame.winner}{' '}
                     Won!
                   </Text>
                 ))}
             </div>
-            {matchType === 'bestOf' && (
+            {match.type === 'bestOf' && (
               <BetweenGamesAborter
                 totalTimeAllowedMs={10 * 1000}
                 startedAt={now()}
@@ -127,7 +119,7 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
             )}
           </div>
         }
-        {...(matchType === 'openEnded' && {
+        {...(match.type === 'openEnded' && {
           buttons: [
             {
               children: 'Offer Rematch',
@@ -150,7 +142,7 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
   }
 
   return (
-    <GameStateDialogContainer {...gameStateDialogProps} dispatch={dispatch} />
+    <PlayDialogContainer {...gameStateDialogProps} dispatch={dispatch} />
   );
 };
 

@@ -10,6 +10,7 @@ import { ShortChessColor, isOneOf } from '@xmatter/util-kit';
 import { MatchPlayers } from '@app/modules/Match/movex';
 import { GameBoardContainer, GameBoardContainerProps } from './Play/containers';
 import { useGame } from '../Game/hooks';
+import { usePlayForUser } from './Play/hooks/usePlay';
 // import { MatchPlayers } from '@app/modules/Match';
 
 // TODO: This should not be here!!!
@@ -34,14 +35,16 @@ export const PlayContainer = ({
   ...gameBoardProps
 }: Props) => {
   const { dispatch } = gameBoardProps;
-  // TODO: Check if the Display still works here - moving around in history resets the board?
-  const game = useGame().committedState.game;
-  const canPlay = useCanPlay({ game, players, userId });
+  const play = usePlayForUser(userId);
 
   useEffect(() => {
+    if (!play) {
+      return;
+    }
+
     // Advance the game to "idling" if the game is still in pending AND the User is the one of the players
     if (
-      game.status === 'pending' &&
+      play.game.status === 'pending' &&
       isOneOf(
         userId,
         [players.white, players.black].map((p) => p.id)
@@ -56,7 +59,9 @@ export const PlayContainer = ({
         },
       });
     }
-  }, [canPlay, game.status, challengerColor, dispatch]);
+  }, [play, dispatch]);
 
-  return <GameBoardContainer {...gameBoardProps} canPlay={canPlay} />;
+  return (
+    <GameBoardContainer {...gameBoardProps} canPlay={!!play?.canUserPlay} />
+  );
 };

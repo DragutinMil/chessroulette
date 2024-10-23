@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { invoke, objectKeys } from '@xmatter/util-kit';
 import { Dialog } from '@app/components/Dialog';
 import { ClipboardCopyButton } from '@app/components/ClipboardCopyButton';
-import Link from 'next/link';
-import { useGame } from '../../hooks';
-import { GameOffer } from '../../types';
+import { GameOffer } from '@app/modules/Game';
+import { useGame } from '@app/modules/Game/hooks';
 
 export type GameStateDialogProps = {
   onAcceptOffer: ({ offer }: { offer: GameOffer['type'] }) => void;
@@ -14,7 +14,7 @@ export type GameStateDialogProps = {
 };
 
 
-export const GameStateDialog: React.FC<GameStateDialogProps> = ({
+export const PlayDialog: React.FC<GameStateDialogProps> = ({
   onAcceptOffer,
   onDenyOffer,
   onCancelOffer,

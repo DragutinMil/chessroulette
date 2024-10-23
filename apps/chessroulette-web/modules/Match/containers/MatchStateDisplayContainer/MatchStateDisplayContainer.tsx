@@ -6,20 +6,21 @@ import { DispatchOf, toLongColor } from '@xmatter/util-kit';
 import { PlayersBySide } from '@app/modules/Match/Play';
 import { PlayActions } from '@app/modules/Match/Play/store';
 // import { GameAbort } from '@app/modules/Play/components/GameAbort';
-import { MATCH_TIME_TO_ABORT } from '../movex';
-import { getMovesDetailsFromPGN } from '../utils';
-import { useMatch } from '../hooks/useMatch';
+import { MATCH_TIME_TO_ABORT } from '../../movex';
+import { getMovesDetailsFromPGN } from '../../utils';
+import { useMatch } from '../../hooks/useMatch';
 import { useGame } from '@app/modules/Game/hooks';
 import { PlayersInfoContainer } from '@app/modules/Match/Play/containers';
+import { MatchAbortContainer } from '..';
 // import { GameAbort } from '@app/modules/Game/components/GameAbort';
-import { MatchAbortContainer } from '@app/modules/Match/containers/MatchAbortContainer/MatchAbortContainer';
+// import { MatchAbortContainer } from '@app/modules/Match/containers/MatchAbortContainer/MatchAbortContainer';
 
 type Props = {
   playersBySide: PlayersBySide;
   dispatch: DispatchOf<PlayActions>;
 };
 
-export const MatchStateDisplay: React.FC<Props> = ({
+export const MatchStateDisplayContainer: React.FC<Props> = ({
   dispatch,
   playersBySide,
 }) => {
@@ -28,10 +29,10 @@ export const MatchStateDisplay: React.FC<Props> = ({
     currentRound,
     type,
     results,
-    drawsCount: draws,
+    drawsCount = 0,
     players,
-    endedGamesCount: completedPlaysCount,
-  } = useMatch();
+    endedGamesCount = 0,
+  } = useMatch() || {};
   const { committedState: realState, playerId } = useGame();
   const isGameCounterActive = useMemo(() => {
     const moves = getMovesDetailsFromPGN(realState.game.pgn);
@@ -56,24 +57,28 @@ export const MatchStateDisplay: React.FC<Props> = ({
         <div className="flex flex-row gap-2 w-full">
           <Text>Round</Text>
           <Text>{`${currentRound}/${rounds}`}</Text>
-          {draws > 0 && <Text>{`(${draws} games ended in draw)`}</Text>}
+          {drawsCount > 0 && (
+            <Text>{`(${drawsCount} games ended in draw)`}</Text>
+          )}
         </div>
       )}
       <div className="flex flex-row w-full">
-        <PlayersInfoContainer
-          key={realState.game.startedAt} // refresh it on each new game
-          gameCounterActive={isGameCounterActive}
-          players={playersBySide}
-          results={results}
-          onCheckTime={() => {
-            dispatch((masterContext) => ({
-              type: 'play:checkTime',
-              payload: {
-                at: masterContext.requestAt(),
-              },
-            }));
-          }}
-        />
+        {results && (
+          <PlayersInfoContainer
+            key={realState.game.startedAt} // refresh it on each new game
+            gameCounterActive={isGameCounterActive}
+            players={playersBySide}
+            results={results}
+            onCheckTime={() => {
+              dispatch((masterContext) => ({
+                type: 'play:checkTime',
+                payload: {
+                  at: masterContext.requestAt(),
+                },
+              }));
+            }}
+          />
+        )}
       </div>
       {players && realState.game.status === 'idling' && (
         <MatchAbortContainer
@@ -84,7 +89,7 @@ export const MatchStateDisplay: React.FC<Props> = ({
           dispatch={dispatch}
           timeToAbortMs={MATCH_TIME_TO_ABORT}
           playerId={playerId}
-          completedPlaysCount={completedPlaysCount}
+          completedPlaysCount={endedGamesCount}
           className="bg-slate-700 rounded-md p-2"
         />
       )}

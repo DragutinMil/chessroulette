@@ -1,8 +1,8 @@
 import { ChessColor, DispatchOf } from '@xmatter/util-kit';
 import { UserId } from '@app/modules/User';
-// import { GameActions } from '../components/GameActions';
-import type { PlayActions } from '../store';
-import { GameActions } from '@app/modules/Game/components/GameActions';
+import type { PlayActions } from '../../store';
+import { PlayControls } from './PlayControls';
+import { useGame } from '@app/modules/Game/hooks';
 
 type Props = {
   dispatch: DispatchOf<PlayActions>;
@@ -10,33 +10,30 @@ type Props = {
   playerId: UserId;
 };
 
-/**
- * This must only be used inside the GameProvider or GameActionsProvider
- *
- * @param param0
- * @returns
- */
-export const GameActionsContainer = ({
+export const PlayControlsContainer = ({
   dispatch,
   homeColor,
   playerId,
 }: Props) => {
+  const { lastOffer, committedState } = useGame();
+
   return (
-    <GameActions
+    <PlayControls
       homeColor={homeColor}
       playerId={playerId}
-      onOfferDraw={() => {
+      onDrawOffer={() => {
         dispatch({
           type: 'play:sendOffer',
           payload: { byPlayer: playerId, offerType: 'draw' },
         });
       }}
-      onTakeback={() => {
+      onTakebackOffer={() => {
         dispatch({
           type: 'play:sendOffer',
           payload: {
             byPlayer: playerId,
             offerType: 'takeback',
+            // TODO: use master context
             timestamp: new Date().getTime(),
           },
         });
@@ -47,6 +44,8 @@ export const GameActionsContainer = ({
           payload: { color: homeColor },
         });
       }}
+      game={committedState.game}
+      lastOffer={lastOffer}
     />
   );
 };
