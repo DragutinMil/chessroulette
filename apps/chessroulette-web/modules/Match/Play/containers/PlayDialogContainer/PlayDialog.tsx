@@ -20,20 +20,22 @@ export const PlayDialog: React.FC<GameStateDialogProps> = ({
   inviteLink,
 }) => {
   const [gameResultSeen, setGameResultSeen] = useState(false);
-  const { lastOffer, committedState: realState, players, playerId } = useGame();
 
-  const { game: gameState } = realState;
+  // TODO: Change the useGame to useMatchPlay
+  const {
+    lastOffer,
+    committedState: { game },
+    players,
+    playerId,
+  } = useGame();
 
   useEffect(() => {
     // Everytime the game state changes, reset the seen!
     setGameResultSeen(false);
-  }, [gameState.status]);
+  }, [game.status]);
 
   return invoke(() => {
-    if (
-      gameState.status === 'pending' &&
-      objectKeys(players || {}).length < 2
-    ) {
+    if (game.status === 'pending' && objectKeys(players || {}).length < 2) {
       return (
         <Dialog
           title="Waiting for Opponent"
@@ -74,7 +76,7 @@ export const PlayDialog: React.FC<GameStateDialogProps> = ({
     }
 
     if (lastOffer) {
-      if (gameState.status === 'complete' && !gameResultSeen) {
+      if (game.status === 'complete' && !gameResultSeen) {
         setGameResultSeen(true);
       }
       if (lastOffer.type === 'rematch') {

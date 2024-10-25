@@ -22,13 +22,13 @@ export type Props = {
 
 export const MatchActivity = ({ remoteState, dispatch, ...props }: Props) => {
   const { joinRoomLink } = useRoomLinkId('match');
-  const { isBoardFlipped } = useMatchActivitySettings();
+  // const { isBoardFlipped } = useMatchActivitySettings();
 
   return (
     <MatchContainer
       dispatch={dispatch || noop}
       match={remoteState}
-      isBoardFlipped={isBoardFlipped}
+      // isBoardFlipped={isBoardFlipped}
       inviteLink={joinRoomLink}
       rightSideSizePx={RIGHT_SIDE_SIZE_PX}
       rightSideClassName="flex flex-col"

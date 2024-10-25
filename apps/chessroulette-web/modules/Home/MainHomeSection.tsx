@@ -3,8 +3,6 @@ import { Session } from 'next-auth';
 import React from 'react';
 import { Button } from '@app/components/Button';
 import { links } from '../Room/links';
-import { PlaySetupButton } from '../Game/components/PlaySetupButton/PlaySetupButton';
-// import { PlaySetupButton } from '../Play/components/PlaySetupButton/PlaySetupButton';
 
 type Props = {
   session?: Session;
@@ -44,8 +42,6 @@ export const MainHomeSection: React.FC<Props> = ({ session }) => {
             Start Class as Kids Instructor
           </Button>
         </Link>
-        <br />
-        <PlaySetupButton />
         <br />
         <Link
           href={links.getOnDemandRoomCreationLink({

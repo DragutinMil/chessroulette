@@ -1,11 +1,14 @@
 import { useEffect } from 'react';
 import { DistributiveOmit } from 'movex-core-util';
-import { PlayBoardContainer, GameBoardContainerProps } from './containers';
 import { useCurrentOrPrevMatchPlay, usePlayActionsDispatch } from './hooks';
+import {
+  GameBoardContainer,
+  GameBoardContainerProps,
+} from '@app/modules/Game/GameBoardContainer';
 
 export type PlayerContainerProps = DistributiveOmit<
   GameBoardContainerProps,
-  'canPlay' | 'game'
+  'canPlay' | 'onMove' | 'playingColor' | 'turn'
 >;
 
 export const PlayContainer = (playBoardProps: PlayerContainerProps) => {
@@ -35,6 +38,32 @@ export const PlayContainer = (playBoardProps: PlayerContainerProps) => {
   }, [play.game?.status, play.canUserPlay, dispatch]);
 
   return (
-    <PlayBoardContainer {...playBoardProps} canPlay={!!play?.canUserPlay} />
+    <GameBoardContainer
+      {...(play?.canUserPlay
+        ? {
+            canPlay: true,
+            playingColor: play.playersBySide.home.color,
+            turn: play.turn,
+          }
+        : {
+            // Default props when the play doesn't exist
+            canPlay: false,
+            playingColor: 'w',
+            turn: 'b',
+          })}
+      onMove={(payload) => {
+        dispatch((masterContext) => ({
+          type: 'play:move',
+          payload: {
+            ...payload,
+            moveAt: masterContext.requestAt(),
+          },
+        }));
+
+        // TODO: This can be returned from a more internal component
+        return true;
+      }}
+      {...playBoardProps}
+    />
   );
 };

@@ -14,7 +14,7 @@ import {
 import { useCallback, useState } from 'react';
 import { validateMove } from './util';
 
-type Props = DistributiveOmit<
+export type PlayboardProps = DistributiveOmit<
   ChessboardContainerProps,
   'boardTheme' | 'onMove' | 'strict' | 'turn'
 > & {
@@ -27,9 +27,9 @@ type Props = DistributiveOmit<
 
 /**
  * This board validates the moves based on the Chess rules
- * 
- * @param param0 
- * @returns 
+ *
+ * @param param0
+ * @returns
  */
 export const Playboard = ({
   fen = ChessFENBoard.STARTING_FEN,
@@ -39,7 +39,7 @@ export const Playboard = ({
   canPlay = false,
   turn,
   ...props
-}: Props) => {
+}: PlayboardProps) => {
   const boardTheme = useBoardTheme();
   const [circlesMap, setCirclesMap] = useState<CirclesMap>({});
 

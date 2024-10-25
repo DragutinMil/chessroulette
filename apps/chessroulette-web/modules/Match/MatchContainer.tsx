@@ -23,14 +23,14 @@ type Props = DistributivePick<
   dispatch: DispatchOf<MatchActions>;
 
   inviteLink?: string;
-  isBoardFlipped?: boolean;
+  // isBoardFlipped?: boolean;
 };
 
 export const MatchContainer = ({
   match,
   userId,
   participants,
-  isBoardFlipped,
+  // isBoardFlipped,
   cameraComponent,
   inviteLink,
   dispatch,
@@ -43,8 +43,7 @@ export const MatchContainer = ({
         <PlayContainer
           // This resets the PlayContainer on each new game
           key={match.endedGames.length}
-          boardSizePx={boardSize}
-          isBoardFlipped={isBoardFlipped}
+          sizePx={boardSize}
           overlayComponent={
             <MatchStateDialogContainer inviteLink={inviteLink} />
           }
