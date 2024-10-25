@@ -25,6 +25,12 @@ type Props = DistributiveOmit<
   overlayComponent?: React.ReactNode;
 };
 
+/**
+ * This board validates the moves based on the Chess rules
+ * 
+ * @param param0 
+ * @returns 
+ */
 export const Playboard = ({
   fen = ChessFENBoard.STARTING_FEN,
   playingColor,

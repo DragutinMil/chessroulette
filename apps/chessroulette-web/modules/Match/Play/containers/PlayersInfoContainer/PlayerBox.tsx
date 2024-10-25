@@ -2,7 +2,7 @@ import React from 'react';
 // import { GameTimeClass, PlayerInfo } from '../../types';
 import { SmartCountdown } from '@app/components/SmartCountdown';
 import { PlayerInfo } from '@app/modules/Match/Play';
-import { GameTimeClass } from '../../io';
+import { GameTimeClass } from '../../../../Game/io';
 
 type Props = {
   playerInfo: PlayerInfo;

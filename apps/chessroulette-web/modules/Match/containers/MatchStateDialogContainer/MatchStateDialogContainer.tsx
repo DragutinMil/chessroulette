@@ -2,33 +2,31 @@ import React from 'react';
 import { Dialog } from '@app/components/Dialog';
 import { Text } from '@app/components/Text';
 import { now } from '@app/lib/time';
-import {
-  DispatchOf,
-  DistributiveOmit,
-  LongChessColor,
-  invoke,
-} from '@xmatter/util-kit';
+import { LongChessColor } from '@xmatter/util-kit';
 import { PlayerInfo, PlayersBySide } from '@app/modules/Match/Play';
 import { BetweenGamesAborter } from './components/BetweenGamesAborter';
-import { MatchActions } from '../../movex';
-import { useMatch } from '../../hooks/useMatch';
+import {
+  useMatchActionsDispatch,
+  useMatchViewState,
+} from '../../hooks/useMatch';
 import {
   PlayDialogContainer,
-  GameStateDialogContainerProps,
+  PlayDialogContainerContainerProps,
 } from '@app/modules/Match/Play/containers';
 import { GameOverReason } from '@app/modules/Game';
 
-type Props = DistributiveOmit<GameStateDialogContainerProps, 'dispatch'> & {
-  dispatch: DispatchOf<MatchActions>;
-  playersBySide: PlayersBySide;
+type Props = PlayDialogContainerContainerProps & {
+  // playersBySide: PlayersBySide;
 };
 
 export const MatchStateDialogContainer: React.FC<Props> = ({
-  dispatch,
-  playersBySide,
+  // playersBySide,
   ...gameStateDialogProps
 }) => {
-  const match = useMatch();
+  const { match, ...matchView } = useMatchViewState();
+  const dispatch = useMatchActionsDispatch();
+
+  matchView.userAsPlayer;
 
   if (match?.status === 'aborted') {
     return (
@@ -50,14 +48,23 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
             <div className="flex justify-center content-center text-center">
               <Text>
                 <span className="capitalize">
-                  {invoke(() => {
-                    const player = getPlayerInfoById(
-                      playersBySide,
+                  {/* {invoke(() => {
+                    // const player = getPlayerInfoById(
+                    //   playersBySide,
+                    //   matchWinner
+                    // );
+
+                    // return player?.displayName || player?.color || matchWinner;
+
+                    return (
+                      (matchView.userAsPlayer &&
+                        match[matchView.userAsPlayer.type].displayName) ||
                       matchWinner
                     );
-
-                    return player?.displayName || player?.color || matchWinner;
-                  })}
+                  })} */}
+                  {(matchView.userAsPlayer &&
+                    match[matchView.userAsPlayer.type].displayName) ||
+                    matchWinner}
                   {` `}Won{` `}
                   <span>🏆</span>
                 </span>
@@ -70,28 +77,32 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
   }
 
   // Show at the end of a game before the next game starts
-  if (match?.status === 'ongoing' && !match.gameInPlay && match.lastEndedGame) {
+  if (
+    match?.status === 'ongoing' &&
+    !match.gameInPlay &&
+    matchView.lastEndedGame
+  ) {
     const titleSuffix =
-      match.lastEndedGame.winner === '1/2' ? ' in a Draw!' : '';
+      matchView.lastEndedGame.winner === '1/2' ? ' in a Draw!' : '';
 
     const gameOverReason =
-      match.lastEndedGame.status === 'complete'
-        ? gameOverReasonsToDisplay[match.lastEndedGame.gameOverReason]
+      matchView.lastEndedGame.status === 'complete'
+        ? gameOverReasonsToDisplay[matchView.lastEndedGame.gameOverReason]
         : 'Game was aborted';
 
     return (
       <Dialog
         title={
           match.type === 'bestOf'
-            ? `Game ${match.endedGamesCount} Ended${titleSuffix}`
+            ? `Game ${matchView.endedGamesCount} Ended${titleSuffix}`
             : `Game Ended${titleSuffix}!`
         }
         content={
           <div className="flex flex-col gap-4 items-center">
             <div>{gameOverReason}</div>
             <div className="flex justify-center content-center text-center">
-              {match.lastEndedGame.winner &&
-                (match.lastEndedGame.winner === '1/2' ? (
+              {matchView.lastEndedGame.winner &&
+                (matchView.lastEndedGame.winner === '1/2' ? (
                   <div className="flex flex-col gap-1">
                     {/* <Text>Game Ended in a Draw.</Text> */}
                     {match.type === 'bestOf' && (
@@ -101,9 +112,9 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
                 ) : (
                   <Text className="capitalize">
                     {match.players
-                      ? match.players[match.lastEndedGame.winner].displayName ||
-                        match.lastEndedGame.winner
-                      : match.lastEndedGame.winner}{' '}
+                      ? match.players[matchView.lastEndedGame.winner]
+                          .displayName || matchView.lastEndedGame.winner
+                      : matchView.lastEndedGame.winner}{' '}
                     Won!
                   </Text>
                 ))}
@@ -119,31 +130,30 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
             )}
           </div>
         }
-        {...(match.type === 'openEnded' && {
-          buttons: [
-            {
-              children: 'Offer Rematch',
-              onClick: () => {
-                dispatch({
-                  type: 'play:sendOffer',
-                  payload: {
-                    byPlayer: gameStateDialogProps.playerId,
-                    offerType: 'rematch',
-                  },
-                });
-              },
-              type: 'primary',
-              bgColor: 'blue',
-            },
-          ],
-        })}
+        // TODO: Teh rematch functionality needs to be at match level
+        // {...(match.type === 'openEnded' && {
+        //   buttons: [
+        //     {
+        //       children: 'Offer Rematch',
+        //       onClick: () => {
+        //         dispatch({
+        //           type: 'play:sendOffer',
+        //           payload: {
+        //             byPlayer: gameStateDialogProps.playerId,
+        //             offerType: 'rematch',
+        //           },
+        //         });
+        //       },
+        //       type: 'primary',
+        //       bgColor: 'blue',
+        //     },
+        //   ],
+        // })}
       />
     );
   }
 
-  return (
-    <PlayDialogContainer {...gameStateDialogProps} dispatch={dispatch} />
-  );
+  return <PlayDialogContainer {...gameStateDialogProps} />;
 };
 
 const getPlayerInfoById = (

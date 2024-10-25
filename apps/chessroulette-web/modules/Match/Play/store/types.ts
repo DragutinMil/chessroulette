@@ -1,7 +1,7 @@
 import { Action } from 'movex-core-util';
 import { ChessColor, ChessMove, ShortChessColor } from '@xmatter/util-kit';
 import { User } from '@app/modules/User';
-import { GameOffer } from '@app/modules/Game';
+import { Game, GameOffer } from '@app/modules/Game';
 
 export type PlayOffer = {
   by: ShortChessColor;
@@ -13,7 +13,8 @@ export type PlayActions =
       'play:start',
       {
         at: number;
-        challengerColor: ShortChessColor;
+        // challengerColor: ShortChessColor;
+        players: NonNullable<Game['players']>;
       }
     >
   | Action<

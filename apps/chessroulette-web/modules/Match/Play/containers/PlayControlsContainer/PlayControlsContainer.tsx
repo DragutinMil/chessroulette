@@ -1,50 +1,54 @@
-import { ChessColor, DispatchOf } from '@xmatter/util-kit';
+import { ChessColor } from '@xmatter/util-kit';
 import { UserId } from '@app/modules/User';
-import type { PlayActions } from '../../store';
 import { PlayControls } from './PlayControls';
-import { useGame } from '@app/modules/Game/hooks';
+import { usePlay, usePlayActionsDispatch } from '../../hooks/usePlay';
+import { PENDING_UNTIMED_GAME } from '@app/modules/Game';
 
 type Props = {
-  dispatch: DispatchOf<PlayActions>;
-  homeColor: ChessColor;
-  playerId: UserId;
+  // homeColor: ChessColor;
+  // playerId: UserId;
 };
 
-export const PlayControlsContainer = ({
-  dispatch,
-  homeColor,
-  playerId,
-}: Props) => {
-  const { lastOffer, committedState } = useGame();
+export const PlayControlsContainer = () => {
+  const dispatch = usePlayActionsDispatch();
+  const { lastOffer, game, playersBySide, hasGame } = usePlay();
+
+  if (!hasGame) {
+    return <>WARN| Play Controls Container No Game</>;
+  }
 
   return (
     <PlayControls
-      homeColor={homeColor}
-      playerId={playerId}
+      // homeColor={homeColor}
+      // playerId={playerId}
+      homeColor={playersBySide.home.color}
+      playerId={playersBySide.home.id}
       onDrawOffer={() => {
         dispatch({
           type: 'play:sendOffer',
-          payload: { byPlayer: playerId, offerType: 'draw' },
+          // payload: { byPlayer: playerId, offerType: 'draw' },
+
+          // TODO: left it here - this should be by color and that's it!
+          payload: { byPlayer: playersBySide.home.id, offerType: 'draw' },
         });
       }}
       onTakebackOffer={() => {
-        dispatch({
+        dispatch((masterContext) => ({
           type: 'play:sendOffer',
           payload: {
-            byPlayer: playerId,
+            byPlayer: playersBySide.home.id, // TODO: Change this to the player color instead since they are per game!
             offerType: 'takeback',
-            // TODO: use master context
-            timestamp: new Date().getTime(),
+            timestamp: masterContext.requestAt(),
           },
-        });
+        }));
       }}
       onResign={() => {
         dispatch({
           type: 'play:resignGame',
-          payload: { color: homeColor },
+          payload: { color: playersBySide?.home.color },
         });
       }}
-      game={committedState.game}
+      game={game || PENDING_UNTIMED_GAME}
       lastOffer={lastOffer}
     />
   );

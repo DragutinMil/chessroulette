@@ -1,11 +1,10 @@
 import { MovexReducer } from 'movex-core-util';
-import { ChessColor, invoke, swapColor, toLongColor } from '@xmatter/util-kit';
+import { invoke, swapColor, toLongColor } from '@xmatter/util-kit';
 import { Old_Play_Results } from '@app/modules/Match/Play';
 import { MatchActions, MatchState } from './types';
 import { initialMatchState } from './state';
 import * as PlayStore from '@app/modules/Match/Play/store';
-import { AbortedGame, GameTimeClass } from '@app/modules/Game';
-// import { createPendingPlay } from '@app/modules/Match/Play/operations';
+import { AbortedGame } from '@app/modules/Game';
 
 // TODO: Instead of Hard coding this, put in the matchCreation setting as part of the MatchState
 export const MATCH_TIME_TO_ABORT = 3 * 60 * 1000; // 3 mins
@@ -42,16 +41,15 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
     };
 
     const newGameParams = invoke((): PlayStore.CreatePendingGameParams => {
-      if (prevPlay) {
-        return {
-          challengerColor: swapColor(prevPlay.orientation),
-          timeClass: prevPlay.timeClass,
-        };
-      }
-      const lastGamePlayed = prevMatch.endedGames.slice(-1)[0];
+      const prevGame = prevPlay || prevMatch.endedGames.slice(-1)[0];
+
       return {
-        challengerColor: swapColor(lastGamePlayed.orientation),
-        timeClass: lastGamePlayed.timeClass,
+        // challengerColor: swapColor(prevPlay.orientation),
+        timeClass: prevGame.timeClass,
+        players: {
+          white: prevGame.players.black,
+          black: prevGame.players.white,
+        },
       };
     });
 

@@ -4,6 +4,11 @@ import { reducer as playReducer } from './reducer';
 import { Game, createPendingGame } from '@app/modules/Game';
 
 // const wrapIntoPlay = <G extends Game>(game: G): G => game;
+const TEST_PLAYERS = {
+  white: 'test-white',
+  black: 'test-black',
+};
+
 
 describe('Game Status: Pending > Idling', () => {
   test('It advances to "idling" on calling "play:start"', () => {
@@ -36,6 +41,7 @@ describe('Game Status: Pending > Idling', () => {
       orientation: 'white',
       gameOverReason: null,
       challengerColor: 'w',
+      players: TEST_PLAYERS,
     };
 
     expect(actual).toEqual(expected);
@@ -79,6 +85,7 @@ describe('Game Status: Idling > Idling', () => {
       orientation: 'white',
       gameOverReason: null,
       challengerColor: 'b',
+      players: TEST_PLAYERS,
     };
 
     expect(actual).toEqual(expected);
@@ -117,6 +124,7 @@ describe('Game Status: Idling > Aborted', () => {
       orientation: 'white',
       gameOverReason: null,
       challengerColor: 'b',
+      players: TEST_PLAYERS,
     };
 
     expect(actual).toEqual(expected);
@@ -165,6 +173,7 @@ describe('Game Status: Idling > Ongoing', () => {
       orientation: 'white',
       gameOverReason: null,
       challengerColor: 'w',
+      players: TEST_PLAYERS,
     };
 
     expect(actual).toEqual(expected);

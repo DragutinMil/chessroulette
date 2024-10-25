@@ -15,8 +15,8 @@ type Props = {
 
 export const PlayControls: React.FC<Props> = ({
   onResign,
-  onDrawOffer: onOfferDraw,
-  onTakebackOffer: onOfferTakeback,
+  onDrawOffer,
+  onTakebackOffer,
   homeColor,
   playerId,
   game,
@@ -112,7 +112,7 @@ export const PlayControls: React.FC<Props> = ({
         iconKind="solid"
         onClick={() => {
           setOfferSent();
-          onOfferDraw();
+          onDrawOffer();
         }}
         disabled={!allowDraw}
       >
@@ -127,7 +127,7 @@ export const PlayControls: React.FC<Props> = ({
         iconKind="solid"
         onClick={() => {
           setOfferSent();
-          onOfferTakeback();
+          onTakebackOffer();
         }}
         disabled={game.status !== 'ongoing' || !allowTakeback}
       >

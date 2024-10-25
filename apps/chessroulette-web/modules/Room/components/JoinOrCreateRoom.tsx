@@ -69,24 +69,24 @@ export const JoinOrCreateRoom: React.FC<Props> = ({
 
     invoke(() => {
       const createRoomInput: RoomState = invoke(() => {
-        if (activityParams.activity === 'play') {
-          const defaultGame =
-            initialActivityStatesByActivityType['play'].activityState.game;
+        // if (activityParams.activity === 'play') {
+        //   const defaultGame =
+        //     initialActivityStatesByActivityType['play'].activityState.game;
 
-          const timeClass: GameTimeClass =
-            activityParams.timeClass || defaultGame.timeClass;
+        //   const timeClass: GameTimeClass =
+        //     activityParams.timeClass || defaultGame.timeClass;
 
-          return {
-            ...initialRoomState,
-            activity: {
-              activityType: 'play',
-              activityState: {
-                ...initialActivityStatesByActivityType['play'].activityState,
-                game: createPendingGame({ timeClass, challengerColor: 'white' }), // Not sure this is good
-              },
-            },
-          };
-        }
+        //   return {
+        //     ...initialRoomState,
+        //     activity: {
+        //       activityType: 'play',
+        //       activityState: {
+        //         ...initialActivityStatesByActivityType['play'].activityState,
+        //         game: createPendingGame({ timeClass, challengerColor: 'white' }), // Not sure this is good
+        //       },
+        //     },
+        //   };
+        // }
 
         if (activityParams.activity === 'match') {
           return {

@@ -22,4 +22,9 @@ export const PENDING_UNTIMED_GAME: PendingGame = {
 
   // TODO: This doesn't need to be an array and it doesn't need to be always defined
   offers: [],
+
+  players: {
+    white: 'N/A',
+    black: 'N/A',
+  },
 };

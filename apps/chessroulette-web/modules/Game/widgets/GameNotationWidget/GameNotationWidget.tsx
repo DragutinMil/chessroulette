@@ -10,7 +10,7 @@ type Props = Pick<
   'emptyContent' | 'className' | 'containerClassName'
 >;
 
-export const GameNotationContainer = (props: Props) => {
+export const GameNotationWidget = (props: Props) => {
   const { displayState, actions } = useGame();
 
   return (

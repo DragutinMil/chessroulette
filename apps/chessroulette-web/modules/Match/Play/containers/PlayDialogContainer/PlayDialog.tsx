@@ -10,15 +10,14 @@ export type GameStateDialogProps = {
   onAcceptOffer: ({ offer }: { offer: GameOffer['type'] }) => void;
   onDenyOffer: () => void;
   onCancelOffer: () => void;
-  joinRoomLink: string | undefined;
+  inviteLink?: string;
 };
-
 
 export const PlayDialog: React.FC<GameStateDialogProps> = ({
   onAcceptOffer,
   onDenyOffer,
   onCancelOffer,
-  joinRoomLink,
+  inviteLink,
 }) => {
   const [gameResultSeen, setGameResultSeen] = useState(false);
   const { lastOffer, committedState: realState, players, playerId } = useGame();
@@ -40,15 +39,15 @@ export const PlayDialog: React.FC<GameStateDialogProps> = ({
           title="Waiting for Opponent"
           content={
             <div className="w-full flex justify-center">
-              {joinRoomLink && (
+              {inviteLink && (
                 <ClipboardCopyButton
                   buttonComponentType="Button"
-                  value={joinRoomLink}
+                  value={inviteLink}
                   render={(copied) => (
                     <>
                       {copied ? (
                         <Link
-                          href={joinRoomLink}
+                          href={inviteLink}
                           target="_blank"
                           className="bg-transparent"
                           onClick={(e) => e.preventDefault()}

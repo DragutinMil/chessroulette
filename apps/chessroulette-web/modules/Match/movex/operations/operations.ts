@@ -46,7 +46,18 @@ export const createMatchState = (
     endedGames: [],
     gameInPlay: createPendingGame({
       timeClass: params.timeClass || 'untimed',
-      challengerColor: challengerColor,
+      players:
+      // TODO: here can also just leave the ids as "challenger" & "challengee"
+        challengerColor === 'white'
+          ? {
+              white: params.challengerId,
+              black: params.challengeeId,
+            }
+          : {
+              white: params.challengeeId,
+              black: params.challengerId,
+            },
+      // challengerColor: challengerColor,
     }),
   };
 };

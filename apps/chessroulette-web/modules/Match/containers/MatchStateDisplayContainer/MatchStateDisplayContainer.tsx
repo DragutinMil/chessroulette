@@ -1,19 +1,14 @@
 import React, { useMemo } from 'react';
 import { Text } from '@app/components/Text';
-// import { PlayersInfoContainer } from '@app/modules/Play/containers/PlayersInfoContainer';
-// import { useGame } from '@app/modules/Play/providers/useGame';
 import { DispatchOf, toLongColor } from '@xmatter/util-kit';
 import { PlayersBySide } from '@app/modules/Match/Play';
 import { PlayActions } from '@app/modules/Match/Play/store';
-// import { GameAbort } from '@app/modules/Play/components/GameAbort';
-import { MATCH_TIME_TO_ABORT } from '../../movex';
-import { getMovesDetailsFromPGN } from '../../utils';
-import { useMatch } from '../../hooks/useMatch';
 import { useGame } from '@app/modules/Game/hooks';
 import { PlayersInfoContainer } from '@app/modules/Match/Play/containers';
-import { MatchAbortContainer } from '..';
-// import { GameAbort } from '@app/modules/Game/components/GameAbort';
-// import { MatchAbortContainer } from '@app/modules/Match/containers/MatchAbortContainer/MatchAbortContainer';
+import { MatchAbortContainer } from '../MatchAbortContainer';
+import { MATCH_TIME_TO_ABORT } from '../../movex';
+import { useMatchViewState } from '../../hooks/useMatch';
+import { getMovesDetailsFromPGN } from '../../utils';
 
 type Props = {
   playersBySide: PlayersBySide;
@@ -25,18 +20,23 @@ export const MatchStateDisplayContainer: React.FC<Props> = ({
   playersBySide,
 }) => {
   const {
-    rounds,
+    match,
     currentRound,
-    type,
     results,
-    drawsCount = 0,
-    players,
-    endedGamesCount = 0,
-  } = useMatch() || {};
-  const { committedState: realState, playerId } = useGame();
+    drawsCount,
+    endedGamesCount,
+    userAsPlayer,
+  } = useMatchViewState();
+  const {
+    committedState: { game, turn },
+    playerId,
+  } = useGame();
+  
+
   const isGameCounterActive = useMemo(() => {
-    const moves = getMovesDetailsFromPGN(realState.game.pgn);
-    if (realState.game.status !== 'ongoing') {
+    const moves = getMovesDetailsFromPGN(game.pgn);
+
+    if (game.status !== 'ongoing') {
       return false;
     }
 
@@ -49,14 +49,14 @@ export const MatchStateDisplayContainer: React.FC<Props> = ({
       moves.lastMoveBy &&
       toLongColor(moves.lastMoveBy) === 'black'
     );
-  }, [realState.game.status, realState.game.pgn]);
+  }, [game.status, game.pgn]);
 
   return (
     <div className="flex flex-col gap-2">
-      {type === 'bestOf' && (
+      {match?.type === 'bestOf' && (
         <div className="flex flex-row gap-2 w-full">
           <Text>Round</Text>
-          <Text>{`${currentRound}/${rounds}`}</Text>
+          <Text>{`${currentRound}/${match.rounds}`}</Text>
           {drawsCount > 0 && (
             <Text>{`(${drawsCount} games ended in draw)`}</Text>
           )}
@@ -65,7 +65,7 @@ export const MatchStateDisplayContainer: React.FC<Props> = ({
       <div className="flex flex-row w-full">
         {results && (
           <PlayersInfoContainer
-            key={realState.game.startedAt} // refresh it on each new game
+            key={game.startedAt} // refresh it on each new game
             gameCounterActive={isGameCounterActive}
             players={playersBySide}
             results={results}
@@ -80,12 +80,12 @@ export const MatchStateDisplayContainer: React.FC<Props> = ({
           />
         )}
       </div>
-      {players && realState.game.status === 'idling' && (
+      {match?.players && userAsPlayer && game.status === 'idling' && (
         <MatchAbortContainer
-          key={realState.game.startedAt + realState.turn} // refresh it on each new game & when the turn changes
-          game={realState.game}
-          turn={realState.turn}
-          players={players}
+          key={game.startedAt + turn} // refresh it on each new game & when the turn changes
+          game={game}
+          turn={turn}
+          players={match.players}
           dispatch={dispatch}
           timeToAbortMs={MATCH_TIME_TO_ABORT}
           playerId={playerId}

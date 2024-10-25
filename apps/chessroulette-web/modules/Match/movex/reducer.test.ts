@@ -1,4 +1,11 @@
-import { CompletedGame, Game, GameOverReason } from '@app/modules/Game';
+import {
+  CompletedGame,
+  CreateOngoingGameParams,
+  Game,
+  GameOverReason,
+  GameTimeClass,
+  OngoingGame,
+} from '@app/modules/Game';
 import { createMatchState } from './operations/operations';
 import { reducer as matchReducer } from './reducer';
 import { MatchState } from './types';
@@ -9,9 +16,48 @@ import {
   // Game,
   // GameOverReason,
   PlayActions,
-  createOngoingGame,
   createPendingGame,
 } from '../Play/store';
+import { ChessColor, toShortColor } from '@xmatter/util-kit';
+
+type CreateOngoingGameParams = {
+  timeClass: GameTimeClass;
+  lastMoveAt: number;
+  startedAt: number;
+  players?: Game['players'];
+  challengerColor: ChessColor;
+  // challengerColor?: ShortChessColor;
+};
+
+const TEST_PLAYERS = {
+  white: 'test-white',
+  black: 'test-black',
+};
+
+const createOngoingGame = ({
+  timeClass,
+  challengerColor,
+  lastMoveAt,
+  startedAt,
+  players = TEST_PLAYERS,
+}: // challengerColor = toShortColor(color), // TODO: Does this need to be defaulted to?
+CreateOngoingGameParams): OngoingGame => {
+  const pendingGame = createPendingGame({ timeClass, challengerColor });
+
+  return {
+    ...pendingGame,
+    status: 'ongoing',
+    startedAt,
+    timeLeft: {
+      ...pendingGame.timeLeft,
+      lastUpdatedAt: lastMoveAt,
+    },
+    lastMoveAt,
+    challengerColor: toShortColor(challengerColor),
+
+    players,
+  };
+};
 
 // const =<M extends MatchState>(
 //   match: M
@@ -90,6 +136,7 @@ describe('Match Status: Pending > Ongoing', () => {
         pgn: '1. e4',
         lastMoveAt: 123,
         lastMoveBy: 'white',
+        players: TEST_PLAYERS,
       }),
     };
 
@@ -191,6 +238,7 @@ describe('Match Status: Ongoing > Completed', () => {
         lastMoveBy: 'white',
         startedAt: 123,
         winner: null,
+        players: TEST_PLAYERS,
       }),
     };
 
@@ -319,6 +367,7 @@ describe('Start New Match => ', () => {
         lastMoveBy: 'white',
         startedAt: 123,
         winner: null,
+        players: TEST_PLAYERS,
       }),
     };
 
@@ -448,6 +497,7 @@ describe('End Match when rounds number reached', () => {
         lastMoveBy: 'white',
         startedAt: 123,
         winner: null,
+        players: TEST_PLAYERS,
       }),
     };
 
@@ -556,6 +606,7 @@ describe('End Match when rounds number reached', () => {
         lastMoveBy: 'white',
         startedAt: 123,
         winner: null,
+        players: TEST_PLAYERS,
       }),
     };
 
@@ -693,6 +744,7 @@ describe('timer only starts after black moves', () => {
         lastMoveBy: 'white',
         startedAt: 123,
         winner: null,
+        players: TEST_PLAYERS,
       }),
     };
 
@@ -806,6 +858,7 @@ describe('abort game -> match', () => {
           lastMoveBy: 'black',
           winner: null,
           startedAt: 123,
+          players: TEST_PLAYERS,
         }),
       ],
       // players: {
@@ -947,6 +1000,7 @@ describe('abort game -> match', () => {
           lastMoveBy: 'black',
           winner: null,
           startedAt: 123,
+          players: TEST_PLAYERS,
         }),
       ],
       // players: {
@@ -1090,6 +1144,7 @@ describe('abort game -> match', () => {
           lastMoveBy: 'white',
           winner: null,
           startedAt: 123,
+          players: TEST_PLAYERS,
         }),
       ],
       // players: {

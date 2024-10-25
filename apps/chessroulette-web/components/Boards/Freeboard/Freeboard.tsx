@@ -7,6 +7,12 @@ import {
 
 type Props = DistributiveOmit<ChessboardContainerProps, 'boardTheme'>;
 
+/**
+ * This is a free board where there are no rules and magical moves are possible!
+ *
+ * @param param0
+ * @returns
+ */
 export const Freeboard = ({
   fen = ChessFENBoard.STARTING_FEN,
   ...props

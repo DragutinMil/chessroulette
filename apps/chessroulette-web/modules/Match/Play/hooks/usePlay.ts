@@ -1,17 +1,22 @@
-import { Play, PlayersByColor, PlayersBySide } from '../types';
-import { invoke, swapColor, toLongColor } from '@xmatter/util-kit';
-import { UserId } from '@app/modules/User';
-import { getTurnFromPgn } from '@app/modules/Game/lib';
-import { useMatch } from '../../hooks';
-import { canUserPlay } from './util';
 import { useMemo } from 'react';
+import { invoke, swapColor, toLongColor } from '@xmatter/util-kit';
+import { getTurnFromPgn } from '@app/modules/Game/lib';
+import { useMatchActionsDispatch, useMatchViewState } from '../../hooks';
+import { Play, PlayersByColor, PlayersBySide } from '../types';
+import { canUserPlay } from './util';
+import { PlayActions } from '../store';
+import { MovexDispatchAction } from 'movex';
+import { useGame } from '@app/modules/Game/hooks';
 
-export const usePlayForUser = (userId: UserId): Play | undefined => {
-  const match = useMatch();
+export const usePlay = (): Play => {
+  const { match, userAsPlayer } = useMatchViewState();
+
+  // TODO: add the game if neede
+  // const {} = useGame();
 
   return useMemo(() => {
     if (!match?.gameInPlay) {
-      return undefined;
+      return { hasGame: false };
     }
 
     const { gameInPlay } = match;
@@ -20,7 +25,7 @@ export const usePlayForUser = (userId: UserId): Play | undefined => {
       const challengerColor = toLongColor(gameInPlay.challengerColor);
       const challengeeColor = swapColor(challengerColor);
 
-      if (userId === match.challengee.id) {
+      if (userAsPlayer?.id === match.challengee.id) {
         return {
           home: {
             ...match.challengee,
@@ -70,12 +75,35 @@ export const usePlayForUser = (userId: UserId): Play | undefined => {
     );
 
     return {
+      hasGame: true,
       game: gameInPlay,
       turn: getTurnFromPgn(gameInPlay.pgn),
       playersByColor,
       playersBySide,
-      canUserPlay: canUserPlay({ userId, playersByColor, game: gameInPlay }),
+      ...invoke(() => {
+        if (
+          !!userAsPlayer &&
+          canUserPlay({
+            userId: userAsPlayer.id,
+            playersByColor,
+            game: gameInPlay,
+          })
+        ) {
+          return {
+            canUserPlay: true,
+            userAsPlayerId: userAsPlayer.id,
+          };
+        } else {
+          return {
+            canUserPlay: false,
+            userAsPlayerId: undefined,
+          };
+        }
+      }),
       lastOffer: gameInPlay.offers?.slice(-1)[0],
-    };
-  }, [match]);
+    } satisfies Play;
+  }, [match, userAsPlayer]);
 };
+
+export const usePlayActionsDispatch: () => MovexDispatchAction<PlayActions> =
+  useMatchActionsDispatch;

@@ -9,13 +9,13 @@ import { Playboard } from '@app/components/Boards';
 import { useMemo } from 'react';
 import { ChessboardContainerProps } from '@app/components/Chessboard';
 import { useGame } from '@app/modules/Game/hooks';
+import { usePlayActionsDispatch } from '../hooks/usePlay';
 
 export type GameBoardContainerProps = {
   boardSizePx: number;
-  // game: Game;
   canPlay: boolean;
-  dispatch: DispatchOf<PlayActions>;
   isBoardFlipped?: boolean;
+  // dispatch: DispatchOf<PlayActions>;
 } & DistributivePick<
   ChessboardContainerProps,
   | 'overlayComponent'
@@ -27,15 +27,14 @@ export type GameBoardContainerProps = {
 /**
  * Depends on the GameProvider
  */
-export const GameBoardContainer = ({
-  // game,
+export const PlayBoardContainer = ({
   isBoardFlipped,
   boardSizePx,
   overlayComponent,
   canPlay,
-  dispatch,
   ...boardProps
 }: GameBoardContainerProps) => {
+  const dispatch = usePlayActionsDispatch();
   const { displayState, committedState } = useGame();
 
   // TODO: This should come from somewhere else

@@ -1,5 +1,8 @@
 import { Game, GameOffer } from '@app/modules/Game';
+import { UserId } from '@app/modules/User';
 import { ChessColor, LongChessColor } from '@xmatter/util-kit';
+import { MovexDispatchOf } from 'movex-core-util';
+import { PlayActions } from './store';
 
 export type PlayerId = string;
 
@@ -27,11 +30,30 @@ export type Old_Play_Results = {
   black: number;
 };
 
-export type Play = {
-  game: Game; // TODO: should this be split in display and commited
-  turn: ChessColor;
-  playersByColor: PlayersByColor;
-  playersBySide: PlayersBySide;
-  canUserPlay: boolean;
-  lastOffer?: GameOffer;
-};
+export type Play =
+  | ({
+      hasGame: true;
+      game: Game; // TODO: should this be split in display and commited
+      turn: ChessColor;
+      playersByColor: PlayersByColor;
+      playersBySide: PlayersBySide;
+      lastOffer?: GameOffer;
+    } & (
+      | {
+          canUserPlay: true;
+          userAsPlayerId: UserId;
+        }
+      | {
+          canUserPlay: false;
+          userAsPlayerId?: undefined;
+        }
+    ))
+  | {
+      hasGame: false;
+      game?: undefined;
+      turn?: undefined;
+      playersByColor?: undefined;
+      playersBySide?: undefined;
+      canUserPlay?: false;
+      lastOffer?: undefined;
+    };

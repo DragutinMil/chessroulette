@@ -52,6 +52,11 @@ export type GameOffer = {
   timestamp?: number;
 };
 
+export type GamePlayers = {
+  white: string;
+  black: string;
+};
+
 /**
  * A Game That is not yet started or idling (maybe the players haven't joined yet)
  */
@@ -78,10 +83,11 @@ export type PendingGame = {
   // TODO: Is this needed here???
   // @deprecate as each player can chose individualy
   orientation: ChessColor;
+  challengerColor: ShortChessColor; // TODO: Should this be null here? For not leave it as something
 
   // new
   // players: null;
-  challengerColor: ShortChessColor; // TODO: Should this be null here? For not leave it as something
+  players: GamePlayers;
 };
 
 /**
@@ -117,6 +123,8 @@ export type IdlingGame = {
   // new
   // players: PlayersByColor;
   challengerColor: ShortChessColor;
+
+  players: GamePlayers;
 };
 
 /**
@@ -151,6 +159,8 @@ export type OngoingGame = {
   // new
   // players: PlayersByColor;
   challengerColor: ShortChessColor;
+
+  players: GamePlayers;
 };
 
 /**
@@ -184,6 +194,8 @@ export type CompletedGame = {
   // new
   // players: PlayersByColor;
   challengerColor: ShortChessColor;
+
+  players: GamePlayers;
 };
 
 /**
@@ -221,7 +233,10 @@ export type AbortedGame = {
 
   // new
   // players: PlayersByColor;
+  // Derprecate
   challengerColor: ShortChessColor;
+
+  players: GamePlayers;
 };
 
 export type Game =

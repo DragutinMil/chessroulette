@@ -31,12 +31,15 @@ export const reducer = (
       return prev;
     }
 
+    // prev.challengerColor
+
     return {
       ...prev,
       status: 'idling',
       startedAt: action.payload.at,
       lastMoveAt: null,
-      challengerColor: action.payload.challengerColor,
+      // challengerColor: action.payload.challengerColor,
+      players: action.payload.players,
     };
   }
 
@@ -68,6 +71,7 @@ export const reducer = (
       offers: prev.offers,
       orientation: prev.orientation,
       challengerColor: prev.challengerColor,
+      players: prev.players,
     } as const;
 
     const commonNextGameProps = {
@@ -240,19 +244,19 @@ export const reducer = (
   }
 
   // TODO: This now needs to happen at MatchLevel
-  if (action.type === 'play:acceptOfferRematch') {
-    // const lastOffer: GameOffer = {
-    //   ...prev.game.offers[prev.game.offers.length - 1],
-    //   status: 'accepted',
-    // };
+  // if (action.type === 'play:acceptOfferRematch') {
+  //   // const lastOffer: GameOffer = {
+  //   //   ...prev.game.offers[prev.game.offers.length - 1],
+  //   //   status: 'accepted',
+  //   // };
 
-    const newGame = createPendingGame({
-      timeClass: prev.timeClass,
-      challengerColor: swapColor(prev.orientation),
-    });
+  //   const newGame = createPendingGame({
+  //     timeClass: prev.timeClass,
+  //     challengerColor: swapColor(prev.orientation),
+  //   });
 
-    return newGame;
-  }
+  //   return newGame;
+  // }
 
   if (action.type === 'play:acceptOfferDraw') {
     // You can only offer a draw of an ongoing game
