@@ -16,7 +16,7 @@ export type MatchResults = {
 export type MatchViewState = {
   match: MatchState;
   currentRound: number;
-  lastEndedGame?: EndedGame;
+  previousGame?: EndedGame;
   drawsCount: number;
   endedGamesCount: number;
 

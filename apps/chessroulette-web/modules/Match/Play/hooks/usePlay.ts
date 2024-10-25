@@ -1,109 +1,125 @@
-import { useMemo } from 'react';
 import { invoke, swapColor, toLongColor } from '@xmatter/util-kit';
 import { getTurnFromPgn } from '@app/modules/Game/lib';
-import { useMatchActionsDispatch, useMatchViewState } from '../../hooks';
-import { Play, PlayersByColor, PlayersBySide } from '../types';
+import { useMatchViewState } from '../../hooks';
+import { PlayViewState, PlayersByColor, PlayersBySide } from '../types';
 import { canUserPlay } from './util';
-import { PlayActions } from '../store';
-import { MovexDispatchAction } from 'movex';
-import { useGame } from '@app/modules/Game/hooks';
+import { Game } from '@app/modules/Game';
+import { MatchState } from '../../movex';
+import { MatchViewState } from '../../types';
 
-export const usePlay = (): Play => {
+export const useCurrentMatchPlay = (): PlayViewState => {
   const { match, userAsPlayer } = useMatchViewState();
 
-  // TODO: add the game if neede
-  // const {} = useGame();
-
-  return useMemo(() => {
-    if (!match?.gameInPlay) {
-      return { hasGame: false };
-    }
-
-    const { gameInPlay } = match;
-
-    const playersBySide: PlayersBySide = invoke(() => {
-      const challengerColor = toLongColor(gameInPlay.challengerColor);
-      const challengeeColor = swapColor(challengerColor);
-
-      if (userAsPlayer?.id === match.challengee.id) {
-        return {
-          home: {
-            ...match.challengee,
-            color: challengeeColor,
-          },
-          away: {
-            ...match.challenger,
-            color: challengerColor,
-          },
-        };
-      }
-
-      return {
-        home: {
-          ...match.challenger,
-          color: challengerColor,
-        },
-        away: {
-          ...match.challengee,
-          color: challengeeColor,
-        },
-      };
-    });
-
-    const playersByColor: PlayersByColor = invoke(() =>
-      gameInPlay.challengerColor === 'w'
-        ? {
-            white: {
-              ...match.challenger,
-              color: 'white',
-            },
-            black: {
-              ...match.challengee,
-              color: 'black',
-            },
-          }
-        : {
-            white: {
-              ...match.challengee,
-              color: 'white',
-            },
-            black: {
-              ...match.challenger,
-              color: 'black',
-            },
-          }
-    );
-
+  if (!match?.gameInPlay) {
     return {
-      hasGame: true,
-      game: gameInPlay,
-      turn: getTurnFromPgn(gameInPlay.pgn),
-      playersByColor,
-      playersBySide,
-      ...invoke(() => {
-        if (
-          !!userAsPlayer &&
-          canUserPlay({
-            userId: userAsPlayer.id,
-            playersByColor,
-            game: gameInPlay,
-          })
-        ) {
-          return {
-            canUserPlay: true,
-            userAsPlayerId: userAsPlayer.id,
-          };
-        } else {
-          return {
-            canUserPlay: false,
-            userAsPlayerId: undefined,
-          };
-        }
-      }),
-      lastOffer: gameInPlay.offers?.slice(-1)[0],
-    } satisfies Play;
-  }, [match, userAsPlayer]);
+      hasGame: false,
+    };
+  }
+
+  return getPlayFromGame(match?.gameInPlay, match, userAsPlayer);
 };
 
-export const usePlayActionsDispatch: () => MovexDispatchAction<PlayActions> =
-  useMatchActionsDispatch;
+export const useCurrentOrPrevMatchPlay = (): PlayViewState => {
+  const { match, previousGame, userAsPlayer } = useMatchViewState();
+
+  const game = match?.gameInPlay || previousGame;
+
+  if (!(match && game)) {
+    return {
+      hasGame: false,
+    };
+  }
+
+  return getPlayFromGame(game, match, userAsPlayer);
+};
+
+const getPlayFromGame = (
+  game: Game,
+  {
+    challengee,
+    challenger,
+  }: Pick<NonNullable<MatchState>, 'challengee' | 'challenger'>,
+  userAsPlayer: MatchViewState['userAsPlayer']
+): PlayViewState => {
+  const playersBySide: PlayersBySide = invoke(() => {
+    const challengerColor = toLongColor(game.challengerColor);
+    const challengeeColor = swapColor(challengerColor);
+
+    if (userAsPlayer?.id === challengee.id) {
+      return {
+        home: {
+          ...challengee,
+          color: challengeeColor,
+        },
+        away: {
+          ...challenger,
+          color: challengerColor,
+        },
+      };
+    }
+
+    return {
+      home: {
+        ...challenger,
+        color: challengerColor,
+      },
+      away: {
+        ...challengee,
+        color: challengeeColor,
+      },
+    };
+  });
+
+  const playersByColor: PlayersByColor = invoke(() =>
+    game.challengerColor === 'w'
+      ? {
+          white: {
+            ...challenger,
+            color: 'white',
+          },
+          black: {
+            ...challengee,
+            color: 'black',
+          },
+        }
+      : {
+          white: {
+            ...challengee,
+            color: 'white',
+          },
+          black: {
+            ...challenger,
+            color: 'black',
+          },
+        }
+  );
+
+  return {
+    hasGame: true,
+    game: game,
+    turn: getTurnFromPgn(game.pgn),
+    playersByColor,
+    playersBySide,
+    ...invoke(() => {
+      if (
+        !!userAsPlayer &&
+        canUserPlay({
+          userId: userAsPlayer.id,
+          playersByColor,
+          game: game,
+        })
+      ) {
+        return {
+          canUserPlay: true,
+          userAsPlayerId: userAsPlayer.id,
+        };
+      } else {
+        return {
+          canUserPlay: false,
+          userAsPlayerId: undefined,
+        };
+      }
+    }),
+    lastOffer: game.offers?.slice(-1)[0],
+  };
+};

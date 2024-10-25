@@ -1,12 +1,15 @@
 import { useEffect } from 'react';
 import { DistributiveOmit } from 'movex-core-util';
-import { PlayBoardContainer, GameBoardContainerProps } from './Play/containers';
-import { usePlay, usePlayActionsDispatch } from './Play/hooks/usePlay';
+import { PlayBoardContainer, GameBoardContainerProps } from './containers';
+import { useCurrentOrPrevMatchPlay, usePlayActionsDispatch } from './hooks';
 
-type Props = DistributiveOmit<GameBoardContainerProps, 'canPlay' | 'game'>;
+export type PlayerContainerProps = DistributiveOmit<
+  GameBoardContainerProps,
+  'canPlay' | 'game'
+>;
 
-export const PlayContainer = (gameBoardProps: Props) => {
-  const play = usePlay();
+export const PlayContainer = (playBoardProps: PlayerContainerProps) => {
+  const play = useCurrentOrPrevMatchPlay();
   const dispatch = usePlayActionsDispatch();
 
   useEffect(() => {
@@ -32,6 +35,6 @@ export const PlayContainer = (gameBoardProps: Props) => {
   }, [play.game?.status, play.canUserPlay, dispatch]);
 
   return (
-    <PlayBoardContainer {...gameBoardProps} canPlay={!!play?.canUserPlay} />
+    <PlayBoardContainer {...playBoardProps} canPlay={!!play?.canUserPlay} />
   );
 };

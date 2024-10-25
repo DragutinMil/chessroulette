@@ -13,7 +13,7 @@ export const MatchStateContext = createContext<MatchContextType>({
   userAsPlayer: undefined,
   endedGamesCount: 0,
   currentRound: 1,
-  lastEndedGame: undefined,
+  previousGame: undefined,
   drawsCount: 0,
   results: {
     black: 0,

@@ -1,24 +1,15 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { Text } from '@app/components/Text';
-import { DispatchOf, toLongColor } from '@xmatter/util-kit';
-import { PlayersBySide } from '@app/modules/Match/Play';
-import { PlayActions } from '@app/modules/Match/Play/store';
 import { useGame } from '@app/modules/Game/hooks';
 import { PlayersInfoContainer } from '@app/modules/Match/Play/containers';
 import { MatchAbortContainer } from '../MatchAbortContainer';
 import { MATCH_TIME_TO_ABORT } from '../../movex';
-import { useMatchViewState } from '../../hooks/useMatch';
-import { getMovesDetailsFromPGN } from '../../utils';
+import {
+  useMatchActionsDispatch,
+  useMatchViewState,
+} from '../../hooks/useMatch';
 
-type Props = {
-  playersBySide: PlayersBySide;
-  dispatch: DispatchOf<PlayActions>;
-};
-
-export const MatchStateDisplayContainer: React.FC<Props> = ({
-  dispatch,
-  playersBySide,
-}) => {
+export const MatchStateDisplayContainer = () => {
   const {
     match,
     currentRound,
@@ -31,25 +22,8 @@ export const MatchStateDisplayContainer: React.FC<Props> = ({
     committedState: { game, turn },
     playerId,
   } = useGame();
-  
 
-  const isGameCounterActive = useMemo(() => {
-    const moves = getMovesDetailsFromPGN(game.pgn);
-
-    if (game.status !== 'ongoing') {
-      return false;
-    }
-
-    if (moves.totalMoves > 1) {
-      return true;
-    }
-
-    return !!(
-      moves.totalMoves === 1 &&
-      moves.lastMoveBy &&
-      toLongColor(moves.lastMoveBy) === 'black'
-    );
-  }, [game.status, game.pgn]);
+  const dispatch = useMatchActionsDispatch();
 
   return (
     <div className="flex flex-col gap-2">
@@ -66,8 +40,6 @@ export const MatchStateDisplayContainer: React.FC<Props> = ({
         {results && (
           <PlayersInfoContainer
             key={game.startedAt} // refresh it on each new game
-            gameCounterActive={isGameCounterActive}
-            players={playersBySide}
             results={results}
             onCheckTime={() => {
               dispatch((masterContext) => ({
@@ -86,7 +58,6 @@ export const MatchStateDisplayContainer: React.FC<Props> = ({
           game={game}
           turn={turn}
           players={match.players}
-          dispatch={dispatch}
           timeToAbortMs={MATCH_TIME_TO_ABORT}
           playerId={playerId}
           completedPlaysCount={endedGamesCount}

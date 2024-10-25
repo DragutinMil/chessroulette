@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { GameOffer } from '@app/modules/Game';
 import { PlayDialog } from './PlayDialog';
-import { usePlayActionsDispatch } from '../../hooks/usePlay';
+import { usePlayActionsDispatch } from '../../hooks';
 
 export type PlayDialogContainerContainerProps = {
   inviteLink: string | undefined;

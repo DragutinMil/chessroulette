@@ -80,14 +80,14 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
   if (
     match?.status === 'ongoing' &&
     !match.gameInPlay &&
-    matchView.lastEndedGame
+    matchView.previousGame
   ) {
     const titleSuffix =
-      matchView.lastEndedGame.winner === '1/2' ? ' in a Draw!' : '';
+      matchView.previousGame.winner === '1/2' ? ' in a Draw!' : '';
 
     const gameOverReason =
-      matchView.lastEndedGame.status === 'complete'
-        ? gameOverReasonsToDisplay[matchView.lastEndedGame.gameOverReason]
+      matchView.previousGame.status === 'complete'
+        ? gameOverReasonsToDisplay[matchView.previousGame.gameOverReason]
         : 'Game was aborted';
 
     return (
@@ -101,8 +101,8 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
           <div className="flex flex-col gap-4 items-center">
             <div>{gameOverReason}</div>
             <div className="flex justify-center content-center text-center">
-              {matchView.lastEndedGame.winner &&
-                (matchView.lastEndedGame.winner === '1/2' ? (
+              {matchView.previousGame.winner &&
+                (matchView.previousGame.winner === '1/2' ? (
                   <div className="flex flex-col gap-1">
                     {/* <Text>Game Ended in a Draw.</Text> */}
                     {match.type === 'bestOf' && (
@@ -112,9 +112,9 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
                 ) : (
                   <Text className="capitalize">
                     {match.players
-                      ? match.players[matchView.lastEndedGame.winner]
-                          .displayName || matchView.lastEndedGame.winner
-                      : matchView.lastEndedGame.winner}{' '}
+                      ? match.players[matchView.previousGame.winner]
+                          .displayName || matchView.previousGame.winner
+                      : matchView.previousGame.winner}{' '}
                     Won!
                   </Text>
                 ))}

@@ -102,7 +102,7 @@ export const PlayControls: React.FC<Props> = ({
   }, [game.status, offers, game.lastMoveBy]);
 
   return (
-    <>
+    <div className="flex gap-2">
       <QuickConfirmButton
         size="sm"
         confirmationBgcolor="blue"
@@ -145,6 +145,6 @@ export const PlayControls: React.FC<Props> = ({
       >
         Resign
       </QuickConfirmButton>
-    </>
+    </div>
   );
 };

@@ -1,16 +1,15 @@
 import { useMemo, useState } from 'react';
-import { DispatchOf, LongChessColor } from '@xmatter/util-kit';
+import { LongChessColor } from '@xmatter/util-kit';
 import { now } from '@app/lib/time';
 import { IdlingGame } from '@app/modules/Game';
-import { PlayActions } from '@app/modules/Match/Play/store';
 import { GameAbort, GameAbortViewProps } from './MatchAbort';
 import { MatchPlayers } from '../../movex';
+import { useMatchActionsDispatch } from '../../hooks';
 
 // TODO: I believe this can be either provided more, or just expose the onAbort rather then receiving the dispatch
 type Props = Pick<GameAbortViewProps, 'className'> & {
   // Not sure if here what we need is the match players
   players: MatchPlayers;
-  dispatch: DispatchOf<PlayActions>;
   timeToAbortMs: number;
   game: IdlingGame;
   turn: LongChessColor;
@@ -20,7 +19,6 @@ type Props = Pick<GameAbortViewProps, 'className'> & {
 
 export const MatchAbortContainer = ({
   players,
-  dispatch,
   timeToAbortMs,
   game,
   completedPlaysCount,
@@ -28,6 +26,8 @@ export const MatchAbortContainer = ({
   turn,
   ...gameAbortViewProps
 }: Props) => {
+  const dispatch = useMatchActionsDispatch();
+
   const isMyTurn = useMemo(() => {
     if (!players) {
       return false;
@@ -62,9 +62,7 @@ export const MatchAbortContainer = ({
       onAbort={() => {
         dispatch({
           type: 'play:abortGame',
-          payload: {
-            color: turn,
-          },
+          payload: { color: turn },
         });
       }}
       confirmContent={

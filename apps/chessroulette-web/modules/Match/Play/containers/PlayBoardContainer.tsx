@@ -1,21 +1,14 @@
-import {
-  DispatchOf,
-  DistributivePick,
-  swapColor,
-  toShortColor,
-} from '@xmatter/util-kit';
-import type { PlayActions } from '../store';
+import { DistributivePick, swapColor, toShortColor } from '@xmatter/util-kit';
 import { Playboard } from '@app/components/Boards';
 import { useMemo } from 'react';
 import { ChessboardContainerProps } from '@app/components/Chessboard';
 import { useGame } from '@app/modules/Game/hooks';
-import { usePlayActionsDispatch } from '../hooks/usePlay';
+import { usePlayActionsDispatch } from '../hooks';
 
 export type GameBoardContainerProps = {
   boardSizePx: number;
   canPlay: boolean;
   isBoardFlipped?: boolean;
-  // dispatch: DispatchOf<PlayActions>;
 } & DistributivePick<
   ChessboardContainerProps,
   | 'overlayComponent'

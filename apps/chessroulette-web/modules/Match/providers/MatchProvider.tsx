@@ -27,7 +27,7 @@ export const MatchProvider: React.FC<Props> = ({
       endedGamesCount: match.endedGames.length,
       currentRound:
         match.endedGames.filter((game) => game.winner !== '1/2').length + 1,
-      lastEndedGame: match.endedGames.slice(-1)[0],
+      previousGame: match.endedGames.slice(-1)[0],
       userAsPlayer: invoke(() => {
         if (userId === match.challengee.id) {
           return {
@@ -60,7 +60,7 @@ export const MatchProvider: React.FC<Props> = ({
       <GameProvider
         game={
           contextState?.match?.gameInPlay ||
-          contextState?.lastEndedGame ||
+          contextState?.previousGame ||
           PENDING_UNTIMED_GAME
         }
         playerId={userId}

@@ -30,7 +30,7 @@ export type Old_Play_Results = {
   black: number;
 };
 
-export type Play =
+export type PlayViewState =
   | ({
       hasGame: true;
       game: Game; // TODO: should this be split in display and commited

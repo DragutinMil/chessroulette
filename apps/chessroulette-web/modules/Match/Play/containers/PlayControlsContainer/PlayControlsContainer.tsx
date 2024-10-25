@@ -1,17 +1,10 @@
-import { ChessColor } from '@xmatter/util-kit';
-import { UserId } from '@app/modules/User';
 import { PlayControls } from './PlayControls';
-import { usePlay, usePlayActionsDispatch } from '../../hooks/usePlay';
+import { useCurrentOrPrevMatchPlay, usePlayActionsDispatch } from '../../hooks';
 import { PENDING_UNTIMED_GAME } from '@app/modules/Game';
-
-type Props = {
-  // homeColor: ChessColor;
-  // playerId: UserId;
-};
 
 export const PlayControlsContainer = () => {
   const dispatch = usePlayActionsDispatch();
-  const { lastOffer, game, playersBySide, hasGame } = usePlay();
+  const { lastOffer, game, playersBySide, hasGame } = useCurrentOrPrevMatchPlay();
 
   if (!hasGame) {
     return <>WARN| Play Controls Container No Game</>;
@@ -19,8 +12,6 @@ export const PlayControlsContainer = () => {
 
   return (
     <PlayControls
-      // homeColor={homeColor}
-      // playerId={playerId}
       homeColor={playersBySide.home.color}
       playerId={playersBySide.home.id}
       onDrawOffer={() => {

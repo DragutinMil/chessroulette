@@ -8,6 +8,8 @@ import { MatchContainer } from '@app/modules/Match';
 import { useMatchActivitySettings } from './useMatchActivitySettings';
 import { CameraPanel } from '../../components';
 import { RIGHT_SIDE_SIZE_PX } from '../../CONSTANTS';
+import { PanelResizeHandle } from 'react-resizable-panels';
+import { useRoomLinkId } from '../../hooks';
 
 export type Props = {
   roomId: string;
@@ -19,6 +21,7 @@ export type Props = {
 };
 
 export const MatchActivity = ({ remoteState, dispatch, ...props }: Props) => {
+  const { joinRoomLink } = useRoomLinkId('match');
   const { isBoardFlipped } = useMatchActivitySettings();
 
   return (
@@ -26,14 +29,28 @@ export const MatchActivity = ({ remoteState, dispatch, ...props }: Props) => {
       dispatch={dispatch || noop}
       match={remoteState}
       isBoardFlipped={isBoardFlipped}
+      inviteLink={joinRoomLink}
       rightSideSizePx={RIGHT_SIDE_SIZE_PX}
+      rightSideClassName="flex flex-col"
+      rightSideComponent={
+        <>
+          <div className="flex-1" />
+          <div className="relative flex flex-col items-center justify-center">
+            <PanelResizeHandle
+              className="w-1 h-20 rounded-lg bg-slate-600"
+              title="Resize"
+            />
+          </div>
+          <div className="flex-1" />
+        </>
+      }
       cameraComponent={
         <>
           {props.participants && props.participants[props.userId] && (
             <div className="overflow-hidden rounded-lg shadow-2xl">
-              {/* // This needs to show only when the user is a players //
-                  otherwise it's too soon and won't connect to the Peers */}
-              {/* // TODO: Provide this so I don't have to pass in the iceServers each time */}
+              {/* This needs to show only when the user is a players
+               * otherwise it's too soon and won't connect to the Peers
+               */}
               <CameraPanel
                 participants={props.participants}
                 userId={props.userId}
