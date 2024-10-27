@@ -1,7 +1,7 @@
+import { useMemo } from 'react';
 import { useUrl } from 'nextjs-current-url';
 import { useRoomSettings } from './useRoomSettings';
 import { RoomActivityType, links } from '../links';
-import { useMemo } from 'react';
 import { useRoomDetails } from './useRoomDetails';
 
 export const useRoomLinkId = (activity: RoomActivityType) => {
@@ -13,6 +13,7 @@ export const useRoomLinkId = (activity: RoomActivityType) => {
     if (!(roomSettings.showJoinRoomLink && url && roomId)) {
       return undefined;
     }
+
     return links.getJoinRoomLink(
       {
         id: roomId.roomId,

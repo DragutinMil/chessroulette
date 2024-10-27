@@ -40,6 +40,7 @@ export const FaceTime: React.FC<FaceTimeProps> = ({
   },
   loadingFallback = null,
   onReady = noop,
+  mirrorImage = true, // mirroring all cameras by default
   ...avStreamProps
 }) => {
   const [loadingVideo, setLoadingVideo] = useState(true);
