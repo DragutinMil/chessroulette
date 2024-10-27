@@ -5,7 +5,6 @@ import { useLearnActivitySettings } from '../activities/Learn';
 import { ActivityState } from '../activities/movex';
 import { invoke } from '@xmatter/util-kit';
 import { useMeetupActivitySettings } from '../activities/Meetup/useMeetupActivitySettings';
-import { usePlayActivitySettings } from '../activities/Play/usePlayActivitySettings';
 import { JoinRoomLinkProps } from '../activities/Learn/activitySettings';
 
 export type RoomSettings = {
@@ -23,7 +22,6 @@ export const useRoomSettings = (
   const updateableSearchParams = useUpdateableSearchParams();
   const learnActivitySettings = useLearnActivitySettings();
   const meetupActivitySettings = useMeetupActivitySettings();
-  const playActivitySettings = usePlayActivitySettings();
 
   const joinRoomLinkProps = invoke((): JoinRoomLinkProps => {
     if (activity === 'learn') {
@@ -33,11 +31,6 @@ export const useRoomSettings = (
     if (activity === 'meetup') {
       // This can come from a specific useMeetupActivitySettings
       return meetupActivitySettings;
-    }
-
-    if (activity === 'play') {
-      // Same as above, can come from usePlayActivitySettings
-      return playActivitySettings;
     }
 
     return {

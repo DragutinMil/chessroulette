@@ -84,35 +84,6 @@ export function GET(request: NextRequest) {
     });
   }
 
-  if (activityParams.activity === 'play') {
-    return NextResponse.json({
-      links: [
-        {
-          userRole: 'host',
-          url: links.getOnDemandRoomCreationLink(
-            {
-              ...objectOmit(activityParams, ['client']),
-              id: roomId,
-              host: true,
-            },
-            request.nextUrl
-          ),
-        },
-        {
-          userRole: 'player',
-          url: links.getOnDemandRoomCreationLink(
-            {
-              ...objectOmit(activityParams, ['client']),
-              id: roomId,
-              flipped: 1, // TODO: This can be stored in movex better
-            },
-            request.nextUrl
-          ),
-        },
-      ],
-    });
-  }
-
   if (activityParams.activity === 'match') {
     if (
       activityParams.type === 'bestOf' &&

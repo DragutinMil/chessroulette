@@ -3,7 +3,6 @@ import { useRoomSettings } from './useRoomSettings';
 import { RoomActivityType, links } from '../links';
 import { useMemo } from 'react';
 import { useRoomDetails } from './useRoomDetails';
-import { roomSettingsIsPlay } from '../utils';
 
 export const useRoomLinkId = (activity: RoomActivityType) => {
   const url = useUrl();
@@ -18,10 +17,6 @@ export const useRoomLinkId = (activity: RoomActivityType) => {
       {
         id: roomId.roomId,
         activity,
-        ...(activity === 'play' &&
-          roomSettingsIsPlay(roomSettings) && {
-            gameTimeClass: roomSettings.gameTimeClass,
-          }),
         theme: roomSettings.theme,
         ...roomSettings.joinRoomLinkParams,
       },
