@@ -38,18 +38,6 @@ export const MatchActivity = ({ remoteState, dispatch, ...props }: Props) => {
           <div className="flex-1" />
         </>
       }
-      // cameraComponent={
-      //   <>
-      //     {/* {props.participants && props.participants[props.userId] && ( */}
-      //       <div className="overflow-hidden rounded-lg shadow-2xl">
-      //         {/* This needs to show only when the user is a player
-      //          * otherwise it's too soon and won't connect to the Peers
-      //          */}
-      //         <PeerToPeerCameraWidget />
-      //       </div>
-      //     {/* )} */}
-      //   </>
-      // }
       {...props}
     />
   );

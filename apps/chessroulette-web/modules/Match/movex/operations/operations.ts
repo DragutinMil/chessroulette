@@ -5,7 +5,7 @@ import { createPendingGame } from '../../Play/store';
 
 export const createMatchState = (
   params: CreateMatchParamsSchema
-): MatchState => {
+): NonNullable<MatchState> => {
   const challengerColor = params.startColor || getRandomColor();
 
   const players = invoke((): NonNullable<MatchState>['players'] => {

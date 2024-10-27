@@ -22,7 +22,7 @@ const ENGINE_URL = process.env.NEXT_PUBLIC_ENGINE_URL as string;
 const SENTRY_DSN = process.env.NEXT_PUBLIC_SENTRY_DSN as string | undefined;
 
 // App
-const CAMERA_ON = false || process.env.NEXT_PUBLIC_CAMERA_ON === 'true' || !DEBUG_MODE;
+const CAMERA_ON = true || process.env.NEXT_PUBLIC_CAMERA_ON === 'true' || !DEBUG_MODE;
 
 export const config = {
   ENV,

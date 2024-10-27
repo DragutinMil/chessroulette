@@ -17,7 +17,7 @@ import {
   PeerStreamingContext,
   PeerStreamingContextState,
 } from './PeerStreamingContext';
-import { PeersConnection } from './PeerConection';
+import { PeersConnection } from './PeerConnection';
 import { constructReel } from './util';
 
 type Props = PropsWithChildren<{

@@ -18,13 +18,12 @@ import {
 } from '@app/modules/PeerToPeer/providers/PeerToPeerProvider';
 import { invoke, toDictIndexedBy } from '@xmatter/util-kit';
 import { Modal } from '@app/components/Modal';
+import { movexSubcribersToUserMap } from '@app/providers/MovexProvider';
+import { PeerStreamingProvider } from '@app/modules/PeerToPeer';
 import { ActivityState } from './activities/movex';
 import { LearnActivity } from './activities/Learn';
 import { MeetupActivity } from './activities/Meetup/MeetupActivity';
-import { PlayActivity } from './activities/Play/PlayActivity';
 import { MatchActivity } from './activities/Match/MatchActivity';
-import { movexSubcribersToUserMap } from '@app/providers/MovexProvider';
-import { PeerStreamingProvider } from '../PeerToPeer/PeerStreaming/PeerStreamingProvider';
 
 type Props = {
   rid: ResourceIdentifier<'room'>;
@@ -88,11 +87,7 @@ export const RoomContainer = ({ iceServers, rid }: Props) => {
         <LearnActivity
           {...commonActivityProps}
           remoteState={activity.activityState}
-          userId={userId}
-          roomId={toResourceIdentifierObj(rid).resourceId}
           dispatch={movexResource?.dispatch}
-          participants={participants}
-          iceServers={iceServers}
         />
       );
     }
@@ -100,15 +95,6 @@ export const RoomContainer = ({ iceServers, rid }: Props) => {
     if (activity.activityType === 'meetup') {
       return (
         <MeetupActivity
-          {...commonActivityProps}
-          remoteState={activity.activityState}
-        />
-      );
-    }
-
-    if (activity.activityType === 'play') {
-      return (
-        <PlayActivity
           {...commonActivityProps}
           remoteState={activity.activityState}
         />

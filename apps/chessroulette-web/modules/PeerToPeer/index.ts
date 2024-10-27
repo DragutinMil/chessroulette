@@ -1,2 +1,3 @@
 export * from './widgets';
-export * from './publicTypes';;
+export * from './PeerStreaming';
+export * from './publicTypes';

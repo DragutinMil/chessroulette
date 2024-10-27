@@ -1,31 +1,25 @@
-import movexConfig from '@app/movex.config';
+import { useReducer, useRef } from 'react';
 import { MovexBoundResourceFromConfig } from 'movex-react';
 import { ChessFENBoard, noop, swapColor } from '@xmatter/util-kit';
-import { useReducer, useRef } from 'react';
-import { IceServerRecord } from '@app/modules/PeerToPeer/providers/PeerToPeerProvider/type';
-import { useLearnActivitySettings } from './hooks/useLearnActivitySettings';
 import { PanelResizeHandle } from 'react-resizable-panels';
+import movexConfig from '@app/movex.config';
+import { TabsRef } from '@app/components/Tabs';
+import { ResizableDesktopLayout } from '@app/templates/ResizableDesktopLayout';
+import { PeerToPeerCameraWidget } from '@app/modules/PeerToPeer';
+import { useLearnActivitySettings } from './hooks/useLearnActivitySettings';
 import {
   LearnActivityState,
   findLoadedChapter,
   initialDefaultChapter,
 } from './movex';
-import { WidgetPanel } from './components/WidgetPanel/WidgetPanel';
-import { PeerToPeerCameraWidget } from '../../../PeerToPeer/widgets/PeerToPeerCameraWidget';
+import { WidgetPanel } from './components/WidgetPanel';
 import { LearnBoard } from './components/LearnBoard';
 import { RIGHT_SIDE_SIZE_PX } from '../../constants';
 import inputReducer, { initialInputState } from './reducers/inputReducer';
 import { ChapterDisplayView } from './chapters/ChapterDisplayView';
-import { TabsRef } from '@app/components/Tabs';
-import { UserId, UsersMap } from '@app/modules/User/type';
-import { ResizableDesktopLayout } from '@app/templates/ResizableDesktopLayout';
 import { InstructorBoard } from './components/InstructorBoard';
 
 type Props = {
-  roomId: string;
-  userId: UserId;
-  iceServers: IceServerRecord[];
-  participants: UsersMap;
   remoteState: LearnActivityState['activityState'];
   dispatch?: MovexBoundResourceFromConfig<
     (typeof movexConfig)['resources'],
@@ -35,10 +29,6 @@ type Props = {
 
 export const LearnActivity = ({
   remoteState,
-  userId,
-  participants,
-  roomId,
-  iceServers,
   dispatch: optionalDispatch,
 }: Props) => {
   const dispatch = optionalDispatch || noop;
@@ -62,10 +52,8 @@ export const LearnActivity = ({
           {settings.isInstructor && inputState.isActive ? (
             // Preparing Mode
             <InstructorBoard
-              // state={inputState}
               fen={inputState.chapterState.displayFen}
               boardOrientation={swapColor(inputState.chapterState.orientation)}
-              // dispatch={dispatchInputState}
               boardSizePx={boardSize}
               onArrowsChange={(arrowsMap) => {
                 dispatchInputState({
@@ -183,21 +171,15 @@ export const LearnActivity = ({
       )}
       rightComponent={
         <div className="flex flex-col flex-1 min-h-0 gap-4">
-          {participants && participants[userId] && (
+          {/* {participants && participants[userId] && (
             <div className="overflow-hidden rounded-lg shadow-2xl">
-              {/* // This needs to show only when the user is a participants //
-                  otherwise it's too soon and won't connect to the Peers */}
-              <PeerToPeerCameraWidget
-                // participants={participants}
-                // userId={userId}
-                // peerGroupId={roomId}
-                // iceServers={iceServers}
-                aspectRatio={16 / 9}
-              />
+              <PeerToPeerCameraWidget/>
             </div>
-          )}
+          )} */}
+          <div className="overflow-hidden rounded-lg shadow-2xl">
+            <PeerToPeerCameraWidget />
+          </div>
 
-          {/* {inputState.isActive ? 'active' : 'not active'} */}
           {inputState.isActive ? (
             <div className="flex gap-2">
               <span className="capitalize">Editing</span>

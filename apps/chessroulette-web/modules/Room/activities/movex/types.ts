@@ -4,7 +4,6 @@ import type {
   MeetupActivityState,
   MeetupActivityActions,
 } from '../Meetup/movex';
-import { PlayActivityActions, PlayActivityState } from '../Play/movex';
 import { MatchActivityActions, MatchActivityState } from '../Match/movex';
 
 export type NoneActivityState = {
@@ -16,11 +15,9 @@ export type ActivityState =
   | LearnActivityState
   | MeetupActivityState
   | NoneActivityState
-  | PlayActivityState
   | MatchActivityState;
 
 export type ActivityActions =
   | LearnActivityActions
   | MeetupActivityActions
-  | PlayActivityActions
   | MatchActivityActions;

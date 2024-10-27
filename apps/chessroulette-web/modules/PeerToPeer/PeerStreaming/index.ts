@@ -1,1 +1,1 @@
-export * from './PeerStreamingContainer';
+export * from './PeerStreamingProvider';
