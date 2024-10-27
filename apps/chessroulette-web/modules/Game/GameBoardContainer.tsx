@@ -18,26 +18,10 @@ export type GameBoardContainerProps = DistributivePick<
 export const GameBoardContainer = (boardProps: GameBoardContainerProps) => {
   const { displayState } = useGame();
 
-  // TODO: This should come from somewhere else
-  // const orientation = useMemo(
-  //   () =>
-  //     toShortColor(
-  //       isBoardFlipped
-  //         ? swapColor(committedState.game.orientation)
-  //         : committedState.game.orientation
-  //     ),
-  //   [isBoardFlipped, committedState.game]
-  // );
-
   return (
     <Playboard
-      // sizePx={boardSizePx}
-      // turn={toShortColor(committedState.turn)}
-      // turn={turn}
       fen={displayState.fen}
       lastMove={displayState.lastMove}
-      // canPlay={canPlay}
-      // overlayComponent={overlayComponent}
       {...boardProps}
     />
   );

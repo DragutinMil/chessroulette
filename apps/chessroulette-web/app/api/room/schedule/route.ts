@@ -151,7 +151,6 @@ export function GET(request: NextRequest) {
             {
               ...objectOmit(activityParams, ['client']),
               id: roomId,
-              flipped: 1, // TODO: This can be stored in movex better
             },
             request.nextUrl
           ),
