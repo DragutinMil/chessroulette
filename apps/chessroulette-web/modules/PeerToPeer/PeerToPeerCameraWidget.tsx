@@ -38,17 +38,17 @@ export const PeerToPeerCameraWidget = ({
     [participants]
   );
 
-  // if (!config.CAMERA_ON) {
-  //   const hashDemoImgId = (id: string) => Number(id.match(/\d/)?.[0] || 0);
-  //   return (
-  //     <AspectRatio aspectRatio={aspectRatio}>
-  //       <DEV_CameraView
-  //         className={`w-full h-full object-covers`}
-  //         demoImgId={hashDemoImgId(userId) as any}
-  //       />
-  //     </AspectRatio>
-  //   );
-  // }
+  if (!config.CAMERA_ON) {
+    const hashDemoImgId = (id: string) => Number(id.match(/\d/)?.[0] || 0);
+    return (
+      <AspectRatio aspectRatio={aspectRatio}>
+        <DEV_CameraView
+          className={`w-full h-full object-covers`}
+          demoImgId={hashDemoImgId(userId) as any}
+        />
+      </AspectRatio>
+    );
+  }
 
   return (
     <PeerStreamingContainer

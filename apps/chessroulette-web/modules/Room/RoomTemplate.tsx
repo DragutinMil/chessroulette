@@ -1,11 +1,11 @@
-import Header from '../components/Header/Header';
-import { RoomSideMenu } from '../modules/Room/components/RoomSideMenu';
-import { toImgPath } from '../lib/misc';
+import Header from '../../components/Header/Header';
+import { RoomSideMenu } from './components/RoomSideMenu';
+import { toImgPath } from '../../lib/misc';
 import { CSSProperties } from 'react';
-import { OnboardingWidget } from '../modules/Onboarding';
+import { OnboardingWidget } from '../Onboarding';
+import { ActivityState } from './activities/movex';
+import { type CustomSession } from '@app/services/Auth';
 import bkg_2 from '@app/templates/bkg_2.svg';
-import { ActivityState } from '../modules/Room/activities/movex';
-import { CustomSession } from '../services/Auth';
 
 type Props = React.PropsWithChildren & {
   activity: ActivityState['activityType'];

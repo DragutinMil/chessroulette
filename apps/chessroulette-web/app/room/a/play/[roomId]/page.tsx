@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import { ResourceIdentifier } from 'movex-core-util';
 import { StringRecord } from '@xmatter/util-kit';
 import { authOptions } from '@app/services/Auth';
-import { RoomTemplate } from '@app/templates/RoomTemplate';
+import { RoomTemplate } from '@app/modules/Room/RoomTemplate';
 import { RoomContainer } from '@app/modules/Room/RoomContainer';
 import { twilio } from '@app/services/twilio';
 import { metadata as rootMetadata } from '../../../../page';
