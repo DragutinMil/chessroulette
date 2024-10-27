@@ -1,6 +1,6 @@
 import { DispatchOf, DistributivePick } from '@xmatter/util-kit';
 import { GameNotationWidget } from '@app/modules/Game/widgets';
-import { UserId, UsersMap } from '@app/modules/User';
+import { UserId } from '@app/modules/User';
 import { ResizableDesktopLayout } from '@app/templates/ResizableDesktopLayout';
 import { PlayContainer, PlayerContainerProps } from './Play/PlayContainer';
 import { MatchActions, MatchState } from './movex';
@@ -10,6 +10,7 @@ import {
   MatchStateDisplayContainer,
 } from './containers';
 import { PlayControlsContainer } from './Play/containers';
+import { PeerToPeerCameraWidget } from '../PeerToPeer';
 
 type Props = DistributivePick<
   PlayerContainerProps,
@@ -18,8 +19,6 @@ type Props = DistributivePick<
   rightSideSizePx: NonNullable<PlayerContainerProps['rightSideSizePx']>; // re-enforcing this
   match: NonNullable<MatchState>;
   userId: UserId;
-  participants: UsersMap;
-  cameraComponent: React.ReactNode;
   dispatch: DispatchOf<MatchActions>;
   inviteLink?: string;
 };
@@ -27,15 +26,12 @@ type Props = DistributivePick<
 export const MatchContainer = ({
   match,
   userId,
-  participants,
-  cameraComponent,
   inviteLink,
   dispatch,
   ...boardProps
 }: Props) => (
   <MatchProvider match={match} userId={userId} dispatch={dispatch}>
     <ResizableDesktopLayout
-      rightSideSize={boardProps.rightSideSizePx}
       mainComponent={({ boardSize }) => (
         <PlayContainer
           // This resets the PlayContainer on each new game
@@ -47,9 +43,12 @@ export const MatchContainer = ({
           {...boardProps}
         />
       )}
+      rightSideSize={boardProps.rightSideSizePx}
       rightComponent={
         <div className="flex flex-col flex-1 min-h-0 gap-4">
-          {cameraComponent}
+          <div className="overflow-hidden rounded-lg shadow-2xl">
+            <PeerToPeerCameraWidget />
+          </div>
           <MatchStateDisplayContainer />
           <div className="bg-slate-700 p-3 flex flex-col gap-2 flex-1 min-h-0 rounded-lg shadow-2xl overflow-y-scroll">
             <GameNotationWidget />

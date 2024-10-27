@@ -1,15 +1,4 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { FaceTime, FaceTimeProps } from '../FaceTime';
-import { Reel } from './components/Reel';
-import { MyFaceTime } from '../MyFaceTime';
-import {
-  PeerUserId,
-  StreamingPeer,
-} from '@app/modules/PeerToPeer/PeerToPeerProvider/type';
-import {
-  AVStreaming,
-  getAVStreamingInstance,
-} from '@app/modules/PeerToPeer/services/AVStreaming';
 import useInstance from '@use-it/instance';
 import {
   SpeakerWaveIcon,
@@ -17,30 +6,26 @@ import {
   VideoCameraIcon,
   VideoCameraSlashIcon,
 } from '@heroicons/react/24/solid';
+import { Reel } from './components/Reel';
+import { FaceTime, FaceTimeProps } from '../FaceTime';
+import { MyFaceTime } from '../MyFaceTime';
+import { ReelState } from '../../types';
+import {
+  AVStreaming,
+  getAVStreamingInstance,
+} from '../../services/AVStreaming';
+import { PeerUserId } from '../../publicTypes';
 
 type OverlayedNodeRender = (p: { inFocus?: PeerUserId }) => React.ReactNode;
 
-export type Reel = {
-  streamingPeers: StreamingPeer[];
-  // TODO: Add these back
-  myStreamingPeerUserId: StreamingPeer['userId'];
-  focusedStreamingPeer: Pick<
-    StreamingPeer,
-    'connection' | 'userId' | 'userDisplayName'
-  >; // TODO: Bring back
-};
-
 export type MultiFaceTimeCompactProps = {
-  reel?: Reel;
-
   onFocus: (userId: PeerUserId) => void;
-
-  width?: number;
-  containerClassName?: string;
-
   headerOverlay?: OverlayedNodeRender;
   footerOverlay?: OverlayedNodeRender;
   mainOverlay?: OverlayedNodeRender;
+  reel?: ReelState;
+  width?: number;
+  containerClassName?: string;
 } & Omit<
   FaceTimeProps,
   | 'streamConfig'

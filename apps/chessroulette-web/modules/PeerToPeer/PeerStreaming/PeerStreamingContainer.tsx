@@ -3,20 +3,20 @@ import { useWillUnmount } from '@app/hooks/useWillUnmount';
 import { config } from '@app/config';
 import { type UserId } from '@app/modules/User';
 import { initialPeerStreamingState, peerStreamingReducer } from './reducer';
-import { useReel } from './hooks';
+import { useGenerateReel } from './hooks/useReel';
 import {
   IceServerRecord,
-  P2PCommunicationType,
+  PeerCommunicationType,
   PeerToPeerProvider,
   PeerUsersMap,
   usePeerToPeerConnections,
-} from '../PeerToPeerProvider';
-import { type Reel } from '../components/MultiFaceTimeCompact';
+} from '../providers/PeerToPeerProvider';
 import { peerUsersMapToPeerIdsMap } from './util';
+import { ReelState } from '../types';
 
 type PeersConnectionProps = React.PropsWithChildren<{
   id: string;
-  p2pCommunicationType: P2PCommunicationType;
+  p2pCommunicationType: PeerCommunicationType;
   peerUsersMap: PeerUsersMap;
 }>;
 
@@ -24,9 +24,9 @@ type Props = {
   groupId: string;
   clientUserId: UserId;
   peerUsersMap: PeerUsersMap; // This excludes the Local Client Peer (Me)
-  p2pCommunicationType: P2PCommunicationType;
+  p2pCommunicationType: PeerCommunicationType;
   iceServers: IceServerRecord[];
-  render: (p: { reel: Reel | undefined }) => React.ReactNode;
+  render: (p: { reel: ReelState | undefined }) => React.ReactNode;
 };
 
 // This should be a Memoized/Pure Component
@@ -45,7 +45,7 @@ export const PeerStreamingContainer: React.FC<Props> = (props) => {
     });
   }, [props.peerUsersMap, dispatch]);
 
-  const reel = useReel({
+  const reel = useGenerateReel({
     peersMap: state.peers,
     clientUserId: props.clientUserId,
   });

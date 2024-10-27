@@ -1,39 +1,38 @@
-import { useMemo } from 'react';
+import { objectKeys, toDictIndexedBy } from '@xmatter/util-kit';
 import {
   Peer,
+  PeerUserIdsMap,
+  PeerUsersMap,
   PeersMap,
   StreamingPeer,
   StreamingPeersMap,
-} from '../PeerToPeerProvider';
-import { type Reel } from '../components/MultiFaceTimeCompact';
+} from '../providers/PeerToPeerProvider';
+import { ReelState } from '../types';
 
-type Props = {
-  peersMap: PeersMap;
-  clientUserId: Peer['userId'];
-  focusedUserId?: Peer['userId'];
-};
+export const peerUsersMapToPeerIdsMap = (pm: PeerUsersMap): PeerUserIdsMap =>
+  toDictIndexedBy(objectKeys(pm), (id) => id);
 
-export const useReel = ({
+export const constructReel = ({
   peersMap,
   clientUserId,
   focusedUserId,
-}: Props): Reel | undefined => {
+}: {
+  peersMap: PeersMap;
+  clientUserId: Peer['userId'];
+  focusedUserId?: Peer['userId'];
+}): ReelState | undefined => {
   const peersMapValues = Object.values(peersMap);
 
-  const streamersMap = useMemo(
-    () =>
-      peersMapValues.reduce((prev, next) => {
-        if (!isStreamingPeer(next)) {
-          return prev;
-        }
+  const streamersMap = peersMapValues.reduce((prev, next) => {
+    if (!isStreamingPeer(next)) {
+      return prev;
+    }
 
-        return {
-          ...prev,
-          [next.userId]: next,
-        };
-      }, {} as StreamingPeersMap),
-    [peersMap]
-  );
+    return {
+      ...prev,
+      [next.userId]: next,
+    };
+  }, {} as StreamingPeersMap);
 
   const focusedStreamingPeer =
     (focusedUserId && streamersMap[focusedUserId]) ||

@@ -5,7 +5,7 @@ import { logsy } from '@app/lib/Logsy';
 import { eitherToResult } from '@app/lib/util';
 import { PeerUserId } from './type';
 import { peerMessageEnvelope, PeerMessageEnvelope } from './records';
-import { getAVStreamingInstance } from '../services/AVStreaming';
+import { getAVStreamingInstance } from '../../services/AVStreaming';
 
 type Events = {
   onOpen: undefined;

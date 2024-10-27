@@ -4,7 +4,7 @@ import {
   PeerUserRecord,
   PeersMap,
   PeerUsersMap,
-} from '../PeerToPeerProvider';
+} from '../providers/PeerToPeerProvider';
 
 export type PeerStreamingState = {
   peers: PeersMap;

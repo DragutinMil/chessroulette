@@ -14,7 +14,7 @@ export type IceServerRecord = {
 
 export type IceServerResponse = IceServerRecord[];
 
-export type P2PCommunicationType = 'none' | 'audioOnly' | 'audioVideo';
+export type PeerCommunicationType = 'none' | 'audioOnly' | 'audioVideo';
 
 export type PeerStreamingConfigOn = {
   on: true;

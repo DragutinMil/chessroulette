@@ -2,7 +2,7 @@ import React from 'react';
 import {
   PeerUserId,
   StreamingPeer,
-} from '@app/modules/PeerToPeer/PeerToPeerProvider/type';
+} from '@app/modules/PeerToPeer/providers/PeerToPeerProvider/type';
 import { FaceTime } from '../../../FaceTime';
 import { MyFaceTime } from '../../../MyFaceTime';
 import { AVStreamingConstraints } from '@app/modules/PeerToPeer/services/AVStreaming';

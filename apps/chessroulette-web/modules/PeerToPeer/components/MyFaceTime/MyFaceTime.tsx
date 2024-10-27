@@ -9,7 +9,7 @@ import {
   getAVStreamingInstance,
 } from '@app/modules/PeerToPeer/services/AVStreaming';
 import useInstance from '@use-it/instance';
-import { PeerStreamingConfig } from '../../PeerToPeerProvider';
+import { PeerStreamingConfig } from '../../providers/PeerToPeerProvider';
 // import { AVStreaming } from '@app/services/AVStreaming';
 
 type Props = Omit<FaceTimeProps, 'streamConfig'> & {

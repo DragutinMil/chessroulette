@@ -1,3 +1,2 @@
-export * from './PeerToPeerCameraWidget';
-export * from './PeerToPeerProvider/type';
-export * from './services/AVStreaming/types';
+export * from './widgets';
+export * from './publicTypes';;

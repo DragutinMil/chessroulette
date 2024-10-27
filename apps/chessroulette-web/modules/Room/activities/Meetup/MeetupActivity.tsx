@@ -1,3 +1,5 @@
+'use client';
+
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import movexConfig from '@app/movex.config';
 import { MovexBoundResourceFromConfig } from 'movex-react';
@@ -7,11 +9,11 @@ import { Playboard } from '@app/components/Boards';
 import { StartPositionIconButton } from '@app/components/Chessboard';
 import { FreeBoardNotation } from '@app/components/FreeBoardNotation';
 import { ResizableDesktopLayout } from '@app/templates/ResizableDesktopLayout';
-import { IceServerRecord } from '@app/modules/PeerToPeer/PeerToPeerProvider';
+import { IceServerRecord } from '@app/modules/PeerToPeer/providers/PeerToPeerProvider';
 import { UserId, UsersMap } from '@app/modules/User';
 // import { getGameDisplayState } from '@app/modules/Play';
 // import { GameDisplayView } from '@app/modules/Meetup';
-import { PeerToPeerCameraWidget } from '../../../PeerToPeer/PeerToPeerCameraWidget';
+import { PeerToPeerCameraWidget } from '../../../PeerToPeer/widgets/PeerToPeerCameraWidget';
 import { RIGHT_SIDE_SIZE_PX } from '../../constants';
 import { MeetupActivityState } from './movex';
 import { useMeetupActivitySettings } from './useMeetupActivitySettings';
@@ -20,10 +22,10 @@ import { MatchContainer } from '@app/modules/Match';
 import { useRoomLinkId } from '../../hooks';
 
 export type Props = {
-  roomId: string;
+  // roomId: string;
   userId: UserId;
-  iceServers: IceServerRecord[];
-  participants: UsersMap;
+  // iceServers: IceServerRecord[];
+  // participants: UsersMap;
   remoteState: MeetupActivityState['activityState'];
   dispatch?: MovexBoundResourceFromConfig<
     (typeof movexConfig)['resources'],
@@ -92,24 +94,24 @@ export const MeetupActivity = ({
           <div className="flex-1" />
         </>
       }
-      cameraComponent={
-        <>
-          {props.participants && props.participants[props.userId] && (
-            <div className="overflow-hidden rounded-lg shadow-2xl">
-              {/* This needs to show only when the user is a player
-               * otherwise it's too soon and won't connect to the Peers
-               */}
-              <PeerToPeerCameraWidget
-                participants={props.participants}
-                userId={props.userId}
-                peerGroupId={props.roomId}
-                iceServers={props.iceServers}
-                aspectRatio={16 / 9}
-              />
-            </div>
-          )}
-        </>
-      }
+      // cameraComponent={
+      //   <>
+      //     {props.participants && props.participants[props.userId] && (
+      //       <div className="overflow-hidden rounded-lg shadow-2xl">
+      //         {/* This needs to show only when the user is a player
+      //          * otherwise it's too soon and won't connect to the Peers
+      //          */}
+      //         <PeerToPeerCameraWidget
+      //           participants={props.participants}
+      //           userId={props.userId}
+      //           peerGroupId={props.roomId}
+      //           iceServers={props.iceServers}
+      //           aspectRatio={16 / 9}
+      //         />
+      //       </div>
+      //     )}
+      //   </>
+      // }
       {...props}
     />
   );

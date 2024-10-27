@@ -1,6 +1,6 @@
 import React, { ReactNode, useState } from 'react';
 import { noop } from '@xmatter/util-kit';
-import { PeerStreamingConfig } from '@app/modules/PeerToPeer/PeerToPeerProvider/type';
+import { PeerStreamingConfig } from '@app/modules/PeerToPeer/providers/PeerToPeerProvider/type';
 import { AspectRatio, AspectRatioProps } from '@app/components/AspectRatio';
 import { Text } from '@app/components/Text';
 import { VideoBox, VideoBoxProps } from '../VideoBox';

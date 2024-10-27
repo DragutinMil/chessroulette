@@ -4,10 +4,10 @@ import React, { useEffect } from 'react';
 import { MovexProvider as NativeMovexProvider } from 'movex-react';
 import { captureEvent, setUser as setSentryUser } from '@sentry/nextjs';
 import { isOneOf } from '@xmatter/util-kit';
-import movexConfig from '../../movex.config';
 import { config } from '../../config';
 import { useSessionUserOrSetAsGuest } from '../../modules/User/hooks';
 import { CustomSession } from '../../services/Auth';
+import movexConfig from '../../movex.config';
 
 export type Props = React.PropsWithChildren<{
   session?: CustomSession;

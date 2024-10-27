@@ -1,15 +1,22 @@
 'use client';
 
 import { useMemo } from 'react';
-import { ResourceIdentifier, toResourceIdentifierObj } from 'movex-core-util';
+import {
+  ResourceIdentifier,
+  toResourceIdentifierObj,
+  toResourceIdentifierStr,
+} from 'movex-core-util';
 import {
   useMovex,
   useMovexBoundResourceFromRid,
   useMovexClient,
 } from 'movex-react';
 import movexConfig from '@app/movex.config';
-import { IceServerRecord } from '@app/modules/PeerToPeer/PeerToPeerProvider';
-import { invoke } from '@xmatter/util-kit';
+import {
+  IceServerRecord,
+  PeerUsersMap,
+} from '@app/modules/PeerToPeer/providers/PeerToPeerProvider';
+import { invoke, toDictIndexedBy } from '@xmatter/util-kit';
 import { Modal } from '@app/components/Modal';
 import { ActivityState } from './activities/movex';
 import { LearnActivity } from './activities/Learn';
@@ -17,6 +24,7 @@ import { MeetupActivity } from './activities/Meetup/MeetupActivity';
 import { PlayActivity } from './activities/Play/PlayActivity';
 import { MatchActivity } from './activities/Match/MatchActivity';
 import { movexSubcribersToUserMap } from '@app/providers/MovexProvider';
+import { PeerStreamingProvider } from '../PeerToPeer/PeerStreaming/PeerStreamingProvider';
 
 type Props = {
   rid: ResourceIdentifier<'room'>;
@@ -32,6 +40,24 @@ export const RoomContainer = ({ iceServers, rid }: Props) => {
     () => movexSubcribersToUserMap(movexResource?.subscribers || {}),
     [movexResource?.subscribers]
   );
+  const peerUsersMap = useMemo<PeerUsersMap>(() => {
+    const allPeers = toDictIndexedBy(
+      Object.values(participants),
+      (p) => p.id,
+      (p) => ({
+        userId: p.id,
+        userDisplayName: p.displayName,
+      })
+    );
+
+    if (!userId) {
+      return allPeers;
+    }
+
+    const { [userId]: removedMe, ...restOfPeers } = allPeers;
+
+    return restOfPeers;
+  }, [userId, participants]);
 
   const activityRender = invoke(() => {
     // This shouldn't really happen
@@ -101,8 +127,18 @@ export const RoomContainer = ({ iceServers, rid }: Props) => {
     return null;
   });
 
+  if (!userId) {
+    // TODO: show an invalid page
+    return null;
+  }
+
   return (
-    <>
+    <PeerStreamingProvider
+      groupId={toResourceIdentifierStr(rid)}
+      clientUserId={userId}
+      iceServers={iceServers}
+      peerUsersMap={peerUsersMap}
+    >
       {activityRender}
       {movex.status === 'disconnected' && (
         <Modal>You got disconnected. Refresh the page!</Modal>
@@ -110,6 +146,6 @@ export const RoomContainer = ({ iceServers, rid }: Props) => {
       {movex.status === 'connectionError' && (
         <Modal>Cannot connect. Check your Internet Connection!</Modal>
       )}
-    </>
+    </PeerStreamingProvider>
   );
 };
