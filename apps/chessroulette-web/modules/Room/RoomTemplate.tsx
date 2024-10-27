@@ -1,11 +1,8 @@
 import Header from '../../components/Header/Header';
 import { RoomSideMenu } from './components/RoomSideMenu';
-import { toImgPath } from '../../lib/misc';
-import { CSSProperties } from 'react';
 import { OnboardingWidget } from '../Onboarding';
 import { ActivityState } from './activities/movex';
 import { type CustomSession } from '@app/services/Auth';
-import bkg_2 from '@app/templates/bkg_2.svg';
 
 type Props = React.PropsWithChildren & {
   activity: ActivityState['activityType'];
@@ -15,39 +12,27 @@ type Props = React.PropsWithChildren & {
   session?: CustomSession;
 };
 
-export function RoomTemplate(props: Props) {
-  const style: CSSProperties | undefined =
-    props.themeName === 'kids'
-      ? {
-          backgroundImage: `url(${toImgPath(bkg_2)})`,
-          backgroundSize: '50%',
-          position: 'relative',
-          overflow: 'hidden',
-        }
-      : undefined;
-
-  return (
-    <div className="flex h-screen w-screen" style={style}>
-      <div className="flex flex-col flex-1">
-        <Header themeName={props.themeName} showConnectionStatus />
-        <div
-          className={`
-             ml-[max(env(safe-area-inset-left),1.5rem)]
-             mr-[max(env(safe-area-inset-right),1.5rem)]
-             mb-[max(env(safe-area-inset-right),2rem)]
-             mt-2
-             flex-1 relative overflow-hidden ${props.contentClassname}`}
-        >
-          <div className="absolute inset-0">{props.children}</div>
-        </div>
+export const RoomTemplate = (props: Props) => (
+  <div className="flex h-screen w-screen">
+    <div className="flex flex-col flex-1">
+      <Header themeName={props.themeName} showConnectionStatus />
+      <div
+        className={`
+           ml-[max(env(safe-area-inset-left),1.5rem)]
+           mr-[max(env(safe-area-inset-right),1.5rem)]
+           mb-[max(env(safe-area-inset-right),2rem)]
+           mt-2
+           flex-1 relative overflow-hidden ${props.contentClassname}`}
+      >
+        <div className="absolute inset-0">{props.children}</div>
       </div>
-      <menu className="bg-slate-700 flex-0 flex flex-col p-2">
-        <OnboardingWidget session={props.session} />
-        <div className="pb-6 border-b border-slate-500 mb-4" />
-        {props.roomId && (
-          <RoomSideMenu roomId={props.roomId} activity={props.activity} />
-        )}
-      </menu>
     </div>
-  );
-}
+    <menu className="bg-slate-700 flex-0 flex flex-col p-2">
+      <OnboardingWidget session={props.session} />
+      <div className="pb-6 border-b border-slate-500 mb-4" />
+      {props.roomId && (
+        <RoomSideMenu roomId={props.roomId} activity={props.activity} />
+      )}
+    </menu>
+  </div>
+);

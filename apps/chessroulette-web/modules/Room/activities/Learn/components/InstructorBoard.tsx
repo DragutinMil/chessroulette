@@ -7,7 +7,7 @@ import {
   swapColor,
   toShortColor,
 } from '@xmatter/util-kit';
-import { RIGHT_SIDE_SIZE_PX } from '../../../CONSTANTS';
+import { RIGHT_SIDE_SIZE_PX } from '../../../constants';
 import { IconButton } from '@app/components/Button';
 import { PanelResizeHandle } from 'react-resizable-panels';
 import { BoardEditor } from '@app/components/BoardEditor';

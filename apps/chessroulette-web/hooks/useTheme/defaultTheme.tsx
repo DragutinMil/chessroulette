@@ -6,8 +6,8 @@ import {
 } from '@xmatter/util-kit';
 import { Chessboard } from 'react-chessboard';
 import { Piece } from '@app/components/Chessboard/Piece';
-import { pieces as MahaPieces } from '@app/components/Chessboard/assets/mahaPieces';
-import { pieces as RegularPieces } from '@app/components/Chessboard/assets/merida';
+import { pieces as MeridaPieces } from '@app/components/Chessboard/assets/merida';
+import { pieces as CRPieces } from '@app/components/Chessboard/assets/pieces';
 
 export type ChessBoardProps = GetComponentProps<typeof Chessboard>;
 
@@ -33,31 +33,33 @@ type Theme = {
   board: BoardTheme;
 };
 
-const renderKidsThemePiece: Theme['board']['renderPiece'] = ({
-  pieceSan,
-  squareWidth,
-}) => (
-  <Piece
-    registry={MahaPieces}
-    squareSize={squareWidth * 1}
-    pieceSan={pieceSan}
-    className="mb-4"
-    style={{
-      marginTop: '-1%',
-    }}
-  />
-);
+const getPiecesByTheme = (theme: 'merida' | 'cr') => {
+  const pieceRegistry = theme === 'merida' ? MeridaPieces : CRPieces;
 
-const renderRCHPiece: Theme['board']['renderPiece'] = ({
-  pieceSan,
-  squareWidth,
-}) => (
-  <Piece
-    registry={RegularPieces}
-    squareSize={squareWidth * 1}
-    pieceSan={pieceSan}
-  />
-);
+  const renderPiece: Theme['board']['renderPiece'] = ({
+    pieceSan,
+    squareWidth,
+  }) => (
+    <Piece
+      registry={pieceRegistry}
+      squareSize={squareWidth * 1}
+      pieceSan={pieceSan}
+    />
+  );
+
+  return {
+    getCustomPieces: () =>
+      toDictIndexedBy(
+        objectKeys(pieceRegistry),
+        (pieceSan) => pieceSan,
+        (pieceSan) => (p: { squareWidth: number }) =>
+          renderPiece({ pieceSan, squareWidth: p.squareWidth })
+      ),
+    renderPiece,
+  };
+};
+
+const meridaPieceTheme = getPiecesByTheme('cr');
 
 const chessrouletteTheme: Theme = {
   name: 'chessroulette',
@@ -70,17 +72,13 @@ const chessrouletteTheme: Theme = {
     preMoveFromSquare: 'rgba(21, 183, 155, .5)',
     preMoveToSquare: 'rgba(21, 183, 155, .5)',
     hoveredSquare: 'rgba(204, 183, 255, .9)',
-    // clickedPieceSquare: 'rgba(204, 183, 255, .9)',
     clickedPieceSquare: 'rgba(0, 163, 255, .7)',
-    renderPiece: renderRCHPiece,
-    customPieces: toDictIndexedBy(
-      objectKeys(MahaPieces),
-      (pieceSan) => pieceSan,
-      (pieceSan) => (p: { squareWidth: number }) =>
-        renderRCHPiece({ pieceSan, squareWidth: p.squareWidth })
-    ),
+    renderPiece: meridaPieceTheme.renderPiece,
+    customPieces: meridaPieceTheme.getCustomPieces(),
   },
 };
+
+const regularPieceTheme = getPiecesByTheme('merida');
 
 const outpostTheme: Theme = {
   name: 'outpost',
@@ -94,27 +92,8 @@ const outpostTheme: Theme = {
     preMoveToSquare: 'rgba(21, 183, 155, .5)',
     hoveredSquare: 'rgba(134, 583, 255, .5)',
     clickedPieceSquare: 'rgba(134, 583, 255, .5)',
-    renderPiece: renderRCHPiece,
-    customPieces: toDictIndexedBy(
-      objectKeys(MahaPieces),
-      (pieceSan) => pieceSan,
-      (pieceSan) => (p: { squareWidth: number }) =>
-        renderRCHPiece({ pieceSan, squareWidth: p.squareWidth })
-    ),
-  },
-};
-
-const kidsTheme: Theme = {
-  name: 'kids',
-  board: {
-    ...chessrouletteTheme.board,
-    renderPiece: renderKidsThemePiece,
-    customPieces: toDictIndexedBy(
-      objectKeys(MahaPieces),
-      (pieceSan) => pieceSan,
-      (pieceSan) => (p: { squareWidth: number }) =>
-        renderKidsThemePiece({ pieceSan, squareWidth: p.squareWidth })
-    ),
+    renderPiece: regularPieceTheme.renderPiece,
+    customPieces: regularPieceTheme.getCustomPieces(),
   },
 };
 
@@ -125,5 +104,4 @@ export const themes = {
   cr: chessrouletteTheme,
   outpost: outpostTheme,
   op: outpostTheme,
-  kids: kidsTheme,
 };

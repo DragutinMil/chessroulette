@@ -12,7 +12,7 @@ import { UserId, UsersMap } from '@app/modules/User';
 // import { getGameDisplayState } from '@app/modules/Play';
 import { GameDisplayView } from '@app/modules/Meetup';
 import { PeerToPeerCameraWidget } from '../../../PeerToPeer/PeerToPeerCameraWidget';
-import { RIGHT_SIDE_SIZE_PX } from '../../CONSTANTS';
+import { RIGHT_SIDE_SIZE_PX } from '../../constants';
 import { MeetupActivityState } from './movex';
 import { useMeetupActivitySettings } from './useMeetupActivitySettings';
 import { getGameDisplayState } from '@app/modules/Game/lib';

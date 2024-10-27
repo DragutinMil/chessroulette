@@ -7,7 +7,7 @@ import type { UserId, UsersMap } from '@app/modules/User';
 import { MatchContainer } from '@app/modules/Match';
 import type { MatchActivityActions, MatchActivityState } from './movex';
 import { PeerToPeerCameraWidget } from '../../components';
-import { RIGHT_SIDE_SIZE_PX } from '../../CONSTANTS';
+import { RIGHT_SIDE_SIZE_PX } from '../../constants';
 import { useRoomLinkId } from '../../hooks';
 
 export type Props = {

@@ -13,7 +13,7 @@ import {
 import { WidgetPanel } from './components/WidgetPanel/WidgetPanel';
 import { PeerToPeerCameraWidget } from '../../../PeerToPeer/PeerToPeerCameraWidget';
 import { LearnBoard } from './components/LearnBoard';
-import { RIGHT_SIDE_SIZE_PX } from '../../CONSTANTS';
+import { RIGHT_SIDE_SIZE_PX } from '../../constants';
 import inputReducer, { initialInputState } from './reducers/inputReducer';
 import { ChapterDisplayView } from './chapters/ChapterDisplayView';
 import { TabsRef } from '@app/components/Tabs';
