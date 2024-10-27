@@ -31,17 +31,6 @@ export const MainHomeSection: React.FC<Props> = ({ session }) => {
         >
           <Button className="w-full">Start Class As Outpost Instructor</Button>
         </Link>
-        <Link
-          href={links.getOnDemandRoomCreationLink({
-            activity: 'learn',
-            instructor: true,
-            theme: 'kids',
-          })}
-        >
-          <Button bgColor="green" type="custom" className="w-full">
-            Start Class as Kids Instructor
-          </Button>
-        </Link>
         <br />
         <Link
           href={links.getOnDemandRoomCreationLink({
@@ -50,7 +39,7 @@ export const MainHomeSection: React.FC<Props> = ({ session }) => {
           })}
         >
           <Button type="custom" bgColor="blue" className="font-bold w-full">
-            Host Meetup
+            Linkup
           </Button>
         </Link>
       </div>

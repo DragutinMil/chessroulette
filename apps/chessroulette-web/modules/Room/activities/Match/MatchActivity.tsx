@@ -2,11 +2,10 @@
 
 import { PanelResizeHandle } from 'react-resizable-panels';
 import { type DispatchOf, noop } from '@xmatter/util-kit';
-import type { IceServerRecord } from '@app/modules/PeerToPeer/PeerToPeerProvider';
-import type { UserId, UsersMap } from '@app/modules/User';
 import { MatchContainer } from '@app/modules/Match';
+import { type IceServerRecord, PeerToPeerCameraWidget } from '@app/modules/PeerToPeer';
+import type { UserId, UsersMap } from '@app/modules/User';
 import type { MatchActivityActions, MatchActivityState } from './movex';
-import { PeerToPeerCameraWidget } from '../../components';
 import { RIGHT_SIDE_SIZE_PX } from '../../constants';
 import { useRoomLinkId } from '../../hooks';
 

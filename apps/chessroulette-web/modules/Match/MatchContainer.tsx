@@ -15,22 +15,19 @@ type Props = DistributivePick<
   PlayerContainerProps,
   'rightSideClassName' | 'rightSideComponent' | 'rightSideSizePx'
 > & {
-  rightSideSizePx: NonNullable<PlayerContainerProps['rightSideSizePx']>; // re-enforece this
+  rightSideSizePx: NonNullable<PlayerContainerProps['rightSideSizePx']>; // re-enforcing this
   match: NonNullable<MatchState>;
   userId: UserId;
   participants: UsersMap;
   cameraComponent: React.ReactNode;
   dispatch: DispatchOf<MatchActions>;
-
   inviteLink?: string;
-  // isBoardFlipped?: boolean;
 };
 
 export const MatchContainer = ({
   match,
   userId,
   participants,
-  // isBoardFlipped,
   cameraComponent,
   inviteLink,
   dispatch,

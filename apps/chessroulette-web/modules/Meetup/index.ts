@@ -1,1 +1,1 @@
-export * from './components/GameDisplayView';
+export * from './MeetupContainer';

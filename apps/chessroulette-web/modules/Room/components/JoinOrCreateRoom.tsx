@@ -10,7 +10,6 @@ import { generateUserId, getRandomStr } from '@app/util';
 import { useUpdateableSearchParams } from '@app/hooks/useSearchParams';
 import { logsy } from '@app/lib/Logsy';
 import { createPendingGame } from '@app/modules/Match/Play/store';
-
 import { RoomState, initialRoomState } from '../movex';
 import {
   toResourceIdentifierObj,
@@ -94,6 +93,18 @@ export const JoinOrCreateRoom: React.FC<Props> = ({
             activity: {
               activityType: 'match',
               activityState: createMatchState(activityParams),
+            },
+          };
+        }
+
+        if (activityParams.activity === 'meetup') {
+          return {
+            ...initialRoomState,
+            activity: {
+              activityType: 'meetup',
+              activityState: {
+                match: null
+              },
             },
           };
         }

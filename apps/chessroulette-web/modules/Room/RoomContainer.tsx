@@ -1,22 +1,22 @@
 'use client';
 
-import movexConfig from '@app/movex.config';
+import { useMemo } from 'react';
 import { ResourceIdentifier, toResourceIdentifierObj } from 'movex-core-util';
 import {
   useMovex,
   useMovexBoundResourceFromRid,
   useMovexClient,
 } from 'movex-react';
-import { IceServerRecord } from '@app/modules/PeerToPeer/PeerToPeerProvider/type';
+import movexConfig from '@app/movex.config';
+import { IceServerRecord } from '@app/modules/PeerToPeer/PeerToPeerProvider';
+import { invoke } from '@xmatter/util-kit';
+import { Modal } from '@app/components/Modal';
 import { ActivityState } from './activities/movex';
 import { LearnActivity } from './activities/Learn';
 import { MeetupActivity } from './activities/Meetup/MeetupActivity';
-import { useMemo } from 'react';
 import { PlayActivity } from './activities/Play/PlayActivity';
 import { MatchActivity } from './activities/Match/MatchActivity';
 import { movexSubcribersToUserMap } from '@app/providers/MovexProvider';
-import { invoke } from '@xmatter/util-kit';
-import { Modal } from '@app/components/Modal';
 
 type Props = {
   rid: ResourceIdentifier<'room'>;

@@ -6,6 +6,7 @@ import {
 } from '@app/components/Chessboard/types';
 import { Action } from 'movex-core-util';
 import { ChapterBoardState } from '../../Learn/movex';
+import { MatchActions, MatchState } from '@app/modules/Match/movex';
 
 // export type GameNotation = {
 //   pgn: ChessPGN;
@@ -19,18 +20,13 @@ import { ChapterBoardState } from '../../Learn/movex';
 export type MeetupActivityState = {
   activityType: 'meetup';
   activityState: {
-    game: {
-      arrowsMap: ArrowsMap;
-      circlesMap: CirclesMap;
-      orientation: ChessColor;
-      pgn: ChessPGN;
-    };
+    match: MatchState;
   };
 };
 
-export type MeetupActivityActions =
-  | Action<'meetup:move', ChessMove>
-  | Action<'meetup:startNewGame'>
-  | Action<'meetup:drawCircle', CircleDrawTuple>
-  | Action<'meetup:clearCircles'>
-  | Action<'meetup:setArrows', ArrowsMap>;
+export type MeetupActivityActions = MatchActions;
+  // | Action<'meetup:move', ChessMove>
+  // | Action<'meetup:startNewGame'>
+  // | Action<'meetup:drawCircle', CircleDrawTuple>
+  // | Action<'meetup:clearCircles'>
+  // | Action<'meetup:setArrows', ArrowsMap>;
