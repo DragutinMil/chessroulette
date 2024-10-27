@@ -1,9 +1,7 @@
 import { AsyncResultWrapper } from 'ts-async-results';
 import { Ok } from 'ts-results';
-import { AVStreamingConstraints } from './types';
 import { Pubsy } from 'ts-pubsy';
-
-type DestroyStreamFn = () => void;
+import { AVStreamingConstraints } from './types';
 
 export const DEFAULT_AV_STREAMING_CONSTRAINTS = {
   audio: true,

@@ -7,7 +7,7 @@ import {
   useMovexBoundResourceFromRid,
   useMovexClient,
 } from 'movex-react';
-import { IceServerRecord } from '@app/providers/PeerToPeerProvider/type';
+import { IceServerRecord } from '@app/modules/PeerToPeer/PeerToPeerProvider/type';
 import { ActivityState } from './activities/movex';
 import { LearnActivity } from './activities/Learn';
 import { MeetupActivity } from './activities/Meetup/MeetupActivity';

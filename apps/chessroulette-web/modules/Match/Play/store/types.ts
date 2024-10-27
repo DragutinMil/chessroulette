@@ -13,7 +13,6 @@ export type PlayActions =
       'play:start',
       {
         at: number;
-        // challengerColor: ShortChessColor;
         players: NonNullable<Game['players']>;
       }
     >

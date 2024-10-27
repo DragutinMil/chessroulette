@@ -1,11 +1,11 @@
 import React, { PropsWithChildren, useMemo } from 'react';
+import { MovexDispatchAction } from 'movex';
 import { GameProvider } from '@app/modules/Game/GameProvider';
 import { PENDING_UNTIMED_GAME } from '@app/modules/Game';
 import { User } from '@app/modules/User';
 import { invoke } from '@xmatter/util-kit';
 import { MatchStateContext, MatchContextType } from './MatchContext';
 import type { MatchActions, MatchState } from '../movex';
-import { MovexDispatchAction } from 'movex';
 
 type Props = PropsWithChildren<{
   match: NonNullable<MatchState>;

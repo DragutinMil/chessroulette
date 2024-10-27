@@ -1,20 +1,18 @@
 import React, { useCallback, useEffect, useReducer } from 'react';
 import { useWillUnmount } from '@app/hooks/useWillUnmount';
-import { P2PCommunicationType } from '@app/modules/Room/type';
-import {
-  PeerToPeerProvider,
-  usePeerToPeerConnections,
-} from '@app/providers/PeerToPeerProvider';
+import { config } from '@app/config';
+import { type UserId } from '@app/modules/User';
+import { initialPeerStreamingState, peerStreamingReducer } from './reducer';
+import { useReel } from './hooks';
 import {
   IceServerRecord,
+  P2PCommunicationType,
+  PeerToPeerProvider,
   PeerUsersMap,
-} from '@app/providers/PeerToPeerProvider/type';
-import { initialPeerStreamingState, peerStreamingReducer } from './reducer';
-import { UserId } from '../User/type';
-import { Reel } from '@app/components/FaceTime/MultiFaceTimeCompact';
-import { useReel } from './hooks';
-import { config } from '@app/config';
-import { peerUsersMapToPeerIdsMap } from '@app/providers/PeerToPeerProvider/util';
+  usePeerToPeerConnections,
+} from '../PeerToPeerProvider';
+import { type Reel } from '../components/MultiFaceTimeCompact';
+import { peerUsersMapToPeerIdsMap } from './util';
 
 type PeersConnectionProps = React.PropsWithChildren<{
   id: string;
@@ -32,7 +30,7 @@ type Props = {
 };
 
 // This should be a Memoized/Pure Component
-export const PeerStreamingGroup: React.FC<Props> = (props) => {
+export const PeerStreamingContainer: React.FC<Props> = (props) => {
   const [state, dispatch] = useReducer(
     peerStreamingReducer,
     initialPeerStreamingState

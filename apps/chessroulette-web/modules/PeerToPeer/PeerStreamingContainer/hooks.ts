@@ -1,20 +1,17 @@
+import { useMemo } from 'react';
 import {
   Peer,
   PeersMap,
   StreamingPeer,
   StreamingPeersMap,
-} from '@app/providers/PeerToPeerProvider/type';
-import { useMemo } from 'react';
-import { Reel } from '@app/components/FaceTime/MultiFaceTimeCompact';
+} from '../PeerToPeerProvider';
+import { type Reel } from '../components/MultiFaceTimeCompact';
 
 type Props = {
   peersMap: PeersMap;
   clientUserId: Peer['userId'];
   focusedUserId?: Peer['userId'];
 };
-
-export const isStreamingPeer = (p: Peer): p is StreamingPeer =>
-  p.connection.channels.streaming.on === true;
 
 export const useReel = ({
   peersMap,
@@ -57,3 +54,6 @@ export const useReel = ({
     myStreamingPeerUserId: clientUserId,
   };
 };
+
+const isStreamingPeer = (p: Peer): p is StreamingPeer =>
+  p.connection.channels.streaming.on === true;

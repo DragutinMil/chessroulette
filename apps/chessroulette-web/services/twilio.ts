@@ -1,6 +1,6 @@
 import { Twilio } from 'twilio';
 import { serverConfig } from '../config/config.server';
-import { IceServerRecord } from '../providers/PeerToPeerProvider/type';
+import { IceServerRecord } from '../modules/PeerToPeer/PeerToPeerProvider/type';
 import { config } from '../config';
 
 const twilioClient: any = new Twilio(

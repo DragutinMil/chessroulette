@@ -7,9 +7,10 @@ import {
   AVStreamingConstraints,
   DEFAULT_AV_STREAMING_CONSTRAINTS,
   getAVStreamingInstance,
-} from '@app/services/AVStreaming';
-import { PeerStreamingConfig } from '@app/providers/PeerToPeerProvider/type';
+} from '@app/modules/PeerToPeer/services/AVStreaming';
 import useInstance from '@use-it/instance';
+import { PeerStreamingConfig } from '../../PeerToPeerProvider';
+// import { AVStreaming } from '@app/services/AVStreaming';
 
 type Props = Omit<FaceTimeProps, 'streamConfig'> & {
   constraints?: AVStreamingConstraints;

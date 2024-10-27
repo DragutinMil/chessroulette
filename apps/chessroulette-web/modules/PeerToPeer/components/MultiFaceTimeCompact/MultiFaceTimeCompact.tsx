@@ -5,11 +5,11 @@ import { MyFaceTime } from '../MyFaceTime';
 import {
   PeerUserId,
   StreamingPeer,
-} from '@app/providers/PeerToPeerProvider/type';
+} from '@app/modules/PeerToPeer/PeerToPeerProvider/type';
 import {
   AVStreaming,
   getAVStreamingInstance,
-} from '@app/services/AVStreaming';
+} from '@app/modules/PeerToPeer/services/AVStreaming';
 import useInstance from '@use-it/instance';
 import {
   SpeakerWaveIcon,

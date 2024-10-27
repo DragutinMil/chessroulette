@@ -1,16 +1,13 @@
-import { toDictIndexedBy } from '@xmatter/util-kit';
-import { AspectRatio } from '@app/components/AspectRatio';
-import { CameraView } from '@app/components/CameraView';
-import { FaceTimeProps } from '@app/components/FaceTime';
-import { MultiFaceTimeCompact } from '@app/components/FaceTime/MultiFaceTimeCompact';
-import { config } from '@app/config';
-import { PeerStreamingGroup } from '@app/modules/PeerStreaming';
-import { UserId, UsersMap } from '@app/modules/User/type';
-import {
-  IceServerRecord,
-  PeerUsersMap,
-} from '@app/providers/PeerToPeerProvider/type';
 import { useMemo } from 'react';
+import { toDictIndexedBy } from '@xmatter/util-kit';
+import { config } from '@app/config';
+import { AspectRatio } from '@app/components/AspectRatio';
+import { UserId, UsersMap } from '@app/modules/User/type';
+import { IceServerRecord, PeerUsersMap } from './PeerToPeerProvider';
+import { DEV_CameraView } from './components/DEV_CameraView';
+import { FaceTimeProps } from './components';
+import { MultiFaceTimeCompact } from './components/MultiFaceTimeCompact';
+import { PeerStreamingContainer } from './PeerStreamingContainer';
 
 type Props = {
   userId: UserId;
@@ -21,7 +18,7 @@ type Props = {
   fallback?: React.ReactNode;
 };
 
-export const CameraPanel = ({
+export const PeerToPeerCameraWidget = ({
   iceServers,
   aspectRatio,
   userId,
@@ -41,19 +38,20 @@ export const CameraPanel = ({
     [participants]
   );
 
-  if (!config.CAMERA_ON) {
-    return (
-      <AspectRatio aspectRatio={aspectRatio}>
-        <CameraView
-          className={`w-full h-full object-covers`}
-          demoImgId={hashDemoImgId(userId) as any}
-        />
-      </AspectRatio>
-    );
-  }
+  // if (!config.CAMERA_ON) {
+  //   const hashDemoImgId = (id: string) => Number(id.match(/\d/)?.[0] || 0);
+  //   return (
+  //     <AspectRatio aspectRatio={aspectRatio}>
+  //       <DEV_CameraView
+  //         className={`w-full h-full object-covers`}
+  //         demoImgId={hashDemoImgId(userId) as any}
+  //       />
+  //     </AspectRatio>
+  //   );
+  // }
 
   return (
-    <PeerStreamingGroup
+    <PeerStreamingContainer
       groupId={peerGroupId}
       clientUserId={userId}
       p2pCommunicationType="audioVideo"
@@ -71,5 +69,3 @@ export const CameraPanel = ({
     />
   );
 };
-
-const hashDemoImgId = (id: string) => Number(id.match(/\d/)?.[0] || 0);

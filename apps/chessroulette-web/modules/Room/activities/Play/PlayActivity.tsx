@@ -1,7 +1,7 @@
 import { MovexBoundResourceFromConfig } from 'movex-react';
 import movexConfig from '@app/movex.config';
 import { noop } from '@xmatter/util-kit';
-import { IceServerRecord } from '@app/providers/PeerToPeerProvider';
+import { IceServerRecord } from '@app/modules/PeerToPeer/PeerToPeerProvider';
 import { UserId, UsersMap } from '@app/modules/User';
 import { usePlayActivitySettings } from './usePlayActivitySettings';
 import { PlayActivityState } from './movex';

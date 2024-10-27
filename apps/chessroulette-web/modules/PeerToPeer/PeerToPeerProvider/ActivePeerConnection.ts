@@ -2,10 +2,10 @@ import { type DataConnection } from 'peerjs';
 import { Pubsy } from 'ts-pubsy';
 import { Err } from 'ts-results';
 import { logsy } from '@app/lib/Logsy';
-import { peerMessageEnvelope, PeerMessageEnvelope } from './records';
-import { getAVStreamingInstance } from '@app/services/AVStreaming';
 import { eitherToResult } from '@app/lib/util';
 import { PeerUserId } from './type';
+import { peerMessageEnvelope, PeerMessageEnvelope } from './records';
+import { getAVStreamingInstance } from '../services/AVStreaming';
 
 type Events = {
   onOpen: undefined;

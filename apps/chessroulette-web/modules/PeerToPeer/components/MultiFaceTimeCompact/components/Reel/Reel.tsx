@@ -2,10 +2,10 @@ import React from 'react';
 import {
   PeerUserId,
   StreamingPeer,
-} from '@app/providers/PeerToPeerProvider/type';
+} from '@app/modules/PeerToPeer/PeerToPeerProvider/type';
 import { FaceTime } from '../../../FaceTime';
 import { MyFaceTime } from '../../../MyFaceTime';
-import { AVStreamingConstraints } from '@app/services/AVStreaming';
+import { AVStreamingConstraints } from '@app/modules/PeerToPeer/services/AVStreaming';
 
 type Props = {
   streamingPeers: StreamingPeer[];

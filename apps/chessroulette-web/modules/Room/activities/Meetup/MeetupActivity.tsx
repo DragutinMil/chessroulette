@@ -7,11 +7,11 @@ import { Playboard } from '@app/components/Boards';
 import { StartPositionIconButton } from '@app/components/Chessboard';
 import { FreeBoardNotation } from '@app/components/FreeBoardNotation';
 import { ResizableDesktopLayout } from '@app/templates/ResizableDesktopLayout';
-import { IceServerRecord } from '@app/providers/PeerToPeerProvider';
+import { IceServerRecord } from '@app/modules/PeerToPeer/PeerToPeerProvider';
 import { UserId, UsersMap } from '@app/modules/User';
 // import { getGameDisplayState } from '@app/modules/Play';
 import { GameDisplayView } from '@app/modules/Meetup';
-import { CameraPanel } from '../../components/CameraPanel';
+import { PeerToPeerCameraWidget } from '../../../PeerToPeer/PeerToPeerCameraWidget';
 import { RIGHT_SIDE_SIZE_PX } from '../../CONSTANTS';
 import { MeetupActivityState } from './movex';
 import { useMeetupActivitySettings } from './useMeetupActivitySettings';
@@ -117,7 +117,7 @@ export const MeetupActivity = ({
               {/* // This needs to show only when the user is a participants //
                   otherwise it's too soon and won't connect to the Peers */}
               {/* // TODO: Is this still the case with the new movex subscribers updates? */}
-              <CameraPanel
+              <PeerToPeerCameraWidget
                 participants={participants}
                 userId={userId}
                 peerGroupId={roomId}

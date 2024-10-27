@@ -1,9 +1,9 @@
 import React, { ReactNode, useState } from 'react';
 import { noop } from '@xmatter/util-kit';
-import { PeerStreamingConfig } from '@app/providers/PeerToPeerProvider/type';
-import { VideoBox, VideoBoxProps } from '../../VideoBox';
-import { AspectRatio, AspectRatioProps } from '../../AspectRatio';
-import { Text } from '../../Text';
+import { PeerStreamingConfig } from '@app/modules/PeerToPeer/PeerToPeerProvider/type';
+import { AspectRatio, AspectRatioProps } from '@app/components/AspectRatio';
+import { Text } from '@app/components/Text';
+import { VideoBox, VideoBoxProps } from '../VideoBox';
 
 export type FaceTimeProps = Omit<VideoBoxProps, 'stream'> & {
   streamConfig: PeerStreamingConfig;

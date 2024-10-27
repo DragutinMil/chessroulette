@@ -1,6 +1,6 @@
+import React from 'react';
 import Link from 'next/link';
 import { Session } from 'next-auth';
-import React from 'react';
 import { Button } from '@app/components/Button';
 import { links } from '../Room/links';
 
@@ -19,7 +19,7 @@ export const MainHomeSection: React.FC<Props> = ({ session }) => {
           })}
         >
           <Button type="custom" bgColor="blue" className="font-bold w-full">
-            Start Class as Instructor 2
+            Start Class as Instructor 
           </Button>
         </Link>
         <Link

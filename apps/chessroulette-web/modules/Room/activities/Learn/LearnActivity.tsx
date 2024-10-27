@@ -2,7 +2,7 @@ import movexConfig from '@app/movex.config';
 import { MovexBoundResourceFromConfig } from 'movex-react';
 import { ChessFENBoard, noop, swapColor } from '@xmatter/util-kit';
 import { useReducer, useRef } from 'react';
-import { IceServerRecord } from '@app/providers/PeerToPeerProvider/type';
+import { IceServerRecord } from '@app/modules/PeerToPeer/PeerToPeerProvider/type';
 import { useLearnActivitySettings } from './hooks/useLearnActivitySettings';
 import { PanelResizeHandle } from 'react-resizable-panels';
 import {
@@ -11,7 +11,7 @@ import {
   initialDefaultChapter,
 } from './movex';
 import { WidgetPanel } from './components/WidgetPanel/WidgetPanel';
-import { CameraPanel } from '../../components/CameraPanel';
+import { PeerToPeerCameraWidget } from '../../../PeerToPeer/PeerToPeerCameraWidget';
 import { LearnBoard } from './components/LearnBoard';
 import { RIGHT_SIDE_SIZE_PX } from '../../CONSTANTS';
 import inputReducer, { initialInputState } from './reducers/inputReducer';
@@ -187,7 +187,7 @@ export const LearnActivity = ({
             <div className="overflow-hidden rounded-lg shadow-2xl">
               {/* // This needs to show only when the user is a participants //
                   otherwise it's too soon and won't connect to the Peers */}
-              <CameraPanel
+              <PeerToPeerCameraWidget
                 participants={participants}
                 userId={userId}
                 peerGroupId={roomId}

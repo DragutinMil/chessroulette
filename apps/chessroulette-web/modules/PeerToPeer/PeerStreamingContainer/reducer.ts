@@ -1,11 +1,10 @@
+import { Action } from 'movex-core-util';
 import {
   Peer,
   PeerUserRecord,
-  PeerUserIdsMap,
   PeersMap,
   PeerUsersMap,
-} from '@app/providers/PeerToPeerProvider/type';
-import { Action } from 'movex-core-util';
+} from '../PeerToPeerProvider';
 
 export type PeerStreamingState = {
   peers: PeersMap;
@@ -28,7 +27,6 @@ export const initialPeerStreamingState: PeerStreamingState = {
 const peerRecordToPeer = (peer: PeerUserRecord): Peer => {
   return {
     ...peer,
-    // isMe,
     connection: {
       // This shouldn't be so
       // there's no connetion with myself :)

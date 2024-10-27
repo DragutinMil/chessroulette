@@ -1,14 +1,13 @@
 'use client';
 
-import { type DispatchOf, noop } from '@xmatter/util-kit';
-import type { IceServerRecord } from '@app/providers/PeerToPeerProvider';
-import type { UserId, UsersMap } from '@app/modules/User';
-import type { MatchActivityActions, MatchActivityState } from './movex';
-import { MatchContainer } from '@app/modules/Match';
-import { useMatchActivitySettings } from './useMatchActivitySettings';
-import { CameraPanel } from '../../components';
-import { RIGHT_SIDE_SIZE_PX } from '../../CONSTANTS';
 import { PanelResizeHandle } from 'react-resizable-panels';
+import { type DispatchOf, noop } from '@xmatter/util-kit';
+import type { IceServerRecord } from '@app/modules/PeerToPeer/PeerToPeerProvider';
+import type { UserId, UsersMap } from '@app/modules/User';
+import { MatchContainer } from '@app/modules/Match';
+import type { MatchActivityActions, MatchActivityState } from './movex';
+import { PeerToPeerCameraWidget } from '../../components';
+import { RIGHT_SIDE_SIZE_PX } from '../../CONSTANTS';
 import { useRoomLinkId } from '../../hooks';
 
 export type Props = {
@@ -22,13 +21,11 @@ export type Props = {
 
 export const MatchActivity = ({ remoteState, dispatch, ...props }: Props) => {
   const { joinRoomLink } = useRoomLinkId('match');
-  // const { isBoardFlipped } = useMatchActivitySettings();
 
   return (
     <MatchContainer
       dispatch={dispatch || noop}
       match={remoteState}
-      // isBoardFlipped={isBoardFlipped}
       inviteLink={joinRoomLink}
       rightSideSizePx={RIGHT_SIDE_SIZE_PX}
       rightSideClassName="flex flex-col"
@@ -48,10 +45,10 @@ export const MatchActivity = ({ remoteState, dispatch, ...props }: Props) => {
         <>
           {props.participants && props.participants[props.userId] && (
             <div className="overflow-hidden rounded-lg shadow-2xl">
-              {/* This needs to show only when the user is a players
+              {/* This needs to show only when the user is a player
                * otherwise it's too soon and won't connect to the Peers
                */}
-              <CameraPanel
+              <PeerToPeerCameraWidget
                 participants={props.participants}
                 userId={props.userId}
                 peerGroupId={props.roomId}

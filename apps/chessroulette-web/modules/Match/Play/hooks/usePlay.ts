@@ -1,9 +1,9 @@
 import { invoke, swapColor, toLongColor } from '@xmatter/util-kit';
 import { getTurnFromPgn } from '@app/modules/Game/lib';
+import { Game } from '@app/modules/Game';
 import { useMatchViewState } from '../../hooks';
 import { PlayViewState, PlayersByColor, PlayersBySide } from '../types';
 import { canUserPlay } from './util';
-import { Game } from '@app/modules/Game';
 import { MatchState } from '../../movex';
 import { MatchViewState } from '../../types';
 
