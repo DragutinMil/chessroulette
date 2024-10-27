@@ -5,7 +5,10 @@ import {
   useBoardTheme,
 } from '../../Chessboard';
 
-type Props = DistributiveOmit<ChessboardContainerProps, 'boardTheme'>;
+export type FreeboardProps = DistributiveOmit<
+  ChessboardContainerProps,
+  'boardTheme'
+>;
 
 /**
  * This is a free board where there are no rules and magical moves are possible!
@@ -16,6 +19,6 @@ type Props = DistributiveOmit<ChessboardContainerProps, 'boardTheme'>;
 export const Freeboard = ({
   fen = ChessFENBoard.STARTING_FEN,
   ...props
-}: Props) => (
+}: FreeboardProps) => (
   <ChessboardContainer fen={fen} boardTheme={useBoardTheme()} {...props} />
 );

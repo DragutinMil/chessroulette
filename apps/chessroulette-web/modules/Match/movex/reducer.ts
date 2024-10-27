@@ -69,10 +69,9 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
   const nextOngoingGame = PlayStore.reducer(prevOngoingGame, action);
 
   if (nextOngoingGame.status === 'aborted') {
-    // TODO: See why this doesn't simply infer it as completed and I have to typecast it?
     const abortedCurrentPlay = nextOngoingGame;
 
-    //First game abort results in aborted match. Afterwards results in completed match + winner
+    // First game abort results in aborted match. Afterwards results in completed match + winner
     const nextMatchState = invoke(
       (): Pick<NonNullable<MatchState>, 'winner' | 'status'> => {
         return prevMatch.endedGames.length === 0

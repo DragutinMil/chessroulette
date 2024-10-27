@@ -10,6 +10,7 @@ import { createMatchState } from '@app/modules/Match/movex';
 import { RIGHT_SIDE_SIZE_PX } from '../../constants';
 import { MeetupActivityState } from './movex';
 import { useRoomLinkId } from '../../hooks';
+import { MeetupContainer } from '@app/modules/Meetup';
 
 export type Props = {
   userId: UserId;
@@ -30,15 +31,16 @@ export const MeetupActivity = ({
   const dispatch = optionalDispatch || noop;
 
   return (
-    <MatchContainer
+    <MeetupContainer
       dispatch={dispatch || noop}
       match={
-        remoteState.match ||
-        createMatchState({
-          type: 'openEnded',
-          challengeeId: 'a',
-          challengerId: 'b',
-        })
+        remoteState.match
+        //  ||
+        // createMatchState({
+        //   type: 'openEnded',
+        //   challengeeId: 'a',
+        //   challengerId: 'b',
+        // })
       }
       inviteLink={joinRoomLink}
       rightSideSizePx={RIGHT_SIDE_SIZE_PX}
