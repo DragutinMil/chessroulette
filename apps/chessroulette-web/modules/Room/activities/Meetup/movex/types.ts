@@ -1,10 +1,8 @@
-import { MatchActions, MatchState } from '@app/modules/Match/movex';
+import { MeetupActions, MeetupState } from '@app/modules/Meetup/movex';
 
 export type MeetupActivityState = {
   activityType: 'meetup';
-  activityState: {
-    match: MatchState;
-  };
+  activityState: MeetupState;
 };
 
-export type MeetupActivityActions = MatchActions;
+export type MeetupActivityActions = MeetupActions;

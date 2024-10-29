@@ -1,5 +1,4 @@
 import z from 'zod';
-import { gameTimeClassRecord } from '@app/modules/Game/io';
 import { matchActivityParamsSchema } from '../activities/Match/activityParamsSchema';
 
 const truthyParam = z
@@ -35,16 +34,10 @@ export const meetupActivityParamsSchema = z.object({
   // Add the specific settings here
 });
 
-// export const playActivityParamsSchema = z.object({
-//   activity: z.literal('play'),
-//   timeClass: gameTimeClassRecord.optional(),
-// });
-
 export const activityParamsSchema = z
   .discriminatedUnion('activity', [
     learnActivityParamsSchema,
     meetupActivityParamsSchema,
-    // playActivityParamsSchema,
     matchActivityParamsSchema,
   ])
   .and(generalActivityParamsSchema);

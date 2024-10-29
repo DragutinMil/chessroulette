@@ -6,6 +6,7 @@ import { JoinRoomLinkProps } from '../Learn/activitySettings';
 export type MeetupActivitySettings = {
   isBoardFlipped: boolean;
   canResetBoard: boolean;
+  isStar: boolean;
 } & JoinRoomLinkProps;
 
 // This is more for linkup (outpost specific). Might need to change from meetup to linkup
@@ -19,6 +20,7 @@ export const useMeetupActivitySettings = (): MeetupActivitySettings => {
     showJoinRoomLink: isStar,
     joinRoomLinkParams: {},
     canResetBoard: isStar,
+    isStar,
     joinRoomLinkTooltip: 'Invite Fan',
   };
 };

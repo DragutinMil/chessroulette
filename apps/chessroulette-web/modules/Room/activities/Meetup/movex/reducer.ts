@@ -4,6 +4,7 @@ import {
   initialActivityState,
 } from '../../movex';
 import * as MatchStore from '@app/modules/Match/movex';
+import * as MeetupStore from '@app/modules/Meetup/movex';
 import { MovexReducer } from 'movex-core-util';
 
 export const reducer: MovexReducer<ActivityState, ActivityActions> = (
@@ -16,13 +17,10 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
 
   return {
     ...prev,
-    activityState: {
-      ...prev.activityState,
-      match: MatchStore.reducer(
-        prev.activityState.match,
-        action as MatchStore.MatchActions
-      ),
-    },
+    activityState: MeetupStore.reducer(
+      prev.activityState,
+      action as MeetupStore.MeetupActions
+    ),
   };
 };
 
