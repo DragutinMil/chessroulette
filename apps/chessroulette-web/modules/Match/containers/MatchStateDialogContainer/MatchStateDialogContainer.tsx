@@ -15,18 +15,13 @@ import {
 } from '@app/modules/Match/Play/containers';
 import { GameOverReason } from '@app/modules/Game';
 
-type Props = PlayDialogContainerContainerProps & {
-  // playersBySide: PlayersBySide;
-};
+type Props = PlayDialogContainerContainerProps;
 
-export const MatchStateDialogContainer: React.FC<Props> = ({
-  // playersBySide,
-  ...gameStateDialogProps
-}) => {
+export const MatchStateDialogContainer: React.FC<Props> = (
+  gameStateDialogProps
+) => {
   const { match, ...matchView } = useMatchViewState();
   const dispatch = useMatchActionsDispatch();
-
-  matchView.userAsPlayer;
 
   if (match?.status === 'aborted') {
     return (
@@ -39,7 +34,6 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
 
   // TODO: Here we should just check the match.status
   if (match?.winner) {
-    const matchWinner = match.winner;
     return (
       <Dialog
         title="Match Completed"
@@ -48,23 +42,7 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
             <div className="flex justify-center content-center text-center">
               <Text>
                 <span className="capitalize">
-                  {/* {invoke(() => {
-                    // const player = getPlayerInfoById(
-                    //   playersBySide,
-                    //   matchWinner
-                    // );
-
-                    // return player?.displayName || player?.color || matchWinner;
-
-                    return (
-                      (matchView.userAsPlayer &&
-                        match[matchView.userAsPlayer.type].displayName) ||
-                      matchWinner
-                    );
-                  })} */}
-                  {(matchView.userAsPlayer &&
-                    match[matchView.userAsPlayer.type].displayName) ||
-                    matchWinner}
+                  {match[match.winner].displayName || match[match.winner].id}
                   {` `}Won{` `}
                   <span>🏆</span>
                 </span>

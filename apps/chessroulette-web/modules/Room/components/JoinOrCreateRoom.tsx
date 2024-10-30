@@ -148,7 +148,7 @@ export const JoinOrCreateRoom: React.FC<Props> = ({
                   'theme',
 
                   //activity settings
-                  'flipped',
+                  // 'flipped',
                 ])
               : updateableSearchParams.toObject()),
             id: toResourceIdentifierObj(r.rid).resourceId,
