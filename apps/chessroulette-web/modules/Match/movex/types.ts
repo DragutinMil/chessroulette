@@ -44,6 +44,8 @@ export type MatchState =
 
       challenger: MatchPlayer;
       challengee: MatchPlayer;
+
+      timeToAbortMs: number;
     })
   | null; // TODO: This should not be null, but another status
 

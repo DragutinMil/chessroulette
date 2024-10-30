@@ -14,8 +14,8 @@ import { generateUserId, getRandomStr } from '@app/util';
 import { useUpdateableSearchParams } from '@app/hooks/useSearchParams';
 import { logsy } from '@app/lib/Logsy';
 import { createMatchState } from '@app/modules/Match/movex';
-import { links } from '../links';
 import { RoomState, initialRoomState } from '../movex';
+import { links } from '../links';
 import { initialActivityStatesByActivityType } from '../activities/movex';
 import { ActivityParamsSchema } from '../io/paramsSchema';
 

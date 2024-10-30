@@ -7,7 +7,7 @@ import * as PlayStore from '@app/modules/Match/Play/store';
 import { AbortedGame } from '@app/modules/Game';
 
 // TODO: Instead of Hard coding this, put in the matchCreation setting as part of the MatchState
-export const MATCH_TIME_TO_ABORT = 3 * 60 * 1000; // 3 mins
+// export const MATCH_TIME_TO_ABORT = 3 * 60 * 1000; // 3 mins
 
 export const reducer: MovexReducer<MatchState, MatchActions> = (
   prev: MatchState = initialMatchState,
@@ -197,7 +197,7 @@ reducer.$transformState = (state, masterContext): MatchState => {
   // if the ongoing game is idling & the abort time has passed
   if (
     ongoingPlay?.status === 'idling' &&
-    masterContext.requestAt > ongoingPlay.startedAt + MATCH_TIME_TO_ABORT
+    masterContext.requestAt > ongoingPlay.startedAt + state.timeToAbortMs
   ) {
     const nextAbortedGame: AbortedGame = {
       ...ongoingPlay,

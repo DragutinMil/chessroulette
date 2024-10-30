@@ -3,7 +3,6 @@ import { Text } from '@app/components/Text';
 import { useGame } from '@app/modules/Game/hooks';
 import { PlayersInfoContainer } from '@app/modules/Match/Play/containers';
 import { MatchAbortContainer } from '../MatchAbortContainer';
-import { MATCH_TIME_TO_ABORT } from '../../movex';
 import {
   useMatchActionsDispatch,
   useMatchViewState,
@@ -58,7 +57,7 @@ export const MatchStateDisplayContainer = () => {
           game={game}
           turn={turn}
           players={match.players}
-          timeToAbortMs={MATCH_TIME_TO_ABORT}
+          timeToAbortMs={match.timeToAbortMs}
           playerId={playerId}
           completedPlaysCount={endedGamesCount}
           className="bg-slate-700 rounded-md p-2"

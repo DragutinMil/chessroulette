@@ -1,7 +1,7 @@
 import { getRandomColor, invoke, isWhiteColor } from '@xmatter/util-kit';
 import { MatchState } from '../types';
-import { CreateMatchParamsSchema } from './operationsSchemas';
 import { createPendingGame } from '../../Play/store';
+import { CreateMatchParamsSchema } from './operationsSchemas';
 
 export const createMatchState = (
   params: CreateMatchParamsSchema
@@ -47,7 +47,7 @@ export const createMatchState = (
     gameInPlay: createPendingGame({
       timeClass: params.timeClass || 'untimed',
       players:
-      // TODO: here can also just leave the ids as "challenger" & "challengee"
+        // TODO: here can also just leave the ids as "challenger" & "challengee"
         challengerColor === 'white'
           ? {
               white: params.challengerId,
@@ -59,5 +59,6 @@ export const createMatchState = (
             },
       // challengerColor: challengerColor,
     }),
+    timeToAbortMs: params.timeToAbortMs || 3 * 60 * 1000, // default to 3 mins
   };
 };

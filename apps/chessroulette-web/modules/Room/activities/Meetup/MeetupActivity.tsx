@@ -1,16 +1,14 @@
 'use client';
 
-import movexConfig from '@app/movex.config';
 import { MovexBoundResourceFromConfig } from 'movex-react';
 import { PanelResizeHandle } from 'react-resizable-panels';
 import { noop } from '@xmatter/util-kit';
 import { UserId } from '@app/modules/User';
-import { MatchContainer } from '@app/modules/Match';
-import { createMatchState } from '@app/modules/Match/movex';
+import { MeetupContainer } from '@app/modules/Meetup';
+import movexConfig from '@app/movex.config';
 import { RIGHT_SIDE_SIZE_PX } from '../../constants';
 import { MeetupActivityState } from './movex';
 import { useRoomLinkId } from '../../hooks';
-import { MeetupContainer } from '@app/modules/Meetup';
 
 export type Props = {
   userId: UserId;
@@ -33,15 +31,7 @@ export const MeetupActivity = ({
   return (
     <MeetupContainer
       dispatch={dispatch || noop}
-      match={
-        remoteState.match
-        //  ||
-        // createMatchState({
-        //   type: 'openEnded',
-        //   challengeeId: 'a',
-        //   challengerId: 'b',
-        // })
-      }
+      match={remoteState.match}
       inviteLink={joinRoomLink}
       rightSideSizePx={RIGHT_SIDE_SIZE_PX}
       rightSideClassName="flex flex-col"
