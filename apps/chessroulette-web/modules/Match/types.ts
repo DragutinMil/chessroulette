@@ -1,6 +1,6 @@
 import { EndedGame } from '../Game';
 import { UserId } from '../User';
-import { Old_Play_Results } from './Play';
+// import { Old_Play_Results } from './Play';
 import { MatchState } from './movex';
 
 // TODO: this isn't used yet because of the OldPlayResults are
@@ -28,9 +28,11 @@ export type MatchViewState = {
     type: 'challenger' | 'challengee';
   };
 
+  results: MatchResults;
+
   // TODO: This should be translated to MatchResults
   // @deprecate this in favor of challenger|challengee
-  results: Old_Play_Results;
+  // results: Old_Play_Results;
 
   // TODO: netx add the new results above
 };

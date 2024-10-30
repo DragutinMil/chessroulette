@@ -1,24 +1,24 @@
 import { useMemo, useState } from 'react';
-import { LongChessColor } from '@xmatter/util-kit';
+import { ChessColor, areColorsEqual } from '@xmatter/util-kit';
 import { now } from '@app/lib/time';
 import { IdlingGame } from '@app/modules/Game';
 import { GameAbort, GameAbortViewProps } from './MatchAbort';
-import { MatchPlayers } from '../../movex';
 import { useMatchActionsDispatch } from '../../hooks';
+import { PlayersByColor } from '../../Play';
 
 // TODO: I believe this can be either provided more, or just expose the onAbort rather then receiving the dispatch
 type Props = Pick<GameAbortViewProps, 'className'> & {
-  // Not sure if here what we need is the match players
-  players: MatchPlayers;
+  playersByColor: PlayersByColor;
   timeToAbortMs: number;
   game: IdlingGame;
-  turn: LongChessColor;
+  turn: ChessColor;
   completedPlaysCount: number;
   playerId?: string;
 };
 
 export const MatchAbortContainer = ({
-  players,
+  // players,
+  playersByColor,
   timeToAbortMs,
   game,
   completedPlaysCount,
@@ -28,16 +28,12 @@ export const MatchAbortContainer = ({
 }: Props) => {
   const dispatch = useMatchActionsDispatch();
 
-  const isMyTurn = useMemo(() => {
-    if (!players) {
-      return false;
-    }
-
-    return (
-      (players.black.id === playerId && turn === 'black') ||
-      (players.white.id === playerId && turn === 'white')
-    );
-  }, [turn, players]);
+  const isMyTurn = useMemo(
+    () =>
+      (playersByColor.black.id === playerId && areColorsEqual(turn, 'black')) ||
+      (playersByColor.white.id === playerId && areColorsEqual(turn, 'white')),
+    [turn, playersByColor]
+  );
 
   const firstRound = useMemo(
     () => completedPlaysCount < 1,

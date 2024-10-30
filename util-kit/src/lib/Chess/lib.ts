@@ -38,6 +38,9 @@ export const isWhiteColor = (c: ChessColor): c is WhiteColor =>
 export const isBlackColor = (c: ChessColor): c is BlackColor =>
   toShortColor(c) === 'b';
 
+export const areColorsEqual = (a: ChessColor, b: ChessColor) =>
+  toShortColor(a) === toShortColor(b);
+
 export const isDarkSquare = (s: Square): boolean => {
   const [file, rank] = s;
 

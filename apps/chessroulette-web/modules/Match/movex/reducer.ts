@@ -1,10 +1,12 @@
 import { MovexReducer } from 'movex-core-util';
 import { invoke, swapColor, toLongColor } from '@xmatter/util-kit';
-import { Old_Play_Results } from '@app/modules/Match/Play';
+// import { Old_Play_Results } from '@app/modules/Match/Play';
 import { MatchActions, MatchState } from './types';
 import { initialMatchState } from './state';
 import * as PlayStore from '@app/modules/Match/Play/store';
 import { AbortedGame } from '@app/modules/Game';
+import { MatchResults } from '../types';
+import { getMatchPlayerRoleById } from './util';
 
 // TODO: Instead of Hard coding this, put in the matchCreation setting as part of the MatchState
 // export const MATCH_TIME_TO_ABORT = 3 * 60 * 1000; // 3 mins
@@ -81,8 +83,10 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
             }
           : {
               status: 'complete',
-              winner:
-                prevMatch.players[toLongColor(nextOngoingGame.lastMoveBy)].id,
+              winner: getMatchPlayerRoleById(
+                prevMatch,
+                nextOngoingGame.players[nextOngoingGame.lastMoveBy]
+              ),
             };
       }
     );
@@ -96,48 +100,92 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
   }
 
   if (nextOngoingGame.status !== 'complete') {
-    const nextStatus = invoke((): NonNullable<MatchState>['status'] => {
-      if (nextOngoingGame.status === 'ongoing') {
-        return 'ongoing';
+    const nextOngoingGameStatus = invoke(
+      (): NonNullable<MatchState>['status'] => {
+        if (nextOngoingGame.status === 'ongoing') {
+          return 'ongoing';
+        }
+        return prevMatch.endedGames.length > 0 ? 'ongoing' : 'pending';
       }
-      return prevMatch.endedGames.length > 0 ? 'ongoing' : 'pending';
-    });
+    );
 
     return {
       ...prev,
       gameInPlay: nextOngoingGame,
-      status: nextStatus,
-      ...(nextStatus === 'aborted' && {
-        winner:
-          prevMatch.players[toLongColor(swapColor(nextOngoingGame.lastMoveBy))]
-            .id,
+      status: nextOngoingGameStatus,
+      ...(nextOngoingGameStatus === 'aborted' && {
+        winner: getMatchPlayerRoleById(
+          prevMatch,
+          nextOngoingGame.players[swapColor(nextOngoingGame.lastMoveBy)]
+        ),
+        // winner:
+        //   prevMatch.players[toLongColor(swapColor(nextOngoingGame.lastMoveBy))]
+        //     .id,
       }),
     };
   }
 
   // Current Game is complete - so Match can only be ongoing or complete.
 
-  const result: Old_Play_Results = {
-    white:
-      nextOngoingGame.winner === 'white'
-        ? prevMatch.players.white.points + 1
-        : prevMatch.players.white.points,
-    black:
-      nextOngoingGame.winner === 'black'
-        ? prevMatch.players.black.points + 1
-        : prevMatch.players.black.points,
+  // const result: Old_Play_Results = {
+  //   white:
+  //     nextOngoingGame.winner === 'white'
+  //       ? prevMatch.players.white.points + 1
+  //       : prevMatch.players.white.points,
+  //   black:
+  //     nextOngoingGame.winner === 'black'
+  //       ? prevMatch.players.black.points + 1
+  //       : prevMatch.players.black.points,
+  // };
+
+  const prevPlayersByRole = {
+    challengee: prev.challengee,
+    challenger: prev.challenger,
   };
 
-  const winner = invoke(() => {
-    if (prevMatch.type !== 'bestOf') {
+  const nextPlayersByRole: Pick<
+    NonNullable<MatchState>,
+    'challengee' | 'challenger'
+  > = invoke(() => {
+    if (nextOngoingGame.winner === '1/2') {
+      return prevPlayersByRole;
+    }
+
+    const winnerByRole = getMatchPlayerRoleById(
+      prev,
+      nextOngoingGame.players[nextOngoingGame.winner]
+    );
+
+    if (!winnerByRole) {
+      return prevPlayersByRole;
+    }
+
+    return {
+      ...prevPlayersByRole,
+      [winnerByRole]: {
+        ...prevPlayersByRole[winnerByRole],
+        points: prevPlayersByRole[winnerByRole].points + 1,
+      },
+    };
+  });
+
+  const winner: NonNullable<MatchState>['winner'] = invoke(() => {
+    if (prevMatch.type === 'bestOf') {
+      const maxRounds = Math.ceil(prevMatch.rounds / 2);
+
+      if (nextPlayersByRole.challenger.points === maxRounds) {
+        return 'challenger';
+      }
+
+      if (nextPlayersByRole.challengee.points === maxRounds) {
+        return 'challengee';
+      }
+
       return null;
     }
 
-    return result.white === Math.ceil(prevMatch.rounds / 2)
-      ? prevMatch.players.white.id
-      : result.black === Math.ceil(prevMatch.rounds / 2)
-      ? prevMatch.players.black.id
-      : null;
+    // TBD how a winner is calculated for the rest of match types
+    return null;
   });
 
   const nextMatchStatus = winner ? 'complete' : 'ongoing';
@@ -148,14 +196,15 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
     gameInPlay: null,
     status: nextMatchStatus,
     winner,
+    ...nextPlayersByRole,
     players: {
       white: {
         ...prev.players.white,
-        points: result.white,
+        // points: result.white,
       },
       black: {
         ...prev.players.black,
-        points: result.black,
+        // points: result.black,
       },
     },
   };
@@ -221,12 +270,13 @@ reducer.$transformState = (state, masterContext): MatchState => {
     // A subsequent game in the match is aborted by idling too long
     // and thus the Match Gets completed with the winner the opposite player
     if (match.status === 'ongoing') {
-      const nextWinner = match.players[ongoingPlay.lastMoveBy].id; // defaults to black
-
       return {
         ...match,
         status: 'complete',
-        winner: nextWinner,
+        winner: getMatchPlayerRoleById(
+          match,
+          ongoingPlay.players[ongoingPlay.lastMoveBy]
+        ),
         endedGames: [...match.endedGames, nextAbortedGame],
         gameInPlay: null,
       };

@@ -12,9 +12,15 @@ export type MatchPlayer = {
   displayName?: string;
 };
 
+// @deprecate ni favor of players by role
 export type MatchPlayers = {
   white: MatchPlayer;
   black: MatchPlayer;
+};
+
+export type MatchPlayersByRole = {
+  challenger: MatchPlayer;
+  challengee: MatchPlayer;
 };
 
 export type MatchState =
@@ -31,22 +37,20 @@ export type MatchState =
       // Add other statuses if needed
       status: 'pending' | 'ongoing' | 'complete' | 'aborted';
 
-      // @deprecate in favor of challenger|challengee
-      players: MatchPlayers;
-
       // TODO: Change the value of this to "challenger|challengee"
-      winner: PlayerId | null;
+      // winner: PlayerId | null;
+      winner: keyof MatchPlayersByRole | null;
 
       // TODO: Rename this to endedGames
       // endedPlays: EndedPlayState[];
       endedGames: EndedGame[];
       gameInPlay: NotEndedGame | null;
 
-      challenger: MatchPlayer;
-      challengee: MatchPlayer;
-
       timeToAbortMs: number;
-    })
+
+      // @deprecate in favor of challenger|challengee
+      players: MatchPlayers;
+    } & MatchPlayersByRole)
   | null; // TODO: This should not be null, but another status
 
 export type MatchActions = PlayActions | Action<'match:startNewGame'>;

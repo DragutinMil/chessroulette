@@ -46,9 +46,15 @@ export const MatchProvider: React.FC<Props> = ({
         return undefined;
       }),
 
+      // // @deprecate
+      // results: {
+      //   white: match.players.white.points,
+      //   black: match.players.black.points,
+      // },
+
       results: {
-        white: match.players.white.points,
-        black: match.players.black.points,
+        challengee: { points: match.challengee.points },
+        challenger: { points: match.challenger.points },
       },
       dispatch,
     }),

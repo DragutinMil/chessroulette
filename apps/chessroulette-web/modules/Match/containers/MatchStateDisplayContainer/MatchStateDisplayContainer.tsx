@@ -1,26 +1,17 @@
 import React from 'react';
 import { Text } from '@app/components/Text';
-import { useGame } from '@app/modules/Game/hooks';
-import { PlayersInfoContainer } from '@app/modules/Match/Play/containers';
+import { PlayersInfo } from '@app/modules/Match/Play/containers';
 import { MatchAbortContainer } from '../MatchAbortContainer';
 import {
   useMatchActionsDispatch,
   useMatchViewState,
 } from '../../hooks/useMatch';
+import { useCurrentOrPrevMatchPlay } from '../../Play/hooks';
 
 export const MatchStateDisplayContainer = () => {
-  const {
-    match,
-    currentRound,
-    results,
-    drawsCount,
-    endedGamesCount,
-    userAsPlayer,
-  } = useMatchViewState();
-  const {
-    committedState: { game, turn },
-    playerId,
-  } = useGame();
+  const { match, currentRound, drawsCount, endedGamesCount } =
+    useMatchViewState();
+  const play = useCurrentOrPrevMatchPlay();
 
   const dispatch = useMatchActionsDispatch();
 
@@ -36,10 +27,12 @@ export const MatchStateDisplayContainer = () => {
         </div>
       )}
       <div className="flex flex-row w-full">
-        {results && (
-          <PlayersInfoContainer
-            key={game.startedAt} // refresh it on each new game
-            results={results}
+        {play.game && (
+          <PlayersInfo
+            key={play.game.startedAt} // refresh it on each new game
+            playersBySide={play.playersBySide}
+            game={play.game}
+            turn={play.turn}
             onCheckTime={() => {
               dispatch((masterContext) => ({
                 type: 'play:checkTime',
@@ -51,14 +44,14 @@ export const MatchStateDisplayContainer = () => {
           />
         )}
       </div>
-      {match?.players && userAsPlayer && game.status === 'idling' && (
+      {match && play.hasGame && play.game.status === 'idling' && (
         <MatchAbortContainer
-          key={game.startedAt + turn} // refresh it on each new game & when the turn changes
-          game={game}
-          turn={turn}
-          players={match.players}
+          key={play.game.startedAt + play.turn} // refresh it on each new game & when the turn changes
+          game={play.game}
+          turn={play.turn}
+          playersByColor={play.playersByColor}
           timeToAbortMs={match.timeToAbortMs}
-          playerId={playerId}
+          playerId={play.userAsPlayerId}
           completedPlaysCount={endedGamesCount}
           className="bg-slate-700 rounded-md p-2"
         />

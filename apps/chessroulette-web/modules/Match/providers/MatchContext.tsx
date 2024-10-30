@@ -16,8 +16,18 @@ export const MatchStateContext = createContext<MatchContextType>({
   previousGame: undefined,
   drawsCount: 0,
   results: {
-    black: 0,
-    white: 0,
+    challengee: {
+      points: 0,
+    },
+    challenger: {
+      points: 0,
+    },
   },
   dispatch: noop,
+
+  // deprecate
+  // results: {
+  //   black: 0,
+  //   white: 0,
+  // },
 });
