@@ -7,22 +7,33 @@ import type { UserId, UsersMap } from '@app/modules/User';
 import type { MatchActivityActions, MatchActivityState } from './movex';
 import { RIGHT_SIDE_SIZE_PX } from '../../constants';
 import { useRoomLinkId } from '../../hooks';
+import { useMemo } from 'react';
+import { populateMatchWithParticipants } from './utilts';
 
 export type Props = {
-  // roomId: string;
   userId: UserId;
   participants: UsersMap;
   remoteState: NonNullable<MatchActivityState['activityState']>;
   dispatch?: DispatchOf<MatchActivityActions>;
 };
 
-export const MatchActivity = ({ remoteState, dispatch, ...props }: Props) => {
+export const MatchActivity = ({
+  remoteState,
+  dispatch,
+  participants,
+  ...props
+}: Props) => {
   const { joinRoomLink } = useRoomLinkId('match');
+
+  const populatedMatch = useMemo(
+    () => populateMatchWithParticipants(remoteState, participants),
+    [remoteState, participants]
+  );
 
   return (
     <MatchContainer
       dispatch={dispatch || noop}
-      match={remoteState}
+      match={populatedMatch}
       inviteLink={joinRoomLink}
       rightSideSizePx={RIGHT_SIDE_SIZE_PX}
       rightSideClassName="flex flex-col"
