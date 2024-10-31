@@ -8,7 +8,6 @@ import {
 } from '@xmatter/util-kit';
 import { initialPlayState } from './state';
 import { PlayActions } from './types';
-import { createPendingGame } from '../../../Game/operations';
 import { calculateTimeLeftAt, checkIsGameOverWithReason } from './util';
 import {
   Game,
@@ -16,9 +15,6 @@ import {
   GameOverReason,
   GameStateWinner,
 } from '@app/modules/Game';
-
-// todo: left it here - what I need to do is create another game status where the players aren't yet given?
-//  oor maybe they just aren't for pending game or idling!
 
 export const reducer = (
   prev: Game = initialPlayState,
@@ -31,14 +27,11 @@ export const reducer = (
       return prev;
     }
 
-    // prev.challengerColor
-
     return {
       ...prev,
       status: 'idling',
       startedAt: action.payload.at,
       lastMoveAt: null,
-      // challengerColor: action.payload.challengerColor,
       players: action.payload.players,
     };
   }
@@ -69,8 +62,6 @@ export const reducer = (
     const commonPrevGameProps = {
       timeClass: prev.timeClass,
       offers: prev.offers,
-      orientation: prev.orientation,
-      challengerColor: prev.challengerColor,
       players: prev.players,
     } as const;
 
@@ -176,7 +167,7 @@ export const reducer = (
       return prev;
     }
 
-    // clear any pending offer leftover
+    // Clear any pending offer leftover
     const lastOffer =
       prev.offers.length > 0 &&
       (prev.offers[prev.offers.length - 1] as GameOffer).status === 'pending'
@@ -189,7 +180,6 @@ export const reducer = (
     const turn = toLongColor(swapColor(prev.lastMoveBy));
 
     const nextTimeLeft = calculateTimeLeftAt({
-      // lastMoveAt: prev.game.lastMoveAt,
       at: action.payload.at,
       turn,
       prevTimeLeft: prev.timeLeft,
@@ -320,7 +310,6 @@ export const reducer = (
     return {
       ...prev,
       // Remove the last offer
-      // TODO: But in fact should be able to reset them because there can only be one offer at a time
       offers: prev.offers.slice(0, -1),
     };
   }

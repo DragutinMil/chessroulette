@@ -16,10 +16,6 @@ export const createPendingGame = ({
   return {
     ...PENDING_UNTIMED_GAME,
     timeClass,
-    // orientation: challengerColor,
-    orientation: 'w', // TODO: Remove the orientation
-    challengerColor: 'w', // TODO: Remove the challengerColor
-
     timeLeft: {
       lastUpdatedAt: null,
       white: timeLeft,

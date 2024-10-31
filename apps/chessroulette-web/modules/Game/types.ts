@@ -82,8 +82,8 @@ export type PendingGame = {
 
   // TODO: Is this needed here???
   // @deprecate as each player can chose individualy
-  orientation: ChessColor;
-  challengerColor: ShortChessColor; // TODO: Should this be null here? For not leave it as something
+  // orientation: ChessColor;
+  // challengerColor: ShortChessColor; // TODO: Should this be null here? For not leave it as something
 
   // new
   // players: null;
@@ -118,11 +118,11 @@ export type IdlingGame = {
 
   // TODO: Is this needed here???
   // @deprecate as each player can chose individualy
-  orientation: ChessColor;
+  // orientation: ChessColor;
 
   // new
   // players: PlayersByColor;
-  challengerColor: ShortChessColor;
+  // challengerColor: ShortChessColor;
 
   players: GamePlayers;
 };
@@ -154,11 +154,11 @@ export type OngoingGame = {
 
   // TODO: Is this needed here???
   // @deprecate as each player can chose individualy
-  orientation: ChessColor;
+  // orientation: ChessColor;
 
   // new
   // players: PlayersByColor;
-  challengerColor: ShortChessColor;
+  // challengerColor: ShortChessColor;
 
   players: GamePlayers;
 };
@@ -189,11 +189,11 @@ export type CompletedGame = {
 
   // TODO: Is this needed here???
   // @deprecate as each player can chose individualy
-  orientation: ChessColor;
+  // orientation: ChessColor;
 
   // new
   // players: PlayersByColor;
-  challengerColor: ShortChessColor;
+  // challengerColor: ShortChessColor;
 
   players: GamePlayers;
 };
@@ -229,12 +229,12 @@ export type AbortedGame = {
 
   // TODO: Is this needed here???
   // @deprecate as each player can chose individualy
-  orientation: ChessColor;
+  // orientation: ChessColor;
 
   // new
   // players: PlayersByColor;
   // Derprecate
-  challengerColor: ShortChessColor;
+  // challengerColor: ShortChessColor;
 
   players: GamePlayers;
 };

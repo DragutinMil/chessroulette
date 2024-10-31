@@ -13,6 +13,7 @@ export type GameBoardContainerProps = DistributivePick<
   | 'rightSideSizePx'
   | 'rightSideClassName'
   | 'rightSideComponent'
+  | 'boardOrientation'
 >;
 
 export const GameBoardContainer = (boardProps: GameBoardContainerProps) => {

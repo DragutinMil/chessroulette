@@ -1,4 +1,4 @@
-import { invoke, swapColor, toLongColor } from '@xmatter/util-kit';
+import { invoke, swapColor } from '@xmatter/util-kit';
 import { getTurnFromPgn } from '@app/modules/Game/lib';
 import { Game } from '@app/modules/Game';
 import { useMatchViewState } from '../../hooks';
@@ -41,10 +41,11 @@ const getPlayFromGame = (
   }: Pick<NonNullable<MatchState>, 'challengee' | 'challenger'>,
   userAsPlayer: MatchViewState['userAsPlayer']
 ): PlayViewState => {
-  const playersBySide: PlayersBySide = invoke(() => {
-    const challengerColor = toLongColor(game.challengerColor);
-    const challengeeColor = swapColor(challengerColor);
+  const challengerColor =
+    challenger.id === game.players.white ? 'white' : 'black';
+  const challengeeColor = swapColor(challengerColor);
 
+  const playersBySide: PlayersBySide = invoke(() => {
     if (userAsPlayer?.id === challengee.id) {
       return {
         home: {
@@ -71,7 +72,7 @@ const getPlayFromGame = (
   });
 
   const playersByColor: PlayersByColor = invoke(() =>
-    game.challengerColor === 'w'
+    challengerColor === 'white'
       ? {
           white: {
             ...challenger,

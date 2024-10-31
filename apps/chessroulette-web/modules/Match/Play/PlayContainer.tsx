@@ -22,6 +22,7 @@ export const PlayContainer = (playBoardProps: PlayerContainerProps) => {
 
     // Advance the game to "idling" if the game is still in pending AND the User is the one of the players
     if (play.game.status === 'pending' && play.canUserPlay) {
+      console.log('[play] going to call play:start', { play })
       dispatch((masterContext) => ({
         type: 'play:start',
         payload: {
@@ -47,7 +48,7 @@ export const PlayContainer = (playBoardProps: PlayerContainerProps) => {
         : {
             // Default props when the play doesn't exist
             canPlay: false,
-            playingColor: 'w',
+            playingColor: play.playersBySide?.home.color || 'w',
             turn: 'b',
           })}
       onMove={(move) => {
