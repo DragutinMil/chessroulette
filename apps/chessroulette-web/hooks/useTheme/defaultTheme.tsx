@@ -59,25 +59,6 @@ const getPiecesByTheme = (theme: 'merida' | 'cr') => {
   };
 };
 
-const meridaPieceTheme = getPiecesByTheme('cr');
-
-const chessrouletteTheme: Theme = {
-  name: 'chessroulette',
-  board: {
-    darkSquare: 'rgba(0, 163, 255, .4)',
-    lightSquare: 'white',
-    arrowColors: ['#11c6d1', '#f2358d', '#6f7381'],
-    lastMoveToSquare: 'rgba(234, 183, 255, .5)',
-    lastMoveFromSquare: 'rgba(234, 183, 255, .5)',
-    preMoveFromSquare: 'rgba(21, 183, 155, .5)',
-    preMoveToSquare: 'rgba(21, 183, 155, .5)',
-    hoveredSquare: 'rgba(204, 183, 255, .9)',
-    clickedPieceSquare: 'rgba(0, 163, 255, .7)',
-    renderPiece: meridaPieceTheme.renderPiece,
-    customPieces: meridaPieceTheme.getCustomPieces(),
-  },
-};
-
 const regularPieceTheme = getPiecesByTheme('merida');
 
 const outpostTheme: Theme = {
@@ -97,11 +78,9 @@ const outpostTheme: Theme = {
   },
 };
 
-export const defaultTheme = chessrouletteTheme;
+export const defaultTheme = outpostTheme;
 
 export const themes = {
-  chessroulette: chessrouletteTheme,
-  cr: chessrouletteTheme,
   outpost: outpostTheme,
   op: outpostTheme,
 };

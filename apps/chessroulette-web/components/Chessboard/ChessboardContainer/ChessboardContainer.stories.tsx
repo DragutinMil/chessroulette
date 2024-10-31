@@ -17,7 +17,7 @@ export const Freeboard: Story = {
   args: {
     sizePx: 500,
     fen: ChessFENBoard.STARTING_FEN,
-    boardTheme: themes.chessroulette.board,
+    boardTheme: themes.op.board,
     boardOrientation: 'b',
   },
   render: ({ fen: argFen, ...args }) => {
