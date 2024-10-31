@@ -2,7 +2,7 @@ import React from 'react';
 import { Dialog } from '@app/components/Dialog';
 import { Text } from '@app/components/Text';
 import { now } from '@app/lib/time';
-import { LongChessColor } from '@xmatter/util-kit';
+import { LongChessColor, invoke } from '@xmatter/util-kit';
 import { PlayerInfo, PlayersBySide } from '@app/modules/Match/Play';
 import { BetweenGamesAborter } from './components/BetweenGamesAborter';
 import {
@@ -14,6 +14,7 @@ import {
   PlayDialogContainerContainerProps,
 } from '@app/modules/Match/Play/containers';
 import { GameOverReason } from '@app/modules/Game';
+import { getMatchPlayerRoleById } from '../../movex/util';
 
 type Props = PlayDialogContainerContainerProps;
 
@@ -68,6 +69,36 @@ export const MatchStateDialogContainer: React.FC<Props> = (
         ? gameOverReasonsToDisplay[matchView.previousGame.gameOverReason]
         : 'Game was aborted';
 
+    const previousGame = matchView.previousGame;
+
+    const renderWinnerMessage = invoke(() => {
+      if (previousGame.winner === null) {
+        return null;
+      }
+
+      if (previousGame.winner === '1/2') {
+        return (
+          <div className="flex flex-col gap-1">
+            {match.type === 'bestOf' && <Text>The round will repeat!</Text>}
+          </div>
+        );
+      }
+
+      const winnerByRole = getMatchPlayerRoleById(
+        match,
+        previousGame.players[previousGame.winner]
+      );
+
+      if (!winnerByRole) {
+        return null;
+      }
+
+      const playerDisplay =
+        match[winnerByRole].displayName || match[winnerByRole].id;
+
+      return <Text className="capitalize">{playerDisplay} Won!</Text>;
+    });
+
     return (
       <Dialog
         title={
@@ -79,31 +110,16 @@ export const MatchStateDialogContainer: React.FC<Props> = (
           <div className="flex flex-col gap-4 items-center">
             <div>{gameOverReason}</div>
             <div className="flex justify-center content-center text-center">
-              {matchView.previousGame.winner &&
-                (matchView.previousGame.winner === '1/2' ? (
-                  <div className="flex flex-col gap-1">
-                    {/* <Text>Game Ended in a Draw.</Text> */}
-                    {match.type === 'bestOf' && (
-                      <Text>The round will repeat!</Text>
-                    )}
-                  </div>
-                ) : (
-                  <Text className="capitalize">
-                    {match.players
-                      ? match.players[matchView.previousGame.winner]
-                          .displayName || matchView.previousGame.winner
-                      : matchView.previousGame.winner}{' '}
-                    Won!
-                  </Text>
-                ))}
+              {renderWinnerMessage}
             </div>
-            {match.type === 'bestOf' && (
+            {match.breakDurationMs > 0 && (
               <BetweenGamesAborter
-                totalTimeAllowedMs={10 * 1000}
+                totalTimeAllowedMs={match.breakDurationMs}
                 startedAt={now()}
                 onFinished={() => {
                   dispatch({ type: 'match:startNewGame' });
                 }}
+                className="text-slate-500 font-italic"
               />
             )}
           </div>

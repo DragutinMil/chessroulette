@@ -36,20 +36,17 @@ export type MatchState =
     ) & {
       // Add other statuses if needed
       status: 'pending' | 'ongoing' | 'complete' | 'aborted';
-
-      // TODO: Change the value of this to "challenger|challengee"
-      // winner: PlayerId | null;
       winner: keyof MatchPlayersByRole | null;
-
-      // TODO: Rename this to endedGames
-      // endedPlays: EndedPlayState[];
       endedGames: EndedGame[];
       gameInPlay: NotEndedGame | null;
-
+      /**
+       * This is the time allowed for one player to abort
+       */
       timeToAbortMs: number;
-
-      // @deprecate in favor of challenger|challengee
-      players: MatchPlayers;
+      /**
+       * This is the time bertween games
+       */
+      breakDurationMs: number;
     } & MatchPlayersByRole)
   | null; // TODO: This should not be null, but another status
 

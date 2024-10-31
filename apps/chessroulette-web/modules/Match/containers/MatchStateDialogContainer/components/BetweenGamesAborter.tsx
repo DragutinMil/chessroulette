@@ -6,6 +6,7 @@ type Props = {
   startedAt: number;
   onFinished: () => void;
   totalTimeAllowedMs: number;
+  className?: string;
 };
 
 const calculateTimeLeft = (totalTimeAllowedMs: number, fromTimestamp: number) =>
@@ -15,14 +16,15 @@ export const BetweenGamesAborter = ({
   startedAt,
   totalTimeAllowedMs,
   onFinished,
+  className,
 }: Props) => {
   const [timeLeft, setTimeLeft] = useState(
     calculateTimeLeft(totalTimeAllowedMs, startedAt)
   );
 
   return (
-    <div className="flex gap-1">
-      <span>Next game starts in</span>
+    <div className={`flex gap-1 ${className}`}>
+      <span>Next game starting in</span>
       <SmartCountdown
         msLeft={timeLeft}
         isActive

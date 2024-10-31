@@ -1,4 +1,4 @@
-import { getRandomColor, invoke, isWhiteColor } from '@xmatter/util-kit';
+import { getRandomColor } from '@xmatter/util-kit';
 import { MatchState } from '../types';
 import { createPendingGame } from '../../Play/store';
 import { CreateMatchParamsSchema } from './operationsSchemas';
@@ -7,20 +7,6 @@ export const createMatchState = (
   params: CreateMatchParamsSchema
 ): NonNullable<MatchState> => {
   const challengerColor = params.startColor || getRandomColor();
-
-  const players = invoke((): NonNullable<MatchState>['players'] => {
-    if (isWhiteColor(challengerColor)) {
-      return {
-        white: { id: params.challengerId, points: 0 },
-        black: { id: params.challengeeId, points: 0 },
-      };
-    }
-
-    return {
-      white: { id: params.challengeeId, points: 0 },
-      black: { id: params.challengerId, points: 0 },
-    };
-  });
 
   return {
     status: 'pending',
@@ -32,8 +18,6 @@ export const createMatchState = (
       : {
           type: params.type,
         }),
-
-    players,
     challengee: {
       id: params.challengeeId,
       points: 0,
@@ -57,8 +41,8 @@ export const createMatchState = (
               white: params.challengeeId,
               black: params.challengerId,
             },
-      // challengerColor: challengerColor,
     }),
     timeToAbortMs: params.timeToAbortMs || 3 * 60 * 1000, // default to 3 mins
+    breakDurationMs: params.breakDurationMs || 10 * 1000, // deafult ot 10 seconds
   };
 };

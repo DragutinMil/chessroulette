@@ -34,6 +34,7 @@ export const createMatchParamsSchema = z.object({
   startColor: chessColorSchema.optional(),
 
   timeToAbortMs: z.coerce.number().optional(),
+  breakDurationMs: z.coerce.number().optional(),
 });
 
 // Take out the unneeded 'activity' from Here

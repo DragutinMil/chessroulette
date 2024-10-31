@@ -1,15 +1,10 @@
 import { MovexReducer } from 'movex-core-util';
 import { invoke, swapColor, toLongColor } from '@xmatter/util-kit';
-// import { Old_Play_Results } from '@app/modules/Match/Play';
-import { MatchActions, MatchState } from './types';
-import { initialMatchState } from './state';
 import * as PlayStore from '@app/modules/Match/Play/store';
 import { AbortedGame } from '@app/modules/Game';
-import { MatchResults } from '../types';
+import { MatchActions, MatchState } from './types';
+import { initialMatchState } from './state';
 import { getMatchPlayerRoleById } from './util';
-
-// TODO: Instead of Hard coding this, put in the matchCreation setting as part of the MatchState
-// export const MATCH_TIME_TO_ABORT = 3 * 60 * 1000; // 3 mins
 
 export const reducer: MovexReducer<MatchState, MatchActions> = (
   prev: MatchState = initialMatchState,
@@ -28,25 +23,14 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
 
     const prevPlay = prevMatch.gameInPlay;
 
-    if (
-      // (prevPlay && prevPlay.status !== 'complete') ||
-      !prevPlay &&
-      prevMatch.endedGames.length === 0
-    ) {
+    if (!prevPlay && prevMatch.endedGames.length === 0) {
       return prev;
     }
-
-    // reverse player colors after each match
-    const players: NonNullable<MatchState>['players'] = {
-      white: { ...prevMatch.players.black },
-      black: { ...prevMatch.players.white },
-    };
 
     const newGameParams = invoke((): PlayStore.CreatePendingGameParams => {
       const prevGame = prevPlay || prevMatch.endedGames.slice(-1)[0];
 
       return {
-        // challengerColor: swapColor(prevPlay.orientation),
         timeClass: prevGame.timeClass,
         players: {
           white: prevGame.players.black,
@@ -57,12 +41,10 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
 
     return {
       ...prev,
-      players,
       gameInPlay: PlayStore.createPendingGame(newGameParams),
     };
   }
 
-  //TODO - test more here, not sure if the best
   if (!prevMatch.gameInPlay) {
     return prev;
   }
@@ -118,25 +100,11 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
           prevMatch,
           nextOngoingGame.players[swapColor(nextOngoingGame.lastMoveBy)]
         ),
-        // winner:
-        //   prevMatch.players[toLongColor(swapColor(nextOngoingGame.lastMoveBy))]
-        //     .id,
       }),
     };
   }
 
   // Current Game is complete - so Match can only be ongoing or complete.
-
-  // const result: Old_Play_Results = {
-  //   white:
-  //     nextOngoingGame.winner === 'white'
-  //       ? prevMatch.players.white.points + 1
-  //       : prevMatch.players.white.points,
-  //   black:
-  //     nextOngoingGame.winner === 'black'
-  //       ? prevMatch.players.black.points + 1
-  //       : prevMatch.players.black.points,
-  // };
 
   const prevPlayersByRole = {
     challengee: prev.challengee,
@@ -197,16 +165,6 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
     status: nextMatchStatus,
     winner,
     ...nextPlayersByRole,
-    players: {
-      white: {
-        ...prev.players.white,
-        // points: result.white,
-      },
-      black: {
-        ...prev.players.black,
-        // points: result.black,
-      },
-    },
   };
 };
 
@@ -224,7 +182,6 @@ reducer.$transformState = (state, masterContext): MatchState => {
 
   const ongoingPlay = match.gameInPlay;
 
-  // This reads the now() each time it runs
   if (ongoingPlay?.status === 'ongoing') {
     const turn = toLongColor(swapColor(ongoingPlay.lastMoveBy));
 
@@ -243,7 +200,7 @@ reducer.$transformState = (state, masterContext): MatchState => {
     };
   }
 
-  // if the ongoing game is idling & the abort time has passed
+  // If the ongoing game is idling & the abort time has passed
   if (
     ongoingPlay?.status === 'idling' &&
     masterContext.requestAt > ongoingPlay.startedAt + state.timeToAbortMs
@@ -252,8 +209,6 @@ reducer.$transformState = (state, masterContext): MatchState => {
       ...ongoingPlay,
       status: 'aborted',
     };
-
-    // const nextAbortedPlay = nextAbortedGame;
 
     // First game in the match is aborted by idling too long
     // and thus the whole Match gets aborted

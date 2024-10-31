@@ -26,7 +26,12 @@ export type ChessGameTimeMap = {
   [k in GameTimeClass]: number;
 };
 
-export type GameStateWinner = 'white' | 'black' | '1/2';
+export type GameStateWinner = keyof GamePlayers | '1/2';
+
+export type GamePlayers = {
+  white: string;
+  black: string;
+};
 
 export enum GameOverReason {
   'timeout',
@@ -50,11 +55,6 @@ export type GameOffer = {
 
   // Nededed? If so change to Date or smtg
   timestamp?: number;
-};
-
-export type GamePlayers = {
-  white: string;
-  black: string;
 };
 
 /**
