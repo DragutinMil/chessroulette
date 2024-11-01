@@ -1,10 +1,5 @@
-import {
-  BlackColor,
-  ChessColor,
-  FenBoardDetailedChessMove,
-  ShortChessMove,
-  WhiteColor,
-} from '@xmatter/util-kit';
+import type { BlackColor, ChessColor, ShortChessMove, WhiteColor } from '../Chess';
+import type { FenBoardDetailedChessMove } from '../ChessFENBoard';
 
 export type FBHBaseNonMove = {
   isNonMove: true;

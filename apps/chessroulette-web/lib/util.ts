@@ -123,3 +123,18 @@ export const reducerLogger = <S, A extends AnyAction>(
 
     return next;
   });
+
+/**
+ * Applies the given actions in order
+ *
+ * @param initialState
+ * @param reducer
+ * @param actions
+ * @returns
+ */
+export const applyActionsToReducer = <S, A extends AnyAction>(
+  reducer: MovexReducer<S, A>,
+  initialState: S,
+  actions: A[]
+): S =>
+  actions.reduce((prev, nextAction) => reducer(prev, nextAction), initialState);

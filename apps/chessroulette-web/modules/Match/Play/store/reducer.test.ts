@@ -4,21 +4,26 @@ import { reducer as playReducer } from './reducer';
 import { Game, createPendingGame } from '@app/modules/Game';
 
 // const wrapIntoPlay = <G extends Game>(game: G): G => game;
-const TEST_PLAYERS = {
-  white: 'test-white',
-  black: 'test-black',
+const PLAYERS_BY_COLOR = {
+  white: 'test-a',
+  black: 'test-b',
 };
 
+const PLAYERS_BY_COLOR_REVERSED = {
+  white: 'test-b',
+  black: 'test-a',
+};
 
 describe('Game Status: Pending > Idling', () => {
   test('It advances to "idling" on calling "play:start"', () => {
     const action: PlayActions = {
       type: 'play:start',
-      payload: { at: 123, challengerColor: 'w' },
+      payload: { at: 123, players: PLAYERS_BY_COLOR },
     };
 
     const pendingGame = createPendingGame({
-      challengerColor: 'white',
+      // challengerColor: 'white',
+      players: PLAYERS_BY_COLOR,
       timeClass: 'blitz',
     });
 
@@ -38,10 +43,10 @@ describe('Game Status: Pending > Idling', () => {
       lastMoveBy: 'black',
       winner: null,
       offers: [],
-      orientation: 'white',
+      // orientation: 'white',
       gameOverReason: null,
-      challengerColor: 'w',
-      players: TEST_PLAYERS,
+      // challengerColor: 'w',
+      players: PLAYERS_BY_COLOR,
     };
 
     expect(actual).toEqual(expected);
@@ -50,23 +55,24 @@ describe('Game Status: Pending > Idling', () => {
 
 describe('Game Status: Idling > Idling', () => {
   test('It remains on "idling" on first White Move', () => {
-    const action: PlayActions = {
-      type: 'play:move',
-      payload: { from: 'e2', to: 'e4', moveAt: 123 },
-    };
+    // const action: PlayActions = ;
 
-    const idleAction: PlayActions = {
-      type: 'play:start',
-      payload: { at: 123, challengerColor: 'b' },
-    };
+    // const idleAction: PlayActions = ;
 
     const pendingGame = createPendingGame({
-      challengerColor: 'white',
+      // challengerColor: 'white',
+      players: PLAYERS_BY_COLOR_REVERSED,
       timeClass: 'blitz',
     });
 
-    const idle = playReducer(pendingGame, idleAction);
-    const actual = playReducer(idle, action);
+    const idle = playReducer(pendingGame, {
+      type: 'play:start',
+      payload: { at: 123, players: PLAYERS_BY_COLOR_REVERSED },
+    });
+    const actual = playReducer(idle, {
+      type: 'play:move',
+      payload: { from: 'e2', to: 'e4', moveAt: 123 },
+    });
 
     const expected: Game = {
       status: 'idling',
@@ -82,10 +88,10 @@ describe('Game Status: Idling > Idling', () => {
       lastMoveBy: 'white',
       winner: null,
       offers: [],
-      orientation: 'white',
+      // orientation: 'white',
       gameOverReason: null,
-      challengerColor: 'b',
-      players: TEST_PLAYERS,
+      // challengerColor: 'b',
+      players: PLAYERS_BY_COLOR_REVERSED,
     };
 
     expect(actual).toEqual(expected);
@@ -95,20 +101,21 @@ describe('Game Status: Idling > Idling', () => {
 describe('Game Status: Idling > Aborted', () => {
   test('It moves from Idling to Aborted after timer ends', () => {
     const pendingGame = createPendingGame({
-      challengerColor: 'white',
+      // challengerColor: 'white',
+      players: PLAYERS_BY_COLOR,
       timeClass: 'blitz',
     });
-    const idleAction: PlayActions = {
+    // const idleAction: PlayActions = ;
+    // const action: PlayActions = ;
+
+    const idle = playReducer(pendingGame, {
       type: 'play:start',
-      payload: { at: 123, challengerColor: 'b' },
-    };
-    const action: PlayActions = {
+      payload: { at: 123, players: PLAYERS_BY_COLOR },
+    });
+    const actual = playReducer(idle, {
       type: 'play:abortGame',
       payload: { color: 'white' },
-    };
-
-    const idle = playReducer(pendingGame, idleAction);
-    const actual = playReducer(idle, action);
+    });
 
     const expected: Game = {
       status: 'aborted',
@@ -121,10 +128,10 @@ describe('Game Status: Idling > Aborted', () => {
       lastMoveBy: 'black',
       winner: null,
       offers: [],
-      orientation: 'white',
+      // orientation: 'white',
       gameOverReason: null,
-      challengerColor: 'b',
-      players: TEST_PLAYERS,
+      // challengerColor: 'b',
+      players: PLAYERS_BY_COLOR,
     };
 
     expect(actual).toEqual(expected);
@@ -134,16 +141,17 @@ describe('Game Status: Idling > Aborted', () => {
 describe('Game Status: Idling > Ongoing', () => {
   test('It Moves from "idling" to "ongoing" on first Black Move (once both players moved once)', () => {
     const pendingGame = createPendingGame({
-      challengerColor: 'white',
+      // challengerColor: 'white',
+      players: PLAYERS_BY_COLOR,
       timeClass: 'blitz',
     });
 
-    const idleAction: PlayActions = {
-      type: 'play:start',
-      payload: { at: 123, challengerColor: 'w' },
-    };
+    // const idleAction: PlayActions = ;
 
-    const idle = playReducer(pendingGame, idleAction);
+    const idle = playReducer(pendingGame, {
+      type: 'play:start',
+      payload: { at: 123, players: PLAYERS_BY_COLOR },
+    });
 
     const playAfterWhiteMove = playReducer(idle, {
       type: 'play:move',
@@ -170,10 +178,10 @@ describe('Game Status: Idling > Ongoing', () => {
       lastMoveBy: 'black',
       winner: null,
       offers: [],
-      orientation: 'white',
+      // orientation: 'white',
       gameOverReason: null,
-      challengerColor: 'w',
-      players: TEST_PLAYERS,
+      // challengerColor: 'w',
+      players: PLAYERS_BY_COLOR,
     };
 
     expect(actual).toEqual(expected);

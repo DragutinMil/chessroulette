@@ -1,10 +1,6 @@
 import { deepmerge } from 'deepmerge-ts';
 import { getNewChessGame, isShortChessColor, toShortColor } from '../Chess/lib';
-import type {
-  ChessFEN,
-  ChessFENStateNotation,
-  DetailedChessMove,
-} from '../Chess/types';
+import type { ChessFEN, ChessFENStateNotation } from '../Chess/types';
 import type {
   FENBoard,
   FenBoardPieceSymbol,
@@ -15,18 +11,11 @@ import { invoke, isOneOf } from '../misc';
 import {
   emptyBoard,
   fenBoardPieceSymbolToDetailedChessPiece,
-  fenBoardPieceSymbolToPieceSymbol,
   getFileRank,
   matrixIndexToSquare,
   swapColor,
 } from './util';
-import {
-  SQUARES,
-  type Color,
-  type PieceSymbol,
-  type Square,
-  Chess,
-} from 'chess.js';
+import { SQUARES, type Color, type Square } from 'chess.js';
 import { Err, Ok, Result } from 'ts-results';
 import type { DeepPartial } from '../miscType';
 import { duplicateMatrix, matrixFind, printMatrix } from '../matrix';
@@ -181,9 +170,9 @@ export class ChessFENBoard {
 
   /**
    * Moves a piece and does all the needed checks and additional moves!
-   * 
-   * @param param0 
-   * @returns 
+   *
+   * @param param0
+   * @returns
    */
   move({
     from,

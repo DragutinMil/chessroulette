@@ -1,16 +1,18 @@
 import {
   ChessColor,
+  ChessFEN,
   ChessPGN,
   DetailedChessMove,
   getNewChessGame,
   isWhiteColor,
   toShortColor,
-  invoke,
-  swapColor,
-  ChessFEN,
+} from '../Chess';
+import {
   ChessFENBoard,
   detailedChessMoveToFreeBoardDetailedChessMove,
-} from '@xmatter/util-kit';
+  swapColor,
+} from '../ChessFENBoard';
+import { invoke } from '../misc';
 import type {
   FBHIndex,
   FBHMove,

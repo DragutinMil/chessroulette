@@ -27,21 +27,6 @@
       "@app/*": [
         "apps/chessroulette-web/*"
       ]
-      // "@components/*": [
-      //   "apps/chessroulette-web/components/*"
-      // ],
-      // "@modules/*": [
-      //   "apps/chessroulette-web/modules/*"
-      // ],
-      // "@services/*": [
-      //   "apps/chessroulette-web/services/*"
-      // ],
-      // "@providers/*": [
-      //   "apps/chessroulette-web/providers/*"
-      // ],
-      // "@config": [
-      //   "apps/chessroulette-web/config/index.ts"
-      // ]
     }
   },
   "include": [
@@ -52,7 +37,6 @@
     "next-env.d.ts",
     "../../util-kit/**/*.ts",
     "../../apps/chessroulette-web/.next/types/**/*.ts"
-    // "../../apps/chessroulette-web/.next/types/**/*.ts"
   ],
   "exclude": [
     ".next",
@@ -63,8 +47,6 @@
     "src/**/*.test.ts",
     "**/*.stories.ts",
     "**/*.stories.js",
-    ".next",
-    // TODO: Take this out once ready
-    "**/*.test.ts",
+    ".next"
   ]
 }

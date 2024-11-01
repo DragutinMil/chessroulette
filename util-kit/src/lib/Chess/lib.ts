@@ -4,18 +4,16 @@ import type {
   BlackColor,
   ChessArrowId,
   ChessColor,
+  ChessFEN,
   ChessMove,
+  ChessPGN,
   LongChessColor,
   ShortChessColor,
   WhiteColor,
 } from './types';
-import {
-  ChessFEN,
-  ChessPGN,
-  fenBoardPieceSymbolToPieceSymbol,
-  getRandomInt,
-} from '@xmatter/util-kit';
 import { Chess } from 'chess.js';
+import { fenBoardPieceSymbolToPieceSymbol } from '../ChessFENBoard';
+import { getRandomInt } from '../misc';
 
 export const isShortChessColor = (s: string): s is ShortChessColor =>
   s === 'b' || s === 'w';

@@ -1,8 +1,7 @@
-// import { PlayState, initialPlayState } from '@app/modules/Play/movex';
-import { createMatchState } from './operations';
-import { MatchState } from '../types';
 import { chessGameTimeLimitMsMap } from '@app/modules/Game/constants';
+import { createMatchState } from './operations';
 import { initialPlayState } from '../../Play/store';
+import { MatchState } from '../types';
 import { Game } from '@app/modules/Game';
 
 const CONSTANTS = {
@@ -24,12 +23,16 @@ describe('Best Of', () => {
     const expectedGameInPlay: Game = {
       ...initialPlayState,
       timeClass: 'blitz',
-      orientation: 'b',
-      challengerColor: 'b',
+
       timeLeft: {
         lastUpdatedAt: initialPlayState.lastMoveAt,
         black: chessGameTimeLimitMsMap.blitz,
         white: chessGameTimeLimitMsMap.blitz,
+      },
+
+      players: {
+        white: CONSTANTS.challengeeId,
+        black: CONSTANTS.challengerId,
       },
     };
 
@@ -37,16 +40,7 @@ describe('Best Of', () => {
       status: 'pending',
       type: 'bestOf',
       rounds: 3,
-      players: {
-        white: {
-          id: CONSTANTS.challengeeId,
-          points: 0,
-        },
-        black: {
-          id: CONSTANTS.challengerId,
-          points: 0,
-        },
-      },
+
       winner: null,
       endedGames: [],
       gameInPlay: expectedGameInPlay,
@@ -58,6 +52,10 @@ describe('Best Of', () => {
         points: 0,
         id: CONSTANTS.challengerId,
       },
+
+      // Defaults
+      timeToAbortMs: actual.timeToAbortMs,
+      breakDurationMs: actual.breakDurationMs,
     };
 
     expect(actual).toEqual(expected);
@@ -77,27 +75,22 @@ describe('Open Ended', () => {
     const expectedGameInPlay: Game = {
       ...initialPlayState,
       timeClass: 'bullet',
-      orientation: 'w',
+
       timeLeft: {
         lastUpdatedAt: initialPlayState.lastMoveAt,
         black: chessGameTimeLimitMsMap.bullet,
         white: chessGameTimeLimitMsMap.bullet,
+      },
+
+      players: {
+        white: CONSTANTS.challengeeId,
+        black: CONSTANTS.challengerId,
       },
     };
 
     const expected: MatchState = {
       status: 'pending',
       type: 'openEnded',
-      players: {
-        white: {
-          id: CONSTANTS.challengerId,
-          points: 0,
-        },
-        black: {
-          id: CONSTANTS.challengeeId,
-          points: 0,
-        },
-      },
       winner: null,
       endedGames: [],
       gameInPlay: expectedGameInPlay,
@@ -109,6 +102,10 @@ describe('Open Ended', () => {
         points: 0,
         id: CONSTANTS.challengerId,
       },
+
+      // Defaults
+      timeToAbortMs: actual.timeToAbortMs,
+      breakDurationMs: actual.breakDurationMs,
     };
 
     expect(actual).toEqual(expected);

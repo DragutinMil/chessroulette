@@ -15,10 +15,6 @@ export const PENDING_UNTIMED_GAME: PendingGame = {
   timeClass: 'untimed',
   gameOverReason: null,
 
-  // players: null,
-  // TODO: Should this be a color? or be null here?
-  // challengerColor: 'w',
-
   // TODO: This doesn't need to be an array and it doesn't need to be always defined
   offers: [],
 
