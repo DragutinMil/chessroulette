@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef } from 'react';
-import { useSessionUserOrSetAsGuest, useUser } from '../../User';
+import { useSessionUserOrSetAsGuest, useUser } from '../../User2';
 import { LessonEditorView } from './LessonEditor/LessonEditorView';
 import { initialLessonState } from './LessonEditor/draftLessonReducer';
 import { createLesson } from './apiActions';

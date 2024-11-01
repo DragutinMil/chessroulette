@@ -5,7 +5,7 @@ import { MovexProvider as NativeMovexProvider } from 'movex-react';
 import { captureEvent, setUser as setSentryUser } from '@sentry/nextjs';
 import { isOneOf } from '@xmatter/util-kit';
 import { config } from '../../config';
-import { useSessionUserOrSetAsGuest } from '../../modules/User/hooks';
+import { useSessionUserOrSetAsGuest } from '../../modules/User2/hooks';
 import { CustomSession } from '../../services/Auth';
 import movexConfig from '../../movex.config';
 

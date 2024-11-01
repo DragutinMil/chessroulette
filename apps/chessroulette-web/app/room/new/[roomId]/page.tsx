@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
-import { JoinOrCreateRoom } from '@app/modules/Room/components/JoinOrCreateRoom';
-import { roomIdentifiableActivityParamsSchema } from '@app/modules/Room/io/paramsSchema';
+import { JoinOrCreateRoom } from '@app/modules/Room2/components/JoinOrCreateRoom';
+import { roomIdentifiableActivityParamsSchema } from '@app/modules/Room2/io/paramsSchema';
 import { metadata as rootMetadata } from '../../../page';
 import { ErrorPage } from '@app/appPages/ErrorPage';
 

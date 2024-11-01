@@ -1,5 +1,5 @@
 import { generateGuestUserId, generateUserId } from '@app/util';
-import { User } from '@app/modules/User/type';
+import { User } from '@app/modules/User2/type';
 import { useUpdateableSearchParams } from '@app/hooks/useSearchParams';
 import { CustomSession } from '@app/services/Auth';
 

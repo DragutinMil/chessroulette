@@ -5,10 +5,7 @@ import {
   LongChessColor,
   noop,
 } from '@xmatter/util-kit';
-// import { GameDisplayState } from '../types';
-// import { Game, GameOffer, initialPlayState } from '../movex';
-import { UserId, UsersMap } from '@app/modules/User';
-// import { GameDisplayState } from '@app/modules/Play';
+import { UserId, UsersMap } from '@app/modules/User2';
 import { Game, GameDisplayState, GameOffer } from '../types';
 import { initialPlayState } from '@app/modules/Match/Play/store';
 

@@ -1,7 +1,7 @@
 import z from 'zod';
 import { Metadata } from 'next';
 import { findUserLessons } from '../../../modules/Learn/Lessons/apiActions';
-import { User } from '@app/modules/User';
+import { User } from '@app/modules/User2';
 import { LessonsList } from '@app/modules/Learn/Lessons/components/LessonsList';
 import { get_UNSAFE_URL_SESSION } from '@app/services/Auth/lib';
 import { GeneralPageTemplate } from '@app/templates/GeneralPageTemplate';

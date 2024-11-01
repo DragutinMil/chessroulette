@@ -1,6 +1,6 @@
 import { DispatchOf, DistributivePick } from '@xmatter/util-kit';
 import { GameNotationWidget } from '@app/modules/Game/widgets';
-import { UserId } from '@app/modules/User';
+import { UserId } from '@app/modules/User2';
 import { ResizableDesktopLayout } from '@app/templates/ResizableDesktopLayout';
 import { PlayContainer, PlayerContainerProps } from './Play/PlayContainer';
 import { MatchActions, MatchState } from './movex';

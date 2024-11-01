@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 import { StringRecord } from '@xmatter/util-kit';
 import { metadata as rootMetadata } from '../../../../page';
-import { RoomPage } from '@app/modules/Room/RoomPage';
+import { RoomPage } from '@app/modules/Room2/RoomPage';
 
 export const metadata: Metadata = {
   title: `Meetup | ${rootMetadata.title}`,

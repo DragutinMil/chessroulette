@@ -1,5 +1,5 @@
 import { MatchActions, MatchState } from '@app/modules/Match/movex';
-import { UserId } from '@app/modules/User';
+import { UserId } from '@app/modules/User2';
 import { Action } from 'movex-core-util';
 
 export type MeetupParticipant = {

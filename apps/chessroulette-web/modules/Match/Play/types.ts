@@ -1,5 +1,5 @@
 import { Game, GameOffer } from '@app/modules/Game';
-import { UserId } from '@app/modules/User';
+import { UserId } from '@app/modules/User2';
 import { ChessColor, LongChessColor } from '@xmatter/util-kit';
 import { MovexDispatchOf } from 'movex-core-util';
 import { PlayActions } from './store';

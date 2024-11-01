@@ -5,7 +5,7 @@ import React, {
   useState,
 } from 'react';
 import { config } from '@app/config';
-import { type UserId } from '@app/modules/User';
+import { type UserId } from '@app/modules/User2';
 import { initialPeerStreamingState, peerStreamingReducer } from './reducer';
 import {
   IceServerRecord,

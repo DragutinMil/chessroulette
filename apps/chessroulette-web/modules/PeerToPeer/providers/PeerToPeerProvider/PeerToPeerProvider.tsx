@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { User } from '@app/modules/User/type';
+import { User } from '@app/modules/User2/type';
 import {
   PeerConnectionsContext,
   PeerConnectionsContextState,

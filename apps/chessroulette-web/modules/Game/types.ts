@@ -1,15 +1,12 @@
 import {
-  ChessColor,
   ChessFEN,
   ChessPGN,
   FBHHistory,
   FBHIndex,
   LongChessColor,
-  ShortChessColor,
   ShortChessMove,
 } from '@xmatter/util-kit';
-import { User } from '@app/modules/User';
-
+import { User } from '@app/modules/User2';
 import { GameTimeClass } from './io';
 
 export { type GameTimeClass } from './io';
