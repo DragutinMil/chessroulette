@@ -1,6 +1,5 @@
 'use server';
 
-import { userInfo } from 'os';
 import prisma from '../../../services/prisma';
 import { LessonCreateInput, LessonModel } from './types';
 

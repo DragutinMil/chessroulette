@@ -4,11 +4,9 @@ import {
   ChessFEN,
   ChessFENBoard,
   ChessMove,
-  FenBoardPromotionalPieceSymbol,
   FreeBoardHistory,
   getNewChessGame,
   isValidPgn,
-  pieceSanToFenBoardPieceSymbol,
 } from '@xmatter/util-kit';
 import { ImportedInput } from '@app/components/PgnInputBox/PgnInputBox';
 import { CircleDrawTuple } from '@app/components/Chessboard/types';
@@ -63,12 +61,6 @@ export default (
   prev: InputState = initialInputState,
   action: InputAction
 ): InputState => {
-  // console.group('Input Action', action.type);
-  // console.log('payload', (action as any).payload);
-  // console.log('prev', prev);
-  // console.log('');
-  // console.groupEnd();
-
   if (action.type === 'activate') {
     return {
       isActive: true,
@@ -267,26 +259,6 @@ export default (
     }
 
     return prev;
-
-    // return {
-
-    // }
-
-    // return {
-    //   ...prev,
-    //   activityState: {
-    //     ...prev.activityState,
-    //     fen: instance.fen(),
-    //     circles: {},
-    //     arrows: {},
-    //     history: {
-    //       startingFen: ChessFENBoard.STARTING_FEN,
-    //       moves: nextHistoryMovex,
-    //       focusedIndex:
-    //         FreeBoardHistory.getLastIndexInHistory(nextHistoryMovex),
-    //     },
-    //   },
-    // };
   }
 
   return prev;

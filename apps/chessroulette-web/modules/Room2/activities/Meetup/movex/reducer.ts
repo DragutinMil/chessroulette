@@ -24,7 +24,6 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
   };
 };
 
-// TODO: This is where the reducerMapping could really shine! taking care of the $transformState as well
 if (MatchStore.reducer.$transformState) {
   const matchStateTransformer = MatchStore.reducer.$transformState;
 

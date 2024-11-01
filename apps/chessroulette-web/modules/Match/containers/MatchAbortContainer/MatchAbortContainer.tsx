@@ -6,7 +6,6 @@ import { GameAbort, GameAbortViewProps } from './MatchAbort';
 import { useMatchActionsDispatch } from '../../hooks';
 import { PlayersByColor } from '../../Play';
 
-// TODO: I believe this can be either provided more, or just expose the onAbort rather then receiving the dispatch
 type Props = Pick<GameAbortViewProps, 'className'> & {
   playersByColor: PlayersByColor;
   timeToAbortMs: number;

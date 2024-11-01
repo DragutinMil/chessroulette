@@ -10,7 +10,6 @@ import { CustomSession } from '@app/services/Auth';
 type Props = React.PropsWithChildren & {
   session: CustomSession;
   containerClassName?: string;
-  // fallbackRender: () => React.ReactNode;
 };
 
 const ONBOARDING_MENU_ID = 'onboarding';
@@ -31,7 +30,6 @@ export const OnboardingMenuContainer: React.FC<Props> = ({
         </Item>
         <Item
           id="profile"
-          // onClick={() => signOut()}
           className="hover:cursor-pointer"
         >
           <Link href="/profile" className="flex-1">

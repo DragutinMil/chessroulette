@@ -2,19 +2,18 @@ import React from 'react';
 import { Dialog } from '@app/components/Dialog';
 import { Text } from '@app/components/Text';
 import { now } from '@app/lib/time';
-import { LongChessColor, invoke } from '@xmatter/util-kit';
-import { PlayerInfo, PlayersBySide } from '@app/modules/Match/Play';
+import { invoke } from '@xmatter/util-kit';
 import { BetweenGamesAborter } from './components/BetweenGamesAborter';
-import {
-  useMatchActionsDispatch,
-  useMatchViewState,
-} from '../../hooks/useMatch';
 import {
   PlayDialogContainer,
   PlayDialogContainerContainerProps,
 } from '@app/modules/Match/Play/containers';
-import { GameOverReason } from '@app/modules/Game';
+import {
+  useMatchActionsDispatch,
+  useMatchViewState,
+} from '../../hooks/useMatch';
 import { getMatchPlayerRoleById } from '../../movex/util';
+import { gameOverReasonsToDisplay } from './util';
 
 type Props = PlayDialogContainerContainerProps;
 
@@ -124,7 +123,7 @@ export const MatchStateDialogContainer: React.FC<Props> = (
             )}
           </div>
         }
-        // TODO: Teh rematch functionality needs to be at match level
+        // TODO: The rematch functionality needs to be at match level
         // {...(match.type === 'openEnded' && {
         //   buttons: [
         //     {
@@ -148,35 +147,4 @@ export const MatchStateDialogContainer: React.FC<Props> = (
   }
 
   return <PlayDialogContainer {...gameStateDialogProps} />;
-};
-
-const getPlayerInfoById = (
-  { home, away }: PlayersBySide,
-  playerId: string
-): (PlayerInfo & { color: LongChessColor }) | undefined => {
-  if (home.id === playerId) {
-    return home;
-  }
-
-  if (away.id === playerId) {
-    return away;
-  }
-
-  return undefined;
-};
-
-// TODO: Move somewher eelse
-const gameOverReasonsToDisplay: { [k in GameOverReason]: string } = {
-  [GameOverReason['aborted']]: 'Game was aborted',
-  [GameOverReason['acceptedDraw']]: 'Players agreed to draw',
-  [GameOverReason['checkmate']]: 'Game ended in checkmate',
-  [GameOverReason['draw']]: 'Game ended in a draw',
-  [GameOverReason['insufficientMaterial']]:
-    'Game ended in a draw due to insufficient material',
-  [GameOverReason['threefoldRepetition']]:
-    'Game ended in a draw due to a threefold repetition',
-  [GameOverReason['resignation']]: 'Player Resigned',
-  [GameOverReason['stalemate']]:
-    'Game ended in a draw due to a stalemate position',
-  [GameOverReason['timeout']]: 'Game ended due to timeout',
 };

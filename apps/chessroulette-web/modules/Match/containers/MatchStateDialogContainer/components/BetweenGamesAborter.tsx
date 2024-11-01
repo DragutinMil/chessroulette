@@ -1,6 +1,6 @@
+import { useState } from 'react';
 import { SmartCountdown } from '@app/components/SmartCountdown';
 import { now } from '@app/lib/time';
-import { useState } from 'react';
 
 type Props = {
   startedAt: number;
