@@ -1,8 +1,8 @@
 import z from 'zod';
 import { NextRequest, NextResponse } from 'next/server';
 import { objectOmit } from '@xmatter/util-kit';
-import { activityParamsSchema } from '@app/modules/Room2/io/paramsSchema';
-import { links } from '@app/modules/Room2/links';
+import { activityParamsSchema } from '@app/modules/Room/io/paramsSchema';
+import { links } from '@app/modules/Room/links';
 import { getRandomStr } from '@app/util';
 
 const paramsSchema = z

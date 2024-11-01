@@ -1,39 +1,37 @@
 'use client';
 
+import { MovexBoundResourceFromConfig } from 'movex-react';
 import { PanelResizeHandle } from 'react-resizable-panels';
-import { type DispatchOf, noop } from '@xmatter/util-kit';
-import { MatchContainer } from '@app/modules/Match';
-import type { UserId, UsersMap } from '@app/modules/User2';
-import type { MatchActivityActions, MatchActivityState } from './movex';
+import { noop } from '@xmatter/util-kit';
+import { UserId } from '@app/modules/User';
+import { MeetupContainer } from '@app/modules/Meetup';
+import movexConfig from '@app/movex.config';
 import { RIGHT_SIDE_SIZE_PX } from '../../constants';
+import { MeetupActivityState } from './movex';
 import { useRoomLinkId } from '../../hooks';
-import { useMemo } from 'react';
-import { populateMatchWithParticipants } from './utilts';
 
 export type Props = {
   userId: UserId;
-  participants: UsersMap;
-  remoteState: NonNullable<MatchActivityState['activityState']>;
-  dispatch?: DispatchOf<MatchActivityActions>;
+  remoteState: MeetupActivityState['activityState'];
+  dispatch?: MovexBoundResourceFromConfig<
+    (typeof movexConfig)['resources'],
+    'room'
+  >['dispatch'];
 };
 
-export const MatchActivity = ({
+export const MeetupActivity = ({
   remoteState,
-  dispatch,
-  participants,
+  dispatch: optionalDispatch,
   ...props
 }: Props) => {
-  const { joinRoomLink } = useRoomLinkId('match');
+  const { joinRoomLink } = useRoomLinkId('meetup');
 
-  const populatedMatch = useMemo(
-    () => populateMatchWithParticipants(remoteState, participants),
-    [remoteState, participants]
-  );
+  const dispatch = optionalDispatch || noop;
 
   return (
-    <MatchContainer
+    <MeetupContainer
       dispatch={dispatch || noop}
-      match={populatedMatch}
+      match={remoteState.match}
       inviteLink={joinRoomLink}
       rightSideSizePx={RIGHT_SIDE_SIZE_PX}
       rightSideClassName="flex flex-col"

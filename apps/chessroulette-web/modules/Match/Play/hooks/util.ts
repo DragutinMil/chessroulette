@@ -1,5 +1,5 @@
 import { Game } from '@app/modules/Game';
-import { UserId } from '@app/modules/User2';
+import { UserId } from '@app/modules/User';
 import { PlayersByColor } from '../types';
 import { isOneOf } from '@xmatter/util-kit';
 

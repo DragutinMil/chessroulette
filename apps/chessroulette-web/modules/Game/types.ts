@@ -6,7 +6,7 @@ import {
   LongChessColor,
   ShortChessMove,
 } from '@xmatter/util-kit';
-import { User } from '@app/modules/User2';
+import { User } from '@app/modules/User';
 import { GameTimeClass } from './io';
 
 export { type GameTimeClass } from './io';

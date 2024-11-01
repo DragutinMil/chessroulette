@@ -1,5 +1,5 @@
 import { MatchState } from '@app/modules/Match/movex';
-import { UsersMap } from '@app/modules/User2';
+import { UsersMap } from '@app/modules/User';
 
 export const populateMatchWithParticipants = (
   match: NonNullable<MatchState>,

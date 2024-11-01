@@ -6,7 +6,7 @@ import { Menu, Item, useContextMenu } from 'react-contexify';
 import { config } from '@app/config';
 import movexConfig from '@app/movex.config';
 import { movexSubcribersToUserMap } from '../../providers/MovexProvider';
-import { useRoomDetails } from '@app/modules/Room2/hooks';
+import { useRoomDetails } from '@app/modules/Room/hooks';
 
 const MENU_ID = 'movex-participants-menu';
 

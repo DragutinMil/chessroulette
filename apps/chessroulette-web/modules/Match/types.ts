@@ -1,5 +1,5 @@
 import { EndedGame } from '../Game';
-import { UserId } from '../User2';
+import { UserId } from '../User';
 // import { Old_Play_Results } from './Play';
 import { MatchState } from './movex';
 

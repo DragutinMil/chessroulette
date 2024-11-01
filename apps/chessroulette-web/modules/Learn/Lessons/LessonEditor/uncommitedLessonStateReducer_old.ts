@@ -16,7 +16,7 @@ import {
   type ChapterState,
   type Chapter,
   initialChapterState,
-} from '@app/modules/Room2/activities/Learn/movex';
+} from '@app/modules/Room/activities/Learn/movex';
 
 export type InputState = {
   // this means the instructor creates or edits chapters atm

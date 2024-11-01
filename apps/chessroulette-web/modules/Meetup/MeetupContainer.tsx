@@ -1,6 +1,6 @@
 import { DispatchOf, DistributivePick } from '@xmatter/util-kit';
 import { GameNotationWidget } from '@app/modules/Game/widgets';
-import { UserId } from '@app/modules/User2';
+import { UserId } from '@app/modules/User';
 import { ResizableDesktopLayout } from '@app/templates/ResizableDesktopLayout';
 import { PeerToPeerCameraWidget } from '@app/modules/PeerToPeer';
 import {
@@ -16,7 +16,7 @@ import {
 import { PlayControlsContainer } from '@app/modules/Match/Play/containers';
 import { FreeboardContainer } from '@app/components/Boards';
 import { useEffect } from 'react';
-import { useMeetupActivitySettings } from '../Room2/activities/Meetup/useMeetupActivitySettings';
+import { useMeetupActivitySettings } from '../Room/activities/Meetup/useMeetupActivitySettings';
 import { MeetupActions } from './movex';
 
 type Props = DistributivePick<

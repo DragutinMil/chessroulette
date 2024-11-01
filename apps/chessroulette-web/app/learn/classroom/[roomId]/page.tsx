@@ -1,8 +1,8 @@
 import { Metadata } from 'next';
 import { ResourceIdentifier } from 'movex-core-util';
 import { authOptions } from '@app/services/Auth';
-import { RoomTemplate } from '@app/modules/Room2/RoomTemplate';
-import { RoomContainer } from '@app/modules/Room2/RoomContainer';
+import { RoomTemplate } from '@app/modules/Room/RoomTemplate';
+import { RoomContainer } from '@app/modules/Room/RoomContainer';
 import { metadata as rootMetadata } from '../../../page';
 import { twilio } from '@app/services/twilio';
 import { getCustomServerSession } from '@app/services/Auth/getCustomServerSession';

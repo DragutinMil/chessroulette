@@ -2,7 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 import { Session } from 'next-auth';
 import { Button } from '@app/components/Button';
-import { links } from '../Room2/links';
+import { links } from '../Room/links';
 
 type Props = {
   session?: Session;

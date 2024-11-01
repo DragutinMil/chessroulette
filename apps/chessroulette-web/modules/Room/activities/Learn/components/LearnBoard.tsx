@@ -9,7 +9,7 @@ import {
   StartPositionIconButton,
   ChessboardContainerProps,
 } from '@app/components/Chessboard';
-import { RIGHT_SIDE_SIZE_PX } from '@app/modules/Room2/constants';
+import { RIGHT_SIDE_SIZE_PX } from '@app/modules/Room/constants';
 
 type Props = Required<
   Pick<
