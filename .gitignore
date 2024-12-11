@@ -50,8 +50,8 @@ yalc.lock
 # Movex
 .movex
 
-.env
 .env*
+.env
 
 # Sentry Config File
 .sentryclirc
