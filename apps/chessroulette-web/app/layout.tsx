@@ -16,6 +16,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>{children}</body>
+
+      {/* Simple Analytics */}
+      <script
+        data-collect-dnt="true"
+        async
+        src="https://scripts.simpleanalyticscdn.com/latest.js"
+      />
     </html>
   );
 }
