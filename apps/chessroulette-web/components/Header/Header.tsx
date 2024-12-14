@@ -1,7 +1,6 @@
 import Link from 'next/link';
 import { Logo } from '@app/components/Logo';
 import { CustomSession } from '@app/services/Auth';
-import { OnboardingWidget } from '@app/modules/Onboarding';
 import ConnectionStatus from './ConnectionStatus';
 import Image from 'next/image';
 import GithubLogo from './assets/github-mark-white.svg';
@@ -29,18 +28,28 @@ export default (props: Props) => {
       </Link>
       <div className="flex gap-6 items-center justify-end">
         {props.showConnectionStatus && <ConnectionStatus />}
-        <Link
-          href="https://github.com/movesthatmatter/chessroulette"
-          target="_blank"
-        >
-          <Image src={GithubLogo} alt="Github" width={24} />
-        </Link>
-        <Link
-          href="https://discord.gg/hudVbHH4m8"
-          target="_blank"
-        >
-          <Image src={DiscordLogo} alt="Discord" width={24} />
-        </Link>
+
+        {props.showOnboarding && (
+          <>
+            <Link
+              href="https://github.com/movesthatmatter/chessroulette"
+              target="_blank"
+              title="GitHub"
+              className='hover:opacity-80'
+            >
+              <Image src={GithubLogo} alt="Github" width={24} />
+            </Link>
+            <Link
+              href="https://discord.gg/hudVbHH4m8"
+              target="_blank"
+              title="Discord"
+              className='hover:opacity-80'
+            >
+              <Image src={DiscordLogo} alt="Discord" width={24} />
+            </Link>
+          </>
+        )}
+
         {/* {props.showOnboarding && <OnboardingWidget session={props.session} />} */}
       </div>
     </header>
