@@ -1,3 +1,4 @@
+import { SpeedInsights } from "@vercel/speed-insights/next"
 import { Metadata } from 'next';
 import '../styles.css';
 
@@ -23,6 +24,7 @@ export default function RootLayout({
         async
         src="https://scripts.simpleanalyticscdn.com/latest.js"
       />
+      <SpeedInsights />
     </html>
   );
 }
