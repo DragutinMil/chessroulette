@@ -1,0 +1,39 @@
+# SERVER
+
+## Services
+
+### Error Logging
+SENTRY_AUTH_TOKEN=TBD
+
+### Takes care of the WebRTC Turn Server
+TWILIO_ACCOUNT_SID=TBD
+TWILIO_AUTH_TOKEN=TBD
+
+# CLIENT
+
+## Services
+
+### Error Logging
+NEXT_PUBLIC_SENTRY_DSN=TBD
+
+## App
+
+### The Environment State. Can be one of "prod" | "staging" | "dev"
+NEXT_PUBLIC_ENV=local-dev
+
+### Set the app to Debug mode which logs more verbose
+NEXT_PUBLIC_DEBUG_MODE=true
+
+### WebRTC Signaling Server 
+NEXT_PUBLIC_SIGNALING_SERVER_HOST=TBD
+NEXT_PUBLIC_SIGNALING_SERVER_PORT=443
+NEXT_PUBLIC_SIGNALING_SERVER_SECURE=1
+
+### Server(Movex) endopoint without the newtork protocol portion (e.g.ws, http)
+NEXT_PUBLIC_MOVEX_ENDPOINT_URL=localhost:3333
+
+### The Chess Engine Server Url
+NEXT_PUBLIC_ENGINE_URL=TBD
+
+### Whether the Camera should be mocked or not
+NEXT_PUBLIC_CAMERA_ON=false
