@@ -17,7 +17,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        {children}
+        <SpeedInsights />
+      </body>
 
       {/* Simple Analytics */}
       <script
@@ -25,7 +28,6 @@ export default function RootLayout({
         async
         src="https://scripts.simpleanalyticscdn.com/latest.js"
       />
-      <SpeedInsights />
       <Analytics />
     </html>
   );
