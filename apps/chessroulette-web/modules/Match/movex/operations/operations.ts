@@ -34,12 +34,12 @@ export const createMatchState = (
         // TODO: here can also just leave the ids as "challenger" & "challengee"
         challengerColor === 'white'
           ? {
-              white: params.challengerId,
-              black: params.challengeeId,
+              w: params.challengerId,
+              b: params.challengeeId,
             }
           : {
-              white: params.challengeeId,
-              black: params.challengerId,
+              w: params.challengeeId,
+              b: params.challengerId,
             },
     }),
     timeToAbortMs: params.timeToAbortMs || 3 * 60 * 1000, // default to 3 mins

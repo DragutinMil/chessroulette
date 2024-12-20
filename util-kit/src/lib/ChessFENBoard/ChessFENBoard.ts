@@ -1,5 +1,9 @@
 import { deepmerge } from 'deepmerge-ts';
-import { getNewChessGame, isShortChessColor, toShortColor } from '../ChessRouler/lib';
+import {
+  getNewChessGame,
+  isShortChessColor,
+  toShortColor,
+} from '../ChessRouler/lib';
 import type { ChessFEN, ChessFENStateNotation } from '../ChessRouler/types';
 import type {
   FENBoard,
@@ -13,7 +17,6 @@ import {
   fenBoardPieceSymbolToDetailedChessPiece,
   getFileRank,
   isPieceSymbolOfColor,
-  isUpperCase,
   matrixIndexToSquare,
   swapColor,
 } from './util';

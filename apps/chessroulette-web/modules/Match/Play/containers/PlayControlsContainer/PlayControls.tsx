@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { ChessColor, toLongColor } from '@xmatter/util-kit';
+import { ChessColor } from '@xmatter/util-kit';
 import { QuickConfirmButton } from '@app/components/Button/QuickConfirmButton';
 import { Game, GameOffer } from '@app/modules/Game';
 
@@ -41,7 +41,7 @@ export const PlayControls: React.FC<Props> = ({
   }, []);
 
   const calculateTakebackStatus = () => {
-    if (game.lastMoveBy !== toLongColor(homeColor)) {
+    if (game.lastMoveBy !== homeColor) {
       return false;
     }
 

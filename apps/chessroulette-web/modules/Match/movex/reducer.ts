@@ -33,8 +33,8 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
       return {
         timeClass: prevGame.timeClass,
         players: {
-          white: prevGame.players.black,
-          black: prevGame.players.white,
+          w: prevGame.players.b,
+          b: prevGame.players.w,
         },
       };
     });
@@ -181,7 +181,7 @@ reducer.$transformState = (state, masterContext): MatchState => {
   const ongoingPlay = state.gameInPlay;
 
   if (ongoingPlay?.status === 'ongoing') {
-    const turn = toLongColor(swapColor(ongoingPlay.lastMoveBy));
+    const turn = swapColor(ongoingPlay.lastMoveBy);
 
     const nextTimeLeft = PlayStore.calculateTimeLeftAt({
       at: masterContext.requestAt, // TODO: this can take in account the lag as well

@@ -5,7 +5,6 @@ import {
   isOneOf,
   localChessMoveToChessLibraryMove,
   swapColor,
-  toLongColor,
 } from '@xmatter/util-kit';
 import { initialPlayState } from './state';
 import { PlayActions } from './types';
@@ -56,7 +55,7 @@ export const reducer = (
       return prev;
     }
 
-    const nextLastMoveBy = toLongColor(swapColor(lastMoveBy));
+    const nextLastMoveBy = swapColor(lastMoveBy);
 
     const commonPrevGameProps = {
       timeClass: prev.timeClass,
@@ -176,7 +175,7 @@ export const reducer = (
           } as GameOffer)
         : undefined;
 
-    const turn = toLongColor(swapColor(prev.lastMoveBy));
+    const turn = swapColor(prev.lastMoveBy);
 
     const nextTimeLeft = calculateTimeLeftAt({
       at: action.payload.at,
@@ -214,7 +213,7 @@ export const reducer = (
     return {
       ...prev,
       status: 'complete',
-      winner: toLongColor(swapColor(action.payload.color)),
+      winner: swapColor(action.payload.color),
       gameOverReason: GameOverReason['resignation'],
     };
   }
@@ -282,7 +281,7 @@ export const reducer = (
     const elapsedTime = takebackAt - prev.lastMoveAt;
     const nextTimeLeft = prev.timeLeft[prev.lastMoveBy] - elapsedTime;
 
-    const nextTurn = toLongColor(swapColor(prev.lastMoveBy));
+    const nextTurn = swapColor(prev.lastMoveBy);
     const nextOffers = [...prev.offers.slice(0, -1), lastOffer];
 
     return {

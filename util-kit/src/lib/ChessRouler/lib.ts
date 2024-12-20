@@ -1,4 +1,3 @@
-import { Err, Ok, Result } from 'ts-results';
 import { PieceSymbol, Square, Chess } from 'chess.js';
 import { Arrow } from 'react-chessboard/dist/chessboard/types';
 import {
@@ -8,15 +7,11 @@ import {
   ChessFEN,
   ChessMove,
   ChessPGN,
-  GameOverReason,
   LongChessColor,
   ShortChessColor,
   WhiteColor,
 } from './types';
-import {
-  ChessFENBoard,
-  fenBoardPieceSymbolToPieceSymbol,
-} from '../ChessFENBoard';
+import { fenBoardPieceSymbolToPieceSymbol } from '../ChessFENBoard';
 import { getRandomInt } from '../misc';
 
 export const isShortChessColor = (s: string): s is ShortChessColor =>
@@ -31,8 +26,10 @@ export const isChessColor = (s: string): s is ChessColor =>
 export const toShortColor = (c: ChessColor): ShortChessColor =>
   c[0] as ShortChessColor;
 
+// export const toLongColor = (c: ChessColor): LongChessColor =>
+//   c === 'b' || c === 'black' ? 'black' : 'white';
 export const toLongColor = (c: ChessColor): LongChessColor =>
-  c === 'b' || c === 'black' ? 'black' : 'white';
+  c === 'b' ? 'black' : 'white';
 
 export const isWhiteColor = (c: ChessColor): c is WhiteColor =>
   toShortColor(c) === 'w';
@@ -98,7 +95,7 @@ export const getNewChessGame = (
 
 //     return true;
 //   } catch (e) {
-    
+
 //     return prev;
 //   }
 // }
@@ -164,43 +161,3 @@ export const localChessMoveToChessLibraryMove = ({
 
 export const getRandomColor = (): ShortChessColor =>
   (['w', 'b'] as const)[getRandomInt(0, 1)];
-
-// export const checkIsGameOverWithReason = (
-//   instance: Chess,
-//   hasTimedOut: boolean
-// ): Result<[reason: GameOverReason, isDraw: boolean], void> => {
-//   if (hasTimedOut) {
-//     console.log(
-//       'has timed out, but has insufficient material', instance.turn(),
-//       hasInsufficientMaterialToForceMate(instance.turn(), instance.fen())
-//     );
-
-//     // if () {
-//     //   return new Ok([GameOverReason['insufficientMaterial'], instance.isDraw()]);
-//     // }
-
-//     return new Ok([GameOverReason['timeout'], false]);
-//   }
-
-//   if (instance.isCheckmate()) {
-//     return new Ok([GameOverReason['checkmate'], instance.isDraw()]);
-//   }
-
-//   if (instance.isDraw()) {
-//     return new Ok([GameOverReason['draw'], true]);
-//   }
-
-//   if (instance.isInsufficientMaterial()) {
-//     return new Ok([GameOverReason['insufficientMaterial'], instance.isDraw()]);
-//   }
-
-//   if (instance.isStalemate()) {
-//     return new Ok([GameOverReason['stalemate'], instance.isDraw()]);
-//   }
-
-//   if (instance.isThreefoldRepetition()) {
-//     return new Ok([GameOverReason['threefoldRepetition'], instance.isDraw()]);
-//   }
-
-//   return Err.EMPTY;
-// };

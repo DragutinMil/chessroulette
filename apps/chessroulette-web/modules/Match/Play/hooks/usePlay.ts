@@ -41,8 +41,7 @@ const getPlayFromGame = (
   }: Pick<NonNullable<MatchState>, 'challengee' | 'challenger'>,
   userAsPlayer: MatchViewState['userAsPlayer']
 ): PlayViewState => {
-  const challengerColor =
-    challenger.id === game.players.white ? 'white' : 'black';
+  const challengerColor = challenger.id === game.players.w ? 'w' : 'b';
   const challengeeColor = swapColor(challengerColor);
 
   const playersBySide: PlayersBySide = invoke(() => {
@@ -72,25 +71,25 @@ const getPlayFromGame = (
   });
 
   const playersByColor: PlayersByColor = invoke(() =>
-    challengerColor === 'white'
+    challengerColor === 'w'
       ? {
-          white: {
+          w: {
             ...challenger,
-            color: 'white',
+            color: 'w',
           },
-          black: {
+          b: {
             ...challengee,
-            color: 'black',
+            color: 'b',
           },
         }
       : {
-          white: {
+          w: {
             ...challengee,
-            color: 'white',
+            color: 'w',
           },
-          black: {
+          b: {
             ...challenger,
-            color: 'black',
+            color: 'b',
           },
         }
   );

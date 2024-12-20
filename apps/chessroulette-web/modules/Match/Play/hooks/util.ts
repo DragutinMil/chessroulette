@@ -15,9 +15,7 @@ export const canUserPlay = ({
   game,
 }: CanPlayParams) => {
   // If the userId is not part of the players s/he cannot play
-  if (
-    !(playersByColor.white.id === userId || playersByColor.black.id === userId)
-  ) {
+  if (!(playersByColor.w.id === userId || playersByColor.b.id === userId)) {
     return false;
   }
 

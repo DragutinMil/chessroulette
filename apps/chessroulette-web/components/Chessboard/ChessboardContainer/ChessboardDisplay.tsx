@@ -1,14 +1,19 @@
 import {
+  ChessColor,
   ChessFEN,
   ShortChessMove,
   promotionalPieceSanToFenBoardPromotionalPieceSymbol,
+  toLongColor,
 } from '@xmatter/util-kit';
 import { ReactChessBoardProps } from './types';
 import { BoardTheme } from '@app/hooks/useTheme/defaultTheme';
 import { Chessboard as ReactChessboard } from 'react-chessboard';
 import { PromotionDialogLayer } from './PromotionDialogLayer';
 
-export type ChessboardDisplayProps = Omit<ReactChessBoardProps, 'fen'> & {
+export type ChessboardDisplayProps = Omit<
+  ReactChessBoardProps,
+  'fen' | 'boardOrientation'
+> & {
   fen: ChessFEN;
   sizePx: number;
   boardTheme: BoardTheme;
@@ -20,6 +25,7 @@ export type ChessboardDisplayProps = Omit<ReactChessBoardProps, 'fen'> & {
 
   containerClassName?: string;
   overlayComponent?: React.ReactNode;
+  boardOrientation?: ChessColor;
 } & (
     | {
         rightSideComponent: React.ReactNode;
@@ -41,7 +47,7 @@ export const ChessboardDisplay = ({
   containerClassName,
   overlayComponent,
   fen,
-  boardOrientation = 'white',
+  boardOrientation = 'w',
   promoMove,
   boardTheme,
   onCancelPromoMove,
@@ -69,7 +75,7 @@ export const ChessboardDisplay = ({
         position={fen}
         boardWidth={sizePx}
         showBoardNotation
-        boardOrientation={boardOrientation}
+        boardOrientation={toLongColor(boardOrientation)}
         snapToCursor={false}
         arePiecesDraggable
         {...boardProps}

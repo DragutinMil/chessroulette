@@ -1,5 +1,5 @@
 import { OngoingGame } from '@app/modules/Game';
-import { LongChessColor } from '@xmatter/util-kit';
+import { ChessColor } from '@xmatter/util-kit';
 
 export const calculateTimeLeftAt = ({
   at,
@@ -7,7 +7,7 @@ export const calculateTimeLeftAt = ({
   prevTimeLeft,
 }: {
   at: number;
-  turn: LongChessColor;
+  turn: ChessColor;
   prevTimeLeft: OngoingGame['timeLeft'];
 }): OngoingGame['timeLeft'] => {
   const timeSince = at - prevTimeLeft.lastUpdatedAt;

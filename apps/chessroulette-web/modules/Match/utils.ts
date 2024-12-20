@@ -21,6 +21,6 @@ export function getMovesDetailsFromPGN(pgn: string): {
 
   return {
     totalMoves: Math.ceil(tokens.length / 2),
-    lastMoveBy: tokens.length % 2 === 0 ? 'black' : 'white',
+    lastMoveBy: tokens.length % 2 === 0 ? 'b' : 'w',
   };
 }
