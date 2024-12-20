@@ -13,6 +13,6 @@ export const gameOverReasonsToDisplay: { [k in GameOverReason]: string } = {
   [GameOverReason['stalemate']]:
     'Game ended in a draw due to a stalemate position',
   [GameOverReason['timeout']]: 'Game ended due to timeout',
-  [GameOverReason['drawInsufficientMaterial']]:
+  [GameOverReason['drawAwardedForInsufficientMaterial']]:
     "Game timed out, but the strong side was awarded a draw due to opponent's insufficient material to force mate",
 };

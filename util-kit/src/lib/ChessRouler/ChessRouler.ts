@@ -1,10 +1,5 @@
 import { Chess, Move } from 'chess.js';
-import {
-  ChessFEN,
-  ChessMove,
-  ChessPGN,
-  GameOverReason,
-} from './types';
+import { ChessFEN, ChessMove, ChessPGN, GameOverReason } from './types';
 import { DistributivePick } from '../miscType';
 import { ChessFENBoard, swapColor } from '../ChessFENBoard';
 import { localChessMoveToChessLibraryMove } from './lib';
@@ -120,14 +115,22 @@ export class ChessRouler implements SpecificChessJS {
         over: false;
       } {
     if (hasTimedOut) {
+      const opponentColor = swapColor(hasTimedOut);
+      if (!this.hasSufficientMaterialToForceMate(opponentColor)) {
+        // According to FIDE, if the player's flag fails (i.e. times out) but the opponent doesn't have sufficient material to force mate
+        //  the player is awarded a draw instead of the loss due to timeout!
+        // See this for more info: https://www.chess.com/forum/view/general/what-is-considered-insufficient-material#comment-31144738
+        return {
+          over: true,
+          reason: GameOverReason['drawAwardedForInsufficientMaterial'],
+          isDraw: true,
+        };
+      }
+
       return {
         over: true,
         reason: GameOverReason['timeout'],
-
-        // According to FIDE, if the player's flag fails (i.e. times out) but the opponent doesn't have sufficient material to force mate
-        // the player is awarded a draw, instead of a loss due to timeout
-        // See this for more: https://www.chess.com/forum/view/general/what-is-considered-insufficient-material#comment-31144738
-        isDraw: !this.hasSufficientMaterialToForceMate(swapColor(hasTimedOut)),
+        isDraw: false,
       };
     }
 

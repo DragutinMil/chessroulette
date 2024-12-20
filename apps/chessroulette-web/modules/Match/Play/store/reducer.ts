@@ -183,20 +183,32 @@ export const reducer = (
       prevTimeLeft: prev.timeLeft,
     });
 
+    // The Game timed out
     if (nextTimeLeft[turn] <= 0) {
       const gameOverResult = new ChessRouler({
         pgn: prev.pgn,
       }).isGameOver(turn);
 
+      const nextWinnerAndGameOverReason = invoke(() => {
+        if (gameOverResult.over && gameOverResult.isDraw) {
+          return {
+            winner: '1/2',
+            gameOverReason:
+              GameOverReason['drawAwardedForInsufficientMaterial'],
+          } as const;
+        }
+
+        return {
+          winner: prev.lastMoveBy,
+          gameOverReason: GameOverReason['timeout'],
+        } as const;
+      });
+
       return {
         ...prev,
         status: 'complete',
-        winner:
-          gameOverResult.over && gameOverResult.isDraw
-            ? '1/2'
-            : prev.lastMoveBy,
+        ...nextWinnerAndGameOverReason,
         timeLeft: nextTimeLeft,
-        gameOverReason: GameOverReason['timeout'],
         ...(lastOffer && {
           gameOffers: [...prev.offers.slice(0, -1), lastOffer],
         }),
