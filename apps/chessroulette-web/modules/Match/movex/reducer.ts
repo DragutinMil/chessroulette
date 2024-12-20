@@ -174,13 +174,11 @@ reducer.$transformState = (state, masterContext): MatchState => {
   }
 
   // Determine if Match is "aborted" onRead
-  const match = state;
-
-  if (match.status === 'complete' || match.status === 'aborted') {
+  if (state.status === 'complete' || state.status === 'aborted') {
     return state;
   }
 
-  const ongoingPlay = match.gameInPlay;
+  const ongoingPlay = state.gameInPlay;
 
   if (ongoingPlay?.status === 'ongoing') {
     const turn = toLongColor(swapColor(ongoingPlay.lastMoveBy));
@@ -192,7 +190,7 @@ reducer.$transformState = (state, masterContext): MatchState => {
     });
 
     return {
-      ...match,
+      ...state,
       gameInPlay: {
         ...ongoingPlay,
         timeLeft: nextTimeLeft,
@@ -212,9 +210,9 @@ reducer.$transformState = (state, masterContext): MatchState => {
 
     // First game in the match is aborted by idling too long
     // and thus the whole Match gets aborted
-    if (match.status === 'pending') {
+    if (state.status === 'pending') {
       return {
-        ...match,
+        ...state,
         status: 'aborted',
         winner: null,
         endedGames: [nextAbortedGame],
@@ -224,15 +222,15 @@ reducer.$transformState = (state, masterContext): MatchState => {
 
     // A subsequent game in the match is aborted by idling too long
     // and thus the Match Gets completed with the winner the opposite player
-    if (match.status === 'ongoing') {
+    if (state.status === 'ongoing') {
       return {
-        ...match,
+        ...state,
         status: 'complete',
         winner: getMatchPlayerRoleById(
-          match,
+          state,
           ongoingPlay.players[ongoingPlay.lastMoveBy]
         ),
-        endedGames: [...match.endedGames, nextAbortedGame],
+        endedGames: [...state.endedGames, nextAbortedGame],
         gameInPlay: null,
       };
     }

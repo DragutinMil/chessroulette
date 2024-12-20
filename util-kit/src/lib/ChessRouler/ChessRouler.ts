@@ -108,11 +108,14 @@ export class ChessRouler implements SpecificChessJS {
    * @param hasTimedOut
    * @returns
    */
+  // TODO: Add winner to this as well!
   isGameOver(hasTimedOut: ShortChessColor | undefined):
     | {
         over: true;
         reason: GameOverReason;
         isDraw: boolean;
+        // TODO: Add winner to this as well!
+        // winner: ShortChessColor;
       }
     | {
         over: false;

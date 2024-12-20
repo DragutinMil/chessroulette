@@ -4,6 +4,7 @@ import { Game, OngoingGame, createPendingGame } from '@app/modules/Game';
 import {
   ChessPGN,
   ChessRouler,
+  GameOverReason,
   swapColor,
   toLongColor,
 } from '@xmatter/util-kit';
@@ -214,7 +215,7 @@ describe('Game Status: Ongoing > Completed', () => {
     }
   };
 
-  test('Player times out but the opponent has insufficient material and is awarded a draw instead of loss', () => {
+  test('Player times out (on "play:move" action) but the opponent has insufficient material and is awarded a draw instead of loss', () => {
     const game = createOngoingGame({
       pgn: '1. e4 e6 2. Qg4 d5 3. Qg6 hxg6 4. Ba6 Qg5 5. Nf3 Qxd2+ 6. Bxd2 dxe4 7. Bh6 exf3 8. Na3 gxh6 9. Bxb7 fxg2 10. Nb5 Bxb7 11. Nxa7 gxh1=Q+ 12. Kd2 Qxa1 13. f4 Rxa7 14. h4 Qxa2 15. f5 Qxb2 16. h5 gxh5 17. fxe6 fxe6 18. Kd3 Qxc2+ 19. Kxc2',
       timeLeft: {
@@ -231,10 +232,34 @@ describe('Game Status: Ongoing > Completed', () => {
     });
 
     expect(actual.status).toBe('complete');
+    expect(actual.gameOverReason).toBe(GameOverReason['timeout']);
     expect(actual.winner).toBe('1/2');
   });
 
-  test('Player times out but the opponent has sufficient material to force mate and loses', () => {
+  test('Player times out (on "play:checkTime" action) but the opponent has insufficient material and is awarded a draw instead of loss', () => {
+    const game = createOngoingGame({
+      pgn: '1. e4 e6 2. Qg4 d5 3. Qg6 hxg6 4. Ba6 Qg5 5. Nf3 Qxd2+ 6. Bxd2 dxe4 7. Bh6 exf3 8. Na3 gxh6 9. Bxb7 fxg2 10. Nb5 Bxb7 11. Nxa7 gxh1=Q+ 12. Kd2 Qxa1 13. f4 Rxa7 14. h4 Qxa2 15. f5 Qxb2 16. h5 gxh5 17. fxe6 fxe6 18. Kd3 Qxc2+ 19. Kxc2',
+      timeLeft: {
+        black: 3,
+        white: 5,
+      },
+      lastMoveAt: 123,
+    });
+
+    // Black (Stronger) attempts to move but is out of time and the game should complete in a draw b/c of the Insufficient Material Rule
+    const actual = playReducer(game, {
+      type: 'play:checkTime',
+      payload: {
+        at: 170, // Simluating outside of time
+      },
+    });
+
+    expect(actual.status).toBe('complete');
+    expect(actual.gameOverReason).toBe(GameOverReason['timeout']);
+    expect(actual.winner).toBe('1/2');
+  });
+
+  test('Player times out (on "play:move") but the opponent has sufficient material to force mate and loses', () => {
     const game = createOngoingGame({
       pgn: '1. e3 c5 2. e4 d5 3. e5 c4 4. f4 Nc6 5. Bxc4 f6 6. Bxd5 f5 7. e6 Nd4 8. d3 Qa5+ 9. c3 Bxe6 10. Bxe6 Nxe6',
       timeLeft: {
@@ -251,6 +276,30 @@ describe('Game Status: Ongoing > Completed', () => {
     });
 
     expect(actual.status).toBe('complete');
+    expect(actual.gameOverReason).toBe(GameOverReason['timeout']);
+    expect(actual.winner).toBe('black');
+  });
+
+  test('Player times out (on "play:checkTime") but the opponent has sufficient material to force mate and loses', () => {
+    const game = createOngoingGame({
+      pgn: '1. e3 c5 2. e4 d5 3. e5 c4 4. f4 Nc6 5. Bxc4 f6 6. Bxd5 f5 7. e6 Nd4 8. d3 Qa5+ 9. c3 Bxe6 10. Bxe6 Nxe6',
+      timeLeft: {
+        black: 3,
+        white: 5,
+      },
+      lastMoveAt: 123,
+    });
+
+    // White times out and loses
+    const actual = playReducer(game, {
+      type: 'play:checkTime',
+      payload: {
+        at: 170, // Simluating outside of time
+      },
+    });
+
+    expect(actual.status).toBe('complete');
+    expect(actual.gameOverReason).toBe(GameOverReason['timeout']);
     expect(actual.winner).toBe('black');
   });
 });

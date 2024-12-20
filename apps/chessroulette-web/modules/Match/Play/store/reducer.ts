@@ -185,10 +185,17 @@ export const reducer = (
     });
 
     if (nextTimeLeft[turn] <= 0) {
+      const gameOverResult = new ChessRouler({
+        pgn: prev.pgn,
+      }).isGameOver(toShortColor(turn));
+
       return {
         ...prev,
         status: 'complete',
-        winner: prev.lastMoveBy,
+        winner:
+          gameOverResult.over && gameOverResult.isDraw
+            ? '1/2'
+            : prev.lastMoveBy,
         timeLeft: nextTimeLeft,
         gameOverReason: GameOverReason['timeout'],
         ...(lastOffer && {
