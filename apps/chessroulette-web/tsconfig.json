@@ -35,7 +35,7 @@
     "**/*.js",
     "**/*.jsx",
     "next-env.d.ts",
-    "../../utilkit/**/*.ts",
+    "../../util-kit/**/*.ts",
     "../../apps/chessroulette-web/.next/types/**/*.ts",
     "../../dist/apps/chessroulette-web/.next/types/**/*.ts"
   ],
