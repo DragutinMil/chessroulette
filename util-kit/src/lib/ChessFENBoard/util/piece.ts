@@ -5,14 +5,13 @@ import {
   FenBoardDetailedChessMove,
 } from '../types';
 import {
+  ChessColor,
   DetailedChessMove,
   PieceSan,
   PromotionalPieceSan,
-  ShortChessColor,
-} from '../../Chess/types';
+} from '../../ChessRouler';
 import { isOneOf } from '../../misc';
-
-const isUpperCase = (s: string) => s === s.toUpperCase();
+import { isUpperCase } from './misc';
 
 // From FenBoardPieceSymbol
 
@@ -22,6 +21,9 @@ export const fenBoardPieceSymbolToDetailedChessPiece = (
   type: p.toLowerCase() as PieceSymbol,
   color: isUpperCase(p) ? 'w' : 'b',
 });
+
+export const isPieceSymbolOfColor = (color: Color, p: FenBoardPieceSymbol) =>
+  color === 'w' ? isUpperCase(p) : !isUpperCase(p);
 
 export const fenBoardPieceSymbolToPieceSymbol = (
   p: FenBoardPieceSymbol
@@ -58,7 +60,7 @@ export const pieceSanToPieceSymbol = (p: PieceSan): PieceSymbol =>
   fenBoardPieceSymbolToPieceSymbol(pieceSanToFenBoardPieceSymbol(p));
 
 export const pieceSanToPiece = (p: PieceSan): Piece => ({
-  color: p[0] as ShortChessColor,
+  color: p[0] as ChessColor,
   type: p[1].toLowerCase() as PieceSymbol,
 });
 

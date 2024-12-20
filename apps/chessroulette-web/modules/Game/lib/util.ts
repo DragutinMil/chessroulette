@@ -1,13 +1,12 @@
 import {
+  ChessColor,
   ChessFEN,
   ChessFENBoard,
   ChessPGN,
   FBHHistory,
   FBHIndex,
   FreeBoardHistory,
-  LongChessColor,
   pgnToFen,
-  toLongColor,
 } from '@xmatter/util-kit';
 import { GameDisplayState } from '../types';
 
@@ -56,8 +55,8 @@ export const getGameDisplayState = ({
   };
 };
 
-export const getTurnFromPgn = (pgn: ChessPGN): LongChessColor =>
+export const getTurnFromPgn = (pgn: ChessPGN): ChessColor =>
   getTurnFromFen(pgnToFen(pgn));
 
-export const getTurnFromFen = (fen: ChessFEN): LongChessColor =>
-  toLongColor(new ChessFENBoard(fen).getFenState().turn);
+export const getTurnFromFen = (fen: ChessFEN): ChessColor =>
+  new ChessFENBoard(fen).getFenState().turn;

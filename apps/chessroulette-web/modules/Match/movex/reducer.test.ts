@@ -1,16 +1,11 @@
-import {
-  Game,
-  GameOverReason,
-  GameTimeClass,
-  OngoingGame,
-} from '@app/modules/Game';
+import { Game, GameTimeClass, OngoingGame } from '@app/modules/Game';
 import { applyActionsToReducer } from '@app/lib/util';
-import { invoke } from '@xmatter/util-kit';
+import { GameOverReason, invoke } from '@xmatter/util-kit';
 import { createMatchState } from './operations/operations';
 import { reducer as matchReducer } from './reducer';
 import { MatchState } from './types';
-import { PlayActions, createPendingGame } from '../Play/store';
-import { AnyAction, GetReducerAction, GetReducerState } from 'movex-core-util';
+import { createPendingGame } from '../Play/store';
+import { GetReducerAction, GetReducerState } from 'movex-core-util';
 
 type CreateOngoingGameParams = {
   timeClass: GameTimeClass;
@@ -25,15 +20,15 @@ const CONSTANTS = {
 
   get gamePlayersByColors(): Game['players'] {
     return {
-      white: this.challengerId,
-      black: this.challengeeId,
+      w: this.challengerId,
+      b: this.challengeeId,
     };
   },
 
   get gamePlayersByColorsReversed(): Game['players'] {
     return {
-      white: this.challengeeId,
-      black: this.challengerId,
+      w: this.challengeeId,
+      b: this.challengerId,
     };
   },
 
@@ -123,7 +118,7 @@ describe('Match Status: Pending > Ongoing', () => {
         winner: null,
         pgn: '1. e4',
         lastMoveAt: 123,
-        lastMoveBy: 'white',
+        lastMoveBy: 'w',
         players: CONSTANTS.gamePlayersByColors,
       },
 
@@ -156,7 +151,7 @@ describe('Match Status: Pending > Ongoing', () => {
         status: 'ongoing',
         winner: null,
         pgn: '1. e4 e6',
-        lastMoveBy: 'black',
+        lastMoveBy: 'b',
       },
 
       // Defaults
@@ -214,7 +209,7 @@ describe('Match Status: Ongoing > Completed', () => {
 
         pgn: '1. g4',
         lastMoveAt: 123,
-        lastMoveBy: 'white',
+        lastMoveBy: 'w',
         startedAt: 123,
         winner: null,
       },
@@ -252,8 +247,8 @@ describe('Match Status: Ongoing > Completed', () => {
             }),
             status: 'complete',
             pgn: '1. g4 e6 2. f3 Qh4#',
-            lastMoveBy: 'black',
-            winner: 'black',
+            lastMoveBy: 'b',
+            winner: 'b',
             gameOverReason: GameOverReason['checkmate'],
           },
         },
@@ -313,7 +308,7 @@ describe('Start New Match', () => {
         status: 'idling',
         pgn: '1. e4',
         lastMoveAt: 123,
-        lastMoveBy: 'white',
+        lastMoveBy: 'w',
         startedAt: 123,
         winner: null,
       },
@@ -333,7 +328,7 @@ describe('Start New Match', () => {
       {
         type: 'play:resignGame',
         payload: {
-          color: 'white',
+          color: 'w',
         },
       },
       {
@@ -354,8 +349,8 @@ describe('Start New Match', () => {
           }),
           status: 'complete',
           pgn: '1. e4 e6',
-          lastMoveBy: 'black',
-          winner: 'black',
+          lastMoveBy: 'b',
+          winner: 'b',
           gameOverReason: GameOverReason['resignation'],
         },
       ],
@@ -408,7 +403,7 @@ describe('End Match when rounds number reached', () => {
       {
         type: 'play:resignGame',
         payload: {
-          color: 'black',
+          color: 'b',
         },
       },
     ]);
@@ -426,8 +421,8 @@ describe('End Match when rounds number reached', () => {
           }),
           status: 'complete',
           pgn: '1. e4 e6',
-          lastMoveBy: 'black',
-          winner: 'white',
+          lastMoveBy: 'b',
+          winner: 'w',
           gameOverReason: GameOverReason['resignation'],
         },
       ],
@@ -481,7 +476,7 @@ describe('End Match when rounds number reached', () => {
             offers: [{ byPlayer: 'john', status: 'accepted', type: 'draw' }],
             status: 'complete',
             pgn: '1. e4 e6',
-            lastMoveBy: 'black',
+            lastMoveBy: 'b',
             winner: '1/2',
             gameOverReason: GameOverReason['acceptedDraw'],
           },
@@ -542,13 +537,13 @@ describe('Timer only starts after black moves', () => {
         }),
         timeLeft: {
           lastUpdatedAt: null,
-          white: 300000,
-          black: 300000,
+          w: 300000,
+          b: 300000,
         },
         status: 'idling',
         pgn: '1. e4',
         lastMoveAt: moveWhiteTime,
-        lastMoveBy: 'white',
+        lastMoveBy: 'w',
         startedAt: 123,
         winner: null,
       },
@@ -582,7 +577,7 @@ describe('Timer only starts after black moves', () => {
         }),
         status: 'ongoing',
         pgn: '1. e4 e6',
-        lastMoveBy: 'black',
+        lastMoveBy: 'b',
         winner: null,
       },
 
@@ -601,8 +596,8 @@ describe('Timer only starts after black moves', () => {
 
     const { timeLeft: actualTimeLeft } = actual?.gameInPlay || {};
 
-    expect(actualTimeLeft?.black).toEqual(300000);
-    expect(actualTimeLeft?.white).not.toEqual(30000);
+    expect(actualTimeLeft?.b).toEqual(300000);
+    expect(actualTimeLeft?.w).not.toEqual(30000);
   });
 });
 
@@ -629,7 +624,7 @@ describe('Abort', () => {
     const actual = matchReducer(idlingMatch, {
       type: 'play:abortGame',
       payload: {
-        color: 'white',
+        color: 'w',
       },
     });
 
@@ -647,7 +642,7 @@ describe('Abort', () => {
           status: 'aborted',
           pgn: '',
           lastMoveAt: null,
-          lastMoveBy: 'black',
+          lastMoveBy: 'b',
           winner: null,
           startedAt: 123,
         },
@@ -678,7 +673,7 @@ describe('Abort', () => {
       {
         type: 'play:resignGame',
         payload: {
-          color: 'black',
+          color: 'b',
         },
       },
       {
@@ -700,8 +695,8 @@ describe('Abort', () => {
           offers: [],
           status: 'complete',
           pgn: '1. e4 e6',
-          lastMoveBy: 'black',
-          winner: 'white',
+          lastMoveBy: 'b',
+          winner: 'w',
           gameOverReason: GameOverReason['resignation'],
         },
       ],
@@ -731,7 +726,7 @@ describe('Abort', () => {
       {
         type: 'play:abortGame',
         payload: {
-          color: 'white',
+          color: 'w',
         },
       },
     ]);
@@ -750,8 +745,8 @@ describe('Abort', () => {
           offers: [],
           status: 'complete',
           pgn: '1. e4 e6',
-          lastMoveBy: 'black',
-          winner: 'white',
+          lastMoveBy: 'b',
+          winner: 'w',
           gameOverReason: GameOverReason['resignation'],
         },
         {
@@ -763,7 +758,7 @@ describe('Abort', () => {
           status: 'aborted',
           pgn: '',
           lastMoveAt: null,
-          lastMoveBy: 'black',
+          lastMoveBy: 'b',
           winner: null,
           startedAt: 123,
         },
@@ -794,7 +789,7 @@ describe('Abort', () => {
       {
         type: 'play:resignGame',
         payload: {
-          color: 'black',
+          color: 'b',
         },
       },
       {
@@ -816,8 +811,8 @@ describe('Abort', () => {
           offers: [],
           status: 'complete',
           pgn: '1. e4 e6',
-          lastMoveBy: 'black',
-          winner: 'white',
+          lastMoveBy: 'b',
+          winner: 'w',
           gameOverReason: GameOverReason['resignation'],
         },
       ],
@@ -853,7 +848,7 @@ describe('Abort', () => {
       {
         type: 'play:abortGame',
         payload: {
-          color: 'black',
+          color: 'b',
         },
       },
     ]);
@@ -872,8 +867,8 @@ describe('Abort', () => {
           offers: [],
           status: 'complete',
           pgn: '1. e4 e6',
-          lastMoveBy: 'black',
-          winner: 'white',
+          lastMoveBy: 'b',
+          winner: 'w',
           gameOverReason: GameOverReason['resignation'],
         },
         {
@@ -885,7 +880,7 @@ describe('Abort', () => {
           status: 'aborted',
           pgn: '1. e4',
           lastMoveAt: 123,
-          lastMoveBy: 'white',
+          lastMoveBy: 'w',
           winner: null,
           startedAt: 123,
         },

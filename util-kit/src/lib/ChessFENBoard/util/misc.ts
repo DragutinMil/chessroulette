@@ -1,15 +1,10 @@
 import { Piece } from 'chess.js';
 import type {
-  BlackLongColor,
-  BlackShortColor,
+  BlackColor,
   ChessColor,
   ChessMove,
-  LongChessColor,
-  ShortChessColor,
-  WhiteLongColor,
-  WhiteShortColor,
-} from '../../Chess';
-import { isShortChessColor } from '../../Chess';
+  WhiteColor,
+} from '../../ChessRouler';
 
 export const isPromotableMove = (m: ChessMove, piece: Piece) => {
   return (
@@ -19,22 +14,11 @@ export const isPromotableMove = (m: ChessMove, piece: Piece) => {
   );
 };
 
-export function swapColor<C extends LongChessColor>(
-  c: C
-): C extends LongChessColor ? BlackLongColor : WhiteLongColor;
-export function swapColor<C extends ShortChessColor>(
-  c: C
-): C extends ShortChessColor ? BlackShortColor : WhiteShortColor;
 export function swapColor<C extends ChessColor>(
   c: C
-): C extends LongChessColor ? BlackLongColor : WhiteLongColor;
-export function swapColor<C extends ChessColor>(
-  c: C
-): C extends ShortChessColor ? BlackShortColor : WhiteShortColor;
+): C extends ChessColor ? WhiteColor : BlackColor;
 export function swapColor<C extends ChessColor>(c: C) {
-  if (isShortChessColor(c)) {
-    return c === 'w' ? 'b' : 'w';
-  } else {
-    return c === 'white' ? 'black' : 'white';
-  }
+  return c === 'w' ? 'b' : 'w';
 }
+
+export const isUpperCase = (s: string) => s === s.toUpperCase();

@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { getMovesDetailsFromPGN } from '@app/modules/Match/utils';
-import { ChessColor, areColorsEqual, toShortColor } from '@xmatter/util-kit';
+import { ChessColor, areColorsEqual } from '@xmatter/util-kit';
 import { PlayerBox } from './PlayerBox';
 import { PlayersBySideWithResults } from '../../types';
 import { Game } from '@app/modules/Game';
@@ -32,7 +32,7 @@ export const PlayersInfo = ({
     return !!(
       moves.totalMoves === 1 &&
       moves.lastMoveBy &&
-      toShortColor(moves.lastMoveBy) === 'b'
+      moves.lastMoveBy === 'b'
     );
   }, [game]);
 

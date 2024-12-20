@@ -6,7 +6,6 @@ import {
   ShortChessMove,
   getNewChessGame,
   swapColor,
-  toShortColor,
 } from '@xmatter/util-kit';
 import { useEffect, useState } from 'react';
 import { Playboard } from './Playboard';
@@ -61,7 +60,7 @@ export const Main: Story = {
             setState((prev) => ({
               ...prev,
               fen: nextFen,
-              turn: toShortColor(swapColor(state.turn)),
+              turn: swapColor(state.turn),
             }));
           }}
         />
@@ -174,7 +173,7 @@ export const CheckPromotion: Story = {
             setState((prev) => ({
               ...prev,
               fen: nextFen,
-              turn: toShortColor(swapColor(state.turn)),
+              turn: swapColor(state.turn),
             }));
           }}
         />

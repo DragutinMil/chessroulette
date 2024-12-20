@@ -1,5 +1,6 @@
 import type { Square, Move, PieceSymbol } from 'chess.js';
 import { FenBoardPromotionalPieceSymbol } from '../ChessFENBoard';
+import { ChessColor } from './lib/chessColor/types';
 
 // Remove in favor of ShortChessMove
 export type ChessMove = {
@@ -33,25 +34,11 @@ export type ChessFENStateNotation = ChessFENStateNotationBrand & string;
 
 export type ChessMoveSan = string; // TODO: Brand this type
 
-export type WhiteShortColor = 'w';
-export type BlackShortColor = 'b';
-
-export type WhiteLongColor = 'white';
-export type BlackLongColor = 'black';
-
-export type WhiteColor = WhiteShortColor | WhiteLongColor;
-export type BlackColor = BlackShortColor | BlackLongColor;
-
-export type LongChessColor = WhiteLongColor | BlackLongColor;
-export type ShortChessColor = WhiteShortColor | BlackShortColor;
-
 export type ChessSide = 'home' | 'away';
-
-export type ChessColor = WhiteColor | BlackColor;
 
 export type DetailedChessPiece = {
   piece: PieceSymbol;
-  color: ShortChessColor;
+  color: ChessColor;
 };
 
 export type PieceSan =
@@ -70,6 +57,18 @@ export type PieceSan =
 
 export type PromotionalPieceSan = Exclude<PieceSan, 'wP' | 'wK' | 'bP' | 'bK'>;
 
-// export type ChessArrowId = `${Square}${Square}-${string}`;
 export type ChessArrowId = string;
 export type ChessCircleId = string;
+
+export enum GameOverReason {
+  'checkmate',
+  'draw',
+  'stalemate',
+  'insufficientMaterial',
+  'threefoldRepetition',
+  'resignation',
+  'acceptedDraw',
+  'aborted',
+  'timeout',
+  'drawAwardedForInsufficientMaterial',
+}

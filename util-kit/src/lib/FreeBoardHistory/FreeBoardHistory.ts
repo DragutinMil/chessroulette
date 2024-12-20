@@ -5,8 +5,7 @@ import {
   DetailedChessMove,
   getNewChessGame,
   isWhiteColor,
-  toShortColor,
-} from '../Chess';
+} from '../ChessRouler';
 import {
   ChessFENBoard,
   detailedChessMoveToFreeBoardDetailedChessMove,
@@ -50,7 +49,7 @@ export namespace FreeBoardHistory {
 
   const createIndex = (turn: number, color: ChessColor): FBHIndex => [
     turn,
-    toShortColor(color) === 'b' ? 1 : 0,
+    color === 'b' ? 1 : 0,
   ];
 
   export const getStartingIndex = () => createIndex(-1, 'b');

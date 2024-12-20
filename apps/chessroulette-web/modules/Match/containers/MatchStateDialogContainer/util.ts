@@ -1,4 +1,4 @@
-import { GameOverReason } from '@app/modules/Game';
+import { GameOverReason } from '@xmatter/util-kit';
 
 export const gameOverReasonsToDisplay: { [k in GameOverReason]: string } = {
   [GameOverReason['aborted']]: 'Game was aborted',
@@ -9,8 +9,10 @@ export const gameOverReasonsToDisplay: { [k in GameOverReason]: string } = {
     'Game ended in a draw due to insufficient material',
   [GameOverReason['threefoldRepetition']]:
     'Game ended in a draw due to a threefold repetition',
-  [GameOverReason['resignation']]: 'Player Resigned',
+  [GameOverReason['resignation']]: 'Player resigned',
   [GameOverReason['stalemate']]:
     'Game ended in a draw due to a stalemate position',
   [GameOverReason['timeout']]: 'Game ended due to timeout',
+  [GameOverReason['drawAwardedForInsufficientMaterial']]:
+    "Game timed out, but the strong side was awarded a draw due to opponent's insufficient material to force mate",
 };

@@ -4,7 +4,6 @@ import {
   ChessFEN,
   ChessFENBoard,
   noop,
-  toShortColor,
 } from '@xmatter/util-kit';
 import { RIGHT_SIDE_SIZE_PX } from '../../../constants';
 import { IconButton } from '@app/components/Button';
@@ -41,9 +40,7 @@ export const InstructorBoard = ({
     return (
       <BoardEditor
         sizePx={boardSizePx}
-        boardOrientation={
-          boardOrientation ? toShortColor(boardOrientation) : undefined
-        }
+        boardOrientation={boardOrientation}
         {...chessBoardProps}
         showSaveButtons={chessBoardProps.showBoardEditorSaveButtons}
         onCancel={onToggleBoardEditor}

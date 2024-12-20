@@ -7,7 +7,6 @@ import {
   isBlackColor,
   objectKeys,
   pieceSanToFenBoardPieceSymbol,
-  toShortColor,
 } from '@xmatter/util-kit';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
@@ -143,7 +142,7 @@ export const BoardEditor = ({
   }>();
 
   const extraPiecesLayout = useMemo(() => {
-    if (toShortColor(props.boardOrientation || 'w') === 'w') {
+    if (props.boardOrientation || 'w' === 'w') {
       return {
         top: blackPieces.map(renderPiece),
         bottom: whitePieces.map(renderPiece),

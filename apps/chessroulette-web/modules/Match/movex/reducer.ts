@@ -1,5 +1,5 @@
 import { MovexReducer } from 'movex-core-util';
-import { invoke, swapColor, toLongColor } from '@xmatter/util-kit';
+import { invoke, swapColor } from '@xmatter/util-kit';
 import * as PlayStore from '@app/modules/Match/Play/store';
 import { AbortedGame } from '@app/modules/Game';
 import { MatchActions, MatchState } from './types';
@@ -33,8 +33,8 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
       return {
         timeClass: prevGame.timeClass,
         players: {
-          white: prevGame.players.black,
-          black: prevGame.players.white,
+          w: prevGame.players.b,
+          b: prevGame.players.w,
         },
       };
     });
@@ -174,16 +174,14 @@ reducer.$transformState = (state, masterContext): MatchState => {
   }
 
   // Determine if Match is "aborted" onRead
-  const match = state;
-
-  if (match.status === 'complete' || match.status === 'aborted') {
+  if (state.status === 'complete' || state.status === 'aborted') {
     return state;
   }
 
-  const ongoingPlay = match.gameInPlay;
+  const ongoingPlay = state.gameInPlay;
 
   if (ongoingPlay?.status === 'ongoing') {
-    const turn = toLongColor(swapColor(ongoingPlay.lastMoveBy));
+    const turn = swapColor(ongoingPlay.lastMoveBy);
 
     const nextTimeLeft = PlayStore.calculateTimeLeftAt({
       at: masterContext.requestAt, // TODO: this can take in account the lag as well
@@ -192,7 +190,7 @@ reducer.$transformState = (state, masterContext): MatchState => {
     });
 
     return {
-      ...match,
+      ...state,
       gameInPlay: {
         ...ongoingPlay,
         timeLeft: nextTimeLeft,
@@ -212,9 +210,9 @@ reducer.$transformState = (state, masterContext): MatchState => {
 
     // First game in the match is aborted by idling too long
     // and thus the whole Match gets aborted
-    if (match.status === 'pending') {
+    if (state.status === 'pending') {
       return {
-        ...match,
+        ...state,
         status: 'aborted',
         winner: null,
         endedGames: [nextAbortedGame],
@@ -224,15 +222,15 @@ reducer.$transformState = (state, masterContext): MatchState => {
 
     // A subsequent game in the match is aborted by idling too long
     // and thus the Match Gets completed with the winner the opposite player
-    if (match.status === 'ongoing') {
+    if (state.status === 'ongoing') {
       return {
-        ...match,
+        ...state,
         status: 'complete',
         winner: getMatchPlayerRoleById(
-          match,
+          state,
           ongoingPlay.players[ongoingPlay.lastMoveBy]
         ),
-        endedGames: [...match.endedGames, nextAbortedGame],
+        endedGames: [...state.endedGames, nextAbortedGame],
         gameInPlay: null,
       };
     }

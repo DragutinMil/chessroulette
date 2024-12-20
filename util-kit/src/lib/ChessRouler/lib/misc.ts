@@ -1,43 +1,7 @@
-import { PieceSymbol, Square } from 'chess.js';
+import { PieceSymbol, Square, Chess } from 'chess.js';
 import { Arrow } from 'react-chessboard/dist/chessboard/types';
-import type {
-  BlackColor,
-  ChessArrowId,
-  ChessColor,
-  ChessFEN,
-  ChessMove,
-  ChessPGN,
-  LongChessColor,
-  ShortChessColor,
-  WhiteColor,
-} from './types';
-import { Chess } from 'chess.js';
-import { fenBoardPieceSymbolToPieceSymbol } from '../ChessFENBoard';
-import { getRandomInt } from '../misc';
-
-export const isShortChessColor = (s: string): s is ShortChessColor =>
-  s === 'b' || s === 'w';
-
-export const isLongChessColor = (s: string): s is LongChessColor =>
-  s === 'black' || s === 'white';
-
-export const isChessColor = (s: string): s is ChessColor =>
-  isShortChessColor(s) || isLongChessColor(s);
-
-export const toShortColor = (c: ChessColor): ShortChessColor =>
-  c[0] as ShortChessColor;
-
-export const toLongColor = (c: ChessColor): LongChessColor =>
-  c === 'b' || c === 'black' ? 'black' : 'white';
-
-export const isWhiteColor = (c: ChessColor): c is WhiteColor =>
-  toShortColor(c) === 'w';
-
-export const isBlackColor = (c: ChessColor): c is BlackColor =>
-  toShortColor(c) === 'b';
-
-export const areColorsEqual = (a: ChessColor, b: ChessColor) =>
-  toShortColor(a) === toShortColor(b);
+import { ChessArrowId, ChessFEN, ChessMove, ChessPGN } from '../types';
+import { fenBoardPieceSymbolToPieceSymbol } from '../../ChessFENBoard';
 
 export const isDarkSquare = (s: Square): boolean => {
   const [file, rank] = s;
@@ -59,6 +23,7 @@ export const toChessArrowFromId = (aid: ChessArrowId): Arrow => {
   return [from, to, color];
 };
 
+// @deprecate in favor of ChessRouler
 export const getNewChessGame = (
   props?:
     | { pgn: ChessPGN; fen?: undefined }
@@ -120,6 +85,14 @@ export const pgnToFen = (pgn: ChessPGN): ChessFEN =>
   getNewChessGame({ pgn }).fen();
 
 /**
+ * 
+ *   //  * !!! deprecate !!! deprecate !!! deprecate !!! deprecate
+  //  * deprecate the need for this!
+  //  *
+  //  * !!! This is an adapter for now but it should be removed in favor of using that directly
+  //  *
+  //  * @deprecate
+
  * This is an adapter for now but it should be removed in favor of using that directly
  *
  * @deprecate
@@ -136,6 +109,3 @@ export const localChessMoveToChessLibraryMove = ({
   to,
   ...(promoteTo && { promotion: fenBoardPieceSymbolToPieceSymbol(promoteTo) }),
 });
-
-export const getRandomColor = (): ShortChessColor =>
-  (['w', 'b'] as const)[getRandomInt(0, 1)];

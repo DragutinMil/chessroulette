@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { ChessFENBoard, toLongColor } from '@xmatter/util-kit';
+import { ChessFENBoard, toLongChessColor } from '@xmatter/util-kit';
 import { ChapterState } from '../movex';
 
 type Props = {
@@ -9,7 +9,7 @@ type Props = {
 
 export const ChapterDisplayView = ({ chapter, className }: Props) => {
   const turn = useMemo(
-    () => toLongColor(new ChessFENBoard(chapter.displayFen).getFenState().turn),
+    () => toLongChessColor(new ChessFENBoard(chapter.displayFen).getFenState().turn),
     [chapter.displayFen]
   );
 

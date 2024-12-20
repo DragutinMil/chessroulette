@@ -26,13 +26,13 @@ describe('Best Of', () => {
 
       timeLeft: {
         lastUpdatedAt: initialPlayState.lastMoveAt,
-        black: chessGameTimeLimitMsMap.blitz,
-        white: chessGameTimeLimitMsMap.blitz,
+        b: chessGameTimeLimitMsMap.blitz,
+        w: chessGameTimeLimitMsMap.blitz,
       },
 
       players: {
-        white: CONSTANTS.challengeeId,
-        black: CONSTANTS.challengerId,
+        w: CONSTANTS.challengeeId,
+        b: CONSTANTS.challengerId,
       },
     };
 
@@ -69,7 +69,7 @@ describe('Open Ended', () => {
       timeClass: 'bullet',
       challengeeId: CONSTANTS.challengeeId,
       challengerId: CONSTANTS.challengerId,
-      startColor: 'w',
+      startColor: 'b',
     });
 
     const expectedGameInPlay: Game = {
@@ -78,13 +78,13 @@ describe('Open Ended', () => {
 
       timeLeft: {
         lastUpdatedAt: initialPlayState.lastMoveAt,
-        black: chessGameTimeLimitMsMap.bullet,
-        white: chessGameTimeLimitMsMap.bullet,
+        b: chessGameTimeLimitMsMap.bullet,
+        w: chessGameTimeLimitMsMap.bullet,
       },
 
       players: {
-        white: CONSTANTS.challengeeId,
-        black: CONSTANTS.challengerId,
+        w: CONSTANTS.challengeeId,
+        b: CONSTANTS.challengerId,
       },
     };
 

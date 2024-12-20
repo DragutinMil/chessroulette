@@ -3,7 +3,6 @@ import {
   ChessFENBoard,
   DistributiveOmit,
   ShortChessMove,
-  toShortColor,
 } from '@xmatter/util-kit';
 import {
   ChessboardContainer,
@@ -34,7 +33,7 @@ export type PlayboardProps = DistributiveOmit<
 export const Playboard = ({
   fen = ChessFENBoard.STARTING_FEN,
   playingColor,
-  boardOrientation = toShortColor(playingColor),
+  boardOrientation = playingColor,
   onMove,
   canPlay = false,
   turn,
@@ -53,7 +52,7 @@ export const Playboard = ({
         return false;
       }
 
-      return validateMove(move, fen, toShortColor(playingColor)).valid;
+      return validateMove(move, fen, playingColor).valid;
     },
     [canPlay, turn, fen, playingColor]
   );
@@ -61,7 +60,7 @@ export const Playboard = ({
   return (
     <ChessboardContainer
       strict
-      turn={toShortColor(turn)}
+      turn={turn}
       fen={fen}
       boardOrientation={boardOrientation}
       boardTheme={boardTheme}
