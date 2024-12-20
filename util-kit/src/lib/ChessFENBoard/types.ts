@@ -1,11 +1,6 @@
 import type { Color, PieceSymbol, Square } from 'chess.js';
+import { BlackColor, ChessColor, WhiteColor, ShortChessMove } from '../ChessRouler';
 import type { Matrix } from '../matrix';
-import {
-  BlackColor,
-  ChessColor,
-  ShortChessMove,
-  WhiteColor,
-} from '../ChessRouler/types';
 
 export type AbsoluteCoord = {
   x: number;

@@ -3,7 +3,6 @@ import {
   BoardEditorProps,
 } from '@app/components/BoardEditor';
 import { ChapterBoardState } from '../movex';
-import { toShortColor } from '@xmatter/util-kit';
 
 export type LearnBoardEditorProps = {
   boardSizePx: number;
@@ -33,7 +32,7 @@ export const LearnBoardEditor = ({
   <BoardEditor
     fen={displayFen}
     sizePx={boardSizePx}
-    boardOrientation={toShortColor(boardOrientation || orientation)}
+    boardOrientation={boardOrientation || orientation}
     arrowsMap={arrowsMap}
     circlesMap={circlesMap}
     {...boardProps}

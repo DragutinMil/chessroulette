@@ -1,5 +1,8 @@
 import { deepmerge } from 'deepmerge-ts';
-import { getNewChessGame, isShortChessColor, toShortColor } from '../ChessRouler/lib';
+import {
+  getNewChessGame,
+  isShortChessColor,
+} from '../ChessRouler/lib';
 import type { ChessFEN, ChessFENStateNotation } from '../ChessRouler/types';
 import type {
   FENBoard,
@@ -13,7 +16,6 @@ import {
   fenBoardPieceSymbolToDetailedChessPiece,
   getFileRank,
   isPieceSymbolOfColor,
-  isUpperCase,
   matrixIndexToSquare,
   swapColor,
 } from './util';
@@ -234,7 +236,7 @@ export class ChessFENBoard {
     // Refresh the Fen State
     this.setFenState({
       // turn: prevFenState.turn === 'b' ? 'w' : 'b',
-      turn: toShortColor(swapColor(detailedPiece.color)),
+      turn: swapColor(detailedPiece.color),
 
       ...(castlingMove && {
         // Remove the castling rights if applied this move

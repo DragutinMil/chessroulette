@@ -7,7 +7,6 @@ import {
   isBlackColor,
   objectKeys,
   squareToBoardCoards,
-  toShortColor,
 } from '@xmatter/util-kit';
 import { Square } from 'chess.js';
 import React, { useMemo } from 'react';
@@ -51,7 +50,7 @@ export const PromotionDialogLayer: React.FC<PromotionDialogLayerProps> = ({
   const promotingColor: ShortChessColor =
     Number(promotionSquare[1]) === 1 ? 'b' : 'w';
 
-  const isFlipped = promotingColor !== toShortColor(boardOrientation);
+  const isFlipped = promotingColor !== boardOrientation;
 
   const dialogHorizontalPosition = useMemo(() => {
     const rawCoords = squareToBoardCoards(promotionSquare);
@@ -74,7 +73,7 @@ export const PromotionDialogLayer: React.FC<PromotionDialogLayerProps> = ({
             asset: promotablePiecesMapWithDisplayOrder[san],
           } as const)
       )
-      .filter((p) => toShortColor(p.color) === promotingColor)
+      .filter((p) => p.color === promotingColor)
       .sort(
         (a, b) =>
           promotablePiecesMapWithDisplayOrder[a.san] -

@@ -18,8 +18,8 @@ export const createPendingGame = ({
     timeClass,
     timeLeft: {
       lastUpdatedAt: null,
-      white: timeLeft,
-      black: timeLeft,
+      w: timeLeft,
+      b: timeLeft,
     },
     players,
   };

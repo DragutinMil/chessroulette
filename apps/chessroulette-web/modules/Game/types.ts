@@ -1,9 +1,10 @@
 import {
+  ChessColor,
   ChessFEN,
   ChessPGN,
   FBHHistory,
   FBHIndex,
-  LongChessColor,
+  GameOverReason,
   ShortChessMove,
 } from '@xmatter/util-kit';
 import { User } from '@app/modules/User';
@@ -15,7 +16,7 @@ export type GameDisplayState = {
   fen: ChessFEN;
   history: FBHHistory;
   focusedIndex: FBHIndex;
-  turn: LongChessColor;
+  turn: ChessColor;
   lastMove?: ShortChessMove;
 };
 
@@ -23,24 +24,12 @@ export type ChessGameTimeMap = {
   [k in GameTimeClass]: number;
 };
 
-export type GameStateWinner = keyof GamePlayers | '1/2';
-
 export type GamePlayers = {
-  white: string;
-  black: string;
+  w: string;
+  b: string;
 };
 
-export enum GameOverReason {
-  'timeout',
-  'checkmate',
-  'draw',
-  'stalemate',
-  'insufficientMaterial',
-  'threefoldRepetition',
-  'resignation',
-  'acceptedDraw',
-  'aborted',
-}
+export type GameStateWinner = keyof GamePlayers | '1/2';
 
 export type GameOffer = {
   // TODO: this should not be byPlayer but byColor, since inside the Game there is no notion of player but just of color
@@ -65,25 +54,15 @@ export type PendingGame = {
   // Since lastActivity
   timeLeft: {
     lastUpdatedAt: null;
-    white: number;
-    black: number;
+    w: number;
+    b: number;
   };
   pgn: '';
-  lastMoveBy: 'black'; // This can be undefined as well
+  lastMoveBy: ChessColor; // This could be undefined as well
   lastMoveAt: null;
   winner: null;
-
   offers: GameOffer[]; // TODO: Make this undefined
-
   gameOverReason: null;
-
-  // TODO: Is this needed here???
-  // @deprecate as each player can chose individualy
-  // orientation: ChessColor;
-  // challengerColor: ShortChessColor; // TODO: Should this be null here? For not leave it as something
-
-  // new
-  // players: null;
   players: GamePlayers;
 };
 
@@ -101,26 +80,16 @@ export type IdlingGame = {
   // Since lastActivity
   timeLeft: {
     lastUpdatedAt: null; // TODO: Change this to ISODateTime
-    white: number;
-    black: number;
+    w: number;
+    b: number;
   };
   pgn: ChessPGN;
-  lastMoveBy: LongChessColor;
+  lastMoveBy: ChessColor;
   // This is number in case white made its first move and waiting for black, or undefined otherwise
   lastMoveAt: number | null; // TODO: Change this to ISODateTime
   winner: null;
   offers: GameOffer[]; // TODO: Make this undefined
-
   gameOverReason: null;
-
-  // TODO: Is this needed here???
-  // @deprecate as each player can chose individualy
-  // orientation: ChessColor;
-
-  // new
-  // players: PlayersByColor;
-  // challengerColor: ShortChessColor;
-
   players: GamePlayers;
 };
 
@@ -138,25 +107,15 @@ export type OngoingGame = {
   // Since lastActivity
   timeLeft: {
     lastUpdatedAt: number; // this is the same as lastMoveAt but can be different as well
-    white: number;
-    black: number;
+    w: number;
+    b: number;
   };
   pgn: ChessPGN;
-  lastMoveBy: LongChessColor;
+  lastMoveBy: ChessColor;
   lastMoveAt: number; // TODO: Change this to ISODateTime
   winner: null;
   offers: GameOffer[];
-
   gameOverReason: null;
-
-  // TODO: Is this needed here???
-  // @deprecate as each player can chose individualy
-  // orientation: ChessColor;
-
-  // new
-  // players: PlayersByColor;
-  // challengerColor: ShortChessColor;
-
   players: GamePlayers;
 };
 
@@ -173,25 +132,15 @@ export type CompletedGame = {
   // Since lastActivity
   timeLeft: {
     lastUpdatedAt: number; // this is the same as lastMoveAt but can be different as well
-    white: number;
-    black: number;
+    w: number;
+    b: number;
   };
   pgn: ChessPGN;
-  lastMoveBy: LongChessColor;
+  lastMoveBy: ChessColor;
   lastMoveAt: number; // TODO: Change this to ISODateTime
   winner: GameStateWinner;
   offers: GameOffer[];
-
   gameOverReason: GameOverReason;
-
-  // TODO: Is this needed here???
-  // @deprecate as each player can chose individualy
-  // orientation: ChessColor;
-
-  // new
-  // players: PlayersByColor;
-  // challengerColor: ShortChessColor;
-
   players: GamePlayers;
 };
 
@@ -212,27 +161,16 @@ export type AbortedGame = {
   // Since lastActivity
   timeLeft: {
     lastUpdatedAt: number | null; // this is the same as lastMoveAt but can be different as well
-    white: number;
-    black: number;
+    w: number;
+    b: number;
   };
   pgn: ChessPGN;
-  lastMoveBy: LongChessColor;
+  lastMoveBy: ChessColor;
   // This is number in case white made its first move and waiting for black, or undefined otherwise
   lastMoveAt: number | null; // TODO: Change this to ISODateTime
   winner: null;
   offers: GameOffer[];
-
   gameOverReason: null;
-
-  // TODO: Is this needed here???
-  // @deprecate as each player can chose individualy
-  // orientation: ChessColor;
-
-  // new
-  // players: PlayersByColor;
-  // Derprecate
-  // challengerColor: ShortChessColor;
-
   players: GamePlayers;
 };
 

@@ -3,8 +3,7 @@ import {
   ChessFEN,
   PieceSan,
   ShortChessMove,
-  ShortChessColor,
-  toLongColor,
+  ChessColor,
 } from '@xmatter/util-kit';
 import { Square } from 'chess.js';
 import { useArrowAndCircleColor } from '../hooks/useArrowAndCircleColor';
@@ -37,7 +36,7 @@ export type ChessboardContainerProps = Omit<
   circlesMap?: CirclesMap;
   arrowColor?: string;
   lastMove?: ShortChessMove;
-  boardOrientation?: ShortChessColor;
+  boardOrientation?: ChessColor;
   containerClassName?: string;
 
   onPieceDrop?: (from: Square, to: Square, piece: PieceSan) => void;
@@ -62,11 +61,11 @@ export type ChessboardContainerProps = Omit<
     | {
         // When this is true the player can only touch the pieces on her side
         strict: true;
-        turn: ShortChessColor;
+        turn: ChessColor;
       }
     | {
         strict?: false;
-        turn?: ShortChessColor;
+        turn?: ChessColor;
       }
   );
 
@@ -155,7 +154,7 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
       fen={fen}
       sizePx={sizePx}
       boardTheme={boardTheme}
-      boardOrientation={toLongColor(boardOrientation)}
+      boardOrientation={boardOrientation}
       // Moves
       onPieceDragBegin={moveActions.onPieceDrag}
       onSquareClick={moveActions.onSquareClick}

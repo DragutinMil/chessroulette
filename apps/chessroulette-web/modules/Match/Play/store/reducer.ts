@@ -5,13 +5,12 @@ import {
   isOneOf,
   localChessMoveToChessLibraryMove,
   swapColor,
-  toLongColor,
 } from '@xmatter/util-kit';
 import { initialPlayState } from './state';
 import { PlayActions } from './types';
 import { calculateTimeLeftAt } from './util';
 import { Game, GameOffer, GameStateWinner } from '@app/modules/Game';
-import { ChessRouler, toShortColor } from 'util-kit/src/lib/ChessRouler';
+import { ChessRouler } from 'util-kit/src/lib/ChessRouler';
 import { logsy } from '@app/lib/Logsy';
 
 export const reducer = (
@@ -56,7 +55,7 @@ export const reducer = (
       return prev;
     }
 
-    const nextLastMoveBy = toLongColor(swapColor(lastMoveBy));
+    const nextLastMoveBy = swapColor(lastMoveBy);
 
     const commonPrevGameProps = {
       timeClass: prev.timeClass,
@@ -110,7 +109,7 @@ export const reducer = (
     // Prev Game Status is "Ongoing"
     const isGameOverResult = chessRouler.isGameOver(
       prev.timeClass !== 'untimed' && nextTimeLeft[nextLastMoveBy] <= 0
-        ? toShortColor(nextLastMoveBy)
+        ? nextLastMoveBy
         : undefined
     );
 
@@ -176,7 +175,7 @@ export const reducer = (
           } as GameOffer)
         : undefined;
 
-    const turn = toLongColor(swapColor(prev.lastMoveBy));
+    const turn = swapColor(prev.lastMoveBy);
 
     const nextTimeLeft = calculateTimeLeftAt({
       at: action.payload.at,
@@ -187,7 +186,7 @@ export const reducer = (
     if (nextTimeLeft[turn] <= 0) {
       const gameOverResult = new ChessRouler({
         pgn: prev.pgn,
-      }).isGameOver(toShortColor(turn));
+      }).isGameOver(turn);
 
       return {
         ...prev,
@@ -214,7 +213,7 @@ export const reducer = (
     return {
       ...prev,
       status: 'complete',
-      winner: toLongColor(swapColor(action.payload.color)),
+      winner: swapColor(action.payload.color),
       gameOverReason: GameOverReason['resignation'],
     };
   }
@@ -282,7 +281,7 @@ export const reducer = (
     const elapsedTime = takebackAt - prev.lastMoveAt;
     const nextTimeLeft = prev.timeLeft[prev.lastMoveBy] - elapsedTime;
 
-    const nextTurn = toLongColor(swapColor(prev.lastMoveBy));
+    const nextTurn = swapColor(prev.lastMoveBy);
     const nextOffers = [...prev.offers.slice(0, -1), lastOffer];
 
     return {

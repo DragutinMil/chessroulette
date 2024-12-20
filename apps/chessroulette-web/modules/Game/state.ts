@@ -7,10 +7,10 @@ export const PENDING_UNTIMED_GAME: PendingGame = {
   pgn: '',
   timeLeft: {
     lastUpdatedAt: null,
-    white: 0,
-    black: 0,
+    w: 0,
+    b: 0,
   },
-  lastMoveBy: 'black',
+  lastMoveBy: 'b',
   lastMoveAt: null,
   timeClass: 'untimed',
   gameOverReason: null,
@@ -19,7 +19,7 @@ export const PENDING_UNTIMED_GAME: PendingGame = {
   offers: [],
 
   players: {
-    white: 'N/A',
-    black: 'N/A',
+    w: 'N/A',
+    b: 'N/A',
   },
 };

@@ -9,8 +9,7 @@ import {
   DetailedChessMove,
   PieceSan,
   PromotionalPieceSan,
-  ShortChessColor,
-} from '../../ChessRouler/types';
+} from '../../ChessRouler';
 import { isOneOf } from '../../misc';
 import { isUpperCase } from './misc';
 
@@ -61,7 +60,7 @@ export const pieceSanToPieceSymbol = (p: PieceSan): PieceSymbol =>
   fenBoardPieceSymbolToPieceSymbol(pieceSanToFenBoardPieceSymbol(p));
 
 export const pieceSanToPiece = (p: PieceSan): Piece => ({
-  color: p[0] as ShortChessColor,
+  color: p[0] as ChessColor,
   type: p[1].toLowerCase() as PieceSymbol,
 });
 

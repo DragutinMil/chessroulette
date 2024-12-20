@@ -1,8 +1,8 @@
 import { createContext } from 'react';
 import {
+  ChessColor,
   FBHIndex,
   FreeBoardHistory,
-  LongChessColor,
   noop,
 } from '@xmatter/util-kit';
 import { UserId, UsersMap } from '@app/modules/User';
@@ -12,7 +12,7 @@ import { initialPlayState } from '@app/modules/Match/Play/store';
 export type GameContextProps = {
   displayState: GameDisplayState;
   committedState: {
-    turn: LongChessColor;
+    turn: ChessColor;
     game: Game;
   };
   actions: {
@@ -28,10 +28,10 @@ export const initialGameContextState: GameContextProps = {
     fen: '',
     history: [],
     focusedIndex: FreeBoardHistory.getStartingIndex(),
-    turn: 'white',
+    turn: 'w',
   },
   committedState: {
-    turn: 'white',
+    turn: 'w',
     game: initialPlayState,
   },
   actions: {

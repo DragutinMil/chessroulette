@@ -22,15 +22,14 @@ export const PlayContainer = (playBoardProps: PlayerContainerProps) => {
 
     // Advance the game to "idling" if the game is still in pending AND the User is the one of the players
     if (play.game.status === 'pending' && play.canUserPlay) {
-      console.log('[play] going to call play:start', { play })
       dispatch((masterContext) => ({
         type: 'play:start',
         payload: {
           at: masterContext.requestAt(),
           // TODO: here might need to use challenger|challengee but for now it's ok
           players: {
-            white: play.playersByColor.white.id,
-            black: play.playersByColor.black.id,
+            w: play.playersByColor.w.id,
+            b: play.playersByColor.b.id,
           },
         },
       }));

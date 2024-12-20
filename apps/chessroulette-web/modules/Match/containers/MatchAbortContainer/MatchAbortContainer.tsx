@@ -29,8 +29,8 @@ export const MatchAbortContainer = ({
 
   const isMyTurn = useMemo(
     () =>
-      (playersByColor.black.id === playerId && areColorsEqual(turn, 'black')) ||
-      (playersByColor.white.id === playerId && areColorsEqual(turn, 'white')),
+      (playersByColor.b.id === playerId && areColorsEqual(turn, 'b')) ||
+      (playersByColor.w.id === playerId && areColorsEqual(turn, 'w')),
     [turn, playersByColor]
   );
 

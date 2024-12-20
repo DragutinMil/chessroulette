@@ -1,16 +1,15 @@
 import { Chess, Move } from 'chess.js';
 import {
-  ChessColor,
   ChessFEN,
   ChessMove,
   ChessPGN,
   GameOverReason,
-  ShortChessColor,
 } from './types';
 import { DistributivePick } from '../miscType';
 import { ChessFENBoard, swapColor } from '../ChessFENBoard';
 import { localChessMoveToChessLibraryMove } from './lib';
 import { toDictIndexedBy } from '../misc';
+import { ChessColor } from './lib/chessColor/types';
 
 type SpecificChessJS = DistributivePick<
   Chess,
@@ -69,7 +68,7 @@ export class ChessRouler implements SpecificChessJS {
    * @param color
    * @param fen
    */
-  hasSufficientMaterialToForceMate(color: ShortChessColor) {
+  hasSufficientMaterialToForceMate(color: ChessColor) {
     const allPiecesByColor = new ChessFENBoard(this.fen()).getAllPiecesByColor(
       color
     );
@@ -109,7 +108,7 @@ export class ChessRouler implements SpecificChessJS {
    * @returns
    */
   // TODO: Add winner to this as well!
-  isGameOver(hasTimedOut: ShortChessColor | undefined):
+  isGameOver(hasTimedOut: ChessColor | undefined):
     | {
         over: true;
         reason: GameOverReason;
@@ -174,29 +173,4 @@ export class ChessRouler implements SpecificChessJS {
 
     return { over: false };
   }
-
-  // Statics
-
-  // /**
-  //  * !!! deprecate !!! deprecate !!! deprecate !!! deprecate
-  //  * deprecate the need for this!
-  //  *
-  //  * !!! This is an adapter for now but it should be removed in favor of using that directly
-  //  *
-  //  * @deprecate
-  //  *
-  //  * @param m
-  //  * @returns
-  //  */
-  // static localChessMoveToChessLibraryMove = ({
-  //   from,
-  //   to,
-  //   promoteTo,
-  // }: ChessMove): ShortChessJsMove => ({
-  //   from,
-  //   to,
-  //   ...(promoteTo && {
-  //     promotion: fenBoardPieceSymbolToPieceSymbol(promoteTo),
-  //   }),
-  // });
 }

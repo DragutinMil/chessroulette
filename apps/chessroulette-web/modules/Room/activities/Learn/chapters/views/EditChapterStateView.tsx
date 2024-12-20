@@ -3,7 +3,6 @@ import {
   ChessFENBoard,
   DeepPartial,
   FenState,
-  toShortColor,
 } from '@xmatter/util-kit';
 import { FenPreview } from '../../components/FenPreview';
 import {
@@ -76,7 +75,7 @@ export const EditChapterStateView = ({
           <input
             id="turn-white"
             type="radio"
-            checked={toShortColor(boardFenState.turn) === 'w'}
+            checked={boardFenState.turn === 'w'}
             name="turn-white"
             className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
             onChange={() => updateFenState({ turn: 'w' })}
@@ -92,7 +91,7 @@ export const EditChapterStateView = ({
           <input
             id="turn-black"
             type="radio"
-            checked={toShortColor(boardFenState.turn) === 'b'}
+            checked={boardFenState.turn === 'b'}
             name="turn-black"
             className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
             onChange={() => updateFenState({ turn: 'b' })}
@@ -112,7 +111,7 @@ export const EditChapterStateView = ({
           <input
             id="orientation-white"
             type="radio"
-            checked={toShortColor(state.orientation) === 'w'}
+            checked={state.orientation === 'w'}
             name="orientation-white"
             className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
             onChange={() => partialUpdate({ orientation: 'w' })}
@@ -128,7 +127,7 @@ export const EditChapterStateView = ({
           <input
             id="orientation-black"
             type="radio"
-            checked={toShortColor(state.orientation) === 'b'}
+            checked={state.orientation === 'b'}
             name="orientation-black"
             className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
             onChange={() => partialUpdate({ orientation: 'b' })}

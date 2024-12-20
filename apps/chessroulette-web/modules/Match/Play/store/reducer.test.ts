@@ -6,17 +6,16 @@ import {
   ChessRouler,
   GameOverReason,
   swapColor,
-  toLongColor,
 } from '@xmatter/util-kit';
 
 const PLAYERS_BY_COLOR = {
-  white: 'test-a',
-  black: 'test-b',
+  w: 'test-a',
+  b: 'test-b',
 };
 
 const PLAYERS_BY_COLOR_REVERSED = {
-  white: 'test-b',
-  black: 'test-a',
+  w: 'test-b',
+  b: 'test-a',
 };
 
 describe('Game Status: Pending > Idling', () => {
@@ -44,7 +43,7 @@ describe('Game Status: Pending > Idling', () => {
       // these 2 are the same for now
       startedAt: 123,
       lastMoveAt: null,
-      lastMoveBy: 'black',
+      lastMoveBy: 'b',
       winner: null,
       offers: [],
       gameOverReason: null,
@@ -58,7 +57,6 @@ describe('Game Status: Pending > Idling', () => {
 describe('Game Status: Idling > Idling', () => {
   test('It remains on "idling" on first White Move', () => {
     const pendingGame = createPendingGame({
-      // challengerColor: 'white',
       players: PLAYERS_BY_COLOR_REVERSED,
       timeClass: 'blitz',
     });
@@ -83,7 +81,7 @@ describe('Game Status: Idling > Idling', () => {
       // these 2 are the same for now
       startedAt: 123,
       lastMoveAt: 123,
-      lastMoveBy: 'white',
+      lastMoveBy: 'w',
       winner: null,
       offers: [],
       gameOverReason: null,
@@ -107,7 +105,7 @@ describe('Game Status: Idling > Aborted', () => {
     });
     const actual = playReducer(idle, {
       type: 'play:abortGame',
-      payload: { color: 'white' },
+      payload: { color: 'w' },
     });
 
     const expected: Game = {
@@ -118,7 +116,7 @@ describe('Game Status: Idling > Aborted', () => {
       // these 2 are the same for now
       startedAt: 123,
       lastMoveAt: null,
-      lastMoveBy: 'black',
+      lastMoveBy: 'b',
       winner: null,
       offers: [],
       gameOverReason: null,
@@ -163,7 +161,7 @@ describe('Game Status: Idling > Ongoing', () => {
       // these 2 are the same for now
       startedAt: 123,
       lastMoveAt: 234,
-      lastMoveBy: 'black',
+      lastMoveBy: 'b',
       winner: null,
       offers: [],
       gameOverReason: null,
@@ -198,15 +196,15 @@ describe('Game Status: Ongoing > Completed', () => {
 
       return {
         ...pendingGame,
-        lastMoveBy: swapColor(toLongColor(chessRouler.turn())),
+        lastMoveBy: swapColor(chessRouler.turn()),
         status: 'ongoing',
         startedAt: 0,
         pgn,
         timeLeft: {
           ...pendingGame.timeLeft,
           lastUpdatedAt: timeLeft?.lastUpdatedAt || lastMoveAt,
-          white: timeLeft?.white || pendingGame.timeLeft.white,
-          black: timeLeft?.black || pendingGame.timeLeft.black,
+          w: timeLeft?.w || pendingGame.timeLeft.w,
+          b: timeLeft?.b || pendingGame.timeLeft.b,
         },
         lastMoveAt,
       } satisfies OngoingGame;
@@ -219,8 +217,8 @@ describe('Game Status: Ongoing > Completed', () => {
     const game = createOngoingGame({
       pgn: '1. e4 e6 2. Qg4 d5 3. Qg6 hxg6 4. Ba6 Qg5 5. Nf3 Qxd2+ 6. Bxd2 dxe4 7. Bh6 exf3 8. Na3 gxh6 9. Bxb7 fxg2 10. Nb5 Bxb7 11. Nxa7 gxh1=Q+ 12. Kd2 Qxa1 13. f4 Rxa7 14. h4 Qxa2 15. f5 Qxb2 16. h5 gxh5 17. fxe6 fxe6 18. Kd3 Qxc2+ 19. Kxc2',
       timeLeft: {
-        black: 3,
-        white: 5,
+        b: 3,
+        w: 5,
       },
       lastMoveAt: 123,
     });
@@ -240,8 +238,8 @@ describe('Game Status: Ongoing > Completed', () => {
     const game = createOngoingGame({
       pgn: '1. e4 e6 2. Qg4 d5 3. Qg6 hxg6 4. Ba6 Qg5 5. Nf3 Qxd2+ 6. Bxd2 dxe4 7. Bh6 exf3 8. Na3 gxh6 9. Bxb7 fxg2 10. Nb5 Bxb7 11. Nxa7 gxh1=Q+ 12. Kd2 Qxa1 13. f4 Rxa7 14. h4 Qxa2 15. f5 Qxb2 16. h5 gxh5 17. fxe6 fxe6 18. Kd3 Qxc2+ 19. Kxc2',
       timeLeft: {
-        black: 3,
-        white: 5,
+        b: 3,
+        w: 5,
       },
       lastMoveAt: 123,
     });
@@ -263,8 +261,8 @@ describe('Game Status: Ongoing > Completed', () => {
     const game = createOngoingGame({
       pgn: '1. e3 c5 2. e4 d5 3. e5 c4 4. f4 Nc6 5. Bxc4 f6 6. Bxd5 f5 7. e6 Nd4 8. d3 Qa5+ 9. c3 Bxe6 10. Bxe6 Nxe6',
       timeLeft: {
-        black: 3,
-        white: 5,
+        b: 3,
+        w: 5,
       },
       lastMoveAt: 123,
     });
@@ -277,15 +275,15 @@ describe('Game Status: Ongoing > Completed', () => {
 
     expect(actual.status).toBe('complete');
     expect(actual.gameOverReason).toBe(GameOverReason['timeout']);
-    expect(actual.winner).toBe('black');
+    expect(actual.winner).toBe('b');
   });
 
   test('Player times out (on "play:checkTime") but the opponent has sufficient material to force mate and loses', () => {
     const game = createOngoingGame({
       pgn: '1. e3 c5 2. e4 d5 3. e5 c4 4. f4 Nc6 5. Bxc4 f6 6. Bxd5 f5 7. e6 Nd4 8. d3 Qa5+ 9. c3 Bxe6 10. Bxe6 Nxe6',
       timeLeft: {
-        black: 3,
-        white: 5,
+        b: 3,
+        w: 5,
       },
       lastMoveAt: 123,
     });
@@ -300,6 +298,6 @@ describe('Game Status: Ongoing > Completed', () => {
 
     expect(actual.status).toBe('complete');
     expect(actual.gameOverReason).toBe(GameOverReason['timeout']);
-    expect(actual.winner).toBe('black');
+    expect(actual.winner).toBe('b');
   });
 });
