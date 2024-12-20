@@ -174,29 +174,4 @@ export class ChessRouler implements SpecificChessJS {
 
     return { over: false };
   }
-
-  // Statics
-
-  // /**
-  //  * !!! deprecate !!! deprecate !!! deprecate !!! deprecate
-  //  * deprecate the need for this!
-  //  *
-  //  * !!! This is an adapter for now but it should be removed in favor of using that directly
-  //  *
-  //  * @deprecate
-  //  *
-  //  * @param m
-  //  * @returns
-  //  */
-  // static localChessMoveToChessLibraryMove = ({
-  //   from,
-  //   to,
-  //   promoteTo,
-  // }: ChessMove): ShortChessJsMove => ({
-  //   from,
-  //   to,
-  //   ...(promoteTo && {
-  //     promotion: fenBoardPieceSymbolToPieceSymbol(promoteTo),
-  //   }),
-  // });
 }
