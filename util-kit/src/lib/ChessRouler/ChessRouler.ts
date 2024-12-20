@@ -1,16 +1,15 @@
 import { Chess, Move } from 'chess.js';
 import {
-  ChessColor,
   ChessFEN,
   ChessMove,
   ChessPGN,
   GameOverReason,
-  ShortChessColor,
 } from './types';
 import { DistributivePick } from '../miscType';
 import { ChessFENBoard, swapColor } from '../ChessFENBoard';
 import { localChessMoveToChessLibraryMove } from './lib';
 import { toDictIndexedBy } from '../misc';
+import { ChessColor } from './lib/chessColor/types';
 
 type SpecificChessJS = DistributivePick<
   Chess,
@@ -69,7 +68,7 @@ export class ChessRouler implements SpecificChessJS {
    * @param color
    * @param fen
    */
-  hasSufficientMaterialToForceMate(color: ShortChessColor) {
+  hasSufficientMaterialToForceMate(color: ChessColor) {
     const allPiecesByColor = new ChessFENBoard(this.fen()).getAllPiecesByColor(
       color
     );

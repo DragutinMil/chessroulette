@@ -69,7 +69,7 @@ describe('Open Ended', () => {
       timeClass: 'bullet',
       challengeeId: CONSTANTS.challengeeId,
       challengerId: CONSTANTS.challengerId,
-      startColor: 'w',
+      startColor: 'b',
     });
 
     const expectedGameInPlay: Game = {

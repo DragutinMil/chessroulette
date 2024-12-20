@@ -1,4 +1,4 @@
-import { getRandomColor } from '@xmatter/util-kit';
+import { getRandomColor, toShortColor } from '@xmatter/util-kit';
 import { MatchState } from '../types';
 import { createPendingGame } from '../../Play/store';
 import { CreateMatchParamsSchema } from './operationsSchemas';
@@ -6,7 +6,7 @@ import { CreateMatchParamsSchema } from './operationsSchemas';
 export const createMatchState = (
   params: CreateMatchParamsSchema
 ): NonNullable<MatchState> => {
-  const challengerColor = params.startColor || getRandomColor();
+  const challengerColor = toShortColor(params.startColor || getRandomColor());
 
   return {
     status: 'pending',
@@ -32,7 +32,7 @@ export const createMatchState = (
       timeClass: params.timeClass || 'untimed',
       players:
         // TODO: here can also just leave the ids as "challenger" & "challengee"
-        challengerColor === 'white'
+        challengerColor === 'w'
           ? {
               w: params.challengerId,
               b: params.challengeeId,

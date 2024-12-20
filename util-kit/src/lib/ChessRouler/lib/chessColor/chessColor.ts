@@ -4,8 +4,8 @@ import {
   LongChessColor,
   ShortChessColor,
   WhiteColor,
-} from '../types';
-import { getRandomInt } from '../../misc';
+} from './types';
+import { getRandomInt } from '../../../misc';
 
 export const isShortChessColor = (s: string): s is ShortChessColor =>
   s === 'b' || s === 'w';
