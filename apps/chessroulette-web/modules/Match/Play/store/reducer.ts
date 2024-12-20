@@ -10,7 +10,7 @@ import { initialPlayState } from './state';
 import { PlayActions } from './types';
 import { calculateTimeLeftAt } from './util';
 import { Game, GameOffer, GameStateWinner } from '@app/modules/Game';
-import { ChessRouler, toShortColor } from 'util-kit/src/lib/ChessRouler';
+import { ChessRouler } from 'util-kit/src/lib/ChessRouler';
 import { logsy } from '@app/lib/Logsy';
 
 export const reducer = (
@@ -109,7 +109,7 @@ export const reducer = (
     // Prev Game Status is "Ongoing"
     const isGameOverResult = chessRouler.isGameOver(
       prev.timeClass !== 'untimed' && nextTimeLeft[nextLastMoveBy] <= 0
-        ? toShortColor(nextLastMoveBy)
+        ? nextLastMoveBy
         : undefined
     );
 
@@ -186,7 +186,7 @@ export const reducer = (
     if (nextTimeLeft[turn] <= 0) {
       const gameOverResult = new ChessRouler({
         pgn: prev.pgn,
-      }).isGameOver(toShortColor(turn));
+      }).isGameOver(turn);
 
       return {
         ...prev,

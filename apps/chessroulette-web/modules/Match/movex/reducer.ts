@@ -1,5 +1,5 @@
 import { MovexReducer } from 'movex-core-util';
-import { invoke, swapColor, toLongColor } from '@xmatter/util-kit';
+import { invoke, swapColor } from '@xmatter/util-kit';
 import * as PlayStore from '@app/modules/Match/Play/store';
 import { AbortedGame } from '@app/modules/Game';
 import { MatchActions, MatchState } from './types';

@@ -1,2 +1,2 @@
-export * from './chessColor';
+export * from './lib';
 export * from './types';

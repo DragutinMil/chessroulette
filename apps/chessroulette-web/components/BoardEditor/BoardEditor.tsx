@@ -143,7 +143,7 @@ export const BoardEditor = ({
   }>();
 
   const extraPiecesLayout = useMemo(() => {
-    if (toShortColor(props.boardOrientation || 'w') === 'w') {
+    if (props.boardOrientation || 'w' === 'w') {
       return {
         top: blackPieces.map(renderPiece),
         bottom: whitePieces.map(renderPiece),

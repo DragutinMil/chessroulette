@@ -1,7 +1,7 @@
 import { ChapterBoardState, ChapterState } from '../movex';
 import { useLearnActivitySettings } from '../hooks/useLearnActivitySettings';
 import { Freeboard, Playboard } from '@app/components/Boards';
-import { FreeBoardHistory, toShortColor } from '@xmatter/util-kit';
+import { FreeBoardHistory } from '@xmatter/util-kit';
 import {
   BoardEditorIconButton,
   ClearBoardIconButton,
@@ -50,14 +50,13 @@ export const LearnBoard = ({
 
   const Board = settings.canMakeInvalidMoves ? Freeboard : Playboard;
 
-  const orientationShortColor = toShortColor(orientation);
-  const turn = orientationShortColor;
+  const turn = orientation;
 
   return (
     <Board
       containerClassName="shadow-2xl"
-      boardOrientation={orientationShortColor}
-      playingColor={orientationShortColor}
+      boardOrientation={orientation}
+      playingColor={orientation}
       sizePx={sizePx}
       fen={fen}
       lastMove={lastMove}
