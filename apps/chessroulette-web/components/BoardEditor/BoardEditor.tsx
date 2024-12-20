@@ -7,7 +7,6 @@ import {
   isBlackColor,
   objectKeys,
   pieceSanToFenBoardPieceSymbol,
-  toShortColor,
 } from '@xmatter/util-kit';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';

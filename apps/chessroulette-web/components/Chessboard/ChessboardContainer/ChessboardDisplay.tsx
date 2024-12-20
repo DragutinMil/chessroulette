@@ -3,7 +3,7 @@ import {
   ChessFEN,
   ShortChessMove,
   promotionalPieceSanToFenBoardPromotionalPieceSymbol,
-  toLongColor,
+  toLongChessColor,
 } from '@xmatter/util-kit';
 import { ReactChessBoardProps } from './types';
 import { BoardTheme } from '@app/hooks/useTheme/defaultTheme';
@@ -75,7 +75,7 @@ export const ChessboardDisplay = ({
         position={fen}
         boardWidth={sizePx}
         showBoardNotation
-        boardOrientation={toLongColor(boardOrientation)}
+        boardOrientation={toLongChessColor(boardOrientation)}
         snapToCursor={false}
         arePiecesDraggable
         {...boardProps}

@@ -1,4 +1,4 @@
-import { getRandomColor, toShortColor } from '@xmatter/util-kit';
+import { getRandomColor, toShortChessColor } from '@xmatter/util-kit';
 import { MatchState } from '../types';
 import { createPendingGame } from '../../Play/store';
 import { CreateMatchParamsSchema } from './operationsSchemas';
@@ -6,7 +6,7 @@ import { CreateMatchParamsSchema } from './operationsSchemas';
 export const createMatchState = (
   params: CreateMatchParamsSchema
 ): NonNullable<MatchState> => {
-  const challengerColor = toShortColor(params.startColor || getRandomColor());
+  const challengerColor = toShortChessColor(params.startColor || getRandomColor());
 
   return {
     status: 'pending',
