@@ -37,3 +37,5 @@ export const config = {
 if (DEBUG_MODE) {
   console.debug('Client Config', config);
 }
+
+console.log(`Welcome to Chessroulette ${process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA || ''}!`)
