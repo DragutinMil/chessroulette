@@ -18,6 +18,7 @@ export default async function Page({
   params: { roomId: string };
   searchParams: Partial<{ theme: string }>;
 }) {
+  //pagerica braleee
   const session = (await getCustomServerSession(authOptions)) || undefined;
   const iceServers = await twilio.getIceServers();
 
