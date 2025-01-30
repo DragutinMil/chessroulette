@@ -18,16 +18,16 @@ export const RoomTemplate = (props: Props) => (
       <Header themeName={props.themeName} showConnectionStatus />
       <div
         className={`
-           ml-[max(env(safe-area-inset-left),0.5rem)]
-           mr-[max(env(safe-area-inset-right),0.5rem)]
-           mb-[max(env(safe-area-inset-right),2rem)] 
+           ml-[max(env(safe-area-inset-left),1.5rem)]
+           mr-[max(env(safe-area-inset-right),1.5rem)]
+           mb-[max(env(safe-area-inset-right),2rem)]
            mt-2
            flex-1 relative overflow-hidden ${props.contentClassname}`}
       >
         <div className="absolute inset-0">{props.children}</div>
       </div>
     </div>
-    <menu className="hidden md:block bg-slate-700 flex-0 flex flex-col p-2">
+    <menu className="bg-slate-700 flex-0 flex flex-col p-2">
       <OnboardingWidget session={props.session} />
       <div className="pb-6 border-b border-slate-500 mb-4" />
       {props.roomId && (
