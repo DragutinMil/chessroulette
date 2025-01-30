@@ -7,4 +7,3 @@ export const chessGameTimeLimitMsMap: ChessGameTimeMap = {
   rapid: 600000,
   untimed: -1,
 };
-// jkhbjhk

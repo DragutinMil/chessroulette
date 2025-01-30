@@ -19,8 +19,8 @@ export default (props: Props) => {
       className="
       pl-[max(env(safe-area-inset-left),1.5rem)]
       pr-[max(env(safe-area-inset-right),1.5rem)]
-      pt-1 md:pt-[max(env(safe-area-inset-top),1rem)]
-      pb-0 md:pb-[1rem]
+      pt-[max(env(safe-area-inset-top),1rem)]
+      pb-[1rem]
       flex justify-between"
     >
       <Link href="/">

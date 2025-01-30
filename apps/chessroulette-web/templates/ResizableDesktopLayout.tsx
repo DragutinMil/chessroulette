@@ -4,7 +4,6 @@ import { max } from '@xmatter/util-kit';
 import { useEffect, useRef, useState } from 'react';
 import { Panel, PanelGroup } from 'react-resizable-panels';
 import { useContainerDimensions } from '@app/components/ContainerWithDimensions';
-import { isSpreadAssignment } from 'typescript';
 
 type Props = {
   rightSideSize: number;
@@ -27,8 +26,7 @@ export const ResizableDesktopLayout = ({
   const containerDimensions = useContainerDimensions(containerRef);
   const [negativeMargin, setNegativeMargin] = useState(0);
   const [rightSidePct, setRightSidePct] = useState(0);
-  const isMobile = window.innerWidth <= 768;
-  const numMarginLeft = isMobile? 16 : 8
+
   // TODO: This is a WIP - needs refactoring and clearing
   //  especially around the negativeMargin, centering and determinging the new board Size with a right side,
   //  as well as defining the tight side as a constant
@@ -38,7 +36,7 @@ export const ResizableDesktopLayout = ({
     }
 
     const mainPanelWidthPx =
-      (mainPanelPercentageSize /( isMobile? 62:100 )) * containerDimensions.width;
+      (mainPanelPercentageSize / 100) * containerDimensions.width;
 
     const nextBoardSize =
       containerDimensions.height < mainPanelWidthPx
@@ -50,16 +48,13 @@ export const ResizableDesktopLayout = ({
           mainPanelWidthPx - rightSideSize;
 
     setBoardSize(nextBoardSize);
- 
-    console.log('containerDimensions.height',containerDimensions.height)
 
     const rightPanelWidthPx = (rightSidePct / 100) * containerDimensions.width;
 
     setNegativeMargin(
       max(
-        
         (containerDimensions.width - (nextBoardSize + rightPanelWidthPx)) / 2 -
-        numMarginLeft, // TODO: Why 8 here? Need to rework all of this logic once the major bugs are fixed! Now is different for mobile view
+          8, // TODO: Why 8 here? Need to rework all of this logic once the major bugs are fixed!
         0
       )
     );
@@ -67,30 +62,26 @@ export const ResizableDesktopLayout = ({
 
   return (
     <div
-      className="flex w-full h-full align-center justify-center ml-0" 
+      className="flex w-full h-full align-center justify-center"
       ref={containerRef}
       style={{
         marginLeft: -negativeMargin,
-        flexDirection:'column'
       }}
     >
       <PanelGroup
         autoSaveId="desktop-room-layout" // TODO should this be dyanmic?
-        direction={isMobile ? 'vertical' : 'horizontal'}
+        direction="horizontal"
         className="relative"
       >
         {/* <div className="absolute bg-red-900 p-2" style={{ right: 0, zIndex: 999}}>{negativeMargin}</div> */}
         <Panel
           defaultSize={70}
-          className="flex justify-center  md:justify-end  top-30 h-auto"
+          className="flex justify-end"
           onResize={setMainPanelPercentageSize}
           tagName="main"
           style={{
             // refactor this to not have to use RIGHT_SIDE_SIZE_PX in so many places
-            paddingRight: isMobile? 0: rightSideSize,
-            alignItems:'center',
-           
-            marginBottom:10
+            paddingRight: rightSideSize,
           }}
         >
           {typeof mainComponent === 'function'
@@ -102,7 +93,7 @@ export const ResizableDesktopLayout = ({
           minSize={33}
           maxSize={40}
           tagName="aside"
-          className="flex  flex-row space-between w-full relative h-full"
+          className="flex flex-col space-between w-full relative h-full"
           onResize={setRightSidePct}
         >
           {typeof rightComponent === 'function'
