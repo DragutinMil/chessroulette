@@ -24,8 +24,9 @@ export default () => {
         <div className="text-sm text-slate-300 text-right text-slate-600 items-end justify-end">
           <div className="flex gap-1 text-right justify-end">
             {status === 'connected' ? (
-              <span className="flex gap-1 items-center">
-                Connected
+              <span className="flex gap-1 items-center ">
+               <p className="hidden md:block">Connected </p>   
+               
                 <span className="w-2 h-2 rounded-full bg-green-600 block" />
                 {roomDetails.roomId && (
                   <MovexBoundResource
@@ -38,10 +39,12 @@ export default () => {
                       const participantsCount = participants.length;
 
                       return (
+                       
                         <button onClick={(event) => show({ event })}>
                           ({participantsCount}{' '}
                           {pluralize(!(participantsCount === 1), 'participant')}
                           )
+                         
                           <Menu id={MENU_ID}>
                             {participants.map((p) => (
                               <Item key={p.id}>
@@ -65,7 +68,7 @@ export default () => {
             )}
           </div>
 
-          {config.DEBUG_MODE && <div>Movex Client: {client?.id}</div>}
+          {config.DEBUG_MODE && <div className="hidden md:block">Movex Client: {client?.id}</div>}
         </div>
       )}
     />
