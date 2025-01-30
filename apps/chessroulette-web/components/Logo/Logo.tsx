@@ -1,6 +1,7 @@
 import React, { CSSProperties } from 'react';
 import logoLightFull from './assets/Logo_light_full.svg';
-import ChessrouletteOutpostWhite from './assets/chessroulette+outpost.svg';
+//import ChessrouletteOutpostWhite from './assets/chessroulette+outpost.svg';
+import OutpostLogo from './assets/outpost_logo.svg';
 import Image from 'next/image';
 
 type Props = {
@@ -17,12 +18,13 @@ type Props = {
 };
 
 export const Logo: React.FC<Props> = ({ themeName, style }) => {
+  
   const imageProps = (() => {
     if (themeName === 'op' || themeName === 'outpost') {
       return {
-        src: ChessrouletteOutpostWhite,
-        width: 190,
-        title: 'Chessroulette + Outpost = ♥️',
+        src: OutpostLogo,
+        width: 120,
+        title: 'Chessroulette + Outpost = ♥️'
       };
     }
 

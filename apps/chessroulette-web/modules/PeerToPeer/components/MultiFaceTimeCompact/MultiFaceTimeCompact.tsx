@@ -83,7 +83,7 @@ export const MultiFaceTimeCompact: React.FC<MultiFaceTimeCompactProps> = ({
       : VideoCameraIcon;
 
   return (
-    <div className={`relative ${containerClassName}`} style={containerStyles}>
+    <div className={`relative  ${containerClassName}`} style={containerStyles}>
       {reel ? (
         <FaceTime
           streamConfig={reel.focusedStreamingPeer.connection.channels.streaming}
