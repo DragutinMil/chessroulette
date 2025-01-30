@@ -64,7 +64,7 @@ export const ChessboardDisplay = ({
     }}
   >
     <div
-      className={` relative overflow-hidden rounded-lg w-full h-full ${containerClassName}`}
+      className={`relative overflow-hidden rounded-lg w-full h-full ${containerClassName}`}
       style={{
         width: sizePx,
         height: sizePx,
@@ -102,7 +102,7 @@ export const ChessboardDisplay = ({
       {overlayComponent}
     </div>
     <div
-      className={`hidden md:block w-full relative h-full ${rightSideClassName}`}
+      className={`w-full relative h-full ${rightSideClassName}`}
       style={{ width: rightSideSizePx }}
     >
       {rightSideComponent}

@@ -56,7 +56,6 @@ export const DEV_CameraView = ({
         ...style,
         backgroundImage: `url(${imgSrc.src})`,
         backgroundSize: 'cover',
-        height:'100%'
       }}
     />
   );
