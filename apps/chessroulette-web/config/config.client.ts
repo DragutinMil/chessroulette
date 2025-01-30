@@ -24,6 +24,9 @@ const SENTRY_DSN = process.env.NEXT_PUBLIC_SENTRY_DSN as string | undefined;
 // App
 const CAMERA_ON = process.env.NEXT_PUBLIC_CAMERA_ON === 'true' || !DEBUG_MODE;
 
+const RELEASE_VERSION =
+  (process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA || '').slice(0, 7) || '';
+
 export const config = {
   ENV,
   DEBUG_MODE,
@@ -32,10 +35,11 @@ export const config = {
   ENGINE_URL,
   CAMERA_ON,
   SENTRY_DSN,
+  RELEASE_VERSION,
 };
 
 if (DEBUG_MODE) {
   console.debug('Client Config', config);
 }
 
-console.log(`Welcome to Chessroulette ${process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA || ''}!`)
+console.log(`Welcome to Chessroulette ${RELEASE_VERSION}!`);

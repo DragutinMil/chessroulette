@@ -30,8 +30,8 @@ module.exports = withSentryConfig(
 
     // Suppresses source map uploading logs during build
     silent: true,
-    org: 'chessroulette-live',
-    project: 'chessroulette',
+    org: process.env.SENTRY_ORG,
+    project: process.env.SENTRY_PROJECT,
     authToken: process.env.SENTRY_AUTH_TOKEN,
   },
   {
