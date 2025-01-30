@@ -43,7 +43,7 @@ export const MainHomeSection: React.FC<Props> = ({ className }) => {
             <Link
               href={links.getOnDemandRoomCreationLink({
                 activity: 'learn',
-                instructor: true,
+                instructor: false,
               })}
             >
               <Button type="primary" className="font-bold w-full">
