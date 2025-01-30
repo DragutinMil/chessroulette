@@ -34,7 +34,7 @@ export const FreeBoardNotation: React.FC<FreeBoardNotationProps> = ({
 
   return (
     <div
-      className={`flex flex-col flex-1 min-h-0 min-w-0 ${containerClassName} `}
+      className={`md:flex flex-col flex-1 hidden  min-h-0 min-w-0 ${containerClassName} `}
     >
       {history.length > 0 ? (
         <List
@@ -42,12 +42,12 @@ export const FreeBoardNotation: React.FC<FreeBoardNotationProps> = ({
           focusedIndex={focusedIndex}
           onRefocus={onRefocus}
           onDelete={onDelete}
-          className={`flex flex-1 flex-col overflow-scroll ${className}`}
+          className={`flex flex-1 flex-col overflow-scroll  ${className}`}
           rowClassName="border-b border-slate-600"
           canDelete={canDelete}
         />
       ) : (
-        <div className="flex-1 flex items-center justify-center text-slate-500">
+        <div className="flex-1 flex items-center  hidden md:flex  justify-center text-slate-500">
           {emptyContent}
         </div>
       )}
