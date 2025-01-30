@@ -21,9 +21,10 @@ export const GameAbort: React.FC<GameAbortViewProps> = ({
 }) => (
   <div className={`flex gap-3 flex-1 justify-between ${className}`}>
     <div className="flex gap-2">
-      <span>{`Game aborting in `}</span>
+      <span className="text-sm md:text-md">{`Game aborting in `}</span>
       <SmartCountdown
         msLeft={timeLeft}
+        className='text-sm md:text-md'
         onFinished={onAbort}
         onRefreshMsLeft={onRefreshTimeLeft}
         isActive

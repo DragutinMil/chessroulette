@@ -18,8 +18,8 @@ export const MatchStateDisplayContainer = () => {
   return (
     <div className="flex flex-col gap-2">
       {match?.type === 'bestOf' && (
-        <div className="flex flex-row gap-2 w-full">
-          <Text>Round</Text>
+        <div className="flex flex-row gap-2 w-full text-sm md:text-md">
+          <Text >Round</Text>
           <Text>{`${currentRound}/${match.rounds}`}</Text>
           {drawsCount > 0 && (
             <Text>{`(${drawsCount} games ended in draw)`}</Text>
@@ -55,7 +55,7 @@ export const MatchStateDisplayContainer = () => {
           completedPlaysCount={endedGamesCount}
           className="bg-slate-700 rounded-md p-2"
         />
-      )}
+       )} 
     </div>
   );
 };
