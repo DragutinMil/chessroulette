@@ -102,7 +102,7 @@ export const ChessboardDisplay = ({
       {overlayComponent}
     </div>
     <div
-      className={`hidden md:block w-full relative h-full ${rightSideClassName}`}
+      className={`hidden md:flex w-full relative h-full ${rightSideClassName}`}
       style={{ width: rightSideSizePx }}
     >
       {rightSideComponent}

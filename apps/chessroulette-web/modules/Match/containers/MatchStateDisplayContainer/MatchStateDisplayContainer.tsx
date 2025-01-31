@@ -16,13 +16,16 @@ export const MatchStateDisplayContainer = () => {
   const dispatch = useMatchActionsDispatch();
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-1 md:gap-2">
       {match?.type === 'bestOf' && (
-        <div className="flex flex-row gap-2 w-full text-sm md:text-md">
+        <div className="flex flex-row gap-2 mt-0  md:mt-4 w-full text-sm md:text-md">
           <Text >Round</Text>
           <Text>{`${currentRound}/${match.rounds}`}</Text>
           {drawsCount > 0 && (
-            <Text>{`(${drawsCount} games ended in draw)`}</Text>
+            <div>
+            <br />
+            <Text>{`(${drawsCount} games ended in draww)`}</Text>
+            </div>
           )}
         </div>
       )}
@@ -53,9 +56,9 @@ export const MatchStateDisplayContainer = () => {
           timeToAbortMs={match.timeToAbortMs}
           playerId={play.userAsPlayerId}
           completedPlaysCount={endedGamesCount}
-          className="bg-slate-700 rounded-md p-2"
+          className="md:bg-slate-700 rounded-md p-0 md:p-2 "
         />
-       )} 
+          )}  
     </div>
   );
 };
