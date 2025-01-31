@@ -14,7 +14,7 @@ type Props = React.PropsWithChildren & {
 
 export const RoomTemplate = (props: Props) => (
   <div className="flex h-screen w-screen">
-    <div className="flex flex-col flex-1">
+    <div className="flex flex-col flex-1 ">
       <Header themeName={props.themeName} showConnectionStatus />
       <div
         className={`
