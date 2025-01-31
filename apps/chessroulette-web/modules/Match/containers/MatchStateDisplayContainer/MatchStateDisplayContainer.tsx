@@ -18,13 +18,15 @@ export const MatchStateDisplayContainer = () => {
   return (
     <div className="flex flex-col gap-1 md:gap-2">
       {match?.type === 'bestOf' && (
-        <div className="flex flex-row gap-2 mt-0  md:mt-4 w-full text-sm md:text-md">
+        <div className="flex flex-col md:flex-row gap-2 mt-0  md:mt-4 w-full text-sm md:text-md">
+          <div >
           <Text >Round</Text>
           <Text>{`${currentRound}/${match.rounds}`}</Text>
+          </div>
           {drawsCount > 0 && (
             <div>
-            <br />
-            <Text>{`(${drawsCount} games ended in draww)`}</Text>
+         
+            <Text>{`(${drawsCount} games ended in draw)`}</Text>
             </div>
           )}
         </div>
