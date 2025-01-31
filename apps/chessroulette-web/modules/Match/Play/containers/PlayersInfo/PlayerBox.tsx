@@ -20,7 +20,7 @@ export const PlayerBox: React.FC<Props> = ({
 }) => (
   <div className="flex flex-1 gap-3 items-center justify-between">
     <div
-      className={`capitalize text-md md:text-lg ${
+      className={`capitalize text-sm md:text-lg ${
         isActive ? 'text-white font-bold' : 'text-slate-400'
       }`}
     >

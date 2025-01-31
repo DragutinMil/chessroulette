@@ -38,7 +38,7 @@ export const ResizableDesktopLayout = ({
     }
 
     const mainPanelWidthPx =
-      (mainPanelPercentageSize /( isMobile? 62:100 )) * containerDimensions.width;
+      (mainPanelPercentageSize /( isMobile? 59:100 )) * containerDimensions.width;
 
     const nextBoardSize =
       containerDimensions.height < mainPanelWidthPx
@@ -82,7 +82,7 @@ export const ResizableDesktopLayout = ({
         {/* <div className="absolute bg-red-900 p-2" style={{ right: 0, zIndex: 999}}>{negativeMargin}</div> */}
         <Panel
           defaultSize={70}
-          className="flex justify-center  md:justify-end  top-30 h-auto"
+          className="flex justify-center  md:justify-end  top-30 h-auto mb-2 md:mb-0"
           onResize={setMainPanelPercentageSize}
           tagName="main"
           style={{
@@ -90,7 +90,7 @@ export const ResizableDesktopLayout = ({
             paddingRight: isMobile? 0: rightSideSize,
             alignItems:'center',
            
-            marginBottom:10
+           
           }}
         >
           {typeof mainComponent === 'function'
