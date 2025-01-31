@@ -38,7 +38,7 @@ export const ResizableDesktopLayout = ({
     }
 
     const mainPanelWidthPx =
-      (mainPanelPercentageSize /( isMobile? 59:100 )) * containerDimensions.width;
+      (mainPanelPercentageSize /( isMobile? 61:100 )) * containerDimensions.width;
 
     const nextBoardSize =
       containerDimensions.height < mainPanelWidthPx
