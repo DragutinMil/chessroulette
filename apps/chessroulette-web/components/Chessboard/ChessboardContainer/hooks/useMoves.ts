@@ -20,7 +20,7 @@ type Props = {
   playingColor: ShortChessColor;
 
   // This is needed in order for the board animation to not get choppy
-  //premoveAnimationDelay?: number;
+  premoveAnimationDelay?: number;
 
   onMove: (m: ShortChessMove) => void;
   onPreMove?: (m: ShortChessMove) => void;
@@ -32,7 +32,7 @@ type Props = {
 export const useMoves = ({
   isMyTurn,
   playingColor,
-  //premoveAnimationDelay = 151,
+  premoveAnimationDelay = 151,
   onMove,
   onPreMove,
   onValidateMove,
@@ -40,7 +40,7 @@ export const useMoves = ({
 }: Props) => {
   const [pendingMove, setPendingMove] = useState<ChessBoardPendingMove>();
   const [promoMove, setPromoMove] = useState<ShortChessMove>();
-  const [premoveAnimationDelay] = useState(300);
+  //const [premoveAnimationDelay] = useState(300);
   // pre move 
   const allowsPremoves = !!onPreMove;
   const [preMove, setPreMove] = useState<ChessboardPreMove>();
