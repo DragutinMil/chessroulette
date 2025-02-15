@@ -182,9 +182,9 @@ export const useMoves = ({
 
   const onPieceDrop = (from: Square, to: Square, pieceSan: PieceSan) => {
    // simply move on Drag&Drop if no pre or promo move
-    if(!preMove && !isValidPromoMove({ from, to, piece: pieceSanToPiece(pieceSan) })){
-      return onMoveIfValid({ from, to }).ok;
-    }
+    // if(!preMove && !isValidPromoMove({ from, to, piece: pieceSanToPiece(pieceSan) })){
+    //   return onMoveIfValid({ from, to }).ok;
+    // }
     // Check for premoves first
     if (preMove) {
       setPreMove({ ...preMove, to });
@@ -197,8 +197,8 @@ export const useMoves = ({
       setPromoMove({ from, to });
       return true;
     }
-   // Otherwie simply move on Drag&Drop
-   // return onMoveIfValid({ from, to }).ok;
+   //Otherwie simply move on Drag&Drop
+   return onMoveIfValid({ from, to }).ok;
   };
 
   return {
