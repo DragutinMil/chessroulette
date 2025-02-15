@@ -20,7 +20,7 @@ type Props = {
   playingColor: ShortChessColor;
 
   // This is needed in order for the board animation to not get choppy
-  //premoveAnimationDelay?: number;
+  premoveAnimationDelay?: number;
 
   onMove: (m: ShortChessMove) => void;
   onPreMove?: (m: ShortChessMove) => void;
@@ -32,7 +32,7 @@ type Props = {
 export const useMoves = ({
   isMyTurn,
   playingColor,
-  //premoveAnimationDelay = 151,
+  premoveAnimationDelay = 151,
   onMove,
   onPreMove,
   onValidateMove,
@@ -40,7 +40,7 @@ export const useMoves = ({
 }: Props) => {
   const [pendingMove, setPendingMove] = useState<ChessBoardPendingMove>();
   const [promoMove, setPromoMove] = useState<ShortChessMove>();
-  const [premoveAnimationDelay] = useState(300);
+  //const [premoveAnimationDelay] = useState(300);
   // pre move 
   const allowsPremoves = !!onPreMove;
   const [preMove, setPreMove] = useState<ChessboardPreMove>();
@@ -182,9 +182,9 @@ export const useMoves = ({
 
   const onPieceDrop = (from: Square, to: Square, pieceSan: PieceSan) => {
    // simply move on Drag&Drop if no pre or promo move
-    if(!preMove && !isValidPromoMove({ from, to, piece: pieceSanToPiece(pieceSan) })){
-      return onMoveIfValid({ from, to }).ok;
-    }
+    // if(!preMove && !isValidPromoMove({ from, to, piece: pieceSanToPiece(pieceSan) })){
+    //   return onMoveIfValid({ from, to }).ok;
+    // }
     // Check for premoves first
     if (preMove) {
       setPreMove({ ...preMove, to });
@@ -197,8 +197,8 @@ export const useMoves = ({
       setPromoMove({ from, to });
       return true;
     }
-   // Otherwie simply move on Drag&Drop
-   // return onMoveIfValid({ from, to }).ok;
+   //Otherwie simply move on Drag&Drop
+   return onMoveIfValid({ from, to }).ok;
   };
 
   return {
