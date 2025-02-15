@@ -51,7 +51,7 @@ export const ResizableDesktopLayout = ({
 
     setBoardSize(nextBoardSize);
  
-    console.log('containerDimensions.height',containerDimensions.height)
+   
 
     const rightPanelWidthPx = (rightSidePct / 100) * containerDimensions.width;
 
