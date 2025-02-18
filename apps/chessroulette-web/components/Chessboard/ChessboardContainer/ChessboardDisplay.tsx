@@ -38,7 +38,7 @@ export type ChessboardDisplayProps = Omit<
         rightSideClassName?: undefined;
       }
   );
-
+ 
 export const ChessboardDisplay = ({
   sizePx,
   rightSideClassName,

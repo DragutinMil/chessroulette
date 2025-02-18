@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback,useState } from 'react';
 import {
   ChessFEN,
   PieceSan,
@@ -15,6 +15,7 @@ import { useCustomArrows } from './hooks/useArrows';
 import { useCustomStyles } from './hooks/useCustomStyles';
 import { ChessboardDisplay, ChessboardDisplayProps } from './ChessboardDisplay';
 import { useMoves } from './hooks/useMoves';
+import { Chess } from 'chess.js';
 
 export type ChessboardContainerProps = Omit<
   ChessboardDisplayProps,
@@ -94,11 +95,13 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
   ...props
 }) => {
   const isMyTurn = boardOrientation === turn;
-
+  const [chess] = useState(new Chess(fen)); // Create chess instance
+  const [currentFen, setCurrentFen] = useState(fen);
   // Arrows
   const arrowAndCircleColor = useArrowAndCircleColor();
   const customArrows = useCustomArrows(onArrowsChange, props.arrowsMap);
 
+ 
   // Circles
   const drawCircle = useCallback(
     (sq: Square) => {
@@ -131,6 +134,27 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
     // Event to reset the circles and arrows when any square is clicked or dragged
     onSquareClickOrDrag: resetArrowsAndCircles,
   });
+  // const handlePieceDrop = 
+  //   (from: Square, to: Square, piece: PieceSan) => {
+  //     console.log('kirk',chess.move({ from, to, promotion: 'q' }))
+     
+    
+  //       setCurrentFen(chess.fen()); // Update FEN
+  //       console.log('kosmaj',currentFen)
+      
+  //   }
+   
+  
+  const combinedPieceDrop = useCallback(
+    (from: Square, to: Square, piece: PieceSan) => {
+     moveActions.onPieceDrop(from, to, piece);
+     // handlePieceDrop(from, to, piece);
+    },
+    [moveActions.onPieceDrop
+      //, handlePieceDrop
+      ]
+    
+  );
 
   // Styles
   const customStyles = useCustomStyles({
@@ -151,18 +175,19 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
 
   return (
     <ChessboardDisplay
-      fen={fen}
+      fen={currentFen}
       sizePx={sizePx}
       boardTheme={boardTheme}
       boardOrientation={boardOrientation}
       // Moves
       onPieceDragBegin={moveActions.onPieceDrag}
       onSquareClick={moveActions.onSquareClick}
-      onPieceDrop={moveActions.onPieceDrop}
+      //onPieceDrop={moveActions.onPieceDrop}
       // Promo Move
       promoMove={promoMove}
       onCancelPromoMove={moveActions.onClearPromoMove}
       onSubmitPromoMove={onMove}
+      onPieceDrop={combinedPieceDrop}
       // Overlay & Right Components
       rightSideClassName={rightSideClassName}
       rightSideComponent={rightSideComponent}

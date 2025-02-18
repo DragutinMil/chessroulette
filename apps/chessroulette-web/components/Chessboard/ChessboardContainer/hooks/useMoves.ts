@@ -71,7 +71,7 @@ export const useMoves = ({
   const onMoveIfValid = (m: ShortChessMove): Result<void, void> => {
     if (onValidateMove(m)) {
       onMove(m);
-
+      console.log('prosp u moves',m)
       return Ok.EMPTY;
     }
 
@@ -170,6 +170,7 @@ export const useMoves = ({
   };
 
   const onPieceDrop = (from: Square, to: Square, pieceSan: PieceSan) => {
+ 
     // Check for premoves first
     if (preMove) {
       setPreMove({ ...preMove, to });
