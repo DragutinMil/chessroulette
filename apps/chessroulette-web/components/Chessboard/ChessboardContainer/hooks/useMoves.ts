@@ -126,6 +126,10 @@ export const useMoves = ({
         setPreMove(undefined);
         
     }
+    else if(isMyTurn && preMove) {
+      setPreMove(undefined);
+      
+  }
 
     // If there is no existent Pending Move ('from' set)
     else if (!pendingMove?.from) {
