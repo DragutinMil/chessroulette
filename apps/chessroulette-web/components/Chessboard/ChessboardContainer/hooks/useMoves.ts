@@ -120,6 +120,10 @@ export const useMoves = ({
         setPreMove({ from: square, piece });
       }
     }
+    else if(isMyTurn && preMove) {
+      setPreMove(undefined);
+      
+  }
 
     // If there is no existent Pending Move ('from' set)
     else if (!pendingMove?.from) {
