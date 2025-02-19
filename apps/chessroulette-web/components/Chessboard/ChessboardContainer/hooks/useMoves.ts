@@ -123,13 +123,12 @@ export const useMoves = ({
       }
     } 
     else if(isMyTurn && preMove) {
-        setPreMove(undefined);
-        
-    }
-    else if(isMyTurn && preMove) {
-      setPreMove(undefined);
       
-  }
+        setPreMove(undefined);
+    }
+  //   else if(isMyTurn && preMove) {
+  //     setPreMove(undefined);  
+  // }
 
     // If there is no existent Pending Move ('from' set)
     else if (!pendingMove?.from) {
@@ -185,12 +184,13 @@ export const useMoves = ({
   };
 
   const onPieceDrop = (from: Square, to: Square, pieceSan: PieceSan) => {
+    console.log('piece',pieceSan,to, from )
    // simply move on Drag&Drop if no pre or promo move
     // if(!preMove && !isValidPromoMove({ from, to, piece: pieceSanToPiece(pieceSan) })){
     //   return onMoveIfValid({ from, to }).ok;
     // }
     // Check for premoves first
-    if (preMove) {
+    if (preMove && !isMyTurn) {
       setPreMove({ ...preMove, to });
       // As this is not yet a valid move, return false
       return false;
