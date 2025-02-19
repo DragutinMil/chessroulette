@@ -19,7 +19,7 @@ export const MatchStateDisplayContainer = () => {
     <div className="flex flex-col gap-2">
       {match?.type === 'bestOf' && (
         <div className="flex flex-row gap-2 w-full">
-          <Text>Round</Text>
+          <Text>Round</Text>&nbsp;
           <Text>{`${currentRound}/${match.rounds}`}</Text>
           {drawsCount > 0 && (
             <Text>{`(${drawsCount} games ended in draw)`}</Text>
