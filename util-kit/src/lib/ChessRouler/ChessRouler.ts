@@ -67,8 +67,8 @@ export class ChessRouler implements SpecificChessJS {
     const allPiecesByColor = new ChessFENBoard(this.fen()).getAllPiecesByColor(
       color
     );
-
-    if (allPiecesByColor.length > 2) {
+     console.log('allPiecesByColor.length',allPiecesByColor.length ,color)
+    if (allPiecesByColor.length > 3) {
       return true;
     }
 
@@ -76,8 +76,12 @@ export class ChessRouler implements SpecificChessJS {
       new ChessFENBoard(this.fen()).getAllPiecesByColor(color),
       (k) => k.toLowerCase()
     );
-
-    if (allPiecesByColor.length === 2) {
+    if (allPiecesByColor.length >1){
+      if (indexedPieces['r'] || indexedPieces['q']) {
+        return true;
+      }
+    }
+    if (allPiecesByColor.length === 3) {
       // Check for Knight and Bishop
       if (indexedPieces['b'] && indexedPieces['n']) {
         return true;
@@ -87,7 +91,7 @@ export class ChessRouler implements SpecificChessJS {
       return !indexedPieces['n'];
     }
 
-    if (allPiecesByColor.length === 1) {
+    if (allPiecesByColor.length === 2) {
       // False if one of the pieces besides the king is a knight or bishop
       return !(indexedPieces['n'] || indexedPieces['b']);
     }
@@ -95,7 +99,7 @@ export class ChessRouler implements SpecificChessJS {
     // Otherwise false
     return false;
   }
-
+  
   /**
    * This take sin account "timeouts" and the reasons why a game is completed
    *
