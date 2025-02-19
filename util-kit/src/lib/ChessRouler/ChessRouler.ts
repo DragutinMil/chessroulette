@@ -68,7 +68,7 @@ export class ChessRouler implements SpecificChessJS {
       color
     );
 
-    if (allPiecesByColor.length > 3) {
+    if (allPiecesByColor.length > 2) {
       return true;
     }
 
@@ -77,7 +77,7 @@ export class ChessRouler implements SpecificChessJS {
       (k) => k.toLowerCase()
     );
 
-    if (allPiecesByColor.length === 3) {
+    if (allPiecesByColor.length === 2) {
       // Check for Knight and Bishop
       if (indexedPieces['b'] && indexedPieces['n']) {
         return true;
@@ -87,7 +87,7 @@ export class ChessRouler implements SpecificChessJS {
       return !indexedPieces['n'];
     }
 
-    if (allPiecesByColor.length === 2) {
+    if (allPiecesByColor.length === 1) {
       // False if one of the pieces besides the king is a knight or bishop
       return !(indexedPieces['n'] || indexedPieces['b']);
     }
@@ -116,7 +116,8 @@ export class ChessRouler implements SpecificChessJS {
       } {
     if (hasTimedOut) {
       const opponentColor = swapColor(hasTimedOut);
-      if (!this.hasSufficientMaterialToForceMate(opponentColor)) {
+      
+      if (!this.hasSufficientMaterialToForceMate(opponentColor) ) {
         // According to FIDE, if the player's flag fails (i.e. times out) but the opponent doesn't have sufficient material to force mate
         //  the player is awarded a draw instead of the loss due to timeout!
         // See this for more info: https://www.chess.com/forum/view/general/what-is-considered-insufficient-material#comment-31144738
