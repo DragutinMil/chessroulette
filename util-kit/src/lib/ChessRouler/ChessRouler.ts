@@ -76,7 +76,7 @@ export class ChessRouler implements SpecificChessJS {
       new ChessFENBoard(this.fen()).getAllPiecesByColor(color),
       (k) => k.toLowerCase()
     );
-    console.log('allPiecesByColor',allPiecesByColor)
+    console.log('provera 2',allPiecesByColor,indexedPieces)
     
       if (indexedPieces['r'] ) {
         return true;
