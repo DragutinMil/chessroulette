@@ -76,29 +76,35 @@ export class ChessRouler implements SpecificChessJS {
       new ChessFENBoard(this.fen()).getAllPiecesByColor(color),
       (k) => k.toLowerCase()
     );
-    if (allPiecesByColor.length >1){
-      if (indexedPieces['r'] || indexedPieces['q']) {
+    console.log('allPiecesByColor',allPiecesByColor)
+    
+      if (indexedPieces['r'] ) {
         return true;
       }
-    }
+      if ( indexedPieces['q']) {
+        return true;
+      }
+    
     if (allPiecesByColor.length === 3) {
       // Check for Knight and Bishop
-      if (indexedPieces['b'] && indexedPieces['n']) {
-        return true;
-      } 
-      if (indexedPieces['r'] && indexedPieces['n']) {
-        return true;
-      }
-      if (indexedPieces['q'] && indexedPieces['n']) {
-        return true;
-      }
+      // if (indexedPieces['b'] && indexedPieces['n']) {
+      //   return true;
+      // } 
+      //  // Check for Knight and rook
+      // if (indexedPieces['r'] && indexedPieces['n']) {
+      //   return true;
+      // }
+      //  // Check for Knight and queen
+      // if (indexedPieces['q'] && indexedPieces['n']) {
+      //   return true;
+      // }
+      return true
+     
 
       // Otherwise, false with 2 knights  //this is problem, true on one knight
     //  return !indexedPieces['n'];
     }
-    if (indexedPieces['r'] && indexedPieces['n']) {
-      return true;
-    }
+   
     if (allPiecesByColor.length === 2) {
       // False if one of the pieces besides the king is a knight or bishop
       return !(indexedPieces['n'] || indexedPieces['b']);
