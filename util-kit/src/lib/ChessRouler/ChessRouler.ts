@@ -72,14 +72,23 @@ export class ChessRouler implements SpecificChessJS {
       return true;
     }
     console.log('provera 2',allPiecesByColor)
-    if (allPiecesByColor.indexOf('r')!==-1 ) {
+    if (allPiecesByColor.indexOf('R')!==-1 ) {
       return true;
     }
     console.log('provera 3',allPiecesByColor)
-    if ( allPiecesByColor.indexOf('q')!==-1 ) {
+    if ( allPiecesByColor.indexOf('Q')!==-1 ) {
       return true;
     }
     console.log('provera 4',allPiecesByColor)
+    if ( allPiecesByColor.indexOf('P')!==-1 ) {
+      return true;
+    }
+    if (allPiecesByColor.indexOf('r')!==-1 ) {
+      return true;
+    }
+    if ( allPiecesByColor.indexOf('q')!==-1 ) {
+      return true;
+    }
     if ( allPiecesByColor.indexOf('p')!==-1 ) {
       return true;
     }
@@ -145,7 +154,7 @@ export class ChessRouler implements SpecificChessJS {
       console.log('opponentColor',opponentColor)
       console.log('no !',this.hasSufficientMaterialToForceMate(opponentColor))
       console.log('has !',!this.hasSufficientMaterialToForceMate(opponentColor))
-      if (!this.hasSufficientMaterialToForceMate(opponentColor) ) {
+      if (this.hasSufficientMaterialToForceMate(opponentColor)==true) {
        
 
         // According to FIDE, if the player's flag fails (i.e. times out) but the opponent doesn't have sufficient material to force mate
@@ -153,18 +162,21 @@ export class ChessRouler implements SpecificChessJS {
         // See this for more info: https://www.chess.com/forum/view/general/what-is-considered-insufficient-material#comment-31144738
         return {
           over: true,
+          reason: GameOverReason['timeout'],
+          isDraw: false,
+        };
+       
+      }else{
+        return {
+          over: true,
           reason: GameOverReason['drawAwardedForInsufficientMaterial'],
           isDraw: true,
         };
       }
 
-      return {
-        over: true,
-        reason: GameOverReason['timeout'],
-        isDraw: false,
-      };
+     
     }
-
+  
     if (this.chess.isCheckmate()) {
       return {
         over: true,
