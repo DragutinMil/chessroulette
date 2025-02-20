@@ -142,9 +142,11 @@ export class ChessRouler implements SpecificChessJS {
     if (hasTimedOut) {
       const opponentColor = swapColor(hasTimedOut);
       console.log('jeste Timeout',hasTimedOut)
+      console.log('opponentColor',opponentColor)
+      console.log('no !',this.hasSufficientMaterialToForceMate(opponentColor))
+      console.log('has !',!this.hasSufficientMaterialToForceMate(opponentColor))
       if (!this.hasSufficientMaterialToForceMate(opponentColor) ) {
-        console.log('opponentColor',opponentColor)
-        console.log('has',!this.hasSufficientMaterialToForceMate(opponentColor))
+       
 
         // According to FIDE, if the player's flag fails (i.e. times out) but the opponent doesn't have sufficient material to force mate
         //  the player is awarded a draw instead of the loss due to timeout!
