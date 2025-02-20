@@ -71,20 +71,23 @@ export class ChessRouler implements SpecificChessJS {
     if (allPiecesByColor.length > 3) {
       return true;
     }
+    console.log('provera 2',allPiecesByColor)
     if (allPiecesByColor.indexOf('r')!==-1 ) {
       return true;
     }
+    console.log('provera 3',allPiecesByColor)
     if ( allPiecesByColor.indexOf('q')!==-1 ) {
       return true;
     }
+    console.log('provera 4',allPiecesByColor)
     if ( allPiecesByColor.indexOf('p')!==-1 ) {
       return true;
     }
-    const indexedPieces = toDictIndexedBy(
-      new ChessFENBoard(this.fen()).getAllPiecesByColor(color),
-      (k) => k.toLowerCase()
-    );
-    console.log('provera 2',allPiecesByColor,indexedPieces)
+    // const indexedPieces = toDictIndexedBy(
+    //   new ChessFENBoard(this.fen()).getAllPiecesByColor(color),
+    //   (k) => k.toLowerCase()
+    // );
+    console.log('provera 5',allPiecesByColor)
     
      
     
@@ -138,8 +141,11 @@ export class ChessRouler implements SpecificChessJS {
       } {
     if (hasTimedOut) {
       const opponentColor = swapColor(hasTimedOut);
-      
+      console.log('jeste Timeout',hasTimedOut)
       if (!this.hasSufficientMaterialToForceMate(opponentColor) ) {
+        console.log('opponentColor',opponentColor)
+        console.log('has',!this.hasSufficientMaterialToForceMate(opponentColor))
+
         // According to FIDE, if the player's flag fails (i.e. times out) but the opponent doesn't have sufficient material to force mate
         //  the player is awarded a draw instead of the loss due to timeout!
         // See this for more info: https://www.chess.com/forum/view/general/what-is-considered-insufficient-material#comment-31144738
