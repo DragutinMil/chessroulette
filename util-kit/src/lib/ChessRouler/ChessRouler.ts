@@ -85,12 +85,20 @@ export class ChessRouler implements SpecificChessJS {
       // Check for Knight and Bishop
       if (indexedPieces['b'] && indexedPieces['n']) {
         return true;
+      } 
+      if (indexedPieces['r'] && indexedPieces['n']) {
+        return true;
+      }
+      if (indexedPieces['q'] && indexedPieces['n']) {
+        return true;
       }
 
-      // Otherwise, false with 2 knights
-      return !indexedPieces['n'];
+      // Otherwise, false with 2 knights  //this is problem, true on one knight
+    //  return !indexedPieces['n'];
     }
-
+    if (indexedPieces['r'] && indexedPieces['n']) {
+      return true;
+    }
     if (allPiecesByColor.length === 2) {
       // False if one of the pieces besides the king is a knight or bishop
       return !(indexedPieces['n'] || indexedPieces['b']);

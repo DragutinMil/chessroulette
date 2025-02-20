@@ -184,12 +184,13 @@ export const useMoves = ({
   };
 
   const onPieceDrop = (from: Square, to: Square, pieceSan: PieceSan) => {
-    console.log('piece',pieceSan,to, from )
+    //console.log('piece',pieceSan,to, from )
    // simply move on Drag&Drop if no pre or promo move
     // if(!preMove && !isValidPromoMove({ from, to, piece: pieceSanToPiece(pieceSan) })){
     //   return onMoveIfValid({ from, to }).ok;
     // }
     // Check for premoves first
+    //Dragutin added !isMyTurn
     if (preMove && !isMyTurn) {
       setPreMove({ ...preMove, to });
       // As this is not yet a valid move, return false
