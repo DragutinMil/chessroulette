@@ -71,21 +71,25 @@ export class ChessRouler implements SpecificChessJS {
     if (allPiecesByColor.length > 3) {
       return true;
     }
-
+    if (allPiecesByColor.indexOf('r')!==-1 ) {
+      return true;
+    }
+    if ( allPiecesByColor.indexOf('q')!==-1 ) {
+      return true;
+    }
+    if ( allPiecesByColor.indexOf('p')!==-1 ) {
+      return true;
+    }
     const indexedPieces = toDictIndexedBy(
       new ChessFENBoard(this.fen()).getAllPiecesByColor(color),
       (k) => k.toLowerCase()
     );
     console.log('provera 2',allPiecesByColor,indexedPieces)
     
-      if (indexedPieces['r'] ) {
-        return true;
-      }
-      if ( indexedPieces['q']) {
-        return true;
-      }
+     
     
     if (allPiecesByColor.length === 3) {
+      console.log('provera 3')
       // Check for Knight and Bishop
       // if (indexedPieces['b'] && indexedPieces['n']) {
       //   return true;
@@ -105,10 +109,10 @@ export class ChessRouler implements SpecificChessJS {
     //  return !indexedPieces['n'];
     }
    
-    if (allPiecesByColor.length === 2) {
-      // False if one of the pieces besides the king is a knight or bishop
-      return !(indexedPieces['n'] || indexedPieces['b']);
-    }
+    // if (allPiecesByColor.length === 2) {
+    //   // False if one of the pieces besides the king is a knight or bishop
+    //   return !(indexedPieces['n'] || indexedPieces['b']);
+    // }
 
     // Otherwise false
     return false;
