@@ -191,7 +191,7 @@ export const reducer = (
 
       const nextWinnerAndGameOverReason = invoke(() => {
         console.log('u reduseru je gameOverResult.over',gameOverResult.over,)
-        console.log('u reduseru je gameOverResult.isDraw', gameOverResult.isDraw)
+       // console.log('u reduseru je gameOverResult.isDraw', gameOverResult.isDraw)
         
         if (gameOverResult.over && gameOverResult.isDraw) {
           console.log('deep reduseru je gameOverResult.over',gameOverResult.over,gameOverResult.isDraw)
