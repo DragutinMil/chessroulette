@@ -44,7 +44,7 @@ export const useMoves = ({
   // pre move 
   const allowsPremoves = !!onPreMove;
   const [preMove, setPreMove] = useState<ChessboardPreMove>();
-
+  const moveSound = new Audio("/chessmove.mp3");
   // Promo Move calling
   useEffect(() => {
     
@@ -62,6 +62,7 @@ export const useMoves = ({
       const { to } = preMove;
       setTimeout(() => {
         setPreMove(undefined);
+        moveSound.play()
         onPreMove({ ...preMove, to });
         // For some reason it it's not waiting 300ms, the animation is choppy...changed to useState GDM
       }, premoveAnimationDelay);
@@ -70,13 +71,17 @@ export const useMoves = ({
 
   const onMoveIfValid = (m: ShortChessMove): Result<void, void> => {
     if (onValidateMove(m)) {
+      playMoveSound();
       onMove(m);
       return Ok.EMPTY;
     }
 
     return Err.EMPTY;
   };
-
+  function playMoveSound() {
+    moveSound.currentTime = 0; // Reset sound to avoid delay
+    moveSound.play()
+}
   const isValidPromoMove = (m: ChessboardShortMoveWithPiece) =>
     
     isPromotableMove(m, m.piece) &&
@@ -112,6 +117,7 @@ export const useMoves = ({
           setPreMove({ from: square, piece });
         } else {
           // Otherwise finish the premove
+          
           setPreMove({
             ...preMove,
             to: square,
