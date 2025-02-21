@@ -79,7 +79,7 @@ export const List: React.FC<ListProps> = ({
       }
       moveSound.play()
     },
-    30,
+    100,
     [history]
   );
 
