@@ -151,11 +151,11 @@ export class ChessRouler implements SpecificChessJS {
         // According to FIDE, if the player's flag fails (i.e. times out) but the opponent doesn't have sufficient material to force mate
         //  the player is awarded a draw instead of the loss due to timeout!
         // See this for more info: https://www.chess.com/forum/view/general/what-is-considered-insufficient-material#comment-31144738
-        // return {
-        //   over: true,
-        //   reason: GameOverReason['drawAwardedForInsufficientMaterial'],
-        //   isDraw: true,
-        // };
+        return {
+          over: true,
+          reason: GameOverReason['drawAwardedForInsufficientMaterial'],
+          isDraw: true,
+        };
       }else if(this.hasSufficientMaterialToForceMate(opponentColor) ){
         console.log('nije remi, podeba',this.hasSufficientMaterialToForceMate(opponentColor))
         return {
