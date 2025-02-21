@@ -156,13 +156,15 @@ export class ChessRouler implements SpecificChessJS {
           reason: GameOverReason['drawAwardedForInsufficientMaterial'],
           isDraw: true,
         };
+      }else if(this.hasSufficientMaterialToForceMate(opponentColor) ){
+        console.log('nije proslo',this.hasSufficientMaterialToForceMate(opponentColor))
+        return {
+          over: true,
+          reason: GameOverReason['timeout'],
+          isDraw: false,
+        };
       }
-      console.log('nije proslo',this.hasSufficientMaterialToForceMate(opponentColor))
-      return {
-        over: true,
-        reason: GameOverReason['timeout'],
-        isDraw: false,
-      };
+      
     }
 
     if (this.chess.isCheckmate()) {
