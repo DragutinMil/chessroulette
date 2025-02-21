@@ -191,11 +191,12 @@ export const reducer = (
 
       const nextWinnerAndGameOverReason = invoke(() => {
         if (gameOverResult.over && gameOverResult.isDraw) {
-          return {
-            winner: '1/2',
-            gameOverReason:
-              GameOverReason['drawAwardedForInsufficientMaterial'],
-          } as const;
+          console.log('krkic',gameOverResult.over,gameOverResult.isDraw)
+          // return {
+          //   winner: '1/2',
+          //   gameOverReason:
+          //     GameOverReason['drawAwardedForInsufficientMaterial'],
+          // } as const;
         }
 
         return {
