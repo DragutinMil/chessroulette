@@ -45,21 +45,18 @@ export const List: React.FC<ListProps> = ({
 }) => {
   const rowElementRefs = useRef<Record<number, HTMLDivElement | null>>({});
   const containerElementRef = useRef<HTMLDivElement | null>();
-
+  const moveSound = new Audio("/chessmove.mp3");
   useDebouncedEffect(
     () => {
       if (isNested) {
         return;
       }
-
       if (history.length === 0) {
         return;
       }
-
       if (!focusedIndex) {
         return;
       }
-
       const [focusedTurnIndex] = focusedIndex;
 
       if (!focusedTurnIndex) {
@@ -74,6 +71,16 @@ export const List: React.FC<ListProps> = ({
     },
     100,
     [history, focusedIndex, isNested]
+  );
+  useDebouncedEffect(
+    () => {
+      if (history.length === 0) {
+        return;
+      }
+      moveSound.play()
+    },
+    100,
+    [history]
   );
 
   useEffect(() => {

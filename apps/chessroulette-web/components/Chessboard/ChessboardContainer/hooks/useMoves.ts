@@ -44,7 +44,6 @@ export const useMoves = ({
   // pre move 
   const allowsPremoves = !!onPreMove;
   const [preMove, setPreMove] = useState<ChessboardPreMove>();
-
   // Promo Move calling
   useEffect(() => {
     
@@ -76,7 +75,7 @@ export const useMoves = ({
 
     return Err.EMPTY;
   };
-
+  
   const isValidPromoMove = (m: ChessboardShortMoveWithPiece) =>
     
     isPromotableMove(m, m.piece) &&
@@ -112,6 +111,7 @@ export const useMoves = ({
           setPreMove({ from: square, piece });
         } else {
           // Otherwise finish the premove
+          
           setPreMove({
             ...preMove,
             to: square,
@@ -123,13 +123,12 @@ export const useMoves = ({
       }
     } 
     else if(isMyTurn && preMove) {
-        setPreMove(undefined);
-        
-    }
-    else if(isMyTurn && preMove) {
-      setPreMove(undefined);
       
-  }
+        setPreMove(undefined);
+    }
+  //   else if(isMyTurn && preMove) {
+  //     setPreMove(undefined);  
+  // }
 
     // If there is no existent Pending Move ('from' set)
     else if (!pendingMove?.from) {
@@ -185,12 +184,14 @@ export const useMoves = ({
   };
 
   const onPieceDrop = (from: Square, to: Square, pieceSan: PieceSan) => {
+    //console.log('piece',pieceSan,to, from )
    // simply move on Drag&Drop if no pre or promo move
     // if(!preMove && !isValidPromoMove({ from, to, piece: pieceSanToPiece(pieceSan) })){
     //   return onMoveIfValid({ from, to }).ok;
     // }
     // Check for premoves first
-    if (preMove) {
+    //Dragutin added !isMyTurn
+    if (preMove && !isMyTurn) {
       setPreMove({ ...preMove, to });
       // As this is not yet a valid move, return false
       return false;
