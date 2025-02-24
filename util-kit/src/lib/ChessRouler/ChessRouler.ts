@@ -67,8 +67,9 @@ export class ChessRouler implements SpecificChessJS {
     const allPiecesByColor = new ChessFENBoard(this.fen()).getAllPiecesByColor(
       color
     );
-     
-    if (allPiecesByColor.length > 3) {
+    console.log('allPiecesByColor.length',allPiecesByColor.length)
+    if (allPiecesByColor.length > 2) {
+      console.log('vise od dva')
       return true;
     }
     if (allPiecesByColor.length > 1 && (allPiecesByColor.indexOf('R')!==-1 || allPiecesByColor.indexOf('r')!==-1)) {
@@ -102,7 +103,8 @@ export class ChessRouler implements SpecificChessJS {
         return true;
       }
     }
-    if (allPiecesByColor.length === 3) {
+    if (allPiecesByColor.length == 3) {
+      console.log('check==3')
       return true;
       // Check for Knight and Bishop
       // if (indexedPieces['b'] && indexedPieces['n']) {
@@ -119,7 +121,7 @@ export class ChessRouler implements SpecificChessJS {
     //   // False if one of the pieces besides the king is a knight or bishop
     //   return !(indexedPieces['n'] || indexedPieces['b']);
     // }
-    
+    console.log('the end of function')
     // Otherwise false
     return false;
   }
