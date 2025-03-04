@@ -190,11 +190,10 @@ export const reducer = (
       }).isGameOver(turn);
 
       const nextWinnerAndGameOverReason = invoke(() => {
-        console.log('u reduseru je gameOverResult.over',gameOverResult.over,)
-       // console.log('u reduseru je gameOverResult.isDraw', gameOverResult.isDraw)
+        console.log('reduser gameOverResult.over',gameOverResult.over,)
         
         if (gameOverResult.over && gameOverResult.isDraw) {
-          console.log('deep reduseru je gameOverResult.over',gameOverResult.over,gameOverResult.isDraw)
+          console.log('deep reduser  over isDraw',gameOverResult.over,gameOverResult.isDraw)
    
           return {
             winner: '1/2',

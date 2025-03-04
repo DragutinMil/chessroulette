@@ -26,6 +26,7 @@ export const PlayControls: React.FC<Props> = ({
 
   const [allowTakeback, refreshAllowTakeback] = useState(false);
   const [allowDraw, refreshAllowDraw] = useState(true);
+  const [drawOfferNum, coundDrawOfferNum] = useState(0);
 
   const offerAlreadySent = useRef(false);
   const setOfferSent = useCallback(() => {
@@ -39,7 +40,7 @@ export const PlayControls: React.FC<Props> = ({
       offerAlreadySent.current = false;
     }
   }, []);
-
+  
   const calculateTakebackStatus = () => {
     if (game.lastMoveBy !== homeColor) {
       return false;
@@ -71,14 +72,14 @@ export const PlayControls: React.FC<Props> = ({
   };
 
   const calculateDrawStatus = () => {
+    
     if (game.status !== 'ongoing') {
       return false;
     }
-
-    if (lastOffer?.status === 'pending' || offerAlreadySent.current) {
+   
+    if (lastOffer?.status === 'pending' || offerAlreadySent.current || drawOfferNum>2) {
       return false;
     }
-
     return (
       offers.reduce((accum, offer) => {
         if (offer.type === 'draw' && offer.byPlayer === playerId) {
@@ -113,6 +114,8 @@ export const PlayControls: React.FC<Props> = ({
         onClick={() => {
           setOfferSent();
           onDrawOffer();
+          coundDrawOfferNum(drawOfferNum+1)
+          
         }}
         disabled={!allowDraw}
       >

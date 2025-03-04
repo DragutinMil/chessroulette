@@ -92,7 +92,7 @@ export const InstructorWidgetPanel = React.forwardRef<TabsRef, Props>(
         onTabChange={onTabChange}
         renderContainerHeader={({ tabs }) => (
           <div className="flex flex-row gap-3 pb-3 border-b border-slate-600">
-            {tabs}
+            {tabs}  
             {/* // Only show the Engine switch on the notation tab */}
             {currentTabIndex === 0 && (
               <span className="flex-1 flex justify-end">
