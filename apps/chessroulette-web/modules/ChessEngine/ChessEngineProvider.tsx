@@ -19,12 +19,14 @@ export const ChessEngineProvider = React.memo((props: Props) => {
   });
 
   useEffect(() => {
+    //console.log('kiklop',props)
     const unsubscribers: UnsubscribeFn[] = [];
     const ws = new WebSocket(props.uciUrl);
-
+   //const ws = new WebSocket("wss://chessroulette-engine.fly.dev/senduci");
+  
+    
     ws.onopen = async () => {
       console.log('[ChessEngineProvider] UCI Connection Opened');
-
       const engineClient = new ChessEngineClient(new WebSocketToUciEmitter(ws));
 
       setContextState({
@@ -35,7 +37,6 @@ export const ChessEngineProvider = React.memo((props: Props) => {
 
     ws.onclose = () => {
       console.log('[ChessEngineProvider] UCI Connection Closed');
-
       // Destroy the preexisting Client before closing
       contextState.client?.destroy();
 
