@@ -26,7 +26,6 @@ type Props = {
     'room'
   >['dispatch'];
 };
-
 export const LearnActivity = ({
   remoteState,
   dispatch: optionalDispatch,
@@ -38,7 +37,6 @@ export const LearnActivity = ({
     inputReducer,
     initialInputState
   );
-
   const currentChapter =
     findLoadedChapter(remoteState) || initialDefaultChapter;
 

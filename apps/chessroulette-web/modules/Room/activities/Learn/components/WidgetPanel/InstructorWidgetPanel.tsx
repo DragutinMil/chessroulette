@@ -77,7 +77,7 @@ export const InstructorWidgetPanel = React.forwardRef<TabsRef, Props>(
       },
       [widgetPanelTabsNav.setTabIndex]
     );
-
+    //console.log('currentChapterState',currentChapterState)
     // useEffect(() => {
     //   console.log('widgetPanelTabsNav changed');
     // }, [widgetPanelTabsNav]);

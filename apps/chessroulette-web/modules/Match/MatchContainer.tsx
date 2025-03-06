@@ -22,7 +22,6 @@ type Props = DistributivePick<
   dispatch: DispatchOf<MatchActions>;
   inviteLink?: string;
 };
-
 export const MatchContainer = ({
   match,
   userId,

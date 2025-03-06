@@ -11,7 +11,8 @@ type SearchOpts = { depth: number };
 export const useChessEngineFromFen = (
   gameId: string,
   fen: ChessFEN,
-  searchOpts: SearchOpts = { depth: 10 }
+  searchOpts: SearchOpts 
+  // = { depth: 10 }
 ) => {
   const engine = useChessEngineClient();
 
@@ -94,8 +95,8 @@ export const useChessEngineFromFen = (
       bestLine: undefined,
       bestMove: undefined,
     }));
-
-    engine.client.search(fen, 10).then(({ bestMove }) => {
+    //console.log('searchOpts',searchOpts.depth)
+    engine.client.search(fen, searchOpts.depth).then(({ bestMove }) => {
       setState((prev) => ({
         ...prev,
         bestMove: bestMove.bestmove,

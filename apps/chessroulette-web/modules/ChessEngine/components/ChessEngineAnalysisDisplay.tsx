@@ -18,12 +18,12 @@ export const ChessEngineAnalysisDisplay = ({
   fen,
   onUpdate = noop,
 }: Props) => {
-  const engineState = useChessEngineFromFen(gameId, fen, { depth: 12 });
+  const engineState = useChessEngineFromFen(gameId, fen, { depth: 5 });
 
   useEffect(() => {
     onUpdate(engineState);
   }, [engineState]);
-
+  //console.log('engineState',engineState)
   return (
     <div className="text-sm pb-2 spx-2 border-b border-slate-600 soverflow-hidden">
       <p className="text-xs text-slate-400">{engineState.id?.name} Engine</p>
