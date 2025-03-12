@@ -15,6 +15,7 @@ import { useCustomArrows } from './hooks/useArrows';
 import { useCustomStyles } from './hooks/useCustomStyles';
 import { ChessboardDisplay, ChessboardDisplayProps } from './ChessboardDisplay';
 import { useMoves } from './hooks/useMoves';
+import  StockFish16  from '@app/modules/ChessEngine/StockFish16';
 
 export type ChessboardContainerProps = Omit<
   ChessboardDisplayProps,
@@ -150,6 +151,10 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
   }
 
   return (
+   <div>
+    <StockFish16 
+      state={fen}
+      />
     <ChessboardDisplay
       fen={fen}
       sizePx={sizePx}
@@ -185,5 +190,6 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
       animationDuration={BOARD_ANIMATION_DELAY}
       {...props}
     />
+    </div> 
   );
 };

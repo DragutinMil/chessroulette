@@ -62,14 +62,18 @@ export const useMoves = ({
       setTimeout(() => {
         setPreMove(undefined);
         onPreMove({ ...preMove, to });
-        // For some reason it it's not waiting 300ms, the animation is choppy...changed to useState GDM
+        // For some reason it it's not waiting 300ms, the animation is choppy...
       }, premoveAnimationDelay);
     }
   }, [isMyTurn, preMove, allowsPremoves, onPreMove]);
 
   const onMoveIfValid = (m: ShortChessMove): Result<void, void> => {
+    console.log('m')
     if (onValidateMove(m)) {
       onMove(m);
+      console.log('onValidateMove(m)',onValidateMove(m))
+      console.log(' onMove(m)', onMove(m))
+      console.log('Ok.EMPTY',Ok.EMPTY)
       return Ok.EMPTY;
     }
 
