@@ -68,8 +68,10 @@ export const useMoves = ({
   }, [isMyTurn, preMove, allowsPremoves, onPreMove]);
 
   const onMoveIfValid = (m: ShortChessMove): Result<void, void> => {
+   
     if (onValidateMove(m)) {
       onMove(m);
+     
       return Ok.EMPTY;
     }
 
@@ -77,13 +79,13 @@ export const useMoves = ({
   };
   
   const isValidPromoMove = (m: ChessboardShortMoveWithPiece) =>
-    
+   
     isPromotableMove(m, m.piece) &&
     onValidateMove({
       ...m,
       promoteTo: 'q',
     });
-
+    
   const onClickOrDrag = ({
     square,
     pieceSan,
@@ -205,6 +207,13 @@ export const useMoves = ({
    //Otherwie simply move on Drag&Drop
    return onMoveIfValid({ from, to }).ok;
   };
+ 
+  // function makeAMove(move) {
+  //   const gameCopy = { ...game };
+  //   const result = gameCopy.move(move);
+  //   setGame(gameCopy);
+  //   return result; // null if the move was illegal, the move object if the move was legal
+  // }
 
   return {
     onSquareClick: (square: Square, pieceSan?: PieceSan) =>
@@ -216,5 +225,6 @@ export const useMoves = ({
     promoMove,
     pendingMove,
     preMove,
+    
   };
 };

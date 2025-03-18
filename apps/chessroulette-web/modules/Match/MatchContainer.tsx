@@ -58,7 +58,7 @@ export const MatchContainer = ({
           </div>
           <div  className="bg-slate-700 pl-2 pr-2 pt-2 pb-2 md:p-3  flex flex-col gap-2 md:flex-1 min-h-0 rounded-lg shadow-2xl  md:overflow-y-scroll">
             <GameNotationWidget />
-            <PlayControlsContainer />
+            <PlayControlsContainer  />
           </div>
         </div>
       }
