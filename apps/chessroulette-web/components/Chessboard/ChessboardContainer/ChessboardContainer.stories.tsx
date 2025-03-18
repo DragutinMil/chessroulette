@@ -27,9 +27,11 @@ export const Freeboard: Story = {
     );
 
     useEffect(() => {
+      console.log('argFen',argFen)
       setFen(argFen);
+      console.log('fen',fen)
     }, [argFen]);
-
+   
     return (
       <ChessboardContainer
         {...args}

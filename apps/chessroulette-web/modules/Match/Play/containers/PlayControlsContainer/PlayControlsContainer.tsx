@@ -5,7 +5,7 @@ import { PENDING_UNTIMED_GAME } from '@app/modules/Game';
 export const PlayControlsContainer = () => {
   const dispatch = usePlayActionsDispatch();
   const { lastOffer, game, playersBySide, hasGame } = useCurrentOrPrevMatchPlay();
-
+  
   if (!hasGame) {
     return <>WARN| Play Controls Container No Game</>;
   }

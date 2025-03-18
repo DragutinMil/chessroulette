@@ -40,6 +40,16 @@ export const MainHomeSection: React.FC<Props> = ({ className }) => {
                 Connect
               </Button>
             </Link>
+            {/* <Link
+              href={links.getOnDemandRoomCreationLink({
+                activity: 'meetup',
+                star: '1', // TODO: Would be better to type it
+              })}
+            >
+              <Button type="primary" className="font-bold w-full">
+                Play Bots
+              </Button>
+            </Link> */}
             <Link
               href={links.getOnDemandRoomCreationLink({
                 activity: 'learn',
