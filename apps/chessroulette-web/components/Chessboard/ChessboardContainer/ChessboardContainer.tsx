@@ -187,7 +187,6 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
        bot={match?.challengee.id}
        fen={fen}
        isMyTurn={isMyTurn}
-       boardOrientation={boardOrientation}
        engineMove={engineMove}
     
      />

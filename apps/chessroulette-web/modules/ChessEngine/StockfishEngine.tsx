@@ -11,13 +11,20 @@ import {
 
 type StockfishEngineProps = {
   fen: ChessFEN ;
-  isMyTurn:Boolean;
-  engineMove:any;
+  isMyTurn:boolean;
   bot:string
- 
+  engineMove:any
+ // engineMove: (m: ShortChessMove) => void;
+  
 };
 
-const StockfishEngine = ({ fen, isMyTurn, engineMove, bot }: StockfishEngineProps): void =>  {
+const StockfishEngine : React.FC<StockfishEngineProps> = ({ 
+  fen,
+  isMyTurn,
+  engineMove,
+  bot
+ 
+})=> {
   const [stockfishOutput, setStockfishOutput] = useState("Initializing...");
   const [bestMove, setBestMove] = useState("");
   const [depth, setDepth] = useState("1");
@@ -98,7 +105,7 @@ const StockfishEngine = ({ fen, isMyTurn, engineMove, bot }: StockfishEngineProp
   }, [bestMove]);
 
 
-  
+  return null; 
 };
 
 export default StockfishEngine;
