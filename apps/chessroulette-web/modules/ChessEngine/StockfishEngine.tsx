@@ -10,23 +10,14 @@ import {
 
 
 type StockfishEngineProps = {
-  fen: ChessFEN;
-  isMyTurn:Boolean
-  boardOrientation:String,
+  fen: ChessFEN ;
+  isMyTurn:Boolean;
   engineMove:any;
   bot:string
- // engineMove: (m: ShortChessMove) => void;
-  
+ 
 };
 
-const StockfishEngine : React.FC<StockfishEngineProps> = ({ 
-  fen,
-  isMyTurn,
-  engineMove,
-  boardOrientation,
-  bot
- 
-})=> {
+const StockfishEngine = ({ fen, isMyTurn, engineMove, bot }: StockfishEngineProps): void =>  {
   const [stockfishOutput, setStockfishOutput] = useState("Initializing...");
   const [bestMove, setBestMove] = useState("");
   const [depth, setDepth] = useState("1");
@@ -71,12 +62,6 @@ const StockfishEngine : React.FC<StockfishEngineProps> = ({
       setContempt('20')
     }
    }
-
-//     8WCVE7ljCQJTW020
-//  NaNuXa7Ew8Kac002
-// O8kiLgwcKJWy9005
-//  KdydnDHbBU1JY008
-// vpHH6Jf7rYKwN010
     try {
        const stockfish = new Worker("/stockfish.js"); 
       stockfish.onmessage = (event) => {
