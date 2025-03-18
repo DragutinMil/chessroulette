@@ -67,9 +67,8 @@ export class ChessRouler implements SpecificChessJS {
     const allPiecesByColor = new ChessFENBoard(this.fen()).getAllPiecesByColor(
       color
     );
-    console.log('pieces length',allPiecesByColor.length)
+    //console.log('pieces length',allPiecesByColor.length)
     if (allPiecesByColor.length > 2) {
-      console.log('check>2')
       return true;
     }
     if (allPiecesByColor.length > 1 && (allPiecesByColor.indexOf('R')!==-1 || allPiecesByColor.indexOf('r')!==-1)) {
