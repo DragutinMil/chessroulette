@@ -1,8 +1,10 @@
+"use client";
 import Header from '../../components/Header/Header';
 import { RoomSideMenu } from './components/RoomSideMenu';
 import { OnboardingWidget } from '../Onboarding';
 import { ActivityState } from './activities/movex';
 import { type CustomSession } from '@app/services/Auth';
+import { useEffect, useState } from "react";
 
 type Props = React.PropsWithChildren & {
   activity: ActivityState['activityType'];
@@ -12,8 +14,18 @@ type Props = React.PropsWithChildren & {
   session?: CustomSession;
 };
 
-export const RoomTemplate = (props: Props) => (
-  <div className="flex h-screen w-screen">
+  
+
+export const RoomTemplate = (props: Props) =>{
+  const [isOutpost, setIsOutpost] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setIsOutpost(window.location.href.includes("theme=op"));
+    }
+  }, []);
+return (
+  <div className="flex h-screen w-screen" style={{ backgroundColor: isOutpost ? "#202122" : "#161A2B" }} >
     <div className="flex flex-col flex-1 ">
       <Header themeName={props.themeName} showConnectionStatus />
       <div
@@ -36,3 +48,4 @@ export const RoomTemplate = (props: Props) => (
     </menu>
   </div>
 );
+};
