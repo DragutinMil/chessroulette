@@ -49,7 +49,7 @@ export const getButtonColors = (
 ) => ({
   initial: `${cssProp}-${color}-900`,
   hover: `${cssProp}-${color}-1100`,
- active: `${cssProp}-${color}-1100`,
+  active: `${cssProp}-${color}-800`,
 });
 
 export const toStringColors = (p: {
