@@ -2,7 +2,9 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ChessColor } from '@xmatter/util-kit';
 import { QuickConfirmButton } from '@app/components/Button/QuickConfirmButton';
 import { Game, GameOffer } from '@app/modules/Game';
-
+import {
+  useMatchViewState,
+} from '../../../../../modules/Match/hooks/useMatch';
 type Props = {
   game: Game;
   homeColor: ChessColor;
@@ -23,9 +25,11 @@ export const PlayControls: React.FC<Props> = ({
   lastOffer,
 }) => {
   const { offers: offers = [] } = game;
-
+   const { match, ...matchView } = useMatchViewState();
+  const[isBotPlay, setBots] = useState(false)
   const [allowTakeback, refreshAllowTakeback] = useState(false);
   const [allowDraw, refreshAllowDraw] = useState(true);
+  const [drawOfferNum, coundDrawOfferNum] = useState(0);
 
   const offerAlreadySent = useRef(false);
   const setOfferSent = useCallback(() => {
@@ -39,7 +43,7 @@ export const PlayControls: React.FC<Props> = ({
       offerAlreadySent.current = false;
     }
   }, []);
-
+  
   const calculateTakebackStatus = () => {
     if (game.lastMoveBy !== homeColor) {
       return false;
@@ -71,14 +75,14 @@ export const PlayControls: React.FC<Props> = ({
   };
 
   const calculateDrawStatus = () => {
+    
     if (game.status !== 'ongoing') {
       return false;
     }
-
-    if (lastOffer?.status === 'pending' || offerAlreadySent.current) {
+   
+    if (lastOffer?.status === 'pending' || offerAlreadySent.current || drawOfferNum>2) {
       return false;
     }
-
     return (
       offers.reduce((accum, offer) => {
         if (offer.type === 'draw' && offer.byPlayer === playerId) {
@@ -88,7 +92,11 @@ export const PlayControls: React.FC<Props> = ({
       }, 0) < 4
     );
   };
-
+useEffect(() => {
+    if(match){
+      setBots( ['8WCVE7ljCQJTW020','NaNuXa7Ew8Kac002','O8kiLgwcKJWy9005','KdydnDHbBU1JY008','vpHH6Jf7rYKwN010','ruuPkmgP0KBei015'].indexOf(match?.challengee?.id)!==-1 )
+    }
+  }, []);
   useEffect(() => {
     if (offerAlreadySent.current) {
       resetOfferSent();
@@ -113,8 +121,10 @@ export const PlayControls: React.FC<Props> = ({
         onClick={() => {
           setOfferSent();
           onDrawOffer();
+          coundDrawOfferNum(drawOfferNum+1)
+          
         }}
-        disabled={!allowDraw}
+        disabled={!allowDraw || isBotPlay}
       >
         Draw
       </QuickConfirmButton>
@@ -129,7 +139,7 @@ export const PlayControls: React.FC<Props> = ({
           setOfferSent();
           onTakebackOffer();
         }}
-        disabled={game.status !== 'ongoing' || !allowTakeback}
+        disabled={game.status !== 'ongoing' || !allowTakeback || isBotPlay}
       >
         Takeback
       </QuickConfirmButton>

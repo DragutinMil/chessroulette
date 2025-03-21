@@ -41,11 +41,29 @@ export const MatchStateDialogContainer: React.FC<Props> = (
           <div className="flex flex-col gap-4 items-center">
             <div className="flex justify-center content-center text-center">
               <Text>
-                <span className="capitalize">
-                  {match[match.winner].displayName || match[match.winner].id}
-                  {` `}Won{` `}
-                  <span>🏆</span>
-                </span>
+               {/* BOTS NAME  */}
+                {(match[match.winner].id=='8WCVE7ljCQJTW020'  ||
+        match[match.winner].id=='NaNuXa7Ew8Kac002'  ||
+        match[match.winner].id=='O8kiLgwcKJWy9005'  ||
+        match[match.winner].id=='KdydnDHbBU1JY008'  ||
+        match[match.winner].id=='vpHH6Jf7rYKwN010'  ||
+        match[match.winner].id=='ruuPkmgP0KBei015')? (
+          <span className="capitalize">
+          Bot
+          {` `}Won{` `}
+          <span>🏆</span>
+          </span>
+        ):(
+          // REGULAR NAME
+          <span className="capitalize">
+          {match[match.winner].displayName || match[match.winner].id}
+          {` `}Won{` `}
+          <span>🏆</span>
+          </span>
+        )
+      }
+                 
+              
               </Text>
             </div>
           </div>
