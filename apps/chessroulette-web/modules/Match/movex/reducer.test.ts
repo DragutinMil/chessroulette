@@ -137,6 +137,7 @@ describe('Match Status: Pending > Ongoing', () => {
     const expectedUpdate: MatchState = {
       status: 'ongoing',
       type: 'bestOf',
+
       rounds: 3,
       endedGames: [],
       challenger: { id: CONSTANTS.challengerId, points: 0 },

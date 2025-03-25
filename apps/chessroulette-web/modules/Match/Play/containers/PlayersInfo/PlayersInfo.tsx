@@ -35,7 +35,7 @@ export const PlayersInfo = ({
       moves.lastMoveBy === 'b'
     );
   }, [game]);
-
+ // console.log('game',game)
   return (
     <div className="flex flex-1 gap-0 md:gap-2 flex-col">
       <PlayerBox

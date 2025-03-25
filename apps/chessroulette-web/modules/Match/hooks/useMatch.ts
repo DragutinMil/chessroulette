@@ -7,3 +7,4 @@ export const useMatchViewState = (): MatchViewState =>
 
 export const useMatchActionsDispatch = () =>
   useContext(MatchStateContext).dispatch;
+

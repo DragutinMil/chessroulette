@@ -1,3 +1,4 @@
+import React, { useState } from 'react'
 import { DispatchOf, DistributivePick } from '@xmatter/util-kit';
 import { GameNotationWidget } from '@app/modules/Game/widgets';
 import { UserId } from '@app/modules/User';
@@ -29,7 +30,14 @@ export const MatchContainer = ({
   inviteLink,
   dispatch,
   ...boardProps
-}: Props) => (
+}: Props) => {
+  const [isBotPlay, setBots] = useState(false);
+  const HandleBotInfo = (value: boolean) => {
+    setBots(value)
+   
+  };
+
+  return (
   <MatchProvider match={match} userId={userId} dispatch={dispatch}>
     <ResizableDesktopLayout
       mainComponent={({ boardSize }) => (
@@ -49,7 +57,7 @@ export const MatchContainer = ({
           <div className="flex flex-row md:flex-col">
           <div  className="w-1/2  md:w-full h-full overflow-hidden rounded-lg shadow-2xl">
          
-            <PeerToPeerCameraWidget />
+            <PeerToPeerCameraWidget isBotPlay={isBotPlay} />
            
           </div>
           <div  className="w-1/2 md:w-full ml-3 md:ml-0" >
@@ -58,10 +66,11 @@ export const MatchContainer = ({
           </div>
           <div  className="bg-slate-700 pl-2 pr-2 pt-2 pb-2 md:p-3  flex flex-col gap-2 md:flex-1 min-h-0 rounded-lg shadow-2xl  md:overflow-y-scroll">
             <GameNotationWidget />
-            <PlayControlsContainer  />
+            <PlayControlsContainer botInfo={HandleBotInfo} />
           </div>
         </div>
       }
     />
   </MatchProvider>
-);
+)
+};

@@ -19,6 +19,7 @@ export const MatchProvider: React.FC<Props> = ({
   dispatch,
   children,
 }) => {
+  console.log('match',match)
   const contextState = useMemo<MatchContextType>(
     () => ({
       match,

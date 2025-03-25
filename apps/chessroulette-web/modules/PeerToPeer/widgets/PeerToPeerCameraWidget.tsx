@@ -6,11 +6,12 @@ import { usePeerStreaming } from '../PeerStreaming/hooks/usePeerStreaming';
 
 type Props = {
   aspectRatio?: FaceTimeProps['aspectRatio'];
+  isBotPlay: boolean;
 };
 
-export const PeerToPeerCameraWidget = ({ aspectRatio = 16 / 9 }: Props) => {
+export const PeerToPeerCameraWidget: React.FC<Props> = ({ aspectRatio = 16 / 9, isBotPlay }) =>  {
   const peerStreaming = usePeerStreaming();
-
+ console.log("Bot Play Status:", isBotPlay);
   if (!config.CAMERA_ON) {
     const hashDemoImgId = (id: string) => Number(id.match(/\d/)?.[0] || 0);
     return (

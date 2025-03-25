@@ -15,7 +15,7 @@ type Props = {
   onResign: () => void;
 };
 
-export const PlayControls: React.FC<Props> = ({
+export const PlayControls: React.FC<Props& { botInfo: (value: boolean) => void }> = ({
   onResign,
   onDrawOffer,
   onTakebackOffer,
@@ -23,6 +23,7 @@ export const PlayControls: React.FC<Props> = ({
   playerId,
   game,
   lastOffer,
+  botInfo
 }) => {
   const { offers: offers = [] } = game;
    const { match, ...matchView } = useMatchViewState();
@@ -73,6 +74,10 @@ export const PlayControls: React.FC<Props> = ({
       }, 0) < 4
     );
   };
+  const checkIsBots = (e:any) => {
+    setBots(e)
+    botInfo(e);
+  }
 
   const calculateDrawStatus = () => {
     
@@ -94,7 +99,8 @@ export const PlayControls: React.FC<Props> = ({
   };
 useEffect(() => {
     if(match){
-      setBots( ['8WCVE7ljCQJTW020','NaNuXa7Ew8Kac002','O8kiLgwcKJWy9005','KdydnDHbBU1JY008','vpHH6Jf7rYKwN010','ruuPkmgP0KBei015'].indexOf(match?.challengee?.id)!==-1 )
+    
+      checkIsBots(['8WCVE7ljCQJTW020','NaNuXa7Ew8Kac002','O8kiLgwcKJWy9005','KdydnDHbBU1JY008','vpHH6Jf7rYKwN010','ruuPkmgP0KBei015'].indexOf(match?.challengee?.id)!==-1 )
     }
   }, []);
   useEffect(() => {

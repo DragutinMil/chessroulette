@@ -2,16 +2,19 @@ import { PlayControls } from './PlayControls';
 import { useCurrentOrPrevMatchPlay, usePlayActionsDispatch } from '../../hooks';
 import { PENDING_UNTIMED_GAME } from '@app/modules/Game';
 
-export const PlayControlsContainer = () => {
+export const PlayControlsContainer : React.FC<{ botInfo: (value: boolean) => void }> = ({ botInfo }) =>{
   const dispatch = usePlayActionsDispatch();
   const { lastOffer, game, playersBySide, hasGame } = useCurrentOrPrevMatchPlay();
   
   if (!hasGame) {
     return <>WARN| Play Controls Container No Game</>;
   }
-
+  const HandlleBotInfo = (value: boolean) => {
+    botInfo(value);
+  };
   return (
     <PlayControls
+      botInfo={HandlleBotInfo}
       homeColor={playersBySide.home.color}
       playerId={playersBySide.home.id}
       onDrawOffer={() => {

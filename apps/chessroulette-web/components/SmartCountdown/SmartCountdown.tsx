@@ -58,6 +58,7 @@ export const SmartCountdown = ({
 
   const { major, minor } = useMemo(() => {
     const times = timeLeftToTimeUnits(timeLeft);
+    // console.log('timeLeft',timeLeft)
     if (times.hours > 0) {
       return {
         major: `${times.hours}h`,

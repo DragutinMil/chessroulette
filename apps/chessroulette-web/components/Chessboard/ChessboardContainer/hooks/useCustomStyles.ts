@@ -21,7 +21,6 @@ export const useCustomStyles = ({
   circlesMap,
   customSquareStyles,
   isMyTurn,
-  isBotPlay,
   hoveredSquare,
   ...props
 }: {
@@ -32,7 +31,6 @@ export const useCustomStyles = ({
   preMove?: ChessboardPreMove;
   circlesMap?: CirclesMap;
   isMyTurn?: boolean;
-  isBotPlay?:boolean;
   hoveredSquare?: Square;
 } & Pick<
   ReactChessBoardProps,
