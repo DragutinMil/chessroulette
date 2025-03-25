@@ -34,9 +34,8 @@ const StockfishEngine : React.FC<StockfishEngineProps> = ({
 
 
   useEffect(() => {
-    console.log('bot',bot)
     if (typeof window === "undefined") return; // Ensure it's client-side
-    console.log('botic',bot.slice(-2),depth,skill,contempt)
+   // console.log('botic',bot.slice(-2),depth,skill,contempt)
    if(skill=='' && bot){
     if(bot.slice(-2) == '10'){
       setDepth('5')
