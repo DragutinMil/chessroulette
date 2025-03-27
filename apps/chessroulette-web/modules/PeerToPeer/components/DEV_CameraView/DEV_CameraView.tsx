@@ -53,24 +53,26 @@ export const DEV_CameraView = ({
   useEffect(() => {
     if(bot){
       if(bot.slice(-2) == '10'){
-        
+        // 2000
         setBotImg('https://outpostchess.fra1.digitaloceanspaces.com/4e5cf95f-e232-45cb-9c09-74354791db10.png')
         //setBotImg('https://outpostchess.fra1.digitaloceanspaces.com/d78b2793-b5de-4a12-8fb0-1d2664fdd10e.png')
       }
       else if(bot.slice(-2) == '08'){
+        //1800
         setBotImg('https://outpostchess.fra1.digitaloceanspaces.com/504ccae9-8f9c-4860-a19f-f6692dca10b2.png')
       }
       else if(bot.slice(-2) == '05'){
-       
+       //1500
         setBotImg('https://outpostchess.fra1.digitaloceanspaces.com/fa245412-a7e2-4d29-b9d6-34f471df8d08.png')
        // setBotImg('https://outpostchess.fra1.digitaloceanspaces.com/8dd58f5c-a7ab-4be4-a906-c0bdcd6dcc49.png')
       }
       else if(bot.slice(-2) == '02'){
+        //1200
         setBotImg('https://outpostchess.fra1.digitaloceanspaces.com/96124b0e-0775-48e2-8017-59904373276f.png')
       //  setBotImg('https://outpostchess.fra1.digitaloceanspaces.com/a683cf73-0f66-4f61-97a7-b6d5e626b041.png')
       }
       else if(bot.slice(-2) == '20'){
-        
+        //800
         setBotImg('https://outpostchess.fra1.digitaloceanspaces.com/1cbac9bd-fd34-4931-9a08-32f6487afc2d.png')
         //setBotImg('https://outpostchess.fra1.digitaloceanspaces.com/38d1e510-df66-4054-a42f-ddde6968e90f.png')
       }
