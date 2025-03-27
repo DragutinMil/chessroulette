@@ -23,9 +23,9 @@ export default (props: Props) => {
       pb-0 md:pb-[1rem]
       flex justify-between"
     >
-      <Link href="/">
+     
         <Logo themeName={props.themeName} />
-      </Link>
+      
       <div className="flex gap-6 items-center justify-end">
         {props.showConnectionStatus && <ConnectionStatus />}
 
