@@ -21,7 +21,8 @@
 }
 
 body {
-   background-color: #161A2B; 
+  background-color: rgb(32, 33, 34);
+ /* background-color: #161A2B;  */
   color: white;  
 }
 
