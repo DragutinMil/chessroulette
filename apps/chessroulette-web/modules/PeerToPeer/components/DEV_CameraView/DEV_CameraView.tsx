@@ -59,7 +59,7 @@ export const DEV_CameraView = ({
       }
       else if(bot.slice(-2) == '08'){
         //1800
-        setBotImg('https://outpostchess.fra1.digitaloceanspaces.com/504ccae9-8f9c-4860-a19f-f6692dca10b2.png')
+        setBotImg('https://outpostchess.fra1.digitaloceanspaces.com/805cf0d7-e73f-4135-9837-733b31fa3e49.png')
       }
       else if(bot.slice(-2) == '05'){
        //1500
