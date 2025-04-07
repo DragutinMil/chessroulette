@@ -1,3 +1,4 @@
+"use client";
 import Link from 'next/link';
 import { Logo } from '@app/components/Logo';
 import { CustomSession } from '@app/services/Auth';
@@ -5,7 +6,7 @@ import ConnectionStatus from './ConnectionStatus';
 import Image from 'next/image';
 import GithubLogo from './assets/github-mark-white.svg';
 import DiscordLogo from './assets/discord-icon-svgrepo-com.svg';
-
+import { useEffect, useState } from 'react';
 type Props = {
   themeName?: string;
   showConnectionStatus?: boolean;
@@ -13,7 +14,15 @@ type Props = {
   session?: CustomSession;
 };
 
-export default (props: Props) => {
+export default  (props: Props) => {
+  const [isFromApp, setIsFromApp] = useState(false);
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const url = window.location.href;
+      setIsFromApp(url.includes('fromApp=true'));
+    }
+  }, []);
+  
   return (
     <header
       className="
@@ -23,9 +32,14 @@ export default (props: Props) => {
       pb-0 md:pb-[1rem]
       flex justify-between"
     >
-      <Link href="https://app.outpostchess.com/online-list">
+      {isFromApp? (
+              <Logo themeName={props.themeName} />
+      ):(
+          <Link href="https://app.outpostchess.com/online-list">
         <Logo themeName={props.themeName} />
       </Link>
+      )}
+      
       <div className="flex gap-6 items-center justify-end">
         {props.showConnectionStatus && <ConnectionStatus />}
 
