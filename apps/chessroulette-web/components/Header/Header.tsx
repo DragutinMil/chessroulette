@@ -6,22 +6,17 @@ import ConnectionStatus from './ConnectionStatus';
 import Image from 'next/image';
 import GithubLogo from './assets/github-mark-white.svg';
 import DiscordLogo from './assets/discord-icon-svgrepo-com.svg';
-import { useEffect, useState } from 'react';
+
+
 type Props = {
   themeName?: string;
   showConnectionStatus?: boolean;
   showOnboarding?: boolean;
   session?: CustomSession;
 };
-
+console.log(document.referrer);
 export default  (props: Props) => {
-  const [isFromApp, setIsFromApp] = useState(false);
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const url = window.location.href;
-      setIsFromApp(url.includes('fromApp=true'));
-    }
-  }, []);
+
   
   return (
     <header
@@ -32,13 +27,13 @@ export default  (props: Props) => {
       pb-0 md:pb-[1rem]
       flex justify-between"
     >
-      {isFromApp? (
-              <Logo themeName={props.themeName} />
-      ):(
-          <Link href="https://app.outpostchess.com/online-list">
+     
+          <div onClick={() => {window.location.href = document.referrer
+                            
+                            }}>
         <Logo themeName={props.themeName} />
-      </Link>
-      )}
+        </div>
+   
       
       <div className="flex gap-6 items-center justify-end">
         {props.showConnectionStatus && <ConnectionStatus />}
