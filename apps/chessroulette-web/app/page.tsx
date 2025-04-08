@@ -6,7 +6,7 @@ import { getCustomServerSession } from '../services/Auth/getCustomServerSession'
 import Footer from '@app/components/Footer';
 
 export const metadata: Metadata = {
-  title: 'Chessroulette',
+  title: 'Outpost Playground',
   description: '',
 };
 
