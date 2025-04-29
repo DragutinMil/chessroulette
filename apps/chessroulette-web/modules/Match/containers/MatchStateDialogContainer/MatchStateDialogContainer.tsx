@@ -24,8 +24,6 @@ export const MatchStateDialogContainer: React.FC<Props> = (
   const dispatch = useMatchActionsDispatch();
 
   useEffect(() => {
-   // console.log('rogovi',match?.status)
-
     if(match?.status === 'complete'){
       const parts = window.location.pathname.split('/');
       const match_id = parts[parts.length - 1]
