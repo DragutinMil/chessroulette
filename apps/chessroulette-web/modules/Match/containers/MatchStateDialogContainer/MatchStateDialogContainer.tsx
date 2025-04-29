@@ -24,12 +24,11 @@ export const MatchStateDialogContainer: React.FC<Props> = (
   const dispatch = useMatchActionsDispatch();
 
   useEffect(() => {
-    console.log('rogovi',match?.status)
+     console.log('match started')
 
     if(match?.status === 'complete'){
       const parts = window.location.pathname.split('/');
       const match_id = parts[parts.length - 1]
-      console.log('matchId', match_id)
       const sendResults = async () => {
         try {
           const response = await fetch('https://api.outpostchess.com/api/v2/fetch_roulette_match_result', {
@@ -38,7 +37,7 @@ export const MatchStateDialogContainer: React.FC<Props> = (
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-              match_id: match_id,//match_id
+              match_id: match_id,
               
             }),
           });
