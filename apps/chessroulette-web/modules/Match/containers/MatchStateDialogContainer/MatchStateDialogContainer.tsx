@@ -1,4 +1,4 @@
-import React from 'react';
+import React ,{useEffect}from 'react';
 import { Dialog } from '@app/components/Dialog';
 import { Text } from '@app/components/Text';
 import { now } from '@app/lib/time';
@@ -23,6 +23,42 @@ export const MatchStateDialogContainer: React.FC<Props> = (
   const { match, ...matchView } = useMatchViewState();
   const dispatch = useMatchActionsDispatch();
 
+  useEffect(() => {
+    console.log('rogovi',match?.status)
+
+    if(match?.status === 'complete'){
+      const parts = window.location.pathname.split('/');
+      const match_id = parts[parts.length - 1]
+      console.log('matchId', match_id)
+      const sendResults = async () => {
+        try {
+          const response = await fetch('https://api.outpostchess.com/api/v2/fetch_roulette_match_result', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              match_id: match_id,//match_id
+              
+            }),
+          });
+      
+          if (!response.ok) {
+            throw new Error(`Error: ${response.status}`);
+          }
+      
+          const data = await response.json();
+          console.log('data', data);
+        } catch (error) {
+          console.error('Fetch error', error);
+        }
+      };
+      
+
+       sendResults()
+    }
+    }, [match?.winner]);
+
   if (match?.status === 'aborted') {
     return (
       <Dialog
@@ -31,7 +67,7 @@ export const MatchStateDialogContainer: React.FC<Props> = (
       />
     );
   }
-
+  
   // TODO: Here we should just check the match.status
   if (match?.winner) {
     return (
