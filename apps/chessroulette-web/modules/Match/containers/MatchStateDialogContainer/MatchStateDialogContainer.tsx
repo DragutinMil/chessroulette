@@ -4,6 +4,7 @@ import { Text } from '@app/components/Text';
 import { now } from '@app/lib/time';
 import { invoke } from '@xmatter/util-kit';
 import { BetweenGamesAborter } from './components/BetweenGamesAborter';
+import { Button } from '../../../../components/Button/Button';
 import {
   PlayDialogContainer,
   PlayDialogContainerContainerProps,
@@ -27,10 +28,12 @@ export const MatchStateDialogContainer: React.FC<Props> = (
     if(match?.status === 'complete'){
       const parts = window.location.pathname.split('/');
       const match_id = parts[parts.length - 1]
-      console.log('matchId', match_id)
+      console.log('fetch', process.env.VUE_APP_URL)
+      console.log('fetch2', process.env.NODE_ENV)
       const sendResults = async () => {
+       // change Guta Dragutin
         try {
-          const response = await fetch('https://api.outpostchess.com/api/v2/fetch_roulette_match_result', {
+          const response = await fetch(process.env.NEXT_PUBLIC_API_WEB+'fetch_roulette_match_result', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -61,7 +64,8 @@ export const MatchStateDialogContainer: React.FC<Props> = (
     return (
       <Dialog
         title="Match Aborted"
-        content={null} // should there be something?
+        content={""} // should there be something?
+       
       />
     );
   }
@@ -73,17 +77,8 @@ export const MatchStateDialogContainer: React.FC<Props> = (
         title="Match Completed"
         content={
           <div className="flex flex-col gap-4 items-center">
-            <div className="flex justify-center content-center text-center">
+            <div className="flex  justify-center content-center text-center flex-col">
               <Text>
-               
-               {/* BOTS NAME 
-               {(match[match.winner].id=='8WCVE7ljCQJTW020'  ||
-        match[match.winner].id=='NaNuXa7Ew8Kac002'  ||
-        match[match.winner].id=='O8kiLgwcKJWy9005'  ||
-        match[match.winner].id=='KdydnDHbBU1JY008'  ||
-        match[match.winner].id=='vpHH6Jf7rYKwN010'  ||
-        match[match.winner].id=='ruuPkmgP0KBei015')?
-               */} 
              { ( match[match.winner].id.length==16)?  (
           <span className="capitalize">
           Bot
@@ -99,9 +94,43 @@ export const MatchStateDialogContainer: React.FC<Props> = (
           </span>
         )
       }
-                 
-              
               </Text>
+              {/* { ( match[match.winner].id.length!==16) &&  (
+                <Button
+                     onClick={() => {
+                      dispatch({
+                        type: 'play:sendOffer',
+                        payload: {
+                          byPlayer: '8UWCweKl1Gvoi', //gameStateDialogProps.playerId,
+                          offerType: 'rematch',
+                        },
+                      });
+                     }
+                    }
+                    >
+                     Rematch 
+                    </Button>
+
+              )} */}
+              {/* {...(match.type === 'openEnded' && {
+           buttons: [
+             {
+              children: 'Offer Rematch',
+              onClick: () => {
+                dispatch({
+                  type: 'play:sendOffer',
+                  payload: {
+                    byPlayer: gameStateDialogProps.playerId,
+                    offerType: 'rematch',
+                  },
+                });
+              },
+              type: 'primary',
+              bgColor: 'blue',
+            },
+          ],
+        })} */}
+         
             </div>
           </div>
         }

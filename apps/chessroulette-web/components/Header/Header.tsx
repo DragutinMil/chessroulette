@@ -14,7 +14,7 @@ type Props = {
   showOnboarding?: boolean;
   session?: CustomSession;
 };
-console.log(document.referrer);
+//console.log(document.referrer);
 export default  (props: Props) => {
 
   

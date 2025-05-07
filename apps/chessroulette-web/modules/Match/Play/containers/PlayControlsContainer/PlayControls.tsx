@@ -13,12 +13,14 @@ type Props = {
   onDrawOffer: () => void;
   onTakebackOffer: () => void;
   onResign: () => void;
+  onRematchOffer: () => void;
 };
 
 export const PlayControls: React.FC<Props> = ({
   onResign,
   onDrawOffer,
   onTakebackOffer,
+  onRematchOffer,
   homeColor,
   playerId,
   game,
@@ -110,13 +112,17 @@ useEffect(() => {
   }, [game.status, offers, game.lastMoveBy]);
 
   return (
-    <div className="flex gap-2">
+    <div>
+      {/* { (game.status == 'ongoing' || game.status == 'idling' || lastOffer?.status === 'pending'  
+      ) ? ( */}
+      <div className="flex gap-2">
       <QuickConfirmButton
         size="sm"
         confirmationBgcolor="blue"
         className="w-full"
         confirmationMessage="Invite to Draw?"
-        icon="FlagIcon"
+        icon="ScaleIcon"
+        //ArrowsRightLeftIcon
         iconKind="solid"
         onClick={() => {
           setOfferSent();
@@ -124,7 +130,7 @@ useEffect(() => {
           coundDrawOfferNum(drawOfferNum+1)
           
         }}
-        disabled={!allowDraw || isBotPlay}
+         disabled={!allowDraw || isBotPlay}
       >
         Draw
       </QuickConfirmButton>
@@ -143,6 +149,7 @@ useEffect(() => {
       >
         Takeback
       </QuickConfirmButton>
+      
       <QuickConfirmButton
         size="sm"
         className="w-full"
@@ -155,6 +162,35 @@ useEffect(() => {
       >
         Resign
       </QuickConfirmButton>
+     
+      </div>
+      
+     {/* ):(
+    <div  className="flex gap-2">
+      <QuickConfirmButton
+        size="sm"
+        confirmationBgcolor="blue"
+        className="w-full"
+        confirmationMessage="Ask for Rematch?"
+        icon="ArrowPathIcon"
+        iconKind="solid"
+        onClick={() => {
+          setOfferSent();
+          onRematchOffer();
+        
+          
+        }}
+      
+        //ArrowPathIcon  ArrowUturnLeftIcon   ArrowLongRightIcon
+      >
+        Rematch
+      </QuickConfirmButton>
+     
+      
+      </div>
+     )} */}
+      
+      
     </div>
   );
 };

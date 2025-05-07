@@ -12,7 +12,7 @@ type Props = ButtonProps & {
 export const QuickConfirmButton: React.FC<Props> = ({
   onClick,
   confirmationMessage = 'Confirm?',
-  confirmationBgcolor = 'red',
+  confirmationBgcolor = 'indigo',
   children,
   bgColor,
   ...props

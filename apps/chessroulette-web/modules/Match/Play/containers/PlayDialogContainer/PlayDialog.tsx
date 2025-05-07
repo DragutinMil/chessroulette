@@ -30,8 +30,9 @@ export const PlayDialog: React.FC<GameStateDialogProps> = ({
   } = useGame();
 
   const gameUsed = useGame();
-
+  //console.log('gameUsed',gameUsed)
   useEffect(() => {
+   
     // Everytime the game state changes, reset the seen!
     setGameResultSeen(false);
   }, [game.status]);
@@ -76,10 +77,11 @@ export const PlayDialog: React.FC<GameStateDialogProps> = ({
         />
       );
     }
-
+    
     if (lastOffer) {
       if (game.status === 'complete' && !gameResultSeen) {
         setGameResultSeen(true);
+        
       }
       if (lastOffer.type === 'rematch') {
         if (lastOffer.status === 'pending') {
@@ -88,7 +90,7 @@ export const PlayDialog: React.FC<GameStateDialogProps> = ({
               <Dialog
                 title="Rematch ?"
                 content={
-                  <div className="flex justify-center content-center">
+                  <div className="flex justify-center content-center z-10">
                     Waiting for your opponent to respond.
                   </div>
                 }
