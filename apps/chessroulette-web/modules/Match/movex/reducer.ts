@@ -5,17 +5,36 @@ import { AbortedGame } from '@app/modules/Game';
 import { MatchActions, MatchState } from './types';
 import { initialMatchState } from './state';
 import { getMatchPlayerRoleById } from './util';
-
+import {  GameOffer } from '@app/modules/Game';
 export const reducer: MovexReducer<MatchState, MatchActions> = (
   prev: MatchState = initialMatchState,
   action: MatchActions
 ): MatchState => {
+
   if (!prev) {
     return prev;
   }
-
+  //console.log('prev movex',prev)
   const prevMatch = prev;
-
+  
+  // if (action.type === 'play:sendOffer' ) {
+  //   const { byPlayer, offerType } = action.payload;
+  //   if(offerType=='rematch' ){
+  //     console.log('klokot',prevMatch)
+  //     const nextOffers: GameOffer[] = [
+  //            {
+  //              byPlayer,
+  //              type: offerType,
+  //              status: 'pending'
+  //            },
+  //          ];
+  //          console.log('rematch',nextOffers)
+  //          return {
+  //            ...prev,
+  //            prev.offers: nextOffers
+  //          };
+  //   }
+  // }
   if (action.type === 'match:startNewGame') {
     if (prevMatch.status === 'complete') {
       return prev;
@@ -37,19 +56,29 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
           b: prevGame.players.w,
         },
       };
-    });
+    });  
 
     return {
       ...prev,
       gameInPlay: PlayStore.createPendingGame(newGameParams),
     };
   }
-
-  if (!prevMatch.gameInPlay) {
+  
+  
+  if (!prevMatch.gameInPlay && prevMatch.endedGames!==undefined) {
+    if(prevMatch.endedGames!==undefined){
+      var prevEndedGame = prevMatch.endedGames[prevMatch.endedGames.length-1];
+      const nextEndedGame = PlayStore.reducer(prevEndedGame, action);
+    }
+  }
+  
+  
+  if(!prevMatch.gameInPlay){
     return prev;
   }
+  
 
-  const prevOngoingGame = prevMatch.gameInPlay;
+  var prevOngoingGame = prevMatch.gameInPlay;
   const nextOngoingGame = PlayStore.reducer(prevOngoingGame, action);
 
   if (nextOngoingGame.status === 'aborted') {

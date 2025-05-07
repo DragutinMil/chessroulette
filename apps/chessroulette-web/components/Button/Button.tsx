@@ -47,9 +47,9 @@ export const getButtonColors = (
   color: BgColor,
   cssProp: 'bg' | 'text' = 'bg'
 ) => ({
-  initial: `${cssProp}-${color}-900`,
+  initial: `${cssProp}-${color}-1200`,
   hover: `${cssProp}-${color}-1100`,
-  active: `${cssProp}-${color}-800`,
+   active: `${cssProp}-${color}-1100`,
 });
 
 export const toStringColors = (p: {
@@ -125,7 +125,7 @@ export const Button = React.forwardRef<HTMLButtonElement | null, ButtonProps>(
           classes[size]
         } ${
           disabled
-            ? 'bg-slate-400 hover:bg-slate-400 active:bg-slate-400 hover:cursor-default'
+            ? 'bg-slate-500 hover:bg-slate-500 active:bg-slate-500 hover:cursor-default'
             : ''
         } flex items-center justify-center gap-1 ${className} ${
           bgColor ? toStringColors(getButtonColors(bgColor)) : ''
