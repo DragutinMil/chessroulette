@@ -25,7 +25,7 @@ export const RoomTemplate = (props: Props) =>{
     }
   }, []);
 return (
-  <div className="flex h-screen w-screen" style={{ backgroundColor: isOutpost ? "#202122" : "#161A2B" }} >
+  <div className="flex h-screen w-screen" style={{ backgroundColor: isOutpost ? "#171819" : "#161A2B" }} >
     <div className="flex flex-col flex-1 ">
       <Header themeName={props.themeName} showConnectionStatus />
       <div
@@ -39,7 +39,7 @@ return (
         <div className="absolute inset-0">{props.children}</div>
       </div>
     </div>
-    <menu className="hidden md:block bg-slate-700 flex-0 flex flex-col p-2">
+    <menu className="hidden md:block bg-indigo-1300 flex-0 flex flex-col p-2">
       <OnboardingWidget session={props.session} />
       <div className="pb-6 border-b border-slate-500 mb-4" />
       {props.roomId && (

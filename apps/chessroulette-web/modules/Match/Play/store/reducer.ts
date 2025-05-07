@@ -17,6 +17,7 @@ export const reducer = (
   prev: Game = initialPlayState,
   action: PlayActions
 ): Game => {
+  //console.log('joskec',prev)
   // This moves the game from pending to idling
   if (action.type === 'play:start') {
     // Only a "pending" game can start
@@ -160,6 +161,9 @@ export const reducer = (
     return prev;
   }
 
+  
+
+  
   if (action.type === 'play:checkTime') {
     if (prev.status !== 'ongoing') {
       return prev;
@@ -225,7 +229,7 @@ export const reducer = (
     if (prev.status !== 'ongoing') {
       return prev;
     }
-
+ 
     return {
       ...prev,
       status: 'complete',
@@ -235,23 +239,50 @@ export const reducer = (
   }
 
   if (action.type === 'play:sendOffer') {
+  //  console.log('uslo u play:sendOffer',action)
+    
     const { byPlayer, offerType } = action.payload;
-    const nextOffers: GameOffer[] = [
-      ...prev.offers,
-      {
-        byPlayer,
-        type: offerType,
-        status: 'pending',
-        ...(action.payload.timestamp && {
-          timestamp: action.payload.timestamp,
-        }),
-      },
-    ];
-
-    return {
-      ...prev,
-      offers: nextOffers,
-    };
+    if(offerType!=='rematch'){
+      const nextOffers: GameOffer[] = [
+        ...prev.offers,
+        {
+          byPlayer,
+          type: offerType,
+          status: 'pending',
+          ...(action.payload.timestamp && {
+            timestamp: action.payload.timestamp,
+          }),
+        },
+      ];
+    //  console.log('nije rematch',nextOffers)
+      return {
+        ...prev,
+        offers: nextOffers,
+      };
+    
+    }
+    //  REMATCH
+    else{
+     // console.log('jeste rematch',prev)
+      
+      const nextOffers: GameOffer[] = [
+        ...prev.offers,
+        {
+          byPlayer,
+          type: offerType,
+          status: 'pending',
+         
+        },
+      ];
+     // console.log('nije rematch',nextOffers)
+      return { 
+         ...prev,
+        offers: nextOffers,
+      };
+    }
+     
+      
+   
   }
 
   if (action.type === 'play:acceptOfferDraw') {

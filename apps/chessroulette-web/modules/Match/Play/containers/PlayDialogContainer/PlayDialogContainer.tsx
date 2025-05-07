@@ -26,7 +26,7 @@ export const PlayDialogContainer = ({
   );
 
   return (
-    <PlayDialog
+    <PlayDialog 
       onAcceptOffer={onAcceptOffer}
       onCancelOffer={() => dispatch({ type: 'play:cancelOffer' })}
       onDenyOffer={() => dispatch({ type: 'play:denyOffer' })}

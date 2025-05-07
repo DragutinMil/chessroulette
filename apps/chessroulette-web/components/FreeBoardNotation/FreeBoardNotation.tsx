@@ -43,7 +43,7 @@ export const FreeBoardNotation: React.FC<FreeBoardNotationProps> = ({
           onRefocus={onRefocus}
           onDelete={onDelete}
           className={`flex flex-1 flex-col overflow-scroll  ${className}`}
-          rowClassName="border-b border-slate-600"
+          rowClassName="border-b border-slate-800"
           canDelete={canDelete}
         />
       ) : (

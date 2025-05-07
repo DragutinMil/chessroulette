@@ -22,6 +22,7 @@ export const ChessEngineAnalysisDisplay = ({
 
   useEffect(() => {
     onUpdate(engineState);
+    console.log('engineState',engineState)
   }, [engineState]);
 
   return (
