@@ -45,7 +45,7 @@ export const ChessEngineAnalysisDisplay = ({
         ></div>
       </div>
       {engineState.bestLine ? (
-        
+        // Guta obrisi
         <>
         
           <p className="flex items-center gap-2">
