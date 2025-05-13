@@ -92,7 +92,7 @@ export const InstructorWidgetPanel = React.forwardRef<TabsRef, Props>(
         onTabChange={onTabChange}
         renderContainerHeader={({ tabs }) => (
           <div className="flex flex-row gap-3 pb-3 border-b border-slate-600">
-            {tabs}  
+            {tabs}
             {/* // Only show the Engine switch on the notation tab */}
             {currentTabIndex === 0 && (
               <span className="flex-1 flex justify-end">
@@ -147,7 +147,7 @@ export const InstructorWidgetPanel = React.forwardRef<TabsRef, Props>(
                   onRefocus={onHistoryNotationRefocus}
                 />
                 {/* <FenPreview fen={currentChapterState.displayFen} /> */}
-                <div className="flex flex-col sitems-center gap-3">
+                <div className="flex flex-col sitems-center gap-3 hidden md:flex ">
                   <label className="font-bold text-sm text-gray-400">
                     Quick Import
                   </label>

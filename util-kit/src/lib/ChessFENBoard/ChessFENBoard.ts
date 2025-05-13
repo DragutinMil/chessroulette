@@ -1,8 +1,5 @@
 import { deepmerge } from 'deepmerge-ts';
-import {
-  getNewChessGame,
-  isShortChessColor,
-} from '../ChessRouler/lib';
+import { getNewChessGame, isShortChessColor } from '../ChessRouler/lib';
 import type { ChessFEN, ChessFENStateNotation } from '../ChessRouler/types';
 import type {
   FENBoard,

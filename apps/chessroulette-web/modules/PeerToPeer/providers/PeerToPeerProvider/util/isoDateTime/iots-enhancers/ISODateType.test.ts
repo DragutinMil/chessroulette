@@ -2,7 +2,6 @@ import { isRight } from 'fp-ts/lib/Either';
 import * as io from 'io-ts';
 import * as isoIO from './ISODateType';
 
-
 describe('RecordIO ISODate Types', () => {
   describe('ISODate Type', () => {
     test('it works with ISODate (2019-10-31) input', () => {
@@ -54,7 +53,6 @@ describe('RecordIO ISODate Types', () => {
     });
   });
 
-
   describe('ISODateFromISOString', () => {
     test('works with ISOString (2019-10-31T00:16:59.998Z) input', () => {
       const r = io.type({
@@ -88,7 +86,7 @@ describe('RecordIO ISODate Types', () => {
         });
 
         const actual = r.decode({
-        // Bad month
+          // Bad month
           date: '2019-00-31T00:16:59.998Z',
         });
 
@@ -156,7 +154,7 @@ describe('RecordIO ISODate Types', () => {
         });
 
         const actual = r.decode({
-        // 2019-11-01T00:01:01.000Z
+          // 2019-11-01T00:01:01.000Z
           date: 1572566461,
         });
 
@@ -170,7 +168,7 @@ describe('RecordIO ISODate Types', () => {
         });
 
         const actual = r.decode({
-        // 2019-10-31T23:59:59.000Z
+          // 2019-10-31T23:59:59.000Z
           date: 1572566399,
         });
 

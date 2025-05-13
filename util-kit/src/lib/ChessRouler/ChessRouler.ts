@@ -71,39 +71,43 @@ export class ChessRouler implements SpecificChessJS {
     if (allPiecesByColor.length > 2) {
       return true;
     }
-    if (allPiecesByColor.length > 1 && (allPiecesByColor.indexOf('R')!==-1 || allPiecesByColor.indexOf('r')!==-1)) {
+    if (
+      allPiecesByColor.length > 1 &&
+      (allPiecesByColor.indexOf('R') !== -1 ||
+        allPiecesByColor.indexOf('r') !== -1)
+    ) {
       return true;
     }
-    
-    if (allPiecesByColor.indexOf('R')!==-1 ) {
+
+    if (allPiecesByColor.indexOf('R') !== -1) {
       return true;
     }
-    if ( allPiecesByColor.indexOf('Q')!==-1 ) {
+    if (allPiecesByColor.indexOf('Q') !== -1) {
       return true;
     }
-    if ( allPiecesByColor.indexOf('P')!==-1 ) {
+    if (allPiecesByColor.indexOf('P') !== -1) {
       return true;
     }
-    if (allPiecesByColor.indexOf('r')!==-1 ) {
+    if (allPiecesByColor.indexOf('r') !== -1) {
       return true;
     }
-    if ( allPiecesByColor.indexOf('q')!==-1 ) {
+    if (allPiecesByColor.indexOf('q') !== -1) {
       return true;
     }
-    if ( allPiecesByColor.indexOf('p')!==-1 ) {
+    if (allPiecesByColor.indexOf('p') !== -1) {
       return true;
     }
     const indexedPieces = toDictIndexedBy(
       new ChessFENBoard(this.fen()).getAllPiecesByColor(color),
       (k) => k.toLowerCase()
     );
-    if (allPiecesByColor.length >1){
+    if (allPiecesByColor.length > 1) {
       if (indexedPieces['r'] || indexedPieces['q']) {
         return true;
       }
     }
     if (allPiecesByColor.length == 3) {
-      console.log('check==3')
+      console.log('check==3');
       return true;
       // Check for Knight and Bishop
       // if (indexedPieces['b'] && indexedPieces['n']) {
@@ -120,11 +124,11 @@ export class ChessRouler implements SpecificChessJS {
     //   // False if one of the pieces besides the king is a knight or bishop
     //   return !(indexedPieces['n'] || indexedPieces['b']);
     // }
-    console.log('end of function')
+    console.log('end of function');
     // Otherwise false
     return false;
   }
-  
+
   /**
    * This take sin account "timeouts" and the reasons why a game is completed
    *
@@ -145,10 +149,13 @@ export class ChessRouler implements SpecificChessJS {
       } {
     if (hasTimedOut) {
       const opponentColor = swapColor(hasTimedOut);
-       console.log(opponentColor)
-       console.log(this.hasSufficientMaterialToForceMate(opponentColor))
-      if (!this.hasSufficientMaterialToForceMate(opponentColor) ) {
-        console.log('proslo',this.hasSufficientMaterialToForceMate(opponentColor))
+      console.log(opponentColor);
+      console.log(this.hasSufficientMaterialToForceMate(opponentColor));
+      if (!this.hasSufficientMaterialToForceMate(opponentColor)) {
+        console.log(
+          'proslo',
+          this.hasSufficientMaterialToForceMate(opponentColor)
+        );
         // According to FIDE, if the player's flag fails (i.e. times out) but the opponent doesn't have sufficient material to force mate
         //  the player is awarded a draw instead of the loss due to timeout!
         // See this for more info: https://www.chess.com/forum/view/general/what-is-considered-insufficient-material#comment-31144738
@@ -157,15 +164,17 @@ export class ChessRouler implements SpecificChessJS {
           reason: GameOverReason['drawAwardedForInsufficientMaterial'],
           isDraw: true,
         };
-      }else if(this.hasSufficientMaterialToForceMate(opponentColor) ){
-        console.log('nije remi, podeba',this.hasSufficientMaterialToForceMate(opponentColor))
+      } else if (this.hasSufficientMaterialToForceMate(opponentColor)) {
+        console.log(
+          'nije remi, podeba',
+          this.hasSufficientMaterialToForceMate(opponentColor)
+        );
         return {
           over: true,
           reason: GameOverReason['timeout'],
           isDraw: false,
         };
       }
-      
     }
 
     if (this.chess.isCheckmate()) {

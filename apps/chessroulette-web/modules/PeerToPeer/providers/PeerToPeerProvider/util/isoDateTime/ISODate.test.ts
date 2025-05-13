@@ -1,5 +1,10 @@
 import {
-  toISODate, isValidISODate, isValidISOYear, toISOYear, isValidISOMonth, toISOMonth,
+  toISODate,
+  isValidISODate,
+  isValidISOYear,
+  toISOYear,
+  isValidISOMonth,
+  toISOMonth,
 } from './ISODate';
 
 describe('ISO Date', () => {
@@ -63,7 +68,9 @@ describe('ISO Date', () => {
     });
 
     test('toISODate returns in UTC Timezone, not the local one!', () => {
-      expect(toISODate(new Date('Mon Nov 04 2019 23:00:00 GMT-0500'))).toBe('2019-11-05');
+      expect(toISODate(new Date('Mon Nov 04 2019 23:00:00 GMT-0500'))).toBe(
+        '2019-11-05'
+      );
     });
   });
 });
@@ -121,7 +128,9 @@ describe('ISO Year', () => {
     });
 
     test('toISODate returns in UTC Timezone, not the local one!', () => {
-      expect(toISOYear(new Date('Tue Dec 31 2019 20:00:00 GMT-0500'))).toBe('2020');
+      expect(toISOYear(new Date('Tue Dec 31 2019 20:00:00 GMT-0500'))).toBe(
+        '2020'
+      );
     });
   });
 });
@@ -187,7 +196,9 @@ describe('ISO Month', () => {
     });
 
     test('toISODate returns in UTC Timezone, not the local one!', () => {
-      expect(toISOMonth(new Date('Tue Dec 31 2019 20:00:00 GMT-0500'))).toBe('01');
+      expect(toISOMonth(new Date('Tue Dec 31 2019 20:00:00 GMT-0500'))).toBe(
+        '01'
+      );
     });
   });
 });

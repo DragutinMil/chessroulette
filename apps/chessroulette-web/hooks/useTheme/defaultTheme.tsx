@@ -12,7 +12,6 @@ import { pieces as CRPieces } from '@app/components/Chessboard/assets/pieces';
 export type ChessBoardProps = GetComponentProps<typeof Chessboard>;
 
 export type BoardTheme = {
- 
   darkSquare: string;
   lightSquare: string;
   arrowColors: [string, string, string];
@@ -66,7 +65,6 @@ const crPieceTheme = getPiecesByTheme('cr');
 const chessrouletteTheme: Theme = {
   name: 'chessroulette',
   board: {
-   
     darkSquare: 'rgba(0, 163, 255, .4)',
     lightSquare: 'white',
     arrowColors: ['#11c6d1', '#f2358d', '#6f7381'],
@@ -77,14 +75,13 @@ const chessrouletteTheme: Theme = {
     preMoveToSquare: 'rgba(21, 183, 155, .5)',
     clickedPieceSquare: 'rgba(0, 163, 255, .7)',
     renderPiece: crPieceTheme.renderPiece,
-    customPieces: crPieceTheme.getCustomPieces()
+    customPieces: crPieceTheme.getCustomPieces(),
   },
 };
 
 const outpostTheme: Theme = {
   name: 'outpost',
   board: {
-   
     darkSquare: '#C8A07D',
     lightSquare: 'white',
     arrowColors: ['#11c6d1', '#f2358d', '#6f7381'],

@@ -1,4 +1,3 @@
-
 import {
   flipMatrixHorizontally,
   flipMatrixVertically,

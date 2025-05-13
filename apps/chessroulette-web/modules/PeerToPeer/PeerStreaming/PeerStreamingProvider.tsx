@@ -51,7 +51,6 @@ export const PeerStreamingProvider: React.FC<Props> = ({
         peerCommunicationType: type,
       }));
     },
-
   });
 
   useEffect(() => {

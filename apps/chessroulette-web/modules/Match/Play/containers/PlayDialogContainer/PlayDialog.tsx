@@ -28,11 +28,12 @@ export const PlayDialog: React.FC<GameStateDialogProps> = ({
     players,
     playerId,
   } = useGame();
-
+  
   const gameUsed = useGame();
   //console.log('gameUsed',gameUsed)
+
+
   useEffect(() => {
-   
     // Everytime the game state changes, reset the seen!
     setGameResultSeen(false);
   }, [game.status]);
@@ -77,11 +78,10 @@ export const PlayDialog: React.FC<GameStateDialogProps> = ({
         />
       );
     }
-    
+
     if (lastOffer) {
       if (game.status === 'complete' && !gameResultSeen) {
         setGameResultSeen(true);
-        
       }
       if (lastOffer.type === 'rematch') {
         if (lastOffer.status === 'pending') {
@@ -118,10 +118,11 @@ export const PlayDialog: React.FC<GameStateDialogProps> = ({
               buttons={[
                 {
                   children: 'Accept',
-                  bgColor: 'green',
+                  bgColor: 'yellow',
                   onClick: () => {
                     onAcceptOffer({ offer: 'rematch' });
                     setGameResultSeen(true);
+                   
                   },
                 },
                 {
@@ -197,7 +198,7 @@ export const PlayDialog: React.FC<GameStateDialogProps> = ({
             buttons={[
               {
                 children: 'Accept',
-                bgColor: 'green',
+                bgColor: 'yellow',
                 onClick: () => {
                   onAcceptOffer({ offer: 'draw' });
                   setGameResultSeen(true);
@@ -252,7 +253,7 @@ export const PlayDialog: React.FC<GameStateDialogProps> = ({
               buttons={[
                 {
                   children: 'Accept',
-                  bgColor: 'green',
+                  bgColor: 'yellow',
                   onClick: () => {
                     onAcceptOffer({ offer: 'takeback' });
                     setGameResultSeen(true);

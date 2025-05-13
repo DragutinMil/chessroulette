@@ -15,7 +15,7 @@ type Props = {
 export const UpdateLessonContainer = ({ lesson }: Props) => {
   const lessonState = lessonModelToLessonState(lesson);
 
-  const x = useLearnRoutes_WITH_UNSAFE_SESSOIN_IN_URL()
+  const x = useLearnRoutes_WITH_UNSAFE_SESSOIN_IN_URL();
 
   console.log('UpdateLessonContainer', x);
 

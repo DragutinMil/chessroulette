@@ -1,8 +1,5 @@
 import { DistributivePick } from '@xmatter/util-kit';
-import {
-  IconButton,
-  IconButtonProps,
-} from '@app/components/Button';
+import { IconButton, IconButtonProps } from '@app/components/Button';
 
 type Props = DistributivePick<
   IconButtonProps,

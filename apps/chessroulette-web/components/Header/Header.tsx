@@ -1,4 +1,4 @@
-"use client";
+'use client';
 import Link from 'next/link';
 import { Logo } from '@app/components/Logo';
 import { CustomSession } from '@app/services/Auth';
@@ -7,7 +7,6 @@ import Image from 'next/image';
 import GithubLogo from './assets/github-mark-white.svg';
 import DiscordLogo from './assets/discord-icon-svgrepo-com.svg';
 
-
 type Props = {
   themeName?: string;
   showConnectionStatus?: boolean;
@@ -15,9 +14,7 @@ type Props = {
   session?: CustomSession;
 };
 //console.log(document.referrer);
-export default  (props: Props) => {
-
-  
+export default (props: Props) => {
   return (
     <header
       className="
@@ -27,14 +24,14 @@ export default  (props: Props) => {
       pb-0 md:pb-[1rem]
       flex justify-between"
     >
-     
-          <div onClick={() => {window.location.href = document.referrer
-                            
-                            }}>
+      <div
+        onClick={() => {
+          window.location.href = document.referrer;
+        }}
+      >
         <Logo themeName={props.themeName} />
-        </div>
-   
-      
+      </div>
+
       <div className="flex gap-6 items-center justify-end">
         {props.showConnectionStatus && <ConnectionStatus />}
 
@@ -44,7 +41,7 @@ export default  (props: Props) => {
               href="https://github.com/movesthatmatter/chessroulette"
               target="_blank"
               title="GitHub"
-              className='hover:opacity-80'
+              className="hover:opacity-80"
             >
               <Image src={GithubLogo} alt="Github" width={24} />
             </Link>
@@ -52,7 +49,7 @@ export default  (props: Props) => {
               href="https://discord.gg/hudVbHH4m8"
               target="_blank"
               title="Discord"
-              className='hover:opacity-80'
+              className="hover:opacity-80"
             >
               <Image src={DiscordLogo} alt="Discord" width={24} />
             </Link>

@@ -9,7 +9,10 @@ type Props = {
 
 export const ChapterDisplayView = ({ chapter, className }: Props) => {
   const turn = useMemo(
-    () => toLongChessColor(new ChessFENBoard(chapter.displayFen).getFenState().turn),
+    () =>
+      toLongChessColor(
+        new ChessFENBoard(chapter.displayFen).getFenState().turn
+      ),
     [chapter.displayFen]
   );
 
