@@ -7,7 +7,7 @@ import { TabsNav } from '@app/components/Tabs';
 import { UpdateChapterView } from './views/UpdateChapterView';
 import { EditChapterStateViewProps } from './views/EditChapterStateView';
 import { initialChapterState } from '../movex/state';
-import { Chapter, ChapterState,  } from '../movex/types';
+import { Chapter, ChapterState } from '../movex/types';
 
 export type ChaptersTabProps = {
   chaptersMap: Record<Chapter['id'], Chapter>;
@@ -142,7 +142,7 @@ export const ChaptersTab = ({
                   />
                   <Button
                     className="flex-1"
-                    size='sm'
+                    size="sm"
                     onClick={() => {
                       onCreateChapter();
                       // Go back

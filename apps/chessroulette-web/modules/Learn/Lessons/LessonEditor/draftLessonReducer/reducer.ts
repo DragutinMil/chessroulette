@@ -424,7 +424,8 @@ export const reducer = (
     return {
       ...prev,
       chaptersMap: nextChapters,
-      loadedChapterId: Object.values(nextChapters)[0].id || initialLessonState.loadedChapterId,
+      loadedChapterId:
+        Object.values(nextChapters)[0].id || initialLessonState.loadedChapterId,
     };
   }
 
@@ -438,7 +439,6 @@ export const reducer = (
     return {
       ...prev,
       loadedChapterId: chapter.id,
-      
     };
   }
 

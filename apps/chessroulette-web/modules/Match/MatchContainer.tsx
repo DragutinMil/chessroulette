@@ -47,18 +47,16 @@ export const MatchContainer = ({
       rightComponent={
         <div className="flex flex-col flex-1 min-h-0 gap-4">
           <div className="flex flex-row md:flex-col">
-          <div  className="w-1/2  md:w-full h-full overflow-hidden rounded-lg shadow-2xl">
-         
-            <PeerToPeerCameraWidget />
-           
+            <div className="w-1/2  md:w-full h-full overflow-hidden rounded-lg shadow-2xl">
+              <PeerToPeerCameraWidget />
+            </div>
+            <div className="w-1/2 md:w-full ml-3 md:ml-0">
+              <MatchStateDisplayContainer />
+            </div>
           </div>
-          <div  className="w-1/2 md:w-full ml-3 md:ml-0" >
-             <MatchStateDisplayContainer />
-          </div>
-          </div>
-          <div  className="bg-indigo-1300 pl-2 pr-2 pt-2 pb-2 md:p-3  flex flex-col gap-2 md:flex-1 min-h-0 rounded-lg shadow-2xl  md:overflow-y-scroll">
+          <div className="bg-indigo-1300 pl-2 pr-2 pt-2 pb-2 md:p-3  flex flex-col gap-2 md:flex-1 min-h-0 rounded-lg shadow-2xl  md:overflow-y-scroll">
             <GameNotationWidget />
-            <PlayControlsContainer  />
+            <PlayControlsContainer />
           </div>
         </div>
       }

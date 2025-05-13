@@ -14,10 +14,10 @@ import { ChessRouler } from 'util-kit/src/lib/ChessRouler';
 import { logsy } from '@app/lib/Logsy';
 
 export const reducer = (
-  prev: Game = initialPlayState,
+  prev: Game = initialPlayState, 
   action: PlayActions
 ): Game => {
-  //console.log('joskec',prev)
+  console.log('joskec', prev) 
   // This moves the game from pending to idling
   if (action.type === 'play:start') {
     // Only a "pending" game can start
@@ -161,9 +161,6 @@ export const reducer = (
     return prev;
   }
 
-  
-
-  
   if (action.type === 'play:checkTime') {
     if (prev.status !== 'ongoing') {
       return prev;
@@ -194,11 +191,15 @@ export const reducer = (
       }).isGameOver(turn);
 
       const nextWinnerAndGameOverReason = invoke(() => {
-        console.log('reduser gameOverResult.over',gameOverResult.over,)
-        
+        console.log('reduser gameOverResult.over', gameOverResult.over);
+
         if (gameOverResult.over && gameOverResult.isDraw) {
-          console.log('deep reduser  over isDraw',gameOverResult.over,gameOverResult.isDraw)
-   
+          console.log(
+            'deep reduser  over isDraw',
+            gameOverResult.over,
+            gameOverResult.isDraw
+          );
+
           return {
             winner: '1/2',
             gameOverReason:
@@ -229,7 +230,7 @@ export const reducer = (
     if (prev.status !== 'ongoing') {
       return prev;
     }
- 
+
     return {
       ...prev,
       status: 'complete',
@@ -239,10 +240,10 @@ export const reducer = (
   }
 
   if (action.type === 'play:sendOffer') {
-  //  console.log('uslo u play:sendOffer',action)
-    
+    //  console.log('uslo u play:sendOffer',action)
+
     const { byPlayer, offerType } = action.payload;
-    if(offerType!=='rematch'){
+    if (offerType !== 'rematch') {
       const nextOffers: GameOffer[] = [
         ...prev.offers,
         {
@@ -254,36 +255,43 @@ export const reducer = (
           }),
         },
       ];
-    //  console.log('nije rematch',nextOffers)
+      //  console.log('nije rematch',nextOffers)
       return {
         ...prev,
         offers: nextOffers,
       };
-    
     }
     //  REMATCH
-    else{
-     // console.log('jeste rematch',prev)
-      
-      const nextOffers: GameOffer[] = [
-        ...prev.offers,
-        {
-          byPlayer,
-          type: offerType,
-          status: 'pending',
-         
-        },
-      ];
-     // console.log('nije rematch',nextOffers)
-      return { 
-         ...prev,
-        offers: nextOffers,
-      };
-    }
-     
-      
-   
+    // else {
+    //    console.log('jeste rematch',prev)
+
+    //   const nextOffers: GameOffer[] = [
+    //     ...prev.offers,
+    //     {
+    //       byPlayer,
+    //       type: offerType,
+    //       status: 'pending',
+    //       ...(action.payload.timestamp && {
+    //         timestamp: action.payload.timestamp,
+    //       }),
+    //     },
+    //   ];
+    //   const nextState = {
+    //     ...prev,
+    //     offers: nextOffers,
+    //   };
+    //   // return {
+    //   //   ...prev,
+    //   //   offers: nextOffers,
+        
+    //   // };
+    //   console.log("NEXT:", nextState);
+    //   return nextState
+
+    // }
   }
+  
+  
 
   if (action.type === 'play:acceptOfferDraw') {
     // You can only offer a draw of an ongoing game

@@ -1,9 +1,5 @@
 import { useEffect, useState } from 'react';
-import {
-  ChessFENBoard,
-  DeepPartial,
-  FenState,
-} from '@xmatter/util-kit';
+import { ChessFENBoard, DeepPartial, FenState } from '@xmatter/util-kit';
 import { FenPreview } from '../../components/FenPreview';
 import {
   PgnInputBox,

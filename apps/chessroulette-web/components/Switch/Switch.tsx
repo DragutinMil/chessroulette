@@ -1,3 +1,5 @@
+import { useState, useEffect } from 'react';
+
 type Props = {
   label: string;
   value?: boolean;
@@ -11,13 +13,20 @@ type Props = {
 
 export const Switch = ({
   label,
-  value = false,
+  value = true,
   labelPosition = 'right',
   className,
   labelClassName,
   onUpdate,
   ...labelProps
-}: Props) => (
+}: Props) => {
+ 
+  useEffect(() => {
+   
+    onUpdate?.(!value)
+    
+  }, []);
+  return(
   <label
     className={`inline-flex items-center cursor-pointer gap-2 ${
       labelPosition === 'left' && 'flex-row-reverse'
@@ -27,7 +36,7 @@ export const Switch = ({
   >
     <input
       type="checkbox"
-      // value={Number(value)}
+       //value={Number(value)}
       checked={value}
       className="sr-only peer"
       onChange={() => onUpdate?.(!value)}
@@ -45,8 +54,9 @@ export const Switch = ({
     />
     {label && (
       <span className={`ms-3 text-sm font-medium ${labelClassName}`}>
-        {label}
+       Stockfish {label }
       </span>
     )}
   </label>
-);
+  )
+};

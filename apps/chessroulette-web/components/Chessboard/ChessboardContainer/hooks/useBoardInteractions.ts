@@ -1,3 +1,3 @@
 export const useBoardInteractions = () => {
-  // TODO: a combination of them all 
-}
+  // TODO: a combination of them all
+};

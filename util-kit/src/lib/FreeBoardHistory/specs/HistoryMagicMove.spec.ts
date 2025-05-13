@@ -620,10 +620,7 @@ describe('Same color moves', () => {
         nextMove
       );
 
-      const expectedMove = [
-        [...history[0], FBH.getNonMove('b')],
-        [nextMove],
-      ];
+      const expectedMove = [[...history[0], FBH.getNonMove('b')], [nextMove]];
 
       expect(actual).toEqual([expectedMove, [1, 0]]);
     });
