@@ -5,8 +5,9 @@ import { cons } from 'fp-ts/lib/ReadonlyNonEmptyArray';
 
 export const PlayControlsContainer = () => {
   const dispatch = usePlayActionsDispatch();
-  const { lastOffer, game, playersBySide, hasGame } = useCurrentOrPrevMatchPlay();
-  
+  const { lastOffer, game, playersBySide, hasGame } =
+    useCurrentOrPrevMatchPlay();
+
   if (!hasGame) {
     return <>WARN| Play Controls Container No Game</>;
   }
@@ -36,7 +37,6 @@ export const PlayControlsContainer = () => {
             offerType: 'takeback',
             timestamp: masterContext.requestAt(),
           },
-         
         }));
       }}
       onRematchOffer={() => {
@@ -45,7 +45,6 @@ export const PlayControlsContainer = () => {
           payload: {
             byPlayer: playersBySide.home.id, // TODO: Change this to the player color instead since they are per game!
             offerType: 'rematch',
-            
           },
         });
       }}

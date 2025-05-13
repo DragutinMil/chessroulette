@@ -14,12 +14,10 @@ export default async function Home() {
   const session = await getCustomServerSession(authOptions);
 
   return (
-    
-    <div className='flex flex-col h-full container mx-auto'>    
+    <div className="flex flex-col h-full container mx-auto">
       <Header showOnboarding session={session} />
       <MainHomeSection session={session} />
       <Footer />
     </div>
-   
   );
 }

@@ -45,7 +45,7 @@ export const List: React.FC<ListProps> = ({
 }) => {
   const rowElementRefs = useRef<Record<number, HTMLDivElement | null>>({});
   const containerElementRef = useRef<HTMLDivElement | null>();
-  const moveSound = new Audio("/chessmove.mp3");
+  const moveSound = new Audio('/chessmove.mp3');
   useDebouncedEffect(
     () => {
       if (isNested) {
@@ -77,7 +77,7 @@ export const List: React.FC<ListProps> = ({
       if (history.length === 0) {
         return;
       }
-      moveSound.play()
+      moveSound.play();
     },
     100,
     [history]

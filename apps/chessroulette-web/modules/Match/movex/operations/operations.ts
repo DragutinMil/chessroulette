@@ -6,7 +6,9 @@ import { CreateMatchParamsSchema } from './operationsSchemas';
 export const createMatchState = (
   params: CreateMatchParamsSchema
 ): NonNullable<MatchState> => {
-  const challengerColor = toShortChessColor(params.startColor || getRandomColor());
+  const challengerColor = toShortChessColor(
+    params.startColor || getRandomColor()
+  );
 
   return {
     status: 'pending',

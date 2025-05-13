@@ -10,7 +10,7 @@
   .pr-safe {
     padding-right: env(safe-area-inset-right);
   }
-  
+
   .pb-safe {
     padding-bottom: env(safe-area-inset-bottom);
   }
@@ -21,17 +21,17 @@
 }
 
 body {
-  background-color:#171819;
-   /* rgb(32, 33, 34); */
- /* background-color: #161A2B;  */
-  color: white;  
+  background-color: #171819;
+  /* rgb(32, 33, 34); */
+  /* background-color: #161A2B;  */
+  color: white;
 }
 
 :focus-visible {
   outline: none;
   /* outline: 1px dashed black; */
 }
-  
+
 /* Focusing the button with a mouse, touch, or stylus will show a subtle drop shadow. */
 :focus:not(:focus-visible) {
   outline: none;
@@ -61,7 +61,7 @@ body,
 
 /** This is usper important for "flex" to work correctly */
 /* * {  */
-  /* box-sizing: border-box;
+/* box-sizing: border-box;
   min-width: 0; 
   min-height: 0; */
 /* } */

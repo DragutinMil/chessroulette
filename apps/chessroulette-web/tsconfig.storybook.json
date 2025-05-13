@@ -17,5 +17,5 @@
     "modules/**/*.stories.tsx",
     ".storybook/*.js",
     ".storybook/*.ts"
-  ],
+  ]
 }

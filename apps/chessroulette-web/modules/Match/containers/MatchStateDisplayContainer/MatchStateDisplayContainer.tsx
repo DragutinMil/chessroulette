@@ -19,14 +19,13 @@ export const MatchStateDisplayContainer = () => {
     <div className="flex flex-col gap-1 md:gap-2">
       {match?.type === 'bestOf' && (
         <div className="flex flex-col md:flex-row gap-2 mt-0  md:mt-4 w-full text-sm md:text-md">
-          <div >
-          <Text >Round &nbsp;</Text>
-          <Text>{`${currentRound}/${match.rounds}`}</Text>
+          <div>
+            <Text>Round &nbsp;</Text>
+            <Text>{`${currentRound}/${match.rounds}`}</Text>
           </div>
           {drawsCount > 0 && (
             <div>
-         
-            <Text>{`(${drawsCount} games ended in draw)`}</Text>
+              <Text>{`(${drawsCount} games ended in draw)`}</Text>
             </div>
           )}
         </div>
@@ -60,7 +59,7 @@ export const MatchStateDisplayContainer = () => {
           completedPlaysCount={endedGamesCount}
           className="md:bg-slate-700 rounded-md p-0 md:p-2 "
         />
-          )}  
+      )}
     </div>
   );
 };

@@ -41,17 +41,16 @@ export const useMoves = ({
   const [pendingMove, setPendingMove] = useState<ChessBoardPendingMove>();
   const [promoMove, setPromoMove] = useState<ShortChessMove>();
   //const [premoveAnimationDelay] = useState(300);
-  // pre move 
+  // pre move
   const allowsPremoves = !!onPreMove;
   const [preMove, setPreMove] = useState<ChessboardPreMove>();
   // Promo Move calling
   useEffect(() => {
-    
     // If the premove is not active cannot move
     if (!onPreMove) {
       return;
     }
-    
+
     // If it's not my turn cannot move
     if (!isMyTurn) {
       return;
@@ -68,24 +67,22 @@ export const useMoves = ({
   }, [isMyTurn, preMove, allowsPremoves, onPreMove]);
 
   const onMoveIfValid = (m: ShortChessMove): Result<void, void> => {
-   
     if (onValidateMove(m)) {
       onMove(m);
-     
+
       return Ok.EMPTY;
     }
 
     return Err.EMPTY;
   };
-  
+
   const isValidPromoMove = (m: ChessboardShortMoveWithPiece) =>
-   
     isPromotableMove(m, m.piece) &&
     onValidateMove({
       ...m,
       promoteTo: 'q',
     });
-    
+
   const onClickOrDrag = ({
     square,
     pieceSan,
@@ -93,8 +90,6 @@ export const useMoves = ({
     square: Square;
     pieceSan?: PieceSan;
   }) => {
-    
-    
     onSquareClickOrDrag?.();
 
     const piece = pieceSan ? pieceSanToPiece(pieceSan) : undefined;
@@ -113,7 +108,7 @@ export const useMoves = ({
           setPreMove({ from: square, piece });
         } else {
           // Otherwise finish the premove
-          
+
           setPreMove({
             ...preMove,
             to: square,
@@ -123,14 +118,12 @@ export const useMoves = ({
         // When there is a premove it doesn't matter if the square is a piece (capture) or not
         setPreMove({ from: square, piece });
       }
-    } 
-    else if(isMyTurn && preMove) {
-      
-        setPreMove(undefined);
+    } else if (isMyTurn && preMove) {
+      setPreMove(undefined);
     }
-  //   else if(isMyTurn && preMove) {
-  //     setPreMove(undefined);  
-  // }
+    //   else if(isMyTurn && preMove) {
+    //     setPreMove(undefined);
+    // }
 
     // If there is no existent Pending Move ('from' set)
     else if (!pendingMove?.from) {
@@ -140,7 +133,7 @@ export const useMoves = ({
       }
 
       setPendingMove({ from: square, piece });
-   
+
       return;
     }
 
@@ -148,14 +141,12 @@ export const useMoves = ({
     else if (!pendingMove?.to) {
       // Return early if the from and to square are the same
       if (square === pendingMove.from) {
-       
         setPendingMove(undefined);
         return;
       }
 
       // Simply change the pending moves if the same side
       else if (piece?.color === pendingMove.piece.color) {
-       
         setPendingMove({
           piece,
           from: square,
@@ -175,10 +166,8 @@ export const useMoves = ({
       }
 
       // Otherwise simply move (on click piece and than click field)
-      
       else {
         onMoveIfValid({ from: pendingMove.from, to: square }).map(() => {
-          
           setPendingMove(undefined);
         });
       }
@@ -187,7 +176,7 @@ export const useMoves = ({
 
   const onPieceDrop = (from: Square, to: Square, pieceSan: PieceSan) => {
     //console.log('piece',pieceSan,to, from )
-   // simply move on Drag&Drop if no pre or promo move
+    // simply move on Drag&Drop if no pre or promo move
     // if(!preMove && !isValidPromoMove({ from, to, piece: pieceSanToPiece(pieceSan) })){
     //   return onMoveIfValid({ from, to }).ok;
     // }
@@ -204,10 +193,10 @@ export const useMoves = ({
       setPromoMove({ from, to });
       return true;
     }
-   //Otherwie simply move on Drag&Drop
-   return onMoveIfValid({ from, to }).ok;
+    //Otherwie simply move on Drag&Drop
+    return onMoveIfValid({ from, to }).ok;
   };
- 
+
   // function makeAMove(move) {
   //   const gameCopy = { ...game };
   //   const result = gameCopy.move(move);
@@ -217,14 +206,13 @@ export const useMoves = ({
 
   return {
     onSquareClick: (square: Square, pieceSan?: PieceSan) =>
-    onClickOrDrag({ square, pieceSan }),
+      onClickOrDrag({ square, pieceSan }),
     onPieceDrag: (pieceSan: PieceSan, square: Square) =>
-    onClickOrDrag({ square, pieceSan }),
+      onClickOrDrag({ square, pieceSan }),
     onPieceDrop,
     onClearPromoMove: () => setPromoMove(undefined),
     promoMove,
     pendingMove,
     preMove,
-    
   };
 };

@@ -181,5 +181,6 @@ export type Game =
   | CompletedGame
   | AbortedGame;
 
-export type NotEndedGame = Exclude<Game, EndedGame>;
+export type NotEndedGame =  Exclude<Game, EndedGame>;
+//export type NotEndedGame =  CompletedGame | PendingGame | IdlingGame | OngoingGame;
 export type EndedGame = AbortedGame | CompletedGame;

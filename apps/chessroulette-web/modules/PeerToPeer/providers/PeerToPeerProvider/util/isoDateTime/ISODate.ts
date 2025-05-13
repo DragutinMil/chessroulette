@@ -7,7 +7,9 @@ import { parseISO, isValid } from 'date-fns';
 //  https://spin.atomicobject.com/2017/06/19/strongly-typed-date-string-typescript/
 // It works pretty nice o be able to take a string and brand with a nominal type!
 // Also see https://basarat.gitbooks.io/typescript/docs/tips/nominalTyping.html
-enum ISODateBrand { _ = '' }
+enum ISODateBrand {
+  _ = '',
+}
 
 /**
  * A String that represents Date w/o Time with this formt: yyyy-mm-dd
@@ -47,7 +49,9 @@ export function toISODate(date: Date | string): ISODate {
 }
 
 // By the same style we can export a few more helper types
-enum ISOYearBrand { _ = ''}
+enum ISOYearBrand {
+  _ = '',
+}
 
 /**
  * A String that represents Year with this formt: yyyy
@@ -87,7 +91,9 @@ export function toISOYear(date: Date | ISODate | string): ISOYear {
 }
 
 // By the same style we can export a few more helper types
-enum ISOMonthBrand { _ = ''}
+enum ISOMonthBrand {
+  _ = '',
+}
 
 /**
  * A String that represents Year with this formt: yyyy

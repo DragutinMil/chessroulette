@@ -1,10 +1,5 @@
 import { Freeboard } from '@app/components/Boards';
-import {
-  ChessColor,
-  ChessFEN,
-  ChessFENBoard,
-  noop,
-} from '@xmatter/util-kit';
+import { ChessColor, ChessFEN, ChessFENBoard, noop } from '@xmatter/util-kit';
 import { RIGHT_SIDE_SIZE_PX } from '../../../constants';
 import { IconButton } from '@app/components/Button';
 import { PanelResizeHandle } from 'react-resizable-panels';

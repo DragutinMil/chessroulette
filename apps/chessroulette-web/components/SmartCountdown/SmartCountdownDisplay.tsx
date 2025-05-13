@@ -14,11 +14,12 @@ export const SmartCountdownDisplay = ({
   major,
   minor,
   active,
-  activeTextClassName = 'text-white',
-  inactiveTextClassName = 'text-slate-400',
+  activeTextClassName = 'relative text-white    py-1 px-3 rounded-md   w-full   backdrop-blur-lg shadow-lg bg-slate-700 ',
+  inactiveTextClassName = 'relative text-slate-400  py-1 px-3  rounded-md   w-full  backdrop-blur-lg shadow-lg',
 }: SmartCountdownDisplayProps) => {
+  //51 65 85 
   if (timeLeft <= 0) {
-    return <Text className="text-red-500">00:00</Text>;
+    return <Text className="text-red-500 relative   py-1 px-3  rounded-md   w-full  backdrop-blur-lg shadow-lg ">00:00</Text>;
   }
 
   const shouldAlert = Number(major) < 1 && Number(minor) < 30;
