@@ -11,12 +11,12 @@ export default () => {
       flex justify-center text-slate-400"
     >
       <span>
-      <span>
-        Powered by{' '}
-        <Link href="https://movex.dev" target="_blank" className='font-bold'>
-          Movex
-        </Link>
-      </span>
+        <span>
+          Powered by{' '}
+          <Link href="https://movex.dev" target="_blank" className="font-bold">
+            Movex
+          </Link>
+        </span>
       </span>
     </footer>
   );

@@ -22,9 +22,8 @@ export const ChessEngineProvider = React.memo((props: Props) => {
     //console.log('kiklop',props)
     const unsubscribers: UnsubscribeFn[] = [];
     const ws = new WebSocket(props.uciUrl);
-   //const ws = new WebSocket("wss://chessroulette-engine.fly.dev/senduci");
-  
-    
+    //const ws = new WebSocket("wss://chessroulette-engine.fly.dev/senduci");
+
     ws.onopen = async () => {
       console.log('[ChessEngineProvider] UCI Connection Opened');
       const engineClient = new ChessEngineClient(new WebSocketToUciEmitter(ws));

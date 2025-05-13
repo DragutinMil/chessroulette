@@ -1,4 +1,4 @@
-import { useReducer, useRef } from 'react';
+import { useReducer, useRef,useEffect ,useState} from 'react';
 import { MovexBoundResourceFromConfig } from 'movex-react';
 import { ChessFENBoard, noop, swapColor } from '@xmatter/util-kit';
 import { PanelResizeHandle } from 'react-resizable-panels';
@@ -32,7 +32,7 @@ export const LearnActivity = ({
   dispatch: optionalDispatch,
 }: Props) => {
   const dispatch = optionalDispatch || noop;
-
+  const [cameraOff, setCameraOff] = useState(false)
   const settings = useLearnActivitySettings();
   const [inputState, dispatchInputState] = useReducer(
     inputReducer,
@@ -43,7 +43,14 @@ export const LearnActivity = ({
     findLoadedChapter(remoteState) || initialDefaultChapter;
 
   const tabsRef = useRef<TabsRef>(null);
-
+useEffect(() => {
+    const url = new URL(window.location.href);
+    const rawPgn = url.searchParams.get('pgn');
+    if(rawPgn){
+      setCameraOff(true)
+    }
+    
+}, [])
   return (
     <ResizableDesktopLayout
       rightSideSize={RIGHT_SIDE_SIZE_PX}
@@ -176,10 +183,11 @@ export const LearnActivity = ({
               <PeerToPeerCameraWidget/>
             </div>
           )} */}
-          <div className="overflow-hidden rounded-lg shadow-2xl">
+          { !cameraOff && (
+            <div className="overflow-hidden rounded-lg shadow-2xl">
             <PeerToPeerCameraWidget />
           </div>
-
+          )}
           {inputState.isActive ? (
             <div className="flex gap-2">
               <span className="capitalize">Editing</span>

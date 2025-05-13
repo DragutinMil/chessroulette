@@ -16,17 +16,10 @@
         "name": "next"
       }
     ],
-    "types": [
-      "jest",
-      "node"
-    ],
+    "types": ["jest", "node"],
     "paths": {
-      "@xmatter/util-kit": [
-        "util-kit/src/index.ts"
-      ],
-      "@app/*": [
-        "apps/chessroulette-web/*"
-      ]
+      "@xmatter/util-kit": ["util-kit/src/index.ts"],
+      "@app/*": ["apps/chessroulette-web/*"]
     }
   },
   "include": [

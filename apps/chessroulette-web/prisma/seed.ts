@@ -20,7 +20,6 @@ async function main() {
   //   }
   // })
 
-  
   console.log({ gabe });
 }
 main()
