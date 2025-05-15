@@ -21,7 +21,7 @@ import { gameOverReasonsToDisplay } from './util';
 import { useGame } from '@app/modules/Game/hooks';
 
 type Props = PlayDialogContainerContainerProps;
-
+console.log('document.referrer',document.referrer)
 export const MatchStateDialogContainer: React.FC<Props> = (
   gameStateDialogProps
 ) => {
@@ -69,11 +69,39 @@ export const MatchStateDialogContainer: React.FC<Props> = (
 
   if (match?.status === 'aborted') {
     return (
+    
       <Dialog
         title="Match Aborted"
-        content={''} // should there be something?
+        content={
+          <>
+          { (document.referrer.includes('app.outpostchess.com') || document.referrer.includes('localhost:8080') || document.referrer.includes('test-app.outpostchess.com')) &&
+              
+                  
+          <Button
+                    icon="ArrowLeftIcon"
+                    bgColor="yellow"
+                    style={{marginTop:12}}
+                     onClick={() => {
+                          router.push('https://app.outpostchess.com/online-list');
+                      
+                   
+                      
+                     }
+                    }
+                    >
+                     Lobby &nbsp;&nbsp;&nbsp;&nbsp;
+                  </Button>
+          
+                  }
+
+              </>    
+        } // should there be something?
+        
       />
-    );
+      
+   
+   
+     );
   }
 
   // TODO: Here we should just check the match.status
@@ -123,18 +151,25 @@ export const MatchStateDialogContainer: React.FC<Props> = (
 
                      Rematch
                   </Button> */}
+                  { (document.referrer.includes('app.outpostchess.com') || document.referrer.includes('localhost:8080') || document.referrer.includes('test-app.outpostchess.com')) &&
                   <Button
-                    icon="ArrowLeftIcon"
-                    bgColor="yellow"
-                    style={{marginTop:12}}
-                     onClick={() => {
+                  icon="ArrowLeftIcon"
+                  bgColor="yellow"
+                  style={{marginTop:12}}
+                   onClick={() => {
+
+                  
                       router.push('https://app.outpostchess.com/online-list');
-                      
-                     }
-                    }
-                    >
-                     Lobby &nbsp;&nbsp;&nbsp;&nbsp;
-                  </Button>
+                    
+                    
+                   }
+                  }
+                  >
+                   Lobby &nbsp;&nbsp;&nbsp;&nbsp;
+                </Button>
+                  
+                  }
+                  
                   </div>
 
               )}
