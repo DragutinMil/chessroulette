@@ -14,7 +14,7 @@ export type PlayerContainerProps = DistributiveOmit<
 export const PlayContainer = (playBoardProps: PlayerContainerProps) => {
   const play = useCurrentOrPrevMatchPlay();
   const dispatch = usePlayActionsDispatch();
-
+  const moveSound = new Audio('/chessmove.mp3');
   useEffect(() => {
     if (!play.hasGame) {
       return;
@@ -51,6 +51,8 @@ export const PlayContainer = (playBoardProps: PlayerContainerProps) => {
             turn: 'b',
           })}
       onMove={(move) => {
+       
+         moveSound.play();
         dispatch((masterContext) => ({
           type: 'play:move',
           payload: {

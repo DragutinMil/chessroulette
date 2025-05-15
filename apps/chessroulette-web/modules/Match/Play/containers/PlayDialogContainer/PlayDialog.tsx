@@ -5,7 +5,9 @@ import { Dialog } from '@app/components/Dialog';
 import { ClipboardCopyButton } from '@app/components/ClipboardCopyButton';
 import { GameOffer } from '@app/modules/Game';
 import { useGame } from '@app/modules/Game/hooks';
-
+import {
+  useRouter
+} from 'next/navigation';
 export type GameStateDialogProps = {
   onAcceptOffer: ({ offer }: { offer: GameOffer['type'] }) => void;
   onDenyOffer: () => void;
@@ -20,7 +22,7 @@ export const PlayDialog: React.FC<GameStateDialogProps> = ({
   inviteLink,
 }) => {
   const [gameResultSeen, setGameResultSeen] = useState(false);
-
+   const router = useRouter();
   // TODO: Change the useGame to useMatchPlay
   const {
     lastOffer,
@@ -37,6 +39,23 @@ export const PlayDialog: React.FC<GameStateDialogProps> = ({
     // Everytime the game state changes, reset the seen!
     setGameResultSeen(false);
   }, [game.status]);
+
+
+  useEffect(() => {
+    if (lastOffer && lastOffer.status === 'accepted' && lastOffer.type === 'rematch'  && lastOffer.link){
+      const url = new URL(window.location.href);
+      const userDisplayName = url.searchParams.get('userDisplayName');
+      console.log('provera1',userDisplayName)
+      console.log('provera2',lastOffer.link)
+       if(userDisplayName && lastOffer.link.includes(userDisplayName)){
+        window.open(lastOffer.link,'_self')
+       }
+     
+    }
+   
+  }, [lastOffer]);
+
+ 
 
   return invoke(() => {
     if (game.status === 'pending' && objectKeys(players || {}).length < 2) {
@@ -137,6 +156,7 @@ export const PlayDialog: React.FC<GameStateDialogProps> = ({
             />
           );
         }
+        
 
         if (lastOffer.status === 'denied') {
           if (lastOffer.byPlayer === playerId) {

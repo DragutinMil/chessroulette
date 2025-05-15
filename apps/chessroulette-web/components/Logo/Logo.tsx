@@ -23,10 +23,10 @@ export const Logo: React.FC<Props> = ({ themeName, style }) => {
       return {
         src: OutpostLogo,
         width: 100,
-        title: 'Chessroulette + Outpost = ♥️',
+        title: 'Outpost',
       };
     }
-
+//Chessroulette + Outpost = ♥️
     return {
       src: logoLightFull,
       width: 220,
