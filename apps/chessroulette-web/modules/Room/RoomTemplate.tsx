@@ -40,7 +40,9 @@ export const RoomTemplate = (props: Props) => {
           <div className="absolute inset-0">{props.children}</div>
         </div>
       </div>
-      <menu className="hidden md:block bg-indigo-1300 flex-0 flex flex-col p-2">
+      <menu className={`${
+    props.activity === 'match' ? 'md:hidden' : 'md:block'
+  }  hidden  bg-indigo-1300 flex-0 flex flex-col p-2`}>
         <OnboardingWidget session={props.session} />
         <div className="pb-6 border-b border-slate-500 mb-4" />
         {props.roomId && (
