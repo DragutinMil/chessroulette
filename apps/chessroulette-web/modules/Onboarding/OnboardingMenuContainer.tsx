@@ -28,10 +28,7 @@ export const OnboardingMenuContainer: React.FC<Props> = ({
         <Item>
           <span className="text-dark">{session.user.displayName}</span>
         </Item>
-        <Item
-          id="profile"
-          className="hover:cursor-pointer"
-        >
+        <Item id="profile" className="hover:cursor-pointer">
           <Link href="/profile" className="flex-1">
             Profile
           </Link>

@@ -27,7 +27,7 @@ export const matchActivityParamsSchema = z.object({
   challengeeId: z.string(),
 
   // This is the color of the challenger
-  // If no color specified it's assigned randomly 
+  // If no color specified it's assigned randomly
   startColor: chessColorSchema.optional(),
 });
 

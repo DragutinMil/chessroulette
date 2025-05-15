@@ -1,4 +1,4 @@
-"use client";
+'use client';
 import Link from 'next/link';
 import { Logo } from '@app/components/Logo';
 import { CustomSession } from '@app/services/Auth';
@@ -6,18 +6,18 @@ import ConnectionStatus from './ConnectionStatus';
 import Image from 'next/image';
 import GithubLogo from './assets/github-mark-white.svg';
 import DiscordLogo from './assets/discord-icon-svgrepo-com.svg';
-
-
+import {
+  useRouter
+} from 'next/navigation';
 type Props = {
   themeName?: string;
   showConnectionStatus?: boolean;
   showOnboarding?: boolean;
   session?: CustomSession;
 };
-console.log(document.referrer);
-export default  (props: Props) => {
-
-  
+//console.log(document.referrer);
+export default (props: Props) => {
+   const router = useRouter();
   return (
     <header
       className="
@@ -27,14 +27,24 @@ export default  (props: Props) => {
       pb-0 md:pb-[1rem]
       flex justify-between"
     >
-     
-          <div onClick={() => {window.location.href = document.referrer
-                            
-                            }}>
+      <div
+        onClick={() => {
+          if(document.referrer.includes('app.outpostchess.com/online-list')){
+            router.push('https://app.outpostchess.com/online-list');
+          }else if(document.referrer.includes('/challenges')){
+            router.push('https://app.outpostchess.com/challenges');
+          }
+          // else{
+
+          //   router.push( document.referrer);
+          // }
+         // console.log('document.referrer',document.referrer)
+          
+        }}
+      >
         <Logo themeName={props.themeName} />
-        </div>
-   
-      
+      </div>
+
       <div className="flex gap-6 items-center justify-end">
         {props.showConnectionStatus && <ConnectionStatus />}
 
@@ -44,7 +54,7 @@ export default  (props: Props) => {
               href="https://github.com/movesthatmatter/chessroulette"
               target="_blank"
               title="GitHub"
-              className='hover:opacity-80'
+              className="hover:opacity-80"
             >
               <Image src={GithubLogo} alt="Github" width={24} />
             </Link>
@@ -52,7 +62,7 @@ export default  (props: Props) => {
               href="https://discord.gg/hudVbHH4m8"
               target="_blank"
               title="Discord"
-              className='hover:opacity-80'
+              className="hover:opacity-80"
             >
               <Image src={DiscordLogo} alt="Discord" width={24} />
             </Link>

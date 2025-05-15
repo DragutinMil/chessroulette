@@ -18,16 +18,15 @@ type Props = {
 };
 
 export const Logo: React.FC<Props> = ({ themeName, style }) => {
-  
   const imageProps = (() => {
     if (themeName === 'op' || themeName === 'outpost') {
       return {
         src: OutpostLogo,
         width: 100,
-        title: 'Chessroulette + Outpost = ♥️'
+        title: 'Outpost',
       };
     }
-
+//Chessroulette + Outpost = ♥️
     return {
       src: logoLightFull,
       width: 220,

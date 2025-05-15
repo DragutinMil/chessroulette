@@ -1,9 +1,4 @@
-import {
-  hours,
-  minutes,
-  second,
-  milliseconds,
-} from '@app/lib/time';
+import { hours, minutes, second, milliseconds } from '@app/lib/time';
 
 export const lpad = function (digit: number, length = 2, padding = '0') {
   let res = String(digit);

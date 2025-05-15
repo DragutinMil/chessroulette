@@ -14,9 +14,11 @@ import { ChessRouler } from 'util-kit/src/lib/ChessRouler';
 import { logsy } from '@app/lib/Logsy';
 
 export const reducer = (
-  prev: Game = initialPlayState,
+  prev: Game = initialPlayState, 
   action: PlayActions
 ): Game => {
+  
+  console.log('joskec', prev) 
   // This moves the game from pending to idling
   if (action.type === 'play:start') {
     // Only a "pending" game can start
@@ -38,7 +40,7 @@ export const reducer = (
       // Cannot move otherwise
       return prev;
     }
-
+    
     const { lastMoveBy, pgn } = prev;
     const { moveAt } = action.payload;
 
@@ -190,11 +192,15 @@ export const reducer = (
       }).isGameOver(turn);
 
       const nextWinnerAndGameOverReason = invoke(() => {
-        console.log('reduser gameOverResult.over',gameOverResult.over,)
-        
+        console.log('reduser gameOverResult.over', gameOverResult.over);
+
         if (gameOverResult.over && gameOverResult.isDraw) {
-          console.log('deep reduser  over isDraw',gameOverResult.over,gameOverResult.isDraw)
-   
+          console.log(
+            'deep reduser  over isDraw',
+            gameOverResult.over,
+            gameOverResult.isDraw
+          );
+
           return {
             winner: '1/2',
             gameOverReason:
@@ -235,24 +241,58 @@ export const reducer = (
   }
 
   if (action.type === 'play:sendOffer') {
-    const { byPlayer, offerType } = action.payload;
-    const nextOffers: GameOffer[] = [
-      ...prev.offers,
-      {
-        byPlayer,
-        type: offerType,
-        status: 'pending',
-        ...(action.payload.timestamp && {
-          timestamp: action.payload.timestamp,
-        }),
-      },
-    ];
+    //  console.log('uslo u play:sendOffer',action)
 
-    return {
-      ...prev,
-      offers: nextOffers,
-    };
+    const { byPlayer, offerType } = action.payload;
+    if (offerType !== 'rematch') {
+      const nextOffers: GameOffer[] = [
+        ...prev.offers,
+        {
+          byPlayer,
+          type: offerType,
+          status: 'pending',
+          ...(action.payload.timestamp && {
+            timestamp: action.payload.timestamp,
+          }),
+        },
+      ];
+      //  console.log('nije rematch',nextOffers)
+      return {
+        ...prev,
+        offers: nextOffers,
+      };
+    }
+    //  REMATCH
+    // else {
+    //    console.log('jeste rematch',prev)
+
+    //   const nextOffers: GameOffer[] = [
+    //     ...prev.offers,
+    //     {
+    //       byPlayer,
+    //       type: offerType,
+    //       status: 'pending',
+    //       ...(action.payload.timestamp && {
+    //         timestamp: action.payload.timestamp,
+    //       }),
+    //     },
+    //   ];
+    //   const nextState = {
+    //     ...prev,
+    //     offers: nextOffers,
+    //   };
+    //   // return {
+    //   //   ...prev,
+    //   //   offers: nextOffers,
+        
+    //   // };
+    //   console.log("NEXT:", nextState);
+    //   return nextState
+
+    // }
   }
+  
+  
 
   if (action.type === 'play:acceptOfferDraw') {
     // You can only offer a draw of an ongoing game
@@ -303,13 +343,13 @@ export const reducer = (
     return {
       ...prev,
       pgn: newGame.pgn(),
-      lastMoveBy: nextTurn,
+      lastMoveBy: nextTurn, 
       timeLeft: {
         ...prev.timeLeft,
         [prev.lastMoveBy]: nextTimeLeft,
       },
       offers: nextOffers,
-    };
+    }; 
   }
 
   if (isOneOf(action.type, ['play:denyOffer', 'play:cancelOffer'])) {

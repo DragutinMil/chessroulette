@@ -32,11 +32,15 @@ describe('ISO DateTime isValid', () => {
 
 describe('ISO DateTime toISODateTime', () => {
   test('a Date Object', () => {
-    expect(toISODateTime(new Date(1571865848345))).toBe('2019-10-23T21:24:08.345Z');
+    expect(toISODateTime(new Date(1571865848345))).toBe(
+      '2019-10-23T21:24:08.345Z'
+    );
   });
 
   test('a valid ISODateTime string', () => {
-    expect(toISODateTime('2019-10-23T21:24:08.345Z')).toBe('2019-10-23T21:24:08.345Z');
+    expect(toISODateTime('2019-10-23T21:24:08.345Z')).toBe(
+      '2019-10-23T21:24:08.345Z'
+    );
   });
 
   test('an invalid string', () => {
@@ -48,6 +52,8 @@ describe('ISO DateTime toISODateTime', () => {
   });
 
   test('maintains the UTC Timezone not the local one', () => {
-    expect(toISODateTime(new Date('Tue Dec 31 2019 19:00:00 GMT-0500'))).toBe('2020-01-01T00:00:00.000Z');
+    expect(toISODateTime(new Date('Tue Dec 31 2019 19:00:00 GMT-0500'))).toBe(
+      '2020-01-01T00:00:00.000Z'
+    );
   });
 });

@@ -12,7 +12,7 @@ type Props = ButtonProps & {
 export const QuickConfirmButton: React.FC<Props> = ({
   onClick,
   confirmationMessage = 'Confirm?',
-  confirmationBgcolor = 'red',
+  confirmationBgcolor = 'indigo',
   children,
   bgColor,
   ...props
@@ -39,7 +39,11 @@ export const QuickConfirmButton: React.FC<Props> = ({
         }
       }}
     >
-      {show ? <span className='font-normal'>{confirmationMessage}</span> : children}
+      {show ? (
+        <span className="font-normal">{confirmationMessage}</span>
+      ) : (
+        children
+      )}
     </Button>
   );
 };

@@ -62,7 +62,7 @@ export const ChapterItem = ({
           onClick={onDeleteClick}
           // type="secondary"
           tooltip="Delete Chapter"
-          tooltipPositon='bottom'
+          tooltipPositon="bottom"
         >
           <Icon name="TrashIcon" className="w-4 h-4" />
         </QuickConfirmButton>

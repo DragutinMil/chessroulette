@@ -47,15 +47,20 @@ export const getButtonColors = (
   color: BgColor,
   cssProp: 'bg' | 'text' = 'bg'
 ) => ({
-  initial: `${cssProp}-${color}-900`,
-  hover: `${cssProp}-${color}-1100`,
+  initial: `${cssProp}-${color}-500`,
+  hover: `${cssProp}-${color}-600`,
   active: `${cssProp}-${color}-800`,
+ 
+  // initial: `${cssProp}-${color}-1200`,
+  // hover: `${cssProp}-${color}-1100`,
+  // active: `${cssProp}-${color}-1100`,
 });
 
 export const toStringColors = (p: {
   initial: string;
   hover: string;
   active: string;
+ 
 }) => `${p.initial} hover:${p.hover} active:${p.active}`;
 
 const classes = {
@@ -83,6 +88,7 @@ export const buttonIconClasses = {
   sm: 'h-4 w-4',
   xs: 'h-3 w-3',
 };
+
 
 /**
  * Note: By default doesn't submit forms, unless "submit" buttonType is specified
@@ -121,15 +127,17 @@ export const Button = React.forwardRef<HTMLButtonElement | null, ButtonProps>(
     return (
       <button
         ref={ref}
-        className={`group relative hover:cursor-pointer ${classes[type]} ${
+        className={`group  relative  hover:cursor-pointer  !${classes[type]} ${
           classes[size]
         } ${
           disabled
-            ? 'bg-slate-400 hover:bg-slate-400 active:bg-slate-400 hover:cursor-default'
+          ? 'bg-slate-500 hover:bg-slate-500 active:bg-slate-500 hover:cursor-default'
             : ''
-        } flex items-center justify-center gap-1 ${className} ${
-          bgColor ? toStringColors(getButtonColors(bgColor)) : ''
-        } ${isActiveClass}`}
+
+
+            // ? 'bg-slate-500 active:bg-slate-500 hover:cursor-default'
+            // : ''
+        } flex items-center justify-center gap-1 ${className} ${!disabled && bgColor ? toStringColors(getButtonColors(bgColor)) : ''} ${isActiveClass}`}
         onClick={onClick}
         disabled={disabled === true}
         type={buttonType}

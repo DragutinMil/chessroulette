@@ -22,7 +22,6 @@ export const initialDefaultChapter: Chapter = {
   id: '0',
 };
 
-
 /**
  * Note - this always has a loaded chapter in!
  */

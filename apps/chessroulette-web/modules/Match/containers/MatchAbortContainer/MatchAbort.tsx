@@ -19,16 +19,18 @@ export const GameAbort: React.FC<GameAbortViewProps> = ({
   onAbort,
   onRefreshTimeLeft,
 }) => (
-  <div className={` flex gap-3 flex-col md:flex-row flex-1  md:justify-between   ${className}`}>
+  <div
+    className={` flex gap-3 flex-col md:flex-row flex-1  md:justify-between  ${className}`}
+  >
     <div className="flex gap-2 align-center ">
       <span className="whitespace-nowrap pt-1  flex text-sm  md:text-md">{`Game aborting in `}</span>
       <SmartCountdown
         msLeft={timeLeft}
-        className='text-sm md:text-md pt-1'
+        className="text-sm md:text-md pt-1"
         onFinished={onAbort}
         onRefreshMsLeft={onRefreshTimeLeft}
         isActive
-        activeTextClassName="text-red-600 font-bold"
+        activeTextClassName="text-red-600 font-bold "
       />
     </div>
     {canAbortOnDemand && (
@@ -44,6 +46,6 @@ export const GameAbort: React.FC<GameAbortViewProps> = ({
       >
         Abort Now
       </ConfirmButton>
-      )}  
+    )}
   </div>
 );

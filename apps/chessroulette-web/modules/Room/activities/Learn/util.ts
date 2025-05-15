@@ -43,7 +43,10 @@ export const getLayoutSizes = (
   remaining: number;
 } => {
   const normalizedRatios = normalizeRatios(ratios);
-  const ratio = normalizedRatios.mainArea + normalizedRatios.leftSide + normalizedRatios.rightSide;
+  const ratio =
+    normalizedRatios.mainArea +
+    normalizedRatios.leftSide +
+    normalizedRatios.rightSide;
   const maxWidth = containerDimensions.height * ratio;
   const diff = containerDimensions.width - maxWidth;
 
@@ -56,7 +59,8 @@ export const getLayoutSizes = (
     };
   }
 
-  const nextContainerHeight = containerDimensions.height - Math.abs(diff / ratio);
+  const nextContainerHeight =
+    containerDimensions.height - Math.abs(diff / ratio);
   return getLayoutSizes(
     {
       ...containerDimensions,
@@ -66,4 +70,5 @@ export const getLayoutSizes = (
   );
 };
 
-export const isMobile = (dimensions: ContainerDimensions) => dimensions.width < 601;
+export const isMobile = (dimensions: ContainerDimensions) =>
+  dimensions.width < 601;

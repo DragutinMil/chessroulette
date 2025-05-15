@@ -15,4 +15,3 @@ export type ChessBoardPendingMove = {
 export type ChessboardPreMove =
   | ChessBoardPendingMove
   | Required<ChessBoardPendingMove>;
-

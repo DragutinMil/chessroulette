@@ -230,7 +230,7 @@ describe('Game Status: Ongoing > Completed', () => {
     });
 
     expect(actual.status).toBe('complete');
-   // expect(actual.gameOverReason).toBe(GameOverReason['drawAwardedForInsufficientMaterial']);
+    // expect(actual.gameOverReason).toBe(GameOverReason['drawAwardedForInsufficientMaterial']);
     expect(actual.winner).toBe('1/2');
   });
 
@@ -253,7 +253,7 @@ describe('Game Status: Ongoing > Completed', () => {
     });
 
     expect(actual.status).toBe('complete');
-  //  expect(actual.gameOverReason).toBe(GameOverReason['drawAwardedForInsufficientMaterial']);
+    //  expect(actual.gameOverReason).toBe(GameOverReason['drawAwardedForInsufficientMaterial']);
     expect(actual.winner).toBe('1/2');
   });
 

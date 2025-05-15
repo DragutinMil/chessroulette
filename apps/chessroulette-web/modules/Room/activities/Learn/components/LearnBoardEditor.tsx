@@ -1,7 +1,4 @@
-import {
-  BoardEditor,
-  BoardEditorProps,
-} from '@app/components/BoardEditor';
+import { BoardEditor, BoardEditorProps } from '@app/components/BoardEditor';
 import { ChapterBoardState } from '../movex';
 
 export type LearnBoardEditorProps = {

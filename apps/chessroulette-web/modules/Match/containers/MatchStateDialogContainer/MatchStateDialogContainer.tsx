@@ -1,9 +1,13 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Dialog } from '@app/components/Dialog';
 import { Text } from '@app/components/Text';
 import { now } from '@app/lib/time';
 import { invoke } from '@xmatter/util-kit';
 import { BetweenGamesAborter } from './components/BetweenGamesAborter';
+import { Button } from '../../../../components/Button/Button';
+import {
+  useRouter
+} from 'next/navigation';
 import {
   PlayDialogContainer,
   PlayDialogContainerContainerProps,
@@ -14,6 +18,7 @@ import {
 } from '../../hooks/useMatch';
 import { getMatchPlayerRoleById } from '../../movex/util';
 import { gameOverReasonsToDisplay } from './util';
+import { useGame } from '@app/modules/Game/hooks';
 
 type Props = PlayDialogContainerContainerProps;
 
@@ -22,52 +27,135 @@ export const MatchStateDialogContainer: React.FC<Props> = (
 ) => {
   const { match, ...matchView } = useMatchViewState();
   const dispatch = useMatchActionsDispatch();
+  const router = useRouter();
+ const {
+    lastOffer,
+    playerId
+  } = useGame();
+  useEffect(() => {
+    if (match?.status === 'complete') {
+      const parts = window.location.pathname.split('/');
+      const match_id = parts[parts.length - 1];
+      const sendResults = async () => {
+        // change Guta Dragutin
+        try {
+          const response = await fetch(
+            process.env.NEXT_PUBLIC_API_WEB + 'fetch_roulette_match_result',
+            {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                match_id: match_id, //match_id
+              }),
+            }
+          );
+
+          if (!response.ok) {
+            throw new Error(`Error: ${response.status}`);
+          }
+
+          const data = await response.json();
+          console.log('data', data);
+        } catch (error) {
+          console.error('Fetch error', error);
+        }
+      };
+
+      sendResults();
+    }
+  }, [match?.winner]);
 
   if (match?.status === 'aborted') {
     return (
       <Dialog
         title="Match Aborted"
-        content={null} // should there be something?
+        content={''} // should there be something?
       />
     );
   }
 
   // TODO: Here we should just check the match.status
-  if (match?.winner) {
+  if (match?.winner && !lastOffer ) {
     return (
       <Dialog
         title="Match Completed"
         content={
           <div className="flex flex-col gap-4 items-center">
-            <div className="flex justify-center content-center text-center">
+            <div className="flex  justify-center content-center text-center flex-col">
               <Text>
-               
-               {/* BOTS NAME 
-               {(match[match.winner].id=='8WCVE7ljCQJTW020'  ||
-        match[match.winner].id=='NaNuXa7Ew8Kac002'  ||
-        match[match.winner].id=='O8kiLgwcKJWy9005'  ||
-        match[match.winner].id=='KdydnDHbBU1JY008'  ||
-        match[match.winner].id=='vpHH6Jf7rYKwN010'  ||
-        match[match.winner].id=='ruuPkmgP0KBei015')?
-               */} 
-             { ( match[match.winner].id.length==16)?  (
-          <span className="capitalize">
-          Bot
-          {` `}Won{` `}
-          <span>🏆</span>
-          </span>
-        ):(
-          // REGULAR NAME
-          <span className="capitalize">
-          {match[match.winner].displayName || match[match.winner].id}
-          {` `}Won{` `}
-          <span>🏆</span>
-          </span>
-        )
-      }
-                 
-              
+                {match[match.winner].id.length == 16 ? (
+                  <span className="capitalize">
+                    Bot
+                    {` `}Won{` `}
+                    <span>🏆</span>
+                  </span>
+                ) : (
+                  // REGULAR NAME
+                  <span className="capitalize">
+                    {match[match.winner].displayName || match[match.winner].id}
+                    {` `}Won{` `}
+                    <span>🏆</span>
+                  </span>
+                )}
               </Text>
+              { ( match[match.winner].id.length!==16) &&  (
+                <div className="justify-center items-center flex" > 
+                {/* stavi flex-col  GUTA */}
+                {/* <Button 
+                    icon="ArrowPathRoundedSquareIcon"
+                    style={{marginTop:18,background:'#07da63',color:'#202122'}}
+                     onClick={() => {
+                     if(playerId){
+                      dispatch({
+                        type: 'play:sendOffer',
+                        payload: {
+                          byPlayer:playerId, //gameStateDialogProps.playerId,
+                          offerType: 'rematch',
+                        },
+                      });
+                     }
+                      
+                     }
+                    }
+                    >
+
+                     Rematch
+                  </Button> */}
+                  <Button
+                    icon="ArrowLeftIcon"
+                    bgColor="yellow"
+                    style={{marginTop:12}}
+                     onClick={() => {
+                      router.push('https://app.outpostchess.com/online-list');
+                      
+                     }
+                    }
+                    >
+                     Lobby &nbsp;&nbsp;&nbsp;&nbsp;
+                  </Button>
+                  </div>
+
+              )}
+              {/* {...(match.type === 'openEnded' && {
+           buttons: [
+             {
+              children: 'Offer Rematch',
+              onClick: () => {
+                dispatch({
+                  type: 'play:sendOffer',
+                  payload: {
+                    byPlayer: gameStateDialogProps.playerId,
+                    offerType: 'rematch',
+                  },
+                });
+              },
+              type: 'primary',
+              bgColor: 'blue',
+            },
+          ],
+        })} */}
             </div>
           </div>
         }
