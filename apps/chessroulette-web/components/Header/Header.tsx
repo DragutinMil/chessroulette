@@ -15,7 +15,7 @@ type Props = {
   showOnboarding?: boolean;
   session?: CustomSession;
 };
-//console.log(document.referrer);
+
 export default (props: Props) => {
    const router = useRouter();
   return (
@@ -29,17 +29,10 @@ export default (props: Props) => {
     >
       <div
         onClick={() => {
-          if(document.referrer.includes('app.outpostchess.com/online-list')){
+         console.log('document.referrer',document.referrer)
+          if(document.referrer.includes('app.outpostchess.com') || document.referrer.includes('test-app.outpostchess.com' ) || document.referrer.includes('localhost:8080')){
             router.push('https://app.outpostchess.com/online-list');
-          }else if(document.referrer.includes('/challenges')){
-            router.push('https://app.outpostchess.com/challenges');
           }
-          // else{
-
-          //   router.push( document.referrer);
-          // }
-         // console.log('document.referrer',document.referrer)
-          
         }}
       >
         <Logo themeName={props.themeName} />
