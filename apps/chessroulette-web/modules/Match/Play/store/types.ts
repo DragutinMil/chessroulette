@@ -36,7 +36,7 @@ export type PlayActions =
       }
     >
   | Action<'play:acceptOfferDraw'>
-  | Action<'play:acceptOfferRematch',  { matchId: string }>
+  | Action<'play:acceptOfferRematch',  { rematchData: string, myIdNumber:string }>
   | Action<'play:acceptTakeBack'>
   | Action<'play:denyOffer'>
   | Action<'play:cancelOffer'>;

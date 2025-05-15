@@ -17,7 +17,7 @@ export const PeerToPeerCameraWidget = ({ aspectRatio = 16 / 9 }: Props) => {
     if (match) {
       if (match?.challengee?.id.length == 16) {
         setBots(true);
-        console.log('length', match?.challengee?.id.length);
+       // console.log('length', match?.challengee?.id.length);
       }
       //  setBots( ['8WCVE7ljCQJTW020','NaNuXa7Ew8Kac002','O8kiLgwcKJWy9005','KdydnDHbBU1JY008','vpHH6Jf7rYKwN010','ruuPkmgP0KBei015'].indexOf(match?.challengee?.id)!==-1 )
     }

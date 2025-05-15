@@ -16,7 +16,9 @@ export default async function RoomLayout({
   children: React.ReactNode;
 }) {
   return (
-    <MovexProvider session={await getCustomServerSession(authOptions)}>
+    <MovexProvider
+    
+     session={await getCustomServerSession(authOptions)}>
       {children}
     </MovexProvider>
   );

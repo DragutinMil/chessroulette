@@ -38,7 +38,7 @@ export type GameOffer = {
   //TODO - probably need toParticipant as well, but not sure how to get it now
   type: 'takeback' | 'draw' | 'rematch';
   status: 'pending' | 'accepted' | 'denied' | 'cancelled';
-
+  link?:string;
   // Nededed? If so change to Date or smtg
   timestamp?: number;
 };
