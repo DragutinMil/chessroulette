@@ -17,6 +17,7 @@ export const reducer = (
   prev: Game = initialPlayState, 
   action: PlayActions
 ): Game => {
+  
   console.log('joskec', prev) 
   // This moves the game from pending to idling
   if (action.type === 'play:start') {
@@ -39,7 +40,7 @@ export const reducer = (
       // Cannot move otherwise
       return prev;
     }
-
+    
     const { lastMoveBy, pgn } = prev;
     const { moveAt } = action.payload;
 
@@ -342,13 +343,13 @@ export const reducer = (
     return {
       ...prev,
       pgn: newGame.pgn(),
-      lastMoveBy: nextTurn,
+      lastMoveBy: nextTurn, 
       timeLeft: {
         ...prev.timeLeft,
         [prev.lastMoveBy]: nextTimeLeft,
       },
       offers: nextOffers,
-    };
+    }; 
   }
 
   if (isOneOf(action.type, ['play:denyOffer', 'play:cancelOffer'])) {

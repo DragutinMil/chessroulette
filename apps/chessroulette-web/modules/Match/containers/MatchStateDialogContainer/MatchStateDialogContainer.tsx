@@ -38,29 +38,29 @@ export const MatchStateDialogContainer: React.FC<Props> = (
       const match_id = parts[parts.length - 1];
       const sendResults = async () => {
         // change Guta Dragutin
-        // try {
-        //   const response = await fetch(
-        //     process.env.NEXT_PUBLIC_API_WEB + 'fetch_roulette_match_result',
-        //     {
-        //       method: 'POST',
-        //       headers: {
-        //         'Content-Type': 'application/json',
-        //       },
-        //       body: JSON.stringify({
-        //         match_id: match_id, //match_id
-        //       }),
-        //     }
-        //   );
+        try {
+          const response = await fetch(
+            process.env.NEXT_PUBLIC_API_WEB + 'fetch_roulette_match_result',
+            {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                match_id: match_id, //match_id
+              }),
+            }
+          );
 
-        //   if (!response.ok) {
-        //     throw new Error(`Error: ${response.status}`);
-        //   }
+          if (!response.ok) {
+            throw new Error(`Error: ${response.status}`);
+          }
 
-        //   const data = await response.json();
-        //   console.log('data', data);
-        // } catch (error) {
-        //   console.error('Fetch error', error);
-        // }
+          const data = await response.json();
+          console.log('data', data);
+        } catch (error) {
+          console.error('Fetch error', error);
+        }
       };
 
       sendResults();
@@ -101,7 +101,8 @@ export const MatchStateDialogContainer: React.FC<Props> = (
                 )}
               </Text>
               { ( match[match.winner].id.length!==16) &&  (
-                <div className="justify-center items-center flex" >
+                <div className="justify-center items-center flex" > 
+                {/* stavi flex-col  GUTA */}
                 {/* <Button 
                     icon="ArrowPathRoundedSquareIcon"
                     style={{marginTop:18,background:'#07da63',color:'#202122'}}

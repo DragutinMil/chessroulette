@@ -107,7 +107,7 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
   //console.log('boardTheme',boardTheme)
   useEffect(() => {
     if (match) {
-      if (match?.challengee?.id.length == 16) {
+      if (match?.challengee?.id?.length == 16) {
         setBots(true);
       }
       //  setBots( ['8WCVE7ljCQJTW020','NaNuXa7Ew8Kac002','O8kiLgwcKJWy9005','KdydnDHbBU1JY008','vpHH6Jf7rYKwN010','ruuPkmgP0KBei015'].indexOf(match?.challengee?.id)!==-1 )

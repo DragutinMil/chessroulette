@@ -6,7 +6,9 @@ import ConnectionStatus from './ConnectionStatus';
 import Image from 'next/image';
 import GithubLogo from './assets/github-mark-white.svg';
 import DiscordLogo from './assets/discord-icon-svgrepo-com.svg';
-
+import {
+  useRouter
+} from 'next/navigation';
 type Props = {
   themeName?: string;
   showConnectionStatus?: boolean;
@@ -15,6 +17,7 @@ type Props = {
 };
 //console.log(document.referrer);
 export default (props: Props) => {
+   const router = useRouter();
   return (
     <header
       className="
@@ -26,7 +29,17 @@ export default (props: Props) => {
     >
       <div
         onClick={() => {
-          window.location.href = document.referrer;
+          if(document.referrer.includes('app.outpostchess.com/online-list')){
+            router.push('https://app.outpostchess.com/online-list');
+          }else if(document.referrer.includes('/challenges')){
+            router.push('https://app.outpostchess.com/challenges');
+          }
+          // else{
+
+          //   router.push( document.referrer);
+          // }
+         // console.log('document.referrer',document.referrer)
+          
         }}
       >
         <Logo themeName={props.themeName} />
