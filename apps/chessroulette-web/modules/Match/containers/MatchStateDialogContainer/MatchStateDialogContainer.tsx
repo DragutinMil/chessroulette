@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect,useState } from 'react';
 import { Dialog } from '@app/components/Dialog';
 import { Text } from '@app/components/Text';
 import { now } from '@app/lib/time';
@@ -8,6 +8,7 @@ import { Button } from '../../../../components/Button/Button';
 import {
   useRouter
 } from 'next/navigation';
+import Cookies from 'js-cookie'
 import {
   PlayDialogContainer,
   PlayDialogContainerContainerProps,
@@ -21,23 +22,24 @@ import { gameOverReasonsToDisplay } from './util';
 import { useGame } from '@app/modules/Game/hooks';
 
 type Props = PlayDialogContainerContainerProps;
-console.log('document.referrer',document.referrer)
+
 export const MatchStateDialogContainer: React.FC<Props> = (
   gameStateDialogProps
 ) => {
   const { match, ...matchView } = useMatchViewState();
+ 
   const dispatch = useMatchActionsDispatch();
   const router = useRouter();
  const {
     lastOffer,
     playerId
   } = useGame();
+  
   useEffect(() => {
     if (match?.status === 'complete') {
       const parts = window.location.pathname.split('/');
       const match_id = parts[parts.length - 1];
       const sendResults = async () => {
-        // change Guta Dragutin
         try {
           const response = await fetch(
             process.env.NEXT_PUBLIC_API_WEB + 'fetch_roulette_match_result',
@@ -66,6 +68,49 @@ export const MatchStateDialogContainer: React.FC<Props> = (
       sendResults();
     }
   }, [match?.winner]);
+  useEffect(() => {
+      const url = new URL(window.location.href);
+      //const name = url.searchParams.get('userDisplayName');
+      const userId = url.searchParams.get('userId');
+      function parseJwt(token: string) {
+        try {
+          const base64Payload = token.split('.')[1];
+          const payload = atob(base64Payload);
+          
+          return JSON.parse(payload);
+        } catch (e) {
+          console.error('Invalid token', e);
+          return null;
+        }
+      }
+      //SA APA IDE PROVERA
+      if(url.searchParams.get('sessionToken')){
+        console.log('App')
+        const token =  url.searchParams.get('sessionToken');
+        const data = parseJwt(token || '')
+        console.log('token data app',data)
+        if(data?.userId!==userId){
+          if(match){
+            console.log('izbacen si')
+           // router.push("https://chess.outpostchess.com/room/a/match/ilegal&theme=op")
+          }
+          
+        }
+      }
+       //SA WEB IDE PROVERA
+      else{
+        console.log('web')
+        const token: string | undefined = Cookies.get('sessionToken')
+        const data = parseJwt(token || '')
+        console.log('token data web',data)
+        if(data?.user_id!==userId){
+          console.log('izbacen si',userId,data.user_id)
+          router.push('https://app.outpostchess.com/online-list');
+        }
+      }
+     
+  
+    }, []);
 
   if (match?.status === 'aborted') {
     return (
@@ -74,7 +119,7 @@ export const MatchStateDialogContainer: React.FC<Props> = (
         title="Match Aborted"
         content={
           <>
-          { (document.referrer.includes('app.outpostchess.com') || document.referrer.includes('localhost:8080') || document.referrer.includes('test-app.outpostchess.com')) &&
+          {/* { (document.referrer.includes('app.outpostchess.com') || document.referrer.includes('localhost:8080') || document.referrer.includes('test-app.outpostchess.com')) && */}
               
                   
           <Button
@@ -92,7 +137,7 @@ export const MatchStateDialogContainer: React.FC<Props> = (
                      Lobby &nbsp;&nbsp;&nbsp;&nbsp;
                   </Button>
           
-                  }
+                  {/* } */}
 
               </>    
         } // should there be something?
@@ -129,9 +174,9 @@ export const MatchStateDialogContainer: React.FC<Props> = (
                 )}
               </Text>
               { ( match[match.winner].id.length!==16) &&  (
-                <div className="justify-center items-center flex" > 
-                {/* stavi flex-col  GUTA */}
-                {/* <Button 
+                <div className="justify-center items-center flex flex-col" > 
+                
+                <Button 
                     icon="ArrowPathRoundedSquareIcon"
                     style={{marginTop:18,background:'#07da63',color:'#202122'}}
                      onClick={() => {
@@ -150,15 +195,15 @@ export const MatchStateDialogContainer: React.FC<Props> = (
                     >
 
                      Rematch
-                  </Button> */}
-                  { (document.referrer.includes('app.outpostchess.com') || document.referrer.includes('localhost:8080') || document.referrer.includes('test-app.outpostchess.com')) &&
+                  </Button>
+                  {/* { (document.referrer.includes('app.outpostchess.com') || document.referrer.includes('localhost:8080') || document.referrer.includes('test-app.outpostchess.com')) && */}
                   <Button
                   icon="ArrowLeftIcon"
                   bgColor="yellow"
                   style={{marginTop:12}}
                    onClick={() => {
 
-                  
+                      
                       router.push('https://app.outpostchess.com/online-list');
                     
                     
@@ -168,7 +213,7 @@ export const MatchStateDialogContainer: React.FC<Props> = (
                    Lobby &nbsp;&nbsp;&nbsp;&nbsp;
                 </Button>
                   
-                  }
+                   {/* } */}
                   
                   </div>
 
