@@ -29,7 +29,6 @@ export default (props: Props) => {
     >
       <div
         onClick={() => {
-         console.log('document.referrer',document.referrer)
           if(document.referrer.includes('app.outpostchess.com') || document.referrer.includes('test-app.outpostchess.com' ) || document.referrer.includes('localhost:8080')){
             router.push('https://app.outpostchess.com/online-list');
           }
