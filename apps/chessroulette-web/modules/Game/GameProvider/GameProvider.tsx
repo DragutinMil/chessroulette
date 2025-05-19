@@ -39,12 +39,14 @@ export const GameProvider = ({
   });
 
   useEffect(() => {
+    console.log('🟡 FULL GAME STATE:', game);
     console.log('game.offers',game.offers)
     
     setState((prev) => ({
       ...prev,
       lastOffer: game.offers?.slice(-1)[0],
-    }));
+    }))
+  
    
   }, [game.offers]);
 
