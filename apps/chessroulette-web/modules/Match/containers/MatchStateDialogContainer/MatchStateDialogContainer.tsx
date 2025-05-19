@@ -182,20 +182,6 @@ export const MatchStateDialogContainer: React.FC<Props> = (
               </Text>
               { ( match[match.winner].id.length!==16) &&  (
                 <div className="justify-center items-center flex flex-col" > 
-                 <Button 
-                    icon="ArrowPathRoundedSquareIcon"
-                    style={{marginTop:18,background:'#07da63',color:'#202122'}}
-                     onClick={() => {
-                     if(playerId){
-                      console.log('skloni sranje')
-                     }
-                      
-                     }
-                    }
-                    >
-
-                     Skloni
-                  </Button>
                 <Button 
                     icon="ArrowPathRoundedSquareIcon"
                     style={{marginTop:18,background:'#07da63',color:'#202122'}}
