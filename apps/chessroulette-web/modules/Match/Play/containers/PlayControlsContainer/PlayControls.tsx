@@ -3,6 +3,10 @@ import { ChessColor } from '@xmatter/util-kit';
 import { QuickConfirmButton } from '@app/components/Button/QuickConfirmButton';
 import { Game, GameOffer } from '@app/modules/Game';
 import { useMatchViewState } from '../../../../../modules/Match/hooks/useMatch';
+
+import {
+  useRouter
+} from 'next/navigation';
 type Props = {
   game: Game;
   homeColor: ChessColor;
@@ -30,7 +34,7 @@ export const PlayControls: React.FC<Props> = ({
   const [allowTakeback, refreshAllowTakeback] = useState(false);
   const [allowDraw, refreshAllowDraw] = useState(true);
   const [drawOfferNum, coundDrawOfferNum] = useState(0);
-
+  const router = useRouter();
   const offerAlreadySent = useRef(false);
   const setOfferSent = useCallback(() => {
     if (!offerAlreadySent.current) {
@@ -109,6 +113,8 @@ export const PlayControls: React.FC<Props> = ({
       );
     }
   }, []);
+  
+  
   useEffect(() => {
     if (offerAlreadySent.current) {
       resetOfferSent();
