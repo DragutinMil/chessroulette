@@ -241,10 +241,8 @@ export const reducer = (
   }
 
   if (action.type === 'play:sendOffer') {
-    //  console.log('uslo u play:sendOffer',action)
-
     const { byPlayer, offerType } = action.payload;
-    if (offerType !== 'rematch') {
+    if (offerType !== 'rematch') { 
       const nextOffers: GameOffer[] = [
         ...prev.offers,
         {
