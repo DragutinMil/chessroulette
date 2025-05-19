@@ -174,7 +174,7 @@ export const reducer = (
       (prev.offers[prev.offers.length - 1] as GameOffer).status === 'pending'
         ? ({
             ...prev.offers[prev.offers.length - 1],
-            status: 'pending',
+            status: 'cancelled',
           } as GameOffer)
         : undefined;
 
@@ -243,6 +243,7 @@ export const reducer = (
 
   if (action.type === 'play:sendOffer') {
     const { byPlayer, offerType } = action.payload;
+    console.log('offerType reducer !movex',offerType)
     if (offerType !== 'rematch') { 
       const nextOffers: GameOffer[] = [
         ...prev.offers,
