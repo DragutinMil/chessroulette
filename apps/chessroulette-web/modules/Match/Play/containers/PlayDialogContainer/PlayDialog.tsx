@@ -54,6 +54,7 @@ export const PlayDialog: React.FC<GameStateDialogProps> = ({
        const userIdTarget = target_url.searchParams.get('userId');
       if(userIdInitiator==user_id){
         window.open(lastOffer.linkInitiator,'_self')
+        
        
       }else if(userIdTarget==user_id){
         window.open(lastOffer.linkTarget,'_self')

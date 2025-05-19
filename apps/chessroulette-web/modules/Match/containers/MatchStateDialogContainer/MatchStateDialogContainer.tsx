@@ -72,6 +72,7 @@ export const MatchStateDialogContainer: React.FC<Props> = (
       const url = new URL(window.location.href);
       //const name = url.searchParams.get('userDisplayName');
       const userId = url.searchParams.get('userId');
+      
       function parseJwt(token: string) {
         try {
           const payload = token.split('.')[1];
@@ -104,8 +105,8 @@ export const MatchStateDialogContainer: React.FC<Props> = (
         const data = parseJwt(token || '')
         console.log('token data web',data)
         if(data?.user_id!==userId){
-          console.log('izbacen si',userId,data.user_id)
-          router.push('https://app.outpostchess.com/online-list');
+          console.log('izbacen si',userId, data?.user_id)
+         // router.push('https://app.outpostchess.com/online-list');
         }
       }
      
