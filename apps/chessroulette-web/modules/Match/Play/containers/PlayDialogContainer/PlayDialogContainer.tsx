@@ -27,7 +27,7 @@ export const PlayDialogContainer = ({
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
-                Authorization: `Bearer ${token}`,
+                 Authorization: `Bearer ${token}`,
               },
               body: JSON.stringify({
                 match_id: matchId,
