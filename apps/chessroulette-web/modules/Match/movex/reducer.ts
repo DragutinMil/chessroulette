@@ -103,7 +103,7 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
              },
            ];
            console.log('3',nextOffers)
-           if( winner && lastMoveAt){
+      if( winner && lastMoveAt){
             return {
               ...prev,
               endedGames: [
@@ -123,6 +123,10 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
               
               }]
             };
+
+            
+
+            
           //  if( firstEndedGame.winner && firstEndedGame.lastMoveAt){
           //   return {
           //     ...prev,

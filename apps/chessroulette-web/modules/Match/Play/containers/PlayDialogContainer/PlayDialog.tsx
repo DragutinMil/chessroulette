@@ -117,7 +117,7 @@ export const PlayDialog: React.FC<GameStateDialogProps> = ({
 
     if (lastOffer) {
       if (game.status === 'complete' && !gameResultSeen) {
-        setGameResultSeen(true);
+       // setGameResultSeen(true);
       }
       if (lastOffer.type === 'rematch') {
         if (lastOffer.status === 'pending') {

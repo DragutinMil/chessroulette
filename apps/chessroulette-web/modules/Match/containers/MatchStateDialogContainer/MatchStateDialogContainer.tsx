@@ -69,6 +69,11 @@ export const MatchStateDialogContainer: React.FC<Props> = (
     }
   }, [match?.winner]);
   useEffect(() => {
+    console.log('lastOffer provera',lastOffer)
+
+  }, [lastOffer]);
+
+  useEffect(() => {
       const url = new URL(window.location.href);
       //const name = url.searchParams.get('userDisplayName');
       const userId = url.searchParams.get('userId');
@@ -151,7 +156,8 @@ export const MatchStateDialogContainer: React.FC<Props> = (
   }
 
   // TODO: Here we should just check the match.status
-  if (match?.winner && !lastOffer ) {
+
+  if (match?.winner && !lastOffer  ) {
     return (
       <Dialog
         title="Match Completed"
@@ -167,7 +173,7 @@ export const MatchStateDialogContainer: React.FC<Props> = (
                   </span>
                 ) : (
                   // REGULAR NAME
-                  <span className="capitalize">
+                  <span  className="capitalize">
                     {match[match.winner].displayName || match[match.winner].id}
                     {` `}Won{` `}
                     <span>🏆</span>
@@ -176,7 +182,20 @@ export const MatchStateDialogContainer: React.FC<Props> = (
               </Text>
               { ( match[match.winner].id.length!==16) &&  (
                 <div className="justify-center items-center flex flex-col" > 
-                
+                 <Button 
+                    icon="ArrowPathRoundedSquareIcon"
+                    style={{marginTop:18,background:'#07da63',color:'#202122'}}
+                     onClick={() => {
+                     if(playerId){
+                      console.log('skloni sranje')
+                     }
+                      
+                     }
+                    }
+                    >
+
+                     Skloni
+                  </Button>
                 <Button 
                     icon="ArrowPathRoundedSquareIcon"
                     style={{marginTop:18,background:'#07da63',color:'#202122'}}
