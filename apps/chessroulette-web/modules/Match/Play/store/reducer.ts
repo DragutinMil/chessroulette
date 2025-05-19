@@ -166,14 +166,15 @@ export const reducer = (
     if (prev.status !== 'ongoing') {
       return prev;
     }
-
+    console.log('mrkoni',prev)
     // Clear any pending offer leftover
+    
     const lastOffer =
       prev.offers.length > 0 &&
       (prev.offers[prev.offers.length - 1] as GameOffer).status === 'pending'
         ? ({
             ...prev.offers[prev.offers.length - 1],
-            status: 'cancelled',
+            status: 'pending',
           } as GameOffer)
         : undefined;
 
