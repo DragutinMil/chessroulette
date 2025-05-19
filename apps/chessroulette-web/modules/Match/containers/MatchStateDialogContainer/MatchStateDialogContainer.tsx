@@ -74,10 +74,10 @@ export const MatchStateDialogContainer: React.FC<Props> = (
       const userId = url.searchParams.get('userId');
       function parseJwt(token: string) {
         try {
-          const base64Payload = token.split('.')[1];
-          const payload = atob(base64Payload);
-          
-          return JSON.parse(payload);
+          const payload = token.split('.')[1];
+          const base64 = payload.replace(/-/g, '+').replace(/_/g, '/');
+          const json = Buffer.from(base64, 'base64').toString('utf-8');
+          return JSON.parse(json);
         } catch (e) {
           console.error('Invalid token', e);
           return null;
