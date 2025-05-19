@@ -93,7 +93,7 @@ const getPlayFromGame = (
           },
         }
   );
-
+  
   return {
     hasGame: true,
     game: game,
