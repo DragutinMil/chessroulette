@@ -219,24 +219,7 @@ export const MatchStateDialogContainer: React.FC<Props> = (
                   </div>
 
               )}
-              {/* {...(match.type === 'openEnded' && {
-           buttons: [
-             {
-              children: 'Offer Rematch',
-              onClick: () => {
-                dispatch({
-                  type: 'play:sendOffer',
-                  payload: {
-                    byPlayer: gameStateDialogProps.playerId,
-                    offerType: 'rematch',
-                  },
-                });
-              },
-              type: 'primary',
-              bgColor: 'blue',
-            },
-          ],
-        })} */}
+            
             </div>
           </div>
         }
