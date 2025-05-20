@@ -125,7 +125,21 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
               timeLeft: {lastUpdatedAt: lastUpdatedAt, w: wTime, b: bTime},
               winner: winner, 
               
-              }]
+              },
+              {
+                gameOverReason: gameOverReason,
+                lastMoveAt: lastMoveAt,
+                lastMoveBy: lastMoveBy,
+                offers: nextOffers,
+                pgn: pgn,
+                players: {w: w, b: b},
+                startedAt: startedAt,
+                status: "complete",
+                timeClass: timeClass,
+                timeLeft: {lastUpdatedAt: lastUpdatedAt, w: wTime, b: bTime},
+                winner: winner, 
+                
+                }]
             };
 
             
@@ -324,11 +338,11 @@ reducer.$transformState = (state, masterContext): MatchState => {
     return state;
   }
 
-  // Determine if Match is "aborted" onRead
-  // if (state.status === 'complete' || state.status === 'aborted') {
-  //   console.log('state 1 transformState',state)
-  //   return state
-  // }
+ // Determine if Match is "aborted" onRead
+  if (state.status === 'complete' || state.status === 'aborted') {
+    console.log('state 1 transformState',state)
+    return state
+  }
   console.log('state 2 transformState',state)
   const ongoingPlay = state.gameInPlay;
 
