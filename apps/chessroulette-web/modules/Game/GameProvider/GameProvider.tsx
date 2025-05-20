@@ -42,10 +42,10 @@ export const GameProvider = ({
     console.log('🟡 FULL GAME STATE:', game);
     console.log('game.offers',game.offers)
     
-    if(game.offers==undefined && game.status=="complete"){
-      console.log()
-      return
-    }
+    // if(game.offers==undefined && game.status=="complete"){
+    //   console.log()
+    //   return
+    // }
     setState((prev) => ({
       ...prev,
       lastOffer: game.offers?.slice(-1)[0],
