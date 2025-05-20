@@ -10,6 +10,7 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
   prev: MatchState = initialMatchState,
   action: MatchActions
 ): MatchState => {
+  
   if (!prev) {
     console.log('prev movex',prev)
     return prev; 
@@ -81,12 +82,9 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
   //OFFER REMATCH - here to effect completed matches
   if (action.type === 'play:sendOffer' ) {
      const { byPlayer, offerType } = action.payload;
- console.log(byPlayer)
- console.log(offerType)
-  //   const firstEndedGame = prev.endedGames[prev.endedGames.length-1];
-  //   console.log('2',firstEndedGame)
-  //  //console.log('firstEndedGame',firstEndedGame)
-  //   if(offerType=='rematch' ){
+
+     //const firstEndedGame = prev.endedGames[prev.endedGames.length-1];
+     if(offerType=='rematch' ){
     
 
 
@@ -102,14 +100,37 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
   //     const lastUpdatedAt=firstEndedGame.timeLeft.lastUpdatedAt
   //     const wTime=firstEndedGame.timeLeft.w
   //     const bTime=firstEndedGame.timeLeft.b
-  //     const newArray = prev.endedGames.slice(0, -1); 
-  //         const nextOffers: GameOffer[] = [
-  //            {
-  //              byPlayer,
-  //              type: offerType,
-  //              status: 'pending'
-  //            },
-  //          ];
+       const newArray = prev.endedGames.slice(0, -1); 
+          const nextOffers: GameOffer[] = [
+             {
+               byPlayer,
+               type: offerType,
+               status: 'pending'
+             },
+           ];
+           console.log('kerk',nextOffers)
+           reducer.$transformState = (state, masterContext): MatchState => {
+            console.log('state 1983 transformState',state)
+            if (!state) {
+              return state
+            }
+            console.log('state 1984 transformState',state)
+           // Determine if Match is "aborted" onRead
+            if (state.status === 'complete' || state.status === 'aborted') {
+              console.log('state 1985 transformState',state)
+              return {
+                ...state,
+                endedGames: [
+                        ...newArray
+                        ,{
+                          ...prev.endedGames[prev.endedGames.length-1],
+                      offers: nextOffers,
+                      }]
+
+              } 
+            }
+            return state;
+          }
   //          console.log('3',nextOffers)
   //     if( winner && lastMoveAt && gameOverReason && lastUpdatedAt){
   //           return {
@@ -132,7 +153,7 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
   //             }]
   //           };
   //  }
-  // }  
+     } 
 
             
           //  if( firstEndedGame.winner && firstEndedGame.lastMoveAt){
@@ -185,12 +206,14 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
     }
   }
 
+
+ 
   if (!prevMatch.gameInPlay) {
     return prev;
   }
 
-  var prevOngoingGame = prevMatch.gameInPlay;
-  const nextOngoingGame = PlayStore.reducer(prevOngoingGame, action);
+var prevOngoingGame = prevMatch.gameInPlay;
+const nextOngoingGame = PlayStore.reducer(prevOngoingGame, action);
 
   if (nextOngoingGame.status === 'aborted') {
     const abortedCurrentPlay = nextOngoingGame;
@@ -311,15 +334,28 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
 reducer.$transformState = (state, masterContext): MatchState => {
 
   if (!state) {
-    return state;
+    return state
   }
   
  // Determine if Match is "aborted" onRead
   if (state.status === 'complete' || state.status === 'aborted') {
     console.log('state 1 transformState',state)
-    
-    
-    return state
+     const newArray=  state.endedGames.slice(0, -1); 
+     const nextOffers: GameOffer[] = [
+      {
+        byPlayer:'czeKS1Q0JDSXJ',
+        type: 'rematch',
+        status: 'pending'
+      },
+    ];
+    return { ...state,
+    endedGames: [
+            ...newArray
+            ,{
+              ...state.endedGames[state.endedGames.length-1],
+          offers: nextOffers,
+          }]
+        }
   }
   console.log('state 2 transformState',state)
   const ongoingPlay = state.gameInPlay;
