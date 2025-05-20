@@ -43,7 +43,7 @@ export const GameProvider = ({
     console.log('🟡 FULL GAME STATE:', game);
     console.log('game.offers',game.offers)
     
-    if(game.offers==undefined && game.status!=="complete"){
+    if((game.offers==undefined || game.offers.length>0)  && game.status!=="complete" ){
       console.log('kolasin')
       // const nextOffers: GameOffer[] = [
       //              {
