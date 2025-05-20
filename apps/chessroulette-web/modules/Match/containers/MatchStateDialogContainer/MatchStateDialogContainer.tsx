@@ -59,7 +59,7 @@ export const MatchStateDialogContainer: React.FC<Props> = (
           }
 
           const data = await response.json();
-          console.log('data', data);
+        //  console.log('data', data);
         } catch (error) {
           console.error('Fetch error', error);
         }

@@ -81,68 +81,58 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
   //OFFER REMATCH - here to effect completed matches
   if (action.type === 'play:sendOffer' ) {
      const { byPlayer, offerType } = action.payload;
- 
-    const firstEndedGame = prev.endedGames[prev.endedGames.length-1];
-    console.log('2',firstEndedGame)
-   //console.log('firstEndedGame',firstEndedGame)
-    if(offerType=='rematch' ){
-      const pgn=firstEndedGame.pgn
-      const w=firstEndedGame.players.w
-      const b=firstEndedGame.players.b
-      const lastMoveBy=firstEndedGame.lastMoveBy
-      const lastMoveAt=firstEndedGame.lastMoveAt
-      const startedAt=firstEndedGame.startedAt
-      const winner=firstEndedGame.winner
-      const timeClass = firstEndedGame.timeClass
-      const gameOverReason= firstEndedGame.gameOverReason
-      const lastUpdatedAt=firstEndedGame.timeLeft.lastUpdatedAt
-      const wTime=firstEndedGame.timeLeft.w
-      const bTime=firstEndedGame.timeLeft.b
-      const newArray = prev.endedGames.slice(0, -1); 
-          const nextOffers: GameOffer[] = [
-             {
-               byPlayer,
-               type: offerType,
-               status: 'pending'
-             },
-           ];
-           console.log('3',nextOffers)
-      if( winner && lastMoveAt && gameOverReason && lastUpdatedAt){
-            return {
-              ...prev,
-              endedGames: [
-                ...newArray
-                ,{
-              gameOverReason: gameOverReason,
-              lastMoveAt: lastMoveAt,
-              lastMoveBy: lastMoveBy,
-              offers: nextOffers,
-              pgn: pgn,
-              players: {w: w, b: b},
-              startedAt: startedAt,
-              status: "complete",
-              timeClass: timeClass,
-              timeLeft: {lastUpdatedAt: lastUpdatedAt, w: wTime, b: bTime},
-              winner: winner, 
-              
-              },
-              {
-                gameOverReason: gameOverReason,
-                lastMoveAt: lastMoveAt,
-                lastMoveBy: lastMoveBy,
-                offers: nextOffers,
-                pgn: pgn,
-                players: {w: w, b: b},
-                startedAt: startedAt,
-                status: "complete",
-                timeClass: timeClass,
-                timeLeft: {lastUpdatedAt: lastUpdatedAt, w: wTime, b: bTime},
-                winner: winner, 
-                
-                }]
-            };
+ console.log(byPlayer)
+ console.log(offerType)
+  //   const firstEndedGame = prev.endedGames[prev.endedGames.length-1];
+  //   console.log('2',firstEndedGame)
+  //  //console.log('firstEndedGame',firstEndedGame)
+  //   if(offerType=='rematch' ){
+    
 
-            
+
+  //     const pgn=firstEndedGame.pgn
+  //     const w=firstEndedGame.players.w
+  //     const b=firstEndedGame.players.b
+  //     const lastMoveBy=firstEndedGame.lastMoveBy
+  //     const lastMoveAt=firstEndedGame.lastMoveAt
+  //     const startedAt=firstEndedGame.startedAt
+  //     const winner=firstEndedGame.winner
+  //     const timeClass = firstEndedGame.timeClass
+  //     const gameOverReason= firstEndedGame.gameOverReason
+  //     const lastUpdatedAt=firstEndedGame.timeLeft.lastUpdatedAt
+  //     const wTime=firstEndedGame.timeLeft.w
+  //     const bTime=firstEndedGame.timeLeft.b
+  //     const newArray = prev.endedGames.slice(0, -1); 
+  //         const nextOffers: GameOffer[] = [
+  //            {
+  //              byPlayer,
+  //              type: offerType,
+  //              status: 'pending'
+  //            },
+  //          ];
+  //          console.log('3',nextOffers)
+  //     if( winner && lastMoveAt && gameOverReason && lastUpdatedAt){
+  //           return {
+  //             ...prev,
+  //             endedGames: [
+  //               ...newArray
+  //               ,{
+  //             gameOverReason: gameOverReason,
+  //             lastMoveAt: lastMoveAt,
+  //             lastMoveBy: lastMoveBy,
+  //             offers: nextOffers,
+  //             pgn: pgn,
+  //             players: {w: w, b: b},
+  //             startedAt: startedAt,
+  //             status: "complete",
+  //             timeClass: timeClass,
+  //             timeLeft: {lastUpdatedAt: lastUpdatedAt, w: wTime, b: bTime},
+  //             winner: winner, 
+              
+  //             }]
+  //           };
+  //  }
+  // }  
 
             
           //  if( firstEndedGame.winner && firstEndedGame.lastMoveAt){
@@ -155,22 +145,9 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
           //     offers: nextOffers,
           //     }]
           //   };
-           }
+         
           
-    }
-       // ...prev,
-            // gameInPlay: {
-            //   gameOverReason: null,
-            //   lastMoveAt: 1746702152547,
-            //   lastMoveBy: "w",
-            //   offers:  nextOffers,
-            //   pgn: pgn,
-            //   players: {w: pla1, b: pla2},
-            //   startedAt: 1746702146133,
-            //   status: "idling",
-            //   timeClass: "rapid",
-            //   timeLeft: {lastUpdatedAt: null, w: 600000, b: 600000},
-            //   winner: null,
+    
   }
   if (action.type === 'match:startNewGame') {
     if (prevMatch.status === 'complete') {
@@ -332,15 +309,16 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
 };
 
 reducer.$transformState = (state, masterContext): MatchState => {
-  console.log('state transformState ',state)
-  console.log('masterContext',masterContext)
+
   if (!state) {
     return state;
   }
-
+  
  // Determine if Match is "aborted" onRead
   if (state.status === 'complete' || state.status === 'aborted') {
     console.log('state 1 transformState',state)
+    
+    
     return state
   }
   console.log('state 2 transformState',state)
