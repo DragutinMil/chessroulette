@@ -243,7 +243,6 @@ export const reducer = (
 
   if (action.type === 'play:sendOffer') {
     const { byPlayer, offerType } = action.payload;
-    console.log('offerType reducer !movex',offerType)
     if (offerType !== 'rematch') { 
       const nextOffers: GameOffer[] = [
         ...prev.offers,
@@ -263,32 +262,28 @@ export const reducer = (
       };
     }
     // REMATCH
-    else {
-       console.log('jeste rematch',prev)
+    // else {
+    //    console.log('jeste rematch',prev)
 
-      const nextOffers: GameOffer[] = [
-        ...prev.offers,
-        {
-          byPlayer,
-          type: offerType,
-          status: 'pending',
+    //   const nextOffers: GameOffer[] = [
+    //     ...prev.offers,
+    //     {
+    //       byPlayer,
+    //       type: offerType,
+    //       status: 'pending',
       
-        },
-      ];
-      console.log('nextOffers',nextOffers)
-      // const nextState = {
-      //   ...prev,
-      //   offers: nextOffers,
-      // };
-      return {
-        ...prev,
-        offers: nextOffers,
+    //     },
+    //   ];
+    //   console.log('nextOffers',nextOffers)
+     
+    //   return {
+    //     ...prev,
+    //     offers: nextOffers,
         
-      };
-      // console.log("NEXT:", nextState);
-      // return nextState
+    //   };
+   
 
-    }
+    // }
   }
   
   
