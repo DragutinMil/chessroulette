@@ -30,17 +30,17 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
         }]
       }; 
     }
-  if (action.type === 'play:acceptOfferRematch') {
-      console.log('prvi prolaz') 
-       const {  target_url } = action.payload;
-       const {  initiator_url } = action.payload;
-      const lastOffer: GameOffer = {
-        ...prev.endedGames[0].offers[prev.endedGames[0].offers.length - 1],
-        status: 'accepted',
-        linkInitiator:initiator_url,
-        linkTarget:target_url
-      };
-      console.log('lastOffer',lastOffer)
+  // if (action.type === 'play:acceptOfferRematch') {
+  //     console.log('prvi prolaz') 
+  //      const {  target_url } = action.payload;
+  //      const {  initiator_url } = action.payload;
+  //     const lastOffer: GameOffer = {
+  //       ...prev.endedGames[0].offers[prev.endedGames[0].offers.length - 1],
+  //       status: 'accepted',
+  //       linkInitiator:initiator_url,
+  //       linkTarget:target_url
+  //     };
+  //     console.log('lastOffer',lastOffer)
       // console.log('drugi prolaz last offer',lastOffer)
       // const nextOffers = [...prev.endedGames[0].offers.slice(0, -1), lastOffer];
       // console.log('nextOffers',nextOffers)
@@ -77,29 +77,15 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
       // };
     // }
 
-    }
+    // }
 
   //OFFER REMATCH - here to effect completed matches
   if (action.type === 'play:sendOffer' ) {
      const { byPlayer, offerType } = action.payload;
 
-     //const firstEndedGame = prev.endedGames[prev.endedGames.length-1];
+     const firstEndedGame = prev.endedGames[prev.endedGames.length-1];
      if(offerType=='rematch' ){
-    
-
-
-  //     const pgn=firstEndedGame.pgn
-  //     const w=firstEndedGame.players.w
-  //     const b=firstEndedGame.players.b
-  //     const lastMoveBy=firstEndedGame.lastMoveBy
-  //     const lastMoveAt=firstEndedGame.lastMoveAt
-  //     const startedAt=firstEndedGame.startedAt
-  //     const winner=firstEndedGame.winner
-  //     const timeClass = firstEndedGame.timeClass
-  //     const gameOverReason= firstEndedGame.gameOverReason
-  //     const lastUpdatedAt=firstEndedGame.timeLeft.lastUpdatedAt
-  //     const wTime=firstEndedGame.timeLeft.w
-  //     const bTime=firstEndedGame.timeLeft.b
+  
        const newArray = prev.endedGames.slice(0, -1); 
           const nextOffers: GameOffer[] = [
              {
@@ -110,40 +96,22 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
            ];
            
   //          console.log('3',nextOffers)
-  //     if( winner && lastMoveAt && gameOverReason && lastUpdatedAt){
-  //           return {
-  //             ...prev,
-  //             endedGames: [
-  //               ...newArray
-  //               ,{
-  //             gameOverReason: gameOverReason,
-  //             lastMoveAt: lastMoveAt,
-  //             lastMoveBy: lastMoveBy,
-  //             offers: nextOffers,
-  //             pgn: pgn,
-  //             players: {w: w, b: b},
-  //             startedAt: startedAt,
-  //             status: "complete",
-  //             timeClass: timeClass,
-  //             timeLeft: {lastUpdatedAt: lastUpdatedAt, w: wTime, b: bTime},
-  //             winner: winner, 
-              
-  //             }]
-  //           };
-  //  }
-     } 
+ 
 
+    if( firstEndedGame.winner && firstEndedGame.lastMoveAt){
+            return {
+              ...prev,
+              endedGames: [
+                ...newArray
+                ,{
+                  ...prev.endedGames[prev.endedGames.length-1],
+              offers: nextOffers,
+              }]
+            };
+     } 
+    }
             
-          //  if( firstEndedGame.winner && firstEndedGame.lastMoveAt){
-          //   return {
-          //     ...prev,
-          //     endedGames: [
-          //       ...newArray
-          //       ,{
-          //         ...prev.endedGames[prev.endedGames.length-1],
-          //     offers: nextOffers,
-          //     }]
-          //   };
+         
          
           
     
@@ -309,90 +277,91 @@ const nextOngoingGame = PlayStore.reducer(prevOngoingGame, action);
   };
 };
 
-reducer.$transformState = (state, masterContext): MatchState => {
+// reducer.$transformState = (state, masterContext): MatchState => {
 
-  if (!state) {
-    return state
-  }
+//   if (!state) {
+//     return state
+//   }
   
- // Determine if Match is "aborted" onRead
-  if (state.status === 'complete' || state.status === 'aborted') {
-    console.log('state 1 transformState',state)
-     const newArray=  state.endedGames.slice(0, -1); 
-     const nextOffers: GameOffer[] = [
-      {
-        byPlayer:'czeKS1Q0JDSXJ',
-        type: 'rematch',
-        status: 'pending'
-      },
-    ];
-    return { ...state,
-    endedGames: [
-            ...newArray
-            ,{
-              ...state.endedGames[state.endedGames.length-1],
-          offers: nextOffers,
-          }]
-        }
-  }
-  console.log('state 2 transformState',state)
-  const ongoingPlay = state.gameInPlay;
+//  // Determine if Match is "aborted" onRead
+//   if (state.status === 'complete' || state.status === 'aborted') {
+//     console.log('state 1 transformState',state)
+//     //  const newArray=  state.endedGames.slice(0, -1); 
+//     //  const nextOffers: GameOffer[] = [
+//     //   {
+//     //     byPlayer:'czeKS1Q0JDSXJ',
+//     //     type: 'rematch',
+//     //     status: 'pending'
+//     //   },
+//     // ];
+//     return state
+//     // { ...state,
+//     // endedGames: [
+//     //         ...newArray
+//     //         ,{
+//     //           ...state.endedGames[state.endedGames.length-1],
+//     //       offers: nextOffers,
+//     //       }]
+//     //     }
+//   }
+//   console.log('state 2 transformState',state)
+//   const ongoingPlay = state.gameInPlay;
 
-  if (ongoingPlay?.status === 'ongoing') {
-    const turn = swapColor(ongoingPlay.lastMoveBy);
+//   if (ongoingPlay?.status === 'ongoing') {
+//     const turn = swapColor(ongoingPlay.lastMoveBy);
 
-    const nextTimeLeft = PlayStore.calculateTimeLeftAt({
-      at: masterContext.requestAt, // TODO: this can take in account the lag as well
-      prevTimeLeft: ongoingPlay.timeLeft,
-      turn,
-    });
+//     const nextTimeLeft = PlayStore.calculateTimeLeftAt({
+//       at: masterContext.requestAt, // TODO: this can take in account the lag as well
+//       prevTimeLeft: ongoingPlay.timeLeft,
+//       turn,
+//     });
 
-    return {
-      ...state,
-      gameInPlay: {
-        ...ongoingPlay,
-        timeLeft: nextTimeLeft,
-      },
-    };
-  }
+//     return {
+//       ...state,
+//       gameInPlay: {
+//         ...ongoingPlay,
+//         timeLeft: nextTimeLeft,
+//       },
+//     };
+//   }
 
-  // If the ongoing game is idling & the abort time has passed
-  if (
-    ongoingPlay?.status === 'idling' &&
-    masterContext.requestAt > ongoingPlay.startedAt + state.timeToAbortMs
-  ) {
-    const nextAbortedGame: AbortedGame = {
-      ...ongoingPlay,
-      status: 'aborted',
-    };
+//   // If the ongoing game is idling & the abort time has passed
+//   if (
+//     ongoingPlay?.status === 'idling' &&
+//     masterContext.requestAt > ongoingPlay.startedAt + state.timeToAbortMs
+//   ) {
+//     const nextAbortedGame: AbortedGame = {
+//       ...ongoingPlay,
+//       status: 'aborted',
+//     };
 
-    // First game in the match is aborted by idling too long
-    // and thus the whole Match gets aborted
-    if (state.status === 'pending') {
-      return {
-        ...state,
-        status: 'aborted',
-        winner: null,
-        endedGames: [nextAbortedGame],
-        gameInPlay: null,
-      };
-    }
+//     // First game in the match is aborted by idling too long
+//     // and thus the whole Match gets aborted
+//     if (state.status === 'pending') {
+//       return {
+//         ...state,
+//         status: 'aborted',
+//         winner: null,
+//         endedGames: [nextAbortedGame],
+//         gameInPlay: null,
+//       };
+//     }
 
-    // A subsequent game in the match is aborted by idling too long
-    // and thus the Match Gets completed with the winner the opposite player
-    if (state.status === 'ongoing') {
-      return {
-        ...state,
-        status: 'complete',
-        winner: getMatchPlayerRoleById(
-          state,
-          ongoingPlay.players[ongoingPlay.lastMoveBy]
-        ),
-        endedGames: [...state.endedGames, nextAbortedGame],
-        gameInPlay: null,
-      };
-    }
-  }
+//     // A subsequent game in the match is aborted by idling too long
+//     // and thus the Match Gets completed with the winner the opposite player
+//     if (state.status === 'ongoing') {
+//       return {
+//         ...state,
+//         status: 'complete',
+//         winner: getMatchPlayerRoleById(
+//           state,
+//           ongoingPlay.players[ongoingPlay.lastMoveBy]
+//         ),
+//         endedGames: [...state.endedGames, nextAbortedGame],
+//         gameInPlay: null,
+//       };
+//     }
+//   }
 
-  return state;
-};
+//   return state;
+// };
