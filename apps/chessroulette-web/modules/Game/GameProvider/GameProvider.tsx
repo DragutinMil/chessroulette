@@ -1,5 +1,6 @@
-import { PropsWithChildren, useEffect, useState } from 'react';
+import { PropsWithChildren, useEffect, useState,useRef } from 'react';
 import { FBHIndex } from '@xmatter/util-kit';
+
 import {
   GameContext,
   GameContextProps,
@@ -38,38 +39,33 @@ export const GameProvider = ({
     players,
     playerId,
   });
-
+  const lockRef = useRef(false);
   useEffect(() => {
-    console.log('🟡 FULL GAME STATE:', game);
-    console.log('game.offers',game.offers)
+
     
-    if((game.offers==undefined || game.offers.length==0)  && game.status=="complete" ){
-      console.log('kolasin')
-      // const nextOffers: GameOffer[] = [
-      //              {
-      //                byPlayer:'czeKS1Q0JDSXJ',
-      //                type: "rematch",
-      //                status: 'pending'
-      //              },
-      //            ];
+    console.log('🟡 FULL GAME STATE:', game);
+    
+    console.log('game.offers',game?.offers[game.offers.length-1]?.type)
+    
+    
+    // if((game.offers==undefined || game.offers.length==0)  && game.status=="complete" ){
+    //   console.log('kolasin')
+    //   return
+    // }
+    // console.log('kolasin2')
+    if(lockRef.current !== true){
+      console.log('prosaooooooooooooo')
       setState((prev) => ({
         ...prev,
-        lastOffer: 
-          {
-            byPlayer:'czeKS1Q0JDSXJ',
-            type: "rematch",
-            status: 'pending'
-          },
-        
+        lastOffer: game.offers?.slice(-1)[0],
       }))
-      return
     }
-    console.log('kolasin2')
-    setState((prev) => ({
-      ...prev,
-      lastOffer: game.offers?.slice(-1)[0],
-    }))
-  
+    
+    lockRef.current = true;
+    const timeoutId = setTimeout(() => {
+      lockRef.current = false;
+    }, 1000);
+    return () => clearTimeout(timeoutId);
    
   }, [game.offers]);
 
