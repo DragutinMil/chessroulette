@@ -18,7 +18,7 @@ export const reducer = (
   action: PlayActions
 ): Game => {
   
-  //console.log('joskec', prev) 
+  console.log('joskec', prev) 
   // This moves the game from pending to idling
   if (action.type === 'play:start') {
     // Only a "pending" game can start
@@ -262,34 +262,33 @@ export const reducer = (
         offers: nextOffers,
       };
     }
-    //  REMATCH
-    // else {
-    //    console.log('jeste rematch',prev)
+    // REMATCH
+    else {
+       console.log('jeste rematch',prev)
 
-    //   const nextOffers: GameOffer[] = [
-    //     ...prev.offers,
-    //     {
-    //       byPlayer,
-    //       type: offerType,
-    //       status: 'pending',
-    //       ...(action.payload.timestamp && {
-    //         timestamp: action.payload.timestamp,
-    //       }),
-    //     },
-    //   ];
-    //   const nextState = {
-    //     ...prev,
-    //     offers: nextOffers,
-    //   };
-    //   // return {
-    //   //   ...prev,
-    //   //   offers: nextOffers,
+      const nextOffers: GameOffer[] = [
+        ...prev.offers,
+        {
+          byPlayer,
+          type: offerType,
+          status: 'pending',
+      
+        },
+      ];
+      console.log('nextOffers',nextOffers)
+      // const nextState = {
+      //   ...prev,
+      //   offers: nextOffers,
+      // };
+      return {
+        ...prev,
+        offers: nextOffers,
         
-    //   // };
-    //   console.log("NEXT:", nextState);
-    //   return nextState
+      };
+      // console.log("NEXT:", nextState);
+      // return nextState
 
-    // }
+    }
   }
   
   
