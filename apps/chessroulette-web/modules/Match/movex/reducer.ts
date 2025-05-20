@@ -108,29 +108,7 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
                status: 'pending'
              },
            ];
-           console.log('kerk',nextOffers)
-           reducer.$transformState = (state, masterContext): MatchState => {
-            console.log('state 1983 transformState',state)
-            if (!state) {
-              return state
-            }
-            console.log('state 1984 transformState',state)
-           // Determine if Match is "aborted" onRead
-            if (state.status === 'complete' || state.status === 'aborted') {
-              console.log('state 1985 transformState',state)
-              return {
-                ...state,
-                endedGames: [
-                        ...newArray
-                        ,{
-                          ...prev.endedGames[prev.endedGames.length-1],
-                      offers: nextOffers,
-                      }]
-
-              } 
-            }
-            return state;
-          }
+           
   //          console.log('3',nextOffers)
   //     if( winner && lastMoveAt && gameOverReason && lastUpdatedAt){
   //           return {
