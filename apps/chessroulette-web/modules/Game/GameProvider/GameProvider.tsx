@@ -5,6 +5,7 @@ import {
   GameContextProps,
   initialGameContextState,
 } from './GameContext';
+import { GameOffer } from '@app/modules/Game';
 import { UserId, UsersMap } from '@app/modules/User';
 import { Game } from '../types';
 import { getGameDisplayState, getTurnFromPgn } from '../lib';
@@ -42,10 +43,28 @@ export const GameProvider = ({
     console.log('🟡 FULL GAME STATE:', game);
     console.log('game.offers',game.offers)
     
-    // if(game.offers==undefined && game.status=="complete"){
-    //   console.log()
-    //   return
-    // }
+    if(game.offers==undefined && game.status!=="complete"){
+      console.log('kolasin')
+      // const nextOffers: GameOffer[] = [
+      //              {
+      //                byPlayer:'czeKS1Q0JDSXJ',
+      //                type: "rematch",
+      //                status: 'pending'
+      //              },
+      //            ];
+      setState((prev) => ({
+        ...prev,
+        lastOffer: 
+          {
+            byPlayer:'czeKS1Q0JDSXJ',
+            type: "rematch",
+            status: 'pending'
+          },
+        
+      }))
+      return
+    }
+    console.log('kolasin2')
     setState((prev) => ({
       ...prev,
       lastOffer: game.offers?.slice(-1)[0],
