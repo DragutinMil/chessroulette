@@ -93,6 +93,10 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
       const startedAt=firstEndedGame.startedAt
       const winner=firstEndedGame.winner
       const timeClass = firstEndedGame.timeClass
+      const gameOverReason= firstEndedGame.gameOverReason
+      const lastUpdatedAt=firstEndedGame.timeLeft.lastUpdatedAt
+      const wTime=firstEndedGame.timeLeft.w
+      const bTime=firstEndedGame.timeLeft.b
       const newArray = prev.endedGames.slice(0, -1); 
           const nextOffers: GameOffer[] = [
              {
@@ -102,13 +106,13 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
              },
            ];
            console.log('3',nextOffers)
-      if( winner && lastMoveAt){
+      if( winner && lastMoveAt && gameOverReason && lastUpdatedAt){
             return {
               ...prev,
               endedGames: [
                 ...newArray
                 ,{
-              gameOverReason: 5,
+              gameOverReason: gameOverReason,
               lastMoveAt: lastMoveAt,
               lastMoveBy: lastMoveBy,
               offers: nextOffers,
@@ -117,7 +121,7 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
               startedAt: startedAt,
               status: "complete",
               timeClass: timeClass,
-              timeLeft: {lastUpdatedAt: 1746706159630, w: 600000, b: 600000},
+              timeLeft: {lastUpdatedAt: lastUpdatedAt, w: wTime, b: bTime},
               winner: winner, 
               
               }]

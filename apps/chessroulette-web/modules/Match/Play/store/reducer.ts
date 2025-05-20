@@ -166,7 +166,7 @@ export const reducer = (
     if (prev.status !== 'ongoing') {
       return prev;
     }
-    console.log('mrkoni',prev)
+    
     // Clear any pending offer leftover
     
     const lastOffer =
