@@ -25,7 +25,9 @@ export const MatchStateDialogContainer: React.FC<Props> = (
   gameStateDialogProps
 ) => {
   const { match, ...matchView } = useMatchViewState();
-
+  const [fromWeb, setFromWeb] = useState(false)
+  const [fromApp, setFromApp] = useState(false)
+  
   const dispatch = useMatchActionsDispatch();
   const router = useRouter();
   const { lastOffer, playerId } = useGame();
@@ -63,10 +65,10 @@ export const MatchStateDialogContainer: React.FC<Props> = (
       sendResults();
     }
   }, [match?.winner]);
-  useEffect(() => {
-    console.log('lastOffer provera', lastOffer);
-    console.log('metch',match)
-  }, [lastOffer]);
+  // useEffect(() => {
+  //   console.log('lastOffer provera', lastOffer);
+    
+  // }, [lastOffer]);
 
   useEffect(() => {
     const url = new URL(window.location.href);
@@ -85,32 +87,36 @@ export const MatchStateDialogContainer: React.FC<Props> = (
     }
     //SA APA IDE PROVERA
     if (url.searchParams.get('sessionToken')) {
+      setFromApp(true)
       console.log('App');
       const token = url.searchParams.get('sessionToken');
       const data = parseJwt(token || '');
       console.log('token data app', data);
       if (data?.userId !== userId) {
         if (match) {
-          console.log('izbacen si');
+         
+          console.log('out');
           // router.push("https://chess.outpostchess.com/room/a/match/ilegal&theme=op")
         }
       }
     }
     //SA WEB IDE PROVERA
     else {
+      setFromWeb(true)
       console.log('web');
       const token: string | undefined = Cookies.get('sessionToken');
       const data = parseJwt(token || '');
-      console.log('token data web', data);
+      //console.log('token data web', data);
       if (data?.user_id !== userId) {
-        console.log('izbacen si', userId, data?.user_id);
+        console.log('out', userId, data?.user_id);
         // router.push('https://app.outpostchess.com/online-list');
       }
     }
   }, []);
 
-  if (match?.status === 'aborted') {
+  if (match?.status === 'aborted' &&  fromWeb) {
     return (
+     
       <Dialog
         title="Match Aborted"
         content={
@@ -188,16 +194,20 @@ export const MatchStateDialogContainer: React.FC<Props> = (
                   )}
                   
                   {/* { (document.referrer.includes('app.outpostchess.com') || document.referrer.includes('localhost:8080') || document.referrer.includes('test-app.outpostchess.com')) && */}
-                  <Button
-                    icon="ArrowLeftIcon"
-                    bgColor="yellow"
-                    style={{ marginTop: 12 }}
-                    onClick={() => {
-                      router.push('https://app.outpostchess.com/online-list');
-                    }}
-                  >
-                    Lobby &nbsp;&nbsp;&nbsp;&nbsp;
-                  </Button>
+                 {fromWeb && (
+                      <Button
+                      icon="ArrowLeftIcon"
+                      bgColor="yellow"
+                      style={{ marginTop: 12 }}
+                      onClick={() => {
+                        router.push('https://app.outpostchess.com/online-list');
+                      }}
+                      >
+                      Lobby &nbsp;&nbsp;&nbsp;&nbsp;
+                      </Button>
+
+                 )}
+                 
 
                   {/* } */}
                 </div>
