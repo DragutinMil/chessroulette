@@ -1,13 +1,12 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Dialog } from '@app/components/Dialog';
 import { Text } from '@app/components/Text';
 import { now } from '@app/lib/time';
 import { invoke } from '@xmatter/util-kit';
 import { BetweenGamesAborter } from './components/BetweenGamesAborter';
 import { Button } from '../../../../components/Button/Button';
-import {
-  useRouter
-} from 'next/navigation';
+import { useRouter } from 'next/navigation';
+import Cookies from 'js-cookie';
 import {
   PlayDialogContainer,
   PlayDialogContainerContainerProps,
@@ -26,18 +25,18 @@ export const MatchStateDialogContainer: React.FC<Props> = (
   gameStateDialogProps
 ) => {
   const { match, ...matchView } = useMatchViewState();
+  const [fromWeb, setFromWeb] = useState(false)
+  const [fromApp, setFromApp] = useState(false)
+  
   const dispatch = useMatchActionsDispatch();
   const router = useRouter();
- const {
-    lastOffer,
-    playerId
-  } = useGame();
+  const { lastOffer, playerId } = useGame();
+
   useEffect(() => {
     if (match?.status === 'complete') {
       const parts = window.location.pathname.split('/');
       const match_id = parts[parts.length - 1];
       const sendResults = async () => {
-        // change Guta Dragutin
         try {
           const response = await fetch(
             process.env.NEXT_PUBLIC_API_WEB + 'fetch_roulette_match_result',
@@ -57,7 +56,7 @@ export const MatchStateDialogContainer: React.FC<Props> = (
           }
 
           const data = await response.json();
-          console.log('data', data);
+          //  console.log('data', data);
         } catch (error) {
           console.error('Fetch error', error);
         }
@@ -66,18 +65,85 @@ export const MatchStateDialogContainer: React.FC<Props> = (
       sendResults();
     }
   }, [match?.winner]);
+  // useEffect(() => {
+  //   console.log('lastOffer provera', lastOffer);
+    
+  // }, [lastOffer]);
 
-  if (match?.status === 'aborted') {
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    const userId = url.searchParams.get('userId');
+
+    function parseJwt(token: string) {
+      try {
+        const payload = token.split('.')[1];
+        const base64 = payload.replace(/-/g, '+').replace(/_/g, '/');
+        const json = Buffer.from(base64, 'base64').toString('utf-8');
+        return JSON.parse(json);
+      } catch (e) {
+        console.error('Invalid token', e);
+        return null;
+      }
+    }
+    //SA APA IDE PROVERA
+    if (url.searchParams.get('sessionToken')) {
+      setFromApp(true)
+      console.log('App');
+      const token = url.searchParams.get('sessionToken');
+      const data = parseJwt(token || '');
+      console.log('token data app', data);
+      if (data?.userId !== userId) {
+        if (match) {
+         
+          console.log('out');
+          // router.push("https://chess.outpostchess.com/room/a/match/ilegal&theme=op")
+        }
+      }
+    }
+    //SA WEB IDE PROVERA
+    else {
+      setFromWeb(true)
+      console.log('web');
+      const token: string | undefined = Cookies.get('sessionToken');
+      const data = parseJwt(token || '');
+      //console.log('token data web', data);
+      if (data?.user_id !== userId) {
+        console.log('out', userId, data?.user_id);
+        // router.push('https://app.outpostchess.com/online-list');
+      }
+    }
+  }, []);
+
+  if (match?.status === 'aborted' &&  fromWeb) {
     return (
+     
       <Dialog
         title="Match Aborted"
-        content={''} // should there be something?
+        content={
+          <>
+            {/* { (document.referrer.includes('app.outpostchess.com') || document.referrer.includes('localhost:8080') || document.referrer.includes('test-app.outpostchess.com')) && */}
+
+            <Button
+              icon="ArrowLeftIcon"
+              bgColor="yellow"
+              style={{ marginTop: 12 }}
+              onClick={() => {
+                router.push('https://app.outpostchess.com/online-list');
+              }}
+            >
+              Lobby &nbsp;&nbsp;&nbsp;&nbsp;
+            </Button>
+
+            {/* } */}
+          </>
+        } // should there be something?
       />
     );
   }
 
   // TODO: Here we should just check the match.status
-  if (match?.winner && !lastOffer ) {
+
+  if (match?.winner && !lastOffer) {
     return (
       <Dialog
         title="Match Completed"
@@ -100,62 +166,52 @@ export const MatchStateDialogContainer: React.FC<Props> = (
                   </span>
                 )}
               </Text>
-              { ( match[match.winner].id.length!==16) &&  (
-                <div className="justify-center items-center flex" > 
-                {/* stavi flex-col  GUTA */}
-                {/* <Button 
+              {match[match.winner].id.length !== 16 &&  (
+                <div className="justify-center items-center flex flex-col">
+                  {match.challengee.id=='8UWCweKl1Gvoi'  && (
+                    <Button
                     icon="ArrowPathRoundedSquareIcon"
-                    style={{marginTop:18,background:'#07da63',color:'#202122'}}
-                     onClick={() => {
-                     if(playerId){
-                      dispatch({
-                        type: 'play:sendOffer',
-                        payload: {
-                          byPlayer:playerId, //gameStateDialogProps.playerId,
-                          offerType: 'rematch',
-                        },
-                      });
-                     }
-                      
-                     }
-                    }
-                    >
-
-                     Rematch
-                  </Button> */}
-                  <Button
-                    icon="ArrowLeftIcon"
-                    bgColor="yellow"
-                    style={{marginTop:12}}
-                     onClick={() => {
-                      router.push('https://app.outpostchess.com/online-list');
-                      
-                     }
-                    }
-                    >
-                     Lobby &nbsp;&nbsp;&nbsp;&nbsp;
+                    style={{
+                      marginTop: 18,
+                      background: '#07da63',
+                      color: '#202122',
+                    }}
+                    onClick={() => {
+                      if (playerId) {
+                        dispatch({
+                          type: 'play:sendOffer',
+                          payload: {
+                            byPlayer: playerId, //gameStateDialogProps.playerId,
+                            offerType: 'rematch',
+                          },
+                        });
+                      }
+                    }}
+                  >
+                    Rematch
                   </Button>
-                  </div>
 
+                  )}
+                  
+                  {/* { (document.referrer.includes('app.outpostchess.com') || document.referrer.includes('localhost:8080') || document.referrer.includes('test-app.outpostchess.com')) && */}
+                 {fromWeb && (
+                      <Button
+                      icon="ArrowLeftIcon"
+                      bgColor="yellow"
+                      style={{ marginTop: 12 }}
+                      onClick={() => {
+                        router.push('https://app.outpostchess.com/online-list');
+                      }}
+                      >
+                      Lobby &nbsp;&nbsp;&nbsp;&nbsp;
+                      </Button>
+
+                 )}
+                 
+
+                  {/* } */}
+                </div>
               )}
-              {/* {...(match.type === 'openEnded' && {
-           buttons: [
-             {
-              children: 'Offer Rematch',
-              onClick: () => {
-                dispatch({
-                  type: 'play:sendOffer',
-                  payload: {
-                    byPlayer: gameStateDialogProps.playerId,
-                    offerType: 'rematch',
-                  },
-                });
-              },
-              type: 'primary',
-              bgColor: 'blue',
-            },
-          ],
-        })} */}
             </div>
           </div>
         }

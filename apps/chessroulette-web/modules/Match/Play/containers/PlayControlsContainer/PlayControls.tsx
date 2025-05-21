@@ -3,6 +3,8 @@ import { ChessColor } from '@xmatter/util-kit';
 import { QuickConfirmButton } from '@app/components/Button/QuickConfirmButton';
 import { Game, GameOffer } from '@app/modules/Game';
 import { useMatchViewState } from '../../../../../modules/Match/hooks/useMatch';
+
+import { useRouter } from 'next/navigation';
 type Props = {
   game: Game;
   homeColor: ChessColor;
@@ -30,7 +32,7 @@ export const PlayControls: React.FC<Props> = ({
   const [allowTakeback, refreshAllowTakeback] = useState(false);
   const [allowDraw, refreshAllowDraw] = useState(true);
   const [drawOfferNum, coundDrawOfferNum] = useState(0);
-
+  const router = useRouter();
   const offerAlreadySent = useRef(false);
   const setOfferSent = useCallback(() => {
     if (!offerAlreadySent.current) {
@@ -109,6 +111,7 @@ export const PlayControls: React.FC<Props> = ({
       );
     }
   }, []);
+
   useEffect(() => {
     if (offerAlreadySent.current) {
       resetOfferSent();
@@ -122,63 +125,55 @@ export const PlayControls: React.FC<Props> = ({
   }, [game.status, offers, game.lastMoveBy]);
 
   return (
-     
-     
-      <div className="flex gap-2">
-        <QuickConfirmButton
-          size="sm"
-          confirmationBgcolor="yellow"
-          className="w-full"
-          confirmationMessage="Invite to Draw?"
-           bgColor='yellow'
-        
-          icon="Bars3CenterLeftIcon"
-          //ArrowsRightLeftIcon
-          iconKind="solid"
-          onClick={() => {
-            setOfferSent();
-            onDrawOffer();
-            coundDrawOfferNum(drawOfferNum + 1);
-          }}
-          disabled={!allowDraw || isBotPlay}
-        >
-          Draw
-        </QuickConfirmButton>
-        <QuickConfirmButton
-          size="sm"
-          className="w-full"
-          confirmationBgcolor="yellow"
-          confirmationMessage="Ask for Takeback?"
-           bgColor='yellow'
-          icon="ArrowUturnLeftIcon"
-          iconKind="solid"
-          onClick={() => {
-            setOfferSent();
-            onTakebackOffer();
-          }}
-          disabled={game.status !== 'ongoing' || !allowTakeback || isBotPlay}
-        >
-          Takeback
-        </QuickConfirmButton>
+    <div className="flex gap-2">
+      <QuickConfirmButton
+        size="sm"
+        confirmationBgcolor="yellow"
+        className="w-full"
+        confirmationMessage="Invite to Draw?"
+        bgColor="yellow"
+        icon="Bars3CenterLeftIcon"
+        //ArrowsRightLeftIcon
+        iconKind="solid"
+        onClick={() => {
+          setOfferSent();
+          onDrawOffer();
+          coundDrawOfferNum(drawOfferNum + 1);
+        }}
+        disabled={!allowDraw || isBotPlay}
+      >
+        Draw
+      </QuickConfirmButton>
+      <QuickConfirmButton
+        size="sm"
+        className="w-full"
+        confirmationBgcolor="yellow"
+        confirmationMessage="Ask for Takeback?"
+        bgColor="yellow"
+        icon="ArrowUturnLeftIcon"
+        iconKind="solid"
+        onClick={() => {
+          setOfferSent();
+          onTakebackOffer();
+        }}
+        disabled={game.status !== 'ongoing' || !allowTakeback || isBotPlay}
+      >
+        Takeback
+      </QuickConfirmButton>
 
-        <QuickConfirmButton
-          size="sm"
-          className="w-full"
-          confirmationBgcolor="red"
-          confirmationMessage="Confirm Resign?"
-          bgColor='yellow'
-          icon="FlagIcon"
-          iconKind="solid"
-          onClick={onResign}
-          disabled={
-            game.status !== 'ongoing' || lastOffer?.status === 'pending'
-          }
-        >
-          Resign
-        </QuickConfirmButton>
-      
-      
- 
-    </div> 
+      <QuickConfirmButton
+        size="sm"
+        className="w-full"
+        confirmationBgcolor="red"
+        confirmationMessage="Confirm Resign?"
+        bgColor="yellow"
+        icon="FlagIcon"
+        iconKind="solid"
+        onClick={onResign}
+        disabled={game.status !== 'ongoing' || lastOffer?.status === 'pending'}
+      >
+        Resign
+      </QuickConfirmButton>
+    </div>
   );
 };

@@ -78,41 +78,41 @@ export const ResizableDesktopLayout = ({
         className="relative"
       >
         {/* <div className="absolute bg-red-900 p-2" style={{ right: 0, zIndex: 999}}>{negativeMargin}</div> */}
-        {isMobile? (
- <Panel
- //defaultSize={70}
- 
- className="h-auto [flex:none_!important] my-2 justify-center"
- onResize={setMainPanelPercentageSize}
- tagName="main"
- style={{
-   // refactor this to not have to use RIGHT_SIDE_SIZE_PX in so many places
-   paddingRight: isMobile ? 0 : rightSideSize,
-   alignItems: 'center',
- }}
->
- {typeof mainComponent === 'function'
-   ? mainComponent({ boardSize })
-   : mainComponent}
-</Panel> 
-        ):(
-        <Panel
-          defaultSize={70}
-          className="flex justify-center  md:justify-end  top-30 h-auto mb-2 md:mb-0"
-          onResize={setMainPanelPercentageSize}
-          tagName="main"
-          style={{
-            // refactor this to not have to use RIGHT_SIDE_SIZE_PX in so many places
-            paddingRight: isMobile ? 0 : rightSideSize,
-            alignItems: 'center',
-          }}
-        >
-          {typeof mainComponent === 'function'
-            ? mainComponent({ boardSize })
-            : mainComponent}
-        </Panel>    
-        ) }
-        
+        {isMobile ? (
+          <Panel
+            //defaultSize={70}
+
+            className="h-auto [flex:none_!important] my-2 justify-center"
+            onResize={setMainPanelPercentageSize}
+            tagName="main"
+            style={{
+              // refactor this to not have to use RIGHT_SIDE_SIZE_PX in so many places
+              paddingRight: isMobile ? 0 : rightSideSize,
+              alignItems: 'center',
+            }}
+          >
+            {typeof mainComponent === 'function'
+              ? mainComponent({ boardSize })
+              : mainComponent}
+          </Panel>
+        ) : (
+          <Panel
+            defaultSize={70}
+            className="flex justify-center  md:justify-end  top-30 h-auto mb-2 md:mb-0"
+            onResize={setMainPanelPercentageSize}
+            tagName="main"
+            style={{
+              // refactor this to not have to use RIGHT_SIDE_SIZE_PX in so many places
+              paddingRight: isMobile ? 0 : rightSideSize,
+              alignItems: 'center',
+            }}
+          >
+            {typeof mainComponent === 'function'
+              ? mainComponent({ boardSize })
+              : mainComponent}
+          </Panel>
+        )}
+
         <Panel
           defaultSize={33}
           minSize={33}

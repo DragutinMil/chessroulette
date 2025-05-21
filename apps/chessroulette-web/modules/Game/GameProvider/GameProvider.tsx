@@ -1,10 +1,12 @@
-import { PropsWithChildren, useEffect, useState } from 'react';
+import { PropsWithChildren, useEffect, useState, useRef } from 'react';
 import { FBHIndex } from '@xmatter/util-kit';
+
 import {
   GameContext,
   GameContextProps,
   initialGameContextState,
 } from './GameContext';
+import { GameOffer } from '@app/modules/Game';
 import { UserId, UsersMap } from '@app/modules/User';
 import { Game } from '../types';
 import { getGameDisplayState, getTurnFromPgn } from '../lib';
@@ -38,11 +40,25 @@ export const GameProvider = ({
     playerId,
   });
 
+  const lockRef = useRef(false);
   useEffect(() => {
+    // console.log('🟡 FULL GAME STATE:', game);
+    // if(lockRef.current !== true ){
+    //   console.log('ide realna promena')
     setState((prev) => ({
       ...prev,
       lastOffer: game.offers?.slice(-1)[0],
     }));
+    //  }
+    //  if(game.status=="complete" && game?.offers[game.offers.length-1]?.type=='rematch'){
+    //  lockRef.current = true;
+    //   const timeoutId = setTimeout(() => {
+    //     lockRef.current = false;
+    //     console.log('obrisano',lockRef.current)
+    //   }, 1000);
+    //   return () => clearTimeout(timeoutId);
+
+    //  }
   }, [game.offers]);
 
   useEffect(() => {

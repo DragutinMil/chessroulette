@@ -29,12 +29,12 @@ export const useCurrentOrPrevMatchPlay = (): PlayViewState => {
       hasGame: false,
     };
   }
- 
+
   return getPlayFromGame(game, match, userAsPlayer);
 };
 
 const getPlayFromGame = (
-  game: Game,   
+  game: Game,
   {
     challengee,
     challenger,
