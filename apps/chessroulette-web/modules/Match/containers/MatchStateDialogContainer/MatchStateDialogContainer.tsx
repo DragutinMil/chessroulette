@@ -118,15 +118,17 @@ export const MatchStateDialogContainer: React.FC<Props> = (
     }
   }, []);
 
-  if (match?.status === 'aborted' &&  fromWeb) {
+  if (match?.status === 'aborted' ) {
     return (
-     
+    
+
+    
       <Dialog
         title="Match Aborted"
         content={
           <>
             {/* { (document.referrer.includes('app.outpostchess.com') || document.referrer.includes('localhost:8080') || document.referrer.includes('test-app.outpostchess.com')) && */}
-
+            {  fromWeb && (
             <Button
               icon="ArrowLeftIcon"
               bgColor="yellow"
@@ -138,7 +140,7 @@ export const MatchStateDialogContainer: React.FC<Props> = (
               Lobby &nbsp;&nbsp;&nbsp;&nbsp;
             </Button>
 
-            {/* } */}
+            )}
           </>
         } // should there be something?
       />
