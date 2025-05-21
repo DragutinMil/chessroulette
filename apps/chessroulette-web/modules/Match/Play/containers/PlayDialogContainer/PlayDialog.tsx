@@ -40,7 +40,6 @@ export const PlayDialog: React.FC<GameStateDialogProps> = ({
   }, [game.status]);
 
   useEffect(() => {
-    console.log('lastOffer kod drugog usera', lastOffer);
     if (
       lastOffer &&
       lastOffer.status === 'accepted' &&
@@ -54,12 +53,7 @@ export const PlayDialog: React.FC<GameStateDialogProps> = ({
       const target_url = new URL(lastOffer.linkTarget);
       const userIdInitiator = initiator_url.searchParams.get('userId');
       const userIdTarget = target_url.searchParams.get('userId');
-      console.log('1', url);
-      console.log('1', user_id);
-      console.log('1', initiator_url);
-      console.log('1', target_url);
-      console.log('1', userIdInitiator);
-      console.log('1', userIdTarget);
+
       if (userIdInitiator == user_id) {
         window.open(lastOffer.linkInitiator, '_self');
       } else if (userIdTarget == user_id) {

@@ -42,7 +42,7 @@ export const GameProvider = ({
 
   const lockRef = useRef(false);
   useEffect(() => {
-    console.log('🟡 FULL GAME STATE:', game);
+    // console.log('🟡 FULL GAME STATE:', game);
     // if(lockRef.current !== true ){
     //   console.log('ide realna promena')
     setState((prev) => ({
