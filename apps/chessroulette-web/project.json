@@ -7,7 +7,7 @@
     "build": {
       "executor": "@nx/next:build",
       "outputs": ["{options.outputPath}"],
-      "defaultConfiguration": "production",
+     
       "options": {
         "outputPath": "dist/apps/chessroulette-web"
       },
@@ -31,15 +31,15 @@
           "dev": true
         },
         "production": {
-          "buildTarget": "chessroulette-web:build:production",
-          "dev": false
+          "buildTarget": "chessroulette-web:build:development",
+          "dev": true
         }
       }
     },
     "export": {
       "executor": "@nx/next:export",
       "options": {
-        "buildTarget": "chessroulette-web:build:production"
+        "buildTarget": "chessroulette-web:build:development"
       }
     },
     "test": {
