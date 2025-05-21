@@ -12,21 +12,23 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
 ): MatchState => {
   
   if (!prev) {
-    console.log('prev movex',prev)
+ 
     return prev; 
   }
-  //console.log('prev movex',action)
+     //console.log('prev movex',prev)
   const prevMatch = prev;
   
  
   // answer to offers on completed games
   if (isOneOf(action.type, ['play:denyOffer', 'play:cancelOffer']) && prevMatch.gameInPlay==null) {
+    console.log('brisanje',prev.endedGames[0].offers.slice(0, -1))
+    console.log('brisanje',prev.endedGames[0].offers)
       return {
         ...prev, 
         endedGames: [{
           ...prev.endedGames[0], 
-        // Remove the last offer ß
-          offers: prev.endedGames[0].offers.slice(0, -1), 
+          // Remove the last offer ß
+          offers: [], 
         }]
       }; 
     }
@@ -289,7 +291,7 @@ reducer.$transformState = (state, masterContext): MatchState => {
     return state
    
   }
-  console.log('state 2 transformState',state)
+  //console.log('state 2 transformState',state)
   const ongoingPlay = state.gameInPlay;
 
   if (ongoingPlay?.status === 'ongoing') {
