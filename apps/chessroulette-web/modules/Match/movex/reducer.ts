@@ -1,5 +1,5 @@
 import { MovexReducer } from 'movex-core-util';
-import { invoke, swapColor,isOneOf } from '@xmatter/util-kit';
+import { invoke, swapColor, isOneOf } from '@xmatter/util-kit';
 import * as PlayStore from '@app/modules/Match/Play/store';
 import { AbortedGame } from '@app/modules/Game';
 import { MatchActions, MatchState } from './types';
@@ -10,79 +10,80 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
   prev: MatchState = initialMatchState,
   action: MatchActions
 ): MatchState => {
-  console.log('prev',prev)
+  console.log('prev', prev);
   if (!prev) {
- 
-    return prev; 
+    return prev;
   }
-     //console.log('prev movex',prev)
+  //console.log('prev movex',prev)
   const prevMatch = prev;
-  
- 
+
   // answer to offers on completed games
-  if (isOneOf(action.type, ['play:denyOffer', 'play:cancelOffer']) && prevMatch.gameInPlay==null) {
-   
-      return {
-        ...prev, 
-        endedGames: [{
-          ...prev.endedGames[0], 
+  if (
+    isOneOf(action.type, ['play:denyOffer', 'play:cancelOffer']) &&
+    prevMatch.gameInPlay == null
+  ) {
+    return {
+      ...prev,
+      endedGames: [
+        {
+          ...prev.endedGames[0],
           // Remove the last offer ß
-          offers: prev.endedGames[0].offers.slice(0, -1), 
-        }]
-      }; 
-    }
+          offers: prev.endedGames[0].offers.slice(0, -1),
+        },
+      ],
+    };
+  }
   if (action.type === 'play:acceptOfferRematch') {
-      console.log('prvi prolaz') 
-       const {  target_url } = action.payload;
-       const {  initiator_url } = action.payload;
-      const lastOffer: GameOffer = {
-        ...prev.endedGames[0].offers[prev.endedGames[0].offers.length - 1],
-        status: 'accepted',
-        linkInitiator:initiator_url,
-        linkTarget:target_url
-      };
-      console.log('lastOffer',lastOffer)
-      console.log('drugi prolaz last offer',lastOffer)
-      const nextOffers = [...prev.endedGames[0].offers.slice(0, -1), lastOffer];
-      console.log('nextOffers',nextOffers)
-      const firstEndedGame = prev.endedGames[prev.endedGames.length-1];
-      const pgn=firstEndedGame.pgn
-      const w=firstEndedGame.players.w
-      const b=firstEndedGame.players.b
-      const lastMoveBy=firstEndedGame.lastMoveBy
-      const timeClass = firstEndedGame.timeClass
-      const lastMoveAt=firstEndedGame.lastMoveAt
-      const startedAt=firstEndedGame.startedAt
-      const winner=firstEndedGame.winner 
-      const newArray = prev.endedGames.slice(0, -1); 
-      if( winner && lastMoveAt){
+    console.log('prvi prolaz');
+    const { target_url } = action.payload;
+    const { initiator_url } = action.payload;
+    const lastOffer: GameOffer = {
+      ...prev.endedGames[0].offers[prev.endedGames[0].offers.length - 1],
+      status: 'accepted',
+      linkInitiator: initiator_url,
+      linkTarget: target_url,
+    };
+    console.log('lastOffer', lastOffer);
+    console.log('drugi prolaz last offer', lastOffer);
+    const nextOffers = [...prev.endedGames[0].offers.slice(0, -1), lastOffer];
+    console.log('nextOffers', nextOffers);
+    const firstEndedGame = prev.endedGames[prev.endedGames.length - 1];
+    const pgn = firstEndedGame.pgn;
+    const w = firstEndedGame.players.w;
+    const b = firstEndedGame.players.b;
+    const lastMoveBy = firstEndedGame.lastMoveBy;
+    const timeClass = firstEndedGame.timeClass;
+    const lastMoveAt = firstEndedGame.lastMoveAt;
+    const startedAt = firstEndedGame.startedAt;
+    const winner = firstEndedGame.winner;
+    const newArray = prev.endedGames.slice(0, -1);
+    if (winner && lastMoveAt) {
       return {
         ...prev,
         endedGames: [
-          ...newArray
-          ,{
+          ...newArray,
+          {
             gameOverReason: 5,
-        lastMoveAt: lastMoveAt,
-        lastMoveBy: lastMoveBy,
-        offers: nextOffers,
-        pgn: pgn, 
-        players: {w: w, b: b},
-        startedAt: startedAt,
-        status: "complete",
-        timeClass: timeClass,
-        timeLeft: {lastUpdatedAt: 1746706159630, w: 600000, b: 600000},
-        winner: winner,
+            lastMoveAt: lastMoveAt,
+            lastMoveBy: lastMoveBy,
+            offers: nextOffers,
+            pgn: pgn,
+            players: { w: w, b: b },
+            startedAt: startedAt,
+            status: 'complete',
+            timeClass: timeClass,
+            timeLeft: { lastUpdatedAt: 1746706159630, w: 600000, b: 600000 },
+            winner: winner,
 
-           //  ...prev.endedGames[prev.endedGames.length-1],
-        }]
+            //  ...prev.endedGames[prev.endedGames.length-1],
+          },
+        ],
       };
     }
-
-    }
+  }
 
   //OFFER REMATCH - here to effect completed matches
- 
-  
+
   if (action.type === 'match:startNewGame') {
     if (prevMatch.status === 'complete') {
       return prev;
@@ -113,47 +114,44 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
   }
 
   if (!prevMatch.gameInPlay && prevMatch.endedGames !== undefined) {
-
     if (prevMatch.endedGames !== undefined) {
       var prevEndedGame = prevMatch.endedGames[prevMatch.endedGames.length - 1];
       const nextEndedGame = PlayStore.reducer(prevEndedGame, action);
     }
   }
- 
-  if (action.type === 'play:sendOffer' ) {
+
+  if (action.type === 'play:sendOffer') {
     const { byPlayer, offerType } = action.payload;
-    if(offerType=='rematch' ){
-      
-      const newArray = prev.endedGames.slice(0, -1); 
-         const nextOffers: GameOffer[] = [
-            {
-              byPlayer,
-              type: offerType,
-              status: 'pending'
-            },
-          ];
-           return {
-             ...prev,
-             endedGames: [
-               ...newArray
-               ,{
-                 ...prev.endedGames[prev.endedGames.length-1],
-             offers: nextOffers,
-             }]
-           };
-   }
- }
- console.log('ispred starog')
+    if (offerType == 'rematch') {
+      const newArray = prev.endedGames.slice(0, -1);
+      const nextOffers: GameOffer[] = [
+        {
+          byPlayer,
+          type: offerType,
+          status: 'pending',
+        },
+      ];
+      return {
+        ...prev,
+        endedGames: [
+          ...newArray,
+          {
+            ...prev.endedGames[prev.endedGames.length - 1],
+            offers: nextOffers,
+          },
+        ],
+      };
+    }
+  }
+  console.log('ispred starog');
   if (!prevMatch.gameInPlay) {
-    console.log('vratio bi na staro')
-    return prev
+    console.log('vratio bi na staro');
+    return prev;
   }
 
-var prevOngoingGame = prevMatch.gameInPlay;
+  var prevOngoingGame = prevMatch.gameInPlay;
 
   const nextOngoingGame = PlayStore.reducer(prevOngoingGame, action);
-
-
 
   if (nextOngoingGame.status === 'aborted') {
     const abortedCurrentPlay = nextOngoingGame;
@@ -260,7 +258,7 @@ var prevOngoingGame = prevMatch.gameInPlay;
   });
 
   const nextMatchStatus = winner ? 'complete' : 'ongoing';
-  console.log(prev)
+  console.log(prev);
   return {
     ...prev,
     endedGames: [...prevMatch.endedGames, nextOngoingGame],
@@ -269,22 +267,18 @@ var prevOngoingGame = prevMatch.gameInPlay;
     winner,
     ...nextPlayersByRole,
   };
-
-
-  
 };
 
 reducer.$transformState = (state, masterContext): MatchState => {
-
   if (!state) {
-    return state
+    return state;
   }
-  
- // Determine if Match is "aborted" onRead
+
+  // Determine if Match is "aborted" onRead
   // if (state.status === 'complete' || state.status === 'aborted') {
   //   console.log('state 1 transformState',state)
   //   return state
-   
+
   // }
   //console.log('state 2 transformState',state)
   const ongoingPlay = state.gameInPlay;
@@ -344,6 +338,6 @@ reducer.$transformState = (state, masterContext): MatchState => {
       };
     }
   }
-  console.log('state transformState',state)
+  console.log('state transformState', state);
   return state;
 };

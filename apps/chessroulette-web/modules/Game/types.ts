@@ -38,11 +38,11 @@ export type GameOffer = {
   //TODO - probably need toParticipant as well, but not sure how to get it now
   type: 'takeback' | 'draw' | 'rematch';
   status: 'pending' | 'accepted' | 'denied' | 'cancelled';
-  linkInitiator?:string;
-  linkTarget?:string;
+  linkInitiator?: string;
+  linkTarget?: string;
   // Nededed? If so change to Date or smtg
   timestamp?: number;
-} ;
+};
 
 /**
  * A Game That is not yet started or idling (maybe the players haven't joined yet)
@@ -182,6 +182,6 @@ export type Game =
   | CompletedGame
   | AbortedGame;
 
-export type NotEndedGame =  Exclude<Game, EndedGame>;
+export type NotEndedGame = Exclude<Game, EndedGame>;
 //export type NotEndedGame =  CompletedGame | PendingGame | IdlingGame | OngoingGame;
 export type EndedGame = AbortedGame | CompletedGame;

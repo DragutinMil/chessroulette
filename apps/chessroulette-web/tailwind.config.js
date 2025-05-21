@@ -15,23 +15,23 @@ module.exports = {
     extend: {
       colors: {
         // purple: '#5A20FE',
-        green:{
+        green: {
           ...colors.green,
           500: '#07da63',
-          600: 'rgba(7, 218, 99,0.8)'
+          600: 'rgba(7, 218, 99,0.8)',
         },
-        yellow:{
+        yellow: {
           ...colors.yellow,
-          100:'rgba(200, 160, 125,0.1)',
+          100: 'rgba(200, 160, 125,0.1)',
           500: '#C8A07D',
           600: 'rgba(200, 160, 125,0.8)',
         },
-        red:{
+        red: {
           ...colors.red,
           500: '#f2358d',
-          600: 'rgba(242,53,141,0.8)'
+          600: 'rgba(242,53,141,0.8)',
         },
-       
+
         purple: 'red',
         indigo: {
           ...colors.indigo,

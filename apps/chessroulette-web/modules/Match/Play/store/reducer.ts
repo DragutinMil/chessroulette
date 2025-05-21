@@ -14,13 +14,12 @@ import { ChessRouler } from 'util-kit/src/lib/ChessRouler';
 import { logsy } from '@app/lib/Logsy';
 
 export const reducer = (
-  prev: Game = initialPlayState, 
+  prev: Game = initialPlayState,
   action: PlayActions
 ): Game => {
-
- //console.log('joskec', prev) 
+  //console.log('joskec', prev)
   // This moves the game from pending to idling y
-  if (action.type === 'play:start') { 
+  if (action.type === 'play:start') {
     // Only a "pending" game can start
     if (prev.status !== 'pending') {
       return prev;
@@ -40,7 +39,7 @@ export const reducer = (
       // Cannot move otherwise
       return prev;
     }
-    
+
     const { lastMoveBy, pgn } = prev;
     const { moveAt } = action.payload;
 
@@ -166,9 +165,9 @@ export const reducer = (
     if (prev.status !== 'ongoing') {
       return prev;
     }
-    
+
     // Clear any pending offer leftover
-    
+
     const lastOffer =
       prev.offers.length > 0 &&
       (prev.offers[prev.offers.length - 1] as GameOffer).status === 'pending'
@@ -243,7 +242,7 @@ export const reducer = (
 
   if (action.type === 'play:sendOffer') {
     const { byPlayer, offerType } = action.payload;
-    if (offerType !== 'rematch') { 
+    if (offerType !== 'rematch') {
       const nextOffers: GameOffer[] = [
         ...prev.offers,
         {
@@ -271,22 +270,19 @@ export const reducer = (
     //       byPlayer,
     //       type: offerType,
     //       status: 'pending',
-      
+
     //     },
     //   ];
     //   console.log('nextOffers',nextOffers)
-     
+
     //   return {
     //     ...prev,
     //     offers: nextOffers,
-        
+
     //   };
-   
 
     // }
   }
-  
-  
 
   if (action.type === 'play:acceptOfferDraw') {
     // You can only offer a draw of an ongoing game
@@ -337,18 +333,16 @@ export const reducer = (
     return {
       ...prev,
       pgn: newGame.pgn(),
-      lastMoveBy: nextTurn, 
+      lastMoveBy: nextTurn,
       timeLeft: {
         ...prev.timeLeft,
         [prev.lastMoveBy]: nextTimeLeft,
       },
       offers: nextOffers,
-    }; 
+    };
   }
 
   if (isOneOf(action.type, ['play:denyOffer', 'play:cancelOffer'])) {
-  
-    
     return {
       ...prev,
       // Remove the last offer

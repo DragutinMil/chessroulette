@@ -34,11 +34,10 @@ export const PgnInputBox: React.FC<PgnInputBoxProps> = ({
   useEffect(() => {
     const url = new URL(window.location.href);
     const rawPgn = url.searchParams.get('pgn');
-    if(rawPgn){
+    if (rawPgn) {
       props.onChange({ type: 'PGN', val: rawPgn });
     }
-    
-}, [])
+  }, []);
   useDebouncedEffect(
     () => {
       if (!input) {
@@ -61,26 +60,24 @@ export const PgnInputBox: React.FC<PgnInputBoxProps> = ({
         className={`border-dashed border rounded-md border-slate-400 text-gray-300 ${props.containerClassName}`}
         onUpload={(f: any) => {
           // TODO: Validate PGN
-          
+
           const fileData = new FileReader();
           fileData.onloadend = (s) => {
-          
             if (s.target && typeof s.target.result === 'string') {
-              const input = s.target.result.split('\n')                        
-              .filter(line => !line.startsWith('[')) 
-              .join(' ')                         
-              .trim();
-             console.log('input',input)
+              const input = s.target.result
+                .split('\n')
+                .filter((line) => !line.startsWith('['))
+                .join(' ')
+                .trim();
+              console.log('input', input);
               if (!input) {
                 return;
               }
-              
-              console.log('pgn',input);
+
+              console.log('pgn', input);
               if (ChessFENBoard.validateFenString(input).ok) {
-               
                 props.onChange({ type: 'FEN', val: input });
               } else if (isValidPgn(input)) {
-               
                 props.onChange({ type: 'PGN', val: input });
               }
             }
