@@ -12,7 +12,7 @@
       },
       "configurations": {
         "production": {
-          "devServerTarget": "chessroulette-web:serve"
+          "devServerTarget": "chessroulette-web:serve:production"
         }
       }
     },

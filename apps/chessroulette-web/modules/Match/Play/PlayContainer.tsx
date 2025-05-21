@@ -51,8 +51,7 @@ export const PlayContainer = (playBoardProps: PlayerContainerProps) => {
             turn: 'b',
           })}
       onMove={(move) => {
-       
-         moveSound.play();
+        moveSound.play();
         dispatch((masterContext) => ({
           type: 'play:move',
           payload: {

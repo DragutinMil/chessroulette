@@ -1,4 +1,4 @@
-import { PropsWithChildren, useEffect, useState,useRef } from 'react';
+import { PropsWithChildren, useEffect, useState, useRef } from 'react';
 import { FBHIndex } from '@xmatter/util-kit';
 
 import {
@@ -45,10 +45,10 @@ export const GameProvider = ({
     console.log('🟡 FULL GAME STATE:', game);
     // if(lockRef.current !== true ){
     //   console.log('ide realna promena')
-      setState((prev) => ({
-        ...prev,
-        lastOffer: game.offers?.slice(-1)[0],
-      }))
+    setState((prev) => ({
+      ...prev,
+      lastOffer: game.offers?.slice(-1)[0],
+    }));
     //  }
     //  if(game.status=="complete" && game?.offers[game.offers.length-1]?.type=='rematch'){
     //  lockRef.current = true;
@@ -57,9 +57,8 @@ export const GameProvider = ({
     //     console.log('obrisano',lockRef.current)
     //   }, 1000);
     //   return () => clearTimeout(timeoutId);
-      
+
     //  }
-    
   }, [game.offers]);
 
   useEffect(() => {

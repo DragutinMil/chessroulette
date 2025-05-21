@@ -6,9 +6,7 @@ import { ClipboardCopyButton } from '@app/components/ClipboardCopyButton';
 import { GameOffer } from '@app/modules/Game';
 import { useGame } from '@app/modules/Game/hooks';
 import { usePlayActionsDispatch } from '../../hooks';
-import {
-  useRouter
-} from 'next/navigation';
+import { useRouter } from 'next/navigation';
 export type GameStateDialogProps = {
   onAcceptOffer: ({ offer }: { offer: GameOffer['type'] }) => void;
   onDenyOffer: () => void;
@@ -22,9 +20,9 @@ export const PlayDialog: React.FC<GameStateDialogProps> = ({
   onCancelOffer,
   inviteLink,
 }) => {
-   const dispatch = usePlayActionsDispatch();
+  const dispatch = usePlayActionsDispatch();
   const [gameResultSeen, setGameResultSeen] = useState(false);
-   const router = useRouter();
+  const router = useRouter();
   // TODO: Change the useGame to useMatchPlay
   const {
     lastOffer,
@@ -32,47 +30,43 @@ export const PlayDialog: React.FC<GameStateDialogProps> = ({
     players,
     playerId,
   } = useGame();
-  
+
   const gameUsed = useGame();
   //console.log('gameUsed',gameUsed)
-
 
   useEffect(() => {
     // Everytime the game state changes, reset the seen!
     setGameResultSeen(false);
   }, [game.status]);
 
-
   useEffect(() => {
-    console.log('lastOffer kod drugog usera',lastOffer)
-    if (lastOffer && lastOffer.status === 'accepted' && lastOffer.type === 'rematch' && lastOffer?.linkInitiator  && lastOffer?.linkTarget){
-      
-
-       const url = new URL(window.location.href);
-       const user_id = url.searchParams.get('userId');
-       const initiator_url = new URL(lastOffer.linkInitiator );
-       const target_url = new URL(lastOffer.linkTarget );
-       const userIdInitiator = initiator_url.searchParams.get('userId');
-       const userIdTarget = target_url.searchParams.get('userId');
-       console.log('1',url)
-       console.log('1',user_id)
-       console.log('1',initiator_url)
-       console.log('1',target_url)
-       console.log('1',userIdInitiator)
-       console.log('1',userIdTarget)
-      if(userIdInitiator==user_id){
-        window.open(lastOffer.linkInitiator,'_self')
-        
-       
-      }else if(userIdTarget==user_id){
-        window.open(lastOffer.linkTarget,'_self')
-       
+    console.log('lastOffer kod drugog usera', lastOffer);
+    if (
+      lastOffer &&
+      lastOffer.status === 'accepted' &&
+      lastOffer.type === 'rematch' &&
+      lastOffer?.linkInitiator &&
+      lastOffer?.linkTarget
+    ) {
+      const url = new URL(window.location.href);
+      const user_id = url.searchParams.get('userId');
+      const initiator_url = new URL(lastOffer.linkInitiator);
+      const target_url = new URL(lastOffer.linkTarget);
+      const userIdInitiator = initiator_url.searchParams.get('userId');
+      const userIdTarget = target_url.searchParams.get('userId');
+      console.log('1', url);
+      console.log('1', user_id);
+      console.log('1', initiator_url);
+      console.log('1', target_url);
+      console.log('1', userIdInitiator);
+      console.log('1', userIdTarget);
+      if (userIdInitiator == user_id) {
+        window.open(lastOffer.linkInitiator, '_self');
+      } else if (userIdTarget == user_id) {
+        window.open(lastOffer.linkTarget, '_self');
       }
     }
-   
   }, [lastOffer]);
-
- 
 
   return invoke(() => {
     if (game.status === 'pending' && objectKeys(players || {}).length < 2) {
@@ -117,7 +111,7 @@ export const PlayDialog: React.FC<GameStateDialogProps> = ({
 
     if (lastOffer) {
       if (game.status === 'complete' && !gameResultSeen) {
-       // setGameResultSeen(true);
+        // setGameResultSeen(true);
       }
       if (lastOffer.type === 'rematch') {
         if (lastOffer.status === 'pending') {
@@ -158,7 +152,6 @@ export const PlayDialog: React.FC<GameStateDialogProps> = ({
                   onClick: () => {
                     onAcceptOffer({ offer: 'rematch' });
                     setGameResultSeen(true);
-                   
                   },
                 },
                 {
@@ -173,7 +166,6 @@ export const PlayDialog: React.FC<GameStateDialogProps> = ({
             />
           );
         }
-        
 
         if (lastOffer.status === 'denied') {
           if (lastOffer.byPlayer === playerId) {
