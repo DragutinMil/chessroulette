@@ -82,7 +82,7 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
 
   //OFFER REMATCH - here to effect completed matches
  
-  console.log('action.type ',action.type )
+  console.log('action.type 2',action.type )
   if (action.type === 'match:startNewGame') {
     if (prevMatch.status === 'complete') {
       return prev;
@@ -111,7 +111,7 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
       gameInPlay: PlayStore.createPendingGame(newGameParams),
     };
   }
-
+  console.log('action.type 3',action.type )
   if (!prevMatch.gameInPlay && prevMatch.endedGames !== undefined) {
 
     if (prevMatch.endedGames !== undefined) {
@@ -119,13 +119,12 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
       const nextEndedGame = PlayStore.reducer(prevEndedGame, action);
     }
   }
-
+  console.log('action.type 4',action.type )
   if (action.type === 'play:sendOffer' ) {
     const { byPlayer, offerType } = action.payload;
-
-    const firstEndedGame = prev.endedGames[prev.endedGames.length-1];
+    console.log('action.type 5')
     if(offerType=='rematch' ){
- 
+      
       const newArray = prev.endedGames.slice(0, -1); 
          const nextOffers: GameOffer[] = [
             {
@@ -346,6 +345,6 @@ reducer.$transformState = (state, masterContext): MatchState => {
       };
     }
   }
-
+  console.log('state transformState',state)
   return state;
 };
