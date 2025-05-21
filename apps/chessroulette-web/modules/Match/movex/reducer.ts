@@ -148,10 +148,14 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
  console.log('ispred starog')
   if (!prevMatch.gameInPlay) {
     console.log('vratio bi na staro')
+    return prev
   }
 
 var prevOngoingGame = prevMatch.gameInPlay;
-const nextOngoingGame = PlayStore.reducer(prevOngoingGame, action);
+
+  const nextOngoingGame = PlayStore.reducer(prevOngoingGame, action);
+
+
 
   if (nextOngoingGame.status === 'aborted') {
     const abortedCurrentPlay = nextOngoingGame;
