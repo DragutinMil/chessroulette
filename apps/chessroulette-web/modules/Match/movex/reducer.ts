@@ -10,7 +10,7 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
   prev: MatchState = initialMatchState,
   action: MatchActions
 ): MatchState => {
-  
+  console.log('prev',prev)
   if (!prev) {
  
     return prev; 
@@ -21,14 +21,13 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
  
   // answer to offers on completed games
   if (isOneOf(action.type, ['play:denyOffer', 'play:cancelOffer']) && prevMatch.gameInPlay==null) {
-    console.log('brisanje',prev.endedGames[0].offers.slice(0, -1))
-    console.log('brisanje',prev.endedGames[0].offers)
+   
       return {
         ...prev, 
         endedGames: [{
           ...prev.endedGames[0], 
           // Remove the last offer ß
-          offers: [], 
+          offers: prev.endedGames[0].offers.slice(0, -1), 
         }]
       }; 
     }
@@ -82,42 +81,8 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
     }
 
   //OFFER REMATCH - here to effect completed matches
-  if (action.type === 'play:sendOffer' ) {
-     const { byPlayer, offerType } = action.payload;
-
-     const firstEndedGame = prev.endedGames[prev.endedGames.length-1];
-     if(offerType=='rematch' ){
-  
-       const newArray = prev.endedGames.slice(0, -1); 
-          const nextOffers: GameOffer[] = [
-             {
-               byPlayer,
-               type: offerType,
-               status: 'pending'
-             },
-           ];
-           
-  //          console.log('3',nextOffers)
  
-
-    if( firstEndedGame.winner && firstEndedGame.lastMoveAt){
-            return {
-              ...prev,
-              endedGames: [
-                ...newArray
-                ,{
-                  ...prev.endedGames[prev.endedGames.length-1],
-              offers: nextOffers,
-              }]
-            };
-     } 
-    }
-            
-         
-         
-          
-    
-  }
+  console.log('action.type ',action.type )
   if (action.type === 'match:startNewGame') {
     if (prevMatch.status === 'complete') {
       return prev;
@@ -148,16 +113,41 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
   }
 
   if (!prevMatch.gameInPlay && prevMatch.endedGames !== undefined) {
+
     if (prevMatch.endedGames !== undefined) {
       var prevEndedGame = prevMatch.endedGames[prevMatch.endedGames.length - 1];
       const nextEndedGame = PlayStore.reducer(prevEndedGame, action);
     }
   }
 
+  if (action.type === 'play:sendOffer' ) {
+    const { byPlayer, offerType } = action.payload;
 
+    const firstEndedGame = prev.endedGames[prev.endedGames.length-1];
+    if(offerType=='rematch' ){
  
+      const newArray = prev.endedGames.slice(0, -1); 
+         const nextOffers: GameOffer[] = [
+            {
+              byPlayer,
+              type: offerType,
+              status: 'pending'
+            },
+          ];
+           return {
+             ...prev,
+             endedGames: [
+               ...newArray
+               ,{
+                 ...prev.endedGames[prev.endedGames.length-1],
+             offers: nextOffers,
+             }]
+           };
+   }
+ }
+ console.log('ispred starog')
   if (!prevMatch.gameInPlay) {
-    return prev;
+    console.log('vratio bi na staro')
   }
 
 var prevOngoingGame = prevMatch.gameInPlay;
@@ -277,6 +267,9 @@ const nextOngoingGame = PlayStore.reducer(prevOngoingGame, action);
     winner,
     ...nextPlayersByRole,
   };
+
+
+  
 };
 
 reducer.$transformState = (state, masterContext): MatchState => {
@@ -286,11 +279,11 @@ reducer.$transformState = (state, masterContext): MatchState => {
   }
   
  // Determine if Match is "aborted" onRead
-  if (state.status === 'complete' || state.status === 'aborted') {
-    console.log('state 1 transformState',state)
-    return state
+  // if (state.status === 'complete' || state.status === 'aborted') {
+  //   console.log('state 1 transformState',state)
+  //   return state
    
-  }
+  // }
   //console.log('state 2 transformState',state)
   const ongoingPlay = state.gameInPlay;
 
