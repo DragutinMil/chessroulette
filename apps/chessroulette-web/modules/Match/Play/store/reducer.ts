@@ -19,8 +19,8 @@ export const reducer = (
 ): Game => {
  // console.log('Running in ENV:', process.env.NEXT_PUBLIC_ENV);
  //console.log('joskec', prev) 
-  // This moves the game from pending to idling
-  if (action.type === 'play:start') {
+  // This moves the game from pending to idling y
+  if (action.type === 'play:start') { 
     // Only a "pending" game can start
     if (prev.status !== 'pending') {
       return prev;
