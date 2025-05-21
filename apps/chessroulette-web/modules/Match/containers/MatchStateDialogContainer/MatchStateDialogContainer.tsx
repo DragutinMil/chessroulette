@@ -1,14 +1,12 @@
-import React, { useEffect,useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Dialog } from '@app/components/Dialog';
 import { Text } from '@app/components/Text';
 import { now } from '@app/lib/time';
 import { invoke } from '@xmatter/util-kit';
 import { BetweenGamesAborter } from './components/BetweenGamesAborter';
 import { Button } from '../../../../components/Button/Button';
-import {
-  useRouter
-} from 'next/navigation';
-import Cookies from 'js-cookie'
+import { useRouter } from 'next/navigation';
+import Cookies from 'js-cookie';
 import {
   PlayDialogContainer,
   PlayDialogContainerContainerProps,
@@ -27,14 +25,11 @@ export const MatchStateDialogContainer: React.FC<Props> = (
   gameStateDialogProps
 ) => {
   const { match, ...matchView } = useMatchViewState();
- 
+
   const dispatch = useMatchActionsDispatch();
   const router = useRouter();
- const {
-    lastOffer,
-    playerId
-  } = useGame();
-  
+  const { lastOffer, playerId } = useGame();
+
   useEffect(() => {
     if (match?.status === 'complete') {
       const parts = window.location.pathname.split('/');
@@ -59,7 +54,7 @@ export const MatchStateDialogContainer: React.FC<Props> = (
           }
 
           const data = await response.json();
-        //  console.log('data', data);
+          //  console.log('data', data);
         } catch (error) {
           console.error('Fetch error', error);
         }
@@ -69,95 +64,80 @@ export const MatchStateDialogContainer: React.FC<Props> = (
     }
   }, [match?.winner]);
   useEffect(() => {
-    console.log('lastOffer provera',lastOffer)
-
+    console.log('lastOffer provera', lastOffer);
+    console.log('metch',match)
   }, [lastOffer]);
 
   useEffect(() => {
-      const url = new URL(window.location.href);
-      //const name = url.searchParams.get('userDisplayName');
-      const userId = url.searchParams.get('userId');
-      
-      function parseJwt(token: string) {
-        try {
-          const payload = token.split('.')[1];
-          const base64 = payload.replace(/-/g, '+').replace(/_/g, '/');
-          const json = Buffer.from(base64, 'base64').toString('utf-8');
-          return JSON.parse(json);
-        } catch (e) {
-          console.error('Invalid token', e);
-          return null;
+    const url = new URL(window.location.href);
+    const userId = url.searchParams.get('userId');
+
+    function parseJwt(token: string) {
+      try {
+        const payload = token.split('.')[1];
+        const base64 = payload.replace(/-/g, '+').replace(/_/g, '/');
+        const json = Buffer.from(base64, 'base64').toString('utf-8');
+        return JSON.parse(json);
+      } catch (e) {
+        console.error('Invalid token', e);
+        return null;
+      }
+    }
+    //SA APA IDE PROVERA
+    if (url.searchParams.get('sessionToken')) {
+      console.log('App');
+      const token = url.searchParams.get('sessionToken');
+      const data = parseJwt(token || '');
+      console.log('token data app', data);
+      if (data?.userId !== userId) {
+        if (match) {
+          console.log('izbacen si');
+          // router.push("https://chess.outpostchess.com/room/a/match/ilegal&theme=op")
         }
       }
-      //SA APA IDE PROVERA
-      if(url.searchParams.get('sessionToken')){
-        console.log('App')
-        const token =  url.searchParams.get('sessionToken');
-        const data = parseJwt(token || '')
-        console.log('token data app',data)
-        if(data?.userId!==userId){
-          if(match){
-            console.log('izbacen si')
-           // router.push("https://chess.outpostchess.com/room/a/match/ilegal&theme=op")
-          }
-          
-        }
+    }
+    //SA WEB IDE PROVERA
+    else {
+      console.log('web');
+      const token: string | undefined = Cookies.get('sessionToken');
+      const data = parseJwt(token || '');
+      console.log('token data web', data);
+      if (data?.user_id !== userId) {
+        console.log('izbacen si', userId, data?.user_id);
+        // router.push('https://app.outpostchess.com/online-list');
       }
-       //SA WEB IDE PROVERA
-      else{
-        console.log('web')
-        const token: string | undefined = Cookies.get('sessionToken')
-        const data = parseJwt(token || '')
-        console.log('token data web',data)
-        if(data?.user_id!==userId){
-          console.log('izbacen si',userId, data?.user_id)
-         // router.push('https://app.outpostchess.com/online-list');
-        }
-      }
-     
-  
-    }, []);
+    }
+  }, []);
 
   if (match?.status === 'aborted') {
     return (
-    
       <Dialog
         title="Match Aborted"
         content={
           <>
-          {/* { (document.referrer.includes('app.outpostchess.com') || document.referrer.includes('localhost:8080') || document.referrer.includes('test-app.outpostchess.com')) && */}
-              
-                  
-          <Button
-                    icon="ArrowLeftIcon"
-                    bgColor="yellow"
-                    style={{marginTop:12}}
-                     onClick={() => {
-                          router.push('https://app.outpostchess.com/online-list');
-                      
-                   
-                      
-                     }
-                    }
-                    >
-                     Lobby &nbsp;&nbsp;&nbsp;&nbsp;
-                  </Button>
-          
-                  {/* } */}
+            {/* { (document.referrer.includes('app.outpostchess.com') || document.referrer.includes('localhost:8080') || document.referrer.includes('test-app.outpostchess.com')) && */}
 
-              </>    
+            <Button
+              icon="ArrowLeftIcon"
+              bgColor="yellow"
+              style={{ marginTop: 12 }}
+              onClick={() => {
+                router.push('https://app.outpostchess.com/online-list');
+              }}
+            >
+              Lobby &nbsp;&nbsp;&nbsp;&nbsp;
+            </Button>
+
+            {/* } */}
+          </>
         } // should there be something?
-        
       />
-      
-   
-   
-     );
+    );
   }
 
   // TODO: Here we should just check the match.status
 
-  if (match?.winner && !lastOffer  ) {
+  if (match?.winner && !lastOffer) {
     return (
       <Dialog
         title="Match Completed"
@@ -173,58 +153,55 @@ export const MatchStateDialogContainer: React.FC<Props> = (
                   </span>
                 ) : (
                   // REGULAR NAME
-                  <span  className="capitalize">
+                  <span className="capitalize">
                     {match[match.winner].displayName || match[match.winner].id}
                     {` `}Won{` `}
                     <span>🏆</span>
                   </span>
                 )}
               </Text>
-              { ( match[match.winner].id.length!==16) &&  (
-                <div className="justify-center items-center flex flex-col" > 
-                <Button 
+              {match[match.winner].id.length !== 16 &&  (
+                <div className="justify-center items-center flex flex-col">
+                  {match.challengee.id=='8UWCweKl1Gvoi'  && (
+                    <Button
                     icon="ArrowPathRoundedSquareIcon"
-                    style={{marginTop:18,background:'#07da63',color:'#202122'}}
-                     onClick={() => {
-                     if(playerId){
-                      dispatch({
-                        type: 'play:sendOffer',
-                        payload: {
-                          byPlayer:playerId, //gameStateDialogProps.playerId,
-                          offerType: 'rematch',
-                        },
-                      });
-                     }
-                      
-                     }
-                    }
-                    >
-
-                     Rematch
+                    style={{
+                      marginTop: 18,
+                      background: '#07da63',
+                      color: '#202122',
+                    }}
+                    onClick={() => {
+                      if (playerId) {
+                        dispatch({
+                          type: 'play:sendOffer',
+                          payload: {
+                            byPlayer: playerId, //gameStateDialogProps.playerId,
+                            offerType: 'rematch',
+                          },
+                        });
+                      }
+                    }}
+                  >
+                    Rematch
                   </Button>
+
+                  )}
+                  
                   {/* { (document.referrer.includes('app.outpostchess.com') || document.referrer.includes('localhost:8080') || document.referrer.includes('test-app.outpostchess.com')) && */}
                   <Button
-                  icon="ArrowLeftIcon"
-                  bgColor="yellow"
-                  style={{marginTop:12}}
-                   onClick={() => {
-
-                      
+                    icon="ArrowLeftIcon"
+                    bgColor="yellow"
+                    style={{ marginTop: 12 }}
+                    onClick={() => {
                       router.push('https://app.outpostchess.com/online-list');
-                    
-                    
-                   }
-                  }
+                    }}
                   >
-                   Lobby &nbsp;&nbsp;&nbsp;&nbsp;
-                </Button>
-                  
-                   {/* } */}
-                  
-                  </div>
+                    Lobby &nbsp;&nbsp;&nbsp;&nbsp;
+                  </Button>
 
+                  {/* } */}
+                </div>
               )}
-            
             </div>
           </div>
         }

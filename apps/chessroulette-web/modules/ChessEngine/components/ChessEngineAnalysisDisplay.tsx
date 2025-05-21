@@ -1,4 +1,4 @@
-import { useEffect,useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ChessFEN, noop } from '@xmatter/util-kit';
 import { useChessEngineFromFen } from '../hooks/useChessEngine';
 import { EngineResultState } from '../lib/types';
@@ -19,16 +19,16 @@ export const ChessEngineAnalysisDisplay = ({
   onUpdate = noop,
 }: Props) => {
   const engineState = useChessEngineFromFen(gameId, fen, { depth: 10 });
-  const [percentW, setPercentW] = useState(50)
-  const [percentB, setPercentB] = useState(50)
+  const [percentW, setPercentW] = useState(50);
+  const [percentB, setPercentB] = useState(50);
   useEffect(() => {
     onUpdate(engineState);
-    
-    if(engineState.bestLine){
-      setPercentW( engineState.bestLine.evaluation.heightsPct.w )
-      setPercentB( engineState.bestLine.evaluation.heightsPct.b )
+
+    if (engineState.bestLine) {
+      setPercentW(engineState.bestLine.evaluation.heightsPct.w);
+      setPercentB(engineState.bestLine.evaluation.heightsPct.b);
     }
-   // console.log('engineState', percentW,percentB);
+    // console.log('engineState', percentW,percentB);
   }, [engineState]);
 
   return (
@@ -47,7 +47,6 @@ export const ChessEngineAnalysisDisplay = ({
       {engineState.bestLine ? (
         // Guta obrisi
         <>
-        
           <p className="flex items-center gap-2">
             <span className="text-lg font-bold ">
               {engineState.bestLine.evaluation.evalAsStr}{' '}
@@ -78,9 +77,9 @@ export const ChessEngineAnalysisDisplay = ({
           </div>
         </>
       ) : (
-        <div  className="flex-col">
-        <span >Loading Engine...</span>
-        <div  className="text-slate-700 text-xl ">.</div>
+        <div className="flex-col">
+          <span>Loading Engine...</span>
+          <div className="text-slate-700 text-xl ">.</div>
         </div>
       )}
     </div>

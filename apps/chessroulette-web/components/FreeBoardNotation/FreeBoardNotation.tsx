@@ -31,12 +31,11 @@ export const FreeBoardNotation: React.FC<FreeBoardNotationProps> = ({
   className = '',
 }) => {
   useKeysToRefocusHistory(history, focusedIndex, onRefocus);
-  
+
   return (
     <div
       className={`md:flex flex-col flex-1  overflow-scroll  min-h-0 min-w-0 ${containerClassName} `}
     >
-      
       {history.length > 0 ? (
         <List
           history={history}
@@ -44,14 +43,14 @@ export const FreeBoardNotation: React.FC<FreeBoardNotationProps> = ({
           onRefocus={onRefocus}
           onDelete={onDelete}
           className={`flex flex-1 flex-col overflow-scroll  ${className} ${
-            canDelete === false  ? 'hidden md:flex' : 'flex'
-          }` }
+            canDelete === false ? 'hidden md:flex' : 'flex'
+          }`}
           rowClassName="border-b border-slate-800"
           canDelete={canDelete}
         />
       ) : (
         <div className="flex-1 flex items-center  hidden md:flex  justify-center text-slate-500">
-          {emptyContent} 
+          {emptyContent}
         </div>
       )}
     </div>
