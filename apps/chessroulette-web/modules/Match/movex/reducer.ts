@@ -10,7 +10,6 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
   prev: MatchState = initialMatchState,
   action: MatchActions
 ): MatchState => {
-  console.log('prev', prev);
   if (!prev) {
     return prev;
   }
@@ -143,9 +142,8 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
       };
     }
   }
-  console.log('ispred starog');
+  // console.log('ispred starog');
   if (!prevMatch.gameInPlay) {
-    console.log('vratio bi na staro');
     return prev;
   }
 
@@ -275,11 +273,10 @@ reducer.$transformState = (state, masterContext): MatchState => {
   }
 
   // Determine if Match is "aborted" onRead
-  // if (state.status === 'complete' || state.status === 'aborted') {
-  //   console.log('state 1 transformState',state)
-  //   return state
-
-  // }
+  if (state.status === 'complete' || state.status === 'aborted') {
+    console.log('state 1 transformState',state)
+    return state
+  }
   //console.log('state 2 transformState',state)
   const ongoingPlay = state.gameInPlay;
 
@@ -338,6 +335,6 @@ reducer.$transformState = (state, masterContext): MatchState => {
       };
     }
   }
-  console.log('state transformState', state);
+ // console.log('state transformState', state);
   return state;
 };
