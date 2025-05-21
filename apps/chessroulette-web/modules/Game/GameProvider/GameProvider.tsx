@@ -41,31 +41,31 @@ export const GameProvider = ({
   });
   const lockRef = useRef(false);
   useEffect(() => {
-
-    
     console.log('🟡 FULL GAME STATE:', game);
-    
-    console.log('game.offers',game?.offers[game.offers.length-1]?.type)
     
     
     // if((game.offers==undefined || game.offers.length==0)  && game.status=="complete" ){
-    //   console.log('kolasin')
-    //   return
-    // }
-    // console.log('kolasin2')
-    if(lockRef.current !== true){
-      console.log('prosaooooooooooooo')
+   
+    if(lockRef.current !== true ){
+      console.log('ide realna promena')
       setState((prev) => ({
         ...prev,
         lastOffer: game.offers?.slice(-1)[0],
       }))
-    }
+     }
+     if(game.status=="complete" && game?.offers[game.offers.length-1]?.type=='rematch'){
+     lockRef.current = true;
+      const timeoutId = setTimeout(() => {
+        lockRef.current = false;
+        console.log('obrisano',lockRef.current)
+      }, 1000);
+      return () => clearTimeout(timeoutId);
+      
+     }
     
-    lockRef.current = true;
-    const timeoutId = setTimeout(() => {
-      lockRef.current = false;
-    }, 1000);
-    return () => clearTimeout(timeoutId);
+    
+    
+    
    
   }, [game.offers]);
 

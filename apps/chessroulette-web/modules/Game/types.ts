@@ -42,7 +42,7 @@ export type GameOffer = {
   linkTarget?:string;
   // Nededed? If so change to Date or smtg
   timestamp?: number;
-};
+} ;
 
 /**
  * A Game That is not yet started or idling (maybe the players haven't joined yet)

@@ -18,7 +18,7 @@ export const reducer = (
   action: PlayActions
 ): Game => {
   
-  console.log('joskec', prev) 
+ //console.log('joskec', prev) 
   // This moves the game from pending to idling
   if (action.type === 'play:start') {
     // Only a "pending" game can start
@@ -347,6 +347,8 @@ export const reducer = (
   }
 
   if (isOneOf(action.type, ['play:denyOffer', 'play:cancelOffer'])) {
+  
+    
     return {
       ...prev,
       // Remove the last offer
