@@ -26,7 +26,7 @@ export const Logo: React.FC<Props> = ({ themeName, style }) => {
         title: 'Outpost',
       };
     }
-//Chessroulette + Outpost = ♥️
+    //Chessroulette + Outpost = ♥️
     return {
       src: logoLightFull,
       width: 220,
