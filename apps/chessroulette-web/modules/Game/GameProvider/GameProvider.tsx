@@ -42,7 +42,7 @@ export const GameProvider = ({
 
   const lockRef = useRef(false);
   useEffect(() => {
-    // console.log('🟡 FULL GAME STATE:', game);
+     console.log('🟡 FULL GAME STATE:', game);
     // if(lockRef.current !== true ){
     //   console.log('ide realna promena')
     setState((prev) => ({
@@ -62,6 +62,8 @@ export const GameProvider = ({
   }, [game.offers]);
 
   useEffect(() => {
+    console.log('🟡 FULL GAME STATE 1:', game);
+    console.log('🟡 FULL GAME state kasnije', state);
     setState((prev) => ({
       ...prev,
       actions: {
@@ -84,6 +86,7 @@ export const GameProvider = ({
         focusedIndex,
       }),
     }));
+    console.log('🟡 FULL GAME state kasnije', state);
   }, [game, focusedIndex]);
 
   return <GameContext.Provider value={state} children={children} />;
