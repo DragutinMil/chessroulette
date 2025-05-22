@@ -7,6 +7,8 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
   prev: ActivityState = initialMatchActivityState,
   action: ActivityActions
 ): ActivityState => {
+  console.log('prev deep',prev)
+  console.log('action deep',action)
   if (prev.activityType === 'match') {
     return {
       ...prev,
@@ -20,6 +22,7 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
 };
 
 if (MatchStore.reducer.$transformState) {
+  console.log('MatchStore.reducer.$transformState kilogram')
   const matchStateTransformer = MatchStore.reducer.$transformState;
 
   reducer.$transformState = (state, masterContext): ActivityState => {
