@@ -319,7 +319,7 @@ reducer.$transformState = (state, masterContext): MatchState => {
         gameInPlay: null,
       };
     }
-
+    console.log('state transformState befroe ongoing', state);
     // A subsequent game in the match is aborted by idling too long
     // and thus the Match Gets completed with the winner the opposite player
     if (state.status === 'ongoing') {
