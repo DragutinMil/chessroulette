@@ -188,7 +188,7 @@ export const MatchStateDialogContainer: React.FC<Props> = (
                           type: 'play:sendOffer',
                           payload: {
                             byPlayer: playerId, //gameStateDialogProps.playerId,
-                            offerType: 'draw',
+                            offerType: 'rematch',
                           },
                         });
                       }
