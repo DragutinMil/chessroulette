@@ -17,7 +17,7 @@ export const PENDING_UNTIMED_GAME: PendingGame = {
 
   // TODO: This doesn't need to be an array and it doesn't need to be always defined
   offers: [],
-
+  rematch:[],
   players: {
     w: 'N/A',
     b: 'N/A',

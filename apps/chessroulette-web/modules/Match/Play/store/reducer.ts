@@ -61,6 +61,7 @@ export const reducer = (
     const commonPrevGameProps = {
       timeClass: prev.timeClass,
       offers: prev.offers,
+      rematch:prev.offers,
       players: prev.players,
     } as const;
 
