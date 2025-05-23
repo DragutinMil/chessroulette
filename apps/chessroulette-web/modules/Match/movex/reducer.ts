@@ -141,6 +141,26 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
         ],
       };
     }
+    if (offerType == 'draw') {
+      const newArray = prev.endedGames.slice(0, -1);
+      const nextOffers: GameOffer[] = [
+        {
+          byPlayer,
+          type: offerType,
+          status: 'pending',
+        },
+      ];
+      return {
+        ...prev,
+        endedGames: [
+          ...newArray,
+          {
+            ...prev.endedGames[prev.endedGames.length - 1],
+            offers: nextOffers,
+          },
+        ],
+      };
+    }
   }
   // console.log('ispred starog');
   if (!prevMatch.gameInPlay) {
