@@ -40,7 +40,7 @@ export const GameProvider = ({
     playerId,
   });
 
-  const lockRef = useRef(false);
+  //const lockRef = useRef(false);
   useEffect(() => {
      console.log('🟡 FULL GAME STATE:', game);
     // if(lockRef.current !== true ){
@@ -60,6 +60,17 @@ export const GameProvider = ({
 
     //  }
   }, [game.offers]);
+
+  //PROBA 
+  useEffect(() => {
+    console.log('druga varijanta');
+ 
+   setState((prev) => ({
+     ...prev,
+     lastOffer: game.rematch?.slice(-1)[0],
+   }));
+ 
+ }, [game.rematch]);
 
   useEffect(() => {
     setState((prev) => ({
