@@ -62,18 +62,19 @@ export const GameProvider = ({
   }, [game.offers]);
 
   useEffect(() => {
-    console.log('🟡 FULL GAME STATE 1:', game);
-    console.log('🟡 FULL GAME state kasnije', state);
     setState((prev) => ({
       ...prev,
       actions: {
         onRefocus: (nextIndex) => {
           setState((prev) => ({
             ...prev,
+            
             displayState: getGameDisplayState({
               pgn: game.pgn,
               focusedIndex: nextIndex,
-            }),
+              
+            }
+          ),
           }));
         },
       },
