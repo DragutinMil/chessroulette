@@ -17,10 +17,6 @@ export const PlayControlsContainer = () => {
       homeColor={playersBySide.home.color}
       playerId={playersBySide.home.id}
       onDrawOffer={() => {
-        // console.log(playersBySide)
-        // console.log(lastOffer)
-        // console.log(playersBySide)
-        // console.log(hasGame)
         dispatch({
           type: 'play:sendOffer',
           // payload: { byPlayer: playerId, offerType: 'draw' },
@@ -40,13 +36,14 @@ export const PlayControlsContainer = () => {
         }));
       }}
       onRematchOffer={() => {
-        dispatch({
+        dispatch((masterContext) => ({
           type: 'play:sendOffer',
           payload: {
-            byPlayer: playersBySide.home.id, // TODO: Change this to the player color instead since they are per game!
+            byPlayer: playersBySide.home.id, 
             offerType: 'rematch',
+            timestamp: masterContext.requestAt(),
           },
-        });
+        }));
       }}
       onResign={() => {
         dispatch({

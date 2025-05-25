@@ -30,9 +30,7 @@ export const MatchActivity = ({
     [remoteState, participants]
     
   );
-  console.log('remoteState',remoteState)
-console.log('populatedMatch',populatedMatch)
-console.log('participants',participants)
+ 
   return (
     <MatchContainer
       dispatch={dispatch || noop}
