@@ -139,7 +139,7 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
           ...newArray,
           {
             ...prev.endedGames[prev.endedGames.length - 1],
-            rematch: nextOffers,
+            offers: nextOffers,
           },
         ],
       };
