@@ -62,7 +62,6 @@ export type PendingGame = {
   lastMoveBy: ChessColor; // This could be undefined as well
   lastMoveAt: null;
   winner: null;
-  rematch:GameOffer[];
   offers: GameOffer[]; // TODO: Make this undefined
   gameOverReason: null;
   players: GamePlayers;
@@ -90,7 +89,6 @@ export type IdlingGame = {
   // This is number in case white made its first move and waiting for black, or undefined otherwise
   lastMoveAt: number | null; // TODO: Change this to ISODateTime
   winner: null;
-  rematch:GameOffer[];
   offers: GameOffer[]; // TODO: Make this undefined
   gameOverReason: null;
   players: GamePlayers;
@@ -117,7 +115,6 @@ export type OngoingGame = {
   lastMoveBy: ChessColor;
   lastMoveAt: number; // TODO: Change this to ISODateTime
   winner: null;
-  rematch:GameOffer[];
   offers: GameOffer[];
   gameOverReason: null;
   players: GamePlayers;
@@ -141,7 +138,6 @@ export type CompletedGame = {
   };
   pgn: ChessPGN;
   lastMoveBy: ChessColor;
-  rematch:GameOffer[];
   lastMoveAt: number; // TODO: Change this to ISODateTime
   winner: GameStateWinner;
   offers: GameOffer[];
@@ -174,7 +170,6 @@ export type AbortedGame = {
   // This is number in case white made its first move and waiting for black, or undefined otherwise
   lastMoveAt: number | null; // TODO: Change this to ISODateTime
   winner: null;
-  rematch:GameOffer[];
   offers: GameOffer[];
   gameOverReason: null;
   players: GamePlayers;
