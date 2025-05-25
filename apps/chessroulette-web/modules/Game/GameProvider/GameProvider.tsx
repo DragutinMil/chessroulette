@@ -61,16 +61,6 @@ export const GameProvider = ({
     //  }
   }, [game.offers]);
 
-  //PROBA 
-  useEffect(() => {
-    console.log('druga varijanta');
- 
-   setState((prev) => ({
-     ...prev,
-     lastOffer: game.rematch?.slice(-1)[0],
-   }));
- 
- }, [game.rematch]);
 
   useEffect(() => {
     setState((prev) => ({

@@ -28,8 +28,9 @@ export const MatchActivity = ({
   const populatedMatch = useMemo(
     () => populateMatchWithParticipants(remoteState, participants),
     [remoteState, participants]
+    
   );
-
+ 
   return (
     <MatchContainer
       dispatch={dispatch || noop}

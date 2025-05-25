@@ -73,6 +73,7 @@ export const RoomContainer = ({ iceServers, rid }: Props) => {
     }
 
     const { activity } = movexResource.state;
+    console.log('movexResource',movexResource)
 
     const commonActivityProps = {
       userId,
@@ -100,8 +101,9 @@ export const RoomContainer = ({ iceServers, rid }: Props) => {
         />
       );
     }
-
+  
     if (activity.activityType === 'match' && activity.activityState) {
+      
       return (
         <MatchActivity
           {...commonActivityProps}

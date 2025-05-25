@@ -11,7 +11,7 @@ import { PlayActions } from './types';
 import { calculateTimeLeftAt } from './util';
 import { Game, GameOffer, GameStateWinner } from '@app/modules/Game';
 import { ChessRouler } from 'util-kit/src/lib/ChessRouler';
-import { logsy } from '@app/lib/Logsy';
+import { logsy } from '@app/lib/Logsy'; 
 
 export const reducer = (
   prev: Game = initialPlayState,
