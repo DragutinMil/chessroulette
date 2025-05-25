@@ -118,19 +118,17 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
       const nextEndedGame = PlayStore.reducer(prevEndedGame, action);
     }
   }
-  console.log('upada0')
   if (action.type === 'play:sendOffer') {
-    console.log('action', action)
     const { byPlayer, offerType } = action.payload;
     console.log('upad00a', byPlayer, offerType)
     if (offerType == 'rematch') {
-      console.log('upada')
       const newArray = prev.endedGames.slice(0, -1);
       const nextOffers: GameOffer[] = [
         { 
           byPlayer,
           type: offerType,
           status: 'pending', 
+          
         },
       ];
       return {
@@ -140,6 +138,9 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
           {
             ...prev.endedGames[prev.endedGames.length - 1],
             offers: nextOffers,
+            ...(action.payload.timestamp && {
+              timestamp: action.payload.timestamp,
+            }),
           },
         ],
       };
