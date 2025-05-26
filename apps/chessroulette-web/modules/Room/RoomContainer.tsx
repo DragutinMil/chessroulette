@@ -73,7 +73,6 @@ export const RoomContainer = ({ iceServers, rid }: Props) => {
     }
 
     const { activity } = movexResource.state;
-    console.log('movexResource',movexResource)
 
     const commonActivityProps = {
       userId,

@@ -21,7 +21,6 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
 };
 
 if (MatchStore.reducer.$transformState) {
-  console.log('MatchStore.reducer.$transformState kilogram')
   const matchStateTransformer = MatchStore.reducer.$transformState;
 
   reducer.$transformState = (state, masterContext): ActivityState => {

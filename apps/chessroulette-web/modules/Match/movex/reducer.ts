@@ -128,7 +128,9 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
           byPlayer,
           type: offerType,
           status: 'pending', 
-          
+          ...(action.payload.timestamp && {
+            timestamp: action.payload.timestamp,
+          }),
         },
       ];
       return {
@@ -138,9 +140,7 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
           {
             ...prev.endedGames[prev.endedGames.length - 1],
             offers: nextOffers,
-            ...(action.payload.timestamp && {
-              timestamp: action.payload.timestamp,
-            }),
+            
           },
         ],
       };
@@ -277,12 +277,42 @@ reducer.$transformState = (state, masterContext): MatchState => {
     return state;
   }
   console.log('provera state',state)
+  console.log('masterContext',masterContext)
+  
   // Determine if Match is "aborted" onRead
   if (state.status === 'complete' || state.status === 'aborted') {
+    console.log('state 0 transformState',state)
+    if(state.endedGames[0].offers[0]?.type=='rematch'){
+      //const endPlay = state.endedGames;
+      const newArray = state.endedGames.slice(0, -1);
+      const lastGame = state.endedGames[0];
+      const nextOffers: GameOffer[] = [
+        { 
+          byPlayer:state.endedGames[0].offers[0].byPlayer,
+          type: state.endedGames[0].offers[0].type,
+          status: 'pending', 
+         
+        },
+      ];
+      return {
+        ...state,
+        endedGames: [
+          ...newArray,
+          {
+            ...state.endedGames[state.endedGames.length - 1],
+            offers: nextOffers,
+            
+          },
+        ],
+          
+          
+        
+      };
+    }
     console.log('state 1 transformState',state)
     return state 
   }
-  //console.log('state 2 transformState',state)
+  //console.log('state 2 transformState',state) 
   const ongoingPlay = state.gameInPlay;
 
   if (ongoingPlay?.status === 'ongoing') {
