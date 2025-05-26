@@ -35,7 +35,7 @@ export type MatchState =
         }
     ) & {
       // Add other statuses if needed
-      status: 'pending' | 'ongoing' | 'complete' | 'aborted' | 'negotiation';
+      status: 'pending' | 'ongoing' | 'complete' | 'aborted';
       winner: keyof MatchPlayersByRole | null;
       endedGames: EndedGame[];
       gameInPlay: NotEndedGame | null;
