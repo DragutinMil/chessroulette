@@ -174,28 +174,27 @@ export type AbortedGame = {
   gameOverReason: null;
   players: GamePlayers;
 };
-export type NegotiationGame = {
-  status: 'negotiation';
-  startedAt: number; // Change this to ISODateTime
+// export type NegotiationGame = {
+//   status: 'negotiation';
+//   startedAt: number; // Change this to ISODateTime
  
  
-  pgn: ChessPGN;
-  lastMoveBy: ChessColor;
-  // This is number in case white made its first move and waiting for black, or undefined otherwise
-  lastMoveAt: number | null; // TODO: Change this to ISODateTime
-  winner: null;
-  offers: GameOffer[];
-  gameOverReason: null;
-  players: GamePlayers;
-};
+//   pgn: ChessPGN;
+//   lastMoveBy: ChessColor;
+//   // This is number in case white made its first move and waiting for black, or undefined otherwise
+//   lastMoveAt: number | null; // TODO: Change this to ISODateTime
+//   winner: null;
+//   offers: GameOffer[];
+//   gameOverReason: null;
+//   players: GamePlayers;
+// };
 
 export type Game =
   | PendingGame
   | IdlingGame
   | OngoingGame
   | CompletedGame
-  | AbortedGame
-  | NegotiationGame;
+  | AbortedGame;
 
 export type NotEndedGame = Exclude<Game, EndedGame>;
 //export type NotEndedGame =  CompletedGame | PendingGame | IdlingGame | OngoingGame;
