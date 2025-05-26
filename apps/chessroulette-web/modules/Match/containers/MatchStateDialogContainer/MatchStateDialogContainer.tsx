@@ -101,20 +101,23 @@ export const MatchStateDialogContainer: React.FC<Props> = (
       }
     }
     //SA WEB IDE PROVERA
-    else  {
+    else {
       console.log('in web');
      
       const token: string | undefined = Cookies.get('sessionToken');
-      const data = parseJwt(token || '');
-      if(data?.user_id.length>0){
-        setFromWeb(true)
-        console.log('web');
+      if(token){
+        const data = parseJwt(token || '');
+        if(data?.user_id.length>0){
+          setFromWeb(true)
+          console.log('web');
+        }
+        //console.log('token data web', data);
+        if (data?.user_id !== userId) {
+         
+          // router.push('https://app.outpostchess.com/online-list');
+        }
       }
-      //console.log('token data web', data);
-      if (data?.user_id !== userId) {
-        console.log('out', userId, data?.user_id);
-        // router.push('https://app.outpostchess.com/online-list');
-      }
+      console.log('out nema tokena');
     }
   }, []);
 
