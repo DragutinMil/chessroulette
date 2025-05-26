@@ -291,12 +291,13 @@ reducer.$transformState = (state, masterContext): MatchState => {
           byPlayer:state.endedGames[0].offers[0].byPlayer,
           type: state.endedGames[0].offers[0].type,
           status: 'pending', 
-         
+          
         },
       ];
       return {
         ...state,
-        endedGames: [
+        status:'pending',
+        endedGames: [ 
           ...newArray,
           {
             ...state.endedGames[state.endedGames.length - 1],
