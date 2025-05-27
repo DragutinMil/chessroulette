@@ -88,28 +88,28 @@ export const MatchStateDialogContainer: React.FC<Props> = (
     //SA APA IDE PROVERA
     if (url.searchParams.get('sessionToken')) {
       setFromApp(true)
-      console.log('App');
+     // console.log('App');
       const token = url.searchParams.get('sessionToken');
       const data = parseJwt(token || '');
-      console.log('token data app', data);
+     // console.log('token data app', data);
       if (data?.userId !== userId) {
         if (match) {
          
-          console.log('out');
+        //  console.log('out');
           // router.push("https://chess.outpostchess.com/room/a/match/ilegal&theme=op")
         }
       }
     }
     //SA WEB IDE PROVERA
     else {
-      console.log('in web');
+      //console.log('in web');
      
       const token: string | undefined = Cookies.get('sessionToken');
       if(token){
         const data = parseJwt(token || '');
         if(data?.user_id.length>0){
           setFromWeb(true)
-          console.log('web');
+        //  console.log('web');
         }
         //console.log('token data web', data);
         if (data?.user_id !== userId) {
