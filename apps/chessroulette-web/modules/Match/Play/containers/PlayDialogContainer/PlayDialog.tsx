@@ -12,6 +12,7 @@ export type GameStateDialogProps = {
   onAcceptOffer: ({ offer }: { offer: GameOffer['type'] }) => void;
   onDenyOffer: () => void;
   onCancelOffer: () => void;
+  rematchOffer:() => void;
   inviteLink?: string;
 };
 
@@ -19,6 +20,7 @@ export const PlayDialog: React.FC<GameStateDialogProps> = ({
   onAcceptOffer,
   onDenyOffer,
   onCancelOffer,
+  rematchOffer,
   inviteLink,
 }) => {
   const dispatch = usePlayActionsDispatch();
@@ -67,7 +69,7 @@ export const PlayDialog: React.FC<GameStateDialogProps> = ({
     }
   }, [lastOffer]);
   useEffect(() => {
-    
+    console.log('lastOffer',lastOffer)
 
     if(lockRef.current !== true ){
        if(lastOffer?.type==='rematch' &&
@@ -76,8 +78,8 @@ export const PlayDialog: React.FC<GameStateDialogProps> = ({
        setRematchBy(lastOffer.byPlayer)
        setRematchStatus(lastOffer.status)
        setIsRematch('rematch')
-
-
+       rematchOffer()
+      
        console.log('novo',rematchBy,rematchStatus,isRematch)
        lockRef.current = true;
       const timeoutId = setTimeout(() => {
@@ -86,10 +88,7 @@ export const PlayDialog: React.FC<GameStateDialogProps> = ({
       }, 1000);
       return () => clearTimeout(timeoutId);
          }
-   
-     
-
-    
+         
   }
   }, [lastOffer]);
 
@@ -135,12 +134,10 @@ export const PlayDialog: React.FC<GameStateDialogProps> = ({
     }
 
     if (rematchBy.length>0) {
-      if (game.status === 'complete' && !gameResultSeen) {
-        // setGameResultSeen(true);
-      }
-      if (isRematch=== 'rematch' || rematchBy.length>0) {
-        if (rematchStatus === 'pending' || rematchBy.length>0) {
-          if (rematchBy=== playerId  || rematchBy.length>0) {
+     
+      if (isRematch=== 'rematch' ) {
+        if (rematchStatus === 'pending' ) {
+          if (rematchBy === playerId  ) {
             return (
               <Dialog
                 title="Rematch ?"
@@ -157,7 +154,7 @@ export const PlayDialog: React.FC<GameStateDialogProps> = ({
                       setRematchBy('')
                       setRematchStatus('')
                       setIsRematch('')
-                      
+                      rematchOffer()
                       onCancelOffer();
                       setGameResultSeen(true);
                       setTimeout(() => {
@@ -195,6 +192,7 @@ export const PlayDialog: React.FC<GameStateDialogProps> = ({
                     setRematchStatus('')
                     setIsRematch('')
                     onDenyOffer();
+                    rematchOffer()
                     setGameResultSeen(true);
                     setTimeout(() => {
                       console.log('brisano',rematchBy,rematchStatus,isRematch)
