@@ -136,6 +136,7 @@ export type CompletedGame = {
     w: number;
     b: number;
   };
+  rematch?:Boolean,
   pgn: ChessPGN;
   lastMoveBy: ChessColor;
   lastMoveAt: number; // TODO: Change this to ISODateTime

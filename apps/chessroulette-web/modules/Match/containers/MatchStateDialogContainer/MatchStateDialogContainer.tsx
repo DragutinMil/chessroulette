@@ -28,7 +28,6 @@ export const MatchStateDialogContainer: React.FC<Props> = (
   const [fromWeb, setFromWeb] = useState(false)
   const [fromApp, setFromApp] = useState(false)
   
-  const [rematch, setRematch] = useState(false)
   const dispatch = useMatchActionsDispatch();
   const router = useRouter();
   const { lastOffer, playerId } = useGame();
@@ -110,7 +109,7 @@ export const MatchStateDialogContainer: React.FC<Props> = (
         const data = parseJwt(token || '');
         if(data?.user_id.length>0){
           setFromWeb(true)
-        //  console.log('web');
+         // console.log('web');
         }
         //console.log('token data web', data);
         if (data?.user_id !== userId) {
@@ -118,7 +117,7 @@ export const MatchStateDialogContainer: React.FC<Props> = (
           // router.push('https://app.outpostchess.com/online-list');
         }
       }
-      console.log('out nema tokena');
+      // console.log('out nema tokena');
     }
   }, []);
 
@@ -153,8 +152,7 @@ export const MatchStateDialogContainer: React.FC<Props> = (
 
   // TODO: Here we should just check the match.status
 
-  if (match?.winner && (!lastOffer || match?.status=='complete' )  && !rematch ) {
-    // && 
+  if (match?.winner && !lastOffer) {
     return (
       <Dialog
         title="Match Completed"
@@ -164,14 +162,14 @@ export const MatchStateDialogContainer: React.FC<Props> = (
               <Text>
                 {match[match.winner].id.length == 16 ? (
                   <span className="capitalize">
-                    Bot 
+                    Bot
                     {` `}Won{` `}
                     <span>🏆</span>
                   </span>
                 ) : (
                   // REGULAR NAME
                   <span className="capitalize">
-                    {match[match.winner].displayName || match[match.winner].id}  
+                    {match[match.winner].displayName || match[match.winner].id}
                     {` `}Won{` `}
                     <span>🏆</span>
                   </span>
@@ -323,12 +321,5 @@ export const MatchStateDialogContainer: React.FC<Props> = (
     );
   }
 
-  return <PlayDialogContainer {...gameStateDialogProps} 
-  onRematchOffer={() => {
-    setRematch(!rematch)
-    console.log('kilavac',rematch)
-    // Dodaj ovde logiku koju želiš, npr. slanje redux akcije
-   
-  }}
-  />;
+  return <PlayDialogContainer {...gameStateDialogProps} />;
 };
