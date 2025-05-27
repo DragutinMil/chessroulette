@@ -82,6 +82,35 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
   // }
 
   //OFFER REMATCH - here to effect completed matches
+  if (action.type === 'play:sendOffer') {
+    const { byPlayer, offerType } = action.payload;
+    console.log('upad00a', byPlayer, offerType)
+    if (offerType == 'rematch') {
+      const newArray = prev.endedGames.slice(0, -1);
+      const nextOffers: GameOffer[] = [
+        { 
+          byPlayer,
+          type: offerType,
+          status: 'pending', 
+          ...(action.payload.timestamp && {
+            timestamp: action.payload.timestamp,
+          }),
+        },
+      ];
+      return {
+        ...prev,
+        endedGames: [
+          ...newArray,
+          {
+            ...prev.endedGames[prev.endedGames.length - 1],
+            offers: nextOffers,
+            
+          },
+        ],
+      };
+    }
+    
+  }
 
   if (action.type === 'match:startNewGame') {
     if (prevMatch.status === 'complete') {
@@ -118,35 +147,7 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
       const nextEndedGame = PlayStore.reducer(prevEndedGame, action);
     }
   }
-  if (action.type === 'play:sendOffer') {
-    const { byPlayer, offerType } = action.payload;
-    console.log('upad00a', byPlayer, offerType)
-    if (offerType == 'rematch') {
-      const newArray = prev.endedGames.slice(0, -1);
-      const nextOffers: GameOffer[] = [
-        { 
-          byPlayer,
-          type: offerType,
-          status: 'pending', 
-          ...(action.payload.timestamp && {
-            timestamp: action.payload.timestamp,
-          }),
-        },
-      ];
-      return {
-        ...prev,
-        endedGames: [
-          ...newArray,
-          {
-            ...prev.endedGames[prev.endedGames.length - 1],
-            offers: nextOffers,
-            
-          },
-        ],
-      };
-    }
-    
-  }
+ 
   // console.log('ispred starog');
   if (!prevMatch.gameInPlay) {
     return prev;
@@ -276,11 +277,11 @@ reducer.$transformState = (state, masterContext): MatchState => {
   if (!state) {
     return state;
   }
-  console.log('provera state',state)
-  console.log('masterContext',masterContext)
+ 
   
   // Determine if Match is "aborted" onRead
   if (state.status === 'complete' || state.status === 'aborted') {
+    
     console.log('state 0 transformState',state)
     if(state.endedGames[0].offers[0]?.type=='rematch'){
       //const endPlay = state.endedGames;
