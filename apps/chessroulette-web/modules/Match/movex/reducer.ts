@@ -2,10 +2,11 @@ import { MovexReducer } from 'movex-core-util';
 import { invoke, swapColor, isOneOf } from '@xmatter/util-kit';
 import * as PlayStore from '@app/modules/Match/Play/store';
 import { AbortedGame } from '@app/modules/Game';
-import { MatchActions, MatchState } from './types';
-import { initialMatchState } from './state';
+import { MatchActions, MatchState,Rematch } from './types';
+import { initialMatchState,initialRematchState } from './state';
 import { getMatchPlayerRoleById } from './util';
 import { GameOffer } from '@app/modules/Game';
+ 
 export const reducer: MovexReducer<MatchState, MatchActions> = (
   prev: MatchState = initialMatchState,
   action: MatchActions
@@ -274,6 +275,11 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
   };
 };
 
+
+
+
+
+
 reducer.$transformState = (state, masterContext): MatchState => {
   if (!state) {
     return state;
@@ -335,8 +341,8 @@ reducer.$transformState = (state, masterContext): MatchState => {
       },
     };
   }
-
-  // If the ongoing game is idling & the abort time has passed
+ 
+  // If the ongoing game is idling & the abort time has passed 
   if (
     ongoingPlay?.status === 'idling' &&
     masterContext.requestAt > ongoingPlay.startedAt + state.timeToAbortMs

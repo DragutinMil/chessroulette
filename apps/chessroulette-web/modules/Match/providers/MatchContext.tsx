@@ -1,13 +1,22 @@
 import { createContext } from 'react';
 import { MatchViewState } from '../types';
+import { RematchViewState } from '../types';
 import { MatchActions } from '../movex';
 import { MovexDispatchAction } from 'movex';
 import { noop } from '@xmatter/util-kit';
+import { boolean } from 'zod';
 
 export type MatchContextType = MatchViewState & {
   dispatch: MovexDispatchAction<MatchActions>;
 };
+export type RematchContextType = RematchViewState & {
+  dispatch: MovexDispatchAction<MatchActions>;
+};
 
+export const MatchRematchContext = createContext<RematchContextType>({
+  rematch: false,
+  dispatch: noop,
+});
 export const MatchStateContext = createContext<MatchContextType>({
   match: null,
   userAsPlayer: undefined,

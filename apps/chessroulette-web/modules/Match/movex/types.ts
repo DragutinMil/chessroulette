@@ -22,6 +22,10 @@ export type MatchPlayersByRole = {
   challenger: MatchPlayer;
   challengee: MatchPlayer;
 };
+export type Rematch ={
+      rematch: Boolean; // Ensure these can only be odd numbers
+  }
+
 
 export type MatchState =
   | ((

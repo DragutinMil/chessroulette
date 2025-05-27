@@ -35,9 +35,8 @@ export const PlayDialog: React.FC<GameStateDialogProps> = ({
   } = useGame();
 
   const gameUsed = useGame();
-  console.log('gameUsed',gameUsed)
  const { match, userAsPlayer } = useMatchViewState();
-  console.log('MatchState stejterica',match)
+  
   useEffect(() => {
 
     // Everytime the game state changes, reset the seen!

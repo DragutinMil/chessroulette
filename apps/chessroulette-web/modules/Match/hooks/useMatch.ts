@@ -1,5 +1,5 @@
 import { useContext } from 'react';
-import { MatchStateContext } from '../providers/MatchContext';
+import { MatchStateContext,MatchRematchContext } from '../providers/MatchContext';
 import { MatchViewState } from '../types';
 
 export const useMatchViewState = (): MatchViewState =>
@@ -7,3 +7,6 @@ export const useMatchViewState = (): MatchViewState =>
 
 export const useMatchActionsDispatch = () =>
   useContext(MatchStateContext).dispatch;
+
+export const useRematchDispatch = () =>
+  useContext(MatchRematchContext).dispatch;

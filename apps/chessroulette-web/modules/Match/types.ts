@@ -13,6 +13,10 @@ export type MatchResults = {
   };
 };
 
+export type RematchViewState = {
+  rematch:Boolean
+};
+
 export type MatchViewState = {
   match: MatchState;
   currentRound: number;

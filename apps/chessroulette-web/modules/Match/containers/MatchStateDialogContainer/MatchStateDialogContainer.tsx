@@ -14,6 +14,7 @@ import {
 import {
   useMatchActionsDispatch,
   useMatchViewState,
+  useRematchDispatch
 } from '../../hooks/useMatch';
 import { getMatchPlayerRoleById } from '../../movex/util';
 import { gameOverReasonsToDisplay } from './util';
@@ -29,6 +30,8 @@ export const MatchStateDialogContainer: React.FC<Props> = (
   const [fromApp, setFromApp] = useState(false)
   
   const dispatch = useMatchActionsDispatch();
+  const dispatchRematch = useRematchDispatch();
+  
   const router = useRouter();
   const { lastOffer, playerId } = useGame();
 
@@ -187,14 +190,13 @@ export const MatchStateDialogContainer: React.FC<Props> = (
                     }}
                     onClick={() => {
                       if (playerId) {
-                        dispatch((masterContext) => ({
+                        dispatchRematch({
                           type: 'play:sendOffer',
                           payload: {
                             byPlayer: playerId, 
                             offerType: 'rematch',
-                            timestamp: masterContext.requestAt(),
                           },
-                        }));
+                        });
                       }
                     }}
                   >
