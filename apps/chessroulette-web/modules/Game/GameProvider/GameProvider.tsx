@@ -65,9 +65,9 @@ export const GameProvider = ({
     //  }
   }, [game.offers]);
 
-useEffect(() => {
-   console.log('matchmatch 2',match)
-  }, [match?.rematch]);
+// useEffect(() => {
+//    console.log('matchmatch 2',match)
+//   }, [match?.rematch]);
 
 
   useEffect(() => {
