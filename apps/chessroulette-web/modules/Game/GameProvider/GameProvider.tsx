@@ -9,8 +9,10 @@ import {
 import { GameOffer } from '@app/modules/Game';
 import { UserId, UsersMap } from '@app/modules/User';
 import { Game } from '../types';
+import { MatchState } from '../../Match/movex';
 import { getGameDisplayState, getTurnFromPgn } from '../lib';
-
+import { useMatchViewState } from '../../Match/hooks';
+import { MatchViewState } from '../../Match/types';
 type Props = PropsWithChildren & {
   game: Game;
   playerId: UserId;
@@ -39,7 +41,9 @@ export const GameProvider = ({
     players,
     playerId,
   });
-
+  
+  const { match, userAsPlayer } = useMatchViewState();
+  //console.log('MatchState',match)
   //const lockRef = useRef(false);
   useEffect(() => {
      console.log('🟡 FULL GAME STATE:', game);
@@ -60,6 +64,10 @@ export const GameProvider = ({
 
     //  }
   }, [game.offers]);
+
+useEffect(() => {
+   console.log('matchmatch 2',match)
+  }, [match?.rematch]);
 
 
   useEffect(() => {
