@@ -39,6 +39,7 @@ export type MatchState =
       winner: keyof MatchPlayersByRole | null;
       endedGames: EndedGame[];
       gameInPlay: NotEndedGame | null;
+      rematch?:Boolean;
       /**
        * This is the time allowed for one player to abort
        */

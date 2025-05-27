@@ -82,7 +82,37 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
   }
 
   //OFFER REMATCH - here to effect completed matches
-
+  if (action.type === 'play:sendOffer') {
+    const { byPlayer, offerType } = action.payload;
+    console.log('upad00a', byPlayer, offerType)
+    if (offerType == 'rematch') {
+      // const newArray = prev.endedGames.slice(0, -1);
+      // const nextOffers: GameOffer[] = [
+      //   { 
+      //     byPlayer,
+      //     type: offerType,
+      //     status: 'pending', 
+      //     ...(action.payload.timestamp && {
+      //       timestamp: action.payload.timestamp,
+      //     }), 
+      //   },
+      // ];
+      return {
+        ...prev,
+        rematch:true
+        // endedGames: [
+        //   ...newArray,
+        //   {
+        //     ...prev.endedGames[prev.endedGames.length - 1],
+        //     offers: nextOffers,
+            
+        //   },
+        // ],
+      };
+    }
+    
+  }
+ 
   if (action.type === 'match:startNewGame') {
     if (prevMatch.status === 'complete') {
       return prev;
@@ -118,30 +148,7 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
       const nextEndedGame = PlayStore.reducer(prevEndedGame, action);
     }
   }
-
-  if (action.type === 'play:sendOffer') {
-    const { byPlayer, offerType } = action.payload;
-    if (offerType == 'rematch') {
-      const newArray = prev.endedGames.slice(0, -1);
-      const nextOffers: GameOffer[] = [
-        {
-          byPlayer,
-          type: offerType,
-          status: 'pending',
-        },
-      ];
-      return {
-        ...prev,
-        endedGames: [
-          ...newArray,
-          {
-            ...prev.endedGames[prev.endedGames.length - 1],
-            offers: nextOffers,
-          },
-        ],
-      };
-    }
-  }
+ 
   // console.log('ispred starog');
   if (!prevMatch.gameInPlay) {
     return prev;
@@ -271,13 +278,44 @@ reducer.$transformState = (state, masterContext): MatchState => {
   if (!state) {
     return state;
   }
-
+ 
+  
   // Determine if Match is "aborted" onRead
   if (state.status === 'complete' || state.status === 'aborted') {
+    
+    console.log('state 0 transformState',state)
+    if(state.endedGames[0].offers[0]?.type=='rematch'){
+      //const endPlay = state.endedGames;
+      const newArray = state.endedGames.slice(0, -1);
+      const lastGame = state.endedGames[0];
+      const nextOffers: GameOffer[] = [
+        { 
+          byPlayer:state.endedGames[0].offers[0].byPlayer,
+          type: state.endedGames[0].offers[0].type,
+          status: 'pending', 
+          
+        },
+      ];
+      return {
+        ...state,
+        status:'pending',
+        endedGames: [ 
+          ...newArray,
+          {
+            ...state.endedGames[state.endedGames.length - 1],
+            offers: nextOffers,
+            
+          },
+        ],
+          
+          
+        
+      };
+    }
     console.log('state 1 transformState',state)
-    return state
+    return state 
   }
-  //console.log('state 2 transformState',state)
+  //console.log('state 2 transformState',state) 
   const ongoingPlay = state.gameInPlay;
 
   if (ongoingPlay?.status === 'ongoing') {
@@ -319,7 +357,7 @@ reducer.$transformState = (state, masterContext): MatchState => {
         gameInPlay: null,
       };
     }
-
+    console.log('state transformState befroe ongoing', state);
     // A subsequent game in the match is aborted by idling too long
     // and thus the Match Gets completed with the winner the opposite player
     if (state.status === 'ongoing') {

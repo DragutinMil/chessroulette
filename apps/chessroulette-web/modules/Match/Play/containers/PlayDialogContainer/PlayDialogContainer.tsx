@@ -18,9 +18,9 @@ export const PlayDialogContainer = ({
       if (offer === 'draw') {
         dispatch({ type: 'play:acceptOfferDraw' });
       } else if (offer === 'rematch') {
-        console.log(offer);
+       // console.log(offer);
         const token: string | undefined = Cookies.get('sessionToken');
-        console.log('token', token);
+       // console.log('token', token);
         const newRematch = async () => {
           const response = await fetch(
             process.env.NEXT_PUBLIC_API_WEB + 'challenge_rematch',

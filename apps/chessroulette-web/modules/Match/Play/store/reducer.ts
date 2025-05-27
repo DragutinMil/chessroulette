@@ -11,13 +11,13 @@ import { PlayActions } from './types';
 import { calculateTimeLeftAt } from './util';
 import { Game, GameOffer, GameStateWinner } from '@app/modules/Game';
 import { ChessRouler } from 'util-kit/src/lib/ChessRouler';
-import { logsy } from '@app/lib/Logsy';
+import { logsy } from '@app/lib/Logsy'; 
 
 export const reducer = (
   prev: Game = initialPlayState,
   action: PlayActions
 ): Game => {
-  //console.log('joskec', prev)
+  
   // This moves the game from pending to idling y
   if (action.type === 'play:start') {
     // Only a "pending" game can start
@@ -192,14 +192,14 @@ export const reducer = (
       }).isGameOver(turn);
 
       const nextWinnerAndGameOverReason = invoke(() => {
-        console.log('reduser gameOverResult.over', gameOverResult.over);
+       // console.log('reduser gameOverResult.over', gameOverResult.over);
 
         if (gameOverResult.over && gameOverResult.isDraw) {
-          console.log(
-            'deep reduser  over isDraw',
-            gameOverResult.over,
-            gameOverResult.isDraw
-          );
+          // console.log(
+          //   'deep reduser  over isDraw',
+          //   gameOverResult.over,
+          //   gameOverResult.isDraw
+          // );
 
           return {
             winner: '1/2',

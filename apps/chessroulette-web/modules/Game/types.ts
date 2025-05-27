@@ -61,6 +61,7 @@ export type PendingGame = {
   pgn: '';
   lastMoveBy: ChessColor; // This could be undefined as well
   lastMoveAt: null;
+  rematch?:Boolean,
   winner: null;
   offers: GameOffer[]; // TODO: Make this undefined
   gameOverReason: null;
@@ -86,6 +87,7 @@ export type IdlingGame = {
   };
   pgn: ChessPGN;
   lastMoveBy: ChessColor;
+  rematch?:Boolean,
   // This is number in case white made its first move and waiting for black, or undefined otherwise
   lastMoveAt: number | null; // TODO: Change this to ISODateTime
   winner: null;
@@ -113,6 +115,7 @@ export type OngoingGame = {
   };
   pgn: ChessPGN;
   lastMoveBy: ChessColor;
+  rematch?:Boolean,
   lastMoveAt: number; // TODO: Change this to ISODateTime
   winner: null;
   offers: GameOffer[];
@@ -136,6 +139,7 @@ export type CompletedGame = {
     w: number;
     b: number;
   };
+  rematch?:Boolean,
   pgn: ChessPGN;
   lastMoveBy: ChessColor;
   lastMoveAt: number; // TODO: Change this to ISODateTime
@@ -174,6 +178,20 @@ export type AbortedGame = {
   gameOverReason: null;
   players: GamePlayers;
 };
+// export type NegotiationGame = {
+//   status: 'negotiation';
+//   startedAt: number; // Change this to ISODateTime
+ 
+ 
+//   pgn: ChessPGN;
+//   lastMoveBy: ChessColor;
+//   // This is number in case white made its first move and waiting for black, or undefined otherwise
+//   lastMoveAt: number | null; // TODO: Change this to ISODateTime
+//   winner: null;
+//   offers: GameOffer[];
+//   gameOverReason: null;
+//   players: GamePlayers;
+// };
 
 export type Game =
   | PendingGame
@@ -184,4 +202,4 @@ export type Game =
 
 export type NotEndedGame = Exclude<Game, EndedGame>;
 //export type NotEndedGame =  CompletedGame | PendingGame | IdlingGame | OngoingGame;
-export type EndedGame = AbortedGame | CompletedGame;
+export type EndedGame = AbortedGame | CompletedGame ;

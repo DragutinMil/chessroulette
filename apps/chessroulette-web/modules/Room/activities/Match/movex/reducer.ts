@@ -7,6 +7,7 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
   prev: ActivityState = initialMatchActivityState,
   action: ActivityActions
 ): ActivityState => {
+  
   if (prev.activityType === 'match') {
     return {
       ...prev,
