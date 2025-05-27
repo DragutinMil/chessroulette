@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState,useRef } from 'react';
 import Link from 'next/link';
 import { invoke, objectKeys } from '@xmatter/util-kit';
 import { Dialog } from '@app/components/Dialog';
@@ -26,7 +26,7 @@ export const PlayDialog: React.FC<GameStateDialogProps> = ({
   const [rematchBy, setRematchBy] = useState('');
   const [rematchStatus, setRematchStatus] = useState('');
   const [isRematch, setIsRematch] = useState('');
-  
+  const lockRef = useRef(false);
   const router = useRouter();
   // TODO: Change the useGame to useMatchPlay
   const {
@@ -67,23 +67,30 @@ export const PlayDialog: React.FC<GameStateDialogProps> = ({
     }
   }, [lastOffer]);
   useEffect(() => {
-    console.log('lastOffer?.status',lastOffer?.status)
-   if(lastOffer?.type==='rematch' &&
-    lastOffer.status === 'pending'){
-      console.log('lastOffer',lastOffer)
+    
+
+    if(lockRef.current !== true ){
+       if(lastOffer?.type==='rematch' &&
+       lastOffer.status === 'pending'){
+       console.log('lastOffer',lastOffer)
        setRematchBy(lastOffer.byPlayer)
        setRematchStatus(lastOffer.status)
        setIsRematch('rematch')
-       console.log('novo',rematchBy,rematchStatus,isRematch)
 
-   }
-   if(lastOffer?.type==='rematch' &&
-   ( lastOffer.status === 'cancelled' || lastOffer.status === 'denied' ) ){
-    setRematchBy('')
-    setRematchStatus(lastOffer?.status)
-    setIsRematch('')
-    console.log('brisano',rematchBy,rematchStatus,isRematch)
-   }
+
+       console.log('novo',rematchBy,rematchStatus,isRematch)
+       lockRef.current = true;
+      const timeoutId = setTimeout(() => {
+        lockRef.current = false;
+        console.log('obrisano',lockRef.current)
+      }, 1000);
+      return () => clearTimeout(timeoutId);
+         }
+   
+     
+
+    
+  }
   }, [lastOffer]);
 
   return invoke(() => {
