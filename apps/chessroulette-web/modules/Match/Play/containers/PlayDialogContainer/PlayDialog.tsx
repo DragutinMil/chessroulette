@@ -7,6 +7,7 @@ import { GameOffer } from '@app/modules/Game';
 import { useGame } from '@app/modules/Game/hooks';
 import { usePlayActionsDispatch } from '../../hooks';
 import { useRouter } from 'next/navigation';
+
 export type GameStateDialogProps = {
   onAcceptOffer: ({ offer }: { offer: GameOffer['type'] }) => void;
   onDenyOffer: () => void;
@@ -22,6 +23,10 @@ export const PlayDialog: React.FC<GameStateDialogProps> = ({
 }) => {
   const dispatch = usePlayActionsDispatch();
   const [gameResultSeen, setGameResultSeen] = useState(false);
+  const [rematchBy, setRematchBy] = useState('');
+  const [rematchStatus, setRematchStatus] = useState('');
+  const [isRematch, setIsRematch] = useState('');
+  
   const router = useRouter();
   // TODO: Change the useGame to useMatchPlay
   const {
@@ -32,7 +37,7 @@ export const PlayDialog: React.FC<GameStateDialogProps> = ({
   } = useGame();
 
   const gameUsed = useGame();
-  //console.log('gameUsed',gameUsed)
+  
 
   useEffect(() => {
     // Everytime the game state changes, reset the seen!
@@ -60,6 +65,25 @@ export const PlayDialog: React.FC<GameStateDialogProps> = ({
         window.open(lastOffer.linkTarget, '_self');
       }
     }
+  }, [lastOffer]);
+  useEffect(() => {
+    console.log('lastOffer?.status',lastOffer?.status)
+   if(lastOffer?.type==='rematch' &&
+    lastOffer.status === 'pending'){
+      console.log('lastOffer',lastOffer)
+       setRematchBy(lastOffer.byPlayer)
+       setRematchStatus(lastOffer.status)
+       setIsRematch('rematch')
+       console.log('novo',rematchBy,rematchStatus,isRematch)
+
+   }
+   if(lastOffer?.type==='rematch' &&
+   ( lastOffer.status === 'cancelled' || lastOffer.status === 'denied' ) ){
+    setRematchBy('')
+    setRematchStatus(lastOffer?.status)
+    setIsRematch('')
+    console.log('brisano',rematchBy,rematchStatus,isRematch)
+   }
   }, [lastOffer]);
 
   return invoke(() => {
@@ -103,13 +127,13 @@ export const PlayDialog: React.FC<GameStateDialogProps> = ({
       );
     }
 
-    if (lastOffer) {
+    if (rematchBy.length>0) {
       if (game.status === 'complete' && !gameResultSeen) {
         // setGameResultSeen(true);
       }
-      if (lastOffer.type === 'rematch') {
-        if (lastOffer.status === 'pending') {
-          if (lastOffer.byPlayer === playerId) {
+      if (isRematch=== 'rematch' || rematchBy.length>0) {
+        if (rematchStatus === 'pending' || rematchBy.length>0) {
+          if (rematchBy=== playerId  || rematchBy.length>0) {
             return (
               <Dialog
                 title="Rematch ?"
@@ -123,8 +147,16 @@ export const PlayDialog: React.FC<GameStateDialogProps> = ({
                     children: 'Cancel',
                     bgColor: 'red',
                     onClick: () => {
+                      setRematchBy('')
+                      setRematchStatus('')
+                      setIsRematch('')
+                      
                       onCancelOffer();
                       setGameResultSeen(true);
+                      setTimeout(() => {
+                        console.log('brisano',rematchBy,rematchStatus,isRematch)
+                    }, 2000)
+                      
                     },
                   },
                 ]}
@@ -152,40 +184,47 @@ export const PlayDialog: React.FC<GameStateDialogProps> = ({
                   children: 'Deny',
                   bgColor: 'red',
                   onClick: () => {
+                    setRematchBy('')
+                    setRematchStatus('')
+                    setIsRematch('')
                     onDenyOffer();
                     setGameResultSeen(true);
+                    setTimeout(() => {
+                      console.log('brisano',rematchBy,rematchStatus,isRematch)
+                  }, 2000)
+                    
                   },
                 },
               ]}
             />
           );
         }
-
-        if (lastOffer.status === 'denied') {
-          if (lastOffer.byPlayer === playerId) {
-            return (
-              <Dialog
-                title="Offer Denied"
-                content={
-                  <div className="flex justify-center content-center">
-                    Rematch offer has been denied.
-                  </div>
-                }
-                buttons={[
-                  {
-                    children: 'Ok',
-                    bgColor: 'blue',
-                    onClick: () => {
-                      setGameResultSeen(true);
-                    },
-                  },
-                ]}
-              />
-            );
-          }
+        // if (lastOffer.status === 'denied') {
+        //   if (lastOffer.byPlayer === playerId) {
+        //     return (
+        //       <Dialog
+        //         title="Offer Denied"
+        //         content={
+        //           <div className="flex justify-center content-center">
+        //             Rematch offer has been denied.
+        //           </div>
+        //         }
+        //         buttons={[
+        //           {
+        //             children: 'Ok',
+        //             bgColor: 'blue',
+        //             onClick: () => {
+        //               setGameResultSeen(true);
+        //             },
+        //           },
+        //         ]}
+        //       />
+        //     );
+        //   }
+        // }
         }
       }
-
+      if (lastOffer ) {
       if (lastOffer.type === 'draw' && lastOffer.status === 'pending') {
         if (lastOffer.byPlayer === playerId) {
           return (
