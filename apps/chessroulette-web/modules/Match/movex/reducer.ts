@@ -94,7 +94,7 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
       //     status: 'pending', 
       //     ...(action.payload.timestamp && {
       //       timestamp: action.payload.timestamp,
-      //     }),
+      //     }), 
       //   },
       // ];
       return {
@@ -112,7 +112,7 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
     }
     
   }
-
+ 
   if (action.type === 'match:startNewGame') {
     if (prevMatch.status === 'complete') {
       return prev;
