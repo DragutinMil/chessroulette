@@ -5,12 +5,10 @@ import { usePlayActionsDispatch } from '../../hooks';
 import Cookies from 'js-cookie';
 export type PlayDialogContainerContainerProps = {
   inviteLink: string | undefined;
-  onRematchOffer?: () => void;
 };
 
 export const PlayDialogContainer = ({
   inviteLink,
-  onRematchOffer,
 }: PlayDialogContainerContainerProps) => {
   const dispatch = usePlayActionsDispatch();
   const pathParts = window.location.pathname.split('/');
@@ -22,7 +20,7 @@ export const PlayDialogContainer = ({
       } else if (offer === 'rematch') {
        // console.log(offer);
         const token: string | undefined = Cookies.get('sessionToken');
-      //  console.log('token', token);
+       // console.log('token', token);
         const newRematch = async () => {
           const response = await fetch(
             process.env.NEXT_PUBLIC_API_WEB + 'challenge_rematch',
@@ -64,7 +62,6 @@ export const PlayDialogContainer = ({
       onAcceptOffer={onAcceptOffer}
       onCancelOffer={() => dispatch({ type: 'play:cancelOffer' })}
       onDenyOffer={() => dispatch({ type: 'play:denyOffer' })}
-      rematchOffer={onRematchOffer ?? (() => {})}
       inviteLink={inviteLink}
     />
   );

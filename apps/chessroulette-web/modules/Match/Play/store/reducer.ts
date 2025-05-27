@@ -17,7 +17,7 @@ export const reducer = (
   prev: Game = initialPlayState,
   action: PlayActions
 ): Game => {
-  //console.log('joskec', prev)
+  
   // This moves the game from pending to idling y
   if (action.type === 'play:start') {
     // Only a "pending" game can start
