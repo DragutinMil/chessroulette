@@ -282,35 +282,35 @@ reducer.$transformState = (state, masterContext): MatchState => {
   // Determine if Match is "aborted" onRead
   if (state.status === 'complete' || state.status === 'aborted') {
     
-    console.log('state 0 transformState',state)
-    if(state.endedGames[0].offers[0]?.type=='rematch'){
-      //const endPlay = state.endedGames;
-      const newArray = state.endedGames.slice(0, -1);
-      const lastGame = state.endedGames[0];
-      const nextOffers: GameOffer[] = [
-        { 
-          byPlayer:state.endedGames[0].offers[0].byPlayer,
-          type: state.endedGames[0].offers[0].type,
-          status: 'pending', 
+   // console.log('state 0 transformState',state)
+    // if(state.endedGames[0].offers[0]?.type=='rematch'){
+    //   //const endPlay = state.endedGames;
+    //   const newArray = state.endedGames.slice(0, -1);
+    //   const lastGame = state.endedGames[0];
+    //   const nextOffers: GameOffer[] = [
+    //     { 
+    //       byPlayer:state.endedGames[0].offers[0].byPlayer,
+    //       type: state.endedGames[0].offers[0].type,
+    //       status: 'pending', 
           
-        },
-      ];
-      return {
-        ...state,
-        status:'pending',
-        endedGames: [ 
-          ...newArray,
-          {
-            ...state.endedGames[state.endedGames.length - 1],
-            offers: nextOffers,
+    //     },
+    //   ];
+    //   return {
+    //     ...state,
+    //     status:'pending',
+    //     endedGames: [ 
+    //       ...newArray,
+    //       {
+    //         ...state.endedGames[state.endedGames.length - 1],
+    //         offers: nextOffers,
             
-          },
-        ],
+    //       },
+    //     ],
           
           
         
-      };
-    }
+    //   };
+    // }
     console.log('state 1 transformState',state)
     return state 
   }
