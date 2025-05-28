@@ -72,6 +72,8 @@ export const MatchStateDialogContainer: React.FC<Props> = (
 
   useEffect(() => {
     const url = new URL(window.location.href);
+    alert(url);
+  
     const userId = url.searchParams.get('userId');
 
     function parseJwt(token: string) {
@@ -85,35 +87,36 @@ export const MatchStateDialogContainer: React.FC<Props> = (
         return null;
       }
     }
+
+
     //SA APA IDE PROVERA
     if (url.searchParams.get('sessionToken')) {
       setFromApp(true)
-     // console.log('App');
+      alert('App')
       const token = url.searchParams.get('sessionToken');
       const data = parseJwt(token || '');
-     // console.log('token data app', data);
+      alert(data)
       if (data?.userId !== userId) {
         if (match) {
          
-        //  console.log('out');
+          alert('out App')
           // router.push("https://chess.outpostchess.com/room/a/match/ilegal&theme=op")
         }
       }
     }
     //SA WEB IDE PROVERA
     else {
-      //console.log('in web');
-     
+      alert('in web')
       const token: string | undefined = Cookies.get('sessionToken');
       if(token){
         const data = parseJwt(token || '');
         if(data?.user_id.length>0){
           setFromWeb(true)
-         // console.log('web');
+          alert('u web-u')
         }
         //console.log('token data web', data);
         if (data?.user_id !== userId) {
-         
+          alert('out web')
           // router.push('https://app.outpostchess.com/online-list');
         }
       }
