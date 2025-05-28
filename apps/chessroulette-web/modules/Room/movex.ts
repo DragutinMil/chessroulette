@@ -28,11 +28,14 @@ export const reducer: MovexReducer<RoomState, RoomActions> = (
   action: RoomActions
 ): RoomState => ({
   activity: roomActivityReducer(state.activity, action),
+  
 });
 
+
 if (roomActivityReducer.$transformState) {
- 
+  
   const roomActivityTransformer = roomActivityReducer.$transformState;
+  
   reducer.$transformState = (state, masterContext) => ({
     ...state,
     activity: roomActivityTransformer(state.activity, masterContext),
