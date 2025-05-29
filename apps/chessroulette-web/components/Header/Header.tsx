@@ -7,6 +7,7 @@ import Image from 'next/image';
 import GithubLogo from './assets/github-mark-white.svg';
 import DiscordLogo from './assets/discord-icon-svgrepo-com.svg';
 import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 type Props = {
   themeName?: string;
   showConnectionStatus?: boolean;
@@ -15,7 +16,25 @@ type Props = {
 };
 
 export default (props: Props) => {
+  
   const router = useRouter();
+
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      try {
+        const data = JSON.parse(event.data);
+        if (data.token) {
+          console.log('Received token:', data.token);
+          // Sačuvaj token gde ti treba
+        }
+      } catch (err) {
+        console.error('Error parsing message:', err);
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, []);
   return (
     <header
       className="
