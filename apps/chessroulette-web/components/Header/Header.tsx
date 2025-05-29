@@ -21,17 +21,20 @@ export default (props: Props) => {
 
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
+      alert('Received token:');
       try {
         const data = JSON.parse(event.data);
         if (data.token) {
-          console.log('Received token:', data.token);
+          alert( data.token);
+         
+          
           // Sačuvaj token gde ti treba
         }
       } catch (err) {
         console.error('Error parsing message:', err);
       }
     };
-
+    alert('prvi prodj');
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
   }, []);
