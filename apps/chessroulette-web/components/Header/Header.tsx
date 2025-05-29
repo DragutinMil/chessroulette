@@ -22,8 +22,10 @@ export default (props: Props) => {
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
       alert('Received token:');
+      alert(event);
       try {
         const data = JSON.parse(event.data);
+        alert(data);
         if (data.token) {
           alert( data.token);
          
