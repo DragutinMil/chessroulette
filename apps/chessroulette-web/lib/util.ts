@@ -39,7 +39,7 @@ export const wrapReducer = <S, A extends AnyAction>(
     '$canReconcileState' | '$transformState'
   >
 ) => {
-  console.log('kolijohoi 3',wrapper)
+  
   const fn: MovexReducer<S, A> = (prev, action) =>
     wrapper(original(prev, action), action, prev);
   

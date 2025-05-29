@@ -7,7 +7,7 @@ import { metadata as rootMetadata } from '../../page';
 export const metadata: Metadata = {
   title: `New Room | ${rootMetadata.title}`,
 };
-
+console.log('resultovaro')
 export default async function Page({
   searchParams,
   params,
@@ -16,16 +16,19 @@ export default async function Page({
   params: Record<string, string>;
 }) {
   const allParams = Object.assign(searchParams, params);
+  
   const result = activityParamsSchema.safeParse(
     Object.fromEntries(new URLSearchParams(allParams))
   );
+  
 
   if (!result.success) {
     return <ErrorPage error={result.error} extra={allParams} />;
   }
-
+  
   const activityParams = result.data;
-
+ 
+  
   const nextParams = new URLSearchParams();
 
   Object.entries(activityParams).forEach(([k, v]) => {
@@ -34,5 +37,5 @@ export default async function Page({
     }
   });
 
-  return <JoinOrCreateRoom mode="create" activityParams={activityParams} />;
+  return <JoinOrCreateRoom mode="create" activityParams={activityParams}  />;
 }

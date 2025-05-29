@@ -9,7 +9,6 @@ import { RIGHT_SIDE_SIZE_PX } from '../../constants';
 import { useRoomLinkId } from '../../hooks';
 import { useMemo } from 'react';
 import { populateMatchWithParticipants } from './utilts';
-
 export type Props = {
   userId: UserId;
   participants: UsersMap;
@@ -23,6 +22,7 @@ export const MatchActivity = ({
   participants,
   ...props
 }: Props) => {
+ 
   const { joinRoomLink } = useRoomLinkId('match');
 
   const populatedMatch = useMemo(

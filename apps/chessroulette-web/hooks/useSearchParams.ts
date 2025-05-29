@@ -33,7 +33,6 @@ export const useUpdateableSearchParams = () => {
         const searchParams = new URLSearchParams(
           currentSearchParams.toString()
         );
-
         const next = invoke(() => {
           if (typeof nextSearchParams === 'function') {
             return nextSearchParams(searchParamsToObject(currentSearchParams));

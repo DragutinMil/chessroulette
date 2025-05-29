@@ -7,14 +7,14 @@ import { initialMatchState } from './state';
 import { getMatchPlayerRoleById } from './util';
 import { GameOffer } from '@app/modules/Game';
 export const reducer: MovexReducer<MatchState, MatchActions> = (
-  prev: MatchState = initialMatchState,
+  prev: MatchState = initialMatchState, 
   action: MatchActions
 ): MatchState => {
-  if (!prev) {
+  if (!prev) { 
     return prev;
-  }
+  } 
   //console.log('prev movex',prev)
-  const prevMatch = prev;
+  const prevMatch = prev; 
 
   // answer to offers on completed games
   if (
