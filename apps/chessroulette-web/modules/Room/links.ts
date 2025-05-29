@@ -8,6 +8,7 @@ export type RoomLinkParams = {
   instructor?: boolean;
   host?: boolean;
   theme?: string;
+  sessionToken?:string;
   gameTimeClass?: GameTimeClass;
 } & Record<string, string | boolean | number | undefined>;
 
@@ -85,6 +86,10 @@ const toSearchParams = ({
   if (theme) {
     searchParams.set('theme', theme);
   }
+  // if (sessionToken) {
+  //   searchParams.set('sessionToken', sessionToken);
+  // }
+  
 
   return searchParams;
 };

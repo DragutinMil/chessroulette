@@ -19,8 +19,9 @@ export async function RoomPage({
 }) {
   const result = roomIdParamsSchema.safeParse(
     Object.fromEntries(new URLSearchParams(params))
+    
   );
-
+  
   if (!result.success) {
     return <ErrorPage error={result.error} extra={params} />;
   }
