@@ -15,23 +15,42 @@ import {
   useMatchActionsDispatch,
   useMatchViewState,
 } from '../../hooks/useMatch';
+//import { useBoardTheme } from '../../../../components/Chessboard/hooks/useBoardTheme';
+
 import { getMatchPlayerRoleById } from '../../movex/util';
 import { gameOverReasonsToDisplay } from './util';
 import { useGame } from '@app/modules/Game/hooks';
 
 type Props = PlayDialogContainerContainerProps;
-
+ // export default async function Page({
+    //   params,
+    //   searchParams,
+    // }: {
+    //   params: { roomId: string };
+    //   searchParams: Partial<{ theme: string }>;
+    // }) {
 export const MatchStateDialogContainer: React.FC<Props> = (
   gameStateDialogProps
 ) => {
   const { match, ...matchView } = useMatchViewState();
   const [fromWeb, setFromWeb] = useState(false)
   const [fromApp, setFromApp] = useState(false)
-  
+
   const dispatch = useMatchActionsDispatch();
   const router = useRouter();
+  const [token, setToken] = useState('')
   const { lastOffer, playerId } = useGame();
-
+  window.addEventListener('message', (event) => {
+    try {
+      const data = JSON.parse(event.data);
+      const token = data.token;
+      console.log('Token received from WebView:', token);
+      alert(token)
+      setToken(token)
+    } catch (e) {
+      console.error('Invalid message from WebView:', e);
+    }
+  });
   useEffect(() => {
     if (match?.status === 'complete') {
       const parts = window.location.pathname.split('/');
@@ -72,8 +91,8 @@ export const MatchStateDialogContainer: React.FC<Props> = (
 
   useEffect(() => {
     const url = new URL(window.location.href);
-    alert(url);
-  
+   // alert(url);
+     
     const userId = url.searchParams.get('userId');
 
     function parseJwt(token: string) {
@@ -87,36 +106,36 @@ export const MatchStateDialogContainer: React.FC<Props> = (
         return null;
       }
     }
-
-
+   
+    console.log('tokent pre app',token)
     //SA APA IDE PROVERA
-    if (url.searchParams.get('sessionToken')) {
+    if (token) {
       setFromApp(true)
-      alert('App')
+     // alert('App')
       const token = url.searchParams.get('sessionToken');
       const data = parseJwt(token || '');
-      alert(data)
+     // alert(data)
       if (data?.userId !== userId) {
         if (match) {
          
-          alert('out App')
+         // alert('out App')
           // router.push("https://chess.outpostchess.com/room/a/match/ilegal&theme=op")
         }
       }
     }
     //SA WEB IDE PROVERA
     else {
-      alert('in web')
+     // alert('in web')
       const token: string | undefined = Cookies.get('sessionToken');
       if(token){
         const data = parseJwt(token || '');
         if(data?.user_id.length>0){
           setFromWeb(true)
-          alert('u web-u')
+        //  alert('u web-u')
         }
         //console.log('token data web', data);
         if (data?.user_id !== userId) {
-          alert('out web')
+        //  alert('out web')
           // router.push('https://app.outpostchess.com/online-list');
         }
       }
