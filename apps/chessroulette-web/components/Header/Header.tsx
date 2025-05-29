@@ -21,19 +21,28 @@ export default (props: Props) => {
 
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
-      alert('Received token:');
-      alert(event);
-      try {
-        const data = JSON.parse(event.data);
-        alert(data);
-        if (data.token) {
-          alert( data.token);
-         
-          
-          // Sačuvaj token gde ti treba
+      alert(event.data);
+
+      // Ako je data već objekat
+      if (typeof event.data === 'object') {
+        if (event.data.token) {
+          alert("token");
+          alert(event.data.token);
         }
-      } catch (err) {
-        console.error('Error parsing message:', err);
+      }
+  
+      // Ako je string, pokušaj da ga parsiraš
+      if (typeof event.data === 'string') {
+        try {
+          const parsed = JSON.parse(event.data);
+          if (parsed.token) {
+            alert('Parsed Token: ');
+            alert(parsed.token)
+          }
+        } catch (err) {
+          alert('Failed to parse event.data as JSON:');
+          alert(err);
+        }
       }
     };
     alert('prvi prodj');
