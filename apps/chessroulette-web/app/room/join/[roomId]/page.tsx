@@ -17,6 +17,7 @@ export default async function Page({
   params: StringRecord;
 }) {
   const allParams = Object.assign(searchParams, params);
+  
   const result = roomIdentifiableActivityParamsSchema.safeParse(
     Object.fromEntries(new URLSearchParams(allParams))
   );

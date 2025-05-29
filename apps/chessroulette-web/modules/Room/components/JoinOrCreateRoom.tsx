@@ -59,7 +59,6 @@ export const JoinOrCreateRoom: React.FC<Props> = ({
     if (!roomResource) {
       return;
     }
-
     invoke(() => {
       const createRoomInput: RoomState = invoke(() => {
         // if (activityParams.activity === 'play') {
@@ -154,6 +153,7 @@ export const JoinOrCreateRoom: React.FC<Props> = ({
             id: toResourceIdentifierObj(r.rid).resourceId,
             activity: activityParams.activity,
             userId: updateableSearchParams.get('userId') || generateUserId(),
+          
           })
         );
       })
