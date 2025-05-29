@@ -32,22 +32,7 @@ export const MatchContainer = ({
   inviteLink,
   dispatch,
   ...boardProps
-}: Props) =>{
-
-  useEffect(() => {
-  window.addEventListener('message', (event) => {
-    try {
-      const data = JSON.parse(event.data);
-      const token = data.token;
-      console.log('Token received from WebView:', token);
-      alert(token)
-      alert('matchContainer')
-    } catch (e) {
-      console.error('Invalid message from WebView:', e);
-    }
-  });
-}, []);
-  (
+}: Props) => (
   <MatchProvider match={match} userId={userId} dispatch={dispatch}>
     <ResizableDesktopLayout
       mainComponent={({ boardSize }) => (
@@ -80,5 +65,4 @@ export const MatchContainer = ({
       }
     />
   </MatchProvider>
-)
-};
+);
