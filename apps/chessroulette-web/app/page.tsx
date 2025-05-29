@@ -10,6 +10,7 @@ export const metadata: Metadata = {
   description: '',
 };
 
+
 export default async function Home() {
   const session = await getCustomServerSession(authOptions);
 

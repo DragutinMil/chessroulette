@@ -107,7 +107,7 @@ export const MatchStateDialogContainer: React.FC<Props> = (
       }
     }
    
-    console.log('tokent pre app',token)
+   
     //SA APA IDE PROVERA
     if (token) {
       setFromApp(true)
