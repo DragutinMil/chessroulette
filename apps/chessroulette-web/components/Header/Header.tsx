@@ -21,22 +21,20 @@ export default (props: Props) => {
 
 
   useEffect(() => {
-    const handleMessage = (event: MessageEvent) => {
+    
+    window.addEventListener('message', function (event) {
+      alert('uso u listener')
       try {
-        const token = typeof event.data === 'string' ? event.data : JSON.stringify(event.data);
-        alert( 'ide token');
-        alert( token);
-        
-        // Sačuvaj token npr. u localStorage ili u state
-       sessionStorage.setItem('token', token);
+        const data = JSON.parse(event.data);
+        if (data.token) {
+          console.log('Primljen token iz app-a:', data.token);
+          // ovde možeš sačuvati token, npr. u localStorage
+          localStorage.setItem('token', data.token);
+        }
       } catch (error) {
-       alert( error);
+        console.error('Greška pri parsiranju poruke:', error);
       }
-    };
-
-    window.addEventListener('message', handleMessage);
-
-    return () => window.removeEventListener('message', handleMessage);
+    });
   }, []);
 
 
