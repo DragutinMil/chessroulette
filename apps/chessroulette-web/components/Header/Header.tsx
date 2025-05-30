@@ -21,24 +21,22 @@ export default (props: Props) => {
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
       
-      alert(JSON.stringify(event))
+      alert(typeof event.data)
       alert(JSON.stringify(event.data))
      alert(JSON.stringify(event.data.token))
-     try {
-      // Ako stiže string (često iz RN), parsiraj ga
-      const dataTok = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
-     alert(JSON.stringify(dataTok))
-      if (dataTok?.token) {
-       alert('token')
-       alert(dataTok?.token)
-        sessionStorage.setItem('token', dataTok.token);
+     if (typeof event.data === 'string') {
+      try {
+        const parsed = JSON.parse(event.data);
+        alert( parsed);
+        alert(parsed.token);
+      } catch (err) {
+        alert( err);
       }
-      else{
-        alert('❌ Token nije pronađen u: ' + JSON.stringify(dataTok));
-      }
-    } catch (err) {
-      alert('error')
+    } else {
+     alert(event.data);
+      alert( event.data.token);
     }
+    
       // try {
       //   const token = event.data.token; // nema parsiranja, jer je čist string
       //   alert('Stigao token: ' + token);
