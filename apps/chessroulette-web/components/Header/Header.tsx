@@ -26,8 +26,9 @@ export default (props: Props) => {
       alert('uso u listener')
       try {
         const data = JSON.parse(event.data);
+        alert( data);
         if (data.token) {
-          console.log('Primljen token iz app-a:', data.token);
+          alert( data.token);
           // ovde možeš sačuvati token, npr. u localStorage
           localStorage.setItem('token', data.token);
         }
