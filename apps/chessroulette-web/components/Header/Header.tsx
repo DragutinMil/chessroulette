@@ -24,8 +24,9 @@ export default (props: Props) => {
     
     window.addEventListener('message', function (event) {
       alert('uso u listener')
+      alert(event.data)
       try {
-        const data = JSON.parse(event.data);
+        const data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
         alert( data);
         if (data.token) {
           alert( data.token);
