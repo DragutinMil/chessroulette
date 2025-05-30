@@ -24,7 +24,7 @@ import { ActivityState } from './activities/movex';
 import { LearnActivity } from './activities/Learn';
 import { MeetupActivity } from './activities/Meetup/MeetupActivity';
 import { MatchActivity } from './activities/Match/MatchActivity';
-
+import { useSearchParams } from 'next/navigation';
 type Props = {
   rid: ResourceIdentifier<'room'>;
   iceServers: IceServerRecord[];
@@ -39,6 +39,9 @@ export const RoomContainer = ({ iceServers, rid }: Props) => {
     () => movexSubcribersToUserMap(movexResource?.subscribers || {}),
     [movexResource?.subscribers]
   );
+  // const params = useSearchParams();
+  // const tokenParam = params.get('sessionToken');
+  // console.log('tokenParam',tokenParam)
   const peerUsersMap = useMemo<PeerUsersMap>(() => {
     const allPeers = toDictIndexedBy(
       Object.values(participants),
@@ -71,9 +74,8 @@ export const RoomContainer = ({ iceServers, rid }: Props) => {
       // But just for Server Renndering I shouldn't make it much harder on the Activity side to work with dispatch and other things
       return null;
     }
-
+    console.log('livada')
     const { activity } = movexResource.state;
-
     const commonActivityProps = {
       userId,
       roomId: toResourceIdentifierObj(rid).resourceId,
