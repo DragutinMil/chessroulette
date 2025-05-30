@@ -19,46 +19,55 @@ export default (props: Props) => {
   
   const router = useRouter();
 
+
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
-      alert(event.data);
-      alert(typeof(event.data))
-      // Ako je data već objekat
-      // if (event.data && typeof event.data === 'object') {
-      //   alert(event)
-      //   alert(event.data)
-      //   alert(event.data.token)
-      //   const token = event.data.token;
-      //   if (token) {
-      //     alert('Token primljen: ' + token);
-      //     // Ovde možeš sačuvati token u state, context, localStorage, itd.
-      //   } else {
-      //    alert('Nema tokena u event.data:')
-      //   }
-      // } else {
-      //   alert('event.data nije objekat:');
-      // }
+      alert( event);
+      alert( event.data);
       try {
-        const data = JSON.parse(event.data); // <- pokušaj parsiranja stringa
-        alert( data);
-        alert( 'parsed');
-        if (data.token) {
-          alert('Primljen token: ' + data.token);
-          // Sačuvaj token gde ti treba
-        } else {
-          alert('Token nije pronađen u data:');
-        }
-      } catch (err) {
-        alert(err);
+        const token = typeof event.data === 'string' ? event.data : JSON.stringify(event.data);
+        alert( token);
+
+        // Sačuvaj token npr. u localStorage ili u state
+       //localStorage.setItem('sessionToken', token);
+      } catch (error) {
+       alert( error);
       }
+    };
+
+    window.addEventListener('message', handleMessage);
+
+    return () => window.removeEventListener('message', handleMessage);
+  }, []);
+
+
+
+  // useEffect(() => {
+  //   const handleMessage = (event: MessageEvent) => {
+  //     alert(event.data);
+  //     alert(typeof(event.data))
+     
+  //     try {
+  //       const data = JSON.parse(event.data); // <- pokušaj parsiranja stringa
+  //       alert( data);
+  //       alert( 'parsed');
+  //       if (data.token) {
+  //         alert('Primljen token: ' + data.token);
+  //         // Sačuvaj token gde ti treba
+  //       } else {
+  //         alert('Token nije pronađen u data:');
+  //       }
+  //     } catch (err) {
+  //       alert(err);
+  //     }
     
       
   
-    };
-    alert('prvi prodj');
-    window.addEventListener('message', handleMessage);
-    return () => window.removeEventListener('message', handleMessage);
-  }, []);
+  //   };
+  //   alert('prvi prodj');
+  //   window.addEventListener('message', handleMessage);
+  //   return () => window.removeEventListener('message', handleMessage);
+  // }, []);
   return (
     <header
       className="
