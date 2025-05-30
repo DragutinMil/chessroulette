@@ -40,17 +40,17 @@ export const MatchStateDialogContainer: React.FC<Props> = (
   const router = useRouter();
   const [token, setToken] = useState('')
   const { lastOffer, playerId } = useGame();
-  window.addEventListener('message', (event) => {
-    try {
-      const data = JSON.parse(event.data);
-      const token = data.token;
-      console.log('Token received from WebView:', token);
-      alert(token)
-      setToken(token)
-    } catch (e) {
-      console.error('Invalid message from WebView:', e);
-    }
-  });
+  // window.addEventListener('message', (event) => {
+  //   try {
+  //     const data = JSON.parse(event.data);
+  //     const token = data.token;
+  //     console.log('Token received from WebView:', token);
+  //     alert(token)
+  //     setToken(token)
+  //   } catch (e) {
+  //     console.error('Invalid message from WebView:', e);
+  //   }
+  // });
   useEffect(() => {
     if (match?.status === 'complete') {
       const parts = window.location.pathname.split('/');
@@ -92,7 +92,9 @@ export const MatchStateDialogContainer: React.FC<Props> = (
   useEffect(() => {
     const url = new URL(window.location.href);
    // alert(url);
-     
+   const tokenViaApp = sessionStorage.getItem('token');
+   console.log('tokenViaApp',tokenViaApp)
+   alert(tokenViaApp)
     const userId = url.searchParams.get('userId');
 
     function parseJwt(token: string) {
@@ -109,16 +111,16 @@ export const MatchStateDialogContainer: React.FC<Props> = (
    
    
     //SA APA IDE PROVERA
-    if (token) {
+    if (tokenViaApp) {
       setFromApp(true)
      // alert('App')
-      const token = url.searchParams.get('sessionToken');
-      const data = parseJwt(token || '');
+   
+      const data = parseJwt(tokenViaApp || '');
      // alert(data)
       if (data?.userId !== userId) {
         if (match) {
          
-         // alert('out App')
+          alert('out App')
           // router.push("https://chess.outpostchess.com/room/a/match/ilegal&theme=op")
         }
       }
