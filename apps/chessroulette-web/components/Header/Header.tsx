@@ -23,7 +23,8 @@ export default (props: Props) => {
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
       alert(event)
-      alert(event.data)
+      alert(event.data.token)
+      alert(event.data.token)
       try {
         const token = event.data; // nema parsiranja, jer je čist string
         alert('Stigao token: ' + token);
