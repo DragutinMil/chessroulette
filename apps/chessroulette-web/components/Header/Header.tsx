@@ -26,12 +26,12 @@ export default (props: Props) => {
      alert(event.data.token)
      try {
       // Ako stiže string (često iz RN), parsiraj ga
-      const data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
-
-      if (data?.token) {
+      const dataTok = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
+     alert(dataTok)
+      if (dataTok?.token) {
        alert('token')
-       alert(data?.token)
-        sessionStorage.setItem('token', data.token);
+       alert(dataTok?.token)
+        sessionStorage.setItem('token', dataTok.token);
       }
     } catch (err) {
       alert('error')
