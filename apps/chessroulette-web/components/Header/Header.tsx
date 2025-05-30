@@ -23,12 +23,30 @@ export default (props: Props) => {
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
       alert(event)
+      alert(event.data)
       alert(event.data.token)
-      alert(event.data.token)
+      if (typeof event.data === "object") {
+        console.log("event.data.token =", event.data.token);
+        alert( 'object');
+         alert( event.data.token);
+      } else if (typeof event.data === "string") {
+        try {
+          const parsed = JSON.parse(event.data);
+          alert( 'parsed');
+         alert( parsed.token);
+        } catch (e) {
+          console.error("Invalid JSON string in event.data:", event.data);
+        }
+      } else {
+        console.warn("Nepodržan tip:", typeof event.data);
+      }
       try {
-        const token = event.data; // nema parsiranja, jer je čist string
+        const token = event.data.token; // nema parsiranja, jer je čist string
         alert('Stigao token: ' + token);
-        sessionStorage.setItem('token', token);
+        if(token){
+          sessionStorage.setItem('token', token);
+        }
+        
       } catch (err) {
         console.error('Greška:', err);
       }
