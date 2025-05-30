@@ -84,17 +84,24 @@ export const MatchStateDialogContainer: React.FC<Props> = (
       sendResults();
     }
   }, [match?.winner]);
-  // useEffect(() => {
-  //   console.log('lastOffer provera', lastOffer);
-    
-  // }, [lastOffer]);
+  useEffect(() => {
+   
+      const tokenViaApp = sessionStorage.getItem('token');
+      console.log('lastOffer provera', lastOffer);
+   
+     if(tokenViaApp){
+      alert(tokenViaApp)
+     }
+
+   
+  }, []);
 
   useEffect(() => {
     const url = new URL(window.location.href);
    // alert(url);
-   const tokenViaApp = sessionStorage.getItem('token');
+   const tokenViaApp =  sessionStorage.getItem('token');
    console.log('tokenViaApp',tokenViaApp)
-   alert(tokenViaApp)
+   
     const userId = url.searchParams.get('userId');
 
     function parseJwt(token: string) {
