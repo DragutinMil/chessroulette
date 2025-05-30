@@ -1,3 +1,4 @@
+
 import { ResourceIdentifier } from 'movex-core-util';
 import { StringRecord } from '@xmatter/util-kit';
 import { authOptions, getCustomServerSession } from '@app/services/Auth';
@@ -22,15 +23,15 @@ export async function RoomPage({
     
   );
   
+  
   if (!result.success) {
     return <ErrorPage error={result.error} extra={params} />;
   }
-
+  
   const session = (await getCustomServerSession(authOptions)) || undefined;
   const iceServers = await twilio.getIceServers();
   const roomId = decodeURIComponent(result.data.roomId);
   const rid: ResourceIdentifier<'room'> = `room:${roomId}`;
-
   return (
     <RoomTemplate
       themeName={searchParams.theme}
