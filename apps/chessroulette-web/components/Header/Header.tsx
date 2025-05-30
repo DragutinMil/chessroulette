@@ -21,17 +21,20 @@ export default (props: Props) => {
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
       
-      alert(event)
-      alert(event.data)
-     alert(event.data.token)
+      alert(JSON.stringify(event))
+      alert(JSON.stringify(event.data))
+     alert(JSON.stringify(event.data.token))
      try {
       // Ako stiže string (često iz RN), parsiraj ga
       const dataTok = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
-     alert(dataTok)
+     alert(JSON.stringify(dataTok))
       if (dataTok?.token) {
        alert('token')
        alert(dataTok?.token)
         sessionStorage.setItem('token', dataTok.token);
+      }
+      else{
+        alert('❌ Token nije pronađen u: ' + JSON.stringify(dataTok));
       }
     } catch (err) {
       alert('error')
