@@ -22,25 +22,38 @@ export default (props: Props) => {
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
       alert(event.data);
-
+      alert(typeof(event.data))
       // Ako je data već objekat
-      if (event.data && typeof event.data === 'object') {
-        alert(event)
-        alert(event.data)
-        alert(event.data.token)
-        const token = event.data.token;
-        if (token) {
-          alert('Token primljen: ' + token);
-          // Ovde možeš sačuvati token u state, context, localStorage, itd.
+      // if (event.data && typeof event.data === 'object') {
+      //   alert(event)
+      //   alert(event.data)
+      //   alert(event.data.token)
+      //   const token = event.data.token;
+      //   if (token) {
+      //     alert('Token primljen: ' + token);
+      //     // Ovde možeš sačuvati token u state, context, localStorage, itd.
+      //   } else {
+      //    alert('Nema tokena u event.data:')
+      //   }
+      // } else {
+      //   alert('event.data nije objekat:');
+      // }
+      try {
+        const data = JSON.parse(event.data); // <- pokušaj parsiranja stringa
+        alert( data);
+        alert( 'parsed');
+        if (data.token) {
+          alert('Primljen token: ' + data.token);
+          // Sačuvaj token gde ti treba
         } else {
-         alert('Nema tokena u event.data:')
+          alert('Token nije pronađen u data:');
         }
-      } else {
-        alert('event.data nije objekat:');
+      } catch (err) {
+        alert(err);
       }
-  
+    
       
-     
+  
     };
     alert('prvi prodj');
     window.addEventListener('message', handleMessage);
