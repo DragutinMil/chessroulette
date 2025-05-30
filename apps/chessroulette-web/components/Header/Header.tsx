@@ -22,14 +22,13 @@ export default (props: Props) => {
 
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
-      alert( event);
-      alert( event.data);
       try {
         const token = typeof event.data === 'string' ? event.data : JSON.stringify(event.data);
+        alert( 'ide token');
         alert( token);
-
+        
         // Sačuvaj token npr. u localStorage ili u state
-       //localStorage.setItem('sessionToken', token);
+       sessionStorage.setItem('token', token);
       } catch (error) {
        alert( error);
       }
