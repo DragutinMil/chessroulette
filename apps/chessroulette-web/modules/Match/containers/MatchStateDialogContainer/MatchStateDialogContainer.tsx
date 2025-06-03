@@ -123,9 +123,12 @@ export const MatchStateDialogContainer: React.FC<Props> = (
       setFromApp(true)
      // alert('App')
    
-      const data = parseJwt(tokenViaApp || '');
-     // alert(data)
+      const data = parseJwt(Cookies.get('token') || '');
+      alert(data?.userId )
+      alert(userId )
+     
       if (data?.userId !== userId) {
+       
         if (match) {
          
           alert('out App')
