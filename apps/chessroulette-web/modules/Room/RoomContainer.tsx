@@ -74,7 +74,6 @@ export const RoomContainer = ({ iceServers, rid }: Props) => {
       // But just for Server Renndering I shouldn't make it much harder on the Activity side to work with dispatch and other things
       return null;
     }
-    console.log('livada')
     const { activity } = movexResource.state;
     const commonActivityProps = {
       userId,

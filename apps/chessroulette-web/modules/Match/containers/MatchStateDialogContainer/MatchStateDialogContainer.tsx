@@ -99,77 +99,35 @@ export const MatchStateDialogContainer: React.FC<Props> = (
 
   useEffect(() => {
     const url = new URL(window.location.href);
-   // alert(url);
-   const tokenViaApp =  sessionStorage.getItem('token');
-   console.log('tokenViaApp',tokenViaApp)
-   
     const userId = url.searchParams.get('userId');
-
-    // function parseJwt(token: string) {
-    //   try {
-    //     const payload = token.split('.')[1];
-    //     const base64 = payload.replace(/-/g, '+').replace(/_/g, '/');
-    //     const json =  decodeURIComponent(
-    //       atob(base64)
-    //         .split('')
-    //         .map(c => `%${('00' + c.charCodeAt(0).toString(16)).slice(-2)}`)
-    //         .join('')
-    //     );
-        
-    //    //  Buffer.from(base64, 'base64').toString('utf-8');
-    //     return JSON.parse(json);
-    //   } catch (e) {
-    //     console.error('Invalid token', e);
-    //     return null;
-    //   }
-    // }
-   
     alert(Cookies.get('token'))
     alert(Cookies.get('sessionToken'))
     //SA APA IDE PROVERA
 
-    
+    console.log()
     if (Cookies.get('token')) {
       setFromApp(true)
-
       const data = decodeJwt(Cookies.get('token'));
-     // alert('App')
-   
-    //  const token: string | undefined = Cookies.get('token');
-    //   const data = parseJwt(Cookies.get('token') || '');
-      alert(data?.userId )
+      console.log('data chessroullette',data)
+      alert(data?.user_id )
       alert(userId )
       if(data){
-        // const data = parseJwt(token || '');
-        if (data?.userId !== userId) {
-       
-          if (match) {
-           
+        if (data?.user_id !== userId) {
             alert('out App')
             // router.push("https://chess.outpostchess.com/room/a/match/ilegal&theme=op")
-          }
         }else{
           alert('ulogovan kroz app')
         }
       }
-      
     }
     //SA WEB IDE PROVERA
-   
     if(Cookies.get('sessionToken')) {
      // alert('in web')
       const token: string | undefined = Cookies.get('sessionToken');
-     
       if(token){
         const data = decodeJwt(token);
-       //const data = parseJwt(token || '');
-        // if(data?.user_id.length>0){
-        //   setFromWeb(true)
-        // }
-        //console.log('token data web', data);
         if (data?.user_id !== userId) {
           console.log('out web')
-         
           // router.push('https://app.outpostchess.com/online-list');
         }else{
           console.log('ulogovan kroz web')
