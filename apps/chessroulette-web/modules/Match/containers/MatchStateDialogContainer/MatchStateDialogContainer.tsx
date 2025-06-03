@@ -41,94 +41,65 @@ export const MatchStateDialogContainer: React.FC<Props> = (
   const router = useRouter();
   const [token, setToken] = useState('')
   const { lastOffer, playerId } = useGame();
-  // window.addEventListener('message', (event) => {
-  //   try {
-  //     const data = JSON.parse(event.data);
-  //     const token = data.token;
-  //     console.log('Token received from WebView:', token);
-  //     alert(token)
-  //     setToken(token)
-  //   } catch (e) {
-  //     console.error('Invalid message from WebView:', e);
-  //   }
-  // });
   useEffect(() => {
     if (match?.status === 'complete') {
-      // const parts = window.location.pathname.split('/');
-      // const match_id = parts[parts.length - 1];
+      const parts = window.location.pathname.split('/');
+      const match_id = parts[parts.length - 1];
       const sendResults = async () => {
-        // try {
-        //   const response = await fetch(
-        //     process.env.NEXT_PUBLIC_API_WEB + 'fetch_roulette_match_result',
-        //     {
-        //       method: 'POST',
-        //       headers: {
-        //         'Content-Type': 'application/json',
-        //       },
-        //       body: JSON.stringify({
-        //         match_id: match_id, //match_id
-        //       }),
-        //     }
-        //   );
+        try {
+          const response = await fetch(
+            process.env.NEXT_PUBLIC_API_WEB + 'fetch_roulette_match_result',
+            {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                match_id: match_id, //match_id
+              }),
+            }
+          );
 
-        //   if (!response.ok) {
-        //     throw new Error(`Error: ${response.status}`);
-        //   }
+          if (!response.ok) {
+            throw new Error(`Error: ${response.status}`);
+          }
 
-        //   const data = await response.json();
-        //   //  console.log('data', data);
-        // } catch (error) {
-        //   console.error('Fetch error', error);
-        // }
+          const data = await response.json();
+          //  console.log('data', data);
+        } catch (error) {
+          console.error('Fetch error', error);
+        }
       };
 
       sendResults();
     }
   }, [match?.winner]);
-  // useEffect(() => {
-   
-  //     const tokenViaApp = sessionStorage.getItem('token');
-  //     console.log('lastOffer provera', lastOffer);
-   
-  //    if(tokenViaApp){
-  //     alert(tokenViaApp)
-  //    }
-
-   
-  // }, []);
-
   useEffect(() => {
     const url = new URL(window.location.href);
     const userId = url.searchParams.get('userId');
-    alert(Cookies.get('token'))
-    alert(Cookies.get('sessionToken'))
+  
     //SA APA IDE PROVERA
-
     console.log()
     if (Cookies.get('token')) {
       setFromApp(true)
       const data = decodeJwt(Cookies.get('token'));
-      console.log('data chessroullette',data)
-      alert(data?.user_id )
-      alert(userId )
+      
       if(data){
         if (data?.user_id !== userId) {
             alert('out App')
-            // router.push("https://chess.outpostchess.com/room/a/match/ilegal&theme=op")
         }else{
-          alert('ulogovan kroz app')
+         console.log('ulogovan kroz app')
         }
       }
     }
     //SA WEB IDE PROVERA
     if(Cookies.get('sessionToken')) {
-     // alert('in web')
+      setFromWeb(true)
       const token: string | undefined = Cookies.get('sessionToken');
       if(token){
         const data = decodeJwt(token);
         if (data?.user_id !== userId) {
-          console.log('out web')
-          // router.push('https://app.outpostchess.com/online-list');
+           router.push('https://app.outpostchess.com/online-list');
         }else{
           console.log('ulogovan kroz web')
         }
@@ -139,9 +110,6 @@ export const MatchStateDialogContainer: React.FC<Props> = (
 
   if (match?.status === 'aborted' ) {
     return (
-    
-
-    
       <Dialog
         title="Match Aborted"
         content={
