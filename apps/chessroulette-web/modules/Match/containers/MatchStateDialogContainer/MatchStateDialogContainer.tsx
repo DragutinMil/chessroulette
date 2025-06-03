@@ -53,32 +53,32 @@ export const MatchStateDialogContainer: React.FC<Props> = (
   // });
   useEffect(() => {
     if (match?.status === 'complete') {
-      const parts = window.location.pathname.split('/');
-      const match_id = parts[parts.length - 1];
+      // const parts = window.location.pathname.split('/');
+      // const match_id = parts[parts.length - 1];
       const sendResults = async () => {
-        try {
-          const response = await fetch(
-            process.env.NEXT_PUBLIC_API_WEB + 'fetch_roulette_match_result',
-            {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                match_id: match_id, //match_id
-              }),
-            }
-          );
+        // try {
+        //   const response = await fetch(
+        //     process.env.NEXT_PUBLIC_API_WEB + 'fetch_roulette_match_result',
+        //     {
+        //       method: 'POST',
+        //       headers: {
+        //         'Content-Type': 'application/json',
+        //       },
+        //       body: JSON.stringify({
+        //         match_id: match_id, //match_id
+        //       }),
+        //     }
+        //   );
 
-          if (!response.ok) {
-            throw new Error(`Error: ${response.status}`);
-          }
+        //   if (!response.ok) {
+        //     throw new Error(`Error: ${response.status}`);
+        //   }
 
-          const data = await response.json();
-          //  console.log('data', data);
-        } catch (error) {
-          console.error('Fetch error', error);
-        }
+        //   const data = await response.json();
+        //   //  console.log('data', data);
+        // } catch (error) {
+        //   console.error('Fetch error', error);
+        // }
       };
 
       sendResults();
@@ -118,22 +118,22 @@ export const MatchStateDialogContainer: React.FC<Props> = (
    
    
     //SA APA IDE PROVERA
-    if (tokenViaApp) {
-      setFromApp(true)
-     // alert('App')
+    // if (tokenViaApp) {
+    //   setFromApp(true)
+    //  // alert('App')
    
-      const data = parseJwt(tokenViaApp || '');
-     // alert(data)
-      if (data?.userId !== userId) {
-        if (match) {
+    //   const data = parseJwt(tokenViaApp || '');
+    //  // alert(data)
+    //   if (data?.userId !== userId) {
+    //     if (match) {
          
-          alert('out App')
-          // router.push("https://chess.outpostchess.com/room/a/match/ilegal&theme=op")
-        }
-      }
-    }
+    //       alert('out App')
+    //       // router.push("https://chess.outpostchess.com/room/a/match/ilegal&theme=op")
+    //     }
+    //   }
+    // }
     //SA WEB IDE PROVERA
-    else {
+    if(Cookies.get('sessionToken')) {
      // alert('in web')
       const token: string | undefined = Cookies.get('sessionToken');
       if(token){
@@ -144,7 +144,8 @@ export const MatchStateDialogContainer: React.FC<Props> = (
         }
         //console.log('token data web', data);
         if (data?.user_id !== userId) {
-        //  alert('out web')
+          console.log('out web')
+          console.log('izbacen')
           // router.push('https://app.outpostchess.com/online-list');
         }
       }
@@ -208,7 +209,7 @@ export const MatchStateDialogContainer: React.FC<Props> = (
               </Text>
               {match[match.winner].id.length !== 16 &&  (
                 <div className="justify-center items-center flex flex-col">
-                  {match.challengee.id=='8UWCweKl1Gvoi'  && (
+                  {/* {match.challengee.id=='8UWCweKl1Gvoi'  && ( */}
                     <Button
                     icon="ArrowPathRoundedSquareIcon"
                     style={{
@@ -232,7 +233,7 @@ export const MatchStateDialogContainer: React.FC<Props> = (
                     Rematch
                   </Button>
 
-                  )}
+                  {/* )} */}
                   
                   {/* { (document.referrer.includes('app.outpostchess.com') || document.referrer.includes('localhost:8080') || document.referrer.includes('test-app.outpostchess.com')) && */}
                  {fromWeb && (
