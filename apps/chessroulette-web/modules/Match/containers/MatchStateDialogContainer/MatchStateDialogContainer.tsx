@@ -116,25 +116,27 @@ export const MatchStateDialogContainer: React.FC<Props> = (
       }
     }
    
-   
-    //SA APA IDE PROVERA
-    // if (tokenViaApp) {
-    //   setFromApp(true)
-    //  // alert('App')
-   
-    //   const data = parseJwt(tokenViaApp || '');
-    //  // alert(data)
-    //   if (data?.userId !== userId) {
-    //     if (match) {
-         
-    //       alert('out App')
-    //       // router.push("https://chess.outpostchess.com/room/a/match/ilegal&theme=op")
-    //     }
-    //   }
-    // }
-    //SA WEB IDE PROVERA
     alert(Cookies.get('token'))
     alert(Cookies.get('sessionToken'))
+    //SA APA IDE PROVERA
+    if (Cookies.get('token')) {
+      setFromApp(true)
+     // alert('App')
+   
+      const data = parseJwt(tokenViaApp || '');
+     // alert(data)
+      if (data?.userId !== userId) {
+        if (match) {
+         
+          alert('out App')
+          // router.push("https://chess.outpostchess.com/room/a/match/ilegal&theme=op")
+        }
+      }else{
+        alert('ulogovan kroz app')
+      }
+    }
+    //SA WEB IDE PROVERA
+   
     if(Cookies.get('sessionToken')) {
      // alert('in web')
       const token: string | undefined = Cookies.get('sessionToken');
@@ -142,16 +144,17 @@ export const MatchStateDialogContainer: React.FC<Props> = (
         const data = parseJwt(token || '');
         if(data?.user_id.length>0){
           setFromWeb(true)
-        //  alert('u web-u')
         }
         //console.log('token data web', data);
         if (data?.user_id !== userId) {
           console.log('out web')
-          console.log('izbacen')
+         
           // router.push('https://app.outpostchess.com/online-list');
+        }else{
+          console.log('ulogovan kroz web')
         }
       }
-      // console.log('out nema tokena');
+     
     }
   }, []);
 
