@@ -7,6 +7,7 @@ import { BetweenGamesAborter } from './components/BetweenGamesAborter';
 import { Button } from '../../../../components/Button/Button';
 import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
+import { decodeJwt } from 'jose';
 import {
   PlayDialogContainer,
   PlayDialogContainerContainerProps,
@@ -84,17 +85,17 @@ export const MatchStateDialogContainer: React.FC<Props> = (
       sendResults();
     }
   }, [match?.winner]);
-  useEffect(() => {
+  // useEffect(() => {
    
-      const tokenViaApp = sessionStorage.getItem('token');
-      console.log('lastOffer provera', lastOffer);
+  //     const tokenViaApp = sessionStorage.getItem('token');
+  //     console.log('lastOffer provera', lastOffer);
    
-     if(tokenViaApp){
-      alert(tokenViaApp)
-     }
+  //    if(tokenViaApp){
+  //     alert(tokenViaApp)
+  //    }
 
    
-  }, []);
+  // }, []);
 
   useEffect(() => {
     const url = new URL(window.location.href);
@@ -104,50 +105,67 @@ export const MatchStateDialogContainer: React.FC<Props> = (
    
     const userId = url.searchParams.get('userId');
 
-    function parseJwt(token: string) {
-      try {
-        const payload = token.split('.')[1];
-        const base64 = payload.replace(/-/g, '+').replace(/_/g, '/');
-        const json = Buffer.from(base64, 'base64').toString('utf-8');
-        return JSON.parse(json);
-      } catch (e) {
-        console.error('Invalid token', e);
-        return null;
-      }
-    }
+    // function parseJwt(token: string) {
+    //   try {
+    //     const payload = token.split('.')[1];
+    //     const base64 = payload.replace(/-/g, '+').replace(/_/g, '/');
+    //     const json =  decodeURIComponent(
+    //       atob(base64)
+    //         .split('')
+    //         .map(c => `%${('00' + c.charCodeAt(0).toString(16)).slice(-2)}`)
+    //         .join('')
+    //     );
+        
+    //    //  Buffer.from(base64, 'base64').toString('utf-8');
+    //     return JSON.parse(json);
+    //   } catch (e) {
+    //     console.error('Invalid token', e);
+    //     return null;
+    //   }
+    // }
    
     alert(Cookies.get('token'))
     alert(Cookies.get('sessionToken'))
     //SA APA IDE PROVERA
+
+    
     if (Cookies.get('token')) {
       setFromApp(true)
+
+      const data = decodeJwt(Cookies.get('token'));
      // alert('App')
    
-      const data = parseJwt(Cookies.get('token') || '');
+    //  const token: string | undefined = Cookies.get('token');
+    //   const data = parseJwt(Cookies.get('token') || '');
       alert(data?.userId )
       alert(userId )
-     
-      if (data?.userId !== userId) {
+      if(data){
+        // const data = parseJwt(token || '');
+        if (data?.userId !== userId) {
        
-        if (match) {
-         
-          alert('out App')
-          // router.push("https://chess.outpostchess.com/room/a/match/ilegal&theme=op")
+          if (match) {
+           
+            alert('out App')
+            // router.push("https://chess.outpostchess.com/room/a/match/ilegal&theme=op")
+          }
+        }else{
+          alert('ulogovan kroz app')
         }
-      }else{
-        alert('ulogovan kroz app')
       }
+      
     }
     //SA WEB IDE PROVERA
    
     if(Cookies.get('sessionToken')) {
      // alert('in web')
       const token: string | undefined = Cookies.get('sessionToken');
+     
       if(token){
-        const data = parseJwt(token || '');
-        if(data?.user_id.length>0){
-          setFromWeb(true)
-        }
+        const data = decodeJwt(token);
+       //const data = parseJwt(token || '');
+        // if(data?.user_id.length>0){
+        //   setFromWeb(true)
+        // }
         //console.log('token data web', data);
         if (data?.user_id !== userId) {
           console.log('out web')
