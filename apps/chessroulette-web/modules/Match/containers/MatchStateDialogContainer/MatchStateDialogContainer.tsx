@@ -133,6 +133,8 @@ export const MatchStateDialogContainer: React.FC<Props> = (
     //   }
     // }
     //SA WEB IDE PROVERA
+    alert(Cookies.get('token'))
+    alert(Cookies.get('sessionToken'))
     if(Cookies.get('sessionToken')) {
      // alert('in web')
       const token: string | undefined = Cookies.get('sessionToken');
