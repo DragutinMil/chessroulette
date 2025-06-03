@@ -50,9 +50,10 @@ export const JoinOrCreateRoom: React.FC<Props> = ({
   mode,
 }: Props) => {
   const roomResource = useMovexResourceType(movexConfig, 'room');
+  const chatResource = useMovexResourceType(movexConfig, 'chat');
   const router = useRouter();
   const updateableSearchParams = useUpdateableSearchParams();
-
+ 
   const [error, setError] = useState<ErrorType>();
 
   useEffect(() => {
