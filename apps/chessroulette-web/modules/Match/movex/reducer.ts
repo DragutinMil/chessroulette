@@ -14,7 +14,7 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
     return prev;
   } 
   //console.log('prev movex',prev)
-  const prevMatch = prev; 
+  const prevMatch = prev;  
 
   // answer to offers on completed games
   if (

@@ -16,70 +16,7 @@ type Props = {
 };
 
 export default (props: Props) => {
-  
   const router = useRouter();
-  useEffect(() => {
-    const handleMessage = (event: MessageEvent) => {
-      
-      alert(typeof event.data)
-      alert(JSON.stringify(event.data))
-     alert(JSON.stringify(event.data.token))
-     if (typeof event.data === 'string') {
-      try {
-        const parsed = JSON.parse(event.data);
-        alert( parsed);
-        alert(parsed.token);
-      } catch (err) {
-        alert( err);
-      }
-    } else {
-     alert(event.data);
-      alert( event.data.token);
-    }
-    
-      // try {
-      //   const token = event.data.token; // nema parsiranja, jer je čist string
-      //   alert('Stigao token: ' + token);
-      //   if(token){
-      //     sessionStorage.setItem('token', token);
-      //   }
-        
-      // } catch (err) {
-      //   console.error('Greška:', err);
-      // }
-    };
-    window.addEventListener('message', handleMessage);
-    return () => window.removeEventListener('message', handleMessage);
-  }, []);
-
-
-
-  // useEffect(() => {
-  //   const handleMessage = (event: MessageEvent) => {
-  //     alert(event.data);
-  //     alert(typeof(event.data))
-     
-  //     try {
-  //       const data = JSON.parse(event.data); // <- pokušaj parsiranja stringa
-  //       alert( data);
-  //       alert( 'parsed');
-  //       if (data.token) {
-  //         alert('Primljen token: ' + data.token);
-  //         // Sačuvaj token gde ti treba
-  //       } else {
-  //         alert('Token nije pronađen u data:');
-  //       }
-  //     } catch (err) {
-  //       alert(err);
-  //     }
-    
-      
-  
-  //   };
-  //   alert('prvi prodj');
-  //   window.addEventListener('message', handleMessage);
-  //   return () => window.removeEventListener('message', handleMessage);
-  // }, []);
   return (
     <header
       className="
