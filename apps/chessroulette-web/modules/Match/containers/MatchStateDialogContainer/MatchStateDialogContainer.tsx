@@ -21,6 +21,9 @@ import {
 import { getMatchPlayerRoleById } from '../../movex/util';
 import { gameOverReasonsToDisplay } from './util';
 import { useGame } from '@app/modules/Game/hooks';
+import { CounterActions } from '@app/modules/Room/activities/Match/counter';
+
+export type ActivityActions =  CounterActions;
 
 type Props = PlayDialogContainerContainerProps;
  // export default async function Page({
@@ -36,7 +39,6 @@ export const MatchStateDialogContainer: React.FC<Props> = (
   const { match, ...matchView } = useMatchViewState();
   const [fromWeb, setFromWeb] = useState(false)
   const [fromApp, setFromApp] = useState(false)
-
   const dispatch = useMatchActionsDispatch();
   const router = useRouter();
   const [token, setToken] = useState('')
@@ -99,7 +101,8 @@ export const MatchStateDialogContainer: React.FC<Props> = (
       if(token){
         const data = decodeJwt(token);
         if (data?.user_id !== userId) {
-           router.push('https://app.outpostchess.com/online-list');
+
+          // router.push('https://app.outpostchess.com/online-list');
         }else{
           console.log('ulogovan kroz web')
         }
@@ -171,14 +174,15 @@ export const MatchStateDialogContainer: React.FC<Props> = (
                     }}
                     onClick={() => {
                       if (playerId) {
-                        dispatch((masterContext) => ({
-                          type: 'play:sendOffer',
-                          payload: {
-                            byPlayer: playerId, 
-                            offerType: 'rematch',
-                            timestamp: masterContext.requestAt(),
-                          },
-                        }));
+                        dispatch({ type: 'increment' });
+                        // dispatch((masterContext) => ({
+                        //   type: 'play:sendOffer',
+                        //   payload: {
+                        //     byPlayer: playerId, 
+                        //     offerType: 'rematch',
+                        //     timestamp: masterContext.requestAt(),
+                        //   },
+                        // }));
                       }
                     }}
                   >

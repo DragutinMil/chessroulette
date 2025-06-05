@@ -277,6 +277,7 @@ reducer.$transformState = (state, masterContext): MatchState => {
   if (!state) {
     return state;
   }
+  console.log('masterContext',masterContext)
  
   
   // Determine if Match is "aborted" onRead
