@@ -7,7 +7,7 @@ import counterReducer, {
 } from '../counter';
 export const reducer: MovexReducer<ActivityState, ActivityActions> = (
   prev: ActivityState = initialMatchActivityState,
-  action: ActivityActions
+  action: ActivityActions 
 ): ActivityState => {
   console.log('prev room ativityState', prev)
   if (prev.activityType === 'match') {
