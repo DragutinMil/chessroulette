@@ -1,4 +1,4 @@
-import React, { PropsWithChildren, useMemo } from 'react';
+import React, { PropsWithChildren, useMemo,useEffect,useState } from 'react';
 import { MovexDispatchAction } from 'movex';
 import { GameProvider } from '@app/modules/Game/GameProvider';
 import { PENDING_UNTIMED_GAME } from '@app/modules/Game';
@@ -13,12 +13,53 @@ type Props = PropsWithChildren<{
   dispatch: MovexDispatchAction<MatchActions>;
 }>;
 
+const getInitialState = (
+  match: NonNullable<MatchState>,
+  userId: User['id'],
+  dispatch: MovexDispatchAction<MatchActions>
+): MatchContextType => ({
+  match,
+  drawsCount: match.endedGames.filter((g) => g.winner === '1/2').length,
+  endedGamesCount: match.endedGames.length,
+  currentRound:
+    match.endedGames.filter((g) => g.winner !== '1/2').length + 1,
+  previousGame: match.endedGames.slice(-1)[0],
+  userAsPlayer: invoke(() => {
+    if (userId === match.challengee.id) {
+      return { id: userId, type: 'challengee' };
+    }
+    if (userId === match.challenger.id) {
+      return { id: userId, type: 'challenger' };
+    }
+    return undefined;
+  }),
+  results: {
+    challengee: { points: match.challengee.points },
+    challenger: { points: match.challenger.points },
+  },
+  dispatch,
+});
+
+
 export const MatchProvider: React.FC<Props> = ({
   match,
   userId,
   dispatch,
   children,
 }) => {
+  const [state, setState] = useState<MatchContextType>(
+    () => getInitialState(match, userId, dispatch)
+  );
+  useEffect(() => {
+       console.log('🟡 FULL GAME STATE match:', match);
+      setState((prev) => ({
+        ...prev,
+        rematch: match.rematch,
+      }));
+     
+  
+      //  }
+    }, [match.rematch]);
   const contextState = useMemo<MatchContextType>(
     () => ({
       match,
