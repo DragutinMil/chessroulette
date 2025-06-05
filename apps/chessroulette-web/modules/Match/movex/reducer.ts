@@ -84,9 +84,7 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
   //OFFER REMATCH - here to effect completed matches
   if (action.type === 'play:sendOffer') {
     const { byPlayer, offerType } = action.payload;
-    console.log('upad00a', byPlayer, offerType)
     if (offerType == 'rematch') {
-      const newArray = prev.endedGames.slice(0, -1);
       const nextOffers: GameOffer[] = [
         { 
           byPlayer,
@@ -99,14 +97,7 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
       ];
       return {
         ...prev,
-        endedGames: [
-          ...newArray,
-          {
-            ...prev.endedGames[prev.endedGames.length - 1],
-            offers: nextOffers,
-            
-          },
-        ],
+        rematch: nextOffers,
       };
     }
     
@@ -282,16 +273,6 @@ reducer.$transformState = (state, masterContext): MatchState => {
   // Determine if Match is "aborted" onRead
   if (state.status === 'complete' || state.status === 'aborted') {
     //OFFER REMATCH - here to effect completed matches
-    // console.log('stauts',state.endedGames[0].offers[0].type==='rematch')
-    if ( state?.endedGames[0]?.offers[0]?.type==='rematch') {
-      return {
-        ...state,
-        rematch:true
-      };
-    
-    } 
-  
-   
     console.log('state 1 transformState',state)
     return state 
   }
