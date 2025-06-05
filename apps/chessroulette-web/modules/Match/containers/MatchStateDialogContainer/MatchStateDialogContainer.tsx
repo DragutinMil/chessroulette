@@ -99,7 +99,7 @@ export const MatchStateDialogContainer: React.FC<Props> = (
       if(token){
         const data = decodeJwt(token);
         if (data?.user_id !== userId) {
-           router.push('https://app.outpostchess.com/online-list');
+         //  router.push('https://app.outpostchess.com/online-list');
         }else{
           console.log('ulogovan kroz web')
         }
@@ -136,7 +136,7 @@ export const MatchStateDialogContainer: React.FC<Props> = (
 
   // TODO: Here we should just check the match.status
 
-  if (match?.winner && !match?.rematch) {
+  if (match?.winner && match?.status!=='rematchOffer') {
     return (
       <Dialog
         title="Match Completed"
