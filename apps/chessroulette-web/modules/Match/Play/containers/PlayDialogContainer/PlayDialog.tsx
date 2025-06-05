@@ -116,13 +116,13 @@ export const PlayDialog: React.FC<GameStateDialogProps> = ({
       );
     }
 
-    if (match?.rematch) {
-      if (game.status === 'complete' && !gameResultSeen) {
+    if (match?.status=='rematchOffer') {
+      if ( !gameResultSeen) {
         // setGameResultSeen(true);
       }
-      if (match?.rematch) {
-        if (match?.rematch) {
-          if (match?.rematch) {
+      if (match?.status=='rematchOffer') {
+        if (match?.status=='rematchOffer') {
+          if (match?.status=='rematchOffer') {
             return (
               <Dialog
                 title="Rematch ?"
