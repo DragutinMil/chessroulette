@@ -120,6 +120,7 @@ const getPlayFromGame = (
         };
       }
     }),
-    lastOffer: game.offers?.slice(-1)[0],
+     lastOffer: game.offers?.slice(-1)[0],
+     rematchOffer: false
   };
 };

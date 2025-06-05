@@ -21,6 +21,7 @@ export type GameContextProps = {
   players?: UsersMap;
   playerId?: UserId;
   lastOffer?: GameOffer;
+  rematchOffer?:Boolean;
 };
 
 export const initialGameContextState: GameContextProps = {
@@ -42,6 +43,7 @@ export const initialGameContextState: GameContextProps = {
   players: undefined,
   playerId: undefined,
   lastOffer: undefined,
+  rematchOffer:undefined
 };
 
 export const GameContext = createContext<GameContextProps>(

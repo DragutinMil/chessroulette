@@ -46,13 +46,17 @@ export const GameProvider = ({
   //console.log('MatchState',match)
   //const lockRef = useRef(false);
   useEffect(() => {
-     console.log('🟡 FULL GAME STATE:', game);
+    // console.log('🟡 FULL GAME STATE:', game);
     // if(lockRef.current !== true ){
-    // console.log('ide realna promena')
-    setState((prev) => ({
-      ...prev,
-      lastOffer: game.offers?.slice(-1)[0],
-    }));
+    
+     console.log('ide realna promena',game.offers)
+    
+        setState((prev) => ({
+              ...prev,
+              lastOffer: game.offers?.slice(-1)[0],
+            }));
+     
+   
     //  }
     //  if(game.status=="complete" && game?.offers[game.offers.length-1]?.type=='rematch'){
     //  lockRef.current = true;

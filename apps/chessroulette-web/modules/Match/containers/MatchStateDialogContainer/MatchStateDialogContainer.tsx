@@ -40,7 +40,7 @@ export const MatchStateDialogContainer: React.FC<Props> = (
   const dispatch = useMatchActionsDispatch();
   const router = useRouter();
   const [token, setToken] = useState('')
-  const { lastOffer, playerId } = useGame();
+  const { lastOffer, playerId, rematchOffer } = useGame();
   useEffect(() => {
     if (match?.status === 'complete') {
       const parts = window.location.pathname.split('/');
@@ -99,12 +99,11 @@ export const MatchStateDialogContainer: React.FC<Props> = (
       if(token){
         const data = decodeJwt(token);
         if (data?.user_id !== userId) {
-           router.push('https://app.outpostchess.com/online-list');
+          //  window.open('https://app.outpostchess.com/online-list','_self');
         }else{
           console.log('ulogovan kroz web')
         }
       }
-     
     }
   }, []);
 
@@ -121,7 +120,7 @@ export const MatchStateDialogContainer: React.FC<Props> = (
               bgColor="yellow"
               style={{ marginTop: 12 }}
               onClick={() => {
-                router.push('https://app.outpostchess.com/online-list');
+                window.open('https://app.outpostchess.com/online-list','_self');
               }}
             >
               Lobby &nbsp;&nbsp;&nbsp;&nbsp;
@@ -136,7 +135,7 @@ export const MatchStateDialogContainer: React.FC<Props> = (
 
   // TODO: Here we should just check the match.status
 
-  if (match?.winner && !match?.rematch) {
+  if (match?.winner && !rematchOffer) {
     return (
       <Dialog
         title="Match Completed"
@@ -194,7 +193,7 @@ export const MatchStateDialogContainer: React.FC<Props> = (
                       bgColor="yellow"
                       style={{ marginTop: 12 }}
                       onClick={() => {
-                        router.push('https://app.outpostchess.com/online-list');
+                        window.open('https://app.outpostchess.com/online-list','_self')
                       }}
                       >
                       Lobby &nbsp;&nbsp;&nbsp;&nbsp;

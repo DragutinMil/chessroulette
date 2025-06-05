@@ -35,6 +35,7 @@ export type PlayViewState =
       playersByColor: PlayersByColor;
       playersBySide: PlayersBySide;
       lastOffer?: GameOffer;
+      rematchOffer?:Boolean;
     } & (
       | {
           canUserPlay: true;
@@ -53,4 +54,5 @@ export type PlayViewState =
       playersBySide?: undefined;
       canUserPlay?: false;
       lastOffer?: undefined;
+      rematchOffer?:Boolean;
     };

@@ -1,8 +1,14 @@
 import { Action } from 'movex-core-util';
 import { PlayActions } from '@app/modules/Match/Play/store';
+import {  ShortChessColor } from '@xmatter/util-kit';
 import { EndedGame, NotEndedGame } from '@app/modules/Game';
 
 type PlayerId = string;
+
+export type RematchOffer = {
+  by: ShortChessColor;
+  type: 'rematch';
+};
 
 export type MatchPlayer = {
   id: PlayerId;
@@ -39,7 +45,6 @@ export type MatchState =
       winner: keyof MatchPlayersByRole | null;
       endedGames: EndedGame[];
       gameInPlay: NotEndedGame | null;
-      rematch?:Boolean;
       /**
        * This is the time allowed for one player to abort
        */
