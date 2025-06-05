@@ -13,7 +13,7 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
   if (!prev) { 
     return prev;
   } 
-  //console.log('prev movex',prev)
+  console.log('prev movex',prev)
   const prevMatch = prev;  
 
   // answer to offers on completed games
@@ -99,14 +99,15 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
       ];
       return {
         ...prev,
-        endedGames: [
-          ...newArray,
-          {
-            ...prev.endedGames[prev.endedGames.length - 1],
-            offers: nextOffers,
+        status:'rematchOffer'
+        // endedGames: [
+        //   ...newArray,
+        //   {
+        //     ...prev.endedGames[prev.endedGames.length - 1],
+        //     offers: nextOffers,
             
-          },
-        ],
+        //   },
+        // ],
       };
     }
     
