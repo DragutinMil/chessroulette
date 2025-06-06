@@ -148,6 +148,27 @@ export type CompletedGame = {
   gameOverReason: GameOverReason;
   players: GamePlayers;
 };
+export type RematchGame = {
+  status: 'rematchOffer';
+  startedAt: number; // Change this to ISODateTime
+  timeClass: GameTimeClass;
+
+  // Since lastActivity
+  timeLeft: {
+    lastUpdatedAt: number; // this is the same as lastMoveAt but can be different as well
+    w: number;
+    b: number;
+  };
+  rematch?:GameOffer[],
+  pgn: ChessPGN;
+  lastMoveBy: ChessColor;
+  lastMoveAt: number; // TODO: Change this to ISODateTime
+  winner: GameStateWinner;
+  offers: GameOffer[];
+  gameOverReason: GameOverReason;
+  players: GamePlayers;
+};
+
 
 /**
  * Idling to Aborted
@@ -198,7 +219,8 @@ export type Game =
   | IdlingGame
   | OngoingGame
   | CompletedGame
-  | AbortedGame;
+  | AbortedGame
+  | RematchGame;
 
 export type NotEndedGame = Exclude<Game, EndedGame>;
 //export type NotEndedGame =  CompletedGame | PendingGame | IdlingGame | OngoingGame;
