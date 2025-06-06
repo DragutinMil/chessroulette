@@ -9,16 +9,16 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
   prev: ActivityState = initialMatchActivityState,
   action: ActivityActions 
 ): ActivityState => {
-  console.log('prev room ativityState', prev)
+  //proba increment
   if (prev.activityType === 'match') {
     const isCounterAction =
       action.type === 'increment' ||
       action.type === 'decrement' ||
       action.type === 'change' ||
       action.type === 'incrementBy';
-      console.log('paprika')
+      
 if (isCounterAction) {
-   console.log('paprika')
+   console.log('increment works')
       return {
         ...prev,
         increment: counterReducer(
