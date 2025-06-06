@@ -174,15 +174,15 @@ export const MatchStateDialogContainer: React.FC<Props> = (
                     }}
                     onClick={() => {
                       if (playerId) {
-                        dispatch({ type: 'increment' });
-                        // dispatch((masterContext) => ({
-                        //   type: 'play:sendOffer',
-                        //   payload: {
-                        //     byPlayer: playerId, 
-                        //     offerType: 'rematch',
-                        //     timestamp: masterContext.requestAt(),
-                        //   },
-                        // }));
+                        // dispatch({ type: 'increment' });
+                        dispatch((masterContext) => ({
+                          type: 'play:sendOffer',
+                          payload: {
+                            byPlayer: playerId, 
+                            offerType: 'rematch',
+                            timestamp: masterContext.requestAt(),
+                          },
+                        }));
                       }
                     }}
                   >
