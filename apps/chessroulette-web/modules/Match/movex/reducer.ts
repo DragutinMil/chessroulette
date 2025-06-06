@@ -263,7 +263,7 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
     return null;
   });
 
-  const nextMatchStatus = winner ? 'complete' : 'ongoing';
+  const nextMatchStatus = winner ? 'rematchOffer' : 'ongoing';
   console.log(prev);
   return {
     ...prev,
