@@ -21,6 +21,7 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
     isOneOf(action.type, ['play:denyOffer', 'play:cancelOffer']) &&
     prevMatch.gameInPlay == null
   ) {
+    console.log('neke jake krivine')
     return {
       ...prev,
       endedGames: [
@@ -99,7 +100,7 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
       ];
       return {
         ...prev,
-        status:'rematchOffer',
+       // status:'rematchOffer',
          endedGames: [
           ...newArray,
           {
