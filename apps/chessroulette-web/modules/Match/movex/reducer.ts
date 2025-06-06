@@ -83,8 +83,10 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
 
   //OFFER REMATCH - here to effect completed matches
   if (action.type === 'play:sendOffer') {
-    const { byPlayer, offerType } = action.payload;
+     const { byPlayer, offerType } = action.payload;
+   
     if (offerType == 'rematch') {
+      const newArray = prev.endedGames.slice(0, -1);
       const nextOffers: GameOffer[] = [
         { 
           byPlayer,
@@ -97,9 +99,15 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
       ];
       return {
         ...prev,
-
-        status:'rematchOffer'
-
+        status:'rematchOffer',
+         endedGames: [
+          ...newArray,
+          {
+            ...prev.endedGames[prev.endedGames.length - 1],
+            offers: nextOffers,
+            
+          },
+        ],
       };
     }
     
