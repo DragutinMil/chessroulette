@@ -224,4 +224,4 @@ export type Game =
 
 export type NotEndedGame = Exclude<Game, EndedGame>;
 //export type NotEndedGame =  CompletedGame | PendingGame | IdlingGame | OngoingGame;
-export type EndedGame = AbortedGame | CompletedGame | RematchGame ;
+export type EndedGame = AbortedGame | CompletedGame ;
