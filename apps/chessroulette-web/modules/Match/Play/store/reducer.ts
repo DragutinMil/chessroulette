@@ -131,7 +131,7 @@ export const reducer = (
         ...commonPrevGameProps,
         ...commonNextGameProps,
         startedAt: prev.startedAt,
-        status: 'rematchOffer',
+        status: 'complete',
         winner: nextWinner,
         timeLeft: nextTimeLeft,
         gameOverReason: isGameOverResult.reason,
