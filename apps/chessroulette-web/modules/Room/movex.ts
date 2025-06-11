@@ -35,7 +35,6 @@ export const reducer: MovexReducer<RoomState, RoomActions> = (
 if (roomActivityReducer.$transformState) {
   
   const roomActivityTransformer = roomActivityReducer.$transformState;
-  
   reducer.$transformState = (state, masterContext) => ({
     ...state,
     activity: roomActivityTransformer(state.activity, masterContext),
