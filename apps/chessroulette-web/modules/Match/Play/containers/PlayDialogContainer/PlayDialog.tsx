@@ -52,28 +52,28 @@ export const PlayDialog: React.FC<GameStateDialogProps> = ({
   
   
 
-  useEffect(() => {
-    if (
-      lastOffer &&
-      lastOffer.status === 'accepted' &&
-      lastOffer.type === 'rematch' &&
-      lastOffer?.linkInitiator &&
-      lastOffer?.linkTarget
-    ) {
-      const url = new URL(window.location.href);
-      const user_id = url.searchParams.get('userId');
-      const initiator_url = new URL(lastOffer.linkInitiator);
-      const target_url = new URL(lastOffer.linkTarget);
-      const userIdInitiator = initiator_url.searchParams.get('userId');
-      const userIdTarget = target_url.searchParams.get('userId');
+  // useEffect(() => {
+  //   if (
+  //     lastOffer &&
+  //     lastOffer.status === 'accepted' &&
+  //     lastOffer.type === 'rematch' &&
+  //     lastOffer?.linkInitiator &&
+  //     lastOffer?.linkTarget
+  //   ) {
+  //     const url = new URL(window.location.href);
+  //     const user_id = url.searchParams.get('userId');
+  //     const initiator_url = new URL(lastOffer.linkInitiator);
+  //     const target_url = new URL(lastOffer.linkTarget);
+  //     const userIdInitiator = initiator_url.searchParams.get('userId');
+  //     const userIdTarget = target_url.searchParams.get('userId');
 
-      if (userIdInitiator == user_id) {
-        window.open(lastOffer.linkInitiator, '_self');
-      } else if (userIdTarget == user_id) {
-        window.open(lastOffer.linkTarget, '_self');
-      }
-    }
-  }, [lastOffer]);
+  //     if (userIdInitiator == user_id) {
+  //       window.open(lastOffer.linkInitiator, '_self');
+  //     } else if (userIdTarget == user_id) {
+  //       window.open(lastOffer.linkTarget, '_self');
+  //     }
+  //   }
+  // }, [lastOffer]);
 
   return invoke(() => {
     if (game.status === 'pending' && objectKeys(players || {}).length < 2) {

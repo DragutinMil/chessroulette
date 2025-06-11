@@ -97,16 +97,16 @@ export const MatchStateDialogContainer: React.FC<Props> = (
     //SA WEB IDE PROVERA
     if(Cookies.get('sessionToken')) {
       setFromWeb(true)
-      const token: string | undefined = Cookies.get('sessionToken');
-      if(token){
-        const data = decodeJwt(token);
-        if (data?.user_id !== userId) {
+      // const token: string | undefined = Cookies.get('sessionToken');
+      // if(token){
+      //   const data = decodeJwt(token);
+      //   if (data?.user_id !== userId) {
 
-         //  router.push('https://app.outpostchess.com/online-list');
-        }else{
-          console.log('ulogovan kroz web')
-        }
-      }
+      //    //  router.push('https://app.outpostchess.com/online-list');
+      //   }else{
+      //     console.log('ulogovan kroz web')
+      //   }
+      // }
      
     }
   }, []);
