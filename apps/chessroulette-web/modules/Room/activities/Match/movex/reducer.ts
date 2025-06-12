@@ -2,12 +2,10 @@ import { MovexReducer } from 'movex-core-util';
 import { ActivityActions, type ActivityState } from '../../movex';
 import { initialMatchActivityState } from './state';
 import * as MatchStore from '@app/modules/Match/movex';
-import counterReducer, {
-  CounterActions,
-} from '../counter';
+import counterReducer, { CounterActions } from '../counter';
 export const reducer: MovexReducer<ActivityState, ActivityActions> = (
   prev: ActivityState = initialMatchActivityState,
-  action: ActivityActions 
+  action: ActivityActions
 ): ActivityState => {
   //proba increment
   if (prev.activityType === 'match') {
@@ -16,9 +14,9 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
       action.type === 'decrement' ||
       action.type === 'change' ||
       action.type === 'incrementBy';
-      
-if (isCounterAction) {
-   console.log('increment works')
+
+    if (isCounterAction) {
+      console.log('increment works');
       return {
         ...prev,
         increment: counterReducer(
@@ -26,8 +24,7 @@ if (isCounterAction) {
           action as CounterActions
         ).count,
       };
-}
-
+    }
 
     return {
       ...prev,
@@ -44,7 +41,6 @@ if (MatchStore.reducer.$transformState) {
   const matchStateTransformer = MatchStore.reducer.$transformState;
 
   reducer.$transformState = (state, masterContext): ActivityState => {
-    
     if (state.activityType === 'match') {
       return {
         ...state,

@@ -12,16 +12,15 @@ export const useTheme = () => {
   // const foundNeededTheme =
   const themeParam = params.get('theme') || '';
 
-
   const baseTheme = {
     ...defaultTheme,
     ...(isOneOf(themeParam, objectKeys(themes)) && themes[themeParam]),
   };
- 
+
   const darkSquare = params.get('darkSquare') || undefined;
   const lightSquare = params.get('lightSquare') || undefined;
   const hoveredSquare = params.get('hoveredSquare') || undefined;
-  
+
   const kidsMode = themeParam.indexOf('kids') > -1;
 
   // TODO: Validate colors

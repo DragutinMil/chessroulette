@@ -35,22 +35,17 @@ export const PlayDialog: React.FC<GameStateDialogProps> = ({
   } = useGame();
 
   const gameUsed = useGame();
- // console.log('gameUsed',gameUsed)
- const { match, userAsPlayer } = useMatchViewState();
+  // console.log('gameUsed',gameUsed)
+  const { match, userAsPlayer } = useMatchViewState();
   //console.log('MatchState stejterica',match)
   useEffect(() => {
-
     // Everytime the game state changes, reset the seen!
     setGameResultSeen(false);
   }, [game.status]);
 
-
   // useEffect(() => {
   //  console.log('matchmatch',match)
   // }, [match?.rematch]);
-
-  
-  
 
   // useEffect(() => {
   //   if (
@@ -115,9 +110,9 @@ export const PlayDialog: React.FC<GameStateDialogProps> = ({
         />
       );
     }
-//match?.status=='rematchOffer'
+    //match?.status=='rematchOffer'
     if (lastOffer) {
-      if ( game.status === 'complete' && !gameResultSeen) {
+      if (game.status === 'complete' && !gameResultSeen) {
         // setGameResultSeen(true);
       }
       if (lastOffer.type === 'rematch') {
@@ -128,8 +123,7 @@ export const PlayDialog: React.FC<GameStateDialogProps> = ({
                 title="Rematch ?"
                 content={
                   <div className="flex justify-center content-center z-10">
-                    Waiting for your opponent to respond. 
-                 
+                    Waiting for your opponent to respond.
                   </div>
                 }
                 buttons={[
@@ -197,9 +191,9 @@ export const PlayDialog: React.FC<GameStateDialogProps> = ({
         //       />
         //     );
         //   }
-        }
       }
-    
+    }
+
     if (lastOffer) {
       if (lastOffer.type === 'draw' && lastOffer.status === 'pending') {
         if (lastOffer.byPlayer === playerId) {

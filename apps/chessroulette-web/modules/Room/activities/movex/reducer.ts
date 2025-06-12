@@ -7,4 +7,4 @@ export const roomActivityReducer = composeReducers(
   LearnActivity.reducer,
   MeetupActivity.reducer,
   MatchActivity.reducer
-); 
+);

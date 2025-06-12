@@ -7,9 +7,9 @@ const HTTP_PROTOCOL = env === 'staging' || env === 'prod' ? 'https' : 'http';
 const MOVEX_ENDPOINT_URL = process.env.NEXT_PUBLIC_MOVEX_ENDPOINT_URL as string;
 
 export function GET(_: NextRequest, { params }: { params: { id: string } }) {
-  console.log('lombardija',params)
+  console.log('lombardija', params);
   const movexRoomUrl = `${HTTP_PROTOCOL}://${MOVEX_ENDPOINT_URL}/api/resources/room:${params.id}/state`;
-  
+
   return fetch(movexRoomUrl, { cache: 'no-store' })
     .then((s) => {
       if (!s.ok) {

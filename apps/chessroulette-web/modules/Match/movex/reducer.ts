@@ -7,14 +7,14 @@ import { initialMatchState } from './state';
 import { getMatchPlayerRoleById } from './util';
 import { GameOffer } from '@app/modules/Game';
 export const reducer: MovexReducer<MatchState, MatchActions> = (
-  prev: MatchState = initialMatchState, 
+  prev: MatchState = initialMatchState,
   action: MatchActions
-): MatchState => { 
-  if (!prev) { 
+): MatchState => {
+  if (!prev) {
     return prev;
-  } 
-  console.log('prev movex',prev)
-  const prevMatch = prev;  
+  }
+  // console.log('prev movex',prev)
+  const prevMatch = prev;
 
   // answer to offers on completed games
   if (
@@ -81,35 +81,33 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
 
   //OFFER REMATCH - here to effect completed matches
   if (action.type === 'play:sendOffer') {
-     const { byPlayer, offerType } = action.payload;
-   
+    const { byPlayer, offerType } = action.payload;
+
     if (offerType == 'rematch') {
       const newArray = prev.endedGames.slice(0, -1);
       const nextOffers: GameOffer[] = [
-        { 
+        {
           byPlayer,
           type: offerType,
-          status: 'pending', 
+          status: 'pending',
           ...(action.payload.timestamp && {
             timestamp: action.payload.timestamp,
-          }), 
+          }),
         },
       ];
       return {
         ...prev,
-         endedGames: [
+        endedGames: [
           ...newArray,
           {
             ...prev.endedGames[prev.endedGames.length - 1],
             offers: nextOffers,
-            
           },
         ],
       };
     }
-    
   }
- 
+
   if (action.type === 'match:startNewGame') {
     if (prevMatch.status === 'complete') {
       return prev;
@@ -145,7 +143,7 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
       const nextEndedGame = PlayStore.reducer(prevEndedGame, action);
     }
   }
- 
+
   // console.log('ispred starog');
   if (!prevMatch.gameInPlay) {
     return prev;
@@ -275,12 +273,11 @@ reducer.$transformState = (state, masterContext): MatchState => {
   if (!state) {
     return state;
   }
- 
-  
+
   // Determine if Match is "aborted" onRead
   if (state.status === 'complete' || state.status === 'aborted') {
-    console.log('state 1 transformSta',state)
-    return state 
+    console.log('state 1 transformSta', state);
+    return state;
   }
   const ongoingPlay = state.gameInPlay;
 
