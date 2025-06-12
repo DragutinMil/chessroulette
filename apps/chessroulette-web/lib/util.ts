@@ -30,7 +30,6 @@ export const formatURLSearchParams = (
 };
 
 export const wrapReducer = <S, A extends AnyAction>(
-  
   original: MovexReducer<S, A>,
   wrapper: ((next: S, action: A, prev: S) => S) &
     Pick<MovexReducer<S, A>, '$canReconcileState' | '$transformState'>,
@@ -39,20 +38,16 @@ export const wrapReducer = <S, A extends AnyAction>(
     '$canReconcileState' | '$transformState'
   >
 ) => {
-  
   const fn: MovexReducer<S, A> = (prev, action) =>
     wrapper(original(prev, action), action, prev);
-  
+
   // TODO: This currently does not work with compoisition - How should it? By adding the trughts or?
   //original
-  console.log('mala privreda')
-  fn.$canReconcileState = () => true;
-    // wrapperStaticFns?.$canReconcileState ||
-    // wrapper.$canReconcileState ||
-    // original.$canReconcileState;
-   
-  
-   
+  fn.$canReconcileState =
+    wrapperStaticFns?.$canReconcileState ||
+    wrapper.$canReconcileState ||
+    original.$canReconcileState;
+
   const $wrapperTransformState =
     wrapperStaticFns?.$transformState || wrapper.$transformState;
   fn.$transformState = $wrapperTransformState
@@ -108,9 +103,8 @@ export const composeReducers = <S, A extends AnyAction>(
     wrapReducer(prevReducer, nextReducer)
   );
 };
- 
+
 export const reducerLogger = <S, A extends AnyAction>(
- 
   reducer: MovexReducer<S, A>,
   name = ''
 ) =>

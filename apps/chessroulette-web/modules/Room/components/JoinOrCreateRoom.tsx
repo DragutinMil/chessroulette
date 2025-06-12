@@ -86,7 +86,7 @@ export const JoinOrCreateRoom: React.FC<Props> = ({
             activity: {
               activityType: 'match',
               activityState: createMatchState(activityParams),
-              increment:0
+              increment: 0,
             },
           };
         }
@@ -154,7 +154,6 @@ export const JoinOrCreateRoom: React.FC<Props> = ({
             id: toResourceIdentifierObj(r.rid).resourceId,
             activity: activityParams.activity,
             userId: updateableSearchParams.get('userId') || generateUserId(),
-          
           })
         );
       })
