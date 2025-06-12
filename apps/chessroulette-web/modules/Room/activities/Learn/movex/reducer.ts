@@ -94,7 +94,7 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
 
     if (action.payload.input.type === 'FEN') {
       if (!ChessFENBoard.validateFenString(action.payload.input.val).ok) {
-       // console.log('not valid fen');
+        // console.log('not valid fen');
         return prev;
       }
 
@@ -128,7 +128,7 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
 
     if (action.payload.input.type === 'PGN') {
       if (!isValidPgn(action.payload.input.val)) {
-     //   console.log('not valid pgn');
+        //   console.log('not valid pgn');
         return prev;
       }
 

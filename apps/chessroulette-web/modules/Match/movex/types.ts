@@ -46,11 +46,11 @@ export type MatchState =
         }
     ) & {
       // Add other statuses if needed
-      status: 'pending' | 'ongoing' | 'complete' | 'aborted' ;
+      status: 'pending' | 'ongoing' | 'complete' | 'aborted';
       winner: keyof MatchPlayersByRole | null;
       endedGames: EndedGame[];
       gameInPlay: NotEndedGame | null;
-      rematch?:GameOffer[];
+      rematch?: GameOffer[];
       /**
        * This is the time allowed for one player to abort
        */

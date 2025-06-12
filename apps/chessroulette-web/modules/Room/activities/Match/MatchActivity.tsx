@@ -22,15 +22,13 @@ export const MatchActivity = ({
   participants,
   ...props
 }: Props) => {
- 
   const { joinRoomLink } = useRoomLinkId('match');
 
   const populatedMatch = useMemo(
     () => populateMatchWithParticipants(remoteState, participants),
     [remoteState, participants]
-    
   );
- 
+
   return (
     <MatchContainer
       dispatch={dispatch || noop}

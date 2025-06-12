@@ -6,8 +6,7 @@ import { invoke } from '@xmatter/util-kit';
 import { BetweenGamesAborter } from './components/BetweenGamesAborter';
 import { Button } from '../../../../components/Button/Button';
 import { useRouter } from 'next/navigation';
-import Cookies from 'js-cookie';
-import { decodeJwt } from 'jose';
+import { checkUser, sendResult } from '@app/modules/Match/utilsOutpost';
 import {
   PlayDialogContainer,
   PlayDialogContainerContainerProps,
@@ -23,113 +22,62 @@ import { gameOverReasonsToDisplay } from './util';
 import { useGame } from '@app/modules/Game/hooks';
 import { CounterActions } from '@app/modules/Room/activities/Match/counter';
 
-export type ActivityActions =  CounterActions;
+export type ActivityActions = CounterActions;
 
 type Props = PlayDialogContainerContainerProps;
- // export default async function Page({
-    //   params,
-    //   searchParams,
-    // }: {
-    //   params: { roomId: string };
-    //   searchParams: Partial<{ theme: string }>;
-    // }) {
+// export default async function Page({
+//   params,
+//   searchParams,
+// }: {
+//   params: { roomId: string };
+//   searchParams: Partial<{ theme: string }>;
+// }) {
 export const MatchStateDialogContainer: React.FC<Props> = (
   gameStateDialogProps
 ) => {
   const { match, ...matchView } = useMatchViewState();
-  const [fromWeb, setFromWeb] = useState(false)
-  const [fromApp, setFromApp] = useState(false)
+  const [fromWeb, setFromWeb] = useState(false);
+  const [fromApp, setFromApp] = useState(false);
   const dispatch = useMatchActionsDispatch();
   const router = useRouter();
-  const [token, setToken] = useState('')
   const { lastOffer, playerId } = useGame();
   useEffect(() => {
     if (match?.status === 'complete') {
-      const parts = window.location.pathname.split('/');
-      const match_id = parts[parts.length - 1];
-      const sendResults = async () => {
-        try {
-          const response = await fetch(
-            process.env.NEXT_PUBLIC_API_WEB + 'fetch_roulette_match_result',
-            {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                match_id: match_id, //match_id
-              }),
-            }
-          );
-
-          if (!response.ok) {
-            throw new Error(`Error: ${response.status}`);
-          }
-
-          const data = await response.json();
-          //  console.log('data', data);
-        } catch (error) {
-          console.error('Fetch error', error);
-        }
-      };
-
-      sendResults();
+      // Send to grab result from chessroullette
+      sendResult();
     }
   }, [match?.winner]);
   useEffect(() => {
-    const url = new URL(window.location.href);
-    const userId = url.searchParams.get('userId');
-  
-    //SA APA IDE PROVERA
-    console.log()
-    if (Cookies.get('token')) {
-      setFromApp(true)
-      const data = decodeJwt(Cookies.get('token'));
-      
-      if(data){
-        if (data?.user_id !== userId) {
-            alert('out App')
-        }else{
-         console.log('ulogovan kroz app')
-        }
-      }
+    const result = checkUser();
+    console.log('result', result);
+    if (result == 'web') {
+      setFromWeb(true);
     }
-    //SA WEB IDE PROVERA
-    if(Cookies.get('sessionToken')) {
-      setFromWeb(true)
-      // const token: string | undefined = Cookies.get('sessionToken');
-      // if(token){
-      //   const data = decodeJwt(token);
-      //   if (data?.user_id !== userId) {
-
-      //    //  router.push('https://app.outpostchess.com/online-list');
-      //   }else{
-      //     console.log('ulogovan kroz web')
-      //   }
-      // }
-     
+    if (result == 'outWeb') {
+      router.push('https://app.outpostchess.com/online-list');
     }
+    //
+    //  setFromWeb(true)
   }, []);
 
-  if (match?.status === 'aborted' ) {
+  if (match?.status === 'aborted') {
     return (
       <Dialog
         title="Match Aborted"
         content={
           <>
             {/* { (document.referrer.includes('app.outpostchess.com') || document.referrer.includes('localhost:8080') || document.referrer.includes('test-app.outpostchess.com')) && */}
-            {  fromWeb && (
-            <Button
-              icon="ArrowLeftIcon"
-              bgColor="yellow"
-              style={{ marginTop: 12 }}
-              onClick={() => {
-                router.push('https://app.outpostchess.com/online-list');
-              }}
-            >
-              Lobby &nbsp;&nbsp;&nbsp;&nbsp;
-            </Button>
-
+            {fromWeb && (
+              <Button
+                icon="ArrowLeftIcon"
+                bgColor="yellow"
+                style={{ marginTop: 12 }}
+                onClick={() => {
+                  router.push('https://app.outpostchess.com/online-list');
+                }}
+              >
+                Lobby &nbsp;&nbsp;&nbsp;&nbsp;
+              </Button>
             )}
           </>
         } // should there be something?
@@ -162,10 +110,9 @@ export const MatchStateDialogContainer: React.FC<Props> = (
                   </span>
                 )}
               </Text>
-              {match[match.winner].id.length !== 16 &&  (
+              {match[match.winner].id.length !== 16 && (
                 <div className="justify-center items-center flex flex-col">
-                  {/* {match.challengee.id=='8UWCweKl1Gvoi'  && ( */}
-                    <Button
+                  {/* <Button
                     icon="ArrowPathRoundedSquareIcon"
                     style={{
                       marginTop: 18,
@@ -187,25 +134,21 @@ export const MatchStateDialogContainer: React.FC<Props> = (
                     }}
                   >
                     Rematch
-                  </Button>
+                  </Button> */}
 
-                  {/* )} */}
-                  
                   {/* { (document.referrer.includes('app.outpostchess.com') || document.referrer.includes('localhost:8080') || document.referrer.includes('test-app.outpostchess.com')) && */}
-                 {fromWeb && (
-                      <Button
+                  {fromWeb && (
+                    <Button
                       icon="ArrowLeftIcon"
                       bgColor="yellow"
                       style={{ marginTop: 12 }}
                       onClick={() => {
                         router.push('https://app.outpostchess.com/online-list');
                       }}
-                      >
+                    >
                       Lobby &nbsp;&nbsp;&nbsp;&nbsp;
-                      </Button>
-
-                 )}
-                 
+                    </Button>
+                  )}
 
                   {/* } */}
                 </div>

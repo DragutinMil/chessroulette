@@ -101,9 +101,8 @@ export const RoomContainer = ({ iceServers, rid }: Props) => {
         />
       );
     }
-  
+
     if (activity.activityType === 'match' && activity.activityState) {
-      
       return (
         <MatchActivity
           {...commonActivityProps}
