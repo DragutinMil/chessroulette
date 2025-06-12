@@ -145,8 +145,6 @@ export type CompletedGame = {
   players: GamePlayers;
 };
 
-
-
 /**
  * Idling to Aborted
  *
@@ -179,8 +177,7 @@ export type AbortedGame = {
 // export type NegotiationGame = {
 //   status: 'negotiation';
 //   startedAt: number; // Change this to ISODateTime
- 
- 
+
 //   pgn: ChessPGN;
 //   lastMoveBy: ChessColor;
 //   // This is number in case white made its first move and waiting for black, or undefined otherwise
@@ -196,8 +193,8 @@ export type Game =
   | IdlingGame
   | OngoingGame
   | CompletedGame
-  | AbortedGame
+  | AbortedGame;
 
 export type NotEndedGame = Exclude<Game, EndedGame>;
 //export type NotEndedGame =  CompletedGame | PendingGame | IdlingGame | OngoingGame;
-export type EndedGame = AbortedGame | CompletedGame ;
+export type EndedGame = AbortedGame | CompletedGame;
