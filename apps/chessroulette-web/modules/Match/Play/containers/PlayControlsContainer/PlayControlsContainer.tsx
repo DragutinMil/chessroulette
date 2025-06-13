@@ -39,7 +39,7 @@ export const PlayControlsContainer = () => {
         dispatch((masterContext) => ({
           type: 'play:sendOffer',
           payload: {
-            byPlayer: playersBySide.home.id, 
+            byPlayer: playersBySide.home.id,
             offerType: 'rematch',
             timestamp: masterContext.requestAt(),
           },

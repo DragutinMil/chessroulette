@@ -59,7 +59,6 @@ export const JoinOrCreateRoom: React.FC<Props> = ({
     if (!roomResource) {
       return;
     }
-
     invoke(() => {
       const createRoomInput: RoomState = invoke(() => {
         // if (activityParams.activity === 'play') {
@@ -87,6 +86,7 @@ export const JoinOrCreateRoom: React.FC<Props> = ({
             activity: {
               activityType: 'match',
               activityState: createMatchState(activityParams),
+              increment: 0,
             },
           };
         }

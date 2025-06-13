@@ -1,7 +1,7 @@
 import { Action } from 'movex-core-util';
 import { PlayActions } from '@app/modules/Match/Play/store';
 import { EndedGame, NotEndedGame } from '@app/modules/Game';
-
+import { User } from '@app/modules/User';
 type PlayerId = string;
 
 export type MatchPlayer = {
@@ -11,7 +11,18 @@ export type MatchPlayer = {
   // Maybe this needs to come only on the client? In a MatchPlayerDisplay, but not be part of movex
   displayName?: string;
 };
+export type GameOffer = {
+  // TODO: this should not be byPlayer but byColor, since inside the Game there is no notion of player but just of color
+  byPlayer: User['id'];
 
+  //TODO - probably need toParticipant as well, but not sure how to get it now
+  type: 'takeback' | 'draw' | 'rematch';
+  status: 'pending' | 'accepted' | 'denied' | 'cancelled';
+  linkInitiator?: string;
+  linkTarget?: string;
+  // Nededed? If so change to Date or smtg
+  timestamp?: number;
+};
 // @deprecate ni favor of players by role
 export type MatchPlayers = {
   white: MatchPlayer;
@@ -39,7 +50,7 @@ export type MatchState =
       winner: keyof MatchPlayersByRole | null;
       endedGames: EndedGame[];
       gameInPlay: NotEndedGame | null;
-      rematch?:Boolean;
+      rematch?: GameOffer[];
       /**
        * This is the time allowed for one player to abort
        */

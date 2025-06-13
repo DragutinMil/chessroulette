@@ -20,7 +20,7 @@ export const canUserPlay = ({
   }
 
   if (isOneOf(game.status, ['complete', 'aborted'])) {
-    return false;
+    return true;
   }
 
   if (game.status === 'ongoing') {

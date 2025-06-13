@@ -9,6 +9,7 @@ export type PlayOffer = {
 };
 
 export type PlayActions =
+  | Action<'increment'>
   | Action<
       'play:start',
       {

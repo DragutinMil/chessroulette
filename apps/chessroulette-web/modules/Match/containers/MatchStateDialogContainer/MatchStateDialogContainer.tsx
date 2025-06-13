@@ -6,7 +6,7 @@ import { invoke } from '@xmatter/util-kit';
 import { BetweenGamesAborter } from './components/BetweenGamesAborter';
 import { Button } from '../../../../components/Button/Button';
 import { useRouter } from 'next/navigation';
-import Cookies from 'js-cookie';
+import { checkUser, sendResult } from '@app/modules/Match/utilsOutpost';
 import {
   PlayDialogContainer,
   PlayDialogContainerContainerProps,
@@ -15,134 +15,69 @@ import {
   useMatchActionsDispatch,
   useMatchViewState,
 } from '../../hooks/useMatch';
+//import { useBoardTheme } from '../../../../components/Chessboard/hooks/useBoardTheme';
+
 import { getMatchPlayerRoleById } from '../../movex/util';
 import { gameOverReasonsToDisplay } from './util';
 import { useGame } from '@app/modules/Game/hooks';
+import { CounterActions } from '@app/modules/Room/activities/Match/counter';
+
+export type ActivityActions = CounterActions;
 
 type Props = PlayDialogContainerContainerProps;
-
+// export default async function Page({
+//   params,
+//   searchParams,
+// }: {
+//   params: { roomId: string };
+//   searchParams: Partial<{ theme: string }>;
+// }) {
 export const MatchStateDialogContainer: React.FC<Props> = (
   gameStateDialogProps
 ) => {
   const { match, ...matchView } = useMatchViewState();
-  const [fromWeb, setFromWeb] = useState(false)
-  const [fromApp, setFromApp] = useState(false)
-  
+  const [fromWeb, setFromWeb] = useState(false);
+  const [fromApp, setFromApp] = useState(false);
   const dispatch = useMatchActionsDispatch();
   const router = useRouter();
   const { lastOffer, playerId } = useGame();
-
   useEffect(() => {
     if (match?.status === 'complete') {
-      const parts = window.location.pathname.split('/');
-      const match_id = parts[parts.length - 1];
-      const sendResults = async () => {
-        try {
-          const response = await fetch(
-            process.env.NEXT_PUBLIC_API_WEB + 'fetch_roulette_match_result',
-            {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                match_id: match_id, //match_id
-              }),
-            }
-          );
-
-          if (!response.ok) {
-            throw new Error(`Error: ${response.status}`);
-          }
-
-          const data = await response.json();
-          //  console.log('data', data);
-        } catch (error) {
-          console.error('Fetch error', error);
-        }
-      };
-
-      sendResults();
+      // Send to grab result from chessroullette
+      sendResult();
     }
   }, [match?.winner]);
-  // useEffect(() => {
-  //   console.log('lastOffer provera', lastOffer);
-    
-  // }, [lastOffer]);
-
   useEffect(() => {
-    const url = new URL(window.location.href);
-    const userId = url.searchParams.get('userId');
-
-    function parseJwt(token: string) {
-      try {
-        const payload = token.split('.')[1];
-        const base64 = payload.replace(/-/g, '+').replace(/_/g, '/');
-        const json = Buffer.from(base64, 'base64').toString('utf-8');
-        return JSON.parse(json);
-      } catch (e) {
-        console.error('Invalid token', e);
-        return null;
-      }
+    const result = checkUser();
+    console.log('result', result);
+    if (result == 'web') {
+      setFromWeb(true);
     }
-    //SA APA IDE PROVERA
-    if (url.searchParams.get('sessionToken')) {
-      setFromApp(true)
-     // console.log('App');
-      const token = url.searchParams.get('sessionToken');
-      const data = parseJwt(token || '');
-     // console.log('token data app', data);
-      if (data?.userId !== userId) {
-        if (match) {
-         
-        //  console.log('out');
-          // router.push("https://chess.outpostchess.com/room/a/match/ilegal&theme=op")
-        }
-      }
+    if (result == 'outWeb') {
+      router.push('https://app.outpostchess.com/online-list');
     }
-    //SA WEB IDE PROVERA
-    else {
-      //console.log('in web');
-     
-      const token: string | undefined = Cookies.get('sessionToken');
-      if(token){
-        const data = parseJwt(token || '');
-        if(data?.user_id.length>0){
-          setFromWeb(true)
-         // console.log('web');
-        }
-        //console.log('token data web', data);
-        if (data?.user_id !== userId) {
-         
-          // router.push('https://app.outpostchess.com/online-list');
-        }
-      }
-      // console.log('out nema tokena');
-    }
+    //
+    //  setFromWeb(true)
   }, []);
 
-  if (match?.status === 'aborted' ) {
+  if (match?.status === 'aborted') {
     return (
-    
-
-    
       <Dialog
         title="Match Aborted"
         content={
           <>
             {/* { (document.referrer.includes('app.outpostchess.com') || document.referrer.includes('localhost:8080') || document.referrer.includes('test-app.outpostchess.com')) && */}
-            {  fromWeb && (
-            <Button
-              icon="ArrowLeftIcon"
-              bgColor="yellow"
-              style={{ marginTop: 12 }}
-              onClick={() => {
-                router.push('https://app.outpostchess.com/online-list');
-              }}
-            >
-              Lobby &nbsp;&nbsp;&nbsp;&nbsp;
-            </Button>
-
+            {fromWeb && (
+              <Button
+                icon="ArrowLeftIcon"
+                bgColor="yellow"
+                style={{ marginTop: 12 }}
+                onClick={() => {
+                  router.push('https://app.outpostchess.com/online-list');
+                }}
+              >
+                Lobby &nbsp;&nbsp;&nbsp;&nbsp;
+              </Button>
             )}
           </>
         } // should there be something?
@@ -152,7 +87,7 @@ export const MatchStateDialogContainer: React.FC<Props> = (
 
   // TODO: Here we should just check the match.status
 
-  if (match?.winner && !match?.rematch) {
+  if (match?.winner && !lastOffer) {
     return (
       <Dialog
         title="Match Completed"
@@ -175,10 +110,9 @@ export const MatchStateDialogContainer: React.FC<Props> = (
                   </span>
                 )}
               </Text>
-              {match[match.winner].id.length !== 16 &&  (
+              {match[match.winner].id.length !== 16 && (
                 <div className="justify-center items-center flex flex-col">
-                  {match.challengee.id=='8UWCweKl1Gvoi'  && (
-                    <Button
+                  {/* <Button
                     icon="ArrowPathRoundedSquareIcon"
                     style={{
                       marginTop: 18,
@@ -187,6 +121,7 @@ export const MatchStateDialogContainer: React.FC<Props> = (
                     }}
                     onClick={() => {
                       if (playerId) {
+                        // dispatch({ type: 'increment' });
                         dispatch((masterContext) => ({
                           type: 'play:sendOffer',
                           payload: {
@@ -199,25 +134,21 @@ export const MatchStateDialogContainer: React.FC<Props> = (
                     }}
                   >
                     Rematch
-                  </Button>
+                  </Button> */}
 
-                  )}
-                  
                   {/* { (document.referrer.includes('app.outpostchess.com') || document.referrer.includes('localhost:8080') || document.referrer.includes('test-app.outpostchess.com')) && */}
-                 {fromWeb && (
-                      <Button
+                  {fromWeb && (
+                    <Button
                       icon="ArrowLeftIcon"
                       bgColor="yellow"
                       style={{ marginTop: 12 }}
                       onClick={() => {
                         router.push('https://app.outpostchess.com/online-list');
                       }}
-                      >
+                    >
                       Lobby &nbsp;&nbsp;&nbsp;&nbsp;
-                      </Button>
-
-                 )}
-                 
+                    </Button>
+                  )}
 
                   {/* } */}
                 </div>

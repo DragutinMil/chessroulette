@@ -42,6 +42,7 @@ export const wrapReducer = <S, A extends AnyAction>(
     wrapper(original(prev, action), action, prev);
 
   // TODO: This currently does not work with compoisition - How should it? By adding the trughts or?
+  //original
   fn.$canReconcileState =
     wrapperStaticFns?.$canReconcileState ||
     wrapper.$canReconcileState ||

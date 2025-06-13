@@ -7,6 +7,7 @@ import Image from 'next/image';
 import GithubLogo from './assets/github-mark-white.svg';
 import DiscordLogo from './assets/discord-icon-svgrepo-com.svg';
 import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 type Props = {
   themeName?: string;
   showConnectionStatus?: boolean;

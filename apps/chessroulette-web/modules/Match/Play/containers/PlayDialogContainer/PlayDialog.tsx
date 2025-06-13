@@ -35,45 +35,40 @@ export const PlayDialog: React.FC<GameStateDialogProps> = ({
   } = useGame();
 
   const gameUsed = useGame();
-  console.log('gameUsed',gameUsed)
- const { match, userAsPlayer } = useMatchViewState();
-  console.log('MatchState stejterica',match)
+  // console.log('gameUsed',gameUsed)
+  const { match, userAsPlayer } = useMatchViewState();
+  //console.log('MatchState stejterica',match)
   useEffect(() => {
-
     // Everytime the game state changes, reset the seen!
     setGameResultSeen(false);
   }, [game.status]);
 
+  // useEffect(() => {
+  //  console.log('matchmatch',match)
+  // }, [match?.rematch]);
 
-  useEffect(() => {
-   console.log('matchmatch',match)
-  }, [match?.rematch]);
+  // useEffect(() => {
+  //   if (
+  //     lastOffer &&
+  //     lastOffer.status === 'accepted' &&
+  //     lastOffer.type === 'rematch' &&
+  //     lastOffer?.linkInitiator &&
+  //     lastOffer?.linkTarget
+  //   ) {
+  //     const url = new URL(window.location.href);
+  //     const user_id = url.searchParams.get('userId');
+  //     const initiator_url = new URL(lastOffer.linkInitiator);
+  //     const target_url = new URL(lastOffer.linkTarget);
+  //     const userIdInitiator = initiator_url.searchParams.get('userId');
+  //     const userIdTarget = target_url.searchParams.get('userId');
 
-  
-  
-
-  useEffect(() => {
-    if (
-      lastOffer &&
-      lastOffer.status === 'accepted' &&
-      lastOffer.type === 'rematch' &&
-      lastOffer?.linkInitiator &&
-      lastOffer?.linkTarget
-    ) {
-      const url = new URL(window.location.href);
-      const user_id = url.searchParams.get('userId');
-      const initiator_url = new URL(lastOffer.linkInitiator);
-      const target_url = new URL(lastOffer.linkTarget);
-      const userIdInitiator = initiator_url.searchParams.get('userId');
-      const userIdTarget = target_url.searchParams.get('userId');
-
-      if (userIdInitiator == user_id) {
-        window.open(lastOffer.linkInitiator, '_self');
-      } else if (userIdTarget == user_id) {
-        window.open(lastOffer.linkTarget, '_self');
-      }
-    }
-  }, [lastOffer]);
+  //     if (userIdInitiator == user_id) {
+  //       window.open(lastOffer.linkInitiator, '_self');
+  //     } else if (userIdTarget == user_id) {
+  //       window.open(lastOffer.linkTarget, '_self');
+  //     }
+  //   }
+  // }, [lastOffer]);
 
   return invoke(() => {
     if (game.status === 'pending' && objectKeys(players || {}).length < 2) {
@@ -115,21 +110,20 @@ export const PlayDialog: React.FC<GameStateDialogProps> = ({
         />
       );
     }
-
-    if (match?.rematch) {
+    //match?.status=='rematchOffer'
+    if (lastOffer) {
       if (game.status === 'complete' && !gameResultSeen) {
         // setGameResultSeen(true);
       }
-      if (match?.rematch) {
-        if (match?.rematch) {
-          if (match?.rematch) {
+      if (lastOffer.type === 'rematch') {
+        if (lastOffer.status === 'pending') {
+          if (lastOffer.byPlayer === playerId) {
             return (
               <Dialog
                 title="Rematch ?"
                 content={
                   <div className="flex justify-center content-center z-10">
-                    Waiting for your opponent to respond. 
-                 
+                    Waiting for your opponent to respond.
                   </div>
                 }
                 buttons={[
@@ -197,9 +191,9 @@ export const PlayDialog: React.FC<GameStateDialogProps> = ({
         //       />
         //     );
         //   }
-        }
       }
-    
+    }
+
     if (lastOffer) {
       if (lastOffer.type === 'draw' && lastOffer.status === 'pending') {
         if (lastOffer.byPlayer === playerId) {

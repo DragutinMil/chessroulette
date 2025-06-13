@@ -7,7 +7,7 @@ import { metadata as rootMetadata } from '../../page';
 export const metadata: Metadata = {
   title: `New Room | ${rootMetadata.title}`,
 };
-
+console.log('resultovaro');
 export default async function Page({
   searchParams,
   params,
@@ -16,6 +16,7 @@ export default async function Page({
   params: Record<string, string>;
 }) {
   const allParams = Object.assign(searchParams, params);
+
   const result = activityParamsSchema.safeParse(
     Object.fromEntries(new URLSearchParams(allParams))
   );

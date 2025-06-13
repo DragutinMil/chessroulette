@@ -10,7 +10,7 @@ export default function GlobalError({
   error: Error & { digest?: string };
 }) {
   useEffect(() => {
-    console.error("Error while completing match", error);
+    console.error('Error while completing match', error);
     captureException(error);
   }, [error]);
 

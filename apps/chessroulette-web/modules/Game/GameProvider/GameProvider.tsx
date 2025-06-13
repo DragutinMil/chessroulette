@@ -41,12 +41,12 @@ export const GameProvider = ({
     players,
     playerId,
   });
-  
+
   const { match, userAsPlayer } = useMatchViewState();
   //console.log('MatchState',match)
   //const lockRef = useRef(false);
   useEffect(() => {
-     console.log('🟡 FULL GAME STATE:', game);
+    //console.log('🟡 FULL GAME STATE:', game);
     // if(lockRef.current !== true ){
     // console.log('ide realna promena')
     setState((prev) => ({
@@ -65,10 +65,9 @@ export const GameProvider = ({
     //  }
   }, [game.offers]);
 
-useEffect(() => {
-   console.log('matchmatch 2',match)
-  }, [match?.rematch]);
-
+  // useEffect(() => {
+  //    console.log('matchmatch 2',match)
+  //   }, [match?.rematch]);
 
   useEffect(() => {
     setState((prev) => ({
@@ -77,13 +76,11 @@ useEffect(() => {
         onRefocus: (nextIndex) => {
           setState((prev) => ({
             ...prev,
-            
+
             displayState: getGameDisplayState({
               pgn: game.pgn,
               focusedIndex: nextIndex,
-              
-            }
-          ),
+            }),
           }));
         },
       },
@@ -96,7 +93,6 @@ useEffect(() => {
         focusedIndex,
       }),
     }));
-   
   }, [game, focusedIndex]);
 
   return <GameContext.Provider value={state} children={children} />;

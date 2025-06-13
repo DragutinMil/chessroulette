@@ -9,7 +9,6 @@ import { RIGHT_SIDE_SIZE_PX } from '../../constants';
 import { useRoomLinkId } from '../../hooks';
 import { useMemo } from 'react';
 import { populateMatchWithParticipants } from './utilts';
-
 export type Props = {
   userId: UserId;
   participants: UsersMap;
@@ -28,9 +27,8 @@ export const MatchActivity = ({
   const populatedMatch = useMemo(
     () => populateMatchWithParticipants(remoteState, participants),
     [remoteState, participants]
-    
   );
- 
+
   return (
     <MatchContainer
       dispatch={dispatch || noop}
