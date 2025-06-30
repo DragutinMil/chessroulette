@@ -49,12 +49,11 @@ export const MatchStateDialogContainer: React.FC<Props> = (
   }, [match?.winner]);
   useEffect(() => {
     const result = checkUser();
-    console.log('result', result);
     if (result == 'web') {
       setFromWeb(true);
     }
     if (result == 'outWeb') {
-      router.push('https://app.outpostchess.com/online-list');
+      // router.push('https://app.outpostchess.com/online-list');
     }
     //
     //  setFromWeb(true)

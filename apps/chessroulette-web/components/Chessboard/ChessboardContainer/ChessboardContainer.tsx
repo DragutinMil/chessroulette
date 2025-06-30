@@ -16,7 +16,7 @@ import { useCustomArrows } from './hooks/useArrows';
 import { useCustomStyles } from './hooks/useCustomStyles';
 import { ChessboardDisplay, ChessboardDisplayProps } from './ChessboardDisplay';
 import { useMoves } from './hooks/useMoves';
-import StockFishEngine from '@app/modules/ChessEngine/StockfishEngine';
+import StockFishEngine from '@app/modules/ChessEngine/ChessEngineBots';
 import { useMatchViewState } from '../../../modules/Match/hooks/useMatch';
 import { boolean } from 'zod';
 
