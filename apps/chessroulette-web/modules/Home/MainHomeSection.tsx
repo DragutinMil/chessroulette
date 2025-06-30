@@ -70,6 +70,16 @@ export const MainHomeSection: React.FC<Props> = ({ className }) => {
                 Study
               </Button>
             </Link>
+            <Link
+              href={links.getOnDemandRoomCreationLink({
+                activity: 'aichess',
+                instructor: true,
+              })}
+            >
+              <Button type="primary" className="font-bold w-full">
+                AI
+              </Button>
+            </Link>
           </div>
         </div>
         <Image
