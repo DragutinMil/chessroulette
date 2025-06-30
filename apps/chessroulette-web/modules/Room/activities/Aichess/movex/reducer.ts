@@ -4,7 +4,7 @@ import {
   getNewChessGame,
   isValidPgn,
 } from '@xmatter/util-kit';
-import { Chapter, ChapterState, LearnActivityState } from './types';
+import { Chapter, ChapterState, AichessActivityState } from './types';
 import { initialChapterState, initialDefaultChapter } from './state';
 import {
   ActivityActions,
@@ -14,7 +14,7 @@ import {
 import { MovexReducer } from 'movex-core-util';
 
 export const findLoadedChapter = (
-  activityState: LearnActivityState['activityState']
+  activityState: AichessActivityState['activityState']
 ): Chapter | undefined =>
   activityState.chaptersMap[activityState.loadedChapterId];
 
@@ -22,8 +22,8 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
   prev: ActivityState = initialActivityState,
   action: ActivityActions
 ): ActivityState => {
-  console.log('learn',prev)
-  if (prev.activityType !== 'learn') {
+  console.log('aichess',prev)
+  if (prev.activityType !== 'aichess') {
     return prev;
   }
 
