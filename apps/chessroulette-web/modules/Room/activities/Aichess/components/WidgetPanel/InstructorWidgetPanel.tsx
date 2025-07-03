@@ -1,6 +1,10 @@
 import React, { useCallback, useMemo } from 'react';
 import { Button } from '@app/components/Button';
 import {
+  ChessFENBoard,
+  isValidPgn,
+} from '@xmatter/util-kit';
+import {
   FreeBoardNotation,
   FreeBoardNotationProps,
 } from '@app/components/FreeBoardNotation';
@@ -16,7 +20,7 @@ import { EngineData } from '../../../../../ChessEngine/lib/io';
 import { useUpdateableSearchParams } from '@app/hooks/useSearchParams';
 import { ChessEngineWithProvider } from '@app/modules/ChessEngine/ChesEngineWithProvider';
 import { Switch } from '@app/components/Switch';
-
+// import { generateGptResponse } from '../../../../../../server.js';
 type Props = {
   chaptersMap: Record<Chapter['id'], Chapter>;
   chaptersMapIndex: number;
@@ -25,7 +29,6 @@ type Props = {
   // Board
   onImport: PgnInputBoxProps['onChange'];
   onQuickImport: PgnInputBoxProps['onChange'];
-
   onHistoryNotationRefocus: FreeBoardNotationProps['onRefocus'];
   onHistoryNotationDelete: FreeBoardNotationProps['onDelete'];
 
@@ -62,7 +65,7 @@ export const InstructorWidgetPanel = React.forwardRef<TabsRef, Props>(
     },
     tabsRef
   ) => {
-    // const settings = useLearnActivitySettings();
+    // const settings = useAichessActivitySettings();
     const widgetPanelTabsNav = useWidgetPanelTabsNavAsSearchParams();
     const updateableSearchParams = useUpdateableSearchParams();
 
@@ -77,7 +80,60 @@ export const InstructorWidgetPanel = React.forwardRef<TabsRef, Props>(
       },
       [widgetPanelTabsNav.setTabIndex]
     );
+    const conversation = async () => {
+         try {
+           const userId = '8UWCweKl1Gvoi';
+          const response = await fetch(
+           // process.env.NEXT_PUBLIC_API_WEB + 'public_ai_conversation',
+           `${process.env.NEXT_PUBLIC_API_WEB}public_ai_conversation`,
+            {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                user_id: userId,
+                 js:{ role: 'user', content: 'koliko ima sati'} 
+              }),
+            }
+          );
+          if (!response.ok) {
+            throw new Error(`Error: ${response.status}`);
+          }
 
+          const data = await response.json();
+          console.log('data get',data)
+        } catch (error) {
+          console.error('Fetch error', error);
+        }          
+    }
+    
+    const conversationGet = async () => {
+         try {
+           const userId = '8UWCweKl1Gvoi';
+          const response = await fetch(
+           // process.env.NEXT_PUBLIC_API_WEB + 'public_ai_conversation',
+           `${process.env.NEXT_PUBLIC_API_WEB}public_ai_conversation?user_id=8UWCweKl1Gvoi`,
+            {
+              method: 'GET',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+            }
+          );
+          if (!response.ok) {
+            throw new Error(`Error: ${response.status}`);
+          }
+
+          const data = await response.json();
+          console.log('data get',data)
+        } catch (error) {
+          console.error('Fetch error', error);
+        }          
+    }
+    //    const sendQuestion = async () => {
+    //           generateGptResponse()
+    // }
     // useEffect(() => {
     //   console.log('widgetPanelTabsNav changed');
     // }, [widgetPanelTabsNav]);
@@ -149,15 +205,53 @@ export const InstructorWidgetPanel = React.forwardRef<TabsRef, Props>(
                 {/* <FenPreview fen={currentChapterState.displayFen} /> */}
                 <div className="flex flex-col sitems-center gap-3 hidden md:flex ">
                   <label className="font-bold text-sm text-gray-400">
-                    Quick Import
+                    {/* Quick Import */}
                   </label>
-                  <PgnInputBox
-                    compact
-                    containerClassName="flex-1"
-                    onChange={onQuickImport}
-                  />
+                  <Button
+                onClick={() => {
+                  const input='1. e4 d6 2. d3 e5 3. Be3 Nc6 4. Be2 Be7 5. f3 Nf6 6. Nc3 Nb4 7. Qd2 b6 8. O-O-O Be6 9. a3 Nc6 10. Nb5 Nd4 11. Nxd4 exd4 12. Bxd4 c5 13. Bc3 b5 14. Qg5 Nxe4 15. Qxg7 Bf6 16. Qg3 Nxc3 17. bxc3 Bxc3 18. d4 Qf6 19. Bxb5+ Ke7 20. dxc5 Bb2+ 21. Kd2 Qc3+ 22. Ke2 Qxc2+ 23. Kf1 Qxd1+ 24. Qe1 Qxe1+ 25. Kxe1 Rab8 26. Bd3 dxc5 27. Ne2 c4 28. Be4 c3 29. Nxc3 Bxc3+ 30. Kf2 Rb2+ 31. Kg3 Be5+ 32. f4 Rb3+ 33. Bf3 Bc7 34. Re1 Rg8+ 35. Kf2 Bb6+ 36. Kf1 Kf6 37. Be4 Bc4+ 38. Re2 Bxe2+ 39. Kxe2 Re3+ 40. Kf2 Rxe4+ 41. Kf3 Rc4 42. g4 Rg7 43. g5+ Kf5'
+                 // const input='r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3'
+                  if (ChessFENBoard.validateFenString(input).ok) {
+                                   onQuickImport({ type: 'FEN', val: input })
+                                } else if (isValidPgn(input)) {
+                                    onQuickImport({ type: 'PGN', val: input })
+                                }
+                }}
+                size="sm"
+                className={`bg-slate-600 font-bold hover:bg-slate-800 `}
+              >
+                Go pgn
+              </Button>
+                 <Button
+                onClick={() => {
+                   conversation()
+                }}
+                size="sm"
+                className={`bg-slate-600 font-bold hover:bg-slate-800 `}
+              >
+                POST Conversation
+              </Button>
+                <Button
+                onClick={() => {
+                   conversationGet()
+                }}
+                size="sm"
+                className={`bg-slate-600 font-bold hover:bg-slate-800 `}
+              >
+                GET Conversation 
+              </Button>
+               {/* <Button
+                onClick={() => {
+                   sendQuestion()
+                }}
+                size="sm"
+                className={`bg-slate-600 font-bold hover:bg-slate-800 `}
+              >
+                SEND Question to AI
+              </Button> */}
                 </div>
               </div>
+              
             ),
           },
           {
