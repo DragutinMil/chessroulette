@@ -5,7 +5,6 @@ import { PanelResizeHandle } from 'react-resizable-panels';
 import movexConfig from '@app/movex.config';
 import { TabsRef } from '@app/components/Tabs';
 import { ResizableDesktopLayout } from '@app/templates/ResizableDesktopLayout';
-import { PeerToPeerCameraWidget } from '@app/modules/PeerToPeer';
 import { useAichessActivitySettings } from './hooks/useAichessActivitySettings';
 import {
   AichessActivityState,
@@ -16,7 +15,7 @@ import { WidgetPanel } from './components/WidgetPanel';
 import { AichessBoard } from './components/AichessBoard';
 import { RIGHT_SIDE_SIZE_PX } from '../../constants';
 import inputReducer, { initialInputState } from './reducers/inputReducer';
-import { ChapterDisplayView } from './chapters/ChapterDisplayView';
+
 import { InstructorBoard } from './components/InstructorBoard';
 
 type Props = {
@@ -177,26 +176,24 @@ export const AichessActivity = ({
       )}
       rightComponent={
         <div className="flex flex-col flex-1 min-h-0 gap-4">
-          {/* {participants && participants[userId] && (
-            <div className="overflow-hidden rounded-lg shadow-2xl">
-              <PeerToPeerCameraWidget/>
+          
+            <div   className="overflow-hidden rounded-lg shadow-2xl">
+                 <img src="https://outpostchess.fra1.digitaloceanspaces.com/bfce3526-2133-4ac5-8b16-9c377529f0b6.jpg" alt="" />
             </div>
-          )} */}
-          {!cameraOff && (
-            <div className="overflow-hidden rounded-lg shadow-2xl">
-              <PeerToPeerCameraWidget />
+             <div className="overflow-scroll  rounded-lg shadow-2xl h-24 p-3 ">
+                <p>Robot: Sta si reko?</p>
+                <p>Gulio: Treba mi middleGame pozicija!</p>
+               
             </div>
-          )}
-          {inputState.isActive ? (
+          
+          {inputState.isActive && (
             <div className="flex gap-2">
               <span className="capitalize">Editing</span>
               <span className="font-bold">
                 "{inputState.chapterState.name}"
               </span>
             </div>
-          ) : (
-            <ChapterDisplayView chapter={currentChapter} />
-          )}
+          ) }
           <WidgetPanel
             currentChapterState={currentChapter}
             chaptersMap={remoteState?.chaptersMap || {}}

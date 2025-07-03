@@ -1,6 +1,7 @@
 import {
   ChessColor,
   ChessFEN,
+  ChessPGN,
   ChessMove,
   FBHHistory,
   FBHIndex,
@@ -46,7 +47,7 @@ export type ChapterState = {
 export type ChapterBoardState = {
   // Board State
   displayFen: ChessFEN; // This could be strtingPGN as well especially for puzzles but not necessarily
-
+  //pgn:ChessPGN,
   arrowsMap: ArrowsMap;
   circlesMap: CirclesMap;
   orientation: ChessColor;

@@ -1,9 +1,10 @@
-import { ChessFENBoard, FreeBoardHistory } from '@xmatter/util-kit';
+import { ChessFENBoard, FreeBoardHistory ,ChessPGN} from '@xmatter/util-kit';
 import type { Chapter, ChapterState, AichessActivityState } from './types';
 
 export const initialChapterState: ChapterState = {
   name: 'New Chapter', // TODO: Should it have a name?
   displayFen: ChessFENBoard.STARTING_FEN,
+  //pgn:'',
   arrowsMap: {},
   circlesMap: {},
   notation: {
@@ -18,7 +19,7 @@ export const initialChapterState: ChapterState = {
 
 export const initialDefaultChapter: Chapter = {
   ...initialChapterState,
-  name: 'Chapter 1',
+  name: 'ChapterAI',
   id: '0',
 };
 

@@ -22,7 +22,6 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
   prev: ActivityState = initialActivityState,
   action: ActivityActions
 ): ActivityState => {
-  console.log('aichess',prev)
   if (prev.activityType !== 'aichess') {
     return prev;
   }
