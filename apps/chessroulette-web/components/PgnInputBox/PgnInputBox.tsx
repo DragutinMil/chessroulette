@@ -69,7 +69,6 @@ export const PgnInputBox: React.FC<PgnInputBoxProps> = ({
                 .filter((line) => !line.startsWith('['))
                 .join(' ')
                 .trim();
-              console.log('input', input);
               if (!input) {
                 return;
               }
