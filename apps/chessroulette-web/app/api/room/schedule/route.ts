@@ -57,7 +57,6 @@ export function GET(request: NextRequest) {
   }
 
   if (activityParams.activity === 'aichess') {
-
     const instructor = links.getOnDemandRoomCreationLink(
       {
         ...objectOmit(activityParams, ['client']),

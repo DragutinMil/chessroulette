@@ -52,7 +52,6 @@ export const HistoryRow = React.forwardRef<HTMLDivElement | null, RowProps>(
       isNested = false,
 
       canDelete = false,
-
     },
     ref
   ) => {

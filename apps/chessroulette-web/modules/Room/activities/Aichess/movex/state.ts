@@ -1,26 +1,21 @@
-
 import { ChessFENBoard, FreeBoardHistory, ChessPGN } from '@xmatter/util-kit';
 import type { Chapter, ChapterState, AichessActivityState } from './types';
 import { number } from 'zod';
 
-
 export const initialChapterState: ChapterState = {
   name: 'New Chapter', // TODO: Should it have a name?
   displayFen: ChessFENBoard.STARTING_FEN,
-
-  fenPreviusMove:'',
-  pgn:'',
   arrowsMap: {},
   circlesMap: {},
   messages: [
     {
       content: 'Hello, lets learn and have fun',
       participantId: 'chatGPT123456',
-      idResponse: ''
+      idResponse: '',
     },
   ],
   chessAiMode: {
-    mode:'',
+    mode: '',
     moves: [],
     movesCount: 0,
     badMoves: 0,

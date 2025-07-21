@@ -39,7 +39,6 @@ const constructNestedIndex = (
   [nestedIndex, paralelBranchIndex],
 ];
 
-
 export const HistoryMove = ({
   move,
   onFocus,
@@ -51,7 +50,6 @@ export const HistoryMove = ({
   if (!move) {
     return <div className="flex-1" />;
   }
-
 
   return (
     <RowItem

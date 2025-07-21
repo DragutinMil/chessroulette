@@ -61,7 +61,6 @@ export default (
   prev: InputState = initialInputState,
   action: InputAction
 ): InputState => {
-
   console.log('action aichess', action);
 
   if (action.type === 'activate') {
@@ -80,7 +79,6 @@ export default (
   }
 
   if (action.type === 'move') {
-
     if (!prev.isActive) {
       return prev;
     }

@@ -6,7 +6,7 @@ export async function SendQuestion(
   stockfishMovesInfo: any
 ) {
   const model = 'gpt-4.1';
-   const system = `Create a JSON response containing structured interactive lessons to teach chess across all levels, from beginner to advanced, by playing a chess game. Base your lessons on standard chess educational practices,
+  const system = `Create a JSON response containing structured interactive lessons to teach chess across all levels, from beginner to advanced, by playing a chess game. Base your lessons on standard chess educational practices,
            ensuring each level gradually builds on the previous one.
 # Steps
     - All positions (FEN) must be legal and reachable through normal chess play.
@@ -42,10 +42,9 @@ All your responses must be only in vaild JSON format specified below:
 - All fields in the response are optional.
 - Include practical examples, exercises, and/or puzzles to aid the learning process.
 - Adjust content complexity based on the learner's level, gradually progressing in difficulty.
-- Consider including additional resources or references for learners who wish to explore each topic further.`
+- Consider including additional resources or references for learners who wish to explore each topic further.`;
 
-
-        //       You are a helpful chess expert. Respond only in raw JSON format with **exactly one field** called "text".
+  //       You are a helpful chess expert. Respond only in raw JSON format with **exactly one field** called "text".
 
   //       # Instructions:
   //       - Answer chess questions naturally, like a human would (never say you're an AI).
@@ -62,8 +61,8 @@ All your responses must be only in vaild JSON format specified below:
   const previusMessageId =
     currentChapterState.messages[currentChapterState.messages.length - 1]
       .idResponse;
-  const question = prompt + ". Fen:" + currentChapterState.displayFen 
-  console.log('question in send question',question)
+  const question = prompt + '. Fen:' + currentChapterState.displayFen;
+  console.log('question in send question', question);
   try {
     const response = await fetch(
       process.env.NEXT_PUBLIC_API_WEB +
