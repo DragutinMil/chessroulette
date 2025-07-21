@@ -18,7 +18,6 @@ import React from 'react';
 import { EngineData } from '../../../../../ChessEngine/lib/io';
 import { AiChessWidgetPanel } from './AiChessWidgetPanel';
 
-
 type Props = {
   chaptersMap: Record<Chapter['id'], Chapter>;
   chaptersMapIndex: number;
@@ -80,7 +79,6 @@ export const WidgetPanel = React.forwardRef<TabsRef, Props>(
     },
     tabsRef
   ) => {
-
     return (
       <AiChessWidgetPanel
         onHistoryNotationDelete={onHistoryNotationDelete}
@@ -100,7 +98,6 @@ export const WidgetPanel = React.forwardRef<TabsRef, Props>(
         ref={tabsRef}
         {...chaptersTabProps}
       />
-
     );
   }
 );

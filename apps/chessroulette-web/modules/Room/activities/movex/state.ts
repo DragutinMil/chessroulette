@@ -23,5 +23,4 @@ export const initialActivityStatesByActivityType: {
   match: initialMatchActivityState,
 
   aichess: initialAichessActivityState,
-
 };

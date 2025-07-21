@@ -7,22 +7,19 @@ import { TabsRef } from '@app/components/Tabs';
 import { ResizableDesktopLayout } from '@app/templates/ResizableDesktopLayout';
 import { useAichessActivitySettings } from './hooks/useAichessActivitySettings';
 
-import { AiChessDialogContainer } from './DialogContainer/AiChessDialogContainer'
+import { AiChessDialogContainer } from './DialogContainer/AiChessDialogContainer';
 
 import {
   AichessActivityState,
   findLoadedChapter,
   initialDefaultChapter,
-
   chessAiMode,
   MovePiece,
-
 } from './movex';
 import { WidgetPanel } from './components/WidgetPanel';
 import { AichessBoard } from './components/AichessBoard';
 import { RIGHT_SIDE_SIZE_PX } from '../../constants';
 import inputReducer, { initialInputState } from './reducers/inputReducer';
-
 
 import { InstructorBoard } from './components/InstructorBoard';
 
@@ -63,7 +60,6 @@ export const AichessActivity = ({
       mainComponent={({ boardSize }) => (
         <>
           {settings.isInstructor && inputState.isActive ? (
-
             <InstructorBoard
               fen={inputState.chapterState.displayFen}
               boardOrientation={swapColor(inputState.chapterState.orientation)}
@@ -111,88 +107,80 @@ export const AichessActivity = ({
             // Learn Mode
 
             <div>
-             <AiChessDialogContainer   currentChapter={currentChapter}  />
+              <AiChessDialogContainer currentChapter={currentChapter} />
 
-            <AichessBoard
-              sizePx={boardSize}
-              {...currentChapter}
-              orientation={
-                // The instructor gets the opposite side as the student (so they can play together)
-                settings.isInstructor
-                  ? swapColor(currentChapter.orientation)
-                  : currentChapter.orientation
-              }
+              <AichessBoard
+                sizePx={boardSize}
+                {...currentChapter}
+                orientation={
+                  // The instructor gets the opposite side as the student (so they can play together)
+                  settings.isInstructor
+                    ? swapColor(currentChapter.orientation)
+                    : currentChapter.orientation
+                }
+                onFlip={() => {
+                  dispatch({
+                    type: 'loadedChapter:setOrientation',
+                    payload: { color: swapColor(currentChapter.orientation) },
+                  });
+                }}
+                onMove={(payload) => {
+                  dispatch({ type: 'loadedChapter:addMove', payload });
 
-              
+                  // TODO: This can be returned from a more internal component
+                  return true;
+                }}
+                onArrowsChange={(payload) => {
+                  dispatch({ type: 'loadedChapter:setArrows', payload });
+                }}
+                onCircleDraw={(tuple) => {
+                  dispatch({
+                    type: 'loadedChapter:drawCircle',
+                    payload: tuple,
+                  });
+                }}
+                onClearCircles={() => {
+                  dispatch({ type: 'loadedChapter:clearCircles' });
+                }}
+                onClearBoard={() => {
+                  dispatch({
+                    type: 'loadedChapter:updateFen',
+                    payload: ChessFENBoard.ONLY_KINGS_FEN,
+                  });
+                }}
+                onResetBoard={() => {
+                  dispatch({
+                    type: 'loadedChapter:updateFen',
+                    payload: ChessFENBoard.STARTING_FEN,
+                  });
+                }}
+                onBoardEditor={() => {
+                  dispatchInputState({
+                    type: 'activate',
+                    payload: {
+                      isBoardEditorShown: true,
+                      chapterState: currentChapter,
+                    },
+                  });
 
-              onFlip={() => {
-                dispatch({
-                  type: 'loadedChapter:setOrientation',
-                  payload: { color: swapColor(currentChapter.orientation) },
-                });
-              }}
-              onMove={(payload) => {
-                dispatch({ type: 'loadedChapter:addMove', payload });
-
-                // TODO: This can be returned from a more internal component
-                return true;
-              }}
-              onArrowsChange={(payload) => {
-                dispatch({ type: 'loadedChapter:setArrows', payload });
-              }}
-              onCircleDraw={(tuple) => {
-                dispatch({
-                  type: 'loadedChapter:drawCircle',
-                  payload: tuple,
-                });
-              }}
-              onClearCircles={() => {
-                dispatch({ type: 'loadedChapter:clearCircles' });
-              }}
-              onClearBoard={() => {
-                dispatch({
-                  type: 'loadedChapter:updateFen',
-                  payload: ChessFENBoard.ONLY_KINGS_FEN,
-                });
-              }}
-              onResetBoard={() => {
-                dispatch({
-                  type: 'loadedChapter:updateFen',
-                  payload: ChessFENBoard.STARTING_FEN,
-                });
-              }}
-              onBoardEditor={() => {
-                dispatchInputState({
-                  type: 'activate',
-                  payload: {
-                    isBoardEditorShown: true,
-                    chapterState: currentChapter,
-                  },
-                });
-
-                // 2 is the update stack - this should be done much more explicit in the future!
-                tabsRef.current?.focusByTabId('chapters', 2);
-              }}
-
-             
-
-              rightSideClassName="flex-1"
-              rightSideComponent={
-                <>
-                  <div className="relative flex flex-1 flex-col items-center justify-center">
-                    <PanelResizeHandle
-                      className="w-1 h-20 rounded-lg bg-slate-600"
-                      title="Resize"
-                    />
-                  </div>
-                  <div className="flex-1" />
-                </>
-              }
-            />
-
-             </div>
+                  // 2 is the update stack - this should be done much more explicit in the future!
+                  tabsRef.current?.focusByTabId('chapters', 2);
+                }}
+                rightSideClassName="flex-1"
+                rightSideComponent={
+                  <>
+                    <div className="relative flex flex-1 flex-col items-center justify-center">
+                      <PanelResizeHandle
+                        className="w-1 h-20 rounded-lg bg-slate-600"
+                        title="Resize"
+                      />
+                    </div>
+                    <div className="flex-1" />
+                  </>
+                }
+              />
+            </div>
           )}
-         
         </>
       )}
       rightComponent={
@@ -210,16 +198,15 @@ export const AichessActivity = ({
                 "{inputState.chapterState.name}"
               </span>
             </div>
-
           )}
           <WidgetPanel
-          onTakeBack={() =>
+            onTakeBack={() =>
               dispatch({
-                type: 'loadedChapter:takeBack'
+                type: 'loadedChapter:takeBack',
               })
             }
             onPuzzleMove={(payload) => {
-               dispatch({ type: 'loadedChapter:addMove', payload });
+              dispatch({ type: 'loadedChapter:addMove', payload });
             }}
             addChessAi={(payload: chessAiMode) =>
               dispatch({
@@ -239,7 +226,6 @@ export const AichessActivity = ({
                 payload: { color: swapColor(currentChapter.orientation) },
               })
             }
-
             currentChapterState={currentChapter}
             chaptersMap={remoteState?.chaptersMap || {}}
             inputModeState={inputState}

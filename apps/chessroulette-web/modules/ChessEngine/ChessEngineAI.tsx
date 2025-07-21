@@ -8,12 +8,12 @@ import {
 } from '@xmatter/util-kit';
 
 type StockfishEngineAIProps = {
-   fen: ChessFEN;
-   isMyTurn: boolean;
-   engineMove: any;
-   stockfishInfo:any;
-   puzzleMode:boolean
-   playMode:boolean
+  fen: ChessFEN;
+  isMyTurn: boolean;
+  engineMove: any;
+  stockfishInfo: any;
+  puzzleMode: boolean;
+  playMode: boolean;
   // engineMove: (m: ShortChessMove) => void;
 };
 
@@ -25,12 +25,12 @@ type StockfishInfo = {
 };
 
 const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
-    fen,
-    isMyTurn,
-    engineMove,
-    puzzleMode,
-    playMode,
-    stockfishInfo
+  fen,
+  isMyTurn,
+  engineMove,
+  puzzleMode,
+  playMode,
+  stockfishInfo,
 }) => {
   const [stockfishOutput, setStockfishOutput] = useState('Initializing...');
   const [bestMove, setBestMove] = useState('');
@@ -105,17 +105,16 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
     }
   }, [fen]);
 
-    useEffect(() => {
-      
-      let m = bestMove;
-      
-      if ( !isMyTurn && bestMove && !puzzleMode && playMode) {
-        engineMove(m);
-        stockfishInfo(m)
-      } else {
-        stockfishInfo(m)
-      }
-    }, [bestMove, playMode ]);
+  useEffect(() => {
+    let m = bestMove;
+
+    if (!isMyTurn && bestMove && !puzzleMode && playMode) {
+      engineMove(m);
+      stockfishInfo(m);
+    } else {
+      stockfishInfo(m);
+    }
+  }, [bestMove, playMode]);
 
   return null;
 };

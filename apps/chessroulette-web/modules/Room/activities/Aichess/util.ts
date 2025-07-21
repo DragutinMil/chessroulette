@@ -117,7 +117,6 @@ export async function getPuzzle() {
   }
 }
 
-
 //  try {
 //    const userId = '8UWCweKl1Gvoi';
 //   const response = await fetch(
@@ -165,4 +164,3 @@ export async function getPuzzle() {
 // } catch (error) {
 //   console.error('Fetch error', error);
 // }
-

@@ -16,7 +16,6 @@ import { Action } from 'movex-core-util';
 
 import { Square } from 'chess.js';
 
-
 export type AichessActivityState = {
   activityType: 'aichess';
   activityState: {
@@ -34,14 +33,13 @@ export type Chapter = {
   // createdAt: number;
 } & ChapterState;
 
-
 export type MovePiece = {
   from: Square;
   to: Square;
 };
 
 export type chessAiMode = {
-  mode:string,
+  mode: string;
   moves: string[];
   movesCount: number;
   badMoves: number;
@@ -59,10 +57,8 @@ export type ChapterState = {
   messages: Message[];
   // Also the chapter might get a type: position, or puzzle (containing next correct moves)
   chessAiMode: chessAiMode;
-  pgn: ChessPGN;
   notation: {
     // The starting fen is the chapter fen
-
 
     history: FBHHistory;
     focusedIndex: FBHIndex;
@@ -73,15 +69,10 @@ export type ChapterState = {
 export type ChapterBoardState = {
   // Board State
   displayFen: ChessFEN; // This could be strtingPGN as well especially for puzzles but not necessarily
-
-  fenPreviusMove:ChessFEN,
-  //pgn:ChessPGN,
   arrowsMap: ArrowsMap;
   chessAiMode: chessAiMode;
   circlesMap: CirclesMap;
   orientation: ChessColor;
-
-
 };
 
 export type AichessActivityActions =
@@ -97,10 +88,8 @@ export type AichessActivityActions =
   | Action<'deleteChapter', { id: Chapter['id'] }>
   | Action<'loadChapter', { id: Chapter['id'] }>
   | Action<'loadedChapter:addMove', ChessMove>
-
   | Action<'loadedChapter:setPuzzleMoves', chessAiMode>
   | Action<'loadedChapter:writeMessage', Message>
-
   | Action<'loadedChapter:focusHistoryIndex', FBHIndex>
   | Action<'loadedChapter:deleteHistoryMove', FBHIndex>
   | Action<'loadedChapter:drawCircle', CircleDrawTuple>
