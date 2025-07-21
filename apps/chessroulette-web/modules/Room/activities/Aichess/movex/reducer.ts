@@ -3,6 +3,7 @@ import {
   FreeBoardHistory,
   getNewChessGame,
   localChessMoveToChessLibraryMove,
+
   isValidPgn,
 } from '@xmatter/util-kit';
 import { Chapter, ChapterState, AichessActivityState } from './types';
@@ -13,8 +14,10 @@ import {
   initialActivityState,
 } from '../../movex';
 import { MovexReducer } from 'movex-core-util';
+
 import { ChessRouler } from 'util-kit/src/lib/ChessRouler';
 import { logsy } from '@app/lib/Logsy';
+
 export const findLoadedChapter = (
   activityState: AichessActivityState['activityState']
 ): Chapter | undefined =>
@@ -27,6 +30,7 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
   if (prev.activityType !== 'aichess') {
     return prev;
   }
+
 
   if (action.type === 'loadedChapter:takeBack') {
       
@@ -184,7 +188,7 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
       }
     }
     
-    // const lastMovePuzzle = moves[moves.length - 1];
+
     try {
       const prevChapter = findLoadedChapter(prev.activityState);
 
@@ -223,10 +227,12 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
           history: nextHistory,
           focusedIndex: addedAtIndex,
         },
+
         chessAiMode: {
           ...prevChapter.chessAiMode,
           goodMoves: prevChapter.chessAiMode.goodMoves + 1,
         },
+
       };
 
       return {
@@ -437,6 +443,7 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
       console.error('No loaded chapter');
       return prev;
     }
+
     const nextChapter: Chapter = {
       ...prevChapter,
       orientation: action.payload.color,
@@ -571,6 +578,7 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
     };
   }
 
+
   // if (action.type === 'createChapter') {
   //   const nextChapterIndex = prev.activityState.chaptersIndex + 1;
   //   const nextChapterId = String(nextChapterIndex);
@@ -591,6 +599,7 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
   //     },
   //   };
   // }
+
   if (action.type === 'updateChapter') {
     const { [action.payload.id]: prevChapter } = prev.activityState.chaptersMap;
 
@@ -651,6 +660,7 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
       },
     };
   }
+
   if (action.type === 'loadedChapter:setPuzzleMoves') {
     const chessAiMode = action.payload;
     console.log('ide puzzle', action.payload);
@@ -794,6 +804,7 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
      };
     }
   }
+
 
   return prev;
 };

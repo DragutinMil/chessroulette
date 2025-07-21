@@ -106,6 +106,7 @@ export const List: React.FC<ListProps> = ({
     <div className={className} ref={(e) => (containerElementRef.current = e)}>
       {history.map((historyTurn, historyTurnIndex) => {
         const rootHistoryTurnIndex = rootHistoryIndex?.[0] || 0;
+
         const rowId = `${rootHistoryTurnIndex + historyTurnIndex}.${
           historyTurn[0].san
         }-${historyTurn[1]?.san || ''}`;

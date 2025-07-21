@@ -50,7 +50,9 @@ export const HistoryRow = React.forwardRef<HTMLDivElement | null, RowProps>(
       focusedOnRecursiveIndexes,
       nextValidMoveAndIndex,
       isNested = false,
+
       canDelete = false,
+
     },
     ref
   ) => {
@@ -82,7 +84,7 @@ export const HistoryRow = React.forwardRef<HTMLDivElement | null, RowProps>(
         onDelete(blackMoveIndex);
       }
     };
- 
+
     return (
       <div className={containerClassName} ref={isNested ? undefined : ref}>
         <div className={`flex ${className} ${shouldSplit && 'flex-col'}`}>

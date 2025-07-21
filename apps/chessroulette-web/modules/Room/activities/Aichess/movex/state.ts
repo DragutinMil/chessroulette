@@ -1,10 +1,13 @@
+
 import { ChessFENBoard, FreeBoardHistory, ChessPGN } from '@xmatter/util-kit';
 import type { Chapter, ChapterState, AichessActivityState } from './types';
 import { number } from 'zod';
 
+
 export const initialChapterState: ChapterState = {
   name: 'New Chapter', // TODO: Should it have a name?
   displayFen: ChessFENBoard.STARTING_FEN,
+
   fenPreviusMove:'',
   pgn:'',
   arrowsMap: {},
@@ -24,6 +27,7 @@ export const initialChapterState: ChapterState = {
     goodMoves: 0,
     orientationChange: false,
   },
+
   notation: {
     history: [],
     focusedIndex: FreeBoardHistory.getStartingIndex(),

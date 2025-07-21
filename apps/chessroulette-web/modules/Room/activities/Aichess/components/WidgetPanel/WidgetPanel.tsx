@@ -3,6 +3,7 @@ import {
   FreeBoardNotationProps,
 } from '@app/components/FreeBoardNotation';
 import { TabsRef } from '@app/components/Tabs';
+
 import {
   Chapter,
   ChapterState,
@@ -17,6 +18,7 @@ import React from 'react';
 import { EngineData } from '../../../../../ChessEngine/lib/io';
 import { AiChessWidgetPanel } from './AiChessWidgetPanel';
 
+
 type Props = {
   chaptersMap: Record<Chapter['id'], Chapter>;
   chaptersMapIndex: number;
@@ -30,6 +32,7 @@ type Props = {
   addChessAi: (moves: chessAiMode) => void;
   onMessage: (message: Message) => void;
   puzzleOrientation: () => void;
+
   onHistoryNotationRefocus: FreeBoardNotationProps['onRefocus'];
   onHistoryNotationDelete: FreeBoardNotationProps['onDelete'];
 
@@ -65,16 +68,19 @@ export const WidgetPanel = React.forwardRef<TabsRef, Props>(
       onImport,
       onQuickImport,
       onHistoryNotationDelete,
+
       onPuzzleMove,
       onTakeBack,
       addChessAi,
       onMessage,
       puzzleOrientation,
+
       onHistoryNotationRefocus,
       ...chaptersTabProps
     },
     tabsRef
   ) => {
+
     return (
       <AiChessWidgetPanel
         onHistoryNotationDelete={onHistoryNotationDelete}
@@ -94,6 +100,7 @@ export const WidgetPanel = React.forwardRef<TabsRef, Props>(
         ref={tabsRef}
         {...chaptersTabProps}
       />
+
     );
   }
 );

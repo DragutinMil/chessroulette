@@ -42,6 +42,7 @@ html {
   scroll-behavior: smooth;
   
 }
+
 .no-scrollbar {
   -ms-overflow-style: none;  /* Internet Explorer and Edge */
   scrollbar-width: none;     /* Firefox */
@@ -50,6 +51,7 @@ html {
 .no-scrollbar::-webkit-scrollbar {
   display: none;             /* Chrome, Safari, Opera */
 }
+
 
 html,
 body,

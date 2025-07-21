@@ -13,7 +13,9 @@ import {
 } from '@app/components/Chessboard/types';
 import { ImportedInput } from '@app/components/PgnInputBox/PgnInputBox';
 import { Action } from 'movex-core-util';
+
 import { Square } from 'chess.js';
+
 
 export type AichessActivityState = {
   activityType: 'aichess';
@@ -21,6 +23,7 @@ export type AichessActivityState = {
     // TODO: This is the LessonModel induced LessonState
     loadedChapterId: Chapter['id'];
     chaptersMap: Record<Chapter['id'], Chapter>;
+
     // TODO: This should only be last chapter Index or smtg like that, because otherwise it skips counts if deleting the last one
     chaptersIndex: number;
   };
@@ -30,6 +33,7 @@ export type Chapter = {
   id: string;
   // createdAt: number;
 } & ChapterState;
+
 
 export type MovePiece = {
   from: Square;
@@ -59,6 +63,7 @@ export type ChapterState = {
   notation: {
     // The starting fen is the chapter fen
 
+
     history: FBHHistory;
     focusedIndex: FBHIndex;
     startingFen: ChessFEN; // This could be strtingPGN as well especially for puzzles but not necessarily
@@ -68,12 +73,14 @@ export type ChapterState = {
 export type ChapterBoardState = {
   // Board State
   displayFen: ChessFEN; // This could be strtingPGN as well especially for puzzles but not necessarily
+
   fenPreviusMove:ChessFEN,
   //pgn:ChessPGN,
   arrowsMap: ArrowsMap;
   chessAiMode: chessAiMode;
   circlesMap: CirclesMap;
   orientation: ChessColor;
+
 
 };
 
@@ -90,8 +97,10 @@ export type AichessActivityActions =
   | Action<'deleteChapter', { id: Chapter['id'] }>
   | Action<'loadChapter', { id: Chapter['id'] }>
   | Action<'loadedChapter:addMove', ChessMove>
+
   | Action<'loadedChapter:setPuzzleMoves', chessAiMode>
   | Action<'loadedChapter:writeMessage', Message>
+
   | Action<'loadedChapter:focusHistoryIndex', FBHIndex>
   | Action<'loadedChapter:deleteHistoryMove', FBHIndex>
   | Action<'loadedChapter:drawCircle', CircleDrawTuple>

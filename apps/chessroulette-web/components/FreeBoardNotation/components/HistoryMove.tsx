@@ -8,7 +8,8 @@ import {
   WhiteShortColor,
 } from '@xmatter/util-kit';
 import { RowItem } from './RowItem';
-import { MouseEvent,useEffect } from 'react';
+
+import { MouseEvent } from 'react';
 
 type Props = {
   rootHistoryIndex: FBHIndex;
@@ -51,10 +52,6 @@ export const HistoryMove = ({
     return <div className="flex-1" />;
   }
 
-
-    useEffect(() => {
-     console.log('koikok',nextValidMoveAndIndex)
-      }, [nextValidMoveAndIndex]);
 
   return (
     <RowItem

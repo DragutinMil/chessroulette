@@ -103,6 +103,7 @@ export const RoomContainer = ({ iceServers, rid }: Props) => {
       );
     }
 
+
     if (activity.activityType === 'meetup') {
       return (
         <MeetupActivity

@@ -16,7 +16,7 @@ type Props = React.PropsWithChildren & {
 
 export const RoomTemplate = (props: Props) => {
   const [isOutpost, setIsOutpost] = useState(false);
-   console.log('activity',props)
+
   useEffect(() => {
     if (typeof window !== 'undefined') {
       setIsOutpost(window.location.href.includes('theme=op'));
