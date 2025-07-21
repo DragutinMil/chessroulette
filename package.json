@@ -14,9 +14,7 @@
     "deploy-movex-prod": "yarn build-movex-chessroulette && flyctl deploy -c ./fly.movex-prod.toml --dockerfile ./Dockerfile.movex --local-only",
     "add-movex": "yarn add movex movex-core-util movex-react; yarn add --dev movex-service",
     "start:client": "npx nx serve chessroulette-web --skip-nx-cache",
-
     "start:movex": "npx movex dev --path ./apps/chessroulette-web/movex.config.ts"
-
   },
   "private": true,
   "dependencies": {
@@ -28,6 +26,7 @@
     "@nx/next": "17.0.3",
     "@prisma/client": "^5.9.1",
     "@sentry/nextjs": "^7.105.0",
+    "@typescript-eslint/type-utils": "5.62.0",
     "@use-it/event-listener": "^0.1.7",
     "@use-it/instance": "^0.3.0",
     "@vercel/analytics": "^1.1.1",
