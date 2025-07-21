@@ -5,7 +5,7 @@ import type {
   MeetupActivityActions,
 } from '../Meetup/movex';
 import { MatchActivityActions, MatchActivityState } from '../Match/movex';
-import { AichessActivityState ,AichessActivityActions } from '../Aichess/movex';
+import { AichessActivityState, AichessActivityActions } from '../Aichess/movex';
 
 export type NoneActivityState = {
   activityType: 'none';

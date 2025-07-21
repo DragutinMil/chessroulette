@@ -2,6 +2,7 @@ import {
   ChessFENBoard,
   FreeBoardHistory,
   getNewChessGame,
+  localChessMoveToChessLibraryMove,
   isValidPgn,
 } from '@xmatter/util-kit';
 import { Chapter, ChapterState, AichessActivityState } from './types';
@@ -12,7 +13,8 @@ import {
   initialActivityState,
 } from '../../movex';
 import { MovexReducer } from 'movex-core-util';
-
+import { ChessRouler } from 'util-kit/src/lib/ChessRouler';
+import { logsy } from '@app/lib/Logsy';
 export const findLoadedChapter = (
   activityState: AichessActivityState['activityState']
 ): Chapter | undefined =>
@@ -26,9 +28,160 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
     return prev;
   }
 
+  if (action.type === 'loadedChapter:takeBack') {
+      
+    const prevChapter = findLoadedChapter(prev.activityState);
+      if (!prevChapter) {
+        console.error('The loaded chapter was not found');
+        return prev;
+      }
+    if( prevChapter.notation.history.length===1 &&  prevChapter.notation.history[0].length==1 ){
+        return prev;
+    }
+
+    console.log('prevChapter',prevChapter) 
+
+      
+       if (prevChapter.notation.history.length === 0) {
+        return prev
+       }
+
+    
+
+  if(prevChapter.notation.focusedIndex[1] == 0) {
+     prevChapter.notation.history.pop()
+      prevChapter.notation.focusedIndex[1] = 1
+     if(prevChapter.notation.focusedIndex[0]>0){
+        prevChapter.notation.focusedIndex[0] = prevChapter.notation.focusedIndex[0] - 1
+     }
+  }else if(prevChapter.notation.focusedIndex[1] == 1) {
+     prevChapter.notation.history[prevChapter.notation.history.length - 1].pop()
+     prevChapter.notation.focusedIndex[1] = 0
+     
+  }
+ const fenBoard = new ChessFENBoard(prevChapter.displayFen);
+  
+  //prevChapter.displayFen=prevChapter.fenPreviusMove
+ 
+  // PUSH ERASED DATA
+      const nextChapter: Chapter = {
+        ...prevChapter,
+        displayFen: fenBoard.fen,
+      };
+      return {
+        ...prev,
+        activityState: {
+          ...prev.activityState,
+
+          chaptersMap: {
+            ...prev.activityState.chaptersMap,
+            [0]: nextChapter,
+          },
+        },
+      };
+  
+  // const lastTurn = prevChapter.notation.history[history.length - 1];
+   //console.log('lastTurn',lastTurn)
+  
+  // if (prevChapter.notation.history[history.length - 1].length === 2) {
+  //   console.log('Crni je poslednji igrao — ukloni samo crni potez')
+    // const nextChapter: Chapter = {
+    //     ...prevChapter,
+    //     displayFen: fenBoard.fen,
+    //     circlesMap: {},
+    //     arrowsMap: {},
+    //     notation: {
+    //       ...prevChapter.notation,
+    //       history: prevChapter.notation.history,
+    //     },
+       
+    //   };
+
+    //   return {
+    //     ...prev,
+    //     activityState: {
+    //       ...prev.activityState,
+
+    //       chaptersMap: {
+    //         ...prev.activityState.chaptersMap,
+    //         [0]: nextChapter,
+    //       },
+    //     },
+    //   };
+    //  }  
+  // } else if (lastTurn.length === 1) {
+  //    const nextChapter: Chapter = {
+  //       ...prevChapter,
+  //       displayFen: fenBoard.fen,
+  //       circlesMap: {},
+  //       arrowsMap: {},
+  //       notation: {
+  //         ...prevChapter.notation,
+  //         history: prevChapter.notation.history,
+  //       },
+       
+  //     };
+
+  //     return {
+  //       ...prev,
+  //       activityState: {
+  //         ...prev.activityState,
+
+  //         chaptersMap: {
+  //           ...prev.activityState.chaptersMap,
+  //           [0]: nextChapter,
+  //         },
+  //       },
+  //     };
+    
+  // }
+ 
+    }
+
   // TODO: Should this be split?
   if (action.type === 'loadedChapter:addMove') {
+    // console.log('provera pre poteza', prev.activityState.chaptersMap[0]);
+    // console.log('action.payload', action.payload);
+    prev.activityState.chaptersMap[0].fenPreviusMove=prev.activityState.chaptersMap[0].displayFen
     // TODO: the logic for this should be in GameHistory class/static  so it can be tested
+//    const pgn= prev.activityState.chaptersMap[0].pgn
+// console.log('trt pgn',pgn)
+//     const chessRouler = new ChessRouler({ pgn });
+
+//       chessRouler.move(localChessMoveToChessLibraryMove(action.payload));
+   
+//     const newPGN= chessRouler.pgn()
+//     console.log('trt',newPGN)
+    
+    //PUZZLE MOVE
+    if (prev.activityState.chaptersMap[0].chessAiMode.mode == 'puzzle') {
+      if (
+        !prev.activityState.chaptersMap[0].chessAiMode.moves[
+          prev.activityState.chaptersMap[0].chessAiMode.goodMoves
+        ].includes(action.payload.from.concat(action.payload.to))
+      ) {
+         console.log('action.payload prov 2', action.payload);
+        return {
+          ...prev,
+          activityState: {
+            ...prev.activityState,
+            chaptersMap: {
+              ...prev.activityState.chaptersMap,
+              [0]: {
+                ...prev.activityState.chaptersMap[0],
+                chessAiMode: {
+                  ...prev.activityState.chaptersMap[0].chessAiMode,
+                  badMoves:
+                    prev.activityState.chaptersMap[0].chessAiMode.badMoves + 1,
+                },
+              },
+            },
+          },
+        };
+      }
+    }
+    
+    // const lastMovePuzzle = moves[moves.length - 1];
     try {
       const prevChapter = findLoadedChapter(prev.activityState);
 
@@ -67,12 +220,17 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
           history: nextHistory,
           focusedIndex: addedAtIndex,
         },
+        chessAiMode: {
+          ...prevChapter.chessAiMode,
+          goodMoves: prevChapter.chessAiMode.goodMoves + 1,
+        },
       };
 
       return {
         ...prev,
         activityState: {
           ...prev.activityState,
+
           chaptersMap: {
             ...prev.activityState.chaptersMap,
             [prevChapter.id]: nextChapter,
@@ -84,6 +242,7 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
       return prev;
     }
   }
+
   if (action.type === 'loadedChapter:import') {
     const prevChapter = findLoadedChapter(prev.activityState);
 
@@ -275,7 +434,6 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
       console.error('No loaded chapter');
       return prev;
     }
-
     const nextChapter: Chapter = {
       ...prevChapter,
       orientation: action.payload.color,
@@ -410,26 +568,26 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
     };
   }
 
-  if (action.type === 'createChapter') {
-    const nextChapterIndex = prev.activityState.chaptersIndex + 1;
-    const nextChapterId = String(nextChapterIndex);
+  // if (action.type === 'createChapter') {
+  //   const nextChapterIndex = prev.activityState.chaptersIndex + 1;
+  //   const nextChapterId = String(nextChapterIndex);
 
-    return {
-      ...prev,
-      activityState: {
-        ...prev.activityState,
-        chaptersMap: {
-          ...prev.activityState.chaptersMap,
-          [nextChapterId]: {
-            id: nextChapterId,
-            ...action.payload,
-          },
-        },
-        loadedChapterId: nextChapterId,
-        chaptersIndex: nextChapterIndex,
-      },
-    };
-  }
+  //   return {
+  //     ...prev,
+  //     activityState: {
+  //       ...prev.activityState,
+  //       chaptersMap: {
+  //         ...prev.activityState.chaptersMap,
+  //         [nextChapterId]: {
+  //           id: nextChapterId,
+  //           ...action.payload,
+  //         },
+  //       },
+  //       loadedChapterId: nextChapterId,
+  //       chaptersIndex: nextChapterIndex,
+  //     },
+  //   };
+  // }
   if (action.type === 'updateChapter') {
     const { [action.payload.id]: prevChapter } = prev.activityState.chaptersMap;
 
@@ -489,6 +647,149 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
         loadedChapterId: chapter.id,
       },
     };
+  }
+  if (action.type === 'loadedChapter:setPuzzleMoves') {
+    const chessAiMode = action.payload;
+    console.log('ide puzzle', action.payload);
+    if (action.payload.movesCount > 0) {
+      const message = {
+        content: `Ok, try to solve puzzle in ${chessAiMode.movesCount} moves`,
+        participantId: 'chatGPT123456',
+        idResponse: '',
+      };
+      console.log(action.payload.orientationChange);
+      if (action.payload.orientationChange === true) {
+        if (prev.activityState.chaptersMap[0].orientation == 'b') {
+          const toOrientation = 'w';
+          return {
+            ...prev,
+            activityState: {
+              ...prev.activityState,
+              chaptersMap: {
+                ...prev.activityState.chaptersMap,
+                [0]: {
+                  ...prev.activityState.chaptersMap[0],
+                  chessAiMode: chessAiMode,
+                  orientation: toOrientation,
+                  messages: [
+                    ...(prev.activityState.chaptersMap[0].messages ?? []),
+                    message,
+                  ],
+                },
+              },
+            },
+          };
+        } else {
+          const toOrientation = 'b';
+          return {
+            ...prev,
+            activityState: {
+              ...prev.activityState,
+              chaptersMap: {
+                ...prev.activityState.chaptersMap,
+                [0]: {
+                  ...prev.activityState.chaptersMap[0],
+                  chessAiMode: chessAiMode,
+                  orientation: toOrientation,
+                  messages: [
+                    ...(prev.activityState.chaptersMap[0].messages ?? []),
+                    message,
+                  ],
+                },
+              },
+            },
+          };
+        }
+      }
+
+      //if set puzzle , message yes no change orientation
+      return {
+        ...prev,
+        activityState: {
+          ...prev.activityState,
+          chaptersMap: {
+            ...prev.activityState.chaptersMap,
+            [0]: {
+              ...prev.activityState.chaptersMap[0],
+              chessAiMode: chessAiMode,
+              messages: [
+                ...(prev.activityState.chaptersMap[0].messages ?? []),
+                message,
+              ],
+            },
+          },
+        },
+      };
+    }
+
+    //delete puzzle
+    return {
+      ...prev,
+      activityState: {
+        ...prev.activityState,
+        chaptersMap: {
+          ...prev.activityState.chaptersMap,
+          [0]: {
+            ...prev.activityState.chaptersMap[0],
+            chessAiMode: chessAiMode,
+          },
+        },
+      },
+    };
+  }
+  if (action.type === 'loadedChapter:writeMessage') {
+    console.log('ide poruka', action.payload);
+ 
+
+    if(prev.activityState.chaptersMap[0].messages[prev.activityState.chaptersMap[0].messages.length-1].participantId!== action.payload.participantId){
+       return {
+      ...prev,
+      activityState: {
+        ...prev.activityState,
+        chaptersMap: {
+          ...prev.activityState.chaptersMap,
+          [0]: {
+            ...prev.activityState.chaptersMap[0],
+            messages: [
+              ...(prev.activityState.chaptersMap[0].messages ?? []),
+              {
+                content: action.payload.content,
+                participantId: action.payload.participantId,
+                idResponse: action.payload.idResponse,
+               
+              },
+            ],
+          },
+        },
+      },
+    };
+    
+    }
+    if(prev.activityState.chaptersMap[0].messages[prev.activityState.chaptersMap[0].messages.length-1].participantId=== action.payload.participantId){
+      const editedMessage= {
+                content: prev.activityState.chaptersMap[0].messages[prev.activityState.chaptersMap[0].messages.length-1].content + '\n' + action.payload.content,
+                participantId: action.payload.participantId,
+                idResponse: action.payload.idResponse,
+               
+              }
+     
+      return {
+      ...prev,
+      activityState: {
+        ...prev.activityState,
+        chaptersMap: {
+          ...prev.activityState.chaptersMap,
+          [0]: {
+            ...prev.activityState.chaptersMap[0],
+            messages: [
+              ...(prev.activityState.chaptersMap[0].messages.slice(0, -1) ?? []),
+              editedMessage
+            ],
+          },
+        },
+      },
+     };
+    }
   }
 
   return prev;

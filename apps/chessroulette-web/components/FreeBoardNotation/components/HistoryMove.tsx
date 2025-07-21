@@ -8,7 +8,7 @@ import {
   WhiteShortColor,
 } from '@xmatter/util-kit';
 import { RowItem } from './RowItem';
-import { MouseEvent } from 'react';
+import { MouseEvent,useEffect } from 'react';
 
 type Props = {
   rootHistoryIndex: FBHIndex;
@@ -38,6 +38,7 @@ const constructNestedIndex = (
   [nestedIndex, paralelBranchIndex],
 ];
 
+
 export const HistoryMove = ({
   move,
   onFocus,
@@ -49,6 +50,11 @@ export const HistoryMove = ({
   if (!move) {
     return <div className="flex-1" />;
   }
+
+
+    useEffect(() => {
+     console.log('koikok',nextValidMoveAndIndex)
+      }, [nextValidMoveAndIndex]);
 
   return (
     <RowItem

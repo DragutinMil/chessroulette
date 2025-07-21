@@ -35,11 +35,11 @@ export const PlayContainer = (playBoardProps: PlayerContainerProps) => {
       }));
     }
   }, [play.game?.status, play.canUserPlay, dispatch]);
-useEffect(() => {
-  if(play.game?.pgn!==''){
-    //sound on move
-     moveSound.play();
-  }
+  useEffect(() => {
+    if (play.game?.pgn !== '') {
+      //sound on move
+      moveSound.play();
+    }
   }, [play.game?.lastMoveBy]);
   return (
     <GameBoardContainer
@@ -56,7 +56,6 @@ useEffect(() => {
             turn: 'b',
           })}
       onMove={(move) => {
-        
         dispatch((masterContext) => ({
           type: 'play:move',
           payload: {

@@ -6,15 +6,19 @@ import movexConfig from '@app/movex.config';
 import { TabsRef } from '@app/components/Tabs';
 import { ResizableDesktopLayout } from '@app/templates/ResizableDesktopLayout';
 import { useAichessActivitySettings } from './hooks/useAichessActivitySettings';
+import { AiChessDialogContainer } from './DialogContainer/AiChessDialogContainer'
 import {
   AichessActivityState,
   findLoadedChapter,
   initialDefaultChapter,
+  chessAiMode,
+  MovePiece,
 } from './movex';
 import { WidgetPanel } from './components/WidgetPanel';
 import { AichessBoard } from './components/AichessBoard';
 import { RIGHT_SIDE_SIZE_PX } from '../../constants';
 import inputReducer, { initialInputState } from './reducers/inputReducer';
+
 
 import { InstructorBoard } from './components/InstructorBoard';
 
@@ -55,7 +59,7 @@ export const AichessActivity = ({
       mainComponent={({ boardSize }) => (
         <>
           {settings.isInstructor && inputState.isActive ? (
-            // Preparing Mode
+            // Preparing Mode       
             <InstructorBoard
               fen={inputState.chapterState.displayFen}
               boardOrientation={swapColor(inputState.chapterState.orientation)}
@@ -101,6 +105,8 @@ export const AichessActivity = ({
             />
           ) : (
             // Learn Mode
+            <div>
+             <AiChessDialogContainer   currentChapter={currentChapter}  />
             <AichessBoard
               sizePx={boardSize}
               {...currentChapter}
@@ -110,6 +116,7 @@ export const AichessActivity = ({
                   ? swapColor(currentChapter.orientation)
                   : currentChapter.orientation
               }
+              
               onFlip={() => {
                 dispatch({
                   type: 'loadedChapter:setOrientation',
@@ -158,6 +165,7 @@ export const AichessActivity = ({
                 // 2 is the update stack - this should be done much more explicit in the future!
                 tabsRef.current?.focusByTabId('chapters', 2);
               }}
+             
               rightSideClassName="flex-1"
               rightSideComponent={
                 <>
@@ -171,21 +179,20 @@ export const AichessActivity = ({
                 </>
               }
             />
+             </div>
           )}
+         
         </>
       )}
       rightComponent={
-        <div className="flex flex-col flex-1 min-h-0 gap-4">
-          
-            <div   className="overflow-hidden rounded-lg shadow-2xl">
-                 <img src="https://outpostchess.fra1.digitaloceanspaces.com/bfce3526-2133-4ac5-8b16-9c377529f0b6.jpg" alt="" />
-            </div>
-             <div className="overflow-scroll  rounded-lg shadow-2xl h-24 p-3 ">
-                <p>Robot: Sta si reko?</p>
-                <p>Gulio: Treba mi middleGame pozicija!</p>
-               
-            </div>
-          
+        <div className="flex flex-col flex-1 min-h-0 gap-4max-h-screen ">
+          {/* <div className="overflow-hidden  rounded-lg shadow-2xl mb-4">
+            <img
+              src="https://outpostchess.fra1.digitaloceanspaces.com/bfce3526-2133-4ac5-8b16-9c377529f0b6.jpg"
+              alt=""
+            />
+          </div> */}
+
           {inputState.isActive && (
             <div className="flex gap-2">
               <span className="capitalize">Editing</span>
@@ -193,8 +200,34 @@ export const AichessActivity = ({
                 "{inputState.chapterState.name}"
               </span>
             </div>
-          ) }
+          )}
           <WidgetPanel
+          onTakeBack={() =>
+              dispatch({
+                type: 'loadedChapter:takeBack'
+              })
+            }
+            onPuzzleMove={(payload) => {
+               dispatch({ type: 'loadedChapter:addMove', payload });
+            }}
+            addChessAi={(payload: chessAiMode) =>
+              dispatch({
+                type: 'loadedChapter:setPuzzleMoves',
+                payload: payload as chessAiMode,
+              })
+            }
+            onMessage={(payload) =>
+              dispatch({
+                type: 'loadedChapter:writeMessage',
+                payload: payload,
+              })
+            }
+            puzzleOrientation={() =>
+              dispatch({
+                type: 'loadedChapter:setOrientation',
+                payload: { color: swapColor(currentChapter.orientation) },
+              })
+            }
             currentChapterState={currentChapter}
             chaptersMap={remoteState?.chaptersMap || {}}
             inputModeState={inputState}

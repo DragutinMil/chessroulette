@@ -12,7 +12,6 @@ type Props = Pick<
 
 export const GameNotationWidget = (props: Props) => {
   const { displayState, actions } = useGame();
-
   return (
     <FreeBoardNotation
       history={displayState.history}
