@@ -21,5 +21,7 @@ export const initialActivityStatesByActivityType: {
   learn: initialLearnActivityState,
   meetup: initialMeetupActivityState,
   match: initialMatchActivityState,
-  aichess:initialAichessActivityState
+
+  aichess: initialAichessActivityState,
+
 };

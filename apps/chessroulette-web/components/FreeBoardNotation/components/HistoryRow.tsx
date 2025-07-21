@@ -50,7 +50,9 @@ export const HistoryRow = React.forwardRef<HTMLDivElement | null, RowProps>(
       focusedOnRecursiveIndexes,
       nextValidMoveAndIndex,
       isNested = false,
-      canDelete = true,
+
+      canDelete = false,
+
     },
     ref
   ) => {

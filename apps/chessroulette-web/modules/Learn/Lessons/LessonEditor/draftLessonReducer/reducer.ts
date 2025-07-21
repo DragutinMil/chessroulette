@@ -20,6 +20,7 @@ export const reducer = (
   action: Actions
 ): LessonState => {
   // TODO: Should this be split?
+
   if (action.type === 'loadedChapter:addMove') {
     // TODO: the logic for this should be in GameHistory class/static  so it can be tested
     try {
@@ -74,6 +75,7 @@ export const reducer = (
       return prev;
     }
   }
+
   if (action.type === 'loadedChapter:import') {
     const prevChapter = findLoadedChapter(prev);
 

@@ -14,7 +14,9 @@
     "deploy-movex-prod": "yarn build-movex-chessroulette && flyctl deploy -c ./fly.movex-prod.toml --dockerfile ./Dockerfile.movex --local-only",
     "add-movex": "yarn add movex movex-core-util movex-react; yarn add --dev movex-service",
     "start:client": "npx nx serve chessroulette-web --skip-nx-cache",
+
     "start:movex": "npx movex dev --path ./apps/chessroulette-web/movex.config.ts"
+
   },
   "private": true,
   "dependencies": {
@@ -32,11 +34,14 @@
     "@vercel/speed-insights": "^1.1.0",
     "chess.js": "^1.0.0-beta.6",
     "classnames": "^2.3.2",
+    "cors": "^2.8.5",
     "date-fns": "^2.30.0",
     "debounce": "^2.0.0",
     "deep-object-diff": "^1.1.9",
     "deepmerge-ts": "^5.1.0",
     "deox": "^3.3.1",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
     "fp-ts": "^2.16.2",
     "hex-to-rgba": "^2.0.1",
     "io-ts": "^2.2.21",
@@ -53,6 +58,7 @@
     "next-auth": "4",
     "nextjs-current-url": "^1.0.3",
     "nodemailer": "^6.9.9",
+    "openai": "^4.21.1",
     "peerjs": "^1.5.2",
     "pretty-ms": "^9.0.0",
     "react": "^18.2.0",

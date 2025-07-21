@@ -98,11 +98,11 @@ export const RoomContainer = ({ iceServers, rid }: Props) => {
         <AichessActivity
           {...commonActivityProps}
           remoteState={activity.activityState}
-          // dispatch={movexResource?.dispatch}
+          dispatch={movexResource?.dispatch}
         />
       );
     }
-    
+
 
     if (activity.activityType === 'meetup') {
       return (

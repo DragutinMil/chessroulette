@@ -31,7 +31,6 @@ export const FreeBoardNotation: React.FC<FreeBoardNotationProps> = ({
   className = '',
 }) => {
   useKeysToRefocusHistory(history, focusedIndex, onRefocus);
-
   return (
     <div
       className={`md:flex flex-col flex-1  overflow-scroll  min-h-0 min-w-0 ${containerClassName} `}

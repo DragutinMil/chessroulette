@@ -8,6 +8,7 @@ import {
   WhiteShortColor,
 } from '@xmatter/util-kit';
 import { RowItem } from './RowItem';
+
 import { MouseEvent } from 'react';
 
 type Props = {
@@ -38,6 +39,7 @@ const constructNestedIndex = (
   [nestedIndex, paralelBranchIndex],
 ];
 
+
 export const HistoryMove = ({
   move,
   onFocus,
@@ -49,6 +51,7 @@ export const HistoryMove = ({
   if (!move) {
     return <div className="flex-1" />;
   }
+
 
   return (
     <RowItem

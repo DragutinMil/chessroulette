@@ -22,11 +22,12 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
   prev: ActivityState = initialActivityState,
   action: ActivityActions
 ): ActivityState => {
-  
+
   if (prev.activityType !== 'learn') {
     return prev;
   }
-console.log('learn',prev)
+  console.log('learn', prev);
+
   // TODO: Should this be split?
   if (action.type === 'loadedChapter:addMove') {
     // TODO: the logic for this should be in GameHistory class/static  so it can be tested

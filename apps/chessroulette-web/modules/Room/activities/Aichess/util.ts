@@ -71,4 +71,97 @@ export const getLayoutSizes = (
 };
 
 export const isMobile = (dimensions: ContainerDimensions) =>
-  dimensions.width < 601;
+
+
+//OPENINGS
+export async function getOpenings() {
+  try {
+    const response = await fetch(
+      process.env.NEXT_PUBLIC_API_WEB + 'opening_random',
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+    if (!response.ok) {
+      throw new Error(`Error: ${response.status}`);
+    }
+
+    return response.json();
+  } catch (error) {
+    console.error('Fetch error', error);
+  }
+}
+//PUZZLE
+//move_count
+export async function getPuzzle() {
+  try {
+    const response = await fetch(
+      process.env.NEXT_PUBLIC_API_WEB + 'puzzle_random',
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+    if (!response.ok) {
+      throw new Error(`Error: ${response.status}`);
+    }
+
+    return response.json();
+  } catch (error) {
+    console.error('Fetch error', error);
+  }
+}
+
+//  try {
+//    const userId = '8UWCweKl1Gvoi';
+//   const response = await fetch(
+//    // process.env.NEXT_PUBLIC_API_WEB + 'public_ai_conversation',
+//    `${process.env.NEXT_PUBLIC_API_WEB}public_ai_conversation?user_id=8UWCweKl1Gvoi`,
+//     {
+//       method: 'GET',
+//       headers: {
+//         'Content-Type': 'application/json',
+//       },
+//     }
+//   );
+//   if (!response.ok) {
+//     throw new Error(`Error: ${response.status}`);
+//   }
+
+//   const data = await response.json();
+//   console.log('data get',data)
+// } catch (error) {
+//   console.error('Fetch error', error);
+// }
+
+//  try {
+//    const userId = '8UWCweKl1Gvoi';
+//   const response = await fetch(
+//    // process.env.NEXT_PUBLIC_API_WEB + 'public_ai_conversation',
+//    `${process.env.NEXT_PUBLIC_API_WEB}public_ai_conversation`,
+//     {
+//       method: 'POST',
+//       headers: {
+//         'Content-Type': 'application/json',
+//       },
+//       body: JSON.stringify({
+//         user_id: userId,
+//          js:{ role: 'user', content: 'koliko ima sati'}
+//       }),
+//     }
+//   );
+//   if (!response.ok) {
+//     throw new Error(`Error: ${response.status}`);
+//   }
+
+//   const data = await response.json();
+//   console.log('data get',data)
+// } catch (error) {
+//   console.error('Fetch error', error);
+// }
+

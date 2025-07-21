@@ -3,12 +3,21 @@ import {
   FreeBoardNotationProps,
 } from '@app/components/FreeBoardNotation';
 import { TabsRef } from '@app/components/Tabs';
-import { Chapter, ChapterState } from '../../movex';
+
+import {
+  Chapter,
+  ChapterState,
+  MovePiece,
+  chessAiMode,
+  Message,
+} from '../../movex';
 import { PgnInputBoxProps } from '@app/components/PgnInputBox/PgnInputBox';
 import { ChaptersTabProps } from '../../chapters/ChaptersTab';
 import React from 'react';
+
 import { EngineData } from '../../../../../ChessEngine/lib/io';
-import { InstructorWidgetPanel } from './InstructorWidgetPanel';
+import { AiChessWidgetPanel } from './AiChessWidgetPanel';
+
 
 type Props = {
   chaptersMap: Record<Chapter['id'], Chapter>;
@@ -18,6 +27,11 @@ type Props = {
   // Board
   onImport: PgnInputBoxProps['onChange'];
   onQuickImport: PgnInputBoxProps['onChange'];
+  onPuzzleMove: (move: MovePiece) => void;
+  onTakeBack: () => void;
+  addChessAi: (moves: chessAiMode) => void;
+  onMessage: (message: Message) => void;
+  puzzleOrientation: () => void;
 
   onHistoryNotationRefocus: FreeBoardNotationProps['onRefocus'];
   onHistoryNotationDelete: FreeBoardNotationProps['onDelete'];
@@ -54,40 +68,39 @@ export const WidgetPanel = React.forwardRef<TabsRef, Props>(
       onImport,
       onQuickImport,
       onHistoryNotationDelete,
+
+      onPuzzleMove,
+      onTakeBack,
+      addChessAi,
+      onMessage,
+      puzzleOrientation,
+
       onHistoryNotationRefocus,
       ...chaptersTabProps
     },
     tabsRef
   ) => {
-    // Instructor
-    if (isInstructor) {
-      return (
-        <InstructorWidgetPanel
-          onHistoryNotationDelete={onHistoryNotationDelete}
-          onHistoryNotationRefocus={onHistoryNotationRefocus}
-          currentChapterState={currentChapterState}
-          currentLoadedChapterId={currentLoadedChapterId}
-          onQuickImport={onQuickImport}
-          onImport={onImport}
-          chaptersMap={chaptersMap}
-          chaptersMapIndex={chaptersMapIndex}
-          showEngine={showEngine}
-          ref={tabsRef}
-          {...chaptersTabProps}
-        />
-      );
-    }
 
-    // Student
     return (
-      <div className="bg-slate-700 p-3 flex flex-col flex-1 min-h-0 rounded-lg shadow-2xl">
-        <FreeBoardNotation
-          history={currentChapterState.notation?.history}
-          focusedIndex={currentChapterState.notation?.focusedIndex}
-          onDelete={onHistoryNotationDelete}
-          onRefocus={onHistoryNotationRefocus}
-        />
-      </div>
+      <AiChessWidgetPanel
+        onHistoryNotationDelete={onHistoryNotationDelete}
+        onHistoryNotationRefocus={onHistoryNotationRefocus}
+        puzzleOrientation={puzzleOrientation}
+        addChessAi={addChessAi}
+        onMessage={onMessage}
+        currentChapterState={currentChapterState}
+        currentLoadedChapterId={currentLoadedChapterId}
+        onQuickImport={onQuickImport}
+        onPuzzleMove={onPuzzleMove}
+        onTakeBack={onTakeBack}
+        onImport={onImport}
+        chaptersMap={chaptersMap}
+        chaptersMapIndex={chaptersMapIndex}
+        showEngine={showEngine}
+        ref={tabsRef}
+        {...chaptersTabProps}
+      />
+
     );
   }
 );
