@@ -205,15 +205,7 @@ export const AichessActivity = ({
           </div> */}
 
 
-          )}
-        </>
-      )}
-      rightComponent={
-        <div className="flex flex-col flex-1 min-h-0 gap-4">
-          
-            <div   className="overflow-hidden rounded-lg shadow-2xl">
-                 <img src="https://outpostchess.fra1.digitaloceanspaces.com/bfce3526-2133-4ac5-8b16-9c377529f0b6.jpg" alt="" />
-            </div>
+     
              <div className="overflow-scroll  rounded-lg shadow-2xl h-24 p-3 ">
                 <p>Robot: Sta si reko?</p>
                 <p>Gulio: Treba mi middleGame pozicija!</p>

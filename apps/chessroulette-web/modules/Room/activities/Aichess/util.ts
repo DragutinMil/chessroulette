@@ -71,7 +71,7 @@ export const getLayoutSizes = (
 };
 
 export const isMobile = (dimensions: ContainerDimensions) =>
-
+  dimensions.width < 601;
 
 //OPENINGS
 export async function getOpenings() {
@@ -116,6 +116,7 @@ export async function getPuzzle() {
     console.error('Fetch error', error);
   }
 }
+
 
 //  try {
 //    const userId = '8UWCweKl1Gvoi';
