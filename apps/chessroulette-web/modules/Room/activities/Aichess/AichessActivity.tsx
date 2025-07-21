@@ -203,15 +203,6 @@ export const AichessActivity = ({
               alt=""
             />
           </div> */}
-
-
-     
-             <div className="overflow-scroll  rounded-lg shadow-2xl h-24 p-3 ">
-                <p>Robot: Sta si reko?</p>
-                <p>Gulio: Treba mi middleGame pozicija!</p>
-               
-            </div>
-
           {inputState.isActive && (
             <div className="flex gap-2">
               <span className="capitalize">Editing</span>
