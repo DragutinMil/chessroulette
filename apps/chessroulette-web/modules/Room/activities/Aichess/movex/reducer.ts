@@ -46,7 +46,10 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
         return prev
        }
 
-    
+    const newGame = getNewChessGame({
+      pgn: prevChapter.displayFen,
+    });
+    console.log('reklama',newGame.fen())
 
   if(prevChapter.notation.focusedIndex[1] == 0) {
      prevChapter.notation.history.pop()
