@@ -22,7 +22,6 @@ export type AichessActivityState = {
     // TODO: This is the LessonModel induced LessonState
     loadedChapterId: Chapter['id'];
     chaptersMap: Record<Chapter['id'], Chapter>;
-
     // TODO: This should only be last chapter Index or smtg like that, because otherwise it skips counts if deleting the last one
     chaptersIndex: number;
   };
@@ -69,7 +68,6 @@ export type ChapterBoardState = {
   // Board State
   displayFen: ChessFEN; // This could be strtingPGN as well especially for puzzles but not necessarily
   arrowsMap: ArrowsMap;
-  chessAiMode: chessAiMode;
   circlesMap: CirclesMap;
   orientation: ChessColor;
 };
