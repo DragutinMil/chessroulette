@@ -13,7 +13,7 @@ import {
   AichessActivityState,
   findLoadedChapter,
   initialDefaultChapter,
-  chessAiMode,
+  // chessAiMode,
   MovePiece,
 } from './movex';
 import { WidgetPanel } from './components/WidgetPanel';
@@ -208,18 +208,18 @@ export const AichessActivity = ({
             onPuzzleMove={(payload) => {
               dispatch({ type: 'loadedChapter:addMove', payload });
             }}
-            addChessAi={(payload: chessAiMode) =>
-              dispatch({
-                type: 'loadedChapter:setPuzzleMoves',
-                payload: payload as chessAiMode,
-              })
-            }
-            onMessage={(payload) =>
-              dispatch({
-                type: 'loadedChapter:writeMessage',
-                payload: payload,
-              })
-            }
+            // addChessAi={(payload: chessAiMode) =>
+            //   dispatch({
+            //     type: 'loadedChapter:setPuzzleMoves',
+            //     payload: payload as chessAiMode,
+            //   })
+            // }
+            // onMessage={(payload) =>
+            //   dispatch({
+            //     type: 'loadedChapter:writeMessage',
+            //     payload: payload,
+            //   })
+            // }
             puzzleOrientation={() =>
               dispatch({
                 type: 'loadedChapter:setOrientation',
