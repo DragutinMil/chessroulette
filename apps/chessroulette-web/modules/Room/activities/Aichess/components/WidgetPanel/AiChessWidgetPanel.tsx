@@ -36,8 +36,8 @@ type Props = {
   chaptersMapIndex: number;
   currentChapterState: ChapterState;
   // onPuzzleMove: (move: MovePiece) => void;
-  onTakeBack: () => void;
-  puzzleOrientation: () => void;
+  // onTakeBack: () => void;
+  // puzzleOrientation: () => void;
   // addChessAi: (moves: chessAiMode) => void;
   // onMessage: (message: Message) => void;
   // Board
@@ -72,9 +72,9 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
       // engine,
       showEngine,
       onImport,
-      onTakeBack,
+      // onTakeBack,
       // onPuzzleMove,
-      puzzleOrientation,
+      // puzzleOrientation,
       // addChessAi,
       // onMessage,
       onQuickImport,
@@ -314,9 +314,9 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
     //   }
     // };
 
-    const takeBack = async () => {
-      onTakeBack();
-    };
+    // const takeBack = async () => {
+    //   onTakeBack();
+    // };
     // const play = async () => {
     //   addChessAi({
     //     moves: [],
@@ -476,7 +476,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
                     >
                       Import PGN
                     </Button> */}
-                    <Button
+                    {/* <Button
                       onClick={() => {
                         takeBack();
                       }}
@@ -485,7 +485,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
                       className={`bg-slate-600 font-bold hover:bg-slate-800 `}
                     >
                       Take Back
-                    </Button>
+                    </Button> */}
                     <Button
                       // onClick={() => {
                       //   puzzles();
