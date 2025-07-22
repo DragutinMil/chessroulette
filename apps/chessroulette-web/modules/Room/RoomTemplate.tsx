@@ -22,6 +22,7 @@ export const RoomTemplate = (props: Props) => {
       setIsOutpost(window.location.href.includes('theme=op'));
     }
   }, []);
+  console.log('activity',props.activity)
   return (
     <div
       className="flex h-screen w-screen"
@@ -42,7 +43,7 @@ export const RoomTemplate = (props: Props) => {
       </div>
       <menu
         className={`${
-          props.activity === 'match' ? 'md:hidden' : 'md:block'
+          props.activity === 'match' || 'aichess' ? 'md:hidden' : 'md:block'
         }  hidden  bg-indigo-1300 flex-0 flex flex-col p-2`}
       >
         <OnboardingWidget session={props.session} />

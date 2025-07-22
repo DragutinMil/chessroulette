@@ -30,63 +30,64 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
     return prev;
   }
 
-  if (action.type === 'loadedChapter:takeBack') {
-    const prevChapter = findLoadedChapter(prev.activityState);
-    if (!prevChapter) {
-      console.error('The loaded chapter was not found');
-      return prev;
-    }
-    if (
-      prevChapter.notation.history.length === 1 &&
-      prevChapter.notation.history[0].length == 1
-    ) {
-      return prev;
-    }
+  // if (action.type === 'loadedChapter:takeBack') {
+  //   const prevChapter = findLoadedChapter(prev.activityState);
+  //   if (!prevChapter) {
+  //     console.error('The loaded chapter was not found');
+  //     return prev;
+  //   }
+  //   if (
+  //     prevChapter.notation.history.length === 1 &&
+  //     prevChapter.notation.history[0].length == 1
+  //   ) {
+  //     return prev;
+  //   }
 
-    console.log('prevChapter', prevChapter);
+  //   console.log('prevChapter', prevChapter);
 
-    if (prevChapter.notation.history.length === 0) {
-      return prev;
-    }
+  //   if (prevChapter.notation.history.length === 0) {
+  //     return prev;
+  //   }
 
-    const newGame = getNewChessGame({
-      pgn: prevChapter.displayFen,
-    });
-    console.log('reklama', newGame.fen());
+  //   const newGame = getNewChessGame({
+  //     pgn: prevChapter.displayFen,
+  //   });
+  //   console.log('reklama', newGame.fen());
 
-    if (prevChapter.notation.focusedIndex[1] == 0) {
-      prevChapter.notation.history.pop();
-      prevChapter.notation.focusedIndex[1] = 1;
-      if (prevChapter.notation.focusedIndex[0] > 0) {
-        prevChapter.notation.focusedIndex[0] =
-          prevChapter.notation.focusedIndex[0] - 1;
-      }
-    } else if (prevChapter.notation.focusedIndex[1] == 1) {
-      prevChapter.notation.history[
-        prevChapter.notation.history.length - 1
-      ].pop();
-      prevChapter.notation.focusedIndex[1] = 0;
-    }
-    const fenBoard = new ChessFENBoard(prevChapter.displayFen);
+  //   if (prevChapter.notation.focusedIndex[1] == 0) {
+  //     prevChapter.notation.history.pop();
+  //     prevChapter.notation.focusedIndex[1] = 1;
+  //     if (prevChapter.notation.focusedIndex[0] > 0) {
+  //       prevChapter.notation.focusedIndex[0] =
+  //         prevChapter.notation.focusedIndex[0] - 1;
+  //     }
+  //   } else if (prevChapter.notation.focusedIndex[1] == 1) {
+  //     prevChapter.notation.history[
+  //       prevChapter.notation.history.length - 1
+  //     ].pop();
+  //     prevChapter.notation.focusedIndex[1] = 0;
+  //   }
+  //   const fenBoard = new ChessFENBoard(prevChapter.displayFen);
 
-    //prevChapter.displayFen=prevChapter.fenPreviusMove
+  //   //prevChapter.displayFen=prevChapter.fenPreviusMove
 
-    // PUSH ERASED DATA
-    const nextChapter: Chapter = {
-      ...prevChapter,
-      displayFen: fenBoard.fen,
-    };
-    return {
-      ...prev,
-      activityState: {
-        ...prev.activityState,
+  //   // PUSH ERASED DATA
+  //   const nextChapter: Chapter = {
+  //     ...prevChapter,
+  //     displayFen: fenBoard.fen,
+  //   };
+  //   return {
+  //     ...prev,
+  //     activityState: {
+  //       ...prev.activityState,
 
-        chaptersMap: {
-          ...prev.activityState.chaptersMap,
-          [0]: nextChapter,
-        },
-      },
-    };
+  //       chaptersMap: {
+  //         ...prev.activityState.chaptersMap,
+  //         [0]: nextChapter,
+  //       },
+  //     },
+  //   };
+  // }
 
     // const lastTurn = prevChapter.notation.history[history.length - 1];
     //console.log('lastTurn',lastTurn)
@@ -143,7 +144,7 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
     //     };
 
     // }
-  }
+
 
   // TODO: Should this be split?
 
@@ -798,7 +799,7 @@ if (action.type === 'loadedChapter:addMove') {
   //   };
   // }
 
-  
+
   // if (action.type === 'loadedChapter:writeMessage') {
   //   console.log('ide poruka', action.payload);
 
