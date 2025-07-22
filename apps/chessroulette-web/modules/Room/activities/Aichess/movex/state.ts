@@ -7,7 +7,7 @@ export const initialChapterState: ChapterState = {
   displayFen: ChessFENBoard.STARTING_FEN,
   arrowsMap: {},
   circlesMap: {},
-  messages: [],
+  // messages: [],
   // chessAiMode: {
   //   mode: '',
   //   moves: [],

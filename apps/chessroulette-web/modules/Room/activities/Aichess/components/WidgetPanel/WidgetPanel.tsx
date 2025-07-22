@@ -8,8 +8,8 @@ import {
   Chapter,
   ChapterState,
   MovePiece,
-  chessAiMode,
-  Message,
+  // chessAiMode,
+  // Message,
 } from '../../movex';
 import { PgnInputBoxProps } from '@app/components/PgnInputBox/PgnInputBox';
 import { ChaptersTabProps } from '../../chapters/ChaptersTab';
@@ -28,8 +28,8 @@ type Props = {
   onQuickImport: PgnInputBoxProps['onChange'];
   onPuzzleMove: (move: MovePiece) => void;
   onTakeBack: () => void;
-  addChessAi: (moves: chessAiMode) => void;
-  onMessage: (message: Message) => void;
+  // addChessAi: (moves: chessAiMode) => void;
+  // onMessage: (message: Message) => void;
   puzzleOrientation: () => void;
 
   onHistoryNotationRefocus: FreeBoardNotationProps['onRefocus'];
@@ -70,8 +70,8 @@ export const WidgetPanel = React.forwardRef<TabsRef, Props>(
 
       onPuzzleMove,
       onTakeBack,
-      addChessAi,
-      onMessage,
+      // addChessAi,
+      // onMessage,
       puzzleOrientation,
 
       onHistoryNotationRefocus,
@@ -84,8 +84,8 @@ export const WidgetPanel = React.forwardRef<TabsRef, Props>(
         onHistoryNotationDelete={onHistoryNotationDelete}
         onHistoryNotationRefocus={onHistoryNotationRefocus}
         puzzleOrientation={puzzleOrientation}
-        addChessAi={addChessAi}
-        onMessage={onMessage}
+        // addChessAi={addChessAi}
+        // onMessage={onMessage}
         currentChapterState={currentChapterState}
         currentLoadedChapterId={currentLoadedChapterId}
         onQuickImport={onQuickImport}

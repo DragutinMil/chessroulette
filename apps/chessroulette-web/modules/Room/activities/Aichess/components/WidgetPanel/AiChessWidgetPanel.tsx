@@ -11,15 +11,15 @@ import type {
   Chapter,
   ChapterState,
   MovePiece,
-  chessAiMode,
-  Message,
+  // chessAiMode,
+  // Message,
 } from '../../movex/types';
 import {
   PgnInputBox,
   PgnInputBoxProps,
 } from '@app/components/PgnInputBox/PgnInputBox';
 import { QuickConfirmButton } from '@app/components/Button/QuickConfirmButton';
-import Conversation from './Conversation';
+// import Conversation from './Conversation';
 import { Square } from 'chess.js';
 import StockFishEngineAI from '@app/modules/ChessEngine/ChessEngineAI';
 import { ChaptersTab, ChaptersTabProps } from '../../chapters/ChaptersTab';
@@ -38,8 +38,8 @@ type Props = {
   onPuzzleMove: (move: MovePiece) => void;
   onTakeBack: () => void;
   puzzleOrientation: () => void;
-  addChessAi: (moves: chessAiMode) => void;
-  onMessage: (message: Message) => void;
+  // addChessAi: (moves: chessAiMode) => void;
+  // onMessage: (message: Message) => void;
   // Board
   onImport: PgnInputBoxProps['onChange'];
   onQuickImport: PgnInputBoxProps['onChange'];
@@ -75,8 +75,8 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
       onTakeBack,
       onPuzzleMove,
       puzzleOrientation,
-      addChessAi,
-      onMessage,
+      // addChessAi,
+      // onMessage,
       onQuickImport,
       onHistoryNotationDelete,
       onHistoryNotationRefocus,
@@ -110,58 +110,51 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
     // const playMode = currentChapterState.chessAiMode.mode === 'play';
     // const puzzleMode = currentChapterState.chessAiMode.mode === 'puzzle';
 
-    const addQuestion = async (question: string) => {
-      onMessage({
-        content: question,
-        participantId: '8UWCweKl1Gvoi',
-        idResponse: '',
-      });
-      setQuestion('');
-      setTimeout(() => {
-        setPulseDot(true);
-      }, 700);
-      const data = await SendQuestion(
-        question,
-        currentChapterState,
-        stockfishMovesInfo
-      );
-      if (data) {
-        setPulseDot(false);
-      }
-      setAnswer(data.answer.text);
+    // const addQuestion = async (question: string) => {
+    //   onMessage({
+    //     content: question,
+    //     participantId: '8UWCweKl1Gvoi',
+    //     idResponse: '',
+    //   });
+    //   setQuestion('');
+    //   setTimeout(() => {
+    //     setPulseDot(true);
+    //   }, 700);
+    //   const data = await SendQuestion(
+    //     question,
+    //     currentChapterState,
+    //     stockfishMovesInfo
+    //   );
+    //   if (data) {
+    //     setPulseDot(false);
+    //   }
+    //   setAnswer(data.answer.text);
 
-      if (data.puzzle && data.puzzle.fen) {
-        const changeOrientation =
-          currentChapterState.orientation === data.answer.fen.split(' ')[1];
-        addChessAi({
-          moves: data.puzzle.solution,
-          movesCount: data.puzzle.solution.length / 2,
-          badMoves: 0,
-          goodMoves: 0,
-          orientationChange: changeOrientation,
-          mode: 'puzzle',
-        });
-        onQuickImport({ type: 'FEN', val: data.fen });
-        //FIRST MOVE
-        const from = data.puzzle.solution[0].slice(0, 2);
-        const to = data.puzzle.solution[0].slice(2, 4);
-        const first_move = { from: from, to: to };
-        setTimeout(() => onPuzzleMove(first_move), 1200);
-      }
-      onMessage({
-        content: data.answer.text,
-        participantId: 'chatGPT123456',
-        idResponse: data.id,
-      });
+    //   if (data.puzzle && data.puzzle.fen) {
+    //     const changeOrientation =
+    //       currentChapterState.orientation === data.answer.fen.split(' ')[1];
+    //     addChessAi({
+    //       moves: data.puzzle.solution,
+    //       movesCount: data.puzzle.solution.length / 2,
+    //       badMoves: 0,
+    //       goodMoves: 0,
+    //       orientationChange: changeOrientation,
+    //       mode: 'puzzle',
+    //     });
+    //     onQuickImport({ type: 'FEN', val: data.fen });
+    //     //FIRST MOVE
+    //     const from = data.puzzle.solution[0].slice(0, 2);
+    //     const to = data.puzzle.solution[0].slice(2, 4);
+    //     const first_move = { from: from, to: to };
+    //     setTimeout(() => onPuzzleMove(first_move), 1200);
+    //   }
+    //   onMessage({
+    //     content: data.answer.text,
+    //     participantId: 'chatGPT123456',
+    //     idResponse: data.id,
+    //   });
+    // };
 
-      //   // if (data.answer.fen) {
-      //   //   if (ChessFENBoard.validateFenString(data.answer.fen).ok) {
-      //   //     onQuickImport({ type: 'FEN', val: data.answer.fen });
-      //   //   } else if (isValidPgn(data.answer.fen)) {
-      //   //     onQuickImport({ type: 'PGN', val: data.answer.fen });
-      //   //   }
-      //   // }
-    };
     // useEffect(() => {
     //   const length = currentChapterState.notation.history.length;
     //   if (length > 0) {
@@ -263,26 +256,26 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
     //   }
     // }, [currentChapterState.chessAiMode.goodMoves]);
 
-    const openings = async () => {
-      addChessAi({
-        moves: [],
-        movesCount: 0,
-        badMoves: 0,
-        goodMoves: 0,
-        orientationChange: false,
-        mode: 'openings',
-      });
-      setAnswer(null);
-      const data = await getOpenings();
-      const fullQuestion =
-        data.name +
-        ' ' +
-        data.pgn +
-        '. Analyze opening, give me short explanation of advantages';
+    // const openings = async () => {
+    //   addChessAi({
+    //     moves: [],
+    //     movesCount: 0,
+    //     badMoves: 0,
+    //     goodMoves: 0,
+    //     orientationChange: false,
+    //     mode: 'openings',
+    //   });
+    //   setAnswer(null);
+    //   const data = await getOpenings();
+    //   const fullQuestion =
+    //     data.name +
+    //     ' ' +
+    //     data.pgn +
+    //     '. Analyze opening, give me short explanation of advantages';
 
-      onQuickImport({ type: 'PGN', val: data.pgn });
-      addQuestion(fullQuestion);
-    };
+    //   onQuickImport({ type: 'PGN', val: data.pgn });
+    //   addQuestion(fullQuestion);
+    // };
     const engineMove = (m: any) => {
       let fromChess = m.slice(0, 2);
       let toChess = m.slice(2, 4);
@@ -299,49 +292,50 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
       setStockfishMovesInfo(m);
     };
 
-    const puzzles = async () => {
-      const data = await getPuzzle();
-      if (ChessFENBoard.validateFenString(data.fen).ok) {
-        const changeOrientation =
-          currentChapterState.orientation === data.fen.split(' ')[1];
-        addChessAi({
-          moves: data.movez,
-          movesCount: data.move_count,
-          badMoves: 0,
-          goodMoves: 0,
-          orientationChange: changeOrientation,
-          mode: 'puzzle',
-        });
-        onQuickImport({ type: 'FEN', val: data.fen });
-        //FIRST MOVE
-        const from = data.movez[0].slice(0, 2);
-        const to = data.movez[0].slice(2, 4);
-        const first_move = { from: from, to: to };
-        setTimeout(() => onPuzzleMove(first_move), 1200);
-      }
-    };
+    // const puzzles = async () => {
+    //   const data = await getPuzzle();
+    //   if (ChessFENBoard.validateFenString(data.fen).ok) {
+    //     const changeOrientation =
+    //       currentChapterState.orientation === data.fen.split(' ')[1];
+    //     addChessAi({
+    //       moves: data.movez,
+    //       movesCount: data.move_count,
+    //       badMoves: 0,
+    //       goodMoves: 0,
+    //       orientationChange: changeOrientation,
+    //       mode: 'puzzle',
+    //     });
+    //     onQuickImport({ type: 'FEN', val: data.fen });
+    //     //FIRST MOVE
+    //     const from = data.movez[0].slice(0, 2);
+    //     const to = data.movez[0].slice(2, 4);
+    //     const first_move = { from: from, to: to };
+    //     setTimeout(() => onPuzzleMove(first_move), 1200);
+    //   }
+    // };
 
     const takeBack = async () => {
       onTakeBack();
     };
-    const play = async () => {
-      addChessAi({
-        moves: [],
-        movesCount: 0,
-        badMoves: 0,
-        goodMoves: 0,
-        orientationChange: false,
-        mode: 'play',
-      });
-      const fen = currentChapterState.displayFen;
-      //const datar= '1. e4 e5 (1. e3 e6) 2. Nf3 Nc6 $3 $17 3. Bc4 Nf6 4. Nc3 Bc5 5. d3 a6 6. a3 b5 7. Ba2 Qe7 8. Bg5 h6 9. Bh4 g5 10. Nxg5 hxg5 11. Bxg5 Rg8 12. h4 Nd4 13. Nd5 Qd6 14. Nxf6+ Kf8 15. Nxg8 Kxg8 16. Qh5 Nxc2+ 17. Kd2 Nxa1 18. Qxf7+ Kh8 19. Qg8#'
-      // const datar= '1... Qxf3 2. Nxf3 Rxh3+ 3. Kg1 Rxf3 4. Nc4'
-      if (ChessFENBoard.validateFenString(fen).ok) {
-        onQuickImport({ type: 'FEN', val: fen });
-      } else if (isValidPgn(fen)) {
-        onQuickImport({ type: 'PGN', val: fen });
-      }
-    };
+    // const play = async () => {
+    //   addChessAi({
+    //     moves: [],
+    //     movesCount: 0,
+    //     badMoves: 0,
+    //     goodMoves: 0,
+    //     orientationChange: false,
+    //     mode: 'play',
+    //   });
+    //   const fen = currentChapterState.displayFen;
+    //   //const datar= '1. e4 e5 (1. e3 e6) 2. Nf3 Nc6 $3 $17 3. Bc4 Nf6 4. Nc3 Bc5 5. d3 a6 6. a3 b5 7. Ba2 Qe7 8. Bg5 h6 9. Bh4 g5 10. Nxg5 hxg5 11. Bxg5 Rg8 12. h4 Nd4 13. Nd5 Qd6 14. Nxf6+ Kf8 15. Nxg8 Kxg8 16. Qh5 Nxc2+ 17. Kd2 Nxa1 18. Qxf7+ Kh8 19. Qg8#'
+    //   // const datar= '1... Qxf3 2. Nxf3 Rxh3+ 3. Kg1 Rxf3 4. Nc4'
+    //   if (ChessFENBoard.validateFenString(fen).ok) {
+    //     onQuickImport({ type: 'FEN', val: fen });
+    //   } else if (isValidPgn(fen)) {
+    //     onQuickImport({ type: 'PGN', val: fen });
+    //   }
+    // };
+
     //        const importPgn= async () => {
     //         const fen = 'r1bqkb1r/ppp2ppp/2n2n2/3pp3/4P3/2NP1NP1/PPP2P1P/R1BQKB1R b KQkq - 0 5'
     //  if (ChessFENBoard.validateFenString(fen).ok) {
@@ -387,10 +381,10 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
               ),
               renderContent: () => (
                 <div className="flex flex-col flex-1 gap-2 min-h-0">
-                  <Conversation
+                  {/* <Conversation
                     currentChapterState={currentChapterState}
                     pulseDot={pulseDot}
-                  />
+                  /> */}
 
                   <div className="flex mb-2">
                     <input
@@ -405,17 +399,17 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
                         setQuestion(e.target.value);
                       }}
                       onKeyDown={(e) => {
-                        if (e.key === 'Enter' && !e.shiftKey) {
-                          //e.preventDefault(); // sprečava novi red ako koristiš textarea
-                          addQuestion(question);
-                        }
+                        // if (e.key === 'Enter' && !e.shiftKey) {
+                        //   //e.preventDefault(); // sprečava novi red ako koristiš textarea
+                        //   addQuestion(question);
+                        // }
                       }}
                     />
                     <Button
                       bgColor={'yellow'}
                       onClick={() => {
                         if (question.trim() !== '') {
-                          addQuestion(question);
+                          // addQuestion(question);
                         }
                       }}
                       disabled={question.trim() == ''}
@@ -465,9 +459,9 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
                       )}
                     </Button> */}
                     <Button
-                      onClick={() => {
-                        openings();
-                      }}
+                      // onClick={() => {
+                      //   openings();
+                      // }}
                       size="sm"
                       className={`bg-slate-600 font-bold hover:bg-slate-800 `}
                     >
@@ -493,9 +487,9 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
                       Take Back
                     </Button>
                     <Button
-                      onClick={() => {
-                        puzzles();
-                      }}
+                      // onClick={() => {
+                      //   puzzles();
+                      // }}
                       size="sm"
                       className={`bg-slate-600 font-bold hover:bg-slate-800 `}
                     >
