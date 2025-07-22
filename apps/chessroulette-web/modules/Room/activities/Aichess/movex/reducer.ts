@@ -708,159 +708,161 @@ if (action.type === 'loadedChapter:addMove') {
     };
   }
 
-  if (action.type === 'loadedChapter:setPuzzleMoves') {
-    const chessAiMode = action.payload;
-    console.log('ide puzzle', action.payload);
-    if (action.payload.movesCount > 0) {
-      const message = {
-        content: `Ok, try to solve puzzle in ${chessAiMode.movesCount} moves`,
-        participantId: 'chatGPT123456',
-        idResponse: '',
-      };
-      console.log(action.payload.orientationChange);
-      if (action.payload.orientationChange === true) {
-        if (prev.activityState.chaptersMap[0].orientation == 'b') {
-          const toOrientation = 'w';
-          return {
-            ...prev,
-            activityState: {
-              ...prev.activityState,
-              chaptersMap: {
-                ...prev.activityState.chaptersMap,
-                [0]: {
-                  ...prev.activityState.chaptersMap[0],
-                //  chessAiMode: chessAiMode,
-                  orientation: toOrientation,
-                  // messages: [
-                  //   ...(prev.activityState.chaptersMap[0].messages ?? []),
-                  //   message,
-                  // ],
-                },
-              },
-            },
-          };
-        } else {
-          const toOrientation = 'b';
-          return {
-            ...prev,
-            activityState: {
-              ...prev.activityState,
-              chaptersMap: {
-                ...prev.activityState.chaptersMap,
-                [0]: {
-                  ...prev.activityState.chaptersMap[0],
-                 // chessAiMode: chessAiMode,
-                  orientation: toOrientation,
-                  // messages: [
-                  //   ...(prev.activityState.chaptersMap[0].messages ?? []),
-                  //   message,
-                  // ],
-                },
-              },
-            },
-          };
-        }
-      }
+  // if (action.type === 'loadedChapter:setPuzzleMoves') {
+  //   const chessAiMode = action.payload;
+  //   console.log('ide puzzle', action.payload);
+  //   if (action.payload.movesCount > 0) {
+  //     const message = {
+  //       content: `Ok, try to solve puzzle in ${chessAiMode.movesCount} moves`,
+  //       participantId: 'chatGPT123456',
+  //       idResponse: '',
+  //     };
+  //     console.log(action.payload.orientationChange);
+  //     if (action.payload.orientationChange === true) {
+  //       if (prev.activityState.chaptersMap[0].orientation == 'b') {
+  //         const toOrientation = 'w';
+  //         return {
+  //           ...prev,
+  //           activityState: {
+  //             ...prev.activityState,
+  //             chaptersMap: {
+  //               ...prev.activityState.chaptersMap,
+  //               [0]: {
+  //                 ...prev.activityState.chaptersMap[0],
+  //               //  chessAiMode: chessAiMode,
+  //                 orientation: toOrientation,
+  //                 // messages: [
+  //                 //   ...(prev.activityState.chaptersMap[0].messages ?? []),
+  //                 //   message,
+  //                 // ],
+  //               },
+  //             },
+  //           },
+  //         };
+  //       } else {
+  //         const toOrientation = 'b';
+  //         return {
+  //           ...prev,
+  //           activityState: {
+  //             ...prev.activityState,
+  //             chaptersMap: {
+  //               ...prev.activityState.chaptersMap,
+  //               [0]: {
+  //                 ...prev.activityState.chaptersMap[0],
+  //                // chessAiMode: chessAiMode,
+  //                 orientation: toOrientation,
+  //                 // messages: [
+  //                 //   ...(prev.activityState.chaptersMap[0].messages ?? []),
+  //                 //   message,
+  //                 // ],
+  //               },
+  //             },
+  //           },
+  //         };
+  //       }
+  //     }
 
-      //if set puzzle , message yes no change orientation
-      return {
-        ...prev,
-        activityState: {
-          ...prev.activityState,
-          chaptersMap: {
-            ...prev.activityState.chaptersMap,
-            [0]: {
-              ...prev.activityState.chaptersMap[0],
-           //   chessAiMode: chessAiMode,
-              // messages: [
-              //   ...(prev.activityState.chaptersMap[0].messages ?? []),
-              //   message,
-              // ],
-            },
-          },
-        },
-      };
-    }
+  //     //if set puzzle , message yes no change orientation
+  //     return {
+  //       ...prev,
+  //       activityState: {
+  //         ...prev.activityState,
+  //         chaptersMap: {
+  //           ...prev.activityState.chaptersMap,
+  //           [0]: {
+  //             ...prev.activityState.chaptersMap[0],
+  //          //   chessAiMode: chessAiMode,
+  //             // messages: [
+  //             //   ...(prev.activityState.chaptersMap[0].messages ?? []),
+  //             //   message,
+  //             // ],
+  //           },
+  //         },
+  //       },
+  //     };
+  //   }
 
-    //delete puzzle
-    return {
-      ...prev,
-      activityState: {
-        ...prev.activityState,
-        chaptersMap: {
-          ...prev.activityState.chaptersMap,
-          [0]: {
-            ...prev.activityState.chaptersMap[0],
-          //  chessAiMode: chessAiMode,
-          },
-        },
-      },
-    };
-  }
-  if (action.type === 'loadedChapter:writeMessage') {
-    console.log('ide poruka', action.payload);
+  //   //delete puzzle
+  //   return {
+  //     ...prev,
+  //     activityState: {
+  //       ...prev.activityState,
+  //       chaptersMap: {
+  //         ...prev.activityState.chaptersMap,
+  //         [0]: {
+  //           ...prev.activityState.chaptersMap[0],
+  //         //  chessAiMode: chessAiMode,
+  //         },
+  //       },
+  //     },
+  //   };
+  // }
 
-    if (
-      prev.activityState.chaptersMap[0].messages[
-        prev.activityState.chaptersMap[0].messages.length - 1
-      ].participantId !== action.payload.participantId
-    ) {
-      return {
-        ...prev,
-        activityState: {
-          ...prev.activityState,
-          chaptersMap: {
-            ...prev.activityState.chaptersMap,
-            [0]: {
-              ...prev.activityState.chaptersMap[0],
-              messages: [
-                ...(prev.activityState.chaptersMap[0].messages ?? []),
-                {
-                  content: action.payload.content,
-                  participantId: action.payload.participantId,
-                  idResponse: action.payload.idResponse,
-                },
-              ],
-            },
-          },
-        },
-      };
-    }
-    if (
-      prev.activityState.chaptersMap[0].messages[
-        prev.activityState.chaptersMap[0].messages.length - 1
-      ].participantId === action.payload.participantId
-    ) {
-      const editedMessage = {
-        content:
-          prev.activityState.chaptersMap[0].messages[
-            prev.activityState.chaptersMap[0].messages.length - 1
-          ].content +
-          '\n' +
-          action.payload.content,
-        participantId: action.payload.participantId,
-        idResponse: action.payload.idResponse,
-      };
+  
+  // if (action.type === 'loadedChapter:writeMessage') {
+  //   console.log('ide poruka', action.payload);
 
-      return {
-        ...prev,
-        activityState: {
-          ...prev.activityState,
-          chaptersMap: {
-            ...prev.activityState.chaptersMap,
-            [0]: {
-              ...prev.activityState.chaptersMap[0],
-              messages: [
-                ...(prev.activityState.chaptersMap[0].messages.slice(0, -1) ??
-                  []),
-                editedMessage,
-              ],
-            },
-          },
-        },
-       };
-    }
-  }
+  //   if (
+  //     prev.activityState.chaptersMap[0].messages[
+  //       prev.activityState.chaptersMap[0].messages.length - 1
+  //     ].participantId !== action.payload.participantId
+  //   ) {
+  //     return {
+  //       ...prev,
+  //       activityState: {
+  //         ...prev.activityState,
+  //         chaptersMap: {
+  //           ...prev.activityState.chaptersMap,
+  //           [0]: {
+  //             ...prev.activityState.chaptersMap[0],
+  //             messages: [
+  //               ...(prev.activityState.chaptersMap[0].messages ?? []),
+  //               {
+  //                 content: action.payload.content,
+  //                 participantId: action.payload.participantId,
+  //                 idResponse: action.payload.idResponse,
+  //               },
+  //             ],
+  //           },
+  //         },
+  //       },
+  //     };
+  //   }
+  //   if (
+  //     prev.activityState.chaptersMap[0].messages[
+  //       prev.activityState.chaptersMap[0].messages.length - 1
+  //     ].participantId === action.payload.participantId
+  //   ) {
+  //     const editedMessage = {
+  //       content:
+  //         prev.activityState.chaptersMap[0].messages[
+  //           prev.activityState.chaptersMap[0].messages.length - 1
+  //         ].content +
+  //         '\n' +
+  //         action.payload.content,
+  //       participantId: action.payload.participantId,
+  //       idResponse: action.payload.idResponse,
+  //     };
+
+  //     return {
+  //       ...prev,
+  //       activityState: {
+  //         ...prev.activityState,
+  //         chaptersMap: {
+  //           ...prev.activityState.chaptersMap,
+  //           [0]: {
+  //             ...prev.activityState.chaptersMap[0],
+  //             messages: [
+  //               ...(prev.activityState.chaptersMap[0].messages.slice(0, -1) ??
+  //                 []),
+  //               editedMessage,
+  //             ],
+  //           },
+  //         },
+  //       },
+  //      };
+  //   }
+  // }
 
   return prev;
 };
