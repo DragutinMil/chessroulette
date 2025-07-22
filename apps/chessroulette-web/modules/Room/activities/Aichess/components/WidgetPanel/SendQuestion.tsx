@@ -62,7 +62,7 @@ All your responses must be only in vaild JSON format specified below:
   //   currentChapterState.messages[currentChapterState.messages.length - 1]
   //     .idResponse;
   const question = prompt + '. Fen:' + currentChapterState.displayFen;
-  console.log('question in send question', question);
+  //console.log('question in send question', question);
   // try {
   //   const response = await fetch(
   //     process.env.NEXT_PUBLIC_API_WEB +
