@@ -107,7 +107,7 @@ export const AichessActivity = ({
             // Learn Mode
 
             <div>
-              <AiChessDialogContainer currentChapter={currentChapter} />
+              {/* <AiChessDialogContainer currentChapter={currentChapter} /> */}
 
               <AichessBoard
                 sizePx={boardSize}
