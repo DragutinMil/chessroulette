@@ -7,7 +7,7 @@ import { TabsRef } from '@app/components/Tabs';
 import {
   Chapter,
   ChapterState,
-  MovePiece,
+  // MovePiece,
   // chessAiMode,
   // Message,
 } from '../../movex';
@@ -26,7 +26,7 @@ type Props = {
   // Board
   onImport: PgnInputBoxProps['onChange'];
   onQuickImport: PgnInputBoxProps['onChange'];
-  onPuzzleMove: (move: MovePiece) => void;
+  // onPuzzleMove: (move: MovePiece) => void;
   onTakeBack: () => void;
   // addChessAi: (moves: chessAiMode) => void;
   // onMessage: (message: Message) => void;
@@ -68,7 +68,7 @@ export const WidgetPanel = React.forwardRef<TabsRef, Props>(
       onQuickImport,
       onHistoryNotationDelete,
 
-      onPuzzleMove,
+      // onPuzzleMove,
       onTakeBack,
       // addChessAi,
       // onMessage,
@@ -89,7 +89,7 @@ export const WidgetPanel = React.forwardRef<TabsRef, Props>(
         currentChapterState={currentChapterState}
         currentLoadedChapterId={currentLoadedChapterId}
         onQuickImport={onQuickImport}
-        onPuzzleMove={onPuzzleMove}
+        // onPuzzleMove={onPuzzleMove}
         onTakeBack={onTakeBack}
         onImport={onImport}
         chaptersMap={chaptersMap}
