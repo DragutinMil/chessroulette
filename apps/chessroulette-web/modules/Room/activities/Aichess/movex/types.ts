@@ -1,7 +1,6 @@
 import {
   ChessColor,
   ChessFEN,
-  ChessPGN,
   ChessMove,
   FBHHistory,
   FBHIndex,
@@ -13,7 +12,6 @@ import {
 } from '@app/components/Chessboard/types';
 import { ImportedInput } from '@app/components/PgnInputBox/PgnInputBox';
 import { Action } from 'movex-core-util';
-
 import { Square } from 'chess.js';
 
 export type AichessActivityState = {
@@ -55,7 +53,7 @@ export type ChapterState = {
   name: string;
   messages: Message[];
   // Also the chapter might get a type: position, or puzzle (containing next correct moves)
-  chessAiMode: chessAiMode;
+  // chessAiMode: chessAiMode;
   notation: {
     // The starting fen is the chapter fen
     history: FBHHistory;

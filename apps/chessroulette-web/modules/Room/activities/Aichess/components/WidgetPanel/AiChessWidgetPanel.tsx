@@ -107,8 +107,8 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
     const isMyTurn =
       currentChapterState.displayFen.split(' ')[1] ===
       currentChapterState.orientation;
-    const playMode = currentChapterState.chessAiMode.mode === 'play';
-    const puzzleMode = currentChapterState.chessAiMode.mode === 'puzzle';
+    // const playMode = currentChapterState.chessAiMode.mode === 'play';
+    // const puzzleMode = currentChapterState.chessAiMode.mode === 'puzzle';
 
     const addQuestion = async (question: string) => {
       onMessage({
@@ -162,106 +162,106 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
       //   //   }
       //   // }
     };
-    useEffect(() => {
-      const length = currentChapterState.notation.history.length;
-      if (length > 0) {
-        //crni sam
-        if (
-          currentChapterState.orientation == 'b' &&
-          // currentChapterState.orientation !==
-          //   currentChapterState.displayFen.split(' ')[1]
-          !isMyTurn &&
-          currentChapterState.chessAiMode.movesCount > length
-        ) {
-          const from = currentChapterState.chessAiMode.moves[2 * length].slice(
-            0,
-            2
-          ); // "d3"
-          const to = currentChapterState.chessAiMode.moves[2 * length].slice(
-            2,
-            4
-          );
-          const move = { from: from as Square, to: to as Square };
-          if (!isMyTurn) {
-            setTimeout(() => onPuzzleMove(move), 1000);
-          }
-        } else if (
-          currentChapterState.orientation == 'w' &&
-          !isMyTurn &&
-          currentChapterState.chessAiMode.movesCount >= length
-        ) {
-          const from = currentChapterState.chessAiMode.moves[
-            2 * length - 2
-          ].slice(0, 2); // "d3"
-          const to = currentChapterState.chessAiMode.moves[
-            2 * length - 2
-          ].slice(2, 4);
-          const move = { from: from as Square, to: to as Square };
-          if (!isMyTurn) {
-            setTimeout(() => onPuzzleMove(move), 1000);
-          }
-        }
-      }
-    }, [currentChapterState.chessAiMode.goodMoves]);
+    // useEffect(() => {
+    //   const length = currentChapterState.notation.history.length;
+    //   if (length > 0) {
+    //     //crni sam
+    //     if (
+    //       currentChapterState.orientation == 'b' &&
+    //       // currentChapterState.orientation !==
+    //       //   currentChapterState.displayFen.split(' ')[1]
+    //       !isMyTurn &&
+    //       currentChapterState.chessAiMode.movesCount > length
+    //     ) {
+    //       const from = currentChapterState.chessAiMode.moves[2 * length].slice(
+    //         0,
+    //         2
+    //       ); // "d3"
+    //       const to = currentChapterState.chessAiMode.moves[2 * length].slice(
+    //         2,
+    //         4
+    //       );
+    //       const move = { from: from as Square, to: to as Square };
+    //       if (!isMyTurn) {
+    //         setTimeout(() => onPuzzleMove(move), 1000);
+    //       }
+    //     } else if (
+    //       currentChapterState.orientation == 'w' &&
+    //       !isMyTurn &&
+    //       currentChapterState.chessAiMode.movesCount >= length
+    //     ) {
+    //       const from = currentChapterState.chessAiMode.moves[
+    //         2 * length - 2
+    //       ].slice(0, 2); // "d3"
+    //       const to = currentChapterState.chessAiMode.moves[
+    //         2 * length - 2
+    //       ].slice(2, 4);
+    //       const move = { from: from as Square, to: to as Square };
+    //       if (!isMyTurn) {
+    //         setTimeout(() => onPuzzleMove(move), 1000);
+    //       }
+    //     }
+    //   }
+    // }, [currentChapterState.chessAiMode.goodMoves]);
 
-    useEffect(() => {
-      if (currentChapterState.chessAiMode.badMoves > 0 && isMyTurn) {
-        onMessage({
-          content: 'No :), try something else',
-          participantId: 'chatGPT123456',
-          idResponse:
-            currentChapterState.messages[
-              currentChapterState.messages.length - 1
-            ].idResponse,
-        });
-        //Resetpovati bad moves na nulu !!!
-      }
-    }, [currentChapterState.chessAiMode.badMoves]);
+    // useEffect(() => {
+    //   if (currentChapterState.chessAiMode.badMoves > 0 && isMyTurn) {
+    //     onMessage({
+    //       content: 'No :), try something else',
+    //       participantId: 'chatGPT123456',
+    //       idResponse:
+    //         currentChapterState.messages[
+    //           currentChapterState.messages.length - 1
+    //         ].idResponse,
+    //     });
+    //     //Resetpovati bad moves na nulu !!!
+    //   }
+    // }, [currentChapterState.chessAiMode.badMoves]);
 
-    useEffect(() => {
-      if (
-        currentChapterState.chessAiMode.goodMoves ==
-          currentChapterState.chessAiMode.moves.length &&
-        currentChapterState.chessAiMode.goodMoves % 2 === 0 &&
-        currentChapterState.chessAiMode.goodMoves > 0
-      ) {
-        onMessage({
-          content: 'Congrats! You made it!!! ',
-          participantId: 'chatGPT123456',
-          idResponse:
-            currentChapterState.messages[
-              currentChapterState.messages.length - 1
-            ].idResponse,
-        });
-        setTimeout(
-          () =>
-            addChessAi({
-              moves: currentChapterState.chessAiMode.moves,
-              movesCount: 0,
-              badMoves: 0,
-              goodMoves: 0,
-              orientationChange: false,
-              mode: 'popup',
-            }),
-          1000
-        );
-      }
-      if (
-        currentChapterState.chessAiMode.goodMoves > 0 &&
-        currentChapterState.chessAiMode.goodMoves % 2 === 0 &&
-        currentChapterState.chessAiMode.goodMoves <
-          currentChapterState.chessAiMode.moves.length
-      ) {
-        onMessage({
-          content: 'Nice move! ✅',
-          participantId: 'chatGPT123456',
-          idResponse:
-            currentChapterState.messages[
-              currentChapterState.messages.length - 1
-            ].idResponse,
-        });
-      }
-    }, [currentChapterState.chessAiMode.goodMoves]);
+    // useEffect(() => {
+    //   if (
+    //     currentChapterState.chessAiMode.goodMoves ==
+    //       currentChapterState.chessAiMode.moves.length &&
+    //     currentChapterState.chessAiMode.goodMoves % 2 === 0 &&
+    //     currentChapterState.chessAiMode.goodMoves > 0
+    //   ) {
+    //     onMessage({
+    //       content: 'Congrats! You made it!!! ',
+    //       participantId: 'chatGPT123456',
+    //       idResponse:
+    //         currentChapterState.messages[
+    //           currentChapterState.messages.length - 1
+    //         ].idResponse,
+    //     });
+    //     setTimeout(
+    //       () =>
+    //         addChessAi({
+    //           moves: currentChapterState.chessAiMode.moves,
+    //           movesCount: 0,
+    //           badMoves: 0,
+    //           goodMoves: 0,
+    //           orientationChange: false,
+    //           mode: 'popup',
+    //         }),
+    //       1000
+    //     );
+    //   }
+    //   if (
+    //     currentChapterState.chessAiMode.goodMoves > 0 &&
+    //     currentChapterState.chessAiMode.goodMoves % 2 === 0 &&
+    //     currentChapterState.chessAiMode.goodMoves <
+    //       currentChapterState.chessAiMode.moves.length
+    //   ) {
+    //     onMessage({
+    //       content: 'Nice move! ✅',
+    //       participantId: 'chatGPT123456',
+    //       idResponse:
+    //         currentChapterState.messages[
+    //           currentChapterState.messages.length - 1
+    //         ].idResponse,
+    //     });
+    //   }
+    // }, [currentChapterState.chessAiMode.goodMoves]);
 
     const openings = async () => {
       addChessAi({
@@ -354,14 +354,14 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
     // Instructor
     return (
       <div className="  flex flex-col flex-1 min-h-0 rounded-lg shadow-2xl flex-1 flex min-h-0 ">
-        <StockFishEngineAI
+        {/* <StockFishEngineAI
           fen={currentChapterState.displayFen}
           puzzleMode={puzzleMode}
           playMode={playMode}
           stockfishInfo={stockfishInfo}
           isMyTurn={isMyTurn}
           engineMove={engineMove}
-        />
+        /> */}
 
         <Tabs
           containerClassName="  p-3 flex flex-col flex-1 min-h-0 rounded-lg shadow-2xl"
@@ -449,7 +449,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
                     <label className="font-bold text-sm text-gray-400">
                       {/* Quick Import */}
                     </label>
-                    <Button
+                    {/* <Button
                       onClick={() => {
                         play();
                       }}
@@ -463,7 +463,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
                       ) : (
                         <p>Play</p>
                       )}
-                    </Button>
+                    </Button> */}
                     <Button
                       onClick={() => {
                         openings();
