@@ -1,12 +1,13 @@
 import type { LearnActivityState, LearnActivityActions } from '../Learn/movex';
-
+import { AichessActivityState, AichessActivityActions } from '../Aichess/movex';
+import { ChessaiActivityState, ChessaiActivityActions } from '../Chessai/movex';
 import type {
   MeetupActivityState,
   MeetupActivityActions,
 } from '../Meetup/movex';
 import { MatchActivityActions, MatchActivityState } from '../Match/movex';
 
-import { AichessActivityState, AichessActivityActions } from '../Aichess/movex';
+
 
 export type NoneActivityState = {
   activityType: 'none';
@@ -18,10 +19,12 @@ export type ActivityState =
   | MeetupActivityState
   | NoneActivityState
   | MatchActivityState
-  | AichessActivityState;
+  | AichessActivityState
+  | ChessaiActivityState;
 
 export type ActivityActions =
   | LearnActivityActions
   | MeetupActivityActions
   | MatchActivityActions
-  | AichessActivityActions;
+  | AichessActivityActions
+  | ChessaiActivityActions;

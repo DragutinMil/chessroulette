@@ -345,7 +345,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
     //             }
     //         }
 
-    // Instructor
+    // Instructor 
     return (
       <div className="  flex flex-col flex-1 min-h-0 rounded-lg shadow-2xl flex-1 flex min-h-0 ">
         {/* <StockFishEngineAI
