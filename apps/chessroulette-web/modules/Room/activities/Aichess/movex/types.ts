@@ -59,7 +59,6 @@ export type ChapterState = {
   chessAiMode: chessAiMode;
   notation: {
     // The starting fen is the chapter fen
-
     history: FBHHistory;
     focusedIndex: FBHIndex;
     startingFen: ChessFEN; // This could be strtingPGN as well especially for puzzles but not necessarily
