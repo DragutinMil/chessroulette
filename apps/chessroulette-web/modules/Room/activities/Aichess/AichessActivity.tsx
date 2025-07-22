@@ -14,7 +14,7 @@ import {
   findLoadedChapter,
   initialDefaultChapter,
   // chessAiMode,
-  MovePiece,
+  // MovePiece,
 } from './movex';
 import { WidgetPanel } from './components/WidgetPanel';
 import { AichessBoard } from './components/AichessBoard';
@@ -200,14 +200,14 @@ export const AichessActivity = ({
             </div>
           )}
           <WidgetPanel
-            onTakeBack={() =>
-              dispatch({
-                type: 'loadedChapter:takeBack',
-              })
-            }
-            onPuzzleMove={(payload) => {
-              dispatch({ type: 'loadedChapter:addMove', payload });
-            }}
+            // onTakeBack={() =>
+            //   dispatch({
+            //     type: 'loadedChapter:takeBack',
+            //   })
+            // }
+            // onPuzzleMove={(payload) => {
+            //   dispatch({ type: 'loadedChapter:addMove', payload });
+            // }}
             // addChessAi={(payload: chessAiMode) =>
             //   dispatch({
             //     type: 'loadedChapter:setPuzzleMoves',
@@ -220,12 +220,12 @@ export const AichessActivity = ({
             //     payload: payload,
             //   })
             // }
-            puzzleOrientation={() =>
-              dispatch({
-                type: 'loadedChapter:setOrientation',
-                payload: { color: swapColor(currentChapter.orientation) },
-              })
-            }
+            // puzzleOrientation={() =>
+            //   dispatch({
+            //     type: 'loadedChapter:setOrientation',
+            //     payload: { color: swapColor(currentChapter.orientation) },
+            //   })
+            // }
             currentChapterState={currentChapter}
             chaptersMap={remoteState?.chaptersMap || {}}
             inputModeState={inputState}

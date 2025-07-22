@@ -10,7 +10,7 @@ import { Tabs, TabsRef } from '@app/components/Tabs';
 import type {
   Chapter,
   ChapterState,
-  MovePiece,
+  // MovePiece,
   // chessAiMode,
   // Message,
 } from '../../movex/types';
@@ -35,9 +35,9 @@ type Props = {
   chaptersMap: Record<Chapter['id'], Chapter>;
   chaptersMapIndex: number;
   currentChapterState: ChapterState;
-  onPuzzleMove: (move: MovePiece) => void;
-  onTakeBack: () => void;
-  puzzleOrientation: () => void;
+  // onPuzzleMove: (move: MovePiece) => void;
+  // onTakeBack: () => void;
+  // puzzleOrientation: () => void;
   // addChessAi: (moves: chessAiMode) => void;
   // onMessage: (message: Message) => void;
   // Board
@@ -72,9 +72,9 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
       // engine,
       showEngine,
       onImport,
-      onTakeBack,
-      onPuzzleMove,
-      puzzleOrientation,
+      // onTakeBack,
+      // onPuzzleMove,
+      // puzzleOrientation,
       // addChessAi,
       // onMessage,
       onQuickImport,
@@ -276,21 +276,21 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
     //   onQuickImport({ type: 'PGN', val: data.pgn });
     //   addQuestion(fullQuestion);
     // };
-    const engineMove = (m: any) => {
-      let fromChess = m.slice(0, 2);
-      let toChess = m.slice(2, 4);
-      if (m.length == 5 && m.slice(-1) == 'q') {
-        let promotionChess = m.slice(4, 5);
-        let n = { from: fromChess, to: toChess, promoteTo: promotionChess };
-        setTimeout(() => onPuzzleMove(n), 1000);
-      } else {
-        let n = { from: fromChess, to: toChess };
-        setTimeout(() => onPuzzleMove(n), 1000);
-      }
-    };
-    const stockfishInfo = (m: any) => {
-      setStockfishMovesInfo(m);
-    };
+    // const engineMove = (m: any) => {
+    //   let fromChess = m.slice(0, 2);
+    //   let toChess = m.slice(2, 4);
+    //   if (m.length == 5 && m.slice(-1) == 'q') {
+    //     let promotionChess = m.slice(4, 5);
+    //     let n = { from: fromChess, to: toChess, promoteTo: promotionChess };
+    //     setTimeout(() => onPuzzleMove(n), 1000);
+    //   } else {
+    //     let n = { from: fromChess, to: toChess };
+    //     setTimeout(() => onPuzzleMove(n), 1000);
+    //   }
+    // };
+    // const stockfishInfo = (m: any) => {
+    //   setStockfishMovesInfo(m);
+    // };
 
     // const puzzles = async () => {
     //   const data = await getPuzzle();
@@ -314,9 +314,9 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
     //   }
     // };
 
-    const takeBack = async () => {
-      onTakeBack();
-    };
+    // const takeBack = async () => {
+    //   onTakeBack();
+    // };
     // const play = async () => {
     //   addChessAi({
     //     moves: [],
@@ -476,7 +476,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
                     >
                       Import PGN
                     </Button> */}
-                    <Button
+                    {/* <Button
                       onClick={() => {
                         takeBack();
                       }}
@@ -485,7 +485,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
                       className={`bg-slate-600 font-bold hover:bg-slate-800 `}
                     >
                       Take Back
-                    </Button>
+                    </Button> */}
                     <Button
                       // onClick={() => {
                       //   puzzles();
