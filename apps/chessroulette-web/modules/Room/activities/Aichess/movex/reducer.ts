@@ -147,46 +147,35 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
 
   // TODO: Should this be split?
   if (action.type === 'loadedChapter:addMove') {
-    // console.log('provera pre poteza', prev.activityState.chaptersMap[0]);
-    // console.log('action.payload', action.payload);
-    //  prev.activityState.chaptersMap[0].fenPreviusMove=prev.activityState.chaptersMap[0].displayFen
-    // TODO: the logic for this should be in GameHistory class/static  so it can be tested
-    //    const pgn= prev.activityState.chaptersMap[0].pgn
-    // console.log('trt pgn',pgn)
-    //     const chessRouler = new ChessRouler({ pgn });
 
-    //       chessRouler.move(localChessMoveToChessLibraryMove(action.payload));
-
-    //     const newPGN= chessRouler.pgn()
-    //     console.log('trt',newPGN)
 
     //PUZZLE MOVE
-    if (prev.activityState.chaptersMap[0].chessAiMode.mode == 'puzzle') {
-      if (
-        !prev.activityState.chaptersMap[0].chessAiMode.moves[
-          prev.activityState.chaptersMap[0].chessAiMode.goodMoves
-        ].includes(action.payload.from.concat(action.payload.to))
-      ) {
-        console.log('action.payload prov 2', action.payload);
-        return {
-          ...prev,
-          activityState: {
-            ...prev.activityState,
-            chaptersMap: {
-              ...prev.activityState.chaptersMap,
-              [0]: {
-                ...prev.activityState.chaptersMap[0],
-                chessAiMode: {
-                  ...prev.activityState.chaptersMap[0].chessAiMode,
-                  badMoves:
-                    prev.activityState.chaptersMap[0].chessAiMode.badMoves + 1,
-                },
-              },
-            },
-          },
-        };
-      }
-    }
+    // if (prev.activityState.chaptersMap[0].chessAiMode.mode == 'puzzle') {
+    //   if (
+    //     !prev.activityState.chaptersMap[0].chessAiMode.moves[
+    //       prev.activityState.chaptersMap[0].chessAiMode.goodMoves
+    //     ].includes(action.payload.from.concat(action.payload.to))
+    //   ) {
+    //     console.log('action.payload prov 2', action.payload);
+    //     return {
+    //       ...prev,
+    //       activityState: {
+    //         ...prev.activityState,
+    //         chaptersMap: {
+    //           ...prev.activityState.chaptersMap,
+    //           [0]: {
+    //             ...prev.activityState.chaptersMap[0],
+    //             chessAiMode: {
+    //               ...prev.activityState.chaptersMap[0].chessAiMode,
+    //               badMoves:
+    //                 prev.activityState.chaptersMap[0].chessAiMode.badMoves + 1,
+    //             },
+    //           },
+    //         },
+    //       },
+    //     };
+    //   }
+    // }
 
     try {
       const prevChapter = findLoadedChapter(prev.activityState);
@@ -227,10 +216,10 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
           focusedIndex: addedAtIndex,
         },
 
-        chessAiMode: {
-          ...prevChapter.chessAiMode,
-          goodMoves: prevChapter.chessAiMode.goodMoves + 1,
-        },
+        // chessAiMode: {
+        //   ...prevChapter.chessAiMode,
+        //   goodMoves: prevChapter.chessAiMode.goodMoves + 1,
+        // },
       };
 
       return {
@@ -558,7 +547,6 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
       // Ensure the notation resets each time there is an update (the starting fen might change)
       notation: {
         ...initialChapterState.notation,
-
         // this needs to always start from the given fen, otherwise issues may arise
         startingFen: nextFen,
       },
@@ -679,12 +667,12 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
                 ...prev.activityState.chaptersMap,
                 [0]: {
                   ...prev.activityState.chaptersMap[0],
-                  chessAiMode: chessAiMode,
+                //  chessAiMode: chessAiMode,
                   orientation: toOrientation,
-                  messages: [
-                    ...(prev.activityState.chaptersMap[0].messages ?? []),
-                    message,
-                  ],
+                  // messages: [
+                  //   ...(prev.activityState.chaptersMap[0].messages ?? []),
+                  //   message,
+                  // ],
                 },
               },
             },
@@ -699,12 +687,12 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
                 ...prev.activityState.chaptersMap,
                 [0]: {
                   ...prev.activityState.chaptersMap[0],
-                  chessAiMode: chessAiMode,
+                 // chessAiMode: chessAiMode,
                   orientation: toOrientation,
-                  messages: [
-                    ...(prev.activityState.chaptersMap[0].messages ?? []),
-                    message,
-                  ],
+                  // messages: [
+                  //   ...(prev.activityState.chaptersMap[0].messages ?? []),
+                  //   message,
+                  // ],
                 },
               },
             },
@@ -721,11 +709,11 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
             ...prev.activityState.chaptersMap,
             [0]: {
               ...prev.activityState.chaptersMap[0],
-              chessAiMode: chessAiMode,
-              messages: [
-                ...(prev.activityState.chaptersMap[0].messages ?? []),
-                message,
-              ],
+           //   chessAiMode: chessAiMode,
+              // messages: [
+              //   ...(prev.activityState.chaptersMap[0].messages ?? []),
+              //   message,
+              // ],
             },
           },
         },
@@ -741,7 +729,7 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
           ...prev.activityState.chaptersMap,
           [0]: {
             ...prev.activityState.chaptersMap[0],
-            chessAiMode: chessAiMode,
+          //  chessAiMode: chessAiMode,
           },
         },
       },
@@ -750,66 +738,66 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
   if (action.type === 'loadedChapter:writeMessage') {
     console.log('ide poruka', action.payload);
 
-    if (
-      prev.activityState.chaptersMap[0].messages[
-        prev.activityState.chaptersMap[0].messages.length - 1
-      ].participantId !== action.payload.participantId
-    ) {
-      return {
-        ...prev,
-        activityState: {
-          ...prev.activityState,
-          chaptersMap: {
-            ...prev.activityState.chaptersMap,
-            [0]: {
-              ...prev.activityState.chaptersMap[0],
-              messages: [
-                ...(prev.activityState.chaptersMap[0].messages ?? []),
-                {
-                  content: action.payload.content,
-                  participantId: action.payload.participantId,
-                  idResponse: action.payload.idResponse,
-                },
-              ],
-            },
-          },
-        },
-      };
-    }
-    if (
-      prev.activityState.chaptersMap[0].messages[
-        prev.activityState.chaptersMap[0].messages.length - 1
-      ].participantId === action.payload.participantId
-    ) {
-      const editedMessage = {
-        content:
-          prev.activityState.chaptersMap[0].messages[
-            prev.activityState.chaptersMap[0].messages.length - 1
-          ].content +
-          '\n' +
-          action.payload.content,
-        participantId: action.payload.participantId,
-        idResponse: action.payload.idResponse,
-      };
+    // if (
+    //   prev.activityState.chaptersMap[0].messages[
+    //     prev.activityState.chaptersMap[0].messages.length - 1
+    //   ].participantId !== action.payload.participantId
+    // ) {
+    //   return {
+    //     ...prev,
+    //     activityState: {
+    //       ...prev.activityState,
+    //       chaptersMap: {
+    //         ...prev.activityState.chaptersMap,
+    //         [0]: {
+    //           ...prev.activityState.chaptersMap[0],
+    //           messages: [
+    //             ...(prev.activityState.chaptersMap[0].messages ?? []),
+    //             {
+    //               content: action.payload.content,
+    //               participantId: action.payload.participantId,
+    //               idResponse: action.payload.idResponse,
+    //             },
+    //           ],
+    //         },
+    //       },
+    //     },
+    //   };
+    // }
+    // if (
+    //   prev.activityState.chaptersMap[0].messages[
+    //     prev.activityState.chaptersMap[0].messages.length - 1
+    //   ].participantId === action.payload.participantId
+    // ) {
+    //   const editedMessage = {
+    //     content:
+    //       prev.activityState.chaptersMap[0].messages[
+    //         prev.activityState.chaptersMap[0].messages.length - 1
+    //       ].content +
+    //       '\n' +
+    //       action.payload.content,
+    //     participantId: action.payload.participantId,
+    //     idResponse: action.payload.idResponse,
+    //   };
 
-      return {
-        ...prev,
-        activityState: {
-          ...prev.activityState,
-          chaptersMap: {
-            ...prev.activityState.chaptersMap,
-            [0]: {
-              ...prev.activityState.chaptersMap[0],
-              messages: [
-                ...(prev.activityState.chaptersMap[0].messages.slice(0, -1) ??
-                  []),
-                editedMessage,
-              ],
-            },
-          },
-        },
-      };
-    }
+    //   return {
+    //     ...prev,
+    //     activityState: {
+    //       ...prev.activityState,
+    //       chaptersMap: {
+    //         ...prev.activityState.chaptersMap,
+    //         [0]: {
+    //           ...prev.activityState.chaptersMap[0],
+    //           messages: [
+    //             ...(prev.activityState.chaptersMap[0].messages.slice(0, -1) ??
+    //               []),
+    //             editedMessage,
+    //           ],
+    //         },
+    //       },
+    //     },
+    //    };
+    // }
   }
 
   return prev;

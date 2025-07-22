@@ -22,7 +22,6 @@ export const initialChapterState: ChapterState = {
     goodMoves: 0,
     orientationChange: false,
   },
-
   notation: {
     history: [],
     focusedIndex: FreeBoardHistory.getStartingIndex(),
