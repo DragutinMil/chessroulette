@@ -11,5 +11,5 @@ export default async function Page(props: {
   params: StringRecord;
   searchParams: Partial<{ theme: string }>;
 }) {
-  return <RoomPage activity="learn" {...props} />;
+  return <RoomPage activity="aichess" {...props} />;
 }

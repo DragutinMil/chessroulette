@@ -13,6 +13,7 @@ export const PlayDialogContainer = ({
   const dispatch = usePlayActionsDispatch();
   const pathParts = window.location.pathname.split('/');
   const matchId = pathParts[pathParts.length - 1];
+  
   const onAcceptOffer = useCallback(
     ({ offer }: { offer: GameOffer['type'] }) => {
       if (offer === 'draw') {
@@ -49,6 +50,7 @@ export const PlayDialogContainer = ({
         //   });
         // };
         // newRematch();
+        
       }
     },
     [dispatch]

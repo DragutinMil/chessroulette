@@ -111,7 +111,7 @@ export const MatchStateDialogContainer: React.FC<Props> = (
               </Text>
               {match[match.winner].id.length !== 16 && (
                 <div className="justify-center items-center flex flex-col">
-                  {/* <Button
+                  <Button
                     icon="ArrowPathRoundedSquareIcon"
                     style={{
                       marginTop: 18,
@@ -133,7 +133,7 @@ export const MatchStateDialogContainer: React.FC<Props> = (
                     }}
                   >
                     Rematch
-                  </Button> */}
+                  </Button>
 
                   {/* { (document.referrer.includes('app.outpostchess.com') || document.referrer.includes('localhost:8080') || document.referrer.includes('test-app.outpostchess.com')) && */}
                   {fromWeb && (

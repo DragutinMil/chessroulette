@@ -11,6 +11,7 @@ export default async function Page(props: {
   params: StringRecord;
   searchParams: Partial<{ theme: string }>;
 }) {
+  console.log('mislisa')
   return <RoomPage activity="learn" {...props} />;
 
   // const result = roomIdParamsSchema.safeParse(

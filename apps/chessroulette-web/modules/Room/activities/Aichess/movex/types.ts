@@ -12,7 +12,7 @@ import {
 } from '@app/components/Chessboard/types';
 import { ImportedInput } from '@app/components/PgnInputBox/PgnInputBox';
 import { Action } from 'movex-core-util';
-import { Square } from 'chess.js';
+// import { Square } from 'chess.js';
 
 export type AichessActivityState = {
   activityType: 'aichess';
@@ -30,10 +30,10 @@ export type Chapter = {
   // createdAt: number;
 } & ChapterState;
 
-export type MovePiece = {
-  from: Square;
-  to: Square;
-};
+// export type MovePiece = {
+//   from: Square;
+//   to: Square;
+// };
 
 // export type chessAiMode = {
 //   mode: string;
@@ -91,6 +91,6 @@ export type AichessActivityActions =
   | Action<'loadedChapter:clearCircles'>
   | Action<'loadedChapter:setArrows', ArrowsMap>
   | Action<'loadedChapter:setOrientation', { color: ChessColor }>
-  | Action<'loadedChapter:takeBack'>
+  // | Action<'loadedChapter:takeBack'>
   | Action<'loadedChapter:updateFen', ChessFEN>
   | Action<'loadedChapter:import', { input: ImportedInput }>;
