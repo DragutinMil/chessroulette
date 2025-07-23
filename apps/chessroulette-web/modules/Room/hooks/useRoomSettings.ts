@@ -2,10 +2,12 @@
 
 import { useUpdateableSearchParams } from '@app/hooks/useSearchParams';
 import { useLearnActivitySettings } from '../activities/Learn';
+import { useAichessActivitySettings } from '../activities/Aichess';
 import { ActivityState } from '../activities/movex';
 import { invoke } from '@xmatter/util-kit';
 import { useMeetupActivitySettings } from '../activities/Meetup/useMeetupActivitySettings';
 import { JoinRoomLinkProps } from '../activities/Learn/activitySettings';
+import { JoinAichessRoomLinkProps } from '../activities/Aichess/activitySettings';
 
 export type RoomSettings = {
   theme: string | undefined; // TODO: this can be more specific
@@ -22,10 +24,14 @@ export const useRoomSettings = (
   const updateableSearchParams = useUpdateableSearchParams();
   const learnActivitySettings = useLearnActivitySettings();
   const meetupActivitySettings = useMeetupActivitySettings();
+   const aichessActivitySettings = useAichessActivitySettings();
 
-  const joinRoomLinkProps = invoke((): JoinRoomLinkProps => {
+  const joinRoomLinkProps = invoke((): JoinAichessRoomLinkProps => {
     if (activity === 'learn') {
       return learnActivitySettings;
+    }
+     if (activity === 'aichess') {
+      return aichessActivitySettings;
     }
 
     if (activity === 'meetup') {

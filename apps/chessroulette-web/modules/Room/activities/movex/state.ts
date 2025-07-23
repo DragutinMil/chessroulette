@@ -19,9 +19,10 @@ export const initialActivityStatesByActivityType: {
   >;
 } = {
   none: initialNoneActivityState,
+  chessai: initialChessaiActivityState,
   learn: initialLearnActivityState,
   meetup: initialMeetupActivityState,
   match: initialMatchActivityState,
   aichess: initialAichessActivityState,
-  chessai: initialChessaiActivityState,
+  
 };

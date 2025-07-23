@@ -1,4 +1,4 @@
-export type JoinRoomLinkProps =
+export type JoinAichessRoomLinkProps =
   | {
       showJoinRoomLink: true;
       joinRoomLinkParams: Record<string, string>;
@@ -18,4 +18,4 @@ export type AichessActivitySettings = {
   canMakeInvalidMoves: boolean;
   canImport: boolean;
   showEngine: boolean;
-} & JoinRoomLinkProps;
+} & JoinAichessRoomLinkProps;
