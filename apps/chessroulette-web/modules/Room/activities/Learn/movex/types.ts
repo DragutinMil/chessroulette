@@ -32,7 +32,6 @@ export type Chapter = {
 export type ChapterState = {
   name: string;
   // Also the chapter might get a type: position, or puzzle (containing next correct moves)
-  messages: Message[];
   notation: {
     // The starting fen is the chapter fen
     history: FBHHistory;

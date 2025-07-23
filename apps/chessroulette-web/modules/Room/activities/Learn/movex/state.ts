@@ -6,7 +6,6 @@ export const initialChapterState: ChapterState = {
   displayFen: ChessFENBoard.STARTING_FEN,
   arrowsMap: {},
   circlesMap: {},
-  messages: [],
   notation: {
     history: [],
     focusedIndex: FreeBoardHistory.getStartingIndex(),
