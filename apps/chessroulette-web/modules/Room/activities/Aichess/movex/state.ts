@@ -7,15 +7,21 @@ export const initialChapterState: ChapterState = {
   displayFen: ChessFENBoard.STARTING_FEN,
   arrowsMap: {},
   circlesMap: {},
-  // messages: [],
-  // chessAiMode: {
-  //   mode: '',
-  //   moves: [],
-  //   movesCount: 0,
-  //   badMoves: 0,
-  //   goodMoves: 0,
-  //   orientationChange: false,
-  // },
+  messages: [
+    {
+      content:'Hello',
+      idResponse:'',
+      participantId:'chatGPT123456'
+    }
+  ],
+  chessAiMode: {
+    mode: '',
+    moves: [],
+    movesCount: 0,
+    badMoves: 0,
+    goodMoves: 0,
+    orientationChange: false,
+  },
   notation: {
     history: [],
     focusedIndex: FreeBoardHistory.getStartingIndex(),

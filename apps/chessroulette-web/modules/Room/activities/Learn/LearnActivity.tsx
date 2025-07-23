@@ -206,6 +206,12 @@ export const LearnActivity = ({
             ref={tabsRef}
             isInstructor={settings.isInstructor}
             showEngine={settings.showEngine}
+            onMessage={(payload) =>
+              dispatch({
+                type: 'loadedChapter:writeMessage',
+                payload: payload,
+              })
+            }
             onActivateInputMode={(payload) => {
               dispatchInputState({ type: 'activate', payload });
             }}

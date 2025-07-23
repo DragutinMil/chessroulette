@@ -411,26 +411,26 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
     };
   }
 
-  if (action.type === 'createChapter') {
-    const nextChapterIndex = prev.activityState.chaptersIndex + 1;
-    const nextChapterId = String(nextChapterIndex);
+  // if (action.type === 'createChapter') {
+  //   const nextChapterIndex = prev.activityState.chaptersIndex + 1;
+  //   const nextChapterId = String(nextChapterIndex);
 
-    return {
-      ...prev,
-      activityState: {
-        ...prev.activityState,
-        chaptersMap: {
-          ...prev.activityState.chaptersMap,
-          [nextChapterId]: {
-            id: nextChapterId,
-            ...action.payload,
-          },
-        },
-        loadedChapterId: nextChapterId,
-        chaptersIndex: nextChapterIndex,
-      },
-    };
-  }
+  //   return {
+  //     ...prev,
+  //     activityState: {
+  //       ...prev.activityState,
+  //       chaptersMap: {
+  //         ...prev.activityState.chaptersMap,
+  //         [nextChapterId]: {
+  //           id: nextChapterId,
+  //           ...action.payload,
+  //         },
+  //       },
+  //       loadedChapterId: nextChapterId,
+  //       chaptersIndex: nextChapterIndex,
+  //     },
+  //   };
+  // }
   if (action.type === 'updateChapter') {
     const { [action.payload.id]: prevChapter } = prev.activityState.chaptersMap;
 
@@ -491,6 +491,7 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
       },
     };
   }
+ 
 
   return prev;
 };

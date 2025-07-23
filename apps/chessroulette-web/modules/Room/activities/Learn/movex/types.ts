@@ -47,6 +47,11 @@ export type ChapterBoardState = {
   circlesMap: CirclesMap;
   orientation: ChessColor;
 };
+export type Message = {
+  content: string;
+  participantId: string;
+  idResponse: string;
+};
 
 export type LearnActivityActions =
   // Chapter Logistcs
@@ -61,6 +66,7 @@ export type LearnActivityActions =
   | Action<'deleteChapter', { id: Chapter['id'] }>
   | Action<'loadChapter', { id: Chapter['id'] }>
   | Action<'loadedChapter:addMove', ChessMove>
+  | Action<'loadedChapter:writeMessage', Message>
   | Action<'loadedChapter:focusHistoryIndex', FBHIndex>
   | Action<'loadedChapter:deleteHistoryMove', FBHIndex>
   | Action<'loadedChapter:drawCircle', CircleDrawTuple>

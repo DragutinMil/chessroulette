@@ -28,6 +28,7 @@ export async function RoomPage({
   const iceServers = await twilio.getIceServers();
   const roomId = decodeURIComponent(result.data.roomId);
   const rid: ResourceIdentifier<'room'> = `room:${roomId}`;
+  
   return (
     <RoomTemplate
       themeName={searchParams.theme}

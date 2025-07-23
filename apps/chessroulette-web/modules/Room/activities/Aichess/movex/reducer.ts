@@ -149,8 +149,97 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
   // TODO: Should this be split?
 
 
-if (action.type === 'loadedChapter:addMove') {
-    // TODO: the logic for this should be in GameHistory class/static  so it can be tested
+// if (action.type === 'loadedChapter:addMove') {
+//     // TODO: the logic for this should be in GameHistory class/static  so it can be tested
+//     try {
+//       const prevChapter = findLoadedChapter(prev.activityState);
+
+//       if (!prevChapter) {
+//         console.error('The loaded chapter was not found');
+//         return prev;
+//       }
+
+//       const move = action.payload;
+
+//       const fenBoard = new ChessFENBoard(prevChapter.displayFen);
+//       const fenPiece = fenBoard.piece(move.from);
+//       if (!fenPiece) {
+//         console.error('Action Err', action, prev, fenBoard.board);
+//         throw new Error(`No Piece at ${move.from}`);
+//       }
+
+//       const nextMove = fenBoard.move(move);
+
+//       // If the moves are the same introduce a non move
+//       const [nextHistory, addedAtIndex] = FreeBoardHistory.addMagicMove(
+//         {
+//           history: prevChapter.notation.history,
+//           atIndex: prevChapter.notation.focusedIndex,
+//         },
+//         nextMove
+//       );
+
+//       const nextChapter: Chapter = {
+//         ...prevChapter,
+//         displayFen: fenBoard.fen,
+//         circlesMap: {},
+//         arrowsMap: {},
+//         notation: {
+//           ...prevChapter.notation,
+//           history: nextHistory,
+//           focusedIndex: addedAtIndex,
+//         },
+//       };
+
+//       return {
+//         ...prev,
+//         activityState: {
+//           ...prev.activityState,
+//           chaptersMap: {
+//             ...prev.activityState.chaptersMap,
+//             [prevChapter.id]: nextChapter,
+//           },
+//         },
+//       };
+//     } catch (e) {
+//       console.error('Action Error', action, prev, e);
+//       return prev;
+//     }
+//   }
+
+
+  
+  if (action.type === 'loadedChapter:addMove') {
+
+
+    // PUZZLE MOVE
+    if (prev.activityState.chaptersMap[0].chessAiMode.mode == 'puzzle') {
+      if (
+        !prev.activityState.chaptersMap[0].chessAiMode.moves[
+          prev.activityState.chaptersMap[0].chessAiMode.goodMoves
+        ].includes(action.payload.from.concat(action.payload.to))
+      ) {
+        console.log('action.payload prov 2', action.payload);
+        return {
+          ...prev,
+          activityState: {
+            ...prev.activityState,
+            chaptersMap: {
+              ...prev.activityState.chaptersMap,
+              [0]: {
+                ...prev.activityState.chaptersMap[0],
+                chessAiMode: {
+                  ...prev.activityState.chaptersMap[0].chessAiMode,
+                  badMoves:
+                    prev.activityState.chaptersMap[0].chessAiMode.badMoves + 1,
+                },
+              },
+            },
+          },
+        };
+      }
+    }
+
     try {
       const prevChapter = findLoadedChapter(prev.activityState);
 
@@ -189,12 +278,18 @@ if (action.type === 'loadedChapter:addMove') {
           history: nextHistory,
           focusedIndex: addedAtIndex,
         },
+
+        // chessAiMode: {
+        //   ...prevChapter.chessAiMode,
+        //   goodMoves: prevChapter.chessAiMode.goodMoves + 1,
+        // },
       };
 
       return {
         ...prev,
         activityState: {
           ...prev.activityState,
+
           chaptersMap: {
             ...prev.activityState.chaptersMap,
             [prevChapter.id]: nextChapter,
@@ -206,101 +301,6 @@ if (action.type === 'loadedChapter:addMove') {
       return prev;
     }
   }
-
-
-  // NE VALJA
-  // if (action.type === 'loadedChapter:addMove') {
-
-
-  //   PUZZLE MOVE
-  //   if (prev.activityState.chaptersMap[0].chessAiMode.mode == 'puzzle') {
-  //     if (
-  //       !prev.activityState.chaptersMap[0].chessAiMode.moves[
-  //         prev.activityState.chaptersMap[0].chessAiMode.goodMoves
-  //       ].includes(action.payload.from.concat(action.payload.to))
-  //     ) {
-  //       console.log('action.payload prov 2', action.payload);
-  //       return {
-  //         ...prev,
-  //         activityState: {
-  //           ...prev.activityState,
-  //           chaptersMap: {
-  //             ...prev.activityState.chaptersMap,
-  //             [0]: {
-  //               ...prev.activityState.chaptersMap[0],
-  //               chessAiMode: {
-  //                 ...prev.activityState.chaptersMap[0].chessAiMode,
-  //                 badMoves:
-  //                   prev.activityState.chaptersMap[0].chessAiMode.badMoves + 1,
-  //               },
-  //             },
-  //           },
-  //         },
-  //       };
-  //     }
-  //   }
-
-  //   try {
-  //     const prevChapter = findLoadedChapter(prev.activityState);
-
-  //     if (!prevChapter) {
-  //       console.error('The loaded chapter was not found');
-  //       return prev;
-  //     }
-
-  //     const move = action.payload;
-
-  //     const fenBoard = new ChessFENBoard(prevChapter.displayFen);
-  //     const fenPiece = fenBoard.piece(move.from);
-  //     if (!fenPiece) {
-  //       console.error('Action Err', action, prev, fenBoard.board);
-  //       throw new Error(`No Piece at ${move.from}`);
-  //     }
-
-  //     const nextMove = fenBoard.move(move);
-
-  //     // If the moves are the same introduce a non move
-  //     const [nextHistory, addedAtIndex] = FreeBoardHistory.addMagicMove(
-  //       {
-  //         history: prevChapter.notation.history,
-  //         atIndex: prevChapter.notation.focusedIndex,
-  //       },
-  //       nextMove
-  //     );
-
-  //     const nextChapter: Chapter = {
-  //       ...prevChapter,
-  //       displayFen: fenBoard.fen,
-  //       circlesMap: {},
-  //       arrowsMap: {},
-  //       notation: {
-  //         ...prevChapter.notation,
-  //         history: nextHistory,
-  //         focusedIndex: addedAtIndex,
-  //       },
-
-  //       // chessAiMode: {
-  //       //   ...prevChapter.chessAiMode,
-  //       //   goodMoves: prevChapter.chessAiMode.goodMoves + 1,
-  //       // },
-  //     };
-
-  //     return {
-  //       ...prev,
-  //       activityState: {
-  //         ...prev.activityState,
-
-  //         chaptersMap: {
-  //           ...prev.activityState.chaptersMap,
-  //           [prevChapter.id]: nextChapter,
-  //         },
-  //       },
-  //     };
-  //   } catch (e) {
-  //     console.error('Action Error', action, prev, e);
-  //     return prev;
-  //   }
-  // }
 
   if (action.type === 'loadedChapter:import') {
     const prevChapter = findLoadedChapter(prev.activityState);
@@ -709,161 +709,161 @@ if (action.type === 'loadedChapter:addMove') {
     };
   }
 
-  // if (action.type === 'loadedChapter:setPuzzleMoves') {
-  //   const chessAiMode = action.payload;
-  //   console.log('ide puzzle', action.payload);
-  //   if (action.payload.movesCount > 0) {
-  //     const message = {
-  //       content: `Ok, try to solve puzzle in ${chessAiMode.movesCount} moves`,
-  //       participantId: 'chatGPT123456',
-  //       idResponse: '',
-  //     };
-  //     console.log(action.payload.orientationChange);
-  //     if (action.payload.orientationChange === true) {
-  //       if (prev.activityState.chaptersMap[0].orientation == 'b') {
-  //         const toOrientation = 'w';
-  //         return {
-  //           ...prev,
-  //           activityState: {
-  //             ...prev.activityState,
-  //             chaptersMap: {
-  //               ...prev.activityState.chaptersMap,
-  //               [0]: {
-  //                 ...prev.activityState.chaptersMap[0],
-  //               //  chessAiMode: chessAiMode,
-  //                 orientation: toOrientation,
-  //                 // messages: [
-  //                 //   ...(prev.activityState.chaptersMap[0].messages ?? []),
-  //                 //   message,
-  //                 // ],
-  //               },
-  //             },
-  //           },
-  //         };
-  //       } else {
-  //         const toOrientation = 'b';
-  //         return {
-  //           ...prev,
-  //           activityState: {
-  //             ...prev.activityState,
-  //             chaptersMap: {
-  //               ...prev.activityState.chaptersMap,
-  //               [0]: {
-  //                 ...prev.activityState.chaptersMap[0],
-  //                // chessAiMode: chessAiMode,
-  //                 orientation: toOrientation,
-  //                 // messages: [
-  //                 //   ...(prev.activityState.chaptersMap[0].messages ?? []),
-  //                 //   message,
-  //                 // ],
-  //               },
-  //             },
-  //           },
-  //         };
-  //       }
-  //     }
+  if (action.type === 'loadedChapter:setPuzzleMoves') {
+    const chessAiMode = action.payload;
+    console.log('ide puzzle', action.payload);
+    if (action.payload.movesCount > 0) {
+      const message = {
+        content: `Ok, try to solve puzzle in ${chessAiMode.movesCount} moves`,
+        participantId: 'chatGPT123456',
+        idResponse: '',
+      };
+      console.log(action.payload.orientationChange);
+      if (action.payload.orientationChange === true) {
+        if (prev.activityState.chaptersMap[0].orientation == 'b') {
+          const toOrientation = 'w';
+          return {
+            ...prev,
+            activityState: {
+              ...prev.activityState,
+              chaptersMap: {
+                ...prev.activityState.chaptersMap,
+                [0]: {
+                  ...prev.activityState.chaptersMap[0],
+                  chessAiMode: chessAiMode,
+                  orientation: toOrientation,
+                  messages: [
+                    ...(prev.activityState.chaptersMap[0].messages ?? []),
+                    message,
+                  ],
+                },
+              },
+            },
+          };
+        } else {
+          const toOrientation = 'b';
+          return {
+            ...prev,
+            activityState: {
+              ...prev.activityState,
+              chaptersMap: {
+                ...prev.activityState.chaptersMap,
+                [0]: {
+                  ...prev.activityState.chaptersMap[0],
+                  chessAiMode: chessAiMode,
+                  orientation: toOrientation,
+                  messages: [
+                    ...(prev.activityState.chaptersMap[0].messages ?? []),
+                    message,
+                  ],
+                },
+              },
+            },
+          };
+        }
+      }
 
-  //     //if set puzzle , message yes no change orientation
-  //     return {
-  //       ...prev,
-  //       activityState: {
-  //         ...prev.activityState,
-  //         chaptersMap: {
-  //           ...prev.activityState.chaptersMap,
-  //           [0]: {
-  //             ...prev.activityState.chaptersMap[0],
-  //          //   chessAiMode: chessAiMode,
-  //             // messages: [
-  //             //   ...(prev.activityState.chaptersMap[0].messages ?? []),
-  //             //   message,
-  //             // ],
-  //           },
-  //         },
-  //       },
-  //     };
-  //   }
+      //if set puzzle , message yes no change orientation
+      return {
+        ...prev,
+        activityState: {
+          ...prev.activityState,
+          chaptersMap: {
+            ...prev.activityState.chaptersMap,
+            [0]: {
+              ...prev.activityState.chaptersMap[0],
+             chessAiMode: chessAiMode,
+              messages: [
+                ...(prev.activityState.chaptersMap[0].messages ?? []),
+                message,
+              ],
+            },
+          },
+        },
+      };
+    }
 
-  //   //delete puzzle
-  //   return {
-  //     ...prev,
-  //     activityState: {
-  //       ...prev.activityState,
-  //       chaptersMap: {
-  //         ...prev.activityState.chaptersMap,
-  //         [0]: {
-  //           ...prev.activityState.chaptersMap[0],
-  //         //  chessAiMode: chessAiMode,
-  //         },
-  //       },
-  //     },
-  //   };
-  // }
+    //delete puzzle
+    return {
+      ...prev,
+      activityState: {
+        ...prev.activityState,
+        chaptersMap: {
+          ...prev.activityState.chaptersMap,
+          [0]: {
+            ...prev.activityState.chaptersMap[0],
+          //  chessAiMode: chessAiMode,
+          },
+        },
+      },
+    };
+  }
 
 
-  // if (action.type === 'loadedChapter:writeMessage') {
-  //   console.log('ide poruka', action.payload);
+  if (action.type === 'loadedChapter:writeMessage') {
+    console.log('ide poruka', action.payload);
 
-  //   if (
-  //     prev.activityState.chaptersMap[0].messages[
-  //       prev.activityState.chaptersMap[0].messages.length - 1
-  //     ].participantId !== action.payload.participantId
-  //   ) {
-  //     return {
-  //       ...prev,
-  //       activityState: {
-  //         ...prev.activityState,
-  //         chaptersMap: {
-  //           ...prev.activityState.chaptersMap,
-  //           [0]: {
-  //             ...prev.activityState.chaptersMap[0],
-  //             messages: [
-  //               ...(prev.activityState.chaptersMap[0].messages ?? []),
-  //               {
-  //                 content: action.payload.content,
-  //                 participantId: action.payload.participantId,
-  //                 idResponse: action.payload.idResponse,
-  //               },
-  //             ],
-  //           },
-  //         },
-  //       },
-  //     };
-  //   }
-  //   if (
-  //     prev.activityState.chaptersMap[0].messages[
-  //       prev.activityState.chaptersMap[0].messages.length - 1
-  //     ].participantId === action.payload.participantId
-  //   ) {
-  //     const editedMessage = {
-  //       content:
-  //         prev.activityState.chaptersMap[0].messages[
-  //           prev.activityState.chaptersMap[0].messages.length - 1
-  //         ].content +
-  //         '\n' +
-  //         action.payload.content,
-  //       participantId: action.payload.participantId,
-  //       idResponse: action.payload.idResponse,
-  //     };
+    if (
+      prev.activityState.chaptersMap[0].messages[
+        prev.activityState.chaptersMap[0].messages.length - 1
+      ].participantId !== action.payload.participantId
+    ) {
+      return {
+        ...prev,
+        activityState: {
+          ...prev.activityState,
+          chaptersMap: {
+            ...prev.activityState.chaptersMap,
+            [0]: {
+              ...prev.activityState.chaptersMap[0],
+              messages: [
+                ...(prev.activityState.chaptersMap[0].messages ?? []),
+                {
+                  content: action.payload.content,
+                  participantId: action.payload.participantId,
+                  idResponse: action.payload.idResponse,
+                },
+              ],
+            },
+          },
+        },
+      };
+    }
+    if (
+      prev.activityState.chaptersMap[0].messages[
+        prev.activityState.chaptersMap[0].messages.length - 1
+      ].participantId === action.payload.participantId
+    ) {
+      const editedMessage = {
+        content:
+          prev.activityState.chaptersMap[0].messages[
+            prev.activityState.chaptersMap[0].messages.length - 1
+          ].content +
+          '\n' +
+          action.payload.content,
+        participantId: action.payload.participantId,
+        idResponse: action.payload.idResponse,
+      };
 
-  //     return {
-  //       ...prev,
-  //       activityState: {
-  //         ...prev.activityState,
-  //         chaptersMap: {
-  //           ...prev.activityState.chaptersMap,
-  //           [0]: {
-  //             ...prev.activityState.chaptersMap[0],
-  //             messages: [
-  //               ...(prev.activityState.chaptersMap[0].messages.slice(0, -1) ??
-  //                 []),
-  //               editedMessage,
-  //             ],
-  //           },
-  //         },
-  //       },
-  //      };
-  //   }
-  // }
+      return {
+        ...prev,
+        activityState: {
+          ...prev.activityState,
+          chaptersMap: {
+            ...prev.activityState.chaptersMap,
+            [0]: {
+              ...prev.activityState.chaptersMap[0],
+              messages: [
+                ...(prev.activityState.chaptersMap[0].messages.slice(0, -1) ??
+                  []),
+                editedMessage,
+              ],
+            },
+          },
+        },
+       };
+    }
+  }
 
   return prev;
 };
