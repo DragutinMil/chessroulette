@@ -90,7 +90,6 @@ export const JoinOrCreateRoom: React.FC<Props> = ({
             },
           };
         }
-
         if (activityParams.activity === 'meetup') {
           return {
             ...initialRoomState,
