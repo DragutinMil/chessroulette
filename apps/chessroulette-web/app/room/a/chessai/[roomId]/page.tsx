@@ -11,7 +11,6 @@ export default async function Page(props: {
   params: StringRecord;
   searchParams: Partial<{ theme: string }>;
 }) {
-  
   return <RoomPage activity="chessai" {...props} />;
 
   // const result = roomIdParamsSchema.safeParse(
