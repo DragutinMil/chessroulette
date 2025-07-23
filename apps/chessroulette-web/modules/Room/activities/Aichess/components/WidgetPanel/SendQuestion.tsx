@@ -58,27 +58,27 @@ All your responses must be only in vaild JSON format specified below:
   //         {
   //           "text": "Black has a strong center with pawns on d5 and e6. This is the French Defense, where white will usually try to attack the base of the pawn chain."
   //         }
-  // const previusMessageId =
-  //   currentChapterState.messages[currentChapterState.messages.length - 1]
-  //     .idResponse;
+  const previusMessageId =
+    currentChapterState.messages[currentChapterState.messages.length - 1]
+      .idResponse;
   const question = prompt + '. Fen:' + currentChapterState.displayFen;
-  //console.log('question in send question', question);
-  // try {
-  //   const response = await fetch(
-  //     process.env.NEXT_PUBLIC_API_WEB +
-  //       `ai_prompt_v2r?prompt=${question}&previous_response_id=${previusMessageId}&model=${model}`,
-  //     {
-  //       method: 'GET',
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //       },
-  //     }
-  //   );
-  //   if (!response.ok) {
-  //     throw new Error(`Error: ${response.status}`);
-  //   }
-  //   return response.json();
-  // } catch (error) {
-  //   console.error('Fetch error', error);
-  // }
+  console.log('question in send question', question);
+  try {
+    const response = await fetch(
+      process.env.NEXT_PUBLIC_API_WEB +
+        `ai_prompt_v2r?prompt=${question}&previous_response_id=${previusMessageId}&model=${model}`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+    if (!response.ok) {
+      throw new Error(`Error: ${response.status}`);
+    }
+    return response.json();
+  } catch (error) {
+    console.error('Fetch error', error);
+  }
 }

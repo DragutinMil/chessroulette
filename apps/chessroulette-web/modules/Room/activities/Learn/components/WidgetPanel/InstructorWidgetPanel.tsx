@@ -5,7 +5,7 @@ import {
   FreeBoardNotationProps,
 } from '@app/components/FreeBoardNotation';
 import { Tabs, TabsRef } from '@app/components/Tabs';
-import type { Chapter, ChapterState } from '../../movex/types';
+import type { Chapter, ChapterState,Message } from '../../movex/types';
 import {
   PgnInputBox,
   PgnInputBoxProps,
@@ -25,7 +25,7 @@ type Props = {
   // Board
   onImport: PgnInputBoxProps['onChange'];
   onQuickImport: PgnInputBoxProps['onChange'];
-
+  onMessage: (message: Message) => void;
   onHistoryNotationRefocus: FreeBoardNotationProps['onRefocus'];
   onHistoryNotationDelete: FreeBoardNotationProps['onDelete'];
 
@@ -54,6 +54,7 @@ export const InstructorWidgetPanel = React.forwardRef<TabsRef, Props>(
       currentChapterState,
       // engine,
       showEngine,
+      onMessage,
       onImport,
       onQuickImport,
       onHistoryNotationDelete,
@@ -77,7 +78,14 @@ export const InstructorWidgetPanel = React.forwardRef<TabsRef, Props>(
       },
       [widgetPanelTabsNav.setTabIndex]
     );
+    const chat = async (question: string) => {
+       onMessage({
+        content: question,
+        participantId: '8UWCweKl1Gvoi',
+        idResponse: '',
+      });
 
+    }
     // useEffect(() => {
     //   console.log('widgetPanelTabsNav changed');
     // }, [widgetPanelTabsNav]);
@@ -147,6 +155,15 @@ export const InstructorWidgetPanel = React.forwardRef<TabsRef, Props>(
                   onRefocus={onHistoryNotationRefocus}
                 />
                 {/* <FenPreview fen={currentChapterState.displayFen} /> */}
+                 <Button
+                                      onClick={() => {
+                                        chat('koliko ima sati');
+                                      }}
+                                      size="sm"
+                                      className={`bg-slate-600 font-bold hover:bg-slate-800 `}
+                                    >
+                                     Chat
+                                    </Button>
                 <div className="flex flex-col sitems-center gap-3 hidden md:flex ">
                   <label className="font-bold text-sm text-gray-400">
                     Quick Import

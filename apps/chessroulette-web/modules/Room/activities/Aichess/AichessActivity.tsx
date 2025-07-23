@@ -13,8 +13,8 @@ import {
   AichessActivityState,
   findLoadedChapter,
   initialDefaultChapter,
-  // chessAiMode,
-  // MovePiece,
+  chessAiMode,
+  MovePiece,
 } from './movex';
 import { WidgetPanel } from './components/WidgetPanel';
 import { AichessBoard } from './components/AichessBoard';
@@ -107,7 +107,7 @@ export const AichessActivity = ({
             // Learn Mode
 
             <div>
-              {/* <AiChessDialogContainer currentChapter={currentChapter} /> */}
+              <AiChessDialogContainer currentChapter={currentChapter} />
 
               <AichessBoard
                 sizePx={boardSize}
@@ -200,32 +200,32 @@ export const AichessActivity = ({
             </div>
           )}
           <WidgetPanel
-            // onTakeBack={() =>
-            //   dispatch({
-            //     type: 'loadedChapter:takeBack',
-            //   })
-            // }
-            // onPuzzleMove={(payload) => {
-            //   dispatch({ type: 'loadedChapter:addMove', payload });
-            // }}
-            // addChessAi={(payload: chessAiMode) =>
-            //   dispatch({
-            //     type: 'loadedChapter:setPuzzleMoves',
-            //     payload: payload as chessAiMode,
-            //   })
-            // }
-            // onMessage={(payload) =>
-            //   dispatch({
-            //     type: 'loadedChapter:writeMessage',
-            //     payload: payload,
-            //   })
-            // }
-            // puzzleOrientation={() =>
-            //   dispatch({
-            //     type: 'loadedChapter:setOrientation',
-            //     payload: { color: swapColor(currentChapter.orientation) },
-            //   })
-            // }
+            onTakeBack={() =>
+              dispatch({
+                type: 'loadedChapter:takeBack',
+              })
+            }
+            onPuzzleMove={(payload) => {
+              dispatch({ type: 'loadedChapter:addMove', payload });
+            }}
+            addChessAi={(payload: chessAiMode) =>
+              dispatch({
+                type: 'loadedChapter:setPuzzleMoves',
+                payload: payload as chessAiMode,
+              })
+            }
+            onMessage={(payload) =>
+              dispatch({
+                type: 'loadedChapter:writeMessage',
+                payload: payload,
+              })
+            }
+            puzzleOrientation={() =>
+              dispatch({
+                type: 'loadedChapter:setOrientation',
+                payload: { color: swapColor(currentChapter.orientation) },
+              })
+            }
             currentChapterState={currentChapter}
             chaptersMap={remoteState?.chaptersMap || {}}
             inputModeState={inputState}
