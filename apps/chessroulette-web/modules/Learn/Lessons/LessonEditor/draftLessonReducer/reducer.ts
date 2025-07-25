@@ -20,7 +20,7 @@ export const reducer = (
   action: Actions
 ): LessonState => {
   // TODO: Should this be split?
-  console.log('lesson learn reducer')
+  console.log('lesson learn reducer');
   if (action.type === 'loadedChapter:addMove') {
     // TODO: the logic for this should be in GameHistory class/static  so it can be tested
     try {

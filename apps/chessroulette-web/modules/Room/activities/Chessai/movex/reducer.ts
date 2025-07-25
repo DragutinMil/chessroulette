@@ -22,7 +22,6 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
   prev: ActivityState = initialActivityState,
   action: ActivityActions
 ): ActivityState => {
-    
   if (prev.activityType !== 'chessai') {
     return prev;
   }

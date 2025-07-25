@@ -200,11 +200,12 @@ export const AichessActivity = ({
             </div>
           )}
           <WidgetPanel
-            onTakeBack={() =>
+            onTakeBack={(payload) => {
               dispatch({
                 type: 'loadedChapter:takeBack',
-              })
-            }
+                payload,
+              });
+            }}
             onPuzzleMove={(payload) => {
               dispatch({ type: 'loadedChapter:addMove', payload });
             }}

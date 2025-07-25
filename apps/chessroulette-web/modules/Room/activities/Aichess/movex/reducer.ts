@@ -29,71 +29,120 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
   if (prev.activityType !== 'aichess') {
     return prev;
   }
-  console.log('aichess')
-  // if (action.type === 'loadedChapter:takeBack') {
-  //   const prevChapter = findLoadedChapter(prev.activityState);
-  //   if (!prevChapter) {
-  //     console.error('The loaded chapter was not found');
-  //     return prev;
-  //   }
-  //   if (
-  //     prevChapter.notation.history.length === 1 &&
-  //     prevChapter.notation.history[0].length == 1
-  //   ) {
-  //     return prev;
-  //   }
 
-  //   console.log('prevChapter', prevChapter);
+  if (action.type === 'loadedChapter:takeBack') {
+    const prevChapter = findLoadedChapter(prev.activityState);
+    console.log('prevChapter', prevChapter);
+    console.log('action history', action);
+    if (!prevChapter) {
+      console.error('The chapter wasnt found');
+      return prev;
+    }
 
-  //   if (prevChapter.notation.history.length === 0) {
-  //     return prev;
-  //   }
+    if (prevChapter.notation.focusedIndex[1] == 0) {
+      prevChapter.notation.history.pop();
+    } else if (prevChapter.notation.focusedIndex[1] == 1) {
+      prevChapter.notation.history[
+        prevChapter.notation.history.length - 1
+      ].pop();
+    }
 
-  //   const newGame = getNewChessGame({
-  //     pgn: prevChapter.displayFen,
-  //   });
-  //   console.log('reklama', newGame.fen());
+    const historyAtFocusedIndex =
+      FreeBoardHistory.calculateLinearHistoryToIndex(
+        prevChapter.notation.history,
+        action.payload
+      );
 
-  //   if (prevChapter.notation.focusedIndex[1] == 0) {
-  //     prevChapter.notation.history.pop();
-  //     prevChapter.notation.focusedIndex[1] = 1;
-  //     if (prevChapter.notation.focusedIndex[0] > 0) {
-  //       prevChapter.notation.focusedIndex[0] =
-  //         prevChapter.notation.focusedIndex[0] - 1;
-  //     }
-  //   } else if (prevChapter.notation.focusedIndex[1] == 1) {
-  //     prevChapter.notation.history[
-  //       prevChapter.notation.history.length - 1
-  //     ].pop();
-  //     prevChapter.notation.focusedIndex[1] = 0;
-  //   }
-  //   const fenBoard = new ChessFENBoard(prevChapter.displayFen);
+    // TODO: Here this can be abstracted
+    const fenBoard = new ChessFENBoard(prevChapter.notation.startingFen);
+    historyAtFocusedIndex.forEach((m) => {
+      if (!m.isNonMove) {
+        fenBoard.move(m);
+      }
+    });
 
-  //   //prevChapter.displayFen=prevChapter.fenPreviusMove
+    const nextChapterState: ChapterState = {
+      ...prevChapter,
+      displayFen: fenBoard.fen,
+      notation: {
+        ...prevChapter.notation,
+        focusedIndex: action.payload,
+      },
+    };
 
-  //   // PUSH ERASED DATA
-  //   const nextChapter: Chapter = {
-  //     ...prevChapter,
-  //     displayFen: fenBoard.fen,
-  //   };
-  //   return {
-  //     ...prev,
-  //     activityState: {
-  //       ...prev.activityState,
+    return {
+      ...prev,
+      activityState: {
+        ...prev.activityState,
+        chaptersMap: {
+          ...prev.activityState.chaptersMap,
+          [prevChapter.id]: {
+            ...prev.activityState.chaptersMap[prevChapter.id],
+            ...nextChapterState,
+          },
+        },
+      },
+    };
 
-  //       chaptersMap: {
-  //         ...prev.activityState.chaptersMap,
-  //         [0]: nextChapter,
-  //       },
-  //     },
-  //   };
-  // }
+    // const prevChapter = findLoadedChapter(prev.activityState);
+    // if (!prevChapter) {
+    //   console.error('The loaded chapter was not found');
+    //   return prev;
+    // }
+    // if (
+    //   prevChapter.notation.history.length === 1 &&
+    //   prevChapter.notation.history[0].length == 1
+    // ) {
+    //   return prev;
+    // }
+    // if (prevChapter.notation.history.length === 0) {
+    //   return prev;
+    // }
+
+    //   const newGame = getNewChessGame({
+    //     pgn: prevChapter.displayFen,
+    //   });
+
+    // if (prevChapter.notation.focusedIndex[1] == 0) {
+    //   prevChapter.notation.history.pop();
+    //   prevChapter.notation.focusedIndex[1] = 1;
+    //   if (prevChapter.notation.focusedIndex[0] > 0) {
+    //     prevChapter.notation.focusedIndex[0] =
+    //       prevChapter.notation.focusedIndex[0] - 1;
+    //   }
+    // } else if (prevChapter.notation.focusedIndex[1] == 1) {
+    //   prevChapter.notation.history[
+    //     prevChapter.notation.history.length - 1
+    //   ].pop();
+    //   prevChapter.notation.focusedIndex[1] = 0;
+    // }
+
+    //   const fenBoard = new ChessFENBoard(prevChapter.displayFen);
+
+    //   //prevChapter.displayFen=prevChapter.fenPreviusMove
+
+    //   // PUSH ERASED DATA
+    //   const nextChapter: Chapter = {
+    //     ...prevChapter,
+    //     displayFen: fenBoard.fen,
+    //   };
+    //   return {
+    //     ...prev,
+    //     activityState: {
+    //       ...prev.activityState,
+
+    //       chaptersMap: {
+    //         ...prev.activityState.chaptersMap,
+    //         [0]: nextChapter,
+    //       },
+    //     },
+    //   };
+    // }
 
     // const lastTurn = prevChapter.notation.history[history.length - 1];
-    //console.log('lastTurn',lastTurn)
 
     // if (prevChapter.notation.history[history.length - 1].length === 2) {
-    //   console.log('Crni je poslednji igrao — ukloni samo crni potez')
+
     // const nextChapter: Chapter = {
     //     ...prevChapter,
     //     displayFen: fenBoard.fen,
@@ -142,76 +191,11 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
     //         },
     //       },
     //     };
-
-    // }
-
+  }
 
   // TODO: Should this be split?
 
-
-// if (action.type === 'loadedChapter:addMove') {
-//     // TODO: the logic for this should be in GameHistory class/static  so it can be tested
-//     try {
-//       const prevChapter = findLoadedChapter(prev.activityState);
-
-//       if (!prevChapter) {
-//         console.error('The loaded chapter was not found');
-//         return prev;
-//       }
-
-//       const move = action.payload;
-
-//       const fenBoard = new ChessFENBoard(prevChapter.displayFen);
-//       const fenPiece = fenBoard.piece(move.from);
-//       if (!fenPiece) {
-//         console.error('Action Err', action, prev, fenBoard.board);
-//         throw new Error(`No Piece at ${move.from}`);
-//       }
-
-//       const nextMove = fenBoard.move(move);
-
-//       // If the moves are the same introduce a non move
-//       const [nextHistory, addedAtIndex] = FreeBoardHistory.addMagicMove(
-//         {
-//           history: prevChapter.notation.history,
-//           atIndex: prevChapter.notation.focusedIndex,
-//         },
-//         nextMove
-//       );
-
-//       const nextChapter: Chapter = {
-//         ...prevChapter,
-//         displayFen: fenBoard.fen,
-//         circlesMap: {},
-//         arrowsMap: {},
-//         notation: {
-//           ...prevChapter.notation,
-//           history: nextHistory,
-//           focusedIndex: addedAtIndex,
-//         },
-//       };
-
-//       return {
-//         ...prev,
-//         activityState: {
-//           ...prev.activityState,
-//           chaptersMap: {
-//             ...prev.activityState.chaptersMap,
-//             [prevChapter.id]: nextChapter,
-//           },
-//         },
-//       };
-//     } catch (e) {
-//       console.error('Action Error', action, prev, e);
-//       return prev;
-//     }
-//   }
-
-
-  
   if (action.type === 'loadedChapter:addMove') {
-
-
     // PUZZLE MOVE
     if (prev.activityState.chaptersMap[0].chessAiMode.mode == 'puzzle') {
       if (
@@ -219,7 +203,6 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
           prev.activityState.chaptersMap[0].chessAiMode.goodMoves
         ].includes(action.payload.from.concat(action.payload.to))
       ) {
-        console.log('action.payload prov 2', action.payload);
         return {
           ...prev,
           activityState: {
@@ -278,11 +261,10 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
           history: nextHistory,
           focusedIndex: addedAtIndex,
         },
-
-        // chessAiMode: {
-        //   ...prevChapter.chessAiMode,
-        //   goodMoves: prevChapter.chessAiMode.goodMoves + 1,
-        // },
+        chessAiMode: {
+          ...prevChapter.chessAiMode,
+          goodMoves: prevChapter.chessAiMode.goodMoves + 1,
+        },
       };
 
       return {
@@ -312,7 +294,6 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
 
     if (action.payload.input.type === 'FEN') {
       if (!ChessFENBoard.validateFenString(action.payload.input.val).ok) {
-        // console.log('not valid fen');
         return prev;
       }
 
@@ -346,7 +327,6 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
 
     if (action.payload.input.type === 'PGN') {
       if (!isValidPgn(action.payload.input.val)) {
-        //   console.log('not valid pgn');
         return prev;
       }
 
@@ -387,7 +367,8 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
 
   if (action.type === 'loadedChapter:focusHistoryIndex') {
     const prevChapter = findLoadedChapter(prev.activityState);
-
+    console.log('prevChapter', prevChapter);
+    console.log('action history', action);
     if (!prevChapter) {
       console.error('The chapter wasnt found');
       return prev;
@@ -711,14 +692,12 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
 
   if (action.type === 'loadedChapter:setPuzzleMoves') {
     const chessAiMode = action.payload;
-    console.log('ide puzzle', action.payload);
     if (action.payload.movesCount > 0) {
       const message = {
         content: `Ok, try to solve puzzle in ${chessAiMode.movesCount} moves`,
         participantId: 'chatGPT123456',
         idResponse: '',
       };
-      console.log(action.payload.orientationChange);
       if (action.payload.orientationChange === true) {
         if (prev.activityState.chaptersMap[0].orientation == 'b') {
           const toOrientation = 'w';
@@ -772,7 +751,7 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
             ...prev.activityState.chaptersMap,
             [0]: {
               ...prev.activityState.chaptersMap[0],
-             chessAiMode: chessAiMode,
+              chessAiMode: chessAiMode,
               messages: [
                 ...(prev.activityState.chaptersMap[0].messages ?? []),
                 message,
@@ -792,17 +771,14 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
           ...prev.activityState.chaptersMap,
           [0]: {
             ...prev.activityState.chaptersMap[0],
-          //  chessAiMode: chessAiMode,
+            chessAiMode: chessAiMode,
           },
         },
       },
     };
   }
 
-
   if (action.type === 'loadedChapter:writeMessage') {
-    console.log('ide poruka', action.payload);
-
     if (
       prev.activityState.chaptersMap[0].messages[
         prev.activityState.chaptersMap[0].messages.length - 1
@@ -861,7 +837,7 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
             },
           },
         },
-       };
+      };
     }
   }
 

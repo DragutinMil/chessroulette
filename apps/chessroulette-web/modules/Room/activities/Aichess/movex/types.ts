@@ -12,7 +12,7 @@ import {
 } from '@app/components/Chessboard/types';
 import { ImportedInput } from '@app/components/PgnInputBox/PgnInputBox';
 import { Action } from 'movex-core-util';
- import { Square } from 'chess.js';
+import { Square } from 'chess.js';
 
 export type AichessActivityState = {
   activityType: 'aichess';
@@ -51,9 +51,9 @@ export type Message = {
 
 export type ChapterState = {
   name: string;
-   messages: Message[];
+  messages: Message[];
   // Also the chapter might get a type: position, or puzzle (containing next correct moves)
-   chessAiMode: chessAiMode;
+  chessAiMode: chessAiMode;
   notation: {
     // The starting fen is the chapter fen
     history: FBHHistory;
@@ -91,6 +91,6 @@ export type AichessActivityActions =
   | Action<'loadedChapter:clearCircles'>
   | Action<'loadedChapter:setArrows', ArrowsMap>
   | Action<'loadedChapter:setOrientation', { color: ChessColor }>
-  | Action<'loadedChapter:takeBack'>
+  | Action<'loadedChapter:takeBack', FBHIndex>
   | Action<'loadedChapter:updateFen', ChessFEN>
   | Action<'loadedChapter:import', { input: ImportedInput }>;

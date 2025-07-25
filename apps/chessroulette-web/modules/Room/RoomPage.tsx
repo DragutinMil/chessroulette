@@ -20,7 +20,7 @@ export async function RoomPage({
   const result = roomIdParamsSchema.safeParse(
     Object.fromEntries(new URLSearchParams(params))
   );
-  
+
   if (!result.success) {
     return <ErrorPage error={result.error} extra={params} />;
   }
@@ -28,7 +28,7 @@ export async function RoomPage({
   const iceServers = await twilio.getIceServers();
   const roomId = decodeURIComponent(result.data.roomId);
   const rid: ResourceIdentifier<'room'> = `room:${roomId}`;
-  
+
   return (
     <RoomTemplate
       themeName={searchParams.theme}

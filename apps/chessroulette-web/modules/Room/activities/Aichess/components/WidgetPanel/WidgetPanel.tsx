@@ -27,7 +27,7 @@ type Props = {
   onImport: PgnInputBoxProps['onChange'];
   onQuickImport: PgnInputBoxProps['onChange'];
   onPuzzleMove: (move: MovePiece) => void;
-  onTakeBack: () => void;
+  onTakeBack: FreeBoardNotationProps['onRefocus'];
   addChessAi: (moves: chessAiMode) => void;
   onMessage: (message: Message) => void;
   puzzleOrientation: () => void;

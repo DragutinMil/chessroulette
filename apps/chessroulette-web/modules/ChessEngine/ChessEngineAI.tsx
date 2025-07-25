@@ -11,17 +11,10 @@ type StockfishEngineAIProps = {
   fen: ChessFEN;
   isMyTurn: boolean;
   engineMove: any;
-  stockfishInfo: any;
+  sendLines: (stockfishLines: string[]) => void;
   puzzleMode: boolean;
   playMode: boolean;
   // engineMove: (m: ShortChessMove) => void;
-};
-
-type StockfishInfo = {
-  eval?: number; // ocena u pešacima (0.24 = +0.24)
-  mateIn?: number; // ako je direktan mat   // broj analiziranih pozicija
-  nps?: number; // brzina analize (pozicija u sekundi)    // dubina analize
-  pv?: string[]; // glavna linija (principal variation)
 };
 
 const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
@@ -30,42 +23,18 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
   engineMove,
   puzzleMode,
   playMode,
-  stockfishInfo,
+  sendLines,
 }) => {
   const [stockfishOutput, setStockfishOutput] = useState('Initializing...');
   const [bestMove, setBestMove] = useState('');
-
+  const [lineOne, setLineOne] = useState('');
+  const [lineTwo, setLinesTwo] = useState('');
+  const [lineThree, setLineThree] = useState('');
+  const [changes, setChanges] = useState(0);
   const [depth, setDepth] = useState('1');
   const [skill, setSkill] = useState('');
   const [contempt, setContempt] = useState('');
 
-  function parseStockfishInfo(line: string): StockfishInfo | null {
-    if (!line.startsWith('info')) return null;
-
-    const tokens = line.split(' ');
-    const result: StockfishInfo = {};
-
-    for (let i = 0; i < tokens.length; i++) {
-      switch (tokens[i]) {
-        case 'score':
-          if (tokens[i + 1] === 'cp') {
-            result.eval = parseInt(tokens[i + 2]) / 100; // pretvori u pešake
-          } else if (tokens[i + 1] === 'mate') {
-            result.mateIn = parseInt(tokens[i + 2]);
-          }
-          break;
-        case 'nps':
-          result.nps = parseInt(tokens[i + 1]);
-          break;
-        case 'pv':
-          result.pv = tokens.slice(i + 1);
-          i = tokens.length; // kraj, ostatak je pv
-          break;
-      }
-    }
-
-    return result;
-  }
   useEffect(() => {
     if (typeof window === 'undefined') return; // Ensure it's client-side
     setDepth('10');
@@ -73,15 +42,30 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
     setContempt('22');
 
     try {
-      const stockfish = new Worker('/stockfish.js');
+      const stockfish = new Worker('/stockfish2.js');
       stockfish.onmessage = (event) => {
         if (event.data.startsWith('bestmove')) {
           setBestMove(event.data.split(' ')[1]);
-          //  console.log('event stockfish move',event.data)
         }
-        if (event.data.startsWith('info')) {
-          const parsed = parseStockfishInfo(event.data);
-          //  console.log('event stockfish move sec',event.data)
+        if (event.data.startsWith('info depth')) {
+          if (
+            event.data.startsWith('info depth 5') ||
+            event.data.startsWith('info depth 10')
+          ) {
+            const pvIndex = event.data.indexOf(' pv ');
+            //  if (pvIndex === -1) return null;
+
+            if (event.data.includes('multipv 2')) {
+              console.log('prepoznaje multipv 2');
+              setLinesTwo(event.data.slice(pvIndex + 4));
+            }
+            if (event.data.includes('multipv 1')) {
+              setLineOne(event.data.slice(pvIndex + 4));
+            }
+            if (event.data.includes('multipv 3')) {
+              setLineThree(event.data.slice(pvIndex + 4));
+            }
+          }
         }
         setStockfishOutput(event.data);
       };
@@ -91,7 +75,9 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
       };
       stockfish.postMessage('uci'); // Send UCI command to initialize Stockfish
       stockfish.postMessage(`setoption name Skill Level value ${skill}`);
+      stockfish.postMessage(`isready`);
       stockfish.postMessage(`setoption name Contempt value ${contempt}`);
+      stockfish.postMessage(`setoption name MultiPV value 3`);
 
       setTimeout(() => {
         stockfish.postMessage(`position fen ${fen}`);
@@ -110,11 +96,21 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
 
     if (!isMyTurn && bestMove && !puzzleMode && playMode) {
       engineMove(m);
-      stockfishInfo(m);
+      setChanges(changes + 1);
     } else {
-      stockfishInfo(m);
+      setChanges(changes + 1);
     }
   }, [bestMove, playMode]);
+
+  useEffect(() => {
+    const stockfishLines = [
+      lineOne as string,
+      lineTwo as string,
+      lineThree as string,
+    ];
+
+    sendLines(stockfishLines);
+  }, [changes]);
 
   return null;
 };

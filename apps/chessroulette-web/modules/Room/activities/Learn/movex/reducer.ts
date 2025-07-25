@@ -491,7 +491,6 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
       },
     };
   }
- 
 
   return prev;
 };

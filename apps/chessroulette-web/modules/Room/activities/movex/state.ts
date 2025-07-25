@@ -24,5 +24,4 @@ export const initialActivityStatesByActivityType: {
   meetup: initialMeetupActivityState,
   match: initialMatchActivityState,
   aichess: initialAichessActivityState,
-  
 };
