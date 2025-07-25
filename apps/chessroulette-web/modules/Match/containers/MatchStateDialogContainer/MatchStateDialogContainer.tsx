@@ -124,7 +124,7 @@ export const MatchStateDialogContainer: React.FC<Props> = (
                         dispatch((masterContext) => ({
                           type: 'play:sendOffer',
                           payload: {
-                            byPlayer: playerId, 
+                            byPlayer: playerId,
                             offerType: 'rematch',
                             timestamp: masterContext.requestAt(),
                           },

@@ -3,7 +3,7 @@ import {
   FreeBoardNotationProps,
 } from '@app/components/FreeBoardNotation';
 import { TabsRef } from '@app/components/Tabs';
-import { Chapter, ChapterState,Message } from '../../movex';
+import { Chapter, ChapterState, Message } from '../../movex';
 import { PgnInputBoxProps } from '@app/components/PgnInputBox/PgnInputBox';
 import { ChaptersTabProps } from '../../chapters/ChaptersTab';
 import React from 'react';

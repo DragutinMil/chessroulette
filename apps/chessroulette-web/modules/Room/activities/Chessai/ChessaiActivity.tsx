@@ -39,7 +39,6 @@ export const ChessaiActivity = ({
     initialInputState
   );
 
-
   const currentChapter =
     findLoadedChapter(remoteState) || initialDefaultChapter;
 
@@ -102,7 +101,6 @@ export const ChessaiActivity = ({
               onMove={noop}
             />
           ) : (
-       
             <ChessaiBoard
               sizePx={boardSize}
               {...currentChapter}
@@ -119,7 +117,7 @@ export const ChessaiActivity = ({
                 });
               }}
               onMove={(payload) => {
-                console.log('livada')
+                console.log('livada');
                 dispatch({ type: 'loadedChapter:addMove', payload });
 
                 // TODO: This can be returned from a more internal component

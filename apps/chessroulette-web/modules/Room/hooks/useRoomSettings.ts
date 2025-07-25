@@ -24,13 +24,13 @@ export const useRoomSettings = (
   const updateableSearchParams = useUpdateableSearchParams();
   const learnActivitySettings = useLearnActivitySettings();
   const meetupActivitySettings = useMeetupActivitySettings();
-   const aichessActivitySettings = useAichessActivitySettings();
+  const aichessActivitySettings = useAichessActivitySettings();
 
   const joinRoomLinkProps = invoke((): JoinAichessRoomLinkProps => {
     if (activity === 'learn') {
       return learnActivitySettings;
     }
-     if (activity === 'aichess') {
+    if (activity === 'aichess') {
       return aichessActivitySettings;
     }
 

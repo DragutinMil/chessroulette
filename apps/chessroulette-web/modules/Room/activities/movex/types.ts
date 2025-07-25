@@ -7,8 +7,6 @@ import type {
 } from '../Meetup/movex';
 import { MatchActivityActions, MatchActivityState } from '../Match/movex';
 
-
-
 export type NoneActivityState = {
   activityType: 'none';
   activityState: {};

@@ -9,10 +9,10 @@ export const initialChapterState: ChapterState = {
   circlesMap: {},
   messages: [
     {
-      content:'Hello',
-      idResponse:'',
-      participantId:'chatGPT123456'
-    }
+      content: 'Hello',
+      idResponse: '',
+      participantId: 'chatGPT123456',
+    },
   ],
   chessAiMode: {
     mode: '',

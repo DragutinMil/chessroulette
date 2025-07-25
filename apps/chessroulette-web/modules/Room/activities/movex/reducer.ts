@@ -10,5 +10,5 @@ export const roomActivityReducer = composeReducers(
   MeetupActivity.reducer,
   MatchActivity.reducer,
   AichessActivity.reducer,
-  ChessaiActivity.reducer,
+  ChessaiActivity.reducer
 );

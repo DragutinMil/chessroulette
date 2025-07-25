@@ -16,18 +16,13 @@ type Props = React.PropsWithChildren & {
 
 export const RoomTemplate = (props: Props) => {
   const [isOutpost, setIsOutpost] = useState(false);
-console.log('activity',props.activity)
-  console.log('roomId',props.roomId)
-  console.log('contentClassname',props.contentClassname)
-  console.log('themeName',props.themeName)
-   console.log('session',props.session)
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
       setIsOutpost(window.location.href.includes('theme=op'));
     }
   }, []);
-  console.log('activity',props.activity)
+  console.log('activity', props.activity);
   return (
     <div
       className="flex h-screen w-screen"
@@ -48,7 +43,9 @@ console.log('activity',props.activity)
       </div>
       <menu
         className={`${
-          (props.activity === 'match' || props.activity === 'chessai') ? 'md:hidden' : 'md:block'
+          props.activity === 'match' || props.activity === 'chessai'
+            ? 'md:hidden'
+            : 'md:block'
         }  hidden  bg-indigo-1300 flex-0 flex flex-col p-2`}
       >
         <OnboardingWidget session={props.session} />
