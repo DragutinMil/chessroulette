@@ -11,11 +11,13 @@ type StockfishEngineAIProps = {
   fen: ChessFEN;
   isMyTurn: boolean;
   engineMove: any;
-  sendLines: (stockfishLines: string[]) => void;
+  engineLines: any;
   puzzleMode: boolean;
   playMode: boolean;
   // engineMove: (m: ShortChessMove) => void;
 };
+
+
 
 const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
   fen,
@@ -23,7 +25,7 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
   engineMove,
   puzzleMode,
   playMode,
-  sendLines,
+  engineLines,
 }) => {
   const [stockfishOutput, setStockfishOutput] = useState('Initializing...');
   const [bestMove, setBestMove] = useState('');
@@ -65,6 +67,7 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
             if (event.data.includes('multipv 3')) {
               setLineThree(event.data.slice(pvIndex + 4));
             }
+             setChanges(changes + 1);
           }
         }
         setStockfishOutput(event.data);
@@ -96,21 +99,23 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
 
     if (!isMyTurn && bestMove && !puzzleMode && playMode) {
       engineMove(m);
-      setChanges(changes + 1);
-    } else {
-      setChanges(changes + 1);
-    }
+     
+    } 
   }, [bestMove, playMode]);
 
   useEffect(() => {
-    const stockfishLines = [
-      lineOne as string,
-      lineTwo as string,
-      lineThree as string,
-    ];
+  const stockfishLines = {
+    1: lineOne,
+    2: lineTwo,
+    3: lineThree,
+  };
 
-    sendLines(stockfishLines);
-  }, [changes]);
+    engineLines(stockfishLines);
+
+
+
+
+}, [changes]);
 
   return null;
 };

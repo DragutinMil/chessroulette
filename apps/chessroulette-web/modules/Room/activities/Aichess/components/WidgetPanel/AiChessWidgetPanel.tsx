@@ -31,6 +31,12 @@ import { ChessEngineWithProvider } from '@app/modules/ChessEngine/ChesEngineWith
 import { Switch } from '@app/components/Switch';
 import { getOpenings, getPuzzle } from '../../util';
 // import { generateGptResponse } from '../../../../../../server.js';
+type StockfishLines = {
+  1: string;
+  2: string;
+  3: string;
+};
+
 type Props = {
   chaptersMap: Record<Chapter['id'], Chapter>;
   chaptersMapIndex: number;
@@ -92,7 +98,11 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
     const [answer, setAnswer] = useState(null);
     const [question, setQuestion] = useState('');
     const [stockfishMovesInfo, setStockfishMovesInfo] = useState('');
-    const [lines, setLines] = useState([]);
+    const [lines, setLines] = useState<StockfishLines>({
+    1: '',
+    2: '',
+    3: '',
+  });
 
     const currentTabIndex = useMemo(
       () => widgetPanelTabsNav.getCurrentTabIndex(),
@@ -296,10 +306,10 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
         setTimeout(() => onPuzzleMove(n), 1000);
       }
     };
-    const sendLines = (m: any) => {
-      setLines(m);
-      console.log('linije', m);
-    };
+   const engineLines = (m: StockfishLines) => {
+    setLines(m);
+    console.log('Primljene linije:', m);
+  };
 
     const puzzles = async () => {
       const data = await getPuzzle();
@@ -368,7 +378,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
           fen={currentChapterState.displayFen}
           puzzleMode={puzzleMode}
           playMode={playMode}
-          sendLines={sendLines}
+          engineLines={engineLines}
           isMyTurn={isMyTurn}
           engineMove={engineMove}
         />
@@ -401,15 +411,11 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
                     currentChapterState={currentChapterState}
                     pulseDot={pulseDot}
                   />
-                  <div>
-                    <p className="text-sm">Line 1: {lines[0]}</p>{' '}
-                  </div>
-                  <div>
-                    <p className="text-sm">Line 2: {lines[1]}</p>{' '}
-                  </div>
-                  <div>
-                    <p className="text-sm">Line 3: {lines[2]}</p>{' '}
-                  </div>
+                  <div className="mt-4">
+        <p className="w-100% text-sm">Line 1: {lines[1].slice(0,20)}</p>
+        <p className="w-100% text-sm">Line 2: {lines[2].slice(0,20)}</p>
+        <p className=" w-100% text-sm">Line 3: {lines[3].slice(0,20)}</p>
+      </div>
                   <div className="flex mb-2">
                     <input
                       id="title"
