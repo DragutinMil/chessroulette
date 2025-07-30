@@ -14,7 +14,7 @@ import {
 import { PgnInputBoxProps } from '@app/components/PgnInputBox/PgnInputBox';
 import { ChaptersTabProps } from '../../chapters/ChaptersTab';
 import React from 'react';
-
+import { CircleDrawTuple, ArrowsMap } from '@app/components/Chessboard/types';
 import { EngineData } from '../../../../../ChessEngine/lib/io';
 import { AiChessWidgetPanel } from './AiChessWidgetPanel';
 
@@ -31,10 +31,11 @@ type Props = {
   addChessAi: (moves: chessAiMode) => void;
   onMessage: (message: Message) => void;
   puzzleOrientation: () => void;
-
+  onCircleDraw: (tuple: CircleDrawTuple) => void;
+  onArrowsChange: (tuple: ArrowsMap) => void;
   onHistoryNotationRefocus: FreeBoardNotationProps['onRefocus'];
   onHistoryNotationDelete: FreeBoardNotationProps['onDelete'];
-
+  addGameEvaluation: (score: number) => void;
   // Mode
   isInstructor: boolean;
 
@@ -67,13 +68,14 @@ export const WidgetPanel = React.forwardRef<TabsRef, Props>(
       onImport,
       onQuickImport,
       onHistoryNotationDelete,
-
+      onCircleDraw,
       onPuzzleMove,
+      onArrowsChange,
       onTakeBack,
       addChessAi,
       onMessage,
       puzzleOrientation,
-
+      addGameEvaluation,
       onHistoryNotationRefocus,
       ...chaptersTabProps
     },
@@ -86,9 +88,12 @@ export const WidgetPanel = React.forwardRef<TabsRef, Props>(
         puzzleOrientation={puzzleOrientation}
         addChessAi={addChessAi}
         onMessage={onMessage}
+        addGameEvaluation={addGameEvaluation}
         currentChapterState={currentChapterState}
         currentLoadedChapterId={currentLoadedChapterId}
         onQuickImport={onQuickImport}
+        onCircleDraw={onCircleDraw}
+        onArrowsChange={onArrowsChange}
         onPuzzleMove={onPuzzleMove}
         onTakeBack={onTakeBack}
         onImport={onImport}

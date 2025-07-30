@@ -42,6 +42,7 @@ export type chessAiMode = {
   badMoves: number;
   goodMoves: number;
   orientationChange: Boolean;
+  prevEvaluation: number;
 };
 export type Message = {
   content: string;
@@ -88,6 +89,7 @@ export type AichessActivityActions =
   | Action<'loadedChapter:focusHistoryIndex', FBHIndex>
   | Action<'loadedChapter:deleteHistoryMove', FBHIndex>
   | Action<'loadedChapter:drawCircle', CircleDrawTuple>
+  | Action<'loadedChapter:gameEvaluation', number>
   | Action<'loadedChapter:clearCircles'>
   | Action<'loadedChapter:setArrows', ArrowsMap>
   | Action<'loadedChapter:setOrientation', { color: ChessColor }>

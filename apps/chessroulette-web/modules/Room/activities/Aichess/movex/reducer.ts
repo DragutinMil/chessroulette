@@ -64,6 +64,10 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
     const nextChapterState: ChapterState = {
       ...prevChapter,
       displayFen: fenBoard.fen,
+      chessAiMode: {
+              ...prev.activityState.chaptersMap[0].chessAiMode,
+              prevEvaluation: 0,
+            },
       notation: {
         ...prevChapter.notation,
         focusedIndex: action.payload,
@@ -83,114 +87,6 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
         },
       },
     };
-
-    // const prevChapter = findLoadedChapter(prev.activityState);
-    // if (!prevChapter) {
-    //   console.error('The loaded chapter was not found');
-    //   return prev;
-    // }
-    // if (
-    //   prevChapter.notation.history.length === 1 &&
-    //   prevChapter.notation.history[0].length == 1
-    // ) {
-    //   return prev;
-    // }
-    // if (prevChapter.notation.history.length === 0) {
-    //   return prev;
-    // }
-
-    //   const newGame = getNewChessGame({
-    //     pgn: prevChapter.displayFen,
-    //   });
-
-    // if (prevChapter.notation.focusedIndex[1] == 0) {
-    //   prevChapter.notation.history.pop();
-    //   prevChapter.notation.focusedIndex[1] = 1;
-    //   if (prevChapter.notation.focusedIndex[0] > 0) {
-    //     prevChapter.notation.focusedIndex[0] =
-    //       prevChapter.notation.focusedIndex[0] - 1;
-    //   }
-    // } else if (prevChapter.notation.focusedIndex[1] == 1) {
-    //   prevChapter.notation.history[
-    //     prevChapter.notation.history.length - 1
-    //   ].pop();
-    //   prevChapter.notation.focusedIndex[1] = 0;
-    // }
-
-    //   const fenBoard = new ChessFENBoard(prevChapter.displayFen);
-
-    //   //prevChapter.displayFen=prevChapter.fenPreviusMove
-
-    //   // PUSH ERASED DATA
-    //   const nextChapter: Chapter = {
-    //     ...prevChapter,
-    //     displayFen: fenBoard.fen,
-    //   };
-    //   return {
-    //     ...prev,
-    //     activityState: {
-    //       ...prev.activityState,
-
-    //       chaptersMap: {
-    //         ...prev.activityState.chaptersMap,
-    //         [0]: nextChapter,
-    //       },
-    //     },
-    //   };
-    // }
-
-    // const lastTurn = prevChapter.notation.history[history.length - 1];
-
-    // if (prevChapter.notation.history[history.length - 1].length === 2) {
-
-    // const nextChapter: Chapter = {
-    //     ...prevChapter,
-    //     displayFen: fenBoard.fen,
-    //     circlesMap: {},
-    //     arrowsMap: {},
-    //     notation: {
-    //       ...prevChapter.notation,
-    //       history: prevChapter.notation.history,
-    //     },
-
-    //   };
-
-    //   return {
-    //     ...prev,
-    //     activityState: {
-    //       ...prev.activityState,
-
-    //       chaptersMap: {
-    //         ...prev.activityState.chaptersMap,
-    //         [0]: nextChapter,
-    //       },
-    //     },
-    //   };
-    //  }
-    // } else if (lastTurn.length === 1) {
-    //    const nextChapter: Chapter = {
-    //       ...prevChapter,
-    //       displayFen: fenBoard.fen,
-    //       circlesMap: {},
-    //       arrowsMap: {},
-    //       notation: {
-    //         ...prevChapter.notation,
-    //         history: prevChapter.notation.history,
-    //       },
-
-    //     };
-
-    //     return {
-    //       ...prev,
-    //       activityState: {
-    //         ...prev.activityState,
-
-    //         chaptersMap: {
-    //           ...prev.activityState.chaptersMap,
-    //           [0]: nextChapter,
-    //         },
-    //       },
-    //     };
   }
 
   // TODO: Should this be split?
@@ -779,66 +675,85 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
   }
 
   if (action.type === 'loadedChapter:writeMessage') {
-    if (
-      prev.activityState.chaptersMap[0].messages[
-        prev.activityState.chaptersMap[0].messages.length - 1
-      ].participantId !== action.payload.participantId
-    ) {
-      return {
-        ...prev,
-        activityState: {
-          ...prev.activityState,
-          chaptersMap: {
-            ...prev.activityState.chaptersMap,
-            [0]: {
-              ...prev.activityState.chaptersMap[0],
-              messages: [
-                ...(prev.activityState.chaptersMap[0].messages ?? []),
-                {
-                  content: action.payload.content,
-                  participantId: action.payload.participantId,
-                  idResponse: action.payload.idResponse,
-                },
-              ],
-            },
+    // if (
+    //   prev.activityState.chaptersMap[0].messages[
+    //     prev.activityState.chaptersMap[0].messages.length - 1
+    //   ].participantId !== action.payload.participantId
+    // ) {
+    return {
+      ...prev,
+      activityState: {
+        ...prev.activityState,
+        chaptersMap: {
+          ...prev.activityState.chaptersMap,
+          [0]: {
+            ...prev.activityState.chaptersMap[0],
+            messages: [
+              ...(prev.activityState.chaptersMap[0].messages ?? []),
+              {
+                content: action.payload.content,
+                participantId: action.payload.participantId,
+                idResponse: action.payload.idResponse,
+              },
+            ],
           },
         },
-      };
-    }
-    if (
-      prev.activityState.chaptersMap[0].messages[
-        prev.activityState.chaptersMap[0].messages.length - 1
-      ].participantId === action.payload.participantId
-    ) {
-      const editedMessage = {
-        content:
-          prev.activityState.chaptersMap[0].messages[
-            prev.activityState.chaptersMap[0].messages.length - 1
-          ].content +
-          '\n' +
-          action.payload.content,
-        participantId: action.payload.participantId,
-        idResponse: action.payload.idResponse,
-      };
+      },
+    };
+  }
+  // if (
+  //   prev.activityState.chaptersMap[0].messages[
+  //     prev.activityState.chaptersMap[0].messages.length - 1
+  //   ].participantId === action.payload.participantId
+  // ) {
+  //   const editedMessage = {
+  //     content:
+  //       prev.activityState.chaptersMap[0].messages[
+  //         prev.activityState.chaptersMap[0].messages.length - 1
+  //       ].content +
+  //       '\n' +
+  //       action.payload.content,
+  //     participantId: action.payload.participantId,
+  //     idResponse: action.payload.idResponse,
+  //   };
 
-      return {
-        ...prev,
-        activityState: {
-          ...prev.activityState,
-          chaptersMap: {
-            ...prev.activityState.chaptersMap,
-            [0]: {
-              ...prev.activityState.chaptersMap[0],
-              messages: [
-                ...(prev.activityState.chaptersMap[0].messages.slice(0, -1) ??
-                  []),
-                editedMessage,
-              ],
+  //   return {
+  //     ...prev,
+  //     activityState: {
+  //       ...prev.activityState,
+  //       chaptersMap: {
+  //         ...prev.activityState.chaptersMap,
+  //         [0]: {
+  //           ...prev.activityState.chaptersMap[0],
+  //           messages: [
+  //             ...(prev.activityState.chaptersMap[0].messages.slice(0, -1) ??
+  //               []),
+  //             editedMessage,
+  //           ],
+  //         },
+  //       },
+  //     },
+  //   };
+  // }
+  // }
+
+  if (action.type === 'loadedChapter:gameEvaluation') {
+    return {
+      ...prev,
+      activityState: {
+        ...prev.activityState,
+        chaptersMap: {
+          ...prev.activityState.chaptersMap,
+          [0]: {
+            ...prev.activityState.chaptersMap[0],
+            chessAiMode: {
+              ...prev.activityState.chaptersMap[0].chessAiMode,
+              prevEvaluation: action.payload,
             },
           },
         },
-      };
-    }
+      },
+    };
   }
 
   return prev;

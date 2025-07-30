@@ -14,6 +14,7 @@ import type {
   chessAiMode,
   Message,
 } from '../../movex/types';
+import { CircleDrawTuple, ArrowsMap } from '@app/components/Chessboard/types';
 import {
   PgnInputBox,
   PgnInputBoxProps,
@@ -25,6 +26,7 @@ import StockFishEngineAI from '@app/modules/ChessEngine/ChessEngineAI';
 import { ChaptersTab, ChaptersTabProps } from '../../chapters/ChaptersTab';
 import { useWidgetPanelTabsNavAsSearchParams } from '../useWidgetPanelTabsNav';
 import { SendQuestion } from './SendQuestion';
+import { CheckPiece } from './CheckPiece';
 import { EngineData } from '../../../../../ChessEngine/lib/io';
 import { useUpdateableSearchParams } from '@app/hooks/useSearchParams';
 import { ChessEngineWithProvider } from '@app/modules/ChessEngine/ChesEngineWithProvider';
@@ -43,6 +45,8 @@ type Props = {
   currentChapterState: ChapterState;
   onPuzzleMove: (move: MovePiece) => void;
   onTakeBack: FreeBoardNotationProps['onRefocus'];
+  onCircleDraw: (tuple: CircleDrawTuple) => void;
+  onArrowsChange: (tuple: ArrowsMap) => void;
   puzzleOrientation: () => void;
   addChessAi: (moves: chessAiMode) => void;
   onMessage: (message: Message) => void;
@@ -51,7 +55,7 @@ type Props = {
   onQuickImport: PgnInputBoxProps['onChange'];
   onHistoryNotationRefocus: FreeBoardNotationProps['onRefocus'];
   onHistoryNotationDelete: FreeBoardNotationProps['onDelete'];
-
+  addGameEvaluation: (score: number) => void;
   // Engine
   showEngine?: boolean;
   // engine?: EngineData;
@@ -79,6 +83,8 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
       showEngine,
       onImport,
       onTakeBack,
+      onCircleDraw,
+      onArrowsChange,
       onPuzzleMove,
       puzzleOrientation,
       addChessAi,
@@ -86,6 +92,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
       onQuickImport,
       onHistoryNotationDelete,
       onHistoryNotationRefocus,
+      addGameEvaluation,
       ...chaptersTabProps
     },
     tabsRef
@@ -94,15 +101,16 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
     const widgetPanelTabsNav = useWidgetPanelTabsNavAsSearchParams();
     const updateableSearchParams = useUpdateableSearchParams();
     const [pulseDot, setPulseDot] = useState(false);
-
     const [answer, setAnswer] = useState(null);
+    const [hintCircle, setHintCircle] = useState(false);
+
     const [question, setQuestion] = useState('');
     const [stockfishMovesInfo, setStockfishMovesInfo] = useState('');
     const [lines, setLines] = useState<StockfishLines>({
-    1: '',
-    2: '',
-    3: '',
-  });
+      1: '',
+      2: '',
+      3: '',
+    });
 
     const currentTabIndex = useMemo(
       () => widgetPanelTabsNav.getCurrentTabIndex(),
@@ -142,8 +150,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
       setAnswer(data.answer.text);
 
       if (data.puzzle && data.puzzle.fen) {
-        const changeOrientation =
-          currentChapterState.orientation === data.answer.fen.split(' ')[1];
+        const changeOrientation = currentChapterState.orientation === data.answer.fen.split(' ')[1];
         addChessAi({
           moves: data.puzzle.solution,
           movesCount: data.puzzle.solution.length / 2,
@@ -151,8 +158,9 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
           goodMoves: 0,
           orientationChange: changeOrientation,
           mode: 'puzzle',
+          prevEvaluation: 0,
         });
-        console.log('data.puzzle.fen', data.puzzle.fen);
+
         setTimeout(() => {
           if (ChessFENBoard.validateFenString(data.puzzle.fen).ok) {
             onQuickImport({ type: 'FEN', val: data.puzzle.fen });
@@ -237,7 +245,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
         currentChapterState.chessAiMode.goodMoves > 0
       ) {
         onMessage({
-          content: 'Congrats! You made it!!! ',
+          content: '“Congratulations! You solved it 🎉”',
           participantId: 'chatGPT123456',
           idResponse:
             currentChapterState.messages[
@@ -252,6 +260,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
               badMoves: 0,
               goodMoves: 0,
               orientationChange: false,
+              prevEvaluation: currentChapterState.chessAiMode.prevEvaluation,
               mode: 'popup',
             }),
           1000
@@ -282,6 +291,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
         goodMoves: 0,
         orientationChange: false,
         mode: 'openings',
+        prevEvaluation: 0,
       });
       setAnswer(null);
       const data = await getOpenings();
@@ -294,22 +304,68 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
       onQuickImport({ type: 'PGN', val: data.pgn });
       addQuestion(fullQuestion);
     };
-    const engineMove = (m: any) => {
-      let fromChess = m.slice(0, 2);
-      let toChess = m.slice(2, 4);
-      if (m.length == 5 && m.slice(-1) == 'q') {
-        let promotionChess = m.slice(4, 5);
-        let n = { from: fromChess, to: toChess, promoteTo: promotionChess };
-        setTimeout(() => onPuzzleMove(n), 1000);
+    const hint = async () => {
+      const fieldFrom = currentChapterState.chessAiMode.moves[
+        currentChapterState.chessAiMode.goodMoves
+      ].slice(0, 2);
+      const fieldTo = currentChapterState.chessAiMode.moves[
+        currentChapterState.chessAiMode.goodMoves
+      ].slice(2, 4);
+      const color = '#11c6d1';
+      if (hintCircle) {
+        const arrowId = `${fieldFrom}${fieldTo}-${color}`;
+        onArrowsChange({
+          [arrowId]: [fieldFrom as Square, fieldTo as Square, color],
+        });
       } else {
-        let n = { from: fromChess, to: toChess };
-        setTimeout(() => onPuzzleMove(n), 1000);
+        const circle = [fieldFrom, color];
+        setHintCircle(true);
+        onCircleDraw(circle as CircleDrawTuple);
+      }
+      const piece = await CheckPiece(
+        fieldFrom as Square,
+        currentChapterState.displayFen
+      );
+      if (
+        !currentChapterState.messages[
+          currentChapterState.messages.length - 1
+        ].content.includes('Think about using')
+      ) {
+        onMessage({
+          content: `Think about using your ${piece}`,
+          participantId: 'chatGPT123456',
+          idResponse:
+            currentChapterState.messages[
+              currentChapterState.messages.length - 1
+            ].idResponse,
+        });
       }
     };
-   const engineLines = (m: StockfishLines) => {
-    setLines(m);
-    console.log('Primljene linije:', m);
-  };
+
+    const engineMove = (m: any) => {
+      if (!isMyTurn) {
+        console.log('potez', m);
+        setStockfishMovesInfo(m);
+        let fromChess = m.slice(0, 2);
+        let toChess = m.slice(2, 4);
+        if (m.length == 5 && m.slice(-1) == 'q') {
+          let promotionChess = m.slice(4, 5);
+          let n = { from: fromChess, to: toChess, promoteTo: promotionChess };
+          setTimeout(() => onPuzzleMove(n), 1000);
+        } else {
+          let n = { from: fromChess, to: toChess };
+          setTimeout(() => onPuzzleMove(n), 1000);
+        }
+      } else {
+        console.log('potez else', m);
+        setStockfishMovesInfo(m);
+      }
+    };
+    const engineLines = (m: StockfishLines) => {
+      setLines(m);
+
+      // console.log('Primljene linije:', m);
+    };
 
     const puzzles = async () => {
       const data = await getPuzzle();
@@ -323,6 +379,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
           goodMoves: 0,
           orientationChange: changeOrientation,
           mode: 'puzzle',
+          prevEvaluation: 0,
         });
         onQuickImport({ type: 'FEN', val: data.fen });
         //FIRST MOVE
@@ -332,7 +389,10 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
         setTimeout(() => onPuzzleMove(first_move), 1200);
       }
     };
+  
+  
 
+    
     const takeBack = async () => {
       if (currentChapterState.notation.focusedIndex[0] !== -1) {
         if (currentChapterState.notation.focusedIndex[1] == 0) {
@@ -350,8 +410,35 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
         goodMoves: 0,
         orientationChange: false,
         mode: 'play',
+        prevEvaluation: currentChapterState.chessAiMode.prevEvaluation,
       });
     };
+    const moveReaction = async (moveDeffinition:number) => {
+         const content= moveDeffinition==1 ?  'Great move! ✅' : 'Uhhhh, very bad move❗ Maybe to take back?'
+         onMessage({
+          content: content,
+          participantId: 'chatGPT123456',
+          idResponse:
+            currentChapterState.messages[
+              currentChapterState.messages.length - 1
+            ].idResponse,
+        });
+        
+      //   const question='give me short analyze of position on table about why is this position bad for player which just played'
+      //   const  stockfishMovesInfo='';
+      //     const data = await SendQuestion(
+      //     question,
+      //     currentChapterState,
+      //     stockfishMovesInfo
+      //   );
+      //   onMessage({
+      //   content: data.answer.text,
+      //   participantId: 'chatGPT123456',
+      //   idResponse: data.id,
+      // });
+
+    }
+    
     // const fen = currentChapterState.displayFen;
     //   //const datar= '1. e4 e5 (1. e3 e6) 2. Nf3 Nc6 $3 $17 3. Bc4 Nf6 4. Nc3 Bc5 5. d3 a6 6. a3 b5 7. Ba2 Qe7 8. Bg5 h6 9. Bh4 g5 10. Nxg5 hxg5 11. Bxg5 Rg8 12. h4 Nd4 13. Nd5 Qd6 14. Nxf6+ Kf8 15. Nxg8 Kxg8 16. Qh5 Nxc2+ 17. Kd2 Nxa1 18. Qxf7+ Kh8 19. Qg8#'
     //   // const datar= '1... Qxf3 2. Nxf3 Rxh3+ 3. Kg1 Rxf3 4. Nc4'
@@ -362,25 +449,28 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
     //   }
     // };
 
-    //        const importPgn= async () => {
-    //         const fen = 'r1bqkb1r/ppp2ppp/2n2n2/3pp3/4P3/2NP1NP1/PPP2P1P/R1BQKB1R b KQkq - 0 5'
-    //  if (ChessFENBoard.validateFenString(fen).ok) {
-    //               onQuickImport({ type: 'FEN', val: fen });
-    //             } else if (isValidPgn(fen)) {
-    //               onQuickImport({ type: 'PGN', val: fen });
-    //             }
-    //         }
+           const importPgn= async () => {
+            const fen = '2r3k1/pb3p1p/1r1bp1p1/1p1q4/3P4/P1QBPN2/5PPP/R1R3K1 w - - 5 24'
+     if (ChessFENBoard.validateFenString(fen).ok) {
+                  onQuickImport({ type: 'FEN', val: fen });
+                } else if (isValidPgn(fen)) {
+                  onQuickImport({ type: 'PGN', val: fen });
+                }
+            }
 
     // Instructor
     return (
       <div className="  flex flex-col flex-1 min-h-0 rounded-lg shadow-2xl flex-1 flex min-h-0 ">
         <StockFishEngineAI
           fen={currentChapterState.displayFen}
+          prevScore={currentChapterState.chessAiMode.prevEvaluation}
           puzzleMode={puzzleMode}
           playMode={playMode}
           engineLines={engineLines}
           isMyTurn={isMyTurn}
           engineMove={engineMove}
+          addGameEvaluation={addGameEvaluation}
+          moveReaction={moveReaction}
         />
 
         <Tabs
@@ -412,10 +502,16 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
                     pulseDot={pulseDot}
                   />
                   <div className="mt-4">
-        <p className="w-100% text-sm">Line 1: {lines[1].slice(0,20)}</p>
-        <p className="w-100% text-sm">Line 2: {lines[2].slice(0,20)}</p>
-        <p className=" w-100% text-sm">Line 3: {lines[3].slice(0,20)}</p>
-      </div>
+                    <p className="w-100% text-sm">
+                      Line 1: {lines[1].slice(0, 20)}
+                    </p>
+                    <p className="w-100% text-sm">
+                      Line 2: {lines[2].slice(0, 20)}
+                    </p>
+                    <p className=" w-100% text-sm">
+                      Line 3: {lines[3].slice(0, 20)}
+                    </p>
+                  </div>
                   <div className="flex mb-2">
                     <input
                       id="title"
@@ -488,7 +584,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
                         <p>Play</p>
                       )}
                     </Button>
-                    <Button
+                    {/* <Button
                       onClick={() => {
                         openings();
                       }}
@@ -496,8 +592,20 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
                       className={`bg-slate-600 font-bold hover:bg-slate-800 `}
                     >
                       Openings
-                    </Button>
-                    {/* <Button
+                    </Button> */}
+                    {currentChapterState.chessAiMode.mode == 'puzzle' && (
+                      <Button
+                        onClick={() => {
+                          hint();
+                        }}
+                        size="sm"
+                        className={`bg-slate-600 font-bold hover:bg-slate-800 `}
+                      >
+                        Hint
+                      </Button>
+                    )}
+
+                    <Button
                       onClick={() => {
                         importPgn();
                       }}
@@ -505,7 +613,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
                       className={`bg-slate-600 font-bold hover:bg-slate-800 `}
                     >
                       Import PGN
-                    </Button> */}
+                    </Button>
                     <Button
                       onClick={() => {
                         takeBack();
