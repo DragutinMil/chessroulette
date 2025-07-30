@@ -21,6 +21,7 @@ export const initialChapterState: ChapterState = {
     badMoves: 0,
     goodMoves: 0,
     orientationChange: false,
+    prevEvaluation: 0,
   },
   notation: {
     history: [],

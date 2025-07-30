@@ -8,7 +8,6 @@ import { ResizableDesktopLayout } from '@app/templates/ResizableDesktopLayout';
 import { useAichessActivitySettings } from './hooks/useAichessActivitySettings';
 
 import { AiChessDialogContainer } from './DialogContainer/AiChessDialogContainer';
-
 import {
   AichessActivityState,
   findLoadedChapter,
@@ -22,6 +21,7 @@ import { RIGHT_SIDE_SIZE_PX } from '../../constants';
 import inputReducer, { initialInputState } from './reducers/inputReducer';
 
 import { InstructorBoard } from './components/InstructorBoard';
+import { Square } from 'chess.js';
 
 type Props = {
   remoteState: AichessActivityState['activityState'];
@@ -131,6 +131,7 @@ export const AichessActivity = ({
                   return true;
                 }}
                 onArrowsChange={(payload) => {
+                  console.log('arrow', payload);
                   dispatch({ type: 'loadedChapter:setArrows', payload });
                 }}
                 onCircleDraw={(tuple) => {
@@ -206,6 +207,9 @@ export const AichessActivity = ({
                 payload,
               });
             }}
+            addGameEvaluation={(payload) => {
+              dispatch({ type: 'loadedChapter:gameEvaluation', payload });
+            }}
             onPuzzleMove={(payload) => {
               dispatch({ type: 'loadedChapter:addMove', payload });
             }}
@@ -215,6 +219,15 @@ export const AichessActivity = ({
                 payload: payload as chessAiMode,
               })
             }
+            onCircleDraw={(tuple) => {
+              dispatch({
+                type: 'loadedChapter:drawCircle',
+                payload: tuple,
+              });
+            }}
+            onArrowsChange={(payload) => {
+              dispatch({ type: 'loadedChapter:setArrows', payload });
+            }}
             onMessage={(payload) =>
               dispatch({
                 type: 'loadedChapter:writeMessage',

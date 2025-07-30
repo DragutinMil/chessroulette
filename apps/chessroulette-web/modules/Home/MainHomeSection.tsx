@@ -80,7 +80,7 @@ export const MainHomeSection: React.FC<Props> = ({ className }) => {
                 AI
               </Button>
             </Link>
-            <Link
+            {/* <Link
               href={links.getOnDemandRoomCreationLink({
                 activity: 'chessai',
                 instructor: true,
@@ -89,7 +89,7 @@ export const MainHomeSection: React.FC<Props> = ({ className }) => {
               <Button type="primary" className="font-bold w-full">
                 chess AI
               </Button>
-            </Link>
+            </Link> */}
           </div>
         </div>
         <Image

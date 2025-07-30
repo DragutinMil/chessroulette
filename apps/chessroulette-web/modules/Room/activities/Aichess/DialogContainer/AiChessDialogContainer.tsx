@@ -27,7 +27,7 @@ export const AiChessDialogContainer: React.FC<AiChessDialogContainerProps> = ({
                 //router.push('https://app.outpostchess.com/online-list');
               }}
             >
-              New Puzzle
+              ✅ Next Puzzle
             </Button>
             <Button
               // icon="ArrowLeftIcon"
@@ -39,9 +39,21 @@ export const AiChessDialogContainer: React.FC<AiChessDialogContainerProps> = ({
                 //router.push('https://app.outpostchess.com/online-list');
               }}
             >
-              Continue to play
+              ♟️ Free Play
             </Button>
             <Button
+              // icon="ArrowLeftIcon"
+              bgColor="yellow"
+              className="w-full"
+              style={{ marginTop: 12 }}
+              onClick={() => {
+                setRemovePopup(true);
+                //router.push('https://app.outpostchess.com/online-list');
+              }}
+            >
+              🏠 Home
+            </Button>
+            {/* <Button
               // icon="ArrowLeftIcon"
               bgColor="yellow"
               className="w-full"
@@ -52,7 +64,7 @@ export const AiChessDialogContainer: React.FC<AiChessDialogContainerProps> = ({
               }}
             >
               Openings
-            </Button>
+            </Button> */}
           </div>
         }
       />

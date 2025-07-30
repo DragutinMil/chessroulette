@@ -14,10 +14,10 @@ type StockfishEngineAIProps = {
   engineLines: any;
   puzzleMode: boolean;
   playMode: boolean;
-  // engineMove: (m: ShortChessMove) => void;
+  prevScore: number;
+  moveReaction:(moveDeffinition:number)=>void
+  addGameEvaluation: (score: number) => void;
 };
-
-
 
 const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
   fen,
@@ -26,14 +26,19 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
   puzzleMode,
   playMode,
   engineLines,
+  prevScore,
+  addGameEvaluation,
+  moveReaction
 }) => {
   const [stockfishOutput, setStockfishOutput] = useState('Initializing...');
   const [bestMove, setBestMove] = useState('');
+  const [stupidMove, setStupidMove] = useState(false);
+  const [GoodMove, setGoodMove] = useState(false)
   const [lineOne, setLineOne] = useState('');
   const [lineTwo, setLinesTwo] = useState('');
   const [lineThree, setLineThree] = useState('');
   const [changes, setChanges] = useState(0);
-  const [depth, setDepth] = useState('1');
+  const [depth, setDepth] = useState('10');
   const [skill, setSkill] = useState('');
   const [contempt, setContempt] = useState('');
 
@@ -47,27 +52,45 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
       const stockfish = new Worker('/stockfish2.js');
       stockfish.onmessage = (event) => {
         if (event.data.startsWith('bestmove')) {
-          setBestMove(event.data.split(' ')[1]);
+          setTimeout(() => {
+          setBestMove(event.data.split(' ')[1]),
+          1000})
         }
         if (event.data.startsWith('info depth')) {
-          if (
-            event.data.startsWith('info depth 5') ||
-            event.data.startsWith('info depth 10')
-          ) {
+          if (event.data.startsWith('info depth 10')) {
             const pvIndex = event.data.indexOf(' pv ');
             //  if (pvIndex === -1) return null;
-
+            
             if (event.data.includes('multipv 2')) {
-              console.log('prepoznaje multipv 2');
               setLinesTwo(event.data.slice(pvIndex + 4));
             }
             if (event.data.includes('multipv 1')) {
               setLineOne(event.data.slice(pvIndex + 4));
+              const match = event.data.match(/score cp (-?\d+)/);
+              if (match) {
+                const score =  isMyTurn ?   parseInt(match[1], 10) : -1*parseInt(match[1], 10);
+                setStupidMove(false)
+                setGoodMove(false)
+                if(prevScore!==0){
+                    const evalDiff = score - prevScore;
+                    console.log('score vs prev',score,prevScore)
+                    if (evalDiff < -250) {
+                      setStupidMove(true)
+                      setGoodMove(false)
+                    }else if (evalDiff>200) {
+                      setStupidMove(false)
+                      setGoodMove(true)
+                    }
+                }
+                
+                addGameEvaluation(score);
+              } 
             }
             if (event.data.includes('multipv 3')) {
               setLineThree(event.data.slice(pvIndex + 4));
             }
-             setChanges(changes + 1);
+
+            setChanges(changes + 1);
           }
         }
         setStockfishOutput(event.data);
@@ -82,11 +105,9 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
       stockfish.postMessage(`setoption name Contempt value ${contempt}`);
       stockfish.postMessage(`setoption name MultiPV value 3`);
 
-      setTimeout(() => {
-        stockfish.postMessage(`position fen ${fen}`);
-        stockfish.postMessage(`go depth ${depth}`);
-      }, 1000);
-
+      stockfish.postMessage(`position fen ${fen}`);
+      stockfish.postMessage(`go depth ${depth}`);
+     
       return () => stockfish.terminate(); // Cleanup on unmount
     } catch (error) {
       // console.error("Failed to load Stockfish:", error);
@@ -94,28 +115,35 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
     }
   }, [fen]);
 
+
+  // useEffect(() => {
+  //    if(resetMoveReaction){
+
+  //    }
+  //   }, [resetMoveReaction]);
+  
+
   useEffect(() => {
     let m = bestMove;
-
-    if (!isMyTurn && bestMove && !puzzleMode && playMode) {
+    if (!isMyTurn && bestMove && !puzzleMode && playMode && !stupidMove) {
       engineMove(m);
-     
-    } 
+    } else if (bestMove && playMode && !puzzleMode && !stupidMove) {
+      engineMove(m);
+    } else if(stupidMove || GoodMove){
+         const moveDeffinition = stupidMove? 0:1
+         console.log('potez');
+         moveReaction( moveDeffinition)
+    }
   }, [bestMove, playMode]);
 
   useEffect(() => {
-  const stockfishLines = {
-    1: lineOne,
-    2: lineTwo,
-    3: lineThree,
-  };
-
+    const stockfishLines = {
+      1: lineOne,
+      2: lineTwo,
+      3: lineThree,
+    };
     engineLines(stockfishLines);
-
-
-
-
-}, [changes]);
+  }, [changes]);
 
   return null;
 };

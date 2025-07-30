@@ -22,7 +22,6 @@ export const RoomTemplate = (props: Props) => {
       setIsOutpost(window.location.href.includes('theme=op'));
     }
   }, []);
-  console.log('activity', props.activity);
   return (
     <div
       className="flex h-screen w-screen"
