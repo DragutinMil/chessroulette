@@ -6,16 +6,18 @@ export async function SendQuestion(
   stockfishMovesInfo: any
 ) {
   const model = 'gpt-4.1';
-  console.log('stockfishMovesInfo', stockfishMovesInfo);
+  console.log('currentChapterState', currentChapterState.notation.history);
   const previusMessageId =
     currentChapterState.messages[currentChapterState.messages.length - 1]
       .idResponse;
   const question =
-    prompt +
-    '. Fen:' +
-    currentChapterState.displayFen + '  '
-    '.Best Moves: ' +
-    stockfishMovesInfo;
+    prompt + '. Best Moves:' +  stockfishMovesInfo + 
+    '. Fen:' + currentChapterState.displayFen  + '. Last Move: ' + 
+    currentChapterState.notation.history[currentChapterState.notation.history.length -1][
+      currentChapterState.notation.history[currentChapterState.notation.history.length -1]?.length-1 
+    ].san
+    
+    
   console.log('question in send question', question);
   try {
     const response = await fetch(

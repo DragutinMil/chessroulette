@@ -414,7 +414,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
       });
     };
     const moveReaction = async (moveDeffinition:number) => {
-         const content= moveDeffinition==1 ?  'Great move! ✅' : 'Uhhhh, very bad move❗ Maybe to take back?'
+         const content= moveDeffinition==1 ?  'Great move! ✅' : 'Uhhhh, bad move❗ ?'
          onMessage({
           content: content,
           participantId: 'chatGPT123456',
@@ -450,7 +450,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
     // };
 
            const importPgn= async () => {
-            const fen = '2r3k1/pb3p1p/1r1bp1p1/1p1q4/3P4/P1QBPN2/5PPP/R1R3K1 w - - 5 24'
+            const fen = '5rk1/1q2bpp1/4p2p/pB2N3/3P4/P3P3/5PbP/R1Q3K1 w - - 1 28'
      if (ChessFENBoard.validateFenString(fen).ok) {
                   onQuickImport({ type: 'FEN', val: fen });
                 } else if (isValidPgn(fen)) {

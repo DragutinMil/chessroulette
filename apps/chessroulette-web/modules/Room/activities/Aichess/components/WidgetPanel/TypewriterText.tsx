@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-
+import { Button } from '@app/components/Button';
 interface TypewriterTextProps {
   lastMessage: string;
   scrollToBottom: () => void;
@@ -39,10 +39,32 @@ const TypewriterText: React.FC<TypewriterTextProps> = ({
   }, [displayedText.length]);
 
   return (
+    <div>
     <p className="text-left whitespace-pre-wrap">
       {displayedText.replace(/undefined/g, '')}
       {showCursor && <span className="animate-pulse">|</span>}
     </p>
+    { lastMessage.includes('Uhh') && displayedText.length==lastMessage.length && (
+         <div className="flex  sitems-center gap-3 hidden md:flex mt-2">
+            <Button
+                  onClick={() => {
+                                   // takeBack();
+                                  }}
+                                  size="sm"
+                                  className={`bg-slate-600 font-bold hover:bg-slate-800 `}
+                                > Take Back </Button>
+            <Button
+                                  onClick={() => {
+                                   // play();
+                                  }}
+                                  size="sm"
+                                  className={`bg-slate-600 font-bold hover:bg-slate-800 `}>
+                                  Continue to play </Button>  
+        </div>
+    )}
+   
+   
+    </div>
   );
 };
 
