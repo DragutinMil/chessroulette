@@ -10,12 +10,19 @@ export async function SendQuestion(
   const previusMessageId =
     currentChapterState.messages[currentChapterState.messages.length - 1]
       .idResponse;
-  const question =
+      
+
+      console.log('currentChapterState.notation.history.length',currentChapterState.notation.history)
+  const question = currentChapterState.notation.history.length==0  ? (
+    prompt 
+  ):(
     prompt + '. Best Moves:' +  stockfishMovesInfo + 
     '. Fen:' + currentChapterState.displayFen  + '. Last Move: ' + 
     currentChapterState.notation.history[currentChapterState.notation.history.length -1][
       currentChapterState.notation.history[currentChapterState.notation.history.length -1]?.length-1 
     ].san
+  )
+    
     
     
   console.log('question in send question', question);

@@ -588,7 +588,7 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
 
   if (action.type === 'loadedChapter:setPuzzleMoves') {
     const chessAiMode = action.payload;
-    if (action.payload.movesCount > 0) {
+    if (action.payload.movesCount > 0 && action.payload.goodMoves==0) {
       const message = {
         content: `Ok, try to solve puzzle in ${chessAiMode.movesCount} moves`,
         participantId: 'chatGPT123456',

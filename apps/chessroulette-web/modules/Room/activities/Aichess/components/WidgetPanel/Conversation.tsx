@@ -5,9 +5,11 @@ import TypewriterText from './TypewriterText';
 type Props = {
   currentChapterState: ChapterState;
   pulseDot: boolean;
+  takeBack: () => void;
+  playNext: () => void;
 };
 //console.log('currentChapterState',currentChapterState)
-const Conversation = ({ currentChapterState, pulseDot }: Props) => {
+const Conversation = ({ currentChapterState, pulseDot, takeBack,playNext }: Props) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (scrollRef.current) {
@@ -27,6 +29,8 @@ const Conversation = ({ currentChapterState, pulseDot }: Props) => {
       {currentChapterState.messages.map((msg, index) => {
         const participant = msg.participantId;
         const isLastMessage = index === currentChapterState.messages.length - 1;
+         const isLastFromThisParticipant =
+    currentChapterState.messages[index + 1]?.participantId !== participant;
         const lastMessage =
           currentChapterState.messages[currentChapterState.messages.length - 1]
             .content;
@@ -37,8 +41,7 @@ const Conversation = ({ currentChapterState, pulseDot }: Props) => {
             {participant == 'chatGPT123456' ? (
               <div className="flex">
                 <div className="w-9 h-9 rounded-full overflow-hidden">
-                  {participant !==
-                    currentChapterState.messages[index - 1]?.participantId && (
+                  {isLastFromThisParticipant  && (
                     <img
                       src="https://outpostchess.fra1.digitaloceanspaces.com/bfce3526-2133-4ac5-8b16-9c377529f0b6.jpg"
                       alt="Avatar"
@@ -51,6 +54,8 @@ const Conversation = ({ currentChapterState, pulseDot }: Props) => {
                     <TypewriterText
                       lastMessage={lastMessage}
                       scrollToBottom={scrollToBottom}
+                      takeBack={takeBack}
+                       playNext={playNext}
                     />
                   ) : (
                     <p className="flex  items-center justify-end  text-left whitespace-pre-line">

@@ -103,7 +103,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
     const [pulseDot, setPulseDot] = useState(false);
     const [answer, setAnswer] = useState(null);
     const [hintCircle, setHintCircle] = useState(false);
-
+    const [isFocusedInput, setIsFocusedInput] = useState(false);
     const [question, setQuestion] = useState('');
     const [stockfishMovesInfo, setStockfishMovesInfo] = useState('');
     const [lines, setLines] = useState<StockfishLines>({
@@ -226,14 +226,20 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
     useEffect(() => {
       if (currentChapterState.chessAiMode.badMoves > 0 && isMyTurn) {
         onMessage({
-          content: 'No :), try something else',
+          content: 'No 🚫, try something else!',
           participantId: 'chatGPT123456',
           idResponse:
             currentChapterState.messages[
               currentChapterState.messages.length - 1
             ].idResponse,
         });
-        //Resetpovati bad moves na nulu !!!
+         setTimeout(() => 
+           addChessAi({
+          ...currentChapterState.chessAiMode,
+             badMoves: 0,
+        })
+         , 1000);
+       
       }
     }, [currentChapterState.chessAiMode.badMoves]);
 
@@ -245,7 +251,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
         currentChapterState.chessAiMode.goodMoves > 0
       ) {
         onMessage({
-          content: '“Congratulations! You solved it 🎉”',
+          content: 'Congratulations! You solved it 🎉',
           participantId: 'chatGPT123456',
           idResponse:
             currentChapterState.messages[
@@ -357,7 +363,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
           setTimeout(() => onPuzzleMove(n), 1000);
         }
       } else {
-        console.log('potez else', m);
+        //console.log('potez else', m);
         setStockfishMovesInfo(m);
       }
     };
@@ -402,7 +408,11 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
         }
       }
     };
+    const playNext = async () => {
+       engineMove(lines[1].slice(0, 4))
+    }
     const play = async () => {
+      
       addChessAi({
         moves: [],
         movesCount: 0,
@@ -414,8 +424,9 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
       });
     };
     const moveReaction = async (moveDeffinition:number) => {
-         const content= moveDeffinition==1 ?  'Great move! ✅' : 'Uhhhh, bad move❗ ?'
-         onMessage({
+         const content= moveDeffinition==1 ?  'Great move! ✅' : 'Uhhhh, bad move❗'
+         if(currentChapterState.chessAiMode.mode=='play'){
+            onMessage({
           content: content,
           participantId: 'chatGPT123456',
           idResponse:
@@ -423,6 +434,8 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
               currentChapterState.messages.length - 1
             ].idResponse,
         });
+         }
+         
         
       //   const question='give me short analyze of position on table about why is this position bad for player which just played'
       //   const  stockfishMovesInfo='';
@@ -500,15 +513,17 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
                   <Conversation
                     currentChapterState={currentChapterState}
                     pulseDot={pulseDot}
+                    takeBack={takeBack}
+                    playNext={playNext}
                   />
                   <div className="mt-4">
-                    <p className="w-100% text-sm">
+                    <p className="w-100% text-sm text-slate-500">
                       Line 1: {lines[1].slice(0, 20)}
                     </p>
-                    <p className="w-100% text-sm">
+                    <p className="w-100% text-sm text-slate-500">
                       Line 2: {lines[2].slice(0, 20)}
                     </p>
-                    <p className=" w-100% text-sm">
+                    <p className=" w-100% text-sm text-slate-500">
                       Line 3: {lines[3].slice(0, 20)}
                     </p>
                   </div>
@@ -524,6 +539,8 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
                       onChange={(e) => {
                         setQuestion(e.target.value);
                       }}
+                      onFocus={() => setIsFocusedInput(true)}
+                      onBlur={() => setIsFocusedInput(false)}
                       onKeyDown={(e) => {
                         if (e.key === 'Enter' && !e.shiftKey) {
                           //e.preventDefault(); // sprečava novi red ako koristiš textarea
@@ -563,6 +580,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
                     focusedIndex={currentChapterState.notation?.focusedIndex}
                     onDelete={onHistoryNotationDelete}
                     onRefocus={onHistoryNotationRefocus}
+                    isFocusedInput={isFocusedInput}
                   />
                   {/* <FenPreview fen={currentChapterState.displayFen} /> */}
                   <div className="flex  sitems-center gap-3 hidden md:flex ">
@@ -601,7 +619,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
                         size="sm"
                         className={`bg-slate-600 font-bold hover:bg-slate-800 `}
                       >
-                        Hint
+                        🔍  Hint
                       </Button>
                     )}
 
