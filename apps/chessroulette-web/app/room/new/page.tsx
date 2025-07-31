@@ -7,7 +7,6 @@ import { metadata as rootMetadata } from '../../page';
 export const metadata: Metadata = {
   title: `New Room | ${rootMetadata.title}`,
 };
-// console.log('resultovaro');
 export default async function Page({
   searchParams,
   params,

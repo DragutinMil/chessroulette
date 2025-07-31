@@ -5,6 +5,7 @@ import { FBHHistory, FreeBoardHistory } from '@xmatter/util-kit';
 
 export type FreeBoardNotationProps = {
   history?: FBHHistory;
+  isFocusedInput?:boolean;
   focusedIndex?: ListProps['focusedIndex'];
   onRefocus: ListProps['onRefocus'];
   onDelete: ListProps['onDelete'];
@@ -23,6 +24,7 @@ export type FreeBoardNotationProps = {
 export const FreeBoardNotation: React.FC<FreeBoardNotationProps> = ({
   history = [],
   emptyContent = 'Wow, So Empty!',
+  isFocusedInput,
   focusedIndex = FreeBoardHistory.getStartingIndex(),
   onRefocus,
   onDelete,
@@ -30,7 +32,7 @@ export const FreeBoardNotation: React.FC<FreeBoardNotationProps> = ({
   containerClassName = '',
   className = '',
 }) => {
-  useKeysToRefocusHistory(history, focusedIndex, onRefocus);
+  useKeysToRefocusHistory(history, focusedIndex, onRefocus ,isFocusedInput as boolean);
   return (
     <div
       className={`md:flex flex-col flex-1  overflow-scroll  min-h-0 min-w-0 ${containerClassName} `}
