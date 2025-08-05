@@ -73,7 +73,7 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
                 setGoodMove(false)
                 if(prevScore!==0){
                     const evalDiff = score - prevScore;
-                    console.log('score vs prev',score,prevScore)
+                   // console.log('score vs prev',score,prevScore)
                     if (evalDiff < -250) {
                       setStupidMove(true)
                       setGoodMove(false)

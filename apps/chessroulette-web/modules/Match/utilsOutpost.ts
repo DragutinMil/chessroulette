@@ -1,6 +1,7 @@
 import Cookies from 'js-cookie';
 import { decodeJwt } from 'jose';
 
+
 export function checkUser() {
   const url = new URL(window.location.href);
   const userId = url.searchParams.get('userId');

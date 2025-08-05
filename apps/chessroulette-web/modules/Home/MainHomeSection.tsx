@@ -80,16 +80,7 @@ export const MainHomeSection: React.FC<Props> = ({ className }) => {
                 AI
               </Button>
             </Link>
-            {/* <Link
-              href={links.getOnDemandRoomCreationLink({
-                activity: 'chessai',
-                instructor: true,
-              })}
-            >
-              <Button type="primary" className="font-bold w-full">
-                chess AI
-              </Button>
-            </Link> */}
+            
           </div>
         </div>
         <Image

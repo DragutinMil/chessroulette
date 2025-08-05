@@ -35,6 +35,7 @@ export const AichessActivity = ({
   remoteState,
   dispatch: optionalDispatch,
 }: Props) => {
+  const moveSound = new Audio('/chessmove.mp3');
   const dispatch = optionalDispatch || noop;
   const [cameraOff, setCameraOff] = useState(false);
   const settings = useAichessActivitySettings();
@@ -107,7 +108,25 @@ export const AichessActivity = ({
             // Learn Mode
 
             <div>
-              <AiChessDialogContainer currentChapter={currentChapter} />
+              <AiChessDialogContainer
+              onPuzzleMove={(payload) => {
+                moveSound.play();
+              dispatch({ type: 'loadedChapter:addMove', payload });
+              
+            }}
+              addChessAi={(payload: chessAiMode) =>
+              dispatch({
+                type: 'loadedChapter:setPuzzleMoves',
+                payload: payload as chessAiMode,
+              })
+            }
+             onQuickImport={(input) => {
+              dispatch({
+                type: 'loadedChapter:import',
+                payload: { input },
+              });
+            }}
+              currentChapter={currentChapter}  />
 
               <AichessBoard
                 sizePx={boardSize}
@@ -125,8 +144,9 @@ export const AichessActivity = ({
                   });
                 }}
                 onMove={(payload) => {
+                    moveSound.play();
                   dispatch({ type: 'loadedChapter:addMove', payload });
-
+                
                   // TODO: This can be returned from a more internal component
                   return true;
                 }}
@@ -211,7 +231,10 @@ export const AichessActivity = ({
               dispatch({ type: 'loadedChapter:gameEvaluation', payload });
             }}
             onPuzzleMove={(payload) => {
+               moveSound.play();
               dispatch({ type: 'loadedChapter:addMove', payload });
+             
+              
             }}
             addChessAi={(payload: chessAiMode) =>
               dispatch({

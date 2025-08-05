@@ -23,7 +23,6 @@ import { PeerStreamingProvider } from '@app/modules/PeerToPeer';
 import { ActivityState } from './activities/movex';
 import { LearnActivity } from './activities/Learn';
 import { AichessActivity } from './activities/Aichess/AichessActivity';
-import { ChessaiActivity } from './activities/Chessai/ChessaiActivity';
 import { MeetupActivity } from './activities/Meetup/MeetupActivity';
 import { MatchActivity } from './activities/Match/MatchActivity';
 import { useSearchParams } from 'next/navigation';
@@ -103,15 +102,7 @@ export const RoomContainer = ({ iceServers, rid }: Props) => {
         />
       );
     }
-    if (activity.activityType === 'chessai') {
-      return (
-        <ChessaiActivity
-          {...commonActivityProps}
-          remoteState={activity.activityState}
-          dispatch={movexResource?.dispatch}
-        />
-      );
-    }
+    
 
     if (activity.activityType === 'meetup') {
       return (

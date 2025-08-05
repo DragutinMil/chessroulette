@@ -1,5 +1,8 @@
-import type { ChapterState } from '../../movex/types';
 
+import  { getToken } from '../../util';
+
+import type { ChapterState } from '../../movex/types';
+  
 export async function SendQuestion(
   prompt: string,
   currentChapterState: ChapterState,
@@ -23,10 +26,13 @@ export async function SendQuestion(
     ].san
   )
     
+ 
+
     
-    
-  console.log('question in send question', question);
+  //console.log('question in send question', question);
   try {
+    const token = await getToken();
+  
     const response = await fetch(
       process.env.NEXT_PUBLIC_API_WEB +
         `ai_prompt_v2r?prompt=${question}&previous_response_id=${previusMessageId}&model=${model}`,
@@ -34,6 +40,7 @@ export async function SendQuestion(
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
         },
       }
     );
