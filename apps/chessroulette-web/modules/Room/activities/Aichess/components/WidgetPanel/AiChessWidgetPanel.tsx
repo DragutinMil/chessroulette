@@ -224,9 +224,16 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
     }, [currentChapterState.chessAiMode.goodMoves]);
 
     useEffect(() => {
+     
       if (currentChapterState.chessAiMode.badMoves > 0 && isMyTurn) {
+         const responses = [
+          "That wasn’t the right move.",
+          "Would you like a hint, or try again on your own?",
+          // "No 🚫, try something else!"
+        ];
+         const randomIndex = Math.floor(Math.random() * responses.length);
         onMessage({
-          content: 'No 🚫, try something else!',
+          content: responses[randomIndex] ,
           participantId: 'chatGPT123456',
           idResponse:
             currentChapterState.messages[
@@ -278,8 +285,20 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
         currentChapterState.chessAiMode.goodMoves <
           currentChapterState.chessAiMode.moves.length
       ) {
+        
+          const responses = [
+          "Nice move! ✅",
+          "Well played! ♟️",
+           "Sharp! ⚡",
+           "Brilliant! ✨",
+           "Smart move! 🧠"
+
+        ];
+          const randomIndex = Math.floor(Math.random() * responses.length);
+        
+
         onMessage({
-          content: 'Nice move! ✅',
+          content: responses[randomIndex],
           participantId: 'chatGPT123456',
           idResponse:
             currentChapterState.messages[
@@ -350,7 +369,6 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
 
     const engineMove = (m: any) => {
       if (!isMyTurn) {
-        console.log('potez', m);
         setStockfishMovesInfo(m);
         let fromChess = m.slice(0, 2);
         let toChess = m.slice(2, 4);
@@ -363,7 +381,6 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
           setTimeout(() => onPuzzleMove(n), 1000);
         }
       } else {
-        //console.log('potez else', m);
         setStockfishMovesInfo(m);
       }
     };
@@ -412,7 +429,6 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
        engineMove(lines[1].slice(0, 4))
     }
     const play = async () => {
-      
       addChessAi({
         moves: [],
         movesCount: 0,
@@ -515,6 +531,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
                     pulseDot={pulseDot}
                     takeBack={takeBack}
                     playNext={playNext}
+                    hint={hint}
                   />
                   <div className="mt-4">
                     <p className="w-100% text-sm text-slate-500">
@@ -597,7 +614,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
                       {(currentChapterState.chessAiMode.mode == 'puzzle' ||
                         currentChapterState.chessAiMode.mode == 'openings') &&
                       currentChapterState.notation.history.length > 1 ? (
-                        <p>Continue free play</p>
+                        <p>Continue</p>
                       ) : (
                         <p>Play</p>
                       )}
@@ -623,7 +640,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
                       </Button>
                     )}
 
-                    <Button
+                    {/* <Button
                       onClick={() => {
                         importPgn();
                       }}
@@ -631,7 +648,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
                       className={`bg-slate-600 font-bold hover:bg-slate-800 `}
                     >
                       Import PGN
-                    </Button>
+                    </Button> */}
                     <Button
                       onClick={() => {
                         takeBack();
@@ -655,34 +672,6 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
                 </div>
               ),
             },
-            // {
-            //   id: 'chapters',
-            //   renderHeader: (p) => (
-            //     <Button
-            //       onClick={() => {
-            //         p.focus();
-            //         chaptersTabProps.onDeactivateInputMode();
-            //       }}
-            //       size="sm"
-            //       className={`bg-slate-600 font-bold hover:bg-slate-800 ${
-            //         p.isFocused && 'bg-slate-800'
-            //       }`}
-            //     >
-            //       Chapters ({Object.keys(chaptersMap).length})
-            //     </Button>
-            //   ),
-            //   renderContent: (p) => (
-            //     <ChaptersTab
-            //       chaptersMap={chaptersMap}
-            //       chaptersMapIndex={chaptersMapIndex}
-            //       currentLoadedChapterId={currentLoadedChapterId}
-            //       className="min-h-0"
-            //       tabsNav={p.nav}
-            //       onImportInput={onImport}
-            //       {...chaptersTabProps}
-            //     />
-            //   ),
-            // },
           ]}
         />
       </div>

@@ -5,12 +5,14 @@ interface TypewriterTextProps {
   scrollToBottom: () => void;
   takeBack: () => void;
   playNext: () => void;
+  hint: () => void;
 }
 const TypewriterText: React.FC<TypewriterTextProps> = ({
   lastMessage = '',
   scrollToBottom,
   takeBack,
   playNext,
+  hint,
 }) => {
   const [displayedText, setDisplayedText] = useState('');
   const [showCursor, setShowCursor] = useState(true);
@@ -68,6 +70,18 @@ const TypewriterText: React.FC<TypewriterTextProps> = ({
                                   size="sm"
                                   className={`bg-slate-600 font-bold hover:bg-slate-800 `}>
                                   Continue to play </Button>  
+        </div>
+    )}
+    { lastMessage.includes('Would you like a hint') && displayedText.length==lastMessage.length && !answered && (
+         <div className="flex  sitems-center gap-3 hidden md:flex mt-2">
+            <Button
+                  onClick={() => {
+                                    hint();
+                                    setAnswered(true)
+                                  }}
+                                  size="sm"
+                                  className={`bg-slate-600 font-bold hover:bg-slate-800 `}
+                                > 🔍 Hint</Button>  
         </div>
     )}
    

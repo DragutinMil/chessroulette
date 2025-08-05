@@ -1,3 +1,4 @@
+import Cookies from 'js-cookie';
 export type ContainerDimensions = {
   width: number;
   height: number;
@@ -97,6 +98,8 @@ export async function getOpenings() {
 //PUZZLE
 //move_count
 export async function getPuzzle() {
+  console.log(Cookies.get('sessionToken'))
+  const token = Cookies.get('sessionToken')
   try {
     const response = await fetch(
       process.env.NEXT_PUBLIC_API_WEB + 'puzzle_random',
@@ -104,6 +107,7 @@ export async function getPuzzle() {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
+           Authorization: `Bearer ${token}`,
         },
       }
     );
@@ -115,6 +119,11 @@ export async function getPuzzle() {
   } catch (error) {
     console.error('Fetch error', error);
   }
+}
+
+export async function getToken() {
+const token = Cookies.get('sessionToken')
+return token
 }
 
 //  try {

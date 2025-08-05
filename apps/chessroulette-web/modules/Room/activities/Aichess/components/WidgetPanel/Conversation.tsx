@@ -7,15 +7,16 @@ type Props = {
   pulseDot: boolean;
   takeBack: () => void;
   playNext: () => void;
+    hint: () => void;
 };
 //console.log('currentChapterState',currentChapterState)
-const Conversation = ({ currentChapterState, pulseDot, takeBack,playNext }: Props) => {
+const Conversation = ({ currentChapterState, pulseDot, takeBack,playNext ,hint}: Props) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [currentChapterState.messages]);
+  }, [currentChapterState.messages,pulseDot]);
   const scrollToBottom = () => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
@@ -53,6 +54,7 @@ const Conversation = ({ currentChapterState, pulseDot, takeBack,playNext }: Prop
                   {isLastMessage && lastMessage ? (
                     <TypewriterText
                       lastMessage={lastMessage}
+                      hint={hint}
                       scrollToBottom={scrollToBottom}
                       takeBack={takeBack}
                        playNext={playNext}

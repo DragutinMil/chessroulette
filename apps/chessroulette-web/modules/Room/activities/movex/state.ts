@@ -2,7 +2,6 @@ import { initialLearnActivityState } from '../Learn/movex';
 import { initialMatchActivityState } from '../Match/movex';
 import { initialMeetupActivityState } from '../Meetup/movex';
 import { initialAichessActivityState } from '../Aichess/movex';
-import { initialChessaiActivityState } from '../Chessai/movex';
 import { ActivityState } from './types';
 
 export const initialNoneActivityState = {
@@ -19,7 +18,6 @@ export const initialActivityStatesByActivityType: {
   >;
 } = {
   none: initialNoneActivityState,
-  chessai: initialChessaiActivityState,
   learn: initialLearnActivityState,
   meetup: initialMeetupActivityState,
   match: initialMatchActivityState,
