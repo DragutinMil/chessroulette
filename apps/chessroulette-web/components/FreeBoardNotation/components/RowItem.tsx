@@ -21,13 +21,13 @@ export const RowItem = ({
   onContextMenu,
 }: Props) => (
   <div
-    className={`relative flex-1 p-1 px-2 rounded-md cursor-pointer hover:bg-slate-600 ${
-      isFocused && 'font-black bg-slate-600'
+    className={`relative flex-1 p-1 px-2 rounded-md cursor-pointer hover:bg-[#D9D9D9]/30  ${
+      isFocused && 'font-black bg-[#D9D9D9]/20 '
     }`}
     onClick={onClick}
     onContextMenu={onContextMenu}
   >
-    <Text>{san}</Text>
+    <Text className={`text-[14px] font-bold `}>{san}</Text>
     {variantMenu && <VariantMenuContainer {...variantMenu} />}
   </div>
 );

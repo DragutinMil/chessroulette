@@ -80,7 +80,6 @@ export const MainHomeSection: React.FC<Props> = ({ className }) => {
                 AI
               </Button>
             </Link>
-            
           </div>
         </div>
         <Image

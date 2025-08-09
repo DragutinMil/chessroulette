@@ -9,7 +9,7 @@ export const initialChapterState: ChapterState = {
   circlesMap: {},
   messages: [
     {
-      content: 'Hi there! Ready to train some puzzles?',
+      content: 'Hi there! Ready for exercise?',
       idResponse: '',
       participantId: 'chatGPT123456',
     },
@@ -21,7 +21,12 @@ export const initialChapterState: ChapterState = {
     badMoves: 0,
     goodMoves: 0,
     orientationChange: false,
+    puzzleRatting: 0,
+    userPuzzleRating: 0,
+    ratingChange: 0,
     prevEvaluation: 0,
+    puzzleId: 0,
+    prevUserPuzzleRating: 0,
   },
   notation: {
     history: [],

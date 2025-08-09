@@ -21,7 +21,15 @@
 }
 
 body {
-  background-color: #171819;
+  background: linear-gradient(
+    112.99deg,
+    #07da63 -68.31%,
+    #000000 23.1%,
+    #01160a 73.92%,
+    #06b251 154.15%
+  );
+
+  /*background-color: #171819;*/
   /* rgb(32, 33, 34); */
   /* background-color: #161A2B;  */
   color: white;

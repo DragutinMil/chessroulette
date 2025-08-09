@@ -17,12 +17,10 @@ export type ActivityState =
   | MeetupActivityState
   | NoneActivityState
   | MatchActivityState
-  | AichessActivityState
-  
+  | AichessActivityState;
 
 export type ActivityActions =
   | LearnActivityActions
   | MeetupActivityActions
   | MatchActivityActions
-  | AichessActivityActions
- 
+  | AichessActivityActions;

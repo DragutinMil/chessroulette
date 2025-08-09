@@ -22,7 +22,7 @@ export type ChessboardDisplayProps = Omit<
   promoMove?: ShortChessMove;
   onCancelPromoMove: () => void;
   onSubmitPromoMove: (move: ShortChessMove) => void;
-
+  onChangePuzzleAnimation: boolean;
   containerClassName?: string;
   overlayComponent?: React.ReactNode;
   boardOrientation?: ChessColor;
@@ -50,6 +50,7 @@ export const ChessboardDisplay = ({
   boardOrientation = 'w',
   promoMove,
   boardTheme,
+  onChangePuzzleAnimation,
   onCancelPromoMove,
   onSubmitPromoMove,
   ...boardProps
@@ -64,7 +65,9 @@ export const ChessboardDisplay = ({
     }}
   >
     <div
-      className={` relative overflow-hidden rounded-lg w-full h-full ${containerClassName}`}
+      className={` relative overflow-hidden rounded-lg w-full h-full ${containerClassName} transition-all duration-300 ease-in-out  ${
+        onChangePuzzleAnimation ? 'opacity-0 ' : 'opacity-100  '
+      }`}
       style={{
         width: sizePx,
         height: sizePx,

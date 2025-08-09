@@ -96,18 +96,19 @@ export async function getOpenings() {
   }
 }
 //PUZZLE
-//move_count
-export async function getPuzzle() {
-  console.log(Cookies.get('sessionToken'))
-  const token = Cookies.get('sessionToken')
+export async function getPuzzle(category?: string) {
+  const token = Cookies.get('sessionToken');
+  const puzzleCategory = category !== undefined ? `?theme=${category}` : '';
   try {
     const response = await fetch(
-      process.env.NEXT_PUBLIC_API_WEB + 'puzzle_random',
+      process.env.NEXT_PUBLIC_API_WEB +
+        'puzzle_random_by_theme' +
+        puzzleCategory,
       {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
-           Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
       }
     );
@@ -121,55 +122,42 @@ export async function getPuzzle() {
   }
 }
 
-export async function getToken() {
-const token = Cookies.get('sessionToken')
-return token
+///SEND USER PUZZLE RATING
+export async function sendPuzzleUserRating(
+  userPuzzleRating: number,
+  prevUserPuzzleRating: number,
+  puzzleId: number
+) {
+  const token = Cookies.get('sessionToken');
+  console.log(userPuzzleRating, prevUserPuzzleRating, puzzleId);
+  try {
+    const response = await fetch(
+      process.env.NEXT_PUBLIC_API_WEB + 'puzzle_result',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          user_puzzle_rating_new: userPuzzleRating,
+          user_puzzle_rating_old: prevUserPuzzleRating,
+          puzzle_id: puzzleId,
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`Error: ${response.status}`);
+    }
+
+    return response.json();
+  } catch (error) {
+    console.error('Fetch error', error);
+  }
 }
-
-//  try {
-//    const userId = '8UWCweKl1Gvoi';
-//   const response = await fetch(
-//    // process.env.NEXT_PUBLIC_API_WEB + 'public_ai_conversation',
-//    `${process.env.NEXT_PUBLIC_API_WEB}public_ai_conversation?user_id=8UWCweKl1Gvoi`,
-//     {
-//       method: 'GET',
-//       headers: {
-//         'Content-Type': 'application/json',
-//       },
-//     }
-//   );
-//   if (!response.ok) {
-//     throw new Error(`Error: ${response.status}`);
-//   }
-
-//   const data = await response.json();
-//   console.log('data get',data)
-// } catch (error) {
-//   console.error('Fetch error', error);
-// }
-
-//  try {
-//    const userId = '8UWCweKl1Gvoi';
-//   const response = await fetch(
-//    // process.env.NEXT_PUBLIC_API_WEB + 'public_ai_conversation',
-//    `${process.env.NEXT_PUBLIC_API_WEB}public_ai_conversation`,
-//     {
-//       method: 'POST',
-//       headers: {
-//         'Content-Type': 'application/json',
-//       },
-//       body: JSON.stringify({
-//         user_id: userId,
-//          js:{ role: 'user', content: 'koliko ima sati'}
-//       }),
-//     }
-//   );
-//   if (!response.ok) {
-//     throw new Error(`Error: ${response.status}`);
-//   }
-
-//   const data = await response.json();
-//   console.log('data get',data)
-// } catch (error) {
-//   console.error('Fetch error', error);
-// }
+//GET TOKEN
+export async function getToken() {
+  const token = Cookies.get('sessionToken');
+  return token;
+}

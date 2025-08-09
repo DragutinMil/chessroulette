@@ -25,7 +25,11 @@ export const RoomTemplate = (props: Props) => {
   return (
     <div
       className="flex h-screen w-screen"
-      style={{ backgroundColor: isOutpost ? '#171819' : '#161A2B' }}
+      style={{
+        background: isOutpost
+          ? 'linear-gradient(112.99deg, #07DA63 -68.31%, #000000 23.1%, #01160A 73.92%, #06B251 154.15%)'
+          : '#161A2B',
+      }}
     >
       <div className="flex flex-col flex-1 ">
         <Header themeName={props.themeName} showConnectionStatus />

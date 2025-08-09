@@ -1,110 +1,134 @@
 import React, { useEffect, useState } from 'react';
-
+import confetti from 'canvas-confetti';
 // import { BetweenGamesAborter } from './components/BetweenGamesAborter'
 import { Button } from '../../../../../components/Button/Button';
 import { Dialog } from '@app/components/Dialog';
-import { getPuzzle } from '../util';
+import { getPuzzle, sendPuzzleUserRating } from '../util';
 import { ChessFENBoard } from '@xmatter/util-kit';
-import {
-  chessAiMode,
-  MovePiece
-} from '../movex';
-import {
-  PgnInputBoxProps,
-} from '@app/components/PgnInputBox/PgnInputBox';
+import { chessAiMode, MovePiece } from '../movex';
+import { PgnInputBoxProps } from '@app/components/PgnInputBox/PgnInputBox';
+import { ButtonGreen } from '@app/components/Button/ButtonGreen';
+
 type AiChessDialogContainerProps = {
   currentChapter: any; // možeš zameniti `any` konkretnijim tipom kasnije
   addChessAi: (moves: chessAiMode) => void;
   onPuzzleMove: (move: MovePiece) => void;
-   onQuickImport: PgnInputBoxProps['onChange'];
-   
+  onQuickImport: PgnInputBoxProps['onChange'];
 };
-
 
 export const AiChessDialogContainer: React.FC<AiChessDialogContainerProps> = ({
   currentChapter,
   addChessAi,
   onQuickImport,
-  onPuzzleMove
+  onPuzzleMove,
 }) => {
   const [removePopup, setRemovePopup] = useState(false);
-   const play = async () => {
-        addChessAi({
-          moves: [],
-          movesCount: 0,
-          badMoves: 0,
-          goodMoves: 0,
-          orientationChange: false,
-          mode: 'play',
-          prevEvaluation: currentChapter.chessAiMode.prevEvaluation,
-        });
-      };
+  const play = async () => {
+    addChessAi({
+      moves: [],
+      movesCount: 0,
+      badMoves: 0,
+      goodMoves: 0,
+      orientationChange: false,
+      mode: 'play',
+      prevEvaluation: currentChapter.chessAiMode.prevEvaluation,
+      ratingChange: 0,
+      puzzleRatting: 0,
+      userPuzzleRating: currentChapter.chessAiMode.userPuzzleRating,
+      puzzleId: 0,
+      prevUserPuzzleRating: 0,
+    });
+  };
   const newPuzzle = async () => {
-                      const data = await getPuzzle();
-                      if (ChessFENBoard.validateFenString(data.fen).ok) {
-                        const changeOrientation =
-                          currentChapter.orientation === data.fen.split(' ')[1];
-                        addChessAi({
-                          moves: data.movez,
-                          movesCount: data.move_count,
-                          badMoves: 0,
-                          goodMoves: 0,
-                          orientationChange: changeOrientation,
-                          mode: 'puzzle',
-                          prevEvaluation: 0,
-                        });
-                        onQuickImport({ type: 'FEN', val: data.fen });
-                        //FIRST MOVE
-                        const from = data.movez[0].slice(0, 2);
-                        const to = data.movez[0].slice(2, 4);
-                        const first_move = { from: from, to: to };
-                        setTimeout(() => onPuzzleMove(first_move), 1200);
-                      }
-         };
+    const data = await getPuzzle();
+    if (ChessFENBoard.validateFenString(data.fen).ok) {
+      const changeOrientation =
+        currentChapter.orientation === data.fen.split(' ')[1];
+
+      addChessAi({
+        moves: data.solution,
+        movesCount: data.solution.length / 2,
+        badMoves: 0,
+        goodMoves: 0,
+        orientationChange: changeOrientation,
+        mode: 'puzzle',
+        prevEvaluation: 0,
+        puzzleRatting: data.rating,
+        userPuzzleRating: currentChapter.chessAiMode.userPuzzleRating,
+        ratingChange: 0,
+        puzzleId: data.puzzle_id,
+        prevUserPuzzleRating: currentChapter.chessAiMode.userPuzzleRating,
+      });
+
+      onQuickImport({ type: 'FEN', val: data.fen });
+
+      //FIRST MOVE
+      const from = data.solution[0].slice(0, 2);
+      const to = data.solution[0].slice(2, 4);
+      const first_move = { from: from, to: to };
+      setTimeout(() => onPuzzleMove(first_move), 1200);
+    }
+  };
+  useEffect(() => {
+    if (currentChapter.chessAiMode.mode === 'popup' && !removePopup) {
+      confetti({
+        startVelocity: 50,
+        particleCount: 150,
+        spread: 170,
+        origin: { y: 0.6 },
+      });
+      sendPuzzleUserRating(
+        currentChapter.chessAiMode.userPuzzleRating,
+        currentChapter.chessAiMode.prevUserPuzzleRating,
+        currentChapter.chessAiMode.puzzleId
+      );
+    }
+  }, [currentChapter.chessAiMode.mode, removePopup]);
+
   if (currentChapter.chessAiMode.mode == 'popup' && !removePopup) {
     return (
       <Dialog
-        title="You finished the puzzle!"
+        // title="You finished the puzzle!"
+        title=""
         content={
-          <div>
-            <Button
-              bgColor="yellow"
-              className=" w-full"
+          <div className="flex flex-col px-4 py-2">
+            <ButtonGreen
+              size="lg"
+              className=" w-full text-[16px] h-[44px] rounded-[22px]"
               style={{ marginTop: 12 }}
               onClick={() => {
-                  newPuzzle()
+                newPuzzle();
               }}
             >
               ✅ Next Puzzle
-            </Button>
-            <Button
+            </ButtonGreen>
+            <ButtonGreen
               // icon="ArrowLeftIcon"
-              bgColor="yellow"
-              className="w-full"
+              size="lg"
+              className="w-full text-[16px] h-[44px] rounded-[22px]"
               style={{ marginTop: 12 }}
               onClick={() => {
-               play()
+                play();
               }}
             >
               ♟️ Free Play
-            </Button>
-            <Button
+            </ButtonGreen>
+            <ButtonGreen
               // icon="ArrowLeftIcon"
-              bgColor="yellow"
-              className="w-full"
+              size="lg"
+              className="w-full text-[16px] h-[44px] rounded-[22px]"
               style={{ marginTop: 12 }}
               onClick={() => {
                 setRemovePopup(true);
               }}
             >
               🏠 Home
-            </Button>
-           
+            </ButtonGreen>
           </div>
         }
       />
     );
-  } 
+  }
 
   if (!currentChapter) return null;
 };

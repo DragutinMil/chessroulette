@@ -20,6 +20,7 @@ export type PlayboardProps = DistributiveOmit<
   playingColor: ChessColor;
   turn: ChessColor;
   onMove: (m: ShortChessMove) => void;
+  onChangePuzzleAnimation: boolean;
   canPlay?: boolean;
   overlayComponent?: React.ReactNode;
 };
@@ -35,6 +36,7 @@ export const Playboard = ({
   playingColor,
   boardOrientation = playingColor,
   onMove,
+  onChangePuzzleAnimation,
   canPlay = false,
   turn,
   ...props
@@ -61,6 +63,7 @@ export const Playboard = ({
     <ChessboardContainer
       strict
       turn={turn}
+      onChangePuzzleAnimation={onChangePuzzleAnimation}
       fen={fen}
       boardOrientation={boardOrientation}
       boardTheme={boardTheme}

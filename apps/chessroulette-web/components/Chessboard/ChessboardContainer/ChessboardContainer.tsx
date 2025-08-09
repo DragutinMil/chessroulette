@@ -35,7 +35,7 @@ export type ChessboardContainerProps = Omit<
   // Move
   onValidateMove?: (m: ShortChessMove) => boolean;
   onMove: (m: ShortChessMove) => void;
-
+  onChangePuzzleAnimation: boolean;
   arrowsMap?: ArrowsMap;
   circlesMap?: CirclesMap;
   arrowColor?: string;
@@ -94,6 +94,7 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
   boardTheme,
   sizePx,
   turn,
+  onChangePuzzleAnimation,
   overlayComponent,
   ...props
 }) => {
@@ -175,7 +176,6 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
       onMove(n);
     }
   };
-
   return (
     <div>
       {match?.challengee.id && isBotPlay && (
@@ -220,6 +220,7 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
         onSquareRightClick={drawCircle}
         customPieces={boardTheme.customPieces}
         animationDuration={BOARD_ANIMATION_DELAY}
+        onChangePuzzleAnimation={onChangePuzzleAnimation}
         {...props}
       />
     </div>

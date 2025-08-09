@@ -103,48 +103,63 @@ export const List: React.FC<ListProps> = ({
   }, [history, focusedIndex]);
 
   return (
-    <div className={className} ref={(e) => (containerElementRef.current = e)}>
-      {history.map((historyTurn, historyTurnIndex) => {
-        const rootHistoryTurnIndex = rootHistoryIndex?.[0] || 0;
+    <div>
+      <div className="flex  mb-2 ">
+        <p className="text-[#8F8F90] text-[10px] font-bold   ">MOVE</p>
+        <div className="flex  w-full">
+          <p className="text-[#8F8F90] text-[10px] font-bold w-[51%] ml-[7px] ">
+            WHITE
+          </p>
 
-        const rowId = `${rootHistoryTurnIndex + historyTurnIndex}.${
-          historyTurn[0].san
-        }-${historyTurn[1]?.san || ''}`;
+          <p className="text-[#8F8F90] text-[10px] font-bold  ">BLACK</p>
+        </div>
+      </div>
+      <div
+        className={`${className}`}
+        ref={(e) => (containerElementRef.current = e)}
+      >
+        {history.map((historyTurn, historyTurnIndex) => {
+          const rootHistoryTurnIndex = rootHistoryIndex?.[0] || 0;
 
-        return (
-          <HistoryRow
-            key={rowId}
-            rowId={rowId}
-            ref={(r) => (rowElementRefs.current[historyTurnIndex] = r)}
-            canDelete={canDelete}
-            historyTurn={historyTurn}
-            historyTurnIndex={historyTurnIndex}
-            moveCount={rootHistoryTurnIndex + 1 + historyTurnIndex}
-            onFocus={onRefocus}
-            onDelete={onDelete}
-            focusedOnMovePosition={
-              historyTurnIndex === focusedTurnIndex
-                ? focusedMovePosition
-                : undefined
-            }
-            focusedOnRecursiveIndexes={
-              historyTurnIndex === focusedTurnIndex
-                ? recursiveFocusedIndexes
-                : undefined
-            }
-            containerClassName={rowClassName}
-            nextValidMoveAndIndex={nextValidMoveAndIndex}
-            {...(isNested
-              ? {
-                  isNested: true,
-                  rootHistoryIndex,
-                }
-              : {
-                  isNested: false,
-                })}
-          />
-        );
-      })}
+          const rowId = `${rootHistoryTurnIndex + historyTurnIndex}.${
+            historyTurn[0].san
+          }-${historyTurn[1]?.san || ''}`;
+
+          return (
+            <HistoryRow
+              key={rowId}
+              rowId={rowId}
+              ref={(r) => (rowElementRefs.current[historyTurnIndex] = r)}
+              canDelete={canDelete}
+              historyTurn={historyTurn}
+              historyTurnIndex={historyTurnIndex}
+              moveCount={rootHistoryTurnIndex + 1 + historyTurnIndex}
+              onFocus={onRefocus}
+              onDelete={onDelete}
+              focusedOnMovePosition={
+                historyTurnIndex === focusedTurnIndex
+                  ? focusedMovePosition
+                  : undefined
+              }
+              focusedOnRecursiveIndexes={
+                historyTurnIndex === focusedTurnIndex
+                  ? recursiveFocusedIndexes
+                  : undefined
+              }
+              containerClassName={rowClassName}
+              nextValidMoveAndIndex={nextValidMoveAndIndex}
+              {...(isNested
+                ? {
+                    isNested: true,
+                    rootHistoryIndex,
+                  }
+                : {
+                    isNested: false,
+                  })}
+            />
+          );
+        })}
+      </div>
     </div>
   );
 };

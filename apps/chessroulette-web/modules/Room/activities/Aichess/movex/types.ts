@@ -42,7 +42,12 @@ export type chessAiMode = {
   badMoves: number;
   goodMoves: number;
   orientationChange: Boolean;
+  puzzleRatting: number;
+  userPuzzleRating: number;
+  ratingChange: number;
   prevEvaluation: number;
+  puzzleId: number;
+  prevUserPuzzleRating: number;
 };
 export type Message = {
   content: string;

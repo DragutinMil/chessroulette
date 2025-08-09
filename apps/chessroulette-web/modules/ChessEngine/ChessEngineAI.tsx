@@ -15,7 +15,7 @@ type StockfishEngineAIProps = {
   puzzleMode: boolean;
   playMode: boolean;
   prevScore: number;
-  moveReaction:(moveDeffinition:number)=>void
+  moveReaction: (moveDeffinition: number) => void;
   addGameEvaluation: (score: number) => void;
 };
 
@@ -28,12 +28,12 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
   engineLines,
   prevScore,
   addGameEvaluation,
-  moveReaction
+  moveReaction,
 }) => {
   const [stockfishOutput, setStockfishOutput] = useState('Initializing...');
   const [bestMove, setBestMove] = useState('');
   const [stupidMove, setStupidMove] = useState(false);
-  const [GoodMove, setGoodMove] = useState(false)
+  const [GoodMove, setGoodMove] = useState(false);
   const [lineOne, setLineOne] = useState('');
   const [lineTwo, setLinesTwo] = useState('');
   const [lineThree, setLineThree] = useState('');
@@ -53,14 +53,14 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
       stockfish.onmessage = (event) => {
         if (event.data.startsWith('bestmove')) {
           setTimeout(() => {
-          setBestMove(event.data.split(' ')[1]),
-          1000})
+            setBestMove(event.data.split(' ')[1]), 1000;
+          });
         }
         if (event.data.startsWith('info depth')) {
           if (event.data.startsWith('info depth 10')) {
             const pvIndex = event.data.indexOf(' pv ');
             //  if (pvIndex === -1) return null;
-            
+
             if (event.data.includes('multipv 2')) {
               setLinesTwo(event.data.slice(pvIndex + 4));
             }
@@ -68,23 +68,25 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
               setLineOne(event.data.slice(pvIndex + 4));
               const match = event.data.match(/score cp (-?\d+)/);
               if (match) {
-                const score =  isMyTurn ?   parseInt(match[1], 10) : -1*parseInt(match[1], 10);
-                setStupidMove(false)
-                setGoodMove(false)
-                if(prevScore!==0){
-                    const evalDiff = score - prevScore;
-                   // console.log('score vs prev',score,prevScore)
-                    if (evalDiff < -250) {
-                      setStupidMove(true)
-                      setGoodMove(false)
-                    }else if (evalDiff>200) {
-                      setStupidMove(false)
-                      setGoodMove(true)
-                    }
+                const score = isMyTurn
+                  ? parseInt(match[1], 10)
+                  : -1 * parseInt(match[1], 10);
+                setStupidMove(false);
+                setGoodMove(false);
+                if (prevScore !== 0) {
+                  const evalDiff = score - prevScore;
+                  // console.log('score vs prev',score,prevScore)
+                  if (evalDiff < -500) {
+                    setStupidMove(true);
+                    setGoodMove(false);
+                  } else if (evalDiff > 400) {
+                    setStupidMove(false);
+                    setGoodMove(true);
+                  }
                 }
-                
+
                 addGameEvaluation(score);
-              } 
+              }
             }
             if (event.data.includes('multipv 3')) {
               setLineThree(event.data.slice(pvIndex + 4));
@@ -107,7 +109,7 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
 
       stockfish.postMessage(`position fen ${fen}`);
       stockfish.postMessage(`go depth ${depth}`);
-     
+
       return () => stockfish.terminate(); // Cleanup on unmount
     } catch (error) {
       // console.error("Failed to load Stockfish:", error);
@@ -115,13 +117,11 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
     }
   }, [fen]);
 
-
   // useEffect(() => {
   //    if(resetMoveReaction){
 
   //    }
   //   }, [resetMoveReaction]);
-  
 
   useEffect(() => {
     let m = bestMove;
@@ -129,10 +129,10 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
       engineMove(m);
     } else if (bestMove && playMode && !puzzleMode && !stupidMove) {
       engineMove(m);
-    } else if(stupidMove || GoodMove){
-         const moveDeffinition = stupidMove? 0:1
-         console.log('potez');
-         moveReaction( moveDeffinition)
+    } else if (stupidMove || GoodMove) {
+      const moveDeffinition = stupidMove ? 0 : 1;
+
+      moveReaction(moveDeffinition);
     }
   }, [bestMove, playMode]);
 
