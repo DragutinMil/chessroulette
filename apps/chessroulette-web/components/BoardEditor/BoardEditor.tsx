@@ -197,6 +197,7 @@ export const BoardEditor = ({
             <ChessboardContainer
               fen={fen}
               boardTheme={boardTheme}
+              onChangePuzzleAnimation={false}
               {...props}
               onMove={(m) => {
                 // Should this be part of the ChessFen or outside? The king not being removed
