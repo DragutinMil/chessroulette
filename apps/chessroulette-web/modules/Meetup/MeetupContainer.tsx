@@ -52,7 +52,7 @@ export const MeetupContainer = ({
     return (
       <ResizableDesktopLayout
         mainComponent={({ boardSize }) => (
-          <FreeboardContainer sizePx={boardSize} {...boardProps} />
+          <FreeboardContainer sizePx={boardSize} {...boardProps} onChangePuzzleAnimation={false} />
         )}
         rightSideSize={boardProps.rightSideSizePx}
         rightComponent={
@@ -80,6 +80,7 @@ export const MeetupContainer = ({
             overlayComponent={
               <MatchStateDialogContainer inviteLink={inviteLink} />
             }
+            onChangePuzzleAnimation={false} 
             {...boardProps}
           />
         )}

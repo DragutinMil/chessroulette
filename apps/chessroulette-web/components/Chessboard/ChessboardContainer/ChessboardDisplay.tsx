@@ -12,7 +12,7 @@ import { PromotionDialogLayer } from './PromotionDialogLayer';
 
 export type ChessboardDisplayProps = Omit<
   ReactChessBoardProps,
-  'fen' | 'boardOrientation'
+  'fen' | 'boardOrientation' 
 > & {
   fen: ChessFEN;
   sizePx: number;

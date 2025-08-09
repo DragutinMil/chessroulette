@@ -27,6 +27,7 @@ export type ChessboardContainerProps = Omit<
   | 'onPieceDrop'
   | 'onCancelPromoMove'
   | 'onSubmitPromoMove'
+  | 'onChangePuzzleAnimation'
 > & {
   fen: ChessFEN;
   sizePx: number;
