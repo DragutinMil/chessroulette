@@ -38,7 +38,6 @@ export const MatchContainer = ({
           // This resets the PlayContainer on each new game
           key={match.endedGames.length}
           sizePx={boardSize}
-          onChangePuzzleAnimation={false}
           overlayComponent={
             <MatchStateDialogContainer inviteLink={inviteLink} />
           }

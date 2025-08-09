@@ -22,7 +22,7 @@ export type ChessboardDisplayProps = Omit<
   promoMove?: ShortChessMove;
   onCancelPromoMove: () => void;
   onSubmitPromoMove: (move: ShortChessMove) => void;
-  onChangePuzzleAnimation: boolean;
+  onChangePuzzleAnimation?: boolean;
   containerClassName?: string;
   overlayComponent?: React.ReactNode;
   boardOrientation?: ChessColor;

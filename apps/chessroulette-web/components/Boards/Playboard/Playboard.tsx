@@ -20,7 +20,7 @@ export type PlayboardProps = DistributiveOmit<
   playingColor: ChessColor;
   turn: ChessColor;
   onMove: (m: ShortChessMove) => void;
-  onChangePuzzleAnimation: boolean;
+  onChangePuzzleAnimation?: boolean;
   canPlay?: boolean;
   overlayComponent?: React.ReactNode;
 };

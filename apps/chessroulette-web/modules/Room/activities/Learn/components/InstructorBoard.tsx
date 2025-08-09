@@ -48,7 +48,6 @@ export const InstructorBoard = ({
     <Freeboard
       sizePx={boardSizePx}
       {...chessBoardProps}
-      onChangePuzzleAnimation={false}
       rightSideSizePx={RIGHT_SIDE_SIZE_PX}
       rightSideClassName="flex flex-col"
       rightSideComponent={

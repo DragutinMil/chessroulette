@@ -27,7 +27,6 @@ export type ChessboardContainerProps = Omit<
   | 'onPieceDrop'
   | 'onCancelPromoMove'
   | 'onSubmitPromoMove'
-  | 'onChangePuzzleAnimation'
 > & {
   fen: ChessFEN;
   sizePx: number;
@@ -36,7 +35,7 @@ export type ChessboardContainerProps = Omit<
   // Move
   onValidateMove?: (m: ShortChessMove) => boolean;
   onMove: (m: ShortChessMove) => void;
-  onChangePuzzleAnimation: boolean;
+  onChangePuzzleAnimation?: boolean;
   arrowsMap?: ArrowsMap;
   circlesMap?: CirclesMap;
   arrowColor?: string;
