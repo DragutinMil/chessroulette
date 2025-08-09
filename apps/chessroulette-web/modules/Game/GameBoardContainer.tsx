@@ -14,6 +14,7 @@ export type GameBoardContainerProps = DistributivePick<
   | 'rightSideClassName'
   | 'rightSideComponent'
   | 'boardOrientation'
+  | 'onChangePuzzleAnimation'
 >;
 
 export const GameBoardContainer = (boardProps: GameBoardContainerProps) => {
