@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import type { ChapterState } from '../../movex/types';
 import TypewriterText from './TypewriterText';
-import greenLogo from '../../../../../../components/Logo/assets/logo_green_small.svg';
+import greenLogo from '../../../../../../components/Logo/assets/Logo_green_small.svg';
 import Image from 'next/image';
 type Props = {
   currentChapterState: ChapterState;
