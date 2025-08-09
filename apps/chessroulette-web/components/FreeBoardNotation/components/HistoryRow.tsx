@@ -85,10 +85,15 @@ export const HistoryRow = React.forwardRef<HTMLDivElement | null, RowProps>(
     };
 
     return (
-      <div className={containerClassName} ref={isNested ? undefined : ref}>
+      <div
+        className={`${containerClassName} relative left-[7px]`}
+        ref={isNested ? undefined : ref}
+      >
         <div className={`flex ${className} ${shouldSplit && 'flex-col'}`}>
           <div id="header" className="flex flex-1 relative">
-            <Text className="flex-0 p-1 pr-2 cursor-pointer">{moveCount}.</Text>
+            <Text className="flex-0 p-1 pr-2 cursor-pointer text-[14px] font-bold">
+              {moveCount}.
+            </Text>
             <HistoryMove
               move={whiteMove}
               color="w"
@@ -104,7 +109,7 @@ export const HistoryRow = React.forwardRef<HTMLDivElement | null, RowProps>(
             />
             {shouldSplit ? (
               <Text
-                className={`flex-1 cursor-pointer p-1 hover:bg-slate-500`}
+                className={`flex-1 cursor-pointer p-1 hover:bg-[#D9D9D9]/20 `}
                 onContextMenu={(event) =>
                   show({ event, props: { color: 'white' } })
                 }

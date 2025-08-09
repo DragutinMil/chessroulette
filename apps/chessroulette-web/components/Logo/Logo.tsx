@@ -1,7 +1,7 @@
 import React, { CSSProperties } from 'react';
 import logoLightFull from './assets/Logo_light_full.svg';
 import ChessrouletteOutpostWhite from './assets/chessroulette+outpost.svg';
-import newLogo from './assets/newLogo.svg';
+import newLogo from './assets/outpostLogo2025.svg';
 import Image from 'next/image';
 
 type Props = {
@@ -22,7 +22,8 @@ export const Logo: React.FC<Props> = ({ themeName, style }) => {
     if (themeName === 'op' || themeName === 'outpost') {
       return {
         src: newLogo,
-        width: 250,
+        // width: 250,
+        height: 31,
         title: 'Chessroulette + Outpost = ♥️',
       };
     }

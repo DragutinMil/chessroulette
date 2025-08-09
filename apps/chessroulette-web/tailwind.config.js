@@ -20,6 +20,7 @@ module.exports = {
           ...colors.green,
           500: '#07da63',
           600: 'rgba(7, 218, 99,0.8)',
+          800: 'rgba(7, 218, 99,0.8)',
         },
         yellow: {
           ...colors.yellow,
@@ -51,6 +52,25 @@ module.exports = {
           1500: '#6f7381',
           1600: '#11c6d1',
         },
+        conversation: {
+          100: 'rgba(255, 255, 255, 0.05)',
+          200: 'rgba(255, 255, 255, 0.15)',
+          300: 'rgba(255, 255, 255, 0.25)',
+        },
+      },
+      keyframes: {
+        fadeUp: {
+          '0%': { opacity: 0, transform: 'translateY(0px)' },
+          '50%': { opacity: 1, transform: 'translateY(-6px)' },
+          '100%': { opacity: 0, transform: 'translateY(-10px)' },
+        },
+      },
+      boxShadow: {
+        'green-soft': '0px 2px 10px 0px rgba(7, 218, 99, 0.1)',
+      },
+
+      animation: {
+        fadeUp: 'fadeUp 1s ease-out',
       },
     },
     // colors: {

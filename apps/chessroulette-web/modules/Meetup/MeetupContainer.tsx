@@ -52,7 +52,7 @@ export const MeetupContainer = ({
     return (
       <ResizableDesktopLayout
         mainComponent={({ boardSize }) => (
-          <FreeboardContainer sizePx={boardSize} {...boardProps} />
+          <FreeboardContainer sizePx={boardSize} {...boardProps}  />
         )}
         rightSideSize={boardProps.rightSideSizePx}
         rightComponent={

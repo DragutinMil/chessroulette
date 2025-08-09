@@ -29,7 +29,6 @@ export const aichessActivityParamsSchema = z.object({
   instructor: truthyParam.optional(),
 });
 
-
 export type LearnActivityParamsSchema = z.TypeOf<
   typeof learnActivityParamsSchema
 >;

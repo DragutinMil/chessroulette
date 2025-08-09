@@ -65,9 +65,9 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
       ...prevChapter,
       displayFen: fenBoard.fen,
       chessAiMode: {
-              ...prev.activityState.chaptersMap[0].chessAiMode,
-              prevEvaluation: 0,
-            },
+        ...prev.activityState.chaptersMap[0].chessAiMode,
+        prevEvaluation: 0,
+      },
       notation: {
         ...prevChapter.notation,
         focusedIndex: action.payload,
@@ -99,6 +99,7 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
           prev.activityState.chaptersMap[0].chessAiMode.goodMoves
         ].includes(action.payload.from.concat(action.payload.to))
       ) {
+        const badMovePoints = -1;
         return {
           ...prev,
           activityState: {
@@ -109,6 +110,10 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
                 ...prev.activityState.chaptersMap[0],
                 chessAiMode: {
                   ...prev.activityState.chaptersMap[0].chessAiMode,
+                  ratingChange: badMovePoints,
+                  userPuzzleRating:
+                    prev.activityState.chaptersMap[0].chessAiMode
+                      .userPuzzleRating + badMovePoints,
                   badMoves:
                     prev.activityState.chaptersMap[0].chessAiMode.badMoves + 1,
                 },
@@ -146,7 +151,45 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
         },
         nextMove
       );
+      const correctionPoints =
+        prevChapter.chessAiMode.goodMoves + 1 ==
+          prevChapter.chessAiMode.moves.length &&
+        prevChapter.chessAiMode.goodMoves % 2 !== 0 &&
+        prevChapter.chessAiMode.goodMoves > 0
+          ? Math.round(
+              (prevChapter.chessAiMode.puzzleRatting -
+                prevChapter.chessAiMode.userPuzzleRating) /
+                100
+            )
+          : 0;
 
+      const finnishPoint =
+        prevChapter.chessAiMode.goodMoves + 1 ==
+          prevChapter.chessAiMode.moves.length &&
+        prevChapter.chessAiMode.goodMoves % 2 !== 0 &&
+        prevChapter.chessAiMode.goodMoves > 0
+          ? 5
+          : 0;
+
+      const movePoints =
+        prevChapter.orientation !== fenBoard.fen.split(' ')[1] &&
+        prevChapter.chessAiMode.mode == 'puzzle'
+          ? 2
+          : 0;
+
+      const chengeRatingPoints =
+        prevChapter.chessAiMode.goodMoves + 1 ==
+          prevChapter.chessAiMode.moves.length &&
+        prevChapter.chessAiMode.goodMoves % 2 !== 0 &&
+        prevChapter.chessAiMode.goodMoves > 0
+          ? prevChapter.chessAiMode.ratingChange +
+            finnishPoint +
+            correctionPoints
+          : 0;
+
+      const afterGoodMovePoints = movePoints + chengeRatingPoints;
+
+      prevChapter.chessAiMode.ratingChange;
       const nextChapter: Chapter = {
         ...prevChapter,
         displayFen: fenBoard.fen,
@@ -160,6 +203,9 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
         chessAiMode: {
           ...prevChapter.chessAiMode,
           goodMoves: prevChapter.chessAiMode.goodMoves + 1,
+          userPuzzleRating:
+            prevChapter.chessAiMode.userPuzzleRating + afterGoodMovePoints,
+          ratingChange: afterGoodMovePoints,
         },
       };
 
@@ -588,9 +634,24 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
 
   if (action.type === 'loadedChapter:setPuzzleMoves') {
     const chessAiMode = action.payload;
-    if (action.payload.movesCount > 0 && action.payload.goodMoves==0) {
+    if (action.payload.movesCount > 0 && action.payload.goodMoves == 0) {
+      const responses =
+        chessAiMode.movesCount == 1
+          ? [
+              'Can you solve this in one move?',
+              'Sharpen your mind — one move is all it takes.',
+              'Your next move could be the solution. Just one needed!',
+              'No room for error — one move, one shot!',
+            ]
+          : [
+              `See if you can find the solution in ${chessAiMode.movesCount} moves`,
+              `Try to solve puzzle in ${chessAiMode.movesCount} moves`,
+              `Speed run this: solve it in  ${chessAiMode.movesCount} moves!`,
+            ];
+
+      const randomIndex = Math.floor(Math.random() * responses.length);
       const message = {
-        content: `Ok, try to solve puzzle in ${chessAiMode.movesCount} moves`,
+        content: responses[randomIndex],
         participantId: 'chatGPT123456',
         idResponse: '',
       };
@@ -680,6 +741,9 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
     //     prev.activityState.chaptersMap[0].messages.length - 1
     //   ].participantId !== action.payload.participantId
     // ) {
+    const hintPoints = action.payload.content.includes('Think about using')
+      ? 1
+      : 0;
     return {
       ...prev,
       activityState: {
@@ -696,46 +760,18 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
                 idResponse: action.payload.idResponse,
               },
             ],
+            chessAiMode: {
+              ...prev.activityState.chaptersMap[0].chessAiMode,
+              ratingChange: -hintPoints,
+              userPuzzleRating:
+                prev.activityState.chaptersMap[0].chessAiMode.userPuzzleRating -
+                hintPoints,
+            },
           },
         },
       },
     };
   }
-  // if (
-  //   prev.activityState.chaptersMap[0].messages[
-  //     prev.activityState.chaptersMap[0].messages.length - 1
-  //   ].participantId === action.payload.participantId
-  // ) {
-  //   const editedMessage = {
-  //     content:
-  //       prev.activityState.chaptersMap[0].messages[
-  //         prev.activityState.chaptersMap[0].messages.length - 1
-  //       ].content +
-  //       '\n' +
-  //       action.payload.content,
-  //     participantId: action.payload.participantId,
-  //     idResponse: action.payload.idResponse,
-  //   };
-
-  //   return {
-  //     ...prev,
-  //     activityState: {
-  //       ...prev.activityState,
-  //       chaptersMap: {
-  //         ...prev.activityState.chaptersMap,
-  //         [0]: {
-  //           ...prev.activityState.chaptersMap[0],
-  //           messages: [
-  //             ...(prev.activityState.chaptersMap[0].messages.slice(0, -1) ??
-  //               []),
-  //             editedMessage,
-  //           ],
-  //         },
-  //       },
-  //     },
-  //   };
-  // }
-  // }
 
   if (action.type === 'loadedChapter:gameEvaluation') {
     return {

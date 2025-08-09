@@ -25,6 +25,7 @@ type Props = Required<
     onClearBoard: () => void;
     onResetBoard: () => void;
     onBoardEditor: () => void;
+    onChangePuzzleAnimation: boolean;
   };
 
 export const AichessBoard = ({
@@ -40,6 +41,7 @@ export const AichessBoard = ({
   onResetBoard,
   onClearBoard,
   onBoardEditor,
+  onChangePuzzleAnimation,
   ...chessBoardProps
 }: Props) => {
   const settings = useAichessActivitySettings();
@@ -51,7 +53,6 @@ export const AichessBoard = ({
   const Board = settings.canMakeInvalidMoves ? Freeboard : Playboard;
 
   const turn = orientation;
-
   return (
     <Board
       containerClassName="shadow-2xl"
@@ -59,6 +60,7 @@ export const AichessBoard = ({
       playingColor={orientation}
       sizePx={sizePx}
       fen={fen}
+      onChangePuzzleAnimation={onChangePuzzleAnimation}
       lastMove={lastMove}
       arrowsMap={arrowsMap}
       circlesMap={circlesMap}

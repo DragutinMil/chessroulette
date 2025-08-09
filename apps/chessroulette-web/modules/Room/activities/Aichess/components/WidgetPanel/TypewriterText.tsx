@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { Button } from '@app/components/Button';
+import { ButtonGreen } from '@app/components/Button/ButtonGreen';
 interface TypewriterTextProps {
   lastMessage: string;
   scrollToBottom: () => void;
   takeBack: () => void;
   playNext: () => void;
   hint: () => void;
+  onSelectPuzzle: (category: string) => void;
 }
 const TypewriterText: React.FC<TypewriterTextProps> = ({
   lastMessage = '',
@@ -13,11 +15,22 @@ const TypewriterText: React.FC<TypewriterTextProps> = ({
   takeBack,
   playNext,
   hint,
+  onSelectPuzzle,
 }) => {
   const [displayedText, setDisplayedText] = useState('');
   const [showCursor, setShowCursor] = useState(true);
   const [answered, setAnswered] = useState(false);
-  
+
+  const puzzleCategories = [
+    { label: 'Mate in 1', value: 'Check Mate in 1' },
+    { label: 'Mate in 2', value: 'Check Mate in 2' },
+    { label: 'Mate in 3', value: 'Check Mate in 3' },
+    { label: 'Check-Mate Puzzles', value: 'Check-Mate Puzzles' },
+    { label: 'Pattern Puzzles', value: 'Pattern Puzzles' },
+
+    // [{"label":"Check Mate in 1"},{"label":"Check Mate in 2"},{"label":"Check Mate in 3"},{"label":"Check Mate in 4"},{"label":"Check Mate in 5"},{"label":"Check Mate in 6"},
+    //   {"label":"Check Mate in 7"},{"label":"Check-Mate Puzzles"},{"label":"Endgame"},{"label":"Pattern Puzzles"}]
+  ];
   useEffect(() => {
     if (!lastMessage || lastMessage.trim() === '') return;
 
@@ -48,44 +61,70 @@ const TypewriterText: React.FC<TypewriterTextProps> = ({
 
   return (
     <div>
-    <p className="text-left whitespace-pre-wrap">
-      {displayedText.replace(/undefined/g, '')}
-      {showCursor && <span className="animate-pulse">|</span>}
-    </p>
-    { lastMessage.includes('Uhh') && displayedText.length==lastMessage.length && !answered && (
-         <div className="flex  sitems-center gap-3 hidden md:flex mt-2">
+      <p className="text-left whitespace-pre-wrap">
+        {displayedText.replace(/undefined/g, '')}
+        {showCursor && <span className="animate-pulse">|</span>}
+      </p>
+      {lastMessage.includes('Uhh') &&
+        displayedText.length == lastMessage.length &&
+        !answered && (
+          <div className="flex  sitems-center gap-3 hidden md:flex mt-2">
+            <ButtonGreen
+              onClick={() => {
+                takeBack();
+                setAnswered(true);
+              }}
+              size="lg"
+            >
+              Take Back
+            </ButtonGreen>
+            <ButtonGreen
+              onClick={() => {
+                playNext();
+                setAnswered(true);
+              }}
+              size="lg"
+              className="w-32"
+            >
+              Continue to play
+            </ButtonGreen>
+          </div>
+        )}
+      {lastMessage.includes('Would you like a hint') &&
+        displayedText.length == lastMessage.length &&
+        !answered && (
+          <div className="flex  sitems-center gap-3 hidden md:flex mt-2">
             <Button
-                  onClick={() => {
-                                    takeBack();
-                                    setAnswered(true)
-                                  }}
-                                  size="sm"
-                                  className={`bg-slate-600 font-bold hover:bg-slate-800 `}
-                                > Take Back </Button>
-            <Button
-                                  onClick={() => {
-                                    playNext();
-                                    setAnswered(true)
-                                  }}
-                                  size="sm"
-                                  className={`bg-slate-600 font-bold hover:bg-slate-800 `}>
-                                  Continue to play </Button>  
-        </div>
-    )}
-    { lastMessage.includes('Would you like a hint') && displayedText.length==lastMessage.length && !answered && (
-         <div className="flex  sitems-center gap-3 hidden md:flex mt-2">
-            <Button
-                  onClick={() => {
-                                    hint();
-                                    setAnswered(true)
-                                  }}
-                                  size="sm"
-                                  className={`bg-slate-600 font-bold hover:bg-slate-800 `}
-                                > 🔍 Hint</Button>  
-        </div>
-    )}
-   
-   
+              onClick={() => {
+                hint();
+                setAnswered(true);
+              }}
+              size="sm"
+              className={`bg-slate-600 font-bold hover:bg-slate-800 `}
+            >
+              {' '}
+              🔍 Hint
+            </Button>
+          </div>
+        )}
+      <div className="flex flex-wrap">
+        {lastMessage.includes('Ready for exercise') &&
+          displayedText.length == lastMessage.length &&
+          !answered &&
+          puzzleCategories.map((category) => (
+            <ButtonGreen
+              key={category.value}
+              onClick={() => {
+                onSelectPuzzle(category.value);
+                setAnswered(true);
+              }}
+              size="sm"
+              className=" font-bold mt-2 mr-2 whitespace-nowrap"
+            >
+              {category.label}
+            </ButtonGreen>
+          ))}
+      </div>
     </div>
   );
 };

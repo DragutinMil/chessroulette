@@ -88,7 +88,6 @@ export function GET(request: NextRequest) {
       ],
     });
   }
-  
 
   if (activityParams.activity === 'meetup') {
     return NextResponse.json({

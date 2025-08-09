@@ -18,7 +18,6 @@ type NativeButtonProps = React.DetailedHTMLProps<
 
 export type ButtonProps = Omit<NativeButtonProps, 'type' | 'ref'> &
   PropsWithChildren<{
-    type?: 'primary' | 'secondary' | 'clear' | 'custom';
     onClick?: () => void;
     className?: string;
     disabled?: boolean;
@@ -26,59 +25,18 @@ export type ButtonProps = Omit<NativeButtonProps, 'type' | 'ref'> &
     size?: 'xs' | 'sm' | 'md' | 'lg';
     icon?: IconProps['name'];
     iconKind?: IconProps['kind'];
-    bgColor?: BgColor;
+
     tooltip?: string;
     tooltipPositon?: 'left' | 'top' | 'right' | 'bottom';
     buttonType?: NativeButtonProps['type'];
   }>;
 
-export type BgColor =
-  | 'purple'
-  | 'green'
-  | 'blue'
-  | 'indigo'
-  | 'yellow'
-  | 'orange'
-  | 'slate'
-  | 'gray'
-  | 'red'; // Add more colors
-
-export const getButtonColors = (
-  color: BgColor,
-  cssProp: 'bg' | 'text' = 'bg'
-) => ({
-  initial: `${cssProp}-${color}-500`,
-  hover: `${cssProp}-${color}-600`,
-  active: `${cssProp}-${color}-800`,
-
-  // initial: `${cssProp}-${color}-1200`,
-  // hover: `${cssProp}-${color}-1100`,
-  // active: `${cssProp}-${color}-1100`,
-});
-
-export const toStringColors = (p: {
-  initial: string;
-  hover: string;
-  active: string;
-}) => `${p.initial} hover:${p.hover} active:${p.active}`;
-
 const classes = {
-  md: 'p-2 px-4 rounded-xl',
-  lg: 'p-1 px-2 text-sm rounded-2xl',
+  md: 'p-1 px-2 text-sm rounded-2xl bg-[#07DA63]',
+  lg: 'p-1 px-2 text-[12px] rounded-2xl w-24  h-8 font-bold',
   sm: 'p-1 px-2 text-sm rounded-lg',
   xs: 'p-1 px-2 text-xs rounded-md',
-  primary: `text-white font-bold ${toStringColors(getButtonColors('indigo'))}`,
-  clear: `text-gray-300 font-bold hover:text-white`,
-  secondary: `${toStringColors(getButtonColors('slate'))}`,
   custom: '',
-};
-
-const typeToColors: {
-  [k in NonNullable<Exclude<ButtonProps['type'], 'custom'>>]: BgColor;
-} = {
-  primary: 'indigo',
-  secondary: 'slate',
-  clear: 'slate',
 };
 
 export const buttonIconClasses = {
@@ -88,14 +46,13 @@ export const buttonIconClasses = {
   xs: 'h-3 w-3',
 };
 
-/**
- * Note: By default doesn't submit forms, unless "submit" buttonType is specified
- */
-export const Button = React.forwardRef<HTMLButtonElement | null, ButtonProps>(
+export const ButtonGreen = React.forwardRef<
+  HTMLButtonElement | null,
+  ButtonProps
+>(
   (
     {
       children,
-      type = 'primary',
       disabled,
       isActive,
       onClick,
@@ -103,7 +60,7 @@ export const Button = React.forwardRef<HTMLButtonElement | null, ButtonProps>(
       size = 'md',
       icon,
       iconKind,
-      bgColor,
+
       tooltip,
       tooltipPositon = 'left',
       buttonType = 'button', // This by default doesn't submit forms, unless "submit" type is specified
@@ -111,35 +68,17 @@ export const Button = React.forwardRef<HTMLButtonElement | null, ButtonProps>(
     },
     ref
   ) => {
-    const isActiveClass = invoke(() => {
-      if (isActive && type !== 'custom') {
-        const bgColorClass = getButtonColors(
-          bgColor || typeToColors[type]
-        ).active;
-        return `${bgColorClass} hover:${bgColorClass}`;
-      }
-
-      return '';
-    });
-
     return (
       <button
         ref={ref}
-        className={`group  relative  hover:cursor-pointer  !${classes[type]} ${
-          classes[size]
-        } ${
+        className={`group  relative bg-[#D9D9D9]/20   duration-200
+ } ${classes[size]} ${
           disabled
-            ? 'bg-slate-500 hover:bg-slate-500 active:bg-slate-500 hover:cursor-default'
-            : ''
-
-          // ? 'bg-slate-500 active:bg-slate-500 hover:cursor-default'
-          // : ''
-        } flex items-center justify-center gap-1 ${className} ${
-          !disabled && bgColor ? toStringColors(getButtonColors(bgColor)) : ''
-        } ${isActiveClass}`}
+            ? 'bg-[#D9D9D9]/20 opacity-30   hover:cursor-default '
+            : 'bg-[#D9D9D9]/20  hover:cursor-pointer hover:bg-[#07DA63] hover:text-indigo-1300'
+        } flex items-center justify-center gap-1 ${className}`}
         onClick={onClick}
         disabled={disabled === true}
-        type={buttonType}
         {...props}
       >
         {icon && (
