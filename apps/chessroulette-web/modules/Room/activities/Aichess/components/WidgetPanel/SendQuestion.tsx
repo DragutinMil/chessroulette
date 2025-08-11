@@ -5,7 +5,8 @@ import type { ChapterState } from '../../movex/types';
 export async function SendQuestion(
   prompt: string,
   currentChapterState: ChapterState,
-  stockfishMovesInfo: any
+  stockfishMovesInfo: string,
+  line: string
 ) {
   const model = 'gpt-4.1';
   console.log('currentChapterState', currentChapterState.notation.history);
@@ -25,6 +26,8 @@ export async function SendQuestion(
         stockfishMovesInfo +
         '. Fen:' +
         currentChapterState.displayFen +
+        '. Stockfish best Line:'+
+        line +
         '. Last Move: ' +
         currentChapterState.notation.history[
           currentChapterState.notation.history.length - 1
