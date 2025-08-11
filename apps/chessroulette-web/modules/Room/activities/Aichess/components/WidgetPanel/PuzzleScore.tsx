@@ -10,63 +10,63 @@ export const puzzleRatingLevels = [
     title: '💪 Novice',
     range: [1200, 1349],
     sublevels: [
-      { label: 'Novice I', start: 1200, end: 1249 },
-      { label: 'Novice II', start: 1250, end: 1299 },
-      { label: 'Novice III', start: 1300, end: 1349 },
+      { label: 'Novice 1', start: 1200, end: 1249 },
+      { label: 'Novice 2', start: 1250, end: 1299 },
+      { label: 'Novice 3', start: 1300, end: 1349 },
     ],
   },
   {
     title: '🧠 Tactician',
     range: [1350, 1499],
     sublevels: [
-      { label: 'Tactician I', start: 1350, end: 1399 },
-      { label: 'Tactician II', start: 1400, end: 1449 },
-      { label: 'Tactician III', start: 1450, end: 1499 },
+      { label: 'Tactician 1', start: 1350, end: 1399 },
+      { label: 'Tactician 2', start: 1400, end: 1449 },
+      { label: 'Tactician 3', start: 1450, end: 1499 },
     ],
   },
   {
     title: '⚔️ Attacker',
     range: [1500, 1649],
     sublevels: [
-      { label: 'Attacker I', start: 1500, end: 1549 },
-      { label: 'Attacker II', start: 1550, end: 1599 },
-      { label: 'Attacker III', start: 1600, end: 1649 },
+      { label: 'Attacker 1', start: 1500, end: 1549 },
+      { label: 'Attacker 2', start: 1550, end: 1599 },
+      { label: 'Attacker 3', start: 1600, end: 1649 },
     ],
   },
   {
     title: '🧙 Strategist',
     range: [1650, 1799],
     sublevels: [
-      { label: 'Strategist I', start: 1650, end: 1699 },
-      { label: 'Strategist II', start: 1700, end: 1749 },
-      { label: 'Strategist III', start: 1750, end: 1799 },
+      { label: 'Strategist 1', start: 1650, end: 1699 },
+      { label: 'Strategist 2', start: 1700, end: 1749 },
+      { label: 'Strategist 2', start: 1750, end: 1799 },
     ],
   },
   {
     title: '🧠 Mastermind',
     range: [1800, 1949],
     sublevels: [
-      { label: 'Mastermind I', start: 1800, end: 1849 },
-      { label: 'Mastermind II', start: 1850, end: 1899 },
-      { label: 'Mastermind III', start: 1900, end: 1949 },
+      { label: 'Mastermind 1', start: 1800, end: 1849 },
+      { label: 'Mastermind 2', start: 1850, end: 1899 },
+      { label: 'Mastermind 3', start: 1900, end: 1949 },
     ],
   },
   {
     title: '🦾 Elite',
     range: [1950, 2099],
     sublevels: [
-      { label: 'Elite I', start: 1950, end: 1999 },
-      { label: 'Elite II', start: 2000, end: 2049 },
-      { label: 'Elite III', start: 2050, end: 2099 },
+      { label: 'Elite 1', start: 1950, end: 1999 },
+      { label: 'Elite 2', start: 2000, end: 2049 },
+      { label: 'Elite 3', start: 2050, end: 2099 },
     ],
   },
   {
     title: '🐉 Puzzle Beast',
     range: [2100, Infinity],
     sublevels: [
-      { label: 'Beast I', start: 2100, end: 2149 },
-      { label: 'Beast II', start: 2150, end: 2199 },
-      { label: 'Beast III', start: 2200, end: Infinity },
+      { label: 'Beast 1', start: 2100, end: 2149 },
+      { label: 'Beast 2', start: 2150, end: 2199 },
+      { label: 'Beast 3', start: 2200, end: Infinity },
     ],
   },
 ];
@@ -128,7 +128,7 @@ const PuzzleScore = ({ chessAiMode }: Props) => {
               RATING
             </div>
             <div className="text-[10px] font-bold text-[#8F8F90] mb-1">
-              LAVEL
+              LEVEL
             </div>
           </div>
           <div
