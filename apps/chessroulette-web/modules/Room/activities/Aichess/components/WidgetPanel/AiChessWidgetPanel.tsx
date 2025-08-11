@@ -144,7 +144,8 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
       const data = await SendQuestion(
         question,
         currentChapterState,
-        stockfishMovesInfo
+        stockfishMovesInfo,
+        lines[1]
       );
       if (data) {
         setPulseDot(false);
@@ -395,7 +396,8 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
     };
 
     const engineMove = (m: any) => {
-      if (!isMyTurn) {
+      console.log('engine m',m)
+      if (!isMyTurn && currentChapterState.chessAiMode.mode=='play') {
         setStockfishMovesInfo(m);
         let fromChess = m.slice(0, 2);
         let toChess = m.slice(2, 4);
@@ -464,6 +466,27 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
       engineMove(lines[1].slice(0, 4));
     };
     const play = async () => {
+      if(currentChapterState.chessAiMode.mode==''){
+        const content="Awesome, let's play chess."
+         onMessage({
+          content: content,
+          participantId: 'chatGPT123456',
+          idResponse:
+            currentChapterState.messages[
+              currentChapterState.messages.length - 1
+            ].idResponse,
+        });
+      }else if(currentChapterState.chessAiMode.mode=='puzzle'){
+         const content="Let's finish the game properly!"
+         onMessage({
+          content: content,
+          participantId: 'chatGPT123456',
+          idResponse:
+            currentChapterState.messages[
+              currentChapterState.messages.length - 1
+            ].idResponse,
+        });
+      }
       addChessAi({
         moves: [],
         movesCount: 0,
@@ -630,7 +653,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
                           boxShadow: '0px 0px 10px 0px #07DA6380',
                         }}
                         // className="w-full my-2 text-sm rounded-md border-slate-500 focus:border-slate-400 border border-transparent block bg-slate-600 text-white block py-1 px-2"
-                        className="w-full text-sm rounded-[20px] border  border-conversation-100 bg-[#111111]/50 text-white placeholder-slate-400 px-4 py-2 transition-colors duration-200 focus:outline-none focus:ring-1 focus:ring-slate-400 focus:border-conversation-200 hover:border-conversation-300"
+                        className="w-full text-sm rounded-[20px] border  border-conversation-100 bg-[#111111]/40 text-white placeholder-slate-400 px-4 py-2 transition-colors duration-200 focus:outline-none focus:ring-1 focus:ring-slate-400 focus:border-conversation-200 hover:border-conversation-300"
                         onChange={(e) => {
                           setQuestion(e.target.value);
                         }}

@@ -85,7 +85,7 @@ const Conversation = ({
               </div>
             ) : (
               <div className="flex justify-end items-center">
-                <div className="mr-4 border-conversation-100 max-w-xs max-w-[80%] bg-[#111111]/50 text-white border shadow-green-soft  rounded-[20px]   text-sm ">
+                <div className="mr-4 border-conversation-100 max-w-xs max-w-[80%] bg-[#111111]/40 text-white border shadow-green-soft  rounded-[20px]   text-sm ">
                   <p className="flex p-[14px]   justify-start  text-left whitespace-pre-line">
                     {msg.content}
                   </p>

@@ -127,13 +127,18 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
     let m = bestMove;
     if (!isMyTurn && bestMove && !puzzleMode && playMode && !stupidMove) {
       engineMove(m);
-    } else if (bestMove && playMode && !puzzleMode && !stupidMove) {
-      engineMove(m);
-    } else if (stupidMove || GoodMove) {
+    } 
+    // else if (bestMove && playMode && !puzzleMode && !stupidMove) {
+    //   engineMove(m);
+    // } 
+    else if (stupidMove || GoodMove) {
       const moveDeffinition = stupidMove ? 0 : 1;
-
       moveReaction(moveDeffinition);
     }
+    else{
+      engineMove(m);
+    }
+   
   }, [bestMove, playMode]);
 
   useEffect(() => {
@@ -143,6 +148,7 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
       3: lineThree,
     };
     engineLines(stockfishLines);
+    console.log(stockfishLines)
   }, [changes]);
 
   return null;

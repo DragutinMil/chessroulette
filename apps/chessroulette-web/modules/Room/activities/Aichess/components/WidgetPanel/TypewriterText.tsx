@@ -94,17 +94,17 @@ const TypewriterText: React.FC<TypewriterTextProps> = ({
         displayedText.length == lastMessage.length &&
         !answered && (
           <div className="flex  sitems-center gap-3 hidden md:flex mt-2">
-            <Button
+            <ButtonGreen
               onClick={() => {
                 hint();
                 setAnswered(true);
               }}
-              size="sm"
-              className={`bg-slate-600 font-bold hover:bg-slate-800 `}
+               size="lg"
+            
             >
               {' '}
               🔍 Hint
-            </Button>
+            </ButtonGreen>
           </div>
         )}
       <div className="flex flex-wrap">
