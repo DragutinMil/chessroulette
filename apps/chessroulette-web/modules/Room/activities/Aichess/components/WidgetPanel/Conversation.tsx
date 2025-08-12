@@ -35,7 +35,7 @@ const Conversation = ({
   return (
     <div
       ref={scrollRef}
-      className="overflow-scroll  rounded-lg  h-[316px] no-scrollbar  scroll-smooth "
+      className="overflow-scroll  rounded-lg  h-[180px] md:h-[316px] no-scrollbar  scroll-smooth "
     >
       {currentChapterState.messages.map((msg, index) => {
         const participant = msg.participantId;
@@ -48,17 +48,17 @@ const Conversation = ({
             .content;
         //   console.log('message',lastMessage)
         return (
-          <div key={index} className="mb-2 pt-2 text-[15px]">
+          <div key={index} className="mb-1 pt-1 text-[15px] md:pt-2 md:mb-2">
             {/* CHAT GPT TEXT */}
             {participant == 'chatGPT123456' ? (
               <div className="flex">
                 <div>
                   {isLastFromThisParticipant ? (
-                    <Image src={greenLogo} alt="outpost" />
+                    <Image src={greenLogo} alt="outpost"  className=" max-w-[28px] md:max-w-[36px]" />
                   ) : (
                     <Image
                       src={greenLogo}
-                      className="opacity-0"
+                      className="opacity-0  max-w-[28px] md:max-w-[36px]"
                       alt="outpost"
                     />
                   )}

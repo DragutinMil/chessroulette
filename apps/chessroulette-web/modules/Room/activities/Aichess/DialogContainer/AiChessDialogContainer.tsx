@@ -101,6 +101,7 @@ export const AiChessDialogContainer: React.FC<AiChessDialogContainerProps> = ({
               style={{ marginTop: 12 }}
               onClick={() => {
                 newPuzzle();
+                
               }}
             >
               ✅ Next Puzzle
@@ -112,6 +113,7 @@ export const AiChessDialogContainer: React.FC<AiChessDialogContainerProps> = ({
               style={{ marginTop: 12 }}
               onClick={() => {
                 play();
+                
               }}
             >
               ♟️ Free Play

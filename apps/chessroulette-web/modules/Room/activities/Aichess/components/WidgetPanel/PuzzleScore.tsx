@@ -120,14 +120,14 @@ const PuzzleScore = ({ chessAiMode }: Props) => {
     : 0;
 
   return (
-    <div className="rounded-lg  mb-2 mt-2 px-4 pb-4 pt-2 border border-conversation-100 bg-[#01210B]">
-      {value > 0 && (
+    <div className="rounded-lg  mb-2 mt-2 md:px-4 md:pb-4 px-2 pb-2 pt-2 border border-conversation-100 bg-[#01210B]">
+      {value > 0  && (
         <div>
           <div className="flex justify-between">
             <div className="text-[10px] font-bold text-[#8F8F90] mb-1">
               RATING
             </div>
-            <div className="text-[10px] font-bold text-[#8F8F90] mb-1">
+            <div  className=" text-[10px] font-bold text-[#8F8F90] mb-1">
               LEVEL
             </div>
           </div>
