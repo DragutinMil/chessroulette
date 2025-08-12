@@ -236,18 +236,18 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
            
         
           if (!isMyTurn) {
-
-            const m=currentChapterState.chessAiMode.moves[2 * length]
-             if (m.length == 5 && (m.slice(-1) == 'q' || m.slice(-1) == 'r')) {
+          
+          //   const m=currentChapterState.chessAiMode.moves[2 * length]
+          //    if (m.length == 5 && (m.slice(-1) == 'q' || m.slice(-1) == 'r')) {
               
-          let promotionChess = m.slice(4, 5);
-          let n = { from: from as Square, to: to as Square, promoteTo: promotionChess as string};
-          console.log('engine n',n)
-          setTimeout(() => onPuzzleMove(n), 800);
-            }else{
+          // let promotionChess = m.slice(4, 5);
+          // let n = { from: from as Square, to: to as Square, promoteTo: promotionChess as string};
+          // console.log('engine n',n)
+          // setTimeout(() => onPuzzleMove(n), 800);
+          //   }else{
            const n = { from: from as Square, to: to as Square};
           setTimeout(() => onPuzzleMove(n), 800);
-            }
+            // }
 
           
           }
@@ -264,17 +264,18 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
           ].slice(2, 4);
          // const move = { from: from as Square, to: to as Square };
           if (!isMyTurn) {
+           
             const m=currentChapterState.chessAiMode.moves[2 * length]
-             if (m.length == 5 && (m.slice(-1) == 'q' || m.slice(-1) == 'r')) {
+          //    if (m.length == 5 && (m.slice(-1) == 'q' || m.slice(-1) == 'r')) {
               
-          let promotionChess = m.slice(4, 5);
-          let n = { from: from as Square, to: to as Square, promoteTo: promotionChess as string};
-          console.log('engine n',n)
-          setTimeout(() => onPuzzleMove(n), 800);
-            }else{
+          // let promotionChess = m.slice(4, 5);
+          // let n = { from: from as Square, to: to as Square, promoteTo: promotionChess as string};
+          // console.log('engine n',n)
+          // setTimeout(() => onPuzzleMove(n), 800);
+          //   }else{
            const n = { from: from as Square, to: to as Square};
           setTimeout(() => onPuzzleMove(n), 800);
-            }
+            // }
 
           }
         }
@@ -300,8 +301,18 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
         setTimeout(
           () =>
             addChessAi({
-              ...currentChapterState.chessAiMode,
+              moves: currentChapterState.chessAiMode.moves,
+              movesCount: currentChapterState.chessAiMode.movesCount,
               badMoves: 0,
+              goodMoves:currentChapterState.chessAiMode.goodMoves,
+              orientationChange: false,
+              prevEvaluation: currentChapterState.chessAiMode.prevEvaluation,
+              mode: 'puzzle',
+              ratingChange: -1,
+              puzzleRatting: currentChapterState.chessAiMode.puzzleRatting,
+              userPuzzleRating:currentChapterState.chessAiMode.userPuzzleRating,
+              puzzleId: currentChapterState.chessAiMode.puzzleId,
+              prevUserPuzzleRating:  currentChapterState.chessAiMode.prevUserPuzzleRating,
             }),
           1000
         );
@@ -380,8 +391,19 @@ const isMate = async () => {
     setTimeout(
               () =>
           addChessAi({
-            ...currentChapterState.chessAiMode,
-            orientationChange: false,
+             moves: currentChapterState.chessAiMode.moves,
+              movesCount: 0,
+              badMoves: 0,
+              goodMoves: 0,
+              orientationChange: false,
+              prevEvaluation: 0,
+             
+              ratingChange: 0,
+              puzzleRatting: 0,
+              userPuzzleRating:currentChapterState.chessAiMode.userPuzzleRating,
+              puzzleId: 0,
+              prevUserPuzzleRating:  currentChapterState.chessAiMode.prevUserPuzzleRating,
+          
             mode: 'checkmate',
           }),
               1000
@@ -509,16 +531,16 @@ const isMate = async () => {
         const from = data.solution[0].slice(0, 2);
         const to = data.solution[0].slice(2, 4);
         const m = data.solution[0]
-        if (m.length == 5 && (m.slice(-1) == 'q' || m.slice(-1) == 'r')) {
-          let promotionChess = m.slice(4, 5);
-          let n = { from: from, to: to, promoteTo: promotionChess};
-        const promote = m.slice(4, 5);
-          const first_move = { from: from, to: to , toPromote:promote };
-          setTimeout(() => onPuzzleMove(first_move), 800);
-            }else{
+        // if (m.length == 5 && (m.slice(-1) == 'q' || m.slice(-1) == 'r')) {
+        //   let promotionChess = m.slice(4, 5);
+        //   let n = { from: from, to: to, promoteTo: promotionChess};
+        // const promote = m.slice(4, 5);
+        //   const first_move = { from: from, to: to , toPromote:promote };
+        //   setTimeout(() => onPuzzleMove(first_move), 800);
+        //     }else{
            const first_move = { from: from, to: to };
           setTimeout(() => onPuzzleMove(first_move), 1200);
-            }
+            // }
       }
     };
 
