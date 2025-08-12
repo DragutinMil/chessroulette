@@ -25,7 +25,7 @@ type Props = Required<
     onClearBoard: () => void;
     onResetBoard: () => void;
     onBoardEditor: () => void;
-    onChangePuzzleAnimation: boolean;
+    // onChangePuzzleAnimation: boolean;
   };
 
 export const AichessBoard = ({
@@ -41,7 +41,7 @@ export const AichessBoard = ({
   onResetBoard,
   onClearBoard,
   onBoardEditor,
-  onChangePuzzleAnimation,
+  // onChangePuzzleAnimation,
   ...chessBoardProps
 }: Props) => {
   const settings = useAichessActivitySettings();
@@ -60,7 +60,7 @@ export const AichessBoard = ({
       playingColor={orientation}
       sizePx={sizePx}
       fen={fen}
-      onChangePuzzleAnimation={onChangePuzzleAnimation}
+      // onChangePuzzleAnimation={onChangePuzzleAnimation}
       lastMove={lastMove}
       arrowsMap={arrowsMap}
       circlesMap={circlesMap}
