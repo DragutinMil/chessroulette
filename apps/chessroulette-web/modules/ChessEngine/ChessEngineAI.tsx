@@ -17,6 +17,7 @@ type StockfishEngineAIProps = {
   prevScore: number;
   moveReaction: (moveDeffinition: number) => void;
   addGameEvaluation: (score: number) => void;
+  IsMate: (mate: boolean) => void;
 };
 
 const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
@@ -29,6 +30,7 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
   prevScore,
   addGameEvaluation,
   moveReaction,
+  IsMate
 }) => {
   const [stockfishOutput, setStockfishOutput] = useState('Initializing...');
   const [bestMove, setBestMove] = useState('');
@@ -41,6 +43,22 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
   const [depth, setDepth] = useState('10');
   const [skill, setSkill] = useState('');
   const [contempt, setContempt] = useState('');
+  
+
+  function checkIfMate(output:string) {
+
+  const mateRegex = /score\s+mate\s+(-?\d+)/;
+  const match = output.match(mateRegex);
+ console.log('string',output )
+  if (match) {
+    const mateIn = parseInt(match[1], 10);
+    if (mateIn === 0) {
+      IsMate(true); // trenutni mat
+    } 
+  }
+}
+
+
 
   useEffect(() => {
     if (typeof window === 'undefined') return; // Ensure it's client-side
@@ -57,9 +75,13 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
           });
         }
         if (event.data.startsWith('info depth')) {
+        
+          if(event.data=='info depth 0 score mate 0'){
+            IsMate(true)
+          }
           if (event.data.startsWith('info depth 10')) {
             const pvIndex = event.data.indexOf(' pv ');
-            //  if (pvIndex === -1) return null;
+            
 
             if (event.data.includes('multipv 2')) {
               setLinesTwo(event.data.slice(pvIndex + 4));
@@ -67,6 +89,9 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
             if (event.data.includes('multipv 1')) {
               setLineOne(event.data.slice(pvIndex + 4));
               const match = event.data.match(/score cp (-?\d+)/);
+              
+              
+             // POTEZI EVALUACIJA
               if (match) {
                 const score = isMyTurn
                   ? parseInt(match[1], 10)
@@ -84,8 +109,8 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
                     setGoodMove(true);
                   }
                 }
-
                 addGameEvaluation(score);
+              
               }
             }
             if (event.data.includes('multipv 3')) {

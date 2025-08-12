@@ -135,7 +135,9 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
       const move = action.payload;
 
       const fenBoard = new ChessFENBoard(prevChapter.displayFen);
+    console.log('fenBoard',fenBoard)
       const fenPiece = fenBoard.piece(move.from);
+   
       if (!fenPiece) {
         console.error('Action Err', action, prev, fenBoard.board);
         throw new Error(`No Piece at ${move.from}`);
@@ -151,6 +153,9 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
         },
         nextMove
       );
+      console.log('nextMove',nextMove)
+       console.log('nextHistory',nextHistory)
+        console.log('addedAtIndex',addedAtIndex)
       const correctionPoints =
         prevChapter.chessAiMode.goodMoves + 1 ==
           prevChapter.chessAiMode.moves.length &&
