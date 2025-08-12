@@ -638,28 +638,31 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
   }
 
   if (action.type === 'loadedChapter:setPuzzleMoves') {
+    console.log('ide')
     const chessAiMode = action.payload;
     if (action.payload.movesCount > 0 && action.payload.goodMoves == 0) {
-      const responses =
-        chessAiMode.movesCount == 1
-          ? [
-              'Can you solve this in one move?',
-              'Sharpen your mind — one move is all it takes.',
-              'Your next move could be the solution. Just one needed!',
-              'No room for error — one move, one shot!',
-            ]
-          : [
-              `See if you can find the solution in ${chessAiMode.movesCount} moves`,
-              `Try to solve puzzle in ${chessAiMode.movesCount} moves`,
-              `Speed run this: solve it in  ${chessAiMode.movesCount} moves!`,
-            ];
+      const responses = 'Can you solve this in one move?'
+        // chessAiMode.movesCount == 1
+        //   ? [
+        //       'Can you solve this in one move?',
+        //       'Sharpen your mind — one move is all it takes.',
+        //       'Your next move could be the solution. Just one needed!',
+        //       'No room for error — one move, one shot!',
+        //     ]
+        //   : [
+        //       `See if you can find the solution in ${chessAiMode.movesCount} moves`,
+        //       `Try to solve puzzle in ${chessAiMode.movesCount} moves`,
+        //       `Speed run this: solve it in  ${chessAiMode.movesCount} moves!`,
+        //     ];
 
-      const randomIndex = Math.floor(Math.random() * responses.length);
+      //const randomIndex = Math.floor(Math.random() * responses.length);
       const message = {
-        content: responses[randomIndex],
-        participantId: 'chatGPT123456',
+      // content: responses[randomIndex],
+        content: responses,
+         participantId: 'chatGPT123456',
         idResponse: '',
       };
+        console.log('ide2')
       if (action.payload.orientationChange === true) {
         if (prev.activityState.chaptersMap[0].orientation == 'b') {
           const toOrientation = 'w';
@@ -703,7 +706,7 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
           };
         }
       }
-
+       console.log('ide3',chessAiMode)
       //if set puzzle , message yes no change orientation
       return {
         ...prev,
