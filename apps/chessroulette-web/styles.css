@@ -66,8 +66,8 @@ body,
   width: 100%;
   padding: 0;
   margin: 0;
-  /* Sora */
-  font-family:    Helvetica, sans-serif; 
+  /* Sora */ 
+  font-family: 'Sora','Arial';
   /* font-family: 'Lato', 'Open Sans', sans-serif; */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

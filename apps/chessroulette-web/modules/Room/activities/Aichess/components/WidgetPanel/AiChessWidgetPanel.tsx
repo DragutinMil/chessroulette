@@ -34,6 +34,7 @@ import { useUpdateableSearchParams } from '@app/hooks/useSearchParams';
 import { ChessEngineWithProvider } from '@app/modules/ChessEngine/ChesEngineWithProvider';
 import { Switch } from '@app/components/Switch';
 import { getOpenings, getPuzzle } from '../../util';
+
 // import { generateGptResponse } from '../../../../../../server.js';
 type StockfishLines = {
   1: string;
@@ -58,6 +59,7 @@ type Props = {
   onHistoryNotationRefocus: FreeBoardNotationProps['onRefocus'];
   onHistoryNotationDelete: FreeBoardNotationProps['onDelete'];
   addGameEvaluation: (score: number) => void;
+ 
   // Engine
   showEngine?: boolean;
   // engine?: EngineData;
@@ -95,6 +97,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
       onHistoryNotationDelete,
       onHistoryNotationRefocus,
       addGameEvaluation,
+  
       ...chaptersTabProps
     },
     tabsRef
@@ -265,8 +268,8 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
 
     useEffect(() => {
       if (
-        currentChapterState.chessAiMode.goodMoves ==
-          currentChapterState.chessAiMode.moves.length &&
+        currentChapterState.chessAiMode.goodMoves ===
+        currentChapterState.chessAiMode.moves.length &&
         currentChapterState.chessAiMode.goodMoves % 2 === 0 &&
         currentChapterState.chessAiMode.goodMoves > 0
       ) {
@@ -331,32 +334,48 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
       }
     }, [currentChapterState.chessAiMode.goodMoves]);
 
-    const openings = async () => {
-      addChessAi({
-        moves: [],
-        movesCount: 0,
-        badMoves: 0,
-        goodMoves: 0,
-        orientationChange: false,
-        mode: 'openings',
-        prevEvaluation: 0,
-        ratingChange: 0,
-        puzzleRatting: 0,
-        userPuzzleRating: currentChapterState.chessAiMode.userPuzzleRating,
-        puzzleId: 0,
-        prevUserPuzzleRating: 0,
-      });
-      setAnswer(null);
-      const data = await getOpenings();
-      const fullQuestion =
-        data.name +
-        ' ' +
-        data.pgn +
-        '. Analyze opening, give me short explanation of advantages';
+    
+const isMate = async () => {
+  if(currentChapterState.chessAiMode.mode=='play'){
+    setTimeout(
+              () =>
+          addChessAi({
+            ...currentChapterState.chessAiMode,
+            orientationChange: false,
+            mode: 'checkmate',
+          }),
+              1000
+            );
+      }
+  
+      
+    }
+    // const openings = async () => {
+    //   addChessAi({
+    //     moves: [],
+    //     movesCount: 0,
+    //     badMoves: 0,
+    //     goodMoves: 0,
+    //     orientationChange: false,
+    //     mode: 'openings',
+    //     prevEvaluation: 0,
+    //     ratingChange: 0,
+    //     puzzleRatting: 0,
+    //     userPuzzleRating: currentChapterState.chessAiMode.userPuzzleRating,
+    //     puzzleId: 0,
+    //     prevUserPuzzleRating: 0,
+    //   });
+    //   setAnswer(null);
+    //   const data = await getOpenings();
+    //   const fullQuestion =
+    //     data.name +
+    //     ' ' +
+    //     data.pgn +
+    //     '. Analyze opening, give me short explanation of advantages';
 
-      onQuickImport({ type: 'PGN', val: data.pgn });
-      addQuestion(fullQuestion);
-    };
+    //   onQuickImport({ type: 'PGN', val: data.pgn });
+    //   addQuestion(fullQuestion);
+    // };
     const hint = async () => {
       const fieldFrom = currentChapterState.chessAiMode.moves[
         currentChapterState.chessAiMode.goodMoves
@@ -396,14 +415,15 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
     };
 
     const engineMove = (m: any) => {
-      console.log('engine m',m)
-      if (!isMyTurn && currentChapterState.chessAiMode.mode=='play') {
+      
+      if (isMyTurn && currentChapterState.chessAiMode.mode=='play') {
         setStockfishMovesInfo(m);
         let fromChess = m.slice(0, 2);
         let toChess = m.slice(2, 4);
-        if (m.length == 5 && m.slice(-1) == 'q') {
+        if (m.length == 5 && (m.slice(-1) == 'q' || m.slice(-1) == 'r')) {
           let promotionChess = m.slice(4, 5);
           let n = { from: fromChess, to: toChess, promoteTo: promotionChess };
+          console.log('engine n',n)
           setTimeout(() => onPuzzleMove(n), 1000);
         } else {
           let n = { from: fromChess, to: toChess };
@@ -415,8 +435,8 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
     };
     const engineLines = (m: StockfishLines) => {
       setLines(m);
-
-      // console.log('Primljene linije:', m);
+      
+      
     };
 
     const puzzles = async (category?: string) => {
@@ -499,7 +519,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
         puzzleRatting: 0,
         userPuzzleRating: currentChapterState.chessAiMode.userPuzzleRating,
         puzzleId: 0,
-        prevUserPuzzleRating: 0,
+        prevUserPuzzleRating: currentChapterState.chessAiMode.userPuzzleRating,
       });
     };
     const moveReaction = async (moveDeffinition: number) => {
@@ -517,14 +537,14 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
       }
     };
 
-    // const importPgn = async () => {
-    //   const fen = '5rk1/1q2bpp1/4p2p/pB2N3/3P4/P3P3/5PbP/R1Q3K1 w - - 1 28';
-    //   if (ChessFENBoard.validateFenString(fen).ok) {
-    //     onQuickImport({ type: 'FEN', val: fen });
-    //   } else if (isValidPgn(fen)) {
-    //     onQuickImport({ type: 'PGN', val: fen });
-    //   }
-    // };
+    const importPgn = async () => {
+      const fen = '7R/2r3P1/8/8/2b4p/P4k2/8/4K3 b - - 10 55';
+      if (ChessFENBoard.validateFenString(fen).ok) {
+        onQuickImport({ type: 'FEN', val: fen });
+      } else if (isValidPgn(fen)) {
+        onQuickImport({ type: 'PGN', val: fen });
+      }
+    };
 
     // Instructor
     return (
@@ -535,6 +555,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
           puzzleMode={puzzleMode}
           playMode={playMode}
           engineLines={engineLines}
+          IsMate={isMate}
           isMyTurn={isMyTurn}
           engineMove={engineMove}
           addGameEvaluation={addGameEvaluation}

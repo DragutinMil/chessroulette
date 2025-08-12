@@ -83,13 +83,16 @@ export const AiChessDialogContainer: React.FC<AiChessDialogContainerProps> = ({
         currentChapter.chessAiMode.puzzleId
       );
     }
+   
   }, [currentChapter.chessAiMode.mode, removePopup]);
 
-  if (currentChapter.chessAiMode.mode == 'popup' && !removePopup) {
+
+
+  if ((currentChapter.chessAiMode.mode == 'popup' || currentChapter.chessAiMode.mode == 'checkmate'  ) && !removePopup) {
     return (
       <Dialog
         // title="You finished the puzzle!"
-        title=""
+        title={ currentChapter.chessAiMode.mode =='checkmate' ? "Checkmate!" : ""}
         content={
           <div className="flex flex-col px-4 py-2">
             <ButtonGreen
