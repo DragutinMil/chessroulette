@@ -135,11 +135,15 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
     const puzzleMode = currentChapterState.chessAiMode.mode === 'puzzle';
 
     const addQuestion = async (question: string) => {
+      const url = new URL(window.location.href);
+      const userId = url.searchParams.get('userId');
+      if(userId){
       onMessage({
         content: question,
-        participantId: '8UWCweKl1Gvoi',
+        participantId: userId,
         idResponse: '',
       });
+    }
       setQuestion('');
       setTimeout(() => {
         setPulseDot(true);
@@ -182,10 +186,23 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
           if (ChessFENBoard.validateFenString(data.puzzle.fen).ok) {
             onQuickImport({ type: 'FEN', val: data.puzzle.fen });
           }
+          const promote = data.puzzle.solution[0].slice(4, 5);
           const from = data.puzzle.solution[0].slice(0, 2);
           const to = data.puzzle.solution[0].slice(2, 4);
-          const first_move = { from: from, to: to };
+          const m = data.puzzle.solution[0]
+
+            if (m.length == 5 && (m.slice(-1) == 'q' || m.slice(-1) == 'r')) {
+          let promotionChess = m.slice(4, 5);
+          let n = { from: from, to: to, promoteTo: promotionChess};
+        
+          const first_move = { from: from, to: to , toPromote:promote };
           setTimeout(() => onPuzzleMove(first_move), 800);
+            }else{
+           const first_move = { from: from, to: to };
+          setTimeout(() => onPuzzleMove(first_move), 800);
+            }
+          
+          
         }, 1000);
 
         //FIRST MOVE
@@ -216,9 +233,31 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
             2,
             4
           );
+           
           const move = { from: from as Square, to: to as Square };
           if (!isMyTurn) {
-            setTimeout(() => onPuzzleMove(move), 1000);
+
+            const m=currentChapterState.chessAiMode.moves[2 * length]
+             if (m.length == 5 && (m.slice(-1) == 'q' || m.slice(-1) == 'r')) {
+              
+          let promotionChess = m.slice(4, 5);
+          let n = { from: from as Square, to: to as Square, promoteTo: promotionChess as string};
+          console.log('engine n',n)
+          setTimeout(() => onPuzzleMove(n), 800);
+            }else{
+           const n = { from: from as Square, to: to as Square};
+          setTimeout(() => onPuzzleMove(n), 800);
+            }
+
+            
+
+
+
+
+
+
+
+          
           }
         } else if (
           currentChapterState.orientation == 'w' &&
@@ -416,14 +455,14 @@ const isMate = async () => {
 
     const engineMove = (m: any) => {
       
-      if (isMyTurn && currentChapterState.chessAiMode.mode=='play') {
+      if (!isMyTurn && currentChapterState.chessAiMode.mode=='play') {
         setStockfishMovesInfo(m);
         let fromChess = m.slice(0, 2);
         let toChess = m.slice(2, 4);
         if (m.length == 5 && (m.slice(-1) == 'q' || m.slice(-1) == 'r')) {
           let promotionChess = m.slice(4, 5);
           let n = { from: fromChess, to: toChess, promoteTo: promotionChess };
-          console.log('engine n',n)
+         
           setTimeout(() => onPuzzleMove(n), 1000);
         } else {
           let n = { from: fromChess, to: toChess };
@@ -469,6 +508,22 @@ const isMate = async () => {
         const from = data.solution[0].slice(0, 2);
         const to = data.solution[0].slice(2, 4);
         const first_move = { from: from, to: to };
+        const m = data.solution[0]
+        if (m.length == 5 && (m.slice(-1) == 'q' || m.slice(-1) == 'r')) {
+          let promotionChess = m.slice(4, 5);
+          let n = { from: from, to: to, promoteTo: promotionChess};
+        const promote = m.slice(4, 5);
+          const first_move = { from: from, to: to , toPromote:promote };
+          setTimeout(() => onPuzzleMove(first_move), 800);
+            }else{
+           const first_move = { from: from, to: to };
+          setTimeout(() => onPuzzleMove(first_move), 800);
+            }
+
+
+
+
+
         setTimeout(() => onPuzzleMove(first_move), 1200);
       }
     };
