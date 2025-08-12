@@ -289,8 +289,13 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
           'Would you like a hint, or try again on your own?',
           // "No 🚫, try something else!"
         ];
+        
         const randomIndex = Math.floor(Math.random() * responses.length);
-        onMessage({
+        console.log()
+        if(currentChapterState.messages[currentChapterState.messages.length-1].content !== "That wasn’t the right move." &&
+          currentChapterState.messages[currentChapterState.messages.length-1].content !== "Would you like a hint, or try again on your own?"
+        ){
+onMessage({
           content: responses[randomIndex],
           participantId: 'chatGPT123456',
           idResponse:
@@ -298,24 +303,26 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
               currentChapterState.messages.length - 1
             ].idResponse,
         });
-        setTimeout(
-          () =>
-            addChessAi({
-              moves: currentChapterState.chessAiMode.moves,
-              movesCount: currentChapterState.chessAiMode.movesCount,
-              badMoves: 0,
-              goodMoves:currentChapterState.chessAiMode.goodMoves,
-              orientationChange: false,
-              prevEvaluation: currentChapterState.chessAiMode.prevEvaluation,
-              mode: 'puzzle',
-              ratingChange: -1,
-              puzzleRatting: currentChapterState.chessAiMode.puzzleRatting,
-              userPuzzleRating:currentChapterState.chessAiMode.userPuzzleRating,
-              puzzleId: currentChapterState.chessAiMode.puzzleId,
-              prevUserPuzzleRating:  currentChapterState.chessAiMode.prevUserPuzzleRating,
-            }),
-          1000
-        );
+        }
+        
+        // setTimeout(
+        //   () =>
+        //     addChessAi({
+        //       moves: currentChapterState.chessAiMode.moves,
+        //       movesCount: currentChapterState.chessAiMode.movesCount,
+        //       badMoves: 0,
+        //       goodMoves:currentChapterState.chessAiMode.goodMoves,
+        //       orientationChange: false,
+        //       prevEvaluation: currentChapterState.chessAiMode.prevEvaluation,
+        //       mode: 'puzzle',
+        //       ratingChange: 0,
+        //       puzzleRatting: currentChapterState.chessAiMode.puzzleRatting,
+        //       userPuzzleRating:currentChapterState.chessAiMode.userPuzzleRating,
+        //       puzzleId: currentChapterState.chessAiMode.puzzleId,
+        //       prevUserPuzzleRating:  currentChapterState.chessAiMode.prevUserPuzzleRating,
+        //     }),
+        //   1000
+        // );
       }
     }, [currentChapterState.chessAiMode.badMoves]);
 
@@ -391,20 +398,18 @@ const isMate = async () => {
     setTimeout(
               () =>
           addChessAi({
+             mode: 'checkmate',
              moves: currentChapterState.chessAiMode.moves,
               movesCount: 0,
               badMoves: 0,
               goodMoves: 0,
               orientationChange: false,
               prevEvaluation: 0,
-             
               ratingChange: 0,
               puzzleRatting: 0,
               userPuzzleRating:currentChapterState.chessAiMode.userPuzzleRating,
               puzzleId: 0,
-              prevUserPuzzleRating:  currentChapterState.chessAiMode.prevUserPuzzleRating,
-          
-            mode: 'checkmate',
+              prevUserPuzzleRating:  currentChapterState.chessAiMode.prevUserPuzzleRating
           }),
               1000
             );
@@ -659,7 +664,7 @@ const isMate = async () => {
               renderContent: () => (
                 <div className="flex flex-col flex-1 gap-2 min-h-0">
                   <div
-                    className="border border-conversation-100 p-4 rounded-lg "
+                    className="border border-conversation-100 py-2 px-2 md:px-4 md:py-4 rounded-lg "
                     style={{
                       background: `radial-gradient(61.84% 61.84% at 50% 131.62%, rgba(5, 135, 44, 0.2) 0%, #01210B 100%)`,
                     }}
@@ -734,7 +739,7 @@ const isMate = async () => {
                       </ButtonGreen>
                     </div>
 
-                    <div className="flex mb-2">
+                    <div className="flex mb-2 mt-2 md:mt-0">
                       <input
                         id="title"
                         type="text"
@@ -772,7 +777,8 @@ const isMate = async () => {
                       ></ButtonGreen>
                     </div>
                   </div>
-                  <div>
+                  {currentChapterState.chessAiMode.mode=='puzzle' && (
+                    <div>
                     <PuzzleScore
                       chessAiMode={currentChapterState.chessAiMode}
                     />
@@ -786,6 +792,8 @@ const isMate = async () => {
                       Line 3: {lines[3].slice(0, 20)}
                     </p> */}
                   </div>
+                  )}
+                 
 
                   {/* {showEngine && (
                     <ChessEngineWithProvider
@@ -799,11 +807,12 @@ const isMate = async () => {
                   )} */}
                   <div
                     style={{
+                      
                       backgroundImage:
                         'radial-gradient(61.84% 61.84% at 50% 131.62%, rgba(5, 135, 44, 0.2) 0%, #01210B 100%)',
-                      height: 'calc(100% - 600px)',
+                      height: currentChapterState.chessAiMode.mode=='puzzle'? 'calc(100% - 600px)':'calc(100% - 300px)',
                     }}
-                    className="rounded-lg border border-conversation-100 p-4 overflow-scroll"
+                    className="hidden md:block rounded-lg border border-conversation-100 p-4 overflow-scroll"
                   >
                     <FreeBoardNotation
                       history={currentChapterState.notation?.history}
