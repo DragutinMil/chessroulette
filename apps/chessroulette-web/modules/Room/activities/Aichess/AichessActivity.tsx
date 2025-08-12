@@ -38,7 +38,7 @@ export const AichessActivity = ({
   const moveSound = new Audio('/chessmove.mp3');
   const dispatch = optionalDispatch || noop;
   const [cameraOff, setCameraOff] = useState(false);
-  const [onChangePuzzleAnimation, setChangePuzzleAnimation] = useState(false);
+  // const [onChangePuzzleAnimation, setChangePuzzleAnimation] = useState(false);
   const settings = useAichessActivitySettings();
   const [inputState, dispatchInputState] = useReducer(
     inputReducer,
@@ -57,17 +57,17 @@ export const AichessActivity = ({
     }
   }, []);
 
-  useEffect(() => {
-    if (
-      currentChapter.chessAiMode.mode === 'puzzle' &&
-      currentChapter.chessAiMode.goodMoves < 1
-    ) {
-      setChangePuzzleAnimation(true);
-      setTimeout(() => {
-        setChangePuzzleAnimation(false);
-      }, 600);
-    }
-  }, [currentChapter.chessAiMode.moves]);
+  // useEffect(() => {
+  //   if (
+  //     currentChapter.chessAiMode.mode === 'puzzle' &&
+  //     currentChapter.chessAiMode.goodMoves < 1
+  //   ) {
+  //     setChangePuzzleAnimation(true);
+  //     setTimeout(() => {
+  //       setChangePuzzleAnimation(false);
+  //     }, 600);
+  //   }
+  // }, [currentChapter.chessAiMode.moves]);
   return (
     <ResizableDesktopLayout
       rightSideSize={RIGHT_SIDE_SIZE_PX}
@@ -143,7 +143,7 @@ export const AichessActivity = ({
 
               <AichessBoard
                 sizePx={boardSize}
-                onChangePuzzleAnimation={onChangePuzzleAnimation}
+                // onChangePuzzleAnimation={onChangePuzzleAnimation}
                 {...currentChapter}
                 orientation={
                   // The instructor gets the opposite side as the student (so they can play together)
