@@ -525,7 +525,7 @@ const isMate = async () => {
             : data.user_puzzle_rating;
         
             
-            setTimeout(() =>
+           
         addChessAi({
           mode: 'puzzle',
           moves: data.solution,
@@ -540,7 +540,7 @@ const isMate = async () => {
           puzzleId: data.puzzle_id,
           prevUserPuzzleRating: userRating,
           fen:data.fen
-        }), 2000);
+        })
         
         //FIRST MOVE
         const from = data.solution[0].slice(0, 2);
@@ -554,7 +554,7 @@ const isMate = async () => {
         //   setTimeout(() => onPuzzleMove(first_move), 800);
         //     }else{
            const first_move = { from: from, to: to };
-          setTimeout(() => onPuzzleMove(first_move), 4000);
+          setTimeout(() => onPuzzleMove(first_move), 1000);
             // }
       }
     };
