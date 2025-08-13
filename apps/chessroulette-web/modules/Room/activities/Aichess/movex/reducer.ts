@@ -635,6 +635,10 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
   }
 
   if (action.type === 'loadedChapter:setPuzzleMoves') {
+////import FEN
+     const nextFen = action.payload.fen;
+    
+
     
     const chessAiMode = action.payload;
     if (action.payload.movesCount > 0 && action.payload.goodMoves == 0) {
@@ -670,8 +674,14 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
                 ...prev.activityState.chaptersMap,
                 [0]: {
                   ...prev.activityState.chaptersMap[0],
+                   displayFen: nextFen,
                   chessAiMode: chessAiMode,
                   orientation: toOrientation,
+                  notation:{
+                    startingFen: nextFen,
+                    history: [],
+                    focusedIndex: FreeBoardHistory.getStartingIndex(),
+                  },
                   messages: [
                     ...(prev.activityState.chaptersMap[0].messages ?? []),
                     message,
@@ -690,8 +700,14 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
                 ...prev.activityState.chaptersMap,
                 [0]: {
                   ...prev.activityState.chaptersMap[0],
+                  displayFen: nextFen,
                   chessAiMode: chessAiMode,
                   orientation: toOrientation,
+                   notation:{
+                    startingFen: nextFen,
+                    history: [],
+                    focusedIndex: FreeBoardHistory.getStartingIndex(),
+                  },
                   messages: [
                     ...(prev.activityState.chaptersMap[0].messages ?? []),
                     message,
@@ -712,7 +728,13 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
             ...prev.activityState.chaptersMap,
             [0]: {
               ...prev.activityState.chaptersMap[0],
+              displayFen: nextFen,
               chessAiMode: chessAiMode,
+               notation:{
+                    startingFen: nextFen,
+                    history: [],
+                    focusedIndex: FreeBoardHistory.getStartingIndex(),
+                  },
               messages: [
                 ...(prev.activityState.chaptersMap[0].messages ?? []),
                 message,

@@ -147,7 +147,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
       setQuestion('');
       setTimeout(() => {
         setPulseDot(true);
-      }, 700);
+      }, 500);
       const data = await SendQuestion(
         question,
         currentChapterState,
@@ -159,7 +159,10 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
       }
       setAnswer(data.answer.text);
 
-      if (data.puzzle && data.puzzle.fen) {
+      if (data.puzzle && data.puzzle.fen && ChessFENBoard.validateFenString(data.puzzle.fen).ok) {
+        // if (ChessFENBoard.validateFenString(data.puzzle.fen).ok) {
+        //     onQuickImport({ type: 'FEN', val: data.puzzle.fen });
+        //   }
         const changeOrientation =
           currentChapterState.orientation === data.answer.fen.split(' ')[1];
         const userRating =
@@ -168,24 +171,26 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
             : data.user_puzzle_rating;
 
         addChessAi({
+          mode: 'puzzle',
           moves: data.puzzle.solution,
           movesCount: data.puzzle.solution.length / 2,
           badMoves: 0,
           goodMoves: 0,
           orientationChange: changeOrientation,
-          mode: 'puzzle',
-          prevEvaluation: 0,
-          ratingChange: currentChapterState.chessAiMode.ratingChange,
           puzzleRatting: currentChapterState.chessAiMode.puzzleRatting,
           userPuzzleRating: userRating,
+          ratingChange: currentChapterState.chessAiMode.ratingChange,
+          prevEvaluation: 0,
           puzzleId: data.puzzle.puzzle_id,
           prevUserPuzzleRating: userRating,
+          fen:data.puzzle.fen
         });
 
+
+        
+
         setTimeout(() => {
-          if (ChessFENBoard.validateFenString(data.puzzle.fen).ok) {
-            onQuickImport({ type: 'FEN', val: data.puzzle.fen });
-          }
+          
           const promote = data.puzzle.solution[0].slice(4, 5);
           const from = data.puzzle.solution[0].slice(0, 2);
           const to = data.puzzle.solution[0].slice(2, 4);
@@ -350,18 +355,19 @@ onMessage({
         setTimeout(
           () =>
             addChessAi({
+              mode: 'popup',
               moves: currentChapterState.chessAiMode.moves,
               movesCount: 0,
               badMoves: 0,
               goodMoves: 0,
               orientationChange: false,
-              prevEvaluation: currentChapterState.chessAiMode.prevEvaluation,
-              mode: 'popup',
-              ratingChange: currentChapterState.chessAiMode.ratingChange,
               puzzleRatting: currentChapterState.chessAiMode.puzzleRatting,
               userPuzzleRating:currentChapterState.chessAiMode.userPuzzleRating,
+              ratingChange: currentChapterState.chessAiMode.ratingChange,
+              prevEvaluation: currentChapterState.chessAiMode.prevEvaluation,
               puzzleId: currentChapterState.chessAiMode.puzzleId,
               prevUserPuzzleRating:  currentChapterState.chessAiMode.prevUserPuzzleRating,
+              fen:currentChapterState.displayFen,
             }),
           1000
         );
@@ -404,17 +410,17 @@ const isMate = async () => {
               badMoves: 0,
               goodMoves: 0,
               orientationChange: false,
-              prevEvaluation: 0,
-              ratingChange: 0,
-              puzzleRatting: 0,
+              puzzleRatting: 0, 
               userPuzzleRating:currentChapterState.chessAiMode.userPuzzleRating,
+              ratingChange: 0,
+              prevEvaluation: 0,
               puzzleId: 0,
-              prevUserPuzzleRating:  currentChapterState.chessAiMode.prevUserPuzzleRating
+              prevUserPuzzleRating:  currentChapterState.chessAiMode.prevUserPuzzleRating,
+              fen:currentChapterState.displayFen,
           }),
               1000
             );
-      }
-  
+      } 
       
     }
     // const openings = async () => {
@@ -510,6 +516,7 @@ const isMate = async () => {
       const data = await getPuzzle(category);
 
       if (ChessFENBoard.validateFenString(data.fen).ok) {
+        // onQuickImport({ type: 'FEN', val: data.fen });
         const changeOrientation =
           currentChapterState.orientation === data.fen.split(' ')[1];
         const userRating =
@@ -517,21 +524,24 @@ const isMate = async () => {
             ? currentChapterState.chessAiMode.userPuzzleRating
             : data.user_puzzle_rating;
         
+            
+            setTimeout(() =>
         addChessAi({
           mode: 'puzzle',
           moves: data.solution,
           movesCount: data.solution.length / 2,
           badMoves: 0,
           goodMoves: 0,
-          orientationChange: changeOrientation,
-          prevEvaluation: 0,
+          orientationChange:changeOrientation,
           puzzleRatting: data.rating,
           userPuzzleRating: userRating,
           ratingChange: 0,
+          prevEvaluation: 0,
           puzzleId: data.puzzle_id,
           prevUserPuzzleRating: userRating,
-        });
-        onQuickImport({ type: 'FEN', val: data.fen });
+          fen:data.fen
+        }), 2000);
+        
         //FIRST MOVE
         const from = data.solution[0].slice(0, 2);
         const to = data.solution[0].slice(2, 4);
@@ -544,7 +554,7 @@ const isMate = async () => {
         //   setTimeout(() => onPuzzleMove(first_move), 800);
         //     }else{
            const first_move = { from: from, to: to };
-          setTimeout(() => onPuzzleMove(first_move), 1200);
+          setTimeout(() => onPuzzleMove(first_move), 4000);
             // }
       }
     };
@@ -596,6 +606,7 @@ const isMate = async () => {
         userPuzzleRating: currentChapterState.chessAiMode.userPuzzleRating,
         puzzleId: 0,
         prevUserPuzzleRating: currentChapterState.chessAiMode.userPuzzleRating,
+        fen:currentChapterState.displayFen,
       });
     };
     const moveReaction = async (moveDeffinition: number) => {
@@ -613,14 +624,14 @@ const isMate = async () => {
       }
     };
 
-    const importPgn = async () => {
-      const fen = '7R/2r3P1/8/8/2b4p/P4k2/8/4K3 b - - 10 55';
-      if (ChessFENBoard.validateFenString(fen).ok) {
-        onQuickImport({ type: 'FEN', val: fen });
-      } else if (isValidPgn(fen)) {
-        onQuickImport({ type: 'PGN', val: fen });
-      }
-    };
+    // const importPgn = async () => {
+    //   const fen = '7R/2r3P1/8/8/2b4p/P4k2/8/4K3 b - - 10 55';
+    //   if (ChessFENBoard.validateFenString(fen).ok) {
+    //     onQuickImport({ type: 'FEN', val: fen });
+    //   } else if (isValidPgn(fen)) {
+    //     onQuickImport({ type: 'PGN', val: fen });
+    //   }
+    // };
 
     // Instructor
     return (

@@ -132,12 +132,12 @@ export const AichessActivity = ({
                     payload: payload as chessAiMode,
                   })
                 }
-                onQuickImport={(input) => {
-                  dispatch({
-                    type: 'loadedChapter:import',
-                    payload: { input },
-                  });
-                }}
+                // onQuickImport={(input) => {
+                //   dispatch({
+                //     type: 'loadedChapter:import',
+                //     payload: { input },
+                //   });
+                // }}
                 currentChapter={currentChapter}
               />
 

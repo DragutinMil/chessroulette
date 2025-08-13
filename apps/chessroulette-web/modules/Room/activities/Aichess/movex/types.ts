@@ -48,6 +48,7 @@ export type chessAiMode = {
   prevEvaluation: number;
   puzzleId: number;
   prevUserPuzzleRating: number;
+  fen:ChessFEN,
 };
 export type Message = {
   content: string;
