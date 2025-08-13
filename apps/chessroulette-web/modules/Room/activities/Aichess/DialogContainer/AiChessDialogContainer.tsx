@@ -13,13 +13,13 @@ type AiChessDialogContainerProps = {
   currentChapter: any; // možeš zameniti `any` konkretnijim tipom kasnije
   addChessAi: (moves: chessAiMode) => void;
   onPuzzleMove: (move: MovePiece) => void;
-  onQuickImport: PgnInputBoxProps['onChange'];
+  //onQuickImport: PgnInputBoxProps['onChange'];
 };
 
 export const AiChessDialogContainer: React.FC<AiChessDialogContainerProps> = ({
   currentChapter,
   addChessAi,
-  onQuickImport,
+  //onQuickImport,
   onPuzzleMove,
 }) => {
   const [removePopup, setRemovePopup] = useState(false);
@@ -37,6 +37,7 @@ export const AiChessDialogContainer: React.FC<AiChessDialogContainerProps> = ({
       userPuzzleRating: currentChapter.chessAiMode.userPuzzleRating,
       puzzleId: 0,
       prevUserPuzzleRating: 0,
+       fen: currentChapter.displayFen
     });
   };
   const newPuzzle = async () => {
@@ -44,23 +45,27 @@ export const AiChessDialogContainer: React.FC<AiChessDialogContainerProps> = ({
     if (ChessFENBoard.validateFenString(data.fen).ok) {
       const changeOrientation =
         currentChapter.orientation === data.fen.split(' ')[1];
+      // onQuickImport({ type: 'FEN', val: data.fen });
 
       addChessAi({
+        mode: 'puzzle',
         moves: data.solution,
         movesCount: data.solution.length / 2,
         badMoves: 0,
         goodMoves: 0,
-        orientationChange: changeOrientation,
-        mode: 'puzzle',
-        prevEvaluation: 0,
+        orientationChange:changeOrientation,
         puzzleRatting: data.rating,
         userPuzzleRating: currentChapter.chessAiMode.userPuzzleRating,
-        ratingChange: 0,
+        ratingChange: 0,   
+        prevEvaluation: 0,
         puzzleId: data.puzzle_id,
         prevUserPuzzleRating: currentChapter.chessAiMode.userPuzzleRating,
+        fen: data.fen 
       });
 
-      onQuickImport({ type: 'FEN', val: data.fen });
+  
+
+      
 
       //FIRST MOVE
       const from = data.solution[0].slice(0, 2);
