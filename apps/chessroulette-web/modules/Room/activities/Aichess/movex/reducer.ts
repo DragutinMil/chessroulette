@@ -131,13 +131,27 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
         console.error('The loaded chapter was not found');
         return prev;
       }
-
+      if (prevChapter.notation.history.length > 0) {
+        if (
+          prevChapter.notation.focusedIndex[0] !==
+            prevChapter.notation.history?.length - 1 ||
+          prevChapter.notation.focusedIndex[1] !==
+            prevChapter.notation.history[
+              prevChapter.notation.history.length - 1
+            ]?.length -
+              1
+        ) {
+          return {
+            ...prev,
+          };
+        }
+      }
       const move = action.payload;
 
       const fenBoard = new ChessFENBoard(prevChapter.displayFen);
-    
+
       const fenPiece = fenBoard.piece(move.from);
-   
+
       if (!fenPiece) {
         console.error('Action Err', action, prev, fenBoard.board);
         throw new Error(`No Piece at ${move.from}`);
@@ -635,11 +649,9 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
   }
 
   if (action.type === 'loadedChapter:setPuzzleMoves') {
-////import FEN
-     const nextFen = action.payload.fen;
-    
+    ////import FEN
+    const nextFen = action.payload.fen;
 
-    
     const chessAiMode = action.payload;
     if (action.payload.movesCount > 0 && action.payload.goodMoves == 0) {
       const responses =
@@ -662,7 +674,7 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
         participantId: 'chatGPT123456',
         idResponse: '',
       };
-       
+
       if (action.payload.orientationChange === true) {
         if (prev.activityState.chaptersMap[0].orientation == 'b') {
           const toOrientation = 'w';
@@ -674,10 +686,10 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
                 ...prev.activityState.chaptersMap,
                 [0]: {
                   ...prev.activityState.chaptersMap[0],
-                   displayFen: nextFen,
+                  displayFen: nextFen,
                   chessAiMode: chessAiMode,
                   orientation: toOrientation,
-                  notation:{
+                  notation: {
                     startingFen: nextFen,
                     history: [],
                     focusedIndex: FreeBoardHistory.getStartingIndex(),
@@ -703,7 +715,7 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
                   displayFen: nextFen,
                   chessAiMode: chessAiMode,
                   orientation: toOrientation,
-                   notation:{
+                  notation: {
                     startingFen: nextFen,
                     history: [],
                     focusedIndex: FreeBoardHistory.getStartingIndex(),
@@ -718,7 +730,7 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
           };
         }
       }
-     
+
       //if set puzzle , message yes no change orientation
       return {
         ...prev,
@@ -730,11 +742,11 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
               ...prev.activityState.chaptersMap[0],
               displayFen: nextFen,
               chessAiMode: chessAiMode,
-               notation:{
-                    startingFen: nextFen,
-                    history: [],
-                    focusedIndex: FreeBoardHistory.getStartingIndex(),
-                  },
+              notation: {
+                startingFen: nextFen,
+                history: [],
+                focusedIndex: FreeBoardHistory.getStartingIndex(),
+              },
               messages: [
                 ...(prev.activityState.chaptersMap[0].messages ?? []),
                 message,

@@ -241,7 +241,6 @@ export const AichessActivity = ({
                 payload,
               });
             }}
-            
             addGameEvaluation={(payload) => {
               dispatch({ type: 'loadedChapter:gameEvaluation', payload });
             }}

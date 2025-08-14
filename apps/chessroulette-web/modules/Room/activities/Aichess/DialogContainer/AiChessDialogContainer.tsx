@@ -37,7 +37,7 @@ export const AiChessDialogContainer: React.FC<AiChessDialogContainerProps> = ({
       userPuzzleRating: currentChapter.chessAiMode.userPuzzleRating,
       puzzleId: 0,
       prevUserPuzzleRating: 0,
-       fen: currentChapter.displayFen
+      fen: currentChapter.displayFen,
     });
   };
   const newPuzzle = async () => {
@@ -53,19 +53,15 @@ export const AiChessDialogContainer: React.FC<AiChessDialogContainerProps> = ({
         movesCount: data.solution.length / 2,
         badMoves: 0,
         goodMoves: 0,
-        orientationChange:changeOrientation,
+        orientationChange: changeOrientation,
         puzzleRatting: data.rating,
         userPuzzleRating: currentChapter.chessAiMode.userPuzzleRating,
-        ratingChange: 0,   
+        ratingChange: 0,
         prevEvaluation: 0,
         puzzleId: data.puzzle_id,
         prevUserPuzzleRating: currentChapter.chessAiMode.userPuzzleRating,
-        fen: data.fen 
+        fen: data.fen,
       });
-
-  
-
-      
 
       //FIRST MOVE
       const from = data.solution[0].slice(0, 2);
@@ -88,25 +84,26 @@ export const AiChessDialogContainer: React.FC<AiChessDialogContainerProps> = ({
         currentChapter.chessAiMode.puzzleId
       );
     }
-   
   }, [currentChapter.chessAiMode.mode, removePopup]);
 
-
-
-  if ((currentChapter.chessAiMode.mode == 'popup' || currentChapter.chessAiMode.mode == 'checkmate'  ) && !removePopup) {
+  if (
+    (currentChapter.chessAiMode.mode == 'popup' ||
+      currentChapter.chessAiMode.mode == 'checkmate') &&
+    !removePopup
+  ) {
     return (
       <Dialog
         // title="You finished the puzzle!"
-        title={ currentChapter.chessAiMode.mode =='checkmate' ? "Checkmate!" : ""}
+        title={
+          currentChapter.chessAiMode.mode == 'checkmate' ? 'Checkmate!' : ''
+        }
         content={
-          <div className="flex flex-col px-4 py-2">
+          <div className="flex flex-col px-4 py-2 items-center">
             <ButtonGreen
               size="lg"
-              className=" w-full text-[16px] h-[44px] rounded-[22px]"
-              style={{ marginTop: 12 }}
+              className=" w-full text-[16px] h-[44px] rounded-[22px] "
               onClick={() => {
                 newPuzzle();
-                
               }}
             >
               ✅ Next Puzzle
@@ -114,11 +111,10 @@ export const AiChessDialogContainer: React.FC<AiChessDialogContainerProps> = ({
             <ButtonGreen
               // icon="ArrowLeftIcon"
               size="lg"
-              className="w-full text-[16px] h-[44px] rounded-[22px]"
+              className="w-full text-[16px] h-[44px] rounded-[22px] "
               style={{ marginTop: 12 }}
               onClick={() => {
                 play();
-                
               }}
             >
               ♟️ Free Play
@@ -126,7 +122,7 @@ export const AiChessDialogContainer: React.FC<AiChessDialogContainerProps> = ({
             <ButtonGreen
               // icon="ArrowLeftIcon"
               size="lg"
-              className="w-full text-[16px] h-[44px] rounded-[22px]"
+              className=" w-full text-[16px] h-[44px] rounded-[22px]"
               style={{ marginTop: 12 }}
               onClick={() => {
                 setRemovePopup(true);

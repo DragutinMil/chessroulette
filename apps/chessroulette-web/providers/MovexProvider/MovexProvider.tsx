@@ -25,7 +25,7 @@ export const MovexProvider = React.memo(({ session, children }: Props) => {
       movexDefinition={movexConfig}
       endpointUrl={config.MOVEX_ENDPOINT_URL}
       //GUTA DRAGUTIN
-     //endpointUrl="https://mvx.outpostchess.com"
+      //endpointUrl="https://mvx.outpostchess.com"
       clientId={user.id}
       clientInfo={{
         displayName: user.displayName,

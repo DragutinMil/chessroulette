@@ -59,7 +59,7 @@ type Props = {
   onHistoryNotationRefocus: FreeBoardNotationProps['onRefocus'];
   onHistoryNotationDelete: FreeBoardNotationProps['onDelete'];
   addGameEvaluation: (score: number) => void;
- 
+
   // Engine
   showEngine?: boolean;
   // engine?: EngineData;
@@ -97,7 +97,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
       onHistoryNotationDelete,
       onHistoryNotationRefocus,
       addGameEvaluation,
-  
+
       ...chaptersTabProps
     },
     tabsRef
@@ -137,13 +137,13 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
     const addQuestion = async (question: string) => {
       const url = new URL(window.location.href);
       const userId = url.searchParams.get('userId');
-      if(userId){
-      onMessage({
-        content: question,
-        participantId: userId,
-        idResponse: '',
-      });
-    }
+      if (userId) {
+        onMessage({
+          content: question,
+          participantId: userId,
+          idResponse: '',
+        });
+      }
       setQuestion('');
       setTimeout(() => {
         setPulseDot(true);
@@ -159,7 +159,11 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
       }
       setAnswer(data.answer.text);
 
-      if (data.puzzle && data.puzzle.fen && ChessFENBoard.validateFenString(data.puzzle.fen).ok) {
+      if (
+        data.puzzle &&
+        data.puzzle.fen &&
+        ChessFENBoard.validateFenString(data.puzzle.fen).ok
+      ) {
         // if (ChessFENBoard.validateFenString(data.puzzle.fen).ok) {
         //     onQuickImport({ type: 'FEN', val: data.puzzle.fen });
         //   }
@@ -183,31 +187,25 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
           prevEvaluation: 0,
           puzzleId: data.puzzle.puzzle_id,
           prevUserPuzzleRating: userRating,
-          fen:data.puzzle.fen
+          fen: data.puzzle.fen,
         });
 
-
-        
-
         setTimeout(() => {
-          
           const promote = data.puzzle.solution[0].slice(4, 5);
           const from = data.puzzle.solution[0].slice(0, 2);
           const to = data.puzzle.solution[0].slice(2, 4);
-          const m = data.puzzle.solution[0]
+          const m = data.puzzle.solution[0];
 
-            if (m.length == 5 && (m.slice(-1) == 'q' || m.slice(-1) == 'r')) {
-          let promotionChess = m.slice(4, 5);
-          let n = { from: from, to: to, promoteTo: promotionChess};
-        
-          const first_move = { from: from, to: to , toPromote:promote };
-          setTimeout(() => onPuzzleMove(first_move), 800);
-            }else{
-           const first_move = { from: from, to: to };
-          setTimeout(() => onPuzzleMove(first_move), 800);
-            }
-          
-          
+          if (m.length == 5 && (m.slice(-1) == 'q' || m.slice(-1) == 'r')) {
+            let promotionChess = m.slice(4, 5);
+            let n = { from: from, to: to, promoteTo: promotionChess };
+
+            const first_move = { from: from, to: to, toPromote: promote };
+            setTimeout(() => onPuzzleMove(first_move), 800);
+          } else {
+            const first_move = { from: from, to: to };
+            setTimeout(() => onPuzzleMove(first_move), 800);
+          }
         }, 1000);
 
         //FIRST MOVE
@@ -221,12 +219,21 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
 
     useEffect(() => {
       const length = currentChapterState.notation.history.length;
+
+      // IF END OF PUZZLE RETURN
+      if (
+        currentChapterState.chessAiMode.goodMoves ===
+          currentChapterState.chessAiMode.moves.length &&
+        currentChapterState.chessAiMode.goodMoves % 2 === 0 &&
+        currentChapterState.chessAiMode.goodMoves > 0
+      ) {
+        return;
+      }
+      // PUZZLE MOVE
       if (length > 0) {
         //crni sam
         if (
           currentChapterState.orientation == 'b' &&
-          // currentChapterState.orientation !==
-          //   currentChapterState.displayFen.split(' ')[1]
           !isMyTurn &&
           currentChapterState.chessAiMode.movesCount > length
         ) {
@@ -238,23 +245,14 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
             2,
             4
           );
-           
-        
-          if (!isMyTurn) {
-          
-          //   const m=currentChapterState.chessAiMode.moves[2 * length]
-          //    if (m.length == 5 && (m.slice(-1) == 'q' || m.slice(-1) == 'r')) {
-              
-          // let promotionChess = m.slice(4, 5);
-          // let n = { from: from as Square, to: to as Square, promoteTo: promotionChess as string};
-          // console.log('engine n',n)
-          // setTimeout(() => onPuzzleMove(n), 800);
-          //   }else{
-           const n = { from: from as Square, to: to as Square};
-          setTimeout(() => onPuzzleMove(n), 800);
-            // }
-
-          
+          const m = currentChapterState.chessAiMode.moves[2 * length];
+          if (m.length == 5 && (m.slice(-1) == 'q' || m.slice(-1) == 'r')) {
+            let n = { from: from as Square, to: to as Square, promoteTo: 'Q' };
+            console.log('engine n', n);
+            setTimeout(() => onPuzzleMove(n), 800);
+          } else {
+            const n = { from: from as Square, to: to as Square };
+            setTimeout(() => onPuzzleMove(n), 800);
           }
         } else if (
           currentChapterState.orientation == 'w' &&
@@ -267,21 +265,21 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
           const to = currentChapterState.chessAiMode.moves[
             2 * length - 2
           ].slice(2, 4);
-         // const move = { from: from as Square, to: to as Square };
+          // const move = { from: from as Square, to: to as Square };
           if (!isMyTurn) {
-           
-            const m=currentChapterState.chessAiMode.moves[2 * length]
-          //    if (m.length == 5 && (m.slice(-1) == 'q' || m.slice(-1) == 'r')) {
-              
-          // let promotionChess = m.slice(4, 5);
-          // let n = { from: from as Square, to: to as Square, promoteTo: promotionChess as string};
-          // console.log('engine n',n)
-          // setTimeout(() => onPuzzleMove(n), 800);
-          //   }else{
-           const n = { from: from as Square, to: to as Square};
-          setTimeout(() => onPuzzleMove(n), 800);
-            // }
-
+            const m = currentChapterState.chessAiMode.moves[2 * length - 2];
+            if (m.length == 5 && (m.slice(-1) == 'q' || m.slice(-1) == 'r')) {
+              let n = {
+                from: from as Square,
+                to: to as Square,
+                promoteTo: 'q',
+              };
+              console.log('engine n', n);
+              setTimeout(() => onPuzzleMove(n), 800);
+            } else {
+              const n = { from: from as Square, to: to as Square };
+              setTimeout(() => onPuzzleMove(n), 800);
+            }
           }
         }
       }
@@ -294,22 +292,25 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
           'Would you like a hint, or try again on your own?',
           // "No 🚫, try something else!"
         ];
-        
+
         const randomIndex = Math.floor(Math.random() * responses.length);
-        console.log()
-        if(currentChapterState.messages[currentChapterState.messages.length-1].content !== "That wasn’t the right move." &&
-          currentChapterState.messages[currentChapterState.messages.length-1].content !== "Would you like a hint, or try again on your own?"
-        ){
-onMessage({
-          content: responses[randomIndex],
-          participantId: 'chatGPT123456',
-          idResponse:
-            currentChapterState.messages[
-              currentChapterState.messages.length - 1
-            ].idResponse,
-        });
+        console.log();
+        if (
+          currentChapterState.messages[currentChapterState.messages.length - 1]
+            .content !== 'That wasn’t the right move.' &&
+          currentChapterState.messages[currentChapterState.messages.length - 1]
+            .content !== 'Would you like a hint, or try again on your own?'
+        ) {
+          onMessage({
+            content: responses[randomIndex],
+            participantId: 'chatGPT123456',
+            idResponse:
+              currentChapterState.messages[
+                currentChapterState.messages.length - 1
+              ].idResponse,
+          });
         }
-        
+
         // setTimeout(
         //   () =>
         //     addChessAi({
@@ -333,8 +334,31 @@ onMessage({
 
     useEffect(() => {
       if (
+        currentChapterState.chessAiMode.goodMoves > 0 &&
+        currentChapterState.chessAiMode.goodMoves % 2 === 0 &&
+        currentChapterState.chessAiMode.goodMoves <
+          currentChapterState.chessAiMode.moves.length
+      ) {
+        const responses = [
+          'Nice move! ✅',
+          'Well played! ♟️',
+          'Sharp! ⚡',
+          'Brilliant! ✨',
+          'Smart move! 🧠',
+        ];
+        const randomIndex = Math.floor(Math.random() * responses.length);
+
+        onMessage({
+          content: responses[randomIndex],
+          participantId: 'chatGPT123456',
+          idResponse:
+            currentChapterState.messages[
+              currentChapterState.messages.length - 1
+            ].idResponse,
+        });
+      } else if (
         currentChapterState.chessAiMode.goodMoves ===
-        currentChapterState.chessAiMode.moves.length &&
+          currentChapterState.chessAiMode.moves.length &&
         currentChapterState.chessAiMode.goodMoves % 2 === 0 &&
         currentChapterState.chessAiMode.goodMoves > 0
       ) {
@@ -362,67 +386,46 @@ onMessage({
               goodMoves: 0,
               orientationChange: false,
               puzzleRatting: currentChapterState.chessAiMode.puzzleRatting,
-              userPuzzleRating:currentChapterState.chessAiMode.userPuzzleRating,
+              userPuzzleRating:
+                currentChapterState.chessAiMode.userPuzzleRating,
               ratingChange: currentChapterState.chessAiMode.ratingChange,
               prevEvaluation: currentChapterState.chessAiMode.prevEvaluation,
               puzzleId: currentChapterState.chessAiMode.puzzleId,
-              prevUserPuzzleRating:  currentChapterState.chessAiMode.prevUserPuzzleRating,
-              fen:currentChapterState.displayFen,
+              prevUserPuzzleRating:
+                currentChapterState.chessAiMode.prevUserPuzzleRating,
+              fen: currentChapterState.displayFen,
             }),
           1000
         );
       }
-      if (
-        currentChapterState.chessAiMode.goodMoves > 0 &&
-        currentChapterState.chessAiMode.goodMoves % 2 === 0 &&
-        currentChapterState.chessAiMode.goodMoves <
-          currentChapterState.chessAiMode.moves.length
-      ) {
-        const responses = [
-          'Nice move! ✅',
-          'Well played! ♟️',
-          'Sharp! ⚡',
-          'Brilliant! ✨',
-          'Smart move! 🧠',
-        ];
-        const randomIndex = Math.floor(Math.random() * responses.length);
-
-        onMessage({
-          content: responses[randomIndex],
-          participantId: 'chatGPT123456',
-          idResponse:
-            currentChapterState.messages[
-              currentChapterState.messages.length - 1
-            ].idResponse,
-        });
-      }
     }, [currentChapterState.chessAiMode.goodMoves]);
 
-    
-const isMate = async () => {
-  if(currentChapterState.chessAiMode.mode=='play'){
-    setTimeout(
-              () =>
-          addChessAi({
-             mode: 'checkmate',
-             moves: currentChapterState.chessAiMode.moves,
+    const isMate = async () => {
+      if (currentChapterState.chessAiMode.mode == 'play') {
+        setStockfishMovesInfo('Game ended, no more move available');
+        setTimeout(
+          () =>
+            addChessAi({
+              mode: 'checkmate',
+              moves: currentChapterState.chessAiMode.moves,
               movesCount: 0,
               badMoves: 0,
               goodMoves: 0,
               orientationChange: false,
-              puzzleRatting: 0, 
-              userPuzzleRating:currentChapterState.chessAiMode.userPuzzleRating,
+              puzzleRatting: 0,
+              userPuzzleRating:
+                currentChapterState.chessAiMode.userPuzzleRating,
               ratingChange: 0,
               prevEvaluation: 0,
               puzzleId: 0,
-              prevUserPuzzleRating:  currentChapterState.chessAiMode.prevUserPuzzleRating,
-              fen:currentChapterState.displayFen,
-          }),
-              1000
-            );
-      } 
-      
-    }
+              prevUserPuzzleRating:
+                currentChapterState.chessAiMode.prevUserPuzzleRating,
+              fen: currentChapterState.displayFen,
+            }),
+          1000
+        );
+      }
+    };
     // const openings = async () => {
     //   addChessAi({
     //     moves: [],
@@ -488,15 +491,35 @@ const isMate = async () => {
     };
 
     const engineMove = (m: any) => {
-      
-      if (!isMyTurn && currentChapterState.chessAiMode.mode=='play') {
-        setStockfishMovesInfo(m);
+      if (currentChapterState.notation.history.length > 0) {
+        if (
+          currentChapterState.notation.focusedIndex[0] !==
+            currentChapterState.notation.history?.length - 1 ||
+          currentChapterState.notation.focusedIndex[1] !==
+            currentChapterState.notation.history[
+              currentChapterState.notation.history.length - 1
+            ]?.length -
+              1
+        ) {
+          return;
+        }
+      }
+
+      if (!isMyTurn && currentChapterState.chessAiMode.mode == 'play') {
         let fromChess = m.slice(0, 2);
         let toChess = m.slice(2, 4);
-        if (m.length == 5 && (m.slice(-1) == 'q' || m.slice(-1) == 'r')) {
-          let promotionChess = m.slice(4, 5);
-          let n = { from: fromChess, to: toChess, promoteTo: promotionChess };
-         
+        setStockfishMovesInfo(m);
+        if (
+          m.length == 5 &&
+          (m.slice(4, 5) == 'q' ||
+            m.slice(4, 5) == 'b' ||
+            m.slice(4, 5) == 'r' ||
+            m.slice(4, 5) == 'k')
+        ) {
+          const n =
+            currentChapterState.orientation == 'w'
+              ? { from: fromChess, to: toChess, promoteTo: 'q' }
+              : { from: fromChess, to: toChess, promoteTo: 'Q' };
           setTimeout(() => onPuzzleMove(n), 1000);
         } else {
           let n = { from: fromChess, to: toChess };
@@ -508,8 +531,6 @@ const isMate = async () => {
     };
     const engineLines = (m: StockfishLines) => {
       setLines(m);
-      
-      
     };
 
     const puzzles = async (category?: string) => {
@@ -523,39 +544,43 @@ const isMate = async () => {
           currentChapterState.chessAiMode.userPuzzleRating > 0
             ? currentChapterState.chessAiMode.userPuzzleRating
             : data.user_puzzle_rating;
-        
-            
-           
+
         addChessAi({
           mode: 'puzzle',
           moves: data.solution,
           movesCount: data.solution.length / 2,
           badMoves: 0,
           goodMoves: 0,
-          orientationChange:changeOrientation,
+          orientationChange: changeOrientation,
           puzzleRatting: data.rating,
           userPuzzleRating: userRating,
           ratingChange: 0,
           prevEvaluation: 0,
           puzzleId: data.puzzle_id,
           prevUserPuzzleRating: userRating,
-          fen:data.fen
-        })
-        
+          fen: data.fen,
+        });
+
         //FIRST MOVE
         const from = data.solution[0].slice(0, 2);
         const to = data.solution[0].slice(2, 4);
-        const m = data.solution[0]
-        // if (m.length == 5 && (m.slice(-1) == 'q' || m.slice(-1) == 'r')) {
-        //   let promotionChess = m.slice(4, 5);
-        //   let n = { from: from, to: to, promoteTo: promotionChess};
-        // const promote = m.slice(4, 5);
-        //   const first_move = { from: from, to: to , toPromote:promote };
-        //   setTimeout(() => onPuzzleMove(first_move), 800);
-        //     }else{
-           const first_move = { from: from, to: to };
+        const m = data.solution[0];
+        if (
+          m.length == 5 &&
+          (m.slice(-1) == 'q' ||
+            m.slice(-1) == 'r' ||
+            m.slice(-1) == 'b' ||
+            m.slice(-1) == 'k')
+        ) {
+          const first_move =
+            currentChapterState.orientation == 'w'
+              ? { from: from, to: to, promoteTo: 'q' }
+              : { from: from, to: to, promoteTo: 'Q' };
+          setTimeout(() => onPuzzleMove(first_move), 800);
+        } else {
+          const first_move = { from: from, to: to };
           setTimeout(() => onPuzzleMove(first_move), 1000);
-            // }
+        }
       }
     };
 
@@ -572,9 +597,9 @@ const isMate = async () => {
       engineMove(lines[1].slice(0, 4));
     };
     const play = async () => {
-      if(currentChapterState.chessAiMode.mode==''){
-        const content="Awesome, let's play chess."
-         onMessage({
+      if (currentChapterState.chessAiMode.mode == '') {
+        const content = "Awesome, let's play chess.";
+        onMessage({
           content: content,
           participantId: 'chatGPT123456',
           idResponse:
@@ -582,10 +607,16 @@ const isMate = async () => {
               currentChapterState.messages.length - 1
             ].idResponse,
         });
-      }else if(currentChapterState.chessAiMode.mode=='puzzle'){
-         const content="Let's finish the game properly!"
-         onMessage({
-          content: content,
+      } else if (currentChapterState.chessAiMode.mode == 'puzzle') {
+        const responses = [
+          'Let’s keep it going, nice and casual!',
+          'Let’s keep the game rolling, just for fun! ',
+          'Let’s play on, nice and easy! ',
+        ];
+        const randomIndex = Math.floor(Math.random() * responses.length);
+
+        onMessage({
+          content: responses[randomIndex],
           participantId: 'chatGPT123456',
           idResponse:
             currentChapterState.messages[
@@ -593,21 +624,24 @@ const isMate = async () => {
             ].idResponse,
         });
       }
-      addChessAi({
-        moves: [],
-        movesCount: 0,
-        badMoves: 0,
-        goodMoves: 0,
-        orientationChange: false,
-        mode: 'play',
-        prevEvaluation: currentChapterState.chessAiMode.prevEvaluation,
-        ratingChange: 0,
-        puzzleRatting: 0,
-        userPuzzleRating: currentChapterState.chessAiMode.userPuzzleRating,
-        puzzleId: 0,
-        prevUserPuzzleRating: currentChapterState.chessAiMode.userPuzzleRating,
-        fen:currentChapterState.displayFen,
-      });
+      setTimeout(() => {
+        addChessAi({
+          moves: [],
+          movesCount: 0,
+          badMoves: 0,
+          goodMoves: 0,
+          orientationChange: false,
+          mode: 'play',
+          prevEvaluation: currentChapterState.chessAiMode.prevEvaluation,
+          ratingChange: 0,
+          puzzleRatting: 0,
+          userPuzzleRating: currentChapterState.chessAiMode.userPuzzleRating,
+          puzzleId: 0,
+          prevUserPuzzleRating:
+            currentChapterState.chessAiMode.userPuzzleRating,
+          fen: currentChapterState.displayFen,
+        });
+      }, 500);
     };
     const moveReaction = async (moveDeffinition: number) => {
       const content =
@@ -650,7 +684,7 @@ const isMate = async () => {
         />
 
         <Tabs
-          containerClassName=" flex flex-col flex-1 min-h-0 rounded-lg shadow-2xl"
+          containerClassName="overflow-scroll flex flex-col flex-1 min-h-0 rounded-lg shadow-2xl no-scrollbar"
           headerContainerClassName="flex gap-3"
           contentClassName="flex-1 flex min-h-0"
           currentIndex={currentTabIndex}
@@ -688,12 +722,13 @@ const isMate = async () => {
                       playNext={playNext}
                       hint={hint}
                     />
-                    <div className="flex my-[20px] justify-around  sitems-center gap-3 hidden md:flex ">
+                    <div className="flex md:my-[20px] justify-around  sitems-center gap-3 my-[14px]">
+                      {/* hidden md:flex  */}
                       <ButtonGreen
                         onClick={() => {
                           play();
                         }}
-                        size="lg"
+                        size="sm"
                       >
                         <p>Play</p>
                       </ButtonGreen>
@@ -711,7 +746,7 @@ const isMate = async () => {
                         onClick={() => {
                           hint();
                         }}
-                        size="lg"
+                        size="sm"
                         disabled={
                           currentChapterState.chessAiMode.mode !== 'puzzle'
                         }
@@ -736,7 +771,7 @@ const isMate = async () => {
                         disabled={
                           currentChapterState.notation.history.length < 2
                         }
-                        size="lg"
+                        size="sm"
                       >
                         Take Back
                       </ButtonGreen>
@@ -744,7 +779,7 @@ const isMate = async () => {
                         onClick={() => {
                           puzzles();
                         }}
-                        size="lg"
+                        size="sm"
                       >
                         New Puzzle
                       </ButtonGreen>
@@ -761,7 +796,9 @@ const isMate = async () => {
                           boxShadow: '0px 0px 10px 0px #07DA6380',
                         }}
                         // className="w-full my-2 text-sm rounded-md border-slate-500 focus:border-slate-400 border border-transparent block bg-slate-600 text-white block py-1 px-2"
-                        className="w-full text-sm rounded-[20px] border  border-conversation-100 bg-[#111111]/40 text-white placeholder-slate-400 px-4 py-2 transition-colors duration-200 focus:outline-none focus:ring-1 focus:ring-slate-400 focus:border-conversation-200 hover:border-conversation-300"
+                        className="w-full text-sm rounded-[20px] border  border-conversation-100 bg-[#111111]/40 text-white 
+                        placeholder-slate-400 px-4 py-2  transition-colors duration-200 focus:outline-none 
+                        focus:ring-1 focus:ring-slate-400 focus:border-conversation-200 hover:border-conversation-300"
                         onChange={(e) => {
                           setQuestion(e.target.value);
                         }}
@@ -788,23 +825,23 @@ const isMate = async () => {
                       ></ButtonGreen>
                     </div>
                   </div>
-                  {currentChapterState.chessAiMode.mode=='puzzle' && (
+                  {(currentChapterState.chessAiMode.mode == 'puzzle' ||
+                    currentChapterState.chessAiMode.mode == 'popup') && (
                     <div>
-                    <PuzzleScore
-                      chessAiMode={currentChapterState.chessAiMode}
-                    />
-                    {/* <p className="w-100% text-sm text-slate-500 ">
+                      <PuzzleScore
+                        chessAiMode={currentChapterState.chessAiMode}
+                      />
+                      {/* <p className="w-100% text-sm text-slate-500 ">
                       Line 1: {lines[1].slice(0, 20)}
                     </p> */}
-                    {/* <p className="w-100% text-sm text-slate-500">
+                      {/* <p className="w-100% text-sm text-slate-500">
                       Line 2: {lines[2].slice(0, 20)}
                     </p>
                     <p className=" w-100% text-sm text-slate-500">
                       Line 3: {lines[3].slice(0, 20)}
                     </p> */}
-                  </div>
+                    </div>
                   )}
-                 
 
                   {/* {showEngine && (
                     <ChessEngineWithProvider
@@ -818,10 +855,12 @@ const isMate = async () => {
                   )} */}
                   <div
                     style={{
-                      
                       backgroundImage:
                         'radial-gradient(61.84% 61.84% at 50% 131.62%, rgba(5, 135, 44, 0.2) 0%, #01210B 100%)',
-                      height: currentChapterState.chessAiMode.mode=='puzzle'? 'calc(100% - 600px)':'calc(100% - 300px)',
+                      height:
+                        currentChapterState.chessAiMode.mode == 'puzzle'
+                          ? 'calc(100% - 600px)'
+                          : 'calc(100% - 300px)',
                     }}
                     className="hidden md:block rounded-lg border border-conversation-100 p-4 overflow-scroll"
                   >

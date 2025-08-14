@@ -148,7 +148,7 @@ export async function sendPuzzleUserRating(
     );
 
     if (!response.ok) {
-      throw new Error(`Error: ${response.status}`)
+      throw new Error(`Error: ${response.status}`);
     }
   } catch (error) {
     console.error('Fetch error', error);

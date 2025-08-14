@@ -35,7 +35,8 @@ const Conversation = ({
   return (
     <div
       ref={scrollRef}
-      className="overflow-scroll  rounded-lg  h-[180px] md:h-[316px] no-scrollbar  scroll-smooth "
+      className="overflow-scroll  rounded-lg  h-[140px] md:h-[316px] no-scrollbar  scroll-smooth 
+      max-[390px]:h-[70px] "
     >
       {currentChapterState.messages.map((msg, index) => {
         const participant = msg.participantId;
@@ -54,7 +55,11 @@ const Conversation = ({
               <div className="flex">
                 <div>
                   {isLastFromThisParticipant ? (
-                    <Image src={greenLogo} alt="outpost"  className=" max-w-[28px] md:max-w-[36px]" />
+                    <Image
+                      src={greenLogo}
+                      alt="outpost"
+                      className=" max-w-[28px] md:max-w-[36px]"
+                    />
                   ) : (
                     <Image
                       src={greenLogo}

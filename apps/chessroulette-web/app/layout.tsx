@@ -18,7 +18,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-       <head>
+      <head>
         <link
           href="https://fonts.googleapis.com/css2?family=Sora&display=swap"
           rel="stylesheet"

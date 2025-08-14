@@ -12,7 +12,7 @@ import { PromotionDialogLayer } from './PromotionDialogLayer';
 
 export type ChessboardDisplayProps = Omit<
   ReactChessBoardProps,
-  'fen' | 'boardOrientation' 
+  'fen' | 'boardOrientation'
 > & {
   fen: ChessFEN;
   sizePx: number;
@@ -64,7 +64,7 @@ export const ChessboardDisplay = ({
       marginBottom: -rightSideSizePx,
     }}
   >
-     {/* ${  onChangePuzzleAnimation ? 'opacity-0 ' : 'opacity-100  '  } */}
+    {/* ${  onChangePuzzleAnimation ? 'opacity-0 ' : 'opacity-100  '  } */}
     <div
       className={` relative overflow-hidden rounded-lg w-full h-full ${containerClassName} transition-all duration-300 ease-in-out 
        

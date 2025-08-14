@@ -99,8 +99,7 @@ const TypewriterText: React.FC<TypewriterTextProps> = ({
                 hint();
                 setAnswered(true);
               }}
-               size="lg"
-            
+              size="lg"
             >
               {' '}
               🔍 Hint
@@ -118,8 +117,8 @@ const TypewriterText: React.FC<TypewriterTextProps> = ({
                 onSelectPuzzle(category.value);
                 setAnswered(true);
               }}
-              size="sm"
-              className=" font-bold mt-2 mr-2 whitespace-nowrap"
+              size="md"
+              className=" font-bold mt-2 px-1 mr-2 whitespace-nowrap"
             >
               {category.label}
             </ButtonGreen>

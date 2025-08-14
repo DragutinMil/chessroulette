@@ -81,14 +81,13 @@ export const InstructorWidgetPanel = React.forwardRef<TabsRef, Props>(
     const chat = async (question: string) => {
       const url = new URL(window.location.href);
       const userId = url.searchParams.get('userId');
-      if(userId){
+      if (userId) {
         onMessage({
-        content: question,
-        participantId: userId,
-        idResponse: '',
-      });
+          content: question,
+          participantId: userId,
+          idResponse: '',
+        });
       }
-      
     };
     // useEffect(() => {
     //   console.log('widgetPanelTabsNav changed');

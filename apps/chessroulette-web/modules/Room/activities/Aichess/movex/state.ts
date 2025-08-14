@@ -27,12 +27,8 @@ export const initialChapterState: ChapterState = {
     prevEvaluation: 0,
     puzzleId: 0,
     prevUserPuzzleRating: 0,
-    fen:ChessFENBoard.STARTING_FEN
+    fen: ChessFENBoard.STARTING_FEN,
   },
-
- 
-
-
 
   notation: {
     history: [],
