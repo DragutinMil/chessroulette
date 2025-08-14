@@ -6,18 +6,16 @@ export async function SendQuestion(
   prompt: string,
   currentChapterState: ChapterState,
   stockfishMovesInfo: string,
-  line: string
+  bestline: string
 ) {
   const model = 'gpt-4.1';
-  console.log('currentChapterState', currentChapterState.notation.history);
   const previusMessageId =
     currentChapterState.messages[currentChapterState.messages.length - 1]
       .idResponse;
 
-  console.log(
-    'currentChapterState.notation.history.length',
-    currentChapterState.notation.history
-  );
+  const piecesUserColor =
+    currentChapterState.orientation == 'w' ? 'white' : 'black';
+  console.log('piecesUserColor', piecesUserColor);
   const question =
     currentChapterState.notation.history.length == 0
       ? prompt
@@ -26,8 +24,10 @@ export async function SendQuestion(
         stockfishMovesInfo +
         '. Fen:' +
         currentChapterState.displayFen +
-        '. Stockfish best Line:'+
-        line +
+        '. Stockfish best Line:' +
+        bestline +
+        '. User color peices: ' +
+        piecesUserColor +
         '. Last Move: ' +
         currentChapterState.notation.history[
           currentChapterState.notation.history.length - 1
@@ -37,7 +37,7 @@ export async function SendQuestion(
           ]?.length - 1
         ].san;
 
-  //console.log('question in send question', question);
+  console.log('question in send question', question);
   try {
     const token = await getToken();
 

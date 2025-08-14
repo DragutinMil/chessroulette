@@ -30,7 +30,7 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
   prevScore,
   addGameEvaluation,
   moveReaction,
-  IsMate
+  IsMate,
 }) => {
   const [stockfishOutput, setStockfishOutput] = useState('Initializing...');
   const [bestMove, setBestMove] = useState('');
@@ -43,22 +43,6 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
   const [depth, setDepth] = useState('10');
   const [skill, setSkill] = useState('');
   const [contempt, setContempt] = useState('');
-  
-
-  function checkIfMate(output:string) {
-
-  const mateRegex = /score\s+mate\s+(-?\d+)/;
-  const match = output.match(mateRegex);
- console.log('string',output )
-  if (match) {
-    const mateIn = parseInt(match[1], 10);
-    if (mateIn === 0) {
-      IsMate(true); // trenutni mat
-    } 
-  }
-}
-
-
 
   useEffect(() => {
     if (typeof window === 'undefined') return; // Ensure it's client-side
@@ -75,13 +59,11 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
           });
         }
         if (event.data.startsWith('info depth')) {
-        
-          if(event.data=='info depth 0 score mate 0'){
-            IsMate(true)
+          if (event.data == 'info depth 0 score mate 0') {
+            IsMate(true);
           }
           if (event.data.startsWith('info depth 10')) {
             const pvIndex = event.data.indexOf(' pv ');
-            
 
             if (event.data.includes('multipv 2')) {
               setLinesTwo(event.data.slice(pvIndex + 4));
@@ -89,9 +71,8 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
             if (event.data.includes('multipv 1')) {
               setLineOne(event.data.slice(pvIndex + 4));
               const match = event.data.match(/score cp (-?\d+)/);
-              
-              
-             // POTEZI EVALUACIJA
+
+              // POTEZI EVALUACIJA
               if (match) {
                 const score = isMyTurn
                   ? parseInt(match[1], 10)
@@ -110,7 +91,6 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
                   }
                 }
                 addGameEvaluation(score);
-              
               }
             }
             if (event.data.includes('multipv 3')) {
@@ -152,18 +132,16 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
     let m = bestMove;
     if (!isMyTurn && bestMove && !puzzleMode && playMode && !stupidMove) {
       engineMove(m);
-    } 
+    }
     // else if (bestMove && playMode && !puzzleMode && !stupidMove) {
     //   engineMove(m);
-    // } 
+    // }
     else if (stupidMove || GoodMove) {
       const moveDeffinition = stupidMove ? 0 : 1;
       moveReaction(moveDeffinition);
-    }
-    else{
+    } else {
       engineMove(m);
     }
-   
   }, [bestMove, playMode]);
 
   useEffect(() => {
@@ -173,7 +151,6 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
       3: lineThree,
     };
     engineLines(stockfishLines);
-    console.log(stockfishLines)
   }, [changes]);
 
   return null;
