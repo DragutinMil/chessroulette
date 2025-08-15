@@ -103,8 +103,57 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
         ].includes(move)
       ) {
         const badMovePoints = -1;
-        const badMoveCount =
-          prev.activityState.chaptersMap[0].chessAiMode.badMoves + 1;
+        // const badMoveCount =
+        //   prev.activityState.chaptersMap[0].chessAiMode.badMoves + 1;
+
+        const responses = [
+          'That wasn’t the right move.',
+          'Would you like a hint, or try again on your own?',
+          // "No 🚫, try something else!"
+        ];
+
+        const prompt = responses[Math.floor(Math.random() * responses.length)];
+        const idResponse =
+          prev.activityState.chaptersMap[0].messages[
+            prev.activityState.chaptersMap[0].messages.length - 1
+          ].idResponse;
+        // if (
+        //   prev.activityState.chaptersMap[0].messages[prev.activityState.chaptersMap[0].messages.length - 1]
+        //     .content !== 'That wasn’t the right move.' &&
+        //   prev.activityState.chaptersMap[0].messages[prev.activityState.chaptersMap[0].messages.length - 1]
+        //     .content !== 'Would you like a hint, or try again on your own?'
+        // ) {
+        const message = {
+          content: prompt,
+          participantId: 'chatGPT123456',
+          idResponse: idResponse,
+        };
+        //   return {
+        //   ...prev,
+        //   activityState: {
+        //     ...prev.activityState,
+        //     chaptersMap: {
+        //       ...prev.activityState.chaptersMap,
+        //       [0]: {
+        //         ...prev.activityState.chaptersMap[0],
+        //          messages: [
+        //         ...(prev.activityState.chaptersMap[0].messages ?? []),
+        //         message,
+        //       ],
+        //         chessAiMode: {
+        //           ...prev.activityState.chaptersMap[0].chessAiMode,
+        //           ratingChange: badMovePoints,
+        //           userPuzzleRating:
+        //             prev.activityState.chaptersMap[0].chessAiMode
+        //               .userPuzzleRating + badMovePoints,
+        //           // badMoves: badMoveCount,
+        //         },
+        //       },
+        //     },
+        //   },
+        // };
+        // }
+
         return {
           ...prev,
           activityState: {
@@ -113,13 +162,17 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
               ...prev.activityState.chaptersMap,
               [0]: {
                 ...prev.activityState.chaptersMap[0],
+                messages: [
+                  ...(prev.activityState.chaptersMap[0].messages ?? []),
+                  message,
+                ],
                 chessAiMode: {
                   ...prev.activityState.chaptersMap[0].chessAiMode,
                   ratingChange: badMovePoints,
                   userPuzzleRating:
                     prev.activityState.chaptersMap[0].chessAiMode
                       .userPuzzleRating + badMovePoints,
-                  badMoves: badMoveCount,
+                  // badMoves: badMoveCount,
                 },
               },
             },
@@ -487,12 +540,20 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
       console.error('No loaded chapter');
       return prev;
     }
-    console.log('ide draw circle',action.payload)
+    console.log('ide draw circle', action.payload);
     const hintCorrection = Object.keys(action.payload).length === 0 ? 0 : 1;
-    const [at, hex] = action.payload;
+    const [at, hex, piece] = action.payload;
     const circleId = `${at}`;
     const { [circleId]: existent, ...restOfCirlesMap } = prevChapter.circlesMap;
- 
+    const idResponse =
+      prev.activityState.chaptersMap[0].messages[
+        prev.activityState.chaptersMap[0].messages.length - 1
+      ].idResponse;
+    const message = {
+      content: `Think about using your ${piece}`,
+      participantId: 'chatGPT123456',
+      idResponse: idResponse,
+    };
 
     // messages: [
     //           ...(prev.activityState.chaptersMap[0].messages ?? []),
@@ -525,6 +586,10 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
           ? undefined // Set it to undefined if same
           : { [circleId]: action.payload }),
       },
+      messages: [
+        ...(prev.activityState.chaptersMap[0].messages ?? []),
+        message,
+      ],
       chessAiMode: {
         ...prev.activityState.chaptersMap[0].chessAiMode,
         ratingChange: -hintCorrection,
@@ -692,6 +757,95 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
     const nextFen = action.payload.fen;
 
     const chessAiMode = action.payload;
+
+    //PLAY
+    if (action.payload.mode === 'play') {
+      const responses =
+        prev.activityState.chaptersMap[0].chessAiMode.mode == ''
+          ? ["Awesome, let's play chess."]
+          : [
+              'Let’s keep it going, nice and casual!',
+              'Let’s keep the game rolling, just for fun! ',
+              'Let’s play on, nice and easy! ',
+            ];
+      const prompt = responses[Math.floor(Math.random() * responses.length)];
+      const idResponse =
+        prev.activityState.chaptersMap[0].messages[
+          prev.activityState.chaptersMap[0].messages.length - 1
+        ].idResponse;
+      const message = {
+        content: prompt,
+        participantId: 'chatGPT123456',
+        idResponse: idResponse,
+      };
+      return {
+        ...prev,
+        activityState: {
+          ...prev.activityState,
+          chaptersMap: {
+            ...prev.activityState.chaptersMap,
+            [0]: {
+              ...prev.activityState.chaptersMap[0],
+              displayFen: nextFen,
+              chessAiMode: chessAiMode,
+              notation: {
+                startingFen: nextFen,
+                history: [],
+                focusedIndex: FreeBoardHistory.getStartingIndex(),
+              },
+              messages: [
+                ...(prev.activityState.chaptersMap[0].messages ?? []),
+                message,
+              ],
+            },
+          },
+        },
+      };
+    }
+
+    // POPUP
+    if (action.payload.mode === 'popup') {
+      const responses = [
+        'Congratulations! You solved it 🎉',
+        'You did it! On to the next one 🚀',
+        'Great work! You nailed it 🧠',
+      ];
+
+      const prompt = responses[Math.floor(Math.random() * responses.length)];
+      const idResponse =
+        prev.activityState.chaptersMap[0].messages[
+          prev.activityState.chaptersMap[0].messages.length - 1
+        ].idResponse;
+      const message = {
+        content: prompt,
+        participantId: 'chatGPT123456',
+        idResponse: idResponse,
+      };
+      return {
+        ...prev,
+        activityState: {
+          ...prev.activityState,
+          chaptersMap: {
+            ...prev.activityState.chaptersMap,
+            [0]: {
+              ...prev.activityState.chaptersMap[0],
+              displayFen: nextFen,
+              chessAiMode: chessAiMode,
+              notation: {
+                startingFen: nextFen,
+                history: [],
+                focusedIndex: FreeBoardHistory.getStartingIndex(),
+              },
+              messages: [
+                ...(prev.activityState.chaptersMap[0].messages ?? []),
+                message,
+              ],
+            },
+          },
+        },
+      };
+    }
+
     if (action.payload.movesCount > 0 && action.payload.goodMoves == 0) {
       const responses =
         chessAiMode.movesCount == 1
@@ -706,12 +860,15 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
               `Try to solve puzzle in ${chessAiMode.movesCount} moves`,
               `Speed run this: solve it in  ${chessAiMode.movesCount} moves!`,
             ];
-
+      const idResponse =
+        prev.activityState.chaptersMap[0].messages[
+          prev.activityState.chaptersMap[0].messages.length - 1
+        ].idResponse;
       const randomIndex = Math.floor(Math.random() * responses.length);
       const message = {
         content: responses[randomIndex],
         participantId: 'chatGPT123456',
-        idResponse: '',
+        idResponse: idResponse,
       };
 
       if (action.payload.orientationChange === true) {

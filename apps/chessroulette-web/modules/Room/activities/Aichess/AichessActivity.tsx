@@ -116,103 +116,103 @@ export const AichessActivity = ({
               onMove={noop}
             />
           ) : ( */}
-             {/* Learn Mode */}
+          {/* Learn Mode */}
 
-            <div>
-              <AiChessDialogContainer
-                onPuzzleMove={(payload) => {
-                  moveSound.play();
-                  dispatch({ type: 'loadedChapter:addMove', payload });
-                }}
-                addChessAi={(payload: chessAiMode) =>
-                  dispatch({
-                    type: 'loadedChapter:setPuzzleMoves',
-                    payload: payload as chessAiMode,
-                  })
-                }
-                // onQuickImport={(input) => {
-                //   dispatch({
-                //     type: 'loadedChapter:import',
-                //     payload: { input },
-                //   });
-                // }}
-                currentChapter={currentChapter}
-              />
+          <div>
+            <AiChessDialogContainer
+              onPuzzleMove={(payload) => {
+                moveSound.play();
+                dispatch({ type: 'loadedChapter:addMove', payload });
+              }}
+              addChessAi={(payload: chessAiMode) =>
+                dispatch({
+                  type: 'loadedChapter:setPuzzleMoves',
+                  payload: payload as chessAiMode,
+                })
+              }
+              // onQuickImport={(input) => {
+              //   dispatch({
+              //     type: 'loadedChapter:import',
+              //     payload: { input },
+              //   });
+              // }}
+              currentChapter={currentChapter}
+            />
 
-              <AichessBoard
-                sizePx={boardSize}
-                // onChangePuzzleAnimation={onChangePuzzleAnimation}
-                {...currentChapter}
-                orientation={
-                  // The instructor gets the opposite side as the student (so they can play together)
-                  settings.isInstructor
-                    ? swapColor(currentChapter.orientation)
-                    : currentChapter.orientation
-                }
-                onFlip={() => {
-                  dispatch({
-                    type: 'loadedChapter:setOrientation',
-                    payload: { color: swapColor(currentChapter.orientation) },
-                  });
-                }}
-                onMove={(payload) => {
-                  moveSound.play();
-                  dispatch({ type: 'loadedChapter:addMove', payload });
+            <AichessBoard
+              sizePx={boardSize}
+              // onChangePuzzleAnimation={onChangePuzzleAnimation}
+              {...currentChapter}
+              orientation={
+                // The instructor gets the opposite side as the student (so they can play together)
+                settings.isInstructor
+                  ? swapColor(currentChapter.orientation)
+                  : currentChapter.orientation
+              }
+              onFlip={() => {
+                dispatch({
+                  type: 'loadedChapter:setOrientation',
+                  payload: { color: swapColor(currentChapter.orientation) },
+                });
+              }}
+              onMove={(payload) => {
+                moveSound.play();
+                dispatch({ type: 'loadedChapter:addMove', payload });
 
-                  // TODO: This can be returned from a more internal component
-                  return true;
-                }}
-                onArrowsChange={(payload) => {
-                 // console.log('arrow karioka');
-                  // dispatch({ type: 'loadedChapter:setArrows', payload });
-                }}
-                onCircleDraw={(tuple) => {
-                  // dispatch({
-                  //   type: 'loadedChapter:drawCircle',
-                  //   payload: tuple,
-                  // });
-                }}
-                onClearCircles={() => {
-                  dispatch({ type: 'loadedChapter:clearCircles' });
-                }}
-                onClearBoard={() => {
-                  dispatch({
-                    type: 'loadedChapter:updateFen',
-                    payload: ChessFENBoard.ONLY_KINGS_FEN,
-                  });
-                }}
-                onResetBoard={() => {
-                  dispatch({
-                    type: 'loadedChapter:updateFen',
-                    payload: ChessFENBoard.STARTING_FEN,
-                  });
-                }}
-                onBoardEditor={() => {
-                  dispatchInputState({
-                    type: 'activate',
-                    payload: {
-                      isBoardEditorShown: true,
-                      chapterState: currentChapter,
-                    },
-                  });
+                // TODO: This can be returned from a more internal component
+                return true;
+              }}
+              onArrowsChange={(payload) => {
+                // console.log('arrow karioka');
+                // dispatch({ type: 'loadedChapter:setArrows', payload });
+              }}
+              onCircleDraw={(tuple) => {
+                // dispatch({
+                //   type: 'loadedChapter:drawCircle',
+                //   payload: tuple,
+                // });
+              }}
+              onClearCircles={() => {
+                dispatch({ type: 'loadedChapter:clearCircles' });
+              }}
+              onClearBoard={() => {
+                dispatch({
+                  type: 'loadedChapter:updateFen',
+                  payload: ChessFENBoard.ONLY_KINGS_FEN,
+                });
+              }}
+              onResetBoard={() => {
+                dispatch({
+                  type: 'loadedChapter:updateFen',
+                  payload: ChessFENBoard.STARTING_FEN,
+                });
+              }}
+              onBoardEditor={() => {
+                dispatchInputState({
+                  type: 'activate',
+                  payload: {
+                    isBoardEditorShown: true,
+                    chapterState: currentChapter,
+                  },
+                });
 
-                  // 2 is the update stack - this should be done much more explicit in the future!
-                  tabsRef.current?.focusByTabId('chapters', 2);
-                }}
-                rightSideClassName="flex-1"
-                rightSideComponent={
-                  <>
-                    <div className="relative flex flex-1 flex-col items-center justify-center">
-                      <PanelResizeHandle
-                        className="w-1 h-20 rounded-lg bg-slate-600"
-                        title="Resize"
-                      />
-                    </div>
-                    <div className="flex-1" />
-                  </>
-                }
-              />
-            </div>
+                // 2 is the update stack - this should be done much more explicit in the future!
+                tabsRef.current?.focusByTabId('chapters', 2);
+              }}
+              rightSideClassName="flex-1"
+              rightSideComponent={
+                <>
+                  <div className="relative flex flex-1 flex-col items-center justify-center">
+                    <PanelResizeHandle
+                      className="w-1 h-20 rounded-lg bg-slate-600"
+                      title="Resize"
+                    />
+                  </div>
+                  <div className="flex-1" />
+                </>
+              }
+            />
+          </div>
           {/* )} */}
         </>
       )}

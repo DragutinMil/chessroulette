@@ -133,7 +133,7 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
 
   useEffect(() => {
     let m = bestMove;
-    console.log(m)
+    console.log(m);
     if (!isMyTurn && bestMove && !puzzleMode && playMode) {
       engineMove(m);
     }
