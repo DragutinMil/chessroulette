@@ -24,12 +24,15 @@ export const initialChapterState: ChapterState = {
     puzzleRatting: 0,
     userPuzzleRating: 0,
     ratingChange: 0,
-    prevEvaluation: 0,
     puzzleId: 0,
     prevUserPuzzleRating: 0,
     fen: ChessFENBoard.STARTING_FEN,
   },
-
+  evaluation: {
+    prevCp: 0,
+    newCp: 0,
+    diffCp: 0,
+  },
   notation: {
     history: [],
     focusedIndex: FreeBoardHistory.getStartingIndex(),

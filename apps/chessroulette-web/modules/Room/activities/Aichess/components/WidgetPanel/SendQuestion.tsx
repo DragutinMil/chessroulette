@@ -15,27 +15,48 @@ export async function SendQuestion(
 
   const piecesUserColor =
     currentChapterState.orientation == 'w' ? 'white' : 'black';
-  console.log('piecesUserColor', piecesUserColor);
+  const lastMoveSan =
+    currentChapterState.notation.history[
+      currentChapterState.notation.history.length - 1
+    ][
+      currentChapterState.notation.history[
+        currentChapterState.notation.history.length - 1
+      ]?.length - 1
+    ].san;
+
   const question =
     currentChapterState.notation.history.length == 0
       ? prompt
-      : prompt +
-        '. Best Moves:' +
+      : 'QUESTION:\n' +
+        prompt +
+        '\n\n' +
+        'CONTEXT:\n' +
+        'Best Moves: ' +
         stockfishMovesInfo +
-        '. Fen:' +
+        '\n' +
+        'FEN: ' +
         currentChapterState.displayFen +
-        '. Stockfish best Line:' +
+        '\n' +
+        'Stockfish best line: ' +
         bestline +
-        '. User color peices: ' +
+        '\n' +
+        'User color pieces: ' +
         piecesUserColor +
-        '. Last Move: ' +
-        currentChapterState.notation.history[
-          currentChapterState.notation.history.length - 1
-        ][
-          currentChapterState.notation.history[
-            currentChapterState.notation.history.length - 1
-          ]?.length - 1
-        ].san;
+        '\n' +
+        'Last move: ' +
+        lastMoveSan;
+
+  //  JSON VARIANT
+  // {
+  //   question: promptQuestion,
+  //   context: {
+  //     bestMoves: stockfishMovesInfo,
+  //     fen: currentChapterState.displayFen,
+  //     stockfishBestLine: bestline,
+  //     userColorPieces: piecesUserColor,
+  //     lastMove: lastMoveSan
+  //   }
+  // };
 
   console.log('question in send question', question);
   try {

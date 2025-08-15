@@ -129,7 +129,6 @@ export async function sendPuzzleUserRating(
   puzzleId: number
 ) {
   const token = Cookies.get('sessionToken');
-  console.log(userPuzzleRating, prevUserPuzzleRating, puzzleId);
   try {
     const response = await fetch(
       process.env.NEXT_PUBLIC_API_WEB + 'puzzle_result',

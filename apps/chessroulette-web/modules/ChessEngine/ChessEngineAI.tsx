@@ -15,7 +15,7 @@ type StockfishEngineAIProps = {
   puzzleMode: boolean;
   playMode: boolean;
   prevScore: number;
-  moveReaction: (moveDeffinition: number) => void;
+  // moveReaction: (moveDeffinition: number) => void;
   addGameEvaluation: (score: number) => void;
   IsMate: (mate: boolean) => void;
 };
@@ -29,7 +29,7 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
   engineLines,
   prevScore,
   addGameEvaluation,
-  moveReaction,
+  // moveReaction,
   IsMate,
 }) => {
   const [stockfishOutput, setStockfishOutput] = useState('Initializing...');
@@ -62,9 +62,10 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
           if (event.data == 'info depth 0 score mate 0') {
             IsMate(true);
           }
+
           if (event.data.startsWith('info depth 10')) {
             const pvIndex = event.data.indexOf(' pv ');
-
+            //  console.log(event.data)
             if (event.data.includes('multipv 2')) {
               setLinesTwo(event.data.slice(pvIndex + 4));
             }
@@ -77,19 +78,21 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
                 const score = isMyTurn
                   ? parseInt(match[1], 10)
                   : -1 * parseInt(match[1], 10);
-                setStupidMove(false);
-                setGoodMove(false);
-                if (prevScore !== 0) {
-                  const evalDiff = score - prevScore;
-                  // console.log('score vs prev',score,prevScore)
-                  if (evalDiff < -500) {
-                    setStupidMove(true);
-                    setGoodMove(false);
-                  } else if (evalDiff > 400) {
-                    setStupidMove(false);
-                    setGoodMove(true);
-                  }
-                }
+                // setStupidMove(false);
+                // setGoodMove(false);
+                // if (prevScore !== 0) {
+                //   const evalDiff = score - prevScore;
+                //   if (evalDiff < -500) {
+                //     console.log('evalDiff',evalDiff)
+                //      console.log('evalDiffscore',score)
+                //       console.log('evalDiffprevScore',prevScore)
+                //     setStupidMove(true);
+                //     setGoodMove(false);
+                //   } else if (evalDiff > 400) {
+                //     setStupidMove(false);
+                //     setGoodMove(true);
+                //   }
+                // }
                 addGameEvaluation(score);
               }
             }
@@ -130,16 +133,18 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
 
   useEffect(() => {
     let m = bestMove;
-    if (!isMyTurn && bestMove && !puzzleMode && playMode && !stupidMove) {
+    console.log(m)
+    if (!isMyTurn && bestMove && !puzzleMode && playMode) {
       engineMove(m);
     }
     // else if (bestMove && playMode && !puzzleMode && !stupidMove) {
     //   engineMove(m);
     // }
-    else if (stupidMove || GoodMove) {
-      const moveDeffinition = stupidMove ? 0 : 1;
-      moveReaction(moveDeffinition);
-    } else {
+    // else if (stupidMove || GoodMove) {
+    //   const moveDeffinition = stupidMove ? 0 : 1;
+    //   moveReaction(moveDeffinition);
+    // }
+    else {
       engineMove(m);
     }
   }, [bestMove, playMode]);
