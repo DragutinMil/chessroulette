@@ -139,11 +139,11 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
       const url = new URL(window.location.href);
       const userId = url.searchParams.get('userId');
       if (userId) {
-        // onMessage({
-        //   content: question,
-        //   participantId: userId,
-        //   idResponse: '',
-        // });
+        onMessage({
+          content: question,
+          participantId: userId,
+          idResponse: '',
+        });
       }
       setQuestion('');
       setTimeout(() => {
@@ -165,9 +165,6 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
         data.puzzle.fen &&
         ChessFENBoard.validateFenString(data.puzzle.fen).ok
       ) {
-        // if (ChessFENBoard.validateFenString(data.puzzle.fen).ok) {
-        //     onQuickImport({ type: 'FEN', val: data.puzzle.fen });
-        //   }
         const changeOrientation =
           currentChapterState.orientation === data.answer.fen.split(' ')[1];
         const userRating =
@@ -190,12 +187,17 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
           fen: data.puzzle.fen,
         });
         setTimeout(() => {
-          const promote = data.puzzle.solution[0].slice(4, 5);
           const from = data.puzzle.solution[0].slice(0, 2);
           const to = data.puzzle.solution[0].slice(2, 4);
           const m = data.puzzle.solution[0];
 
-          if (m.length == 5 && (m.slice(-1) == 'q' || m.slice(-1) == 'r')) {
+          if (
+            (m.length == 5 &&
+              (m.slice(-1) == 'q' ||
+                m.slice(-1) == 'r' ||
+                m.slice(-1) == 'k')) ||
+            m.slice(-1) == 'b'
+          ) {
             let n =
               currentChapterState.orientation == 'w'
                 ? { from: from, to: to, promoteTo: 'q' }
@@ -217,23 +219,22 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
     };
     useEffect(() => {
       if (currentChapterState.evaluation.prevCp !== 0) {
-        if(!isMyTurn){
-const ProbabilityChange = ChessEngineProbabilityCalc(
-          currentChapterState.evaluation.prevCp,
-          currentChapterState.evaluation.newCp
-        );
+        if (!isMyTurn) {
+          const ProbabilityChange = ChessEngineProbabilityCalc(
+            currentChapterState.evaluation.prevCp,
+            currentChapterState.evaluation.newCp
+          );
 
-       // console.log('probabilities', ProbabilityChange);
-        if(ProbabilityChange.diff > 10){
-          console.log("GOOD MOVE")
+          // console.log('probabilities', ProbabilityChange);
+          if (ProbabilityChange.diff > 10) {
+            console.log('GOOD MOVE');
+          }
+          if (ProbabilityChange.diff < -15) {
+            console.log('BAAD MOVE');
+          }
         }
-         if(ProbabilityChange.diff <-15 ){
-           console.log("BAAD MOVE")
-        }
-        
       }
-      }
-    }, [currentChapterState.evaluation.newCp])
+    }, [currentChapterState.evaluation.newCp]);
 
     useEffect(() => {
       const length = currentChapterState.notation.history.length;
@@ -303,50 +304,46 @@ const ProbabilityChange = ChessEngineProbabilityCalc(
       }
     }, [currentChapterState.chessAiMode.goodMoves]);
 
-    useEffect(() => {
-      if (currentChapterState.chessAiMode.badMoves > 0 && isMyTurn) {
-        const responses = [
-          'That wasn’t the right move.',
-          'Would you like a hint, or try again on your own?',
-          // "No 🚫, try something else!"
-        ];
+    // useEffect(() => {
+    // if (currentChapterState.chessAiMode.badMoves > 0 && isMyTurn) {
+    //   const responses = [
+    //     'That wasn’t the right move.',
+    //     'Would you like a hint, or try again on your own?',
+    //     // "No 🚫, try something else!"
+    //   ];
 
-        const prompt = responses[Math.floor(Math.random() * responses.length)];
-        const idResponse =
-          currentChapterState.messages[currentChapterState.messages.length - 1]
-            .idResponse;
-        if (
-          currentChapterState.messages[currentChapterState.messages.length - 1]
-            .content !== 'That wasn’t the right move.' &&
-          currentChapterState.messages[currentChapterState.messages.length - 1]
-            .content !== 'Would you like a hint, or try again on your own?'
-        ) {
-          // onMessage({
-          //   content: prompt,
-          //   participantId: 'chatGPT123456',
-          //   idResponse: idResponse,
-          // });
-        }
+    //   const prompt = responses[Math.floor(Math.random() * responses.length)];
+    //   const idResponse =
+    //     currentChapterState.messages[currentChapterState.messages.length - 1]
+    //       .idResponse;
+    //   if (
+    //     currentChapterState.messages[currentChapterState.messages.length - 1]
+    //       .content !== 'That wasn’t the right move.' &&
+    //     currentChapterState.messages[currentChapterState.messages.length - 1]
+    //       .content !== 'Would you like a hint, or try again on your own?'
+    //   ) {
 
-        // setTimeout(
-        //   () =>
-        //     addChessAi({
-        //       moves: currentChapterState.chessAiMode.moves,
-        //       movesCount: currentChapterState.chessAiMode.movesCount,
-        //       badMoves: 0,
-        //       goodMoves:currentChapterState.chessAiMode.goodMoves,
-        //       orientationChange: false,
-        //       mode: 'puzzle',
-        //       ratingChange: 0,
-        //       puzzleRatting: currentChapterState.chessAiMode.puzzleRatting,
-        //       userPuzzleRating:currentChapterState.chessAiMode.userPuzzleRating,
-        //       puzzleId: currentChapterState.chessAiMode.puzzleId,
-        //       prevUserPuzzleRating:  currentChapterState.chessAiMode.prevUserPuzzleRating,
-        //     }),
-        //   1000
-        // );
-      }
-    }, [currentChapterState.chessAiMode.badMoves]);
+    //   }
+
+    // setTimeout(
+    //   () =>
+    //     addChessAi({
+    //       moves: currentChapterState.chessAiMode.moves,
+    //       movesCount: currentChapterState.chessAiMode.movesCount,
+    //       badMoves: 0,
+    //       goodMoves:currentChapterState.chessAiMode.goodMoves,
+    //       orientationChange: false,
+    //       mode: 'puzzle',
+    //       ratingChange: 0,
+    //       puzzleRatting: currentChapterState.chessAiMode.puzzleRatting,
+    //       userPuzzleRating:currentChapterState.chessAiMode.userPuzzleRating,
+    //       puzzleId: currentChapterState.chessAiMode.puzzleId,
+    //       prevUserPuzzleRating:  currentChapterState.chessAiMode.prevUserPuzzleRating,
+    //     }),
+    //   1000
+    // );
+    // }
+    // }, [currentChapterState.chessAiMode.badMoves]);
 
     useEffect(() => {
       if (
@@ -364,34 +361,24 @@ const ProbabilityChange = ChessEngineProbabilityCalc(
         ];
         const randomIndex = Math.floor(Math.random() * responses.length);
 
-        // onMessage({
-        //   content: responses[randomIndex],
-        //   participantId: 'chatGPT123456',
-        //   idResponse:
-        //     currentChapterState.messages[
-        //       currentChapterState.messages.length - 1
-        //     ].idResponse,
-        // });
+        setTimeout(
+          () =>
+            onMessage({
+              content: responses[randomIndex],
+              participantId: 'chatGPT123456',
+              idResponse:
+                currentChapterState.messages[
+                  currentChapterState.messages.length - 1
+                ].idResponse,
+            }),
+          600
+        );
       } else if (
         currentChapterState.chessAiMode.goodMoves ===
           currentChapterState.chessAiMode.moves.length &&
         currentChapterState.chessAiMode.goodMoves % 2 === 0 &&
         currentChapterState.chessAiMode.goodMoves > 0
       ) {
-        const responses = [
-          'Congratulations! You solved it 🎉',
-          'You did it! On to the next one 🚀',
-          'Great work! You nailed it 🧠',
-        ];
-        const prompt = responses[Math.floor(Math.random() * responses.length)];
-        const idResponse =
-          currentChapterState.messages[currentChapterState.messages.length - 1]
-            .idResponse;
-        // onMessage({
-        //   content: prompt,
-        //   participantId: 'chatGPT123456',
-        //   idResponse: idResponse,
-        // });
         setTimeout(
           () =>
             addChessAi({
@@ -403,11 +390,6 @@ const ProbabilityChange = ChessEngineProbabilityCalc(
               goodMoves: 0,
               orientationChange: false,
               fen: currentChapterState.displayFen,
-              // puzzleRatting: currentChapterState.chessAiMode.puzzleRatting,
-              // userPuzzleRating: currentChapterState.chessAiMode.userPuzzleRating,
-              // ratingChange: currentChapterState.chessAiMode.ratingChange,
-              // puzzleId: currentChapterState.chessAiMode.puzzleId,
-              // prevUserPuzzleRating: currentChapterState.chessAiMode.prevUserPuzzleRating,
             }),
           1000
         );
@@ -479,14 +461,15 @@ const ProbabilityChange = ChessEngineProbabilityCalc(
         });
         setHintCircle(false);
       } else {
-        const circle = [fieldFrom, color];
+        const piece = await CheckPiece(
+          fieldFrom as Square,
+          currentChapterState.displayFen
+        );
+        const circle = [fieldFrom, color, piece];
         setHintCircle(true);
         onCircleDraw(circle as CircleDrawTuple);
       }
-      const piece = await CheckPiece(
-        fieldFrom as Square,
-        currentChapterState.displayFen
-      );
+
       // if (
       //   !currentChapterState.messages[
       //     currentChapterState.messages.length - 1
@@ -612,50 +595,20 @@ const ProbabilityChange = ChessEngineProbabilityCalc(
       engineMove(lines[1].slice(0, 4));
     };
     const play = async () => {
-      if (currentChapterState.chessAiMode.mode == '') {
-        const content = "Awesome, let's play chess.";
-        // onMessage({
-        //   content: content,
-        //   participantId: 'chatGPT123456',
-        //   idResponse:
-        //     currentChapterState.messages[
-        //       currentChapterState.messages.length - 1
-        //     ].idResponse,
-        // });
-      } else if (currentChapterState.chessAiMode.mode == 'puzzle') {
-        const responses = [
-          'Let’s keep it going, nice and casual!',
-          'Let’s keep the game rolling, just for fun! ',
-          'Let’s play on, nice and easy! ',
-        ];
-        const randomIndex = Math.floor(Math.random() * responses.length);
-
-        // onMessage({
-        //   content: responses[randomIndex],
-        //   participantId: 'chatGPT123456',
-        //   idResponse:
-        //     currentChapterState.messages[
-        //       currentChapterState.messages.length - 1
-        //     ].idResponse,
-        // });
-      }
-      setTimeout(() => {
-        addChessAi({
-          moves: [],
-          movesCount: 0,
-          badMoves: 0,
-          goodMoves: 0,
-          orientationChange: false,
-          mode: 'play',
-          ratingChange: 0,
-          puzzleRatting: 0,
-          userPuzzleRating: currentChapterState.chessAiMode.userPuzzleRating,
-          puzzleId: 0,
-          prevUserPuzzleRating:
-            currentChapterState.chessAiMode.userPuzzleRating,
-          fen: currentChapterState.displayFen,
-        });
-      }, 500);
+      addChessAi({
+        moves: [],
+        movesCount: 0,
+        badMoves: 0,
+        goodMoves: 0,
+        orientationChange: false,
+        mode: 'play',
+        ratingChange: 0,
+        puzzleRatting: 0,
+        userPuzzleRating: currentChapterState.chessAiMode.userPuzzleRating,
+        puzzleId: 0,
+        prevUserPuzzleRating: currentChapterState.chessAiMode.userPuzzleRating,
+        fen: currentChapterState.displayFen,
+      });
     };
 
     // const moveReaction = async (moveDeffinition: number) => {
