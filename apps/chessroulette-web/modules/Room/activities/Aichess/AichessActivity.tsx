@@ -73,7 +73,7 @@ export const AichessActivity = ({
       rightSideSize={RIGHT_SIDE_SIZE_PX}
       mainComponent={({ boardSize }) => (
         <>
-          {settings.isInstructor && inputState.isActive ? (
+          {/* {settings.isInstructor && inputState.isActive ? (
             <InstructorBoard
               fen={inputState.chapterState.displayFen}
               boardOrientation={swapColor(inputState.chapterState.orientation)}
@@ -94,7 +94,6 @@ export const AichessActivity = ({
                 dispatchInputState({ type: 'clearCircles' });
               }}
               onFlipBoard={() => {
-                // TODO: Fix this
                 dispatchInputState({
                   type: 'updatePartialChapter',
                   payload: {
@@ -114,11 +113,10 @@ export const AichessActivity = ({
                   payload: { isBoardEditorShown: false },
                 });
               }}
-              // TODO: This was added now, bt I'm wondering how till the pieces move if it's nothing??
               onMove={noop}
             />
-          ) : (
-            // Learn Mode
+          ) : ( */}
+             {/* Learn Mode */}
 
             <div>
               <AiChessDialogContainer
@@ -165,14 +163,14 @@ export const AichessActivity = ({
                   return true;
                 }}
                 onArrowsChange={(payload) => {
-                  console.log('arrow', payload);
+                 // console.log('arrow karioka');
                   // dispatch({ type: 'loadedChapter:setArrows', payload });
                 }}
                 onCircleDraw={(tuple) => {
-                  dispatch({
-                    type: 'loadedChapter:drawCircle',
-                    payload: tuple,
-                  });
+                  // dispatch({
+                  //   type: 'loadedChapter:drawCircle',
+                  //   payload: tuple,
+                  // });
                 }}
                 onClearCircles={() => {
                   dispatch({ type: 'loadedChapter:clearCircles' });
@@ -215,7 +213,7 @@ export const AichessActivity = ({
                 }
               />
             </div>
-          )}
+          {/* )} */}
         </>
       )}
       rightComponent={
