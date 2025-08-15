@@ -3,7 +3,7 @@ import { Button, ButtonProps } from '../Button';
 import { Icon } from '../Icon/Icon';
 
 type Props = {
-  title: string;
+  title: React.ReactNode;
   content: string | React.ReactNode;
   buttons?: ButtonProps[];
   onClose?: () => void;

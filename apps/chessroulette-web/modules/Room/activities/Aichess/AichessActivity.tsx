@@ -166,7 +166,7 @@ export const AichessActivity = ({
                 }}
                 onArrowsChange={(payload) => {
                   console.log('arrow', payload);
-                  dispatch({ type: 'loadedChapter:setArrows', payload });
+                  // dispatch({ type: 'loadedChapter:setArrows', payload });
                 }}
                 onCircleDraw={(tuple) => {
                   dispatch({

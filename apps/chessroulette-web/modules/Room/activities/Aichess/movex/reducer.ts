@@ -32,8 +32,6 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
 
   if (action.type === 'loadedChapter:takeBack') {
     const prevChapter = findLoadedChapter(prev.activityState);
-    console.log('prevChapter', prevChapter);
-    console.log('action history', action);
     if (!prevChapter) {
       console.error('The chapter wasnt found');
       return prev;
@@ -66,7 +64,11 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
       displayFen: fenBoard.fen,
       chessAiMode: {
         ...prev.activityState.chaptersMap[0].chessAiMode,
-        prevEvaluation: 0,
+      },
+      evaluation: {
+        prevCp: 0,
+        newCp: 0,
+        diffCp: 0,
       },
       notation: {
         ...prevChapter.notation,
@@ -94,12 +96,15 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
   if (action.type === 'loadedChapter:addMove') {
     // PUZZLE MOVE
     if (prev.activityState.chaptersMap[0].chessAiMode.mode == 'puzzle') {
+      const move = action.payload.from.concat(action.payload.to);
       if (
         !prev.activityState.chaptersMap[0].chessAiMode.moves[
           prev.activityState.chaptersMap[0].chessAiMode.goodMoves
-        ].includes(action.payload.from.concat(action.payload.to))
+        ].includes(move)
       ) {
         const badMovePoints = -1;
+        const badMoveCount =
+          prev.activityState.chaptersMap[0].chessAiMode.badMoves + 1;
         return {
           ...prev,
           activityState: {
@@ -114,8 +119,7 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
                   userPuzzleRating:
                     prev.activityState.chaptersMap[0].chessAiMode
                       .userPuzzleRating + badMovePoints,
-                  badMoves:
-                    prev.activityState.chaptersMap[0].chessAiMode.badMoves + 1,
+                  badMoves: badMoveCount,
                 },
               },
             },
@@ -141,9 +145,7 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
             ]?.length -
               1
         ) {
-          return {
-            ...prev,
-          };
+          return prev;
         }
       }
       const move = action.payload;
@@ -202,9 +204,10 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
             finnishPoint +
             correctionPoints
           : 0;
-
       const afterGoodMovePoints = movePoints + chengeRatingPoints;
-
+      const goodMoves = prevChapter.chessAiMode.goodMoves + 1;
+      const userPuzzleRating =
+        prevChapter.chessAiMode.userPuzzleRating + afterGoodMovePoints;
       prevChapter.chessAiMode.ratingChange;
       const nextChapter: Chapter = {
         ...prevChapter,
@@ -218,9 +221,8 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
         },
         chessAiMode: {
           ...prevChapter.chessAiMode,
-          goodMoves: prevChapter.chessAiMode.goodMoves + 1,
-          userPuzzleRating:
-            prevChapter.chessAiMode.userPuzzleRating + afterGoodMovePoints,
+          goodMoves: goodMoves,
+          userPuzzleRating: userPuzzleRating,
           ratingChange: afterGoodMovePoints,
         },
       };
@@ -256,16 +258,16 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
       }
 
       const nextFen = action.payload.input.val;
+      const notation = {
+        startingFen: nextFen,
+        history: [],
+        focusedIndex: FreeBoardHistory.getStartingIndex(),
+      };
       const nextChapterState: ChapterState = {
         ...prevChapter,
         displayFen: nextFen,
-
         // When importing PGNs set the notation from this fen
-        notation: {
-          startingFen: nextFen,
-          history: [],
-          focusedIndex: FreeBoardHistory.getStartingIndex(),
-        },
+        notation: notation,
       };
 
       return {
@@ -274,8 +276,8 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
           ...prev.activityState,
           chaptersMap: {
             ...prev.activityState.chaptersMap,
-            [prevChapter.id]: {
-              ...prev.activityState.chaptersMap[prevChapter.id],
+            [0]: {
+              ...prev.activityState.chaptersMap[0],
               ...nextChapterState,
             },
           },
@@ -313,8 +315,8 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
           ...prev.activityState,
           chaptersMap: {
             ...prev.activityState.chaptersMap,
-            [prevChapter.id]: {
-              ...prev.activityState.chaptersMap[prevChapter.id],
+            [0]: {
+              ...prev.activityState.chaptersMap[0],
               ...nextChapterState,
             },
           },
@@ -325,8 +327,6 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
 
   if (action.type === 'loadedChapter:focusHistoryIndex') {
     const prevChapter = findLoadedChapter(prev.activityState);
-    console.log('prevChapter', prevChapter);
-    console.log('action history', action);
     if (!prevChapter) {
       console.error('The chapter wasnt found');
       return prev;
@@ -456,10 +456,17 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
       console.error('No loaded chapter');
       return prev;
     }
-
+    const hintCorrection = Object.keys(action.payload).length === 0 ? 0 : 1;
     const nextChapter: Chapter = {
       ...prevChapter,
       arrowsMap: action.payload,
+      chessAiMode: {
+        ...prev.activityState.chaptersMap[0].chessAiMode,
+        ratingChange: -hintCorrection,
+        userPuzzleRating:
+          prev.activityState.chaptersMap[0].chessAiMode.userPuzzleRating -
+          hintCorrection,
+      },
     };
 
     return {
@@ -480,7 +487,7 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
       console.error('No loaded chapter');
       return prev;
     }
-
+    const hintCorrection = Object.keys(action.payload).length === 0 ? 0 : 1;
     const [at, hex] = action.payload;
     const circleId = `${at}`;
     const { [circleId]: existent, ...restOfCirlesMap } = prevChapter.circlesMap;
@@ -492,6 +499,13 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
         ...(!!existent
           ? undefined // Set it to undefined if same
           : { [circleId]: action.payload }),
+      },
+      chessAiMode: {
+        ...prev.activityState.chaptersMap[0].chessAiMode,
+        ratingChange: -hintCorrection,
+        userPuzzleRating:
+          prev.activityState.chaptersMap[0].chessAiMode.userPuzzleRating -
+          hintCorrection,
       },
     };
 
@@ -756,7 +770,7 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
         },
       };
     }
-
+    const evaluation = { prevCp: 0, newCp: 0, diffCp: 0 };
     //delete puzzle
     return {
       ...prev,
@@ -767,6 +781,7 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
           [0]: {
             ...prev.activityState.chaptersMap[0],
             chessAiMode: chessAiMode,
+            evaluation: evaluation,
           },
         },
       },
@@ -779,9 +794,7 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
     //     prev.activityState.chaptersMap[0].messages.length - 1
     //   ].participantId !== action.payload.participantId
     // ) {
-    const hintPoints = action.payload.content.includes('Think about using')
-      ? 1
-      : 0;
+
     return {
       ...prev,
       activityState: {
@@ -798,13 +811,6 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
                 idResponse: action.payload.idResponse,
               },
             ],
-            chessAiMode: {
-              ...prev.activityState.chaptersMap[0].chessAiMode,
-              ratingChange: -hintPoints,
-              userPuzzleRating:
-                prev.activityState.chaptersMap[0].chessAiMode.userPuzzleRating -
-                hintPoints,
-            },
           },
         },
       },
@@ -812,6 +818,9 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
   }
 
   if (action.type === 'loadedChapter:gameEvaluation') {
+    const prevCp = prev.activityState.chaptersMap[0].evaluation.newCp;
+    const newCp = prevCp + action.payload;
+    const diffCp = prevCp == 0 ? 0 : newCp - prevCp;
     return {
       ...prev,
       activityState: {
@@ -820,9 +829,10 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
           ...prev.activityState.chaptersMap,
           [0]: {
             ...prev.activityState.chaptersMap[0],
-            chessAiMode: {
-              ...prev.activityState.chaptersMap[0].chessAiMode,
-              prevEvaluation: action.payload,
+            evaluation: {
+              prevCp: prevCp,
+              newCp: newCp,
+              diffCp: diffCp,
             },
           },
         },

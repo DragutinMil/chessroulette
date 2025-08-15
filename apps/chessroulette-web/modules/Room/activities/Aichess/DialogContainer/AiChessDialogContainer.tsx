@@ -31,7 +31,6 @@ export const AiChessDialogContainer: React.FC<AiChessDialogContainerProps> = ({
       goodMoves: 0,
       orientationChange: false,
       mode: 'play',
-      prevEvaluation: currentChapter.chessAiMode.prevEvaluation,
       ratingChange: 0,
       puzzleRatting: 0,
       userPuzzleRating: currentChapter.chessAiMode.userPuzzleRating,
@@ -57,7 +56,6 @@ export const AiChessDialogContainer: React.FC<AiChessDialogContainerProps> = ({
         puzzleRatting: data.rating,
         userPuzzleRating: currentChapter.chessAiMode.userPuzzleRating,
         ratingChange: 0,
-        prevEvaluation: 0,
         puzzleId: data.puzzle_id,
         prevUserPuzzleRating: currentChapter.chessAiMode.userPuzzleRating,
         fen: data.fen,
@@ -95,7 +93,13 @@ export const AiChessDialogContainer: React.FC<AiChessDialogContainerProps> = ({
       <Dialog
         // title="You finished the puzzle!"
         title={
-          currentChapter.chessAiMode.mode == 'checkmate' ? 'Checkmate!' : ''
+          currentChapter.chessAiMode.mode === 'checkmate' ? (
+            <span className="text-green-400 font-bold animate-pulse">
+              Checkmate!
+            </span>
+          ) : (
+            ''
+          )
         }
         content={
           <div className="flex flex-col px-4 py-2 items-center">

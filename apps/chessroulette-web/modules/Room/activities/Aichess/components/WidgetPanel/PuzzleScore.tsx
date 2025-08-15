@@ -152,7 +152,7 @@ const PuzzleScore = ({ chessAiMode }: Props) => {
                       +{change}
                     </span>
                   ) : (
-                    <span className="absolute -top-4  ml-1 text-green-400 text-[18px] font-bold animate-fadeUp">
+                    <span className="absolute -top-4  ml-1 text-red-500 text-[18px] font-bold animate-fadeUp">
                       {change}
                     </span>
                   ))}
