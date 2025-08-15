@@ -487,11 +487,36 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
       console.error('No loaded chapter');
       return prev;
     }
+    console.log('ide draw circle',action.payload)
     const hintCorrection = Object.keys(action.payload).length === 0 ? 0 : 1;
     const [at, hex] = action.payload;
     const circleId = `${at}`;
     const { [circleId]: existent, ...restOfCirlesMap } = prevChapter.circlesMap;
+ 
 
+    // messages: [
+    //           ...(prev.activityState.chaptersMap[0].messages ?? []),
+    //           {
+    //             content: action.payload.content,
+    //             participantId: action.payload.participantId,
+    //             idResponse: action.payload.idResponse,
+    //           },
+    //         ],
+
+    //  if (
+    //     !prevChapter.messages[
+    //       prevChapter.messages.length - 1
+    //     ].content.includes('Think about using')
+    //   ) {
+    //     onMessage({
+    //       content: `Think about using your ${piece}`,
+    //       participantId: 'chatGPT123456',
+    //       idResponse:
+    //         prevChapter.messages[
+    //           prevChapter.messages.length - 1
+    //         ].idResponse,
+    //     });
+    //   }
     const nextChapter: Chapter = {
       ...prevChapter,
       circlesMap: {

@@ -139,11 +139,11 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
       const url = new URL(window.location.href);
       const userId = url.searchParams.get('userId');
       if (userId) {
-        onMessage({
-          content: question,
-          participantId: userId,
-          idResponse: '',
-        });
+        // onMessage({
+        //   content: question,
+        //   participantId: userId,
+        //   idResponse: '',
+        // });
       }
       setQuestion('');
       setTimeout(() => {
@@ -209,11 +209,11 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
 
         //FIRST MOVE
       }
-      onMessage({
-        content: data.answer.text,
-        participantId: 'chatGPT123456',
-        idResponse: data.id,
-      });
+      // onMessage({
+      //   content: data.answer.text,
+      //   participantId: 'chatGPT123456',
+      //   idResponse: data.id,
+      // });
     };
     useEffect(() => {
       if (currentChapterState.evaluation.prevCp !== 0) {
@@ -223,7 +223,7 @@ const ProbabilityChange = ChessEngineProbabilityCalc(
           currentChapterState.evaluation.newCp
         );
 
-        console.log('probabilities', ProbabilityChange);
+       // console.log('probabilities', ProbabilityChange);
         if(ProbabilityChange.diff > 10){
           console.log("GOOD MOVE")
         }
@@ -321,11 +321,11 @@ const ProbabilityChange = ChessEngineProbabilityCalc(
           currentChapterState.messages[currentChapterState.messages.length - 1]
             .content !== 'Would you like a hint, or try again on your own?'
         ) {
-          onMessage({
-            content: prompt,
-            participantId: 'chatGPT123456',
-            idResponse: idResponse,
-          });
+          // onMessage({
+          //   content: prompt,
+          //   participantId: 'chatGPT123456',
+          //   idResponse: idResponse,
+          // });
         }
 
         // setTimeout(
@@ -364,14 +364,14 @@ const ProbabilityChange = ChessEngineProbabilityCalc(
         ];
         const randomIndex = Math.floor(Math.random() * responses.length);
 
-        onMessage({
-          content: responses[randomIndex],
-          participantId: 'chatGPT123456',
-          idResponse:
-            currentChapterState.messages[
-              currentChapterState.messages.length - 1
-            ].idResponse,
-        });
+        // onMessage({
+        //   content: responses[randomIndex],
+        //   participantId: 'chatGPT123456',
+        //   idResponse:
+        //     currentChapterState.messages[
+        //       currentChapterState.messages.length - 1
+        //     ].idResponse,
+        // });
       } else if (
         currentChapterState.chessAiMode.goodMoves ===
           currentChapterState.chessAiMode.moves.length &&
@@ -387,11 +387,11 @@ const ProbabilityChange = ChessEngineProbabilityCalc(
         const idResponse =
           currentChapterState.messages[currentChapterState.messages.length - 1]
             .idResponse;
-        onMessage({
-          content: prompt,
-          participantId: 'chatGPT123456',
-          idResponse: idResponse,
-        });
+        // onMessage({
+        //   content: prompt,
+        //   participantId: 'chatGPT123456',
+        //   idResponse: idResponse,
+        // });
         setTimeout(
           () =>
             addChessAi({
@@ -487,20 +487,20 @@ const ProbabilityChange = ChessEngineProbabilityCalc(
         fieldFrom as Square,
         currentChapterState.displayFen
       );
-      if (
-        !currentChapterState.messages[
-          currentChapterState.messages.length - 1
-        ].content.includes('Think about using')
-      ) {
-        onMessage({
-          content: `Think about using your ${piece}`,
-          participantId: 'chatGPT123456',
-          idResponse:
-            currentChapterState.messages[
-              currentChapterState.messages.length - 1
-            ].idResponse,
-        });
-      }
+      // if (
+      //   !currentChapterState.messages[
+      //     currentChapterState.messages.length - 1
+      //   ].content.includes('Think about using')
+      // ) {
+      //   onMessage({
+      //     content: `Think about using your ${piece}`,
+      //     participantId: 'chatGPT123456',
+      //     idResponse:
+      //       currentChapterState.messages[
+      //         currentChapterState.messages.length - 1
+      //       ].idResponse,
+      //   });
+      // }
     };
 
     const engineMove = (m: any) => {
@@ -614,14 +614,14 @@ const ProbabilityChange = ChessEngineProbabilityCalc(
     const play = async () => {
       if (currentChapterState.chessAiMode.mode == '') {
         const content = "Awesome, let's play chess.";
-        onMessage({
-          content: content,
-          participantId: 'chatGPT123456',
-          idResponse:
-            currentChapterState.messages[
-              currentChapterState.messages.length - 1
-            ].idResponse,
-        });
+        // onMessage({
+        //   content: content,
+        //   participantId: 'chatGPT123456',
+        //   idResponse:
+        //     currentChapterState.messages[
+        //       currentChapterState.messages.length - 1
+        //     ].idResponse,
+        // });
       } else if (currentChapterState.chessAiMode.mode == 'puzzle') {
         const responses = [
           'Let’s keep it going, nice and casual!',
@@ -630,14 +630,14 @@ const ProbabilityChange = ChessEngineProbabilityCalc(
         ];
         const randomIndex = Math.floor(Math.random() * responses.length);
 
-        onMessage({
-          content: responses[randomIndex],
-          participantId: 'chatGPT123456',
-          idResponse:
-            currentChapterState.messages[
-              currentChapterState.messages.length - 1
-            ].idResponse,
-        });
+        // onMessage({
+        //   content: responses[randomIndex],
+        //   participantId: 'chatGPT123456',
+        //   idResponse:
+        //     currentChapterState.messages[
+        //       currentChapterState.messages.length - 1
+        //     ].idResponse,
+        // });
       }
       setTimeout(() => {
         addChessAi({
