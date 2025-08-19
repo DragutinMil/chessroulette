@@ -195,8 +195,6 @@ export const AichessActivity = ({
                     chapterState: currentChapter,
                   },
                 });
-
-                // 2 is the update stack - this should be done much more explicit in the future!
                 tabsRef.current?.focusByTabId('chapters', 2);
               }}
               rightSideClassName="flex-1"
