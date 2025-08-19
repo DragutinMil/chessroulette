@@ -58,7 +58,58 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
         fenBoard.move(m);
       }
     });
+    const responses = [
+      'Let’s go back to the previous position.',
+      'Let’s return to the earlier situation.',
+      'Let’s reset to the previous state.',
+    ];
+    const prompt = responses[Math.floor(Math.random() * responses.length)];
+    const idResponse =
+      prev.activityState.chaptersMap[0].messages[
+        prev.activityState.chaptersMap[0].messages.length - 1
+      ].idResponse;
 
+    const message = {
+      content: prompt,
+      participantId: 'chatGPT123456',
+      idResponse: idResponse,
+    };
+    if (
+      prevChapter.messages[prevChapter.messages.length - 1].content.includes(
+        'Let’s '
+      )
+    ) {
+      const nextChapterState: ChapterState = {
+        ...prevChapter,
+        displayFen: fenBoard.fen,
+        chessAiMode: {
+          ...prev.activityState.chaptersMap[0].chessAiMode,
+        },
+        evaluation: {
+          prevCp: 0,
+          newCp: 0,
+          diffCp: 0,
+        },
+        notation: {
+          ...prevChapter.notation,
+          focusedIndex: action.payload,
+        },
+      };
+
+      return {
+        ...prev,
+        activityState: {
+          ...prev.activityState,
+          chaptersMap: {
+            ...prev.activityState.chaptersMap,
+            [prevChapter.id]: {
+              ...prev.activityState.chaptersMap[prevChapter.id],
+              ...nextChapterState,
+            },
+          },
+        },
+      };
+    }
     const nextChapterState: ChapterState = {
       ...prevChapter,
       displayFen: fenBoard.fen,
@@ -70,6 +121,10 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
         newCp: 0,
         diffCp: 0,
       },
+      messages: [
+        ...(prev.activityState.chaptersMap[0].messages ?? []),
+        message,
+      ],
       notation: {
         ...prevChapter.notation,
         focusedIndex: action.payload,
@@ -509,7 +564,11 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
       console.error('No loaded chapter');
       return prev;
     }
-    const hintCorrection = Object.keys(action.payload).length === 0 ? 0 : 1;
+    const hintCorrection =
+      Object.keys(action.payload).length > 0 &&
+      prevChapter.chessAiMode.mode == 'puzzle'
+        ? 1
+        : 0;
     const nextChapter: Chapter = {
       ...prevChapter,
       arrowsMap: action.payload,
@@ -541,7 +600,12 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
       return prev;
     }
     console.log('ide draw circle', action.payload);
-    const hintCorrection = Object.keys(action.payload).length === 0 ? 0 : 1;
+    const hintCorrection =
+      Object.keys(action.payload).length > 0 &&
+      prevChapter.chessAiMode.mode == 'puzzle'
+        ? 1
+        : 0;
+
     const [at, hex, piece] = action.payload;
     const circleId = `${at}`;
     const { [circleId]: existent, ...restOfCirlesMap } = prevChapter.circlesMap;
@@ -1001,7 +1065,7 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
 
   if (action.type === 'loadedChapter:gameEvaluation') {
     const prevCp = prev.activityState.chaptersMap[0].evaluation.newCp;
-    const newCp = prevCp + action.payload;
+    const newCp = action.payload;
     const diffCp = prevCp == 0 ? 0 : newCp - prevCp;
     return {
       ...prev,

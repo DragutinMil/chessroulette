@@ -15,36 +15,38 @@ export async function SendQuestion(
 
   const piecesUserColor =
     currentChapterState.orientation == 'w' ? 'white' : 'black';
+
   const lastMoveSan =
-    currentChapterState.notation.history[
-      currentChapterState.notation.history.length - 1
-    ][
-      currentChapterState.notation.history[
-        currentChapterState.notation.history.length - 1
-      ]?.length - 1
-    ].san;
+    currentChapterState.notation.history.length > 0
+      ? currentChapterState.notation.history[
+          currentChapterState.notation.history.length - 1
+        ][
+          currentChapterState.notation.history[
+            currentChapterState.notation.history.length - 1
+          ]?.length - 1
+        ].san
+      : '';
 
   const question =
-    currentChapterState.notation.history.length == 0
-      ? prompt
-      : 'QUESTION:\n' +
-        prompt +
-        '\n\n' +
-        'CONTEXT:\n' +
-        'Best Moves: ' +
-        stockfishMovesInfo +
-        '\n' +
-        'FEN: ' +
-        currentChapterState.displayFen +
-        '\n' +
-        'Stockfish best line: ' +
-        bestline +
-        '\n' +
-        'User color pieces: ' +
-        piecesUserColor +
-        '\n' +
-        'Last move: ' +
-        lastMoveSan;
+    'QUESTION:\n' +
+    prompt +
+    '\n\n' +
+    'CONTEXT:\n' +
+    'Best Moves: ' +
+    stockfishMovesInfo +
+    '\n' +
+    'FEN: ' +
+    currentChapterState.displayFen +
+    '\n' +
+    'Stockfish best line: ' +
+    bestline +
+    '\n' +
+    'User color pieces: ' +
+    piecesUserColor +
+    '\n' +
+    'Last move: ' +
+    lastMoveSan;
+  +'\n' + 'CP score stockfich: ' + currentChapterState.evaluation.newCp;
 
   //  JSON VARIANT
   // {

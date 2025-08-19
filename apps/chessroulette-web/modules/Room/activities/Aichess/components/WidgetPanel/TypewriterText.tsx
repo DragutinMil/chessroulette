@@ -3,6 +3,7 @@ import { Button } from '@app/components/Button';
 import { ButtonGreen } from '@app/components/Button/ButtonGreen';
 interface TypewriterTextProps {
   lastMessage: string;
+
   scrollToBottom: () => void;
   takeBack: () => void;
   playNext: () => void;
@@ -12,6 +13,7 @@ interface TypewriterTextProps {
 const TypewriterText: React.FC<TypewriterTextProps> = ({
   lastMessage = '',
   scrollToBottom,
+
   takeBack,
   playNext,
   hint,
@@ -19,7 +21,6 @@ const TypewriterText: React.FC<TypewriterTextProps> = ({
 }) => {
   const [displayedText, setDisplayedText] = useState('');
   const [showCursor, setShowCursor] = useState(true);
-  const [answered, setAnswered] = useState(false);
 
   const puzzleCategories = [
     { label: 'Mate in 1', value: 'Check Mate in 1' },
@@ -65,14 +66,12 @@ const TypewriterText: React.FC<TypewriterTextProps> = ({
         {displayedText.replace(/undefined/g, '')}
         {showCursor && <span className="animate-pulse">|</span>}
       </p>
-      {lastMessage.includes('Uhh') &&
-        displayedText.length == lastMessage.length &&
-        !answered && (
+      {lastMessage.includes('Ouch,') &&
+        displayedText.length == lastMessage.length && (
           <div className="flex  sitems-center gap-3 hidden md:flex mt-2">
             <ButtonGreen
               onClick={() => {
                 takeBack();
-                setAnswered(true);
               }}
               size="lg"
             >
@@ -81,7 +80,6 @@ const TypewriterText: React.FC<TypewriterTextProps> = ({
             <ButtonGreen
               onClick={() => {
                 playNext();
-                setAnswered(true);
               }}
               size="lg"
               className="w-32"
@@ -91,13 +89,11 @@ const TypewriterText: React.FC<TypewriterTextProps> = ({
           </div>
         )}
       {lastMessage.includes('Would you like a hint') &&
-        displayedText.length == lastMessage.length &&
-        !answered && (
+        displayedText.length == lastMessage.length && (
           <div className="flex  sitems-center gap-3 hidden md:flex mt-2">
             <ButtonGreen
               onClick={() => {
                 hint();
-                setAnswered(true);
               }}
               size="lg"
             >
@@ -109,13 +105,11 @@ const TypewriterText: React.FC<TypewriterTextProps> = ({
       <div className="flex flex-wrap">
         {lastMessage.includes('Ready for exercise') &&
           displayedText.length == lastMessage.length &&
-          !answered &&
           puzzleCategories.map((category) => (
             <ButtonGreen
               key={category.value}
               onClick={() => {
                 onSelectPuzzle(category.value);
-                setAnswered(true);
               }}
               size="md"
               className=" font-bold mt-2 px-1 mr-2 whitespace-nowrap"
