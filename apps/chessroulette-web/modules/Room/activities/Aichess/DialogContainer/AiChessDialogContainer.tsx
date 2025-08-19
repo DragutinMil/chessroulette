@@ -44,7 +44,7 @@ export const AiChessDialogContainer: React.FC<AiChessDialogContainerProps> = ({
     if (ChessFENBoard.validateFenString(data.fen).ok) {
       const changeOrientation =
         currentChapter.orientation === data.fen.split(' ')[1];
-      // onQuickImport({ type: 'FEN', val: data.fen });
+      
 
       addChessAi({
         mode: 'puzzle',
