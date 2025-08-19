@@ -240,6 +240,7 @@ export const AichessActivity = ({
               });
             }}
             addGameEvaluation={(payload) => {
+              console.log('evaluacija', payload);
               dispatch({ type: 'loadedChapter:gameEvaluation', payload });
             }}
             onPuzzleMove={(payload) => {

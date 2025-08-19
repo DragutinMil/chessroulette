@@ -6,6 +6,7 @@ import Image from 'next/image';
 type Props = {
   currentChapterState: ChapterState;
   pulseDot: boolean;
+
   takeBack: () => void;
   playNext: () => void;
   hint: () => void;
@@ -16,6 +17,7 @@ type Props = {
 const Conversation = ({
   currentChapterState,
   pulseDot,
+
   takeBack,
   playNext,
   hint,
