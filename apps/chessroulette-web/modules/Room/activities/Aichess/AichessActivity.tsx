@@ -142,7 +142,7 @@ export const AichessActivity = ({
               }}
               addChessAi={(payload: chessAiMode) =>
                 dispatch({
-                  type: 'loadedChapter:setChessAi',
+                  type: 'loadedChapter:setPuzzleMoves',
                   payload: payload as chessAiMode,
                 })
               }
@@ -262,7 +262,7 @@ export const AichessActivity = ({
             }}
             addChessAi={(payload: chessAiMode) =>
               dispatch({
-                type: 'loadedChapter:setChessAi',
+                type: 'loadedChapter:setPuzzleMoves',
                 payload: payload as chessAiMode,
               })
             }
