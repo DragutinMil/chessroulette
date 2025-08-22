@@ -816,7 +816,7 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
     };
   }
 
-  if (action.type === 'loadedChapter:chessAiSetup') {
+  if (action.type === 'loadedChapter:setPuzzleMoves') {
     ////import FEN
     const nextFen = action.payload.fen;
 
