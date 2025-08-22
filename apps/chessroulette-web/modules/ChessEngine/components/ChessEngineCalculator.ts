@@ -1,4 +1,4 @@
-export function ChessEngineProbabilityCalc(newCp: number, prevCp: number) {
+export async function ChessEngineProbabilityCalc(newCp: number, prevCp: number) {
   const k = 0.00358208;
   const newPercentage = Number(
     ((1 / (1 + Math.exp(-k * newCp))) * 100).toFixed(2)

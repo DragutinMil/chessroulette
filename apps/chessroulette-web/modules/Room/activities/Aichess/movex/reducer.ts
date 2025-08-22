@@ -824,7 +824,11 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
 
     //PLAY
     if (action.payload.mode === 'play') {
-      const responses =
+      // TWO WAYS:
+      //1. continuation of the game
+      //2. new FEN position
+      const responses = chessAiMode.message!==''?
+       [chessAiMode.message]:
         prev.activityState.chaptersMap[0].chessAiMode.mode == ''
           ? ["Awesome, let's play chess."]
           : [
@@ -832,16 +836,28 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
               'Let’s keep the game rolling, just for fun! ',
               'Let’s play on, nice and easy! ',
             ];
+      
       const prompt = responses[Math.floor(Math.random() * responses.length)];
-      const idResponse =
+      const idResponse =  chessAiMode.responseId !==''?
+      chessAiMode.responseId :
         prev.activityState.chaptersMap[0].messages[
           prev.activityState.chaptersMap[0].messages.length - 1
         ].idResponse;
+
+
       const message = {
         content: prompt,
         participantId: 'chatGPT123456',
         idResponse: idResponse,
       };
+
+     const evaluation  = chessAiMode.message!=='' ? 
+             {
+              prevCp: 0,
+              newCp: 0,
+              diffCp: 0,
+            } : prev.activityState.chaptersMap[0].evaluation;
+      
       return {
         ...prev,
         activityState: {
@@ -861,6 +877,7 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
                 ...(prev.activityState.chaptersMap[0].messages ?? []),
                 message,
               ],
+              evaluation:evaluation
             },
           },
         },

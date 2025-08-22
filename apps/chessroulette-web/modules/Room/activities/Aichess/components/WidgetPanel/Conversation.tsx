@@ -1,12 +1,13 @@
 import { useEffect, useRef } from 'react';
-import type { ChapterState } from '../../movex/types';
+import type { ChapterState, UserData } from '../../movex/types';
 import TypewriterText from './TypewriterText';
 import greenLogo from '../../../../../../components/Logo/assets/Logo_green_small.svg';
 import Image from 'next/image';
+
 type Props = {
   currentChapterState: ChapterState;
   pulseDot: boolean;
-
+  userData:UserData,
   takeBack: () => void;
   playNext: () => void;
   hint: () => void;
@@ -17,13 +18,14 @@ type Props = {
 const Conversation = ({
   currentChapterState,
   pulseDot,
-
+  userData,
   takeBack,
   playNext,
   hint,
   onSelectPuzzle,
 }: Props) => {
   const scrollRef = useRef<HTMLDivElement>(null);
+  
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
@@ -37,8 +39,7 @@ const Conversation = ({
   return (
     <div
       ref={scrollRef}
-      className="overflow-scroll  rounded-lg  h-[140px] md:h-[316px] no-scrollbar  scroll-smooth 
-      max-[390px]:h-[70px] "
+      className="overflow-scroll  rounded-lg  h-[85px] md:h-[316px] no-scrollbar  scroll-smooth"
     >
       {currentChapterState.messages.map((msg, index) => {
         const participant = msg.participantId;
@@ -97,9 +98,17 @@ const Conversation = ({
                     {msg.content}
                   </p>
                 </div>
-                <div className="w-9 h-9 min-w-8  flex items-center justify-center rounded-full bg-indigo-1600 text-white font-semibold text-sm">
-                  DM
+               { userData.picture ?(
+             <div className="w-9 h-9 min-w-8  flex items-center justify-center rounded-full">
+                  <img className="w-9 h-9 min-w-8  flex items-center justify-center rounded-full"  src={userData.picture} alt="user_picture" />
                 </div>
+               ):
+(
+<div className="w-9 h-9 min-w-8  flex items-center justify-center rounded-full bg-indigo-1600 text-white font-semibold text-sm">
+                   {userData.name_first?.slice(0,1)}{userData.name_last?.slice(0,1)}
+                </div>
+)  }      
+        
               </div>
             )}
             {pulseDot && isLastMessage && (

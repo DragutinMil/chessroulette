@@ -52,7 +52,7 @@ const TypewriterText: React.FC<TypewriterTextProps> = ({
           return prev;
         }
       });
-    }, 30);
+    }, 25);
 
     return () => clearInterval(interval);
   }, [lastMessage]);
@@ -66,7 +66,7 @@ const TypewriterText: React.FC<TypewriterTextProps> = ({
         {displayedText.replace(/undefined/g, '')}
         {showCursor && <span className="animate-pulse">|</span>}
       </p>
-      {lastMessage.includes('Ouch,') &&
+      {/* {lastMessage.includes('Ouch,') &&
         displayedText.length == lastMessage.length && (
           <div className="flex  sitems-center gap-3 hidden md:flex mt-2">
             <ButtonGreen
@@ -87,7 +87,7 @@ const TypewriterText: React.FC<TypewriterTextProps> = ({
               Continue to play
             </ButtonGreen>
           </div>
-        )}
+        )} */}
       {lastMessage.includes('Would you like a hint') &&
         displayedText.length == lastMessage.length && (
           <div className="flex  sitems-center gap-3 hidden md:flex mt-2">

@@ -67,7 +67,8 @@ const classes = {
   lg: 'p-1 px-2 text-sm rounded-2xl',
   sm: 'p-1 px-2 text-sm rounded-lg',
   xs: 'p-1 px-2 text-xs rounded-md',
-  primary: `text-white font-bold ${toStringColors(getButtonColors('indigo'))}`,
+  primary: (bgColor?: BgColor) =>
+  `text-white font-bold ${toStringColors(getButtonColors(bgColor || 'indigo'))}`,
   clear: `text-gray-300 font-bold hover:text-white`,
   secondary: `${toStringColors(getButtonColors('slate'))}`,
   custom: '',
@@ -129,7 +130,7 @@ export const Button = React.forwardRef<HTMLButtonElement | null, ButtonProps>(
           classes[size]
         } ${
           disabled
-            ? 'bg-slate-500 hover:bg-slate-500 active:bg-slate-500 hover:cursor-default'
+            ? 'bg-green-500 hover:bg-green-500 active:bg-green-500 hover:cursor-default opacity-30'
             : ''
 
           // ? 'bg-slate-500 active:bg-slate-500 hover:cursor-default'

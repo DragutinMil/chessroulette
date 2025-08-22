@@ -76,7 +76,7 @@ export const PlayDialog: React.FC<GameStateDialogProps> = ({
         <Dialog
           title="Waiting for Opponent"
           content={
-            <div className="w-full flex justify-center">
+            <div className="w-full flex justify-center ">
               {inviteLink && (
                 <ClipboardCopyButton
                   buttonComponentType="Button"
@@ -122,7 +122,7 @@ export const PlayDialog: React.FC<GameStateDialogProps> = ({
               <Dialog
                 title="Rematch ?"
                 content={
-                  <div className="flex justify-center content-center z-10">
+                  <div className="flex justify-center content-center z-10 text-center">
                     Waiting for your opponent to respond.
                   </div>
                 }
@@ -143,7 +143,7 @@ export const PlayDialog: React.FC<GameStateDialogProps> = ({
             <Dialog
               title="Rematch Offer"
               content={
-                <div className="flex justify-center content-center">
+                <div className="flex justify-center content-center text-center">
                   You have been invited for a rematch!
                 </div>
               }
@@ -201,7 +201,7 @@ export const PlayDialog: React.FC<GameStateDialogProps> = ({
             <Dialog
               title="Draw Offer"
               content={
-                <div className="flex justify-center content-center">
+                <div className="flex justify-center content-center text-center">
                   Waiting for your opponent to respond.
                 </div>
               }
@@ -223,7 +223,7 @@ export const PlayDialog: React.FC<GameStateDialogProps> = ({
           <Dialog
             title="Draw Offer"
             content={
-              <div className="flex justify-center content-center">
+              <div className="flex justify-center content-center text-center">
                 Your opponent offers you a draw!
               </div>
             }
@@ -256,7 +256,7 @@ export const PlayDialog: React.FC<GameStateDialogProps> = ({
               <Dialog
                 title="Takeback Offer"
                 content={
-                  <div className="flex justify-center content-center">
+                  <div className="flex justify-center content-center text-center">
                     Waiting for your opponent to respond.
                   </div>
                 }
@@ -278,7 +278,7 @@ export const PlayDialog: React.FC<GameStateDialogProps> = ({
             <Dialog
               title="Takeback Offer"
               content={
-                <div className="flex justify-center content-center">
+                <div className="flex justify-center content-center text-center">
                   Your opponent asks you for a takeback!
                 </div>
               }
@@ -310,7 +310,7 @@ export const PlayDialog: React.FC<GameStateDialogProps> = ({
               <Dialog
                 title="Offer Denied"
                 content={
-                  <div className="flex justify-center content-center">
+                  <div className="flex justify-center content-center text-center">
                     Takeback offer has been denied.
                   </div>
                 }

@@ -18,9 +18,10 @@ module.exports = {
 
         green: {
           ...colors.green,
-          500: '#07da63',
-          600: 'rgba(7, 218, 99,0.8)',
-          800: 'rgba(7, 218, 99,0.8)',
+          500: 'rgb(217 217 217 / 0.2)',
+          // '#07da63',
+          600: 'rgba(7, 218, 99,0.76)',
+          800: 'rgba(7, 218, 99)',
         },
         yellow: {
           ...colors.yellow,
@@ -57,6 +58,7 @@ module.exports = {
           200: 'rgba(255, 255, 255, 0.15)',
           300: 'rgba(255, 255, 255, 0.25)',
         },
+        
       },
       keyframes: {
         fadeUp: {
@@ -64,13 +66,24 @@ module.exports = {
           '50%': { opacity: 1, transform: 'translateY(-6px)' },
           '100%': { opacity: 0, transform: 'translateY(-10px)' },
         },
+        shake: {
+          '0%, 100%': { transform: 'translateX(0)' },
+          '20%': { transform: 'translateX(-5px)' },
+          '40%': { transform: 'translateX(5px)' },
+          '60%': { transform: 'translateX(-5px)' },
+          '80%': { transform: 'translateX(5px)' },
+        },
+       
       },
       boxShadow: {
         'green-soft': '0px 2px 10px 0px rgba(7, 218, 99, 0.1)',
       },
-
+      backgroundImage: {
+        'op-widget': "radial-gradient(61.84% 61.84% at 50% 131.62%, rgba(5, 135, 44, 0.2) 0%, #01210B 100%)",
+      },
       animation: {
         fadeUp: 'fadeUp 1s ease-out',
+        shake: 'shake 0.5s ease-in-out 6',
       },
     },
     // colors: {

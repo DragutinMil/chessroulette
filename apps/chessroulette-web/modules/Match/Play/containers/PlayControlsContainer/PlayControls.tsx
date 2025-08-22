@@ -128,10 +128,10 @@ export const PlayControls: React.FC<Props> = ({
     <div className="flex gap-2">
       <QuickConfirmButton
         size="sm"
-        confirmationBgcolor="yellow"
+        confirmationBgcolor="green"
         className="w-full"
         confirmationMessage="Invite to Draw?"
-        bgColor="yellow"
+        bgColor="green"
         icon="Bars3CenterLeftIcon"
         //ArrowsRightLeftIcon
         iconKind="solid"
@@ -147,9 +147,9 @@ export const PlayControls: React.FC<Props> = ({
       <QuickConfirmButton
         size="sm"
         className="w-full"
-        confirmationBgcolor="yellow"
+        confirmationBgcolor="green"
         confirmationMessage="Ask for Takeback?"
-        bgColor="yellow"
+        bgColor="green"
         icon="ArrowUturnLeftIcon"
         iconKind="solid"
         onClick={() => {
@@ -166,7 +166,7 @@ export const PlayControls: React.FC<Props> = ({
         className="w-full"
         confirmationBgcolor="red"
         confirmationMessage="Confirm Resign?"
-        bgColor="yellow"
+        bgColor="green"
         icon="FlagIcon"
         iconKind="solid"
         onClick={onResign}
