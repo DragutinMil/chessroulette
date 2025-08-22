@@ -6,7 +6,7 @@ import movexConfig from '@app/movex.config';
 import { TabsRef } from '@app/components/Tabs';
 import { ResizableDesktopLayout } from '@app/templates/ResizableDesktopLayout';
 import { useAichessActivitySettings } from './hooks/useAichessActivitySettings';
-
+import { getUserInfo} from './util';
 import { AiChessDialogContainer } from './DialogContainer/AiChessDialogContainer';
 import {
   AichessActivityState,
@@ -15,6 +15,7 @@ import {
   chessAiMode,
   MovePiece,
 } from './movex';
+
 import { WidgetPanel } from './components/WidgetPanel';
 import { AichessBoard } from './components/AichessBoard';
 import { RIGHT_SIDE_SIZE_PX } from '../../constants';
@@ -38,13 +39,19 @@ export const AichessActivity = ({
   const moveSound = new Audio('/chessmove.mp3');
   const dispatch = optionalDispatch || noop;
   const [cameraOff, setCameraOff] = useState(false);
+  const [userData, setUserData] = useState({
+  name_first: "",
+  name_last: "",
+  picture: "",
+});
+  ;
   // const [onChangePuzzleAnimation, setChangePuzzleAnimation] = useState(false);
   const settings = useAichessActivitySettings();
   const [inputState, dispatchInputState] = useReducer(
     inputReducer,
     initialInputState
   );
-
+  
   const currentChapter =
     findLoadedChapter(remoteState) || initialDefaultChapter;
 
@@ -55,8 +62,19 @@ export const AichessActivity = ({
     if (rawPgn) {
       setCameraOff(true);
     }
+    getUserData()
+     
   }, []);
+ const getUserData = async () => {
+  const data = await getUserInfo();
+  setUserData({
+     name_first:data.name_first,
+     name_last:data.name_last,
+     picture:data.profile.file_url
+     
+  })
 
+ }
   // useEffect(() => {
   //   if (
   //     currentChapter.chessAiMode.mode === 'puzzle' &&
@@ -117,27 +135,21 @@ export const AichessActivity = ({
             />
           ) : ( */}
           {/* Learn Mode */}
-
-          <div>
-            <AiChessDialogContainer
+ <AiChessDialogContainer
               onPuzzleMove={(payload) => {
                 moveSound.play();
                 dispatch({ type: 'loadedChapter:addMove', payload });
               }}
               addChessAi={(payload: chessAiMode) =>
                 dispatch({
-                  type: 'loadedChapter:setPuzzleMoves',
+                  type: 'loadedChapter:chessAiSetup',
                   payload: payload as chessAiMode,
                 })
               }
-              // onQuickImport={(input) => {
-              //   dispatch({
-              //     type: 'loadedChapter:import',
-              //     payload: { input },
-              //   });
-              // }}
               currentChapter={currentChapter}
             />
+          <div>
+           
 
             <AichessBoard
               sizePx={boardSize}
@@ -210,9 +222,12 @@ export const AichessActivity = ({
                 </>
               }
             />
+            
           </div>
           {/* )} */}
+          
         </>
+        
       )}
       rightComponent={
         <div className="flex flex-col flex-1 min-h-0 gap-4max-h-screen ">
@@ -247,7 +262,7 @@ export const AichessActivity = ({
             }}
             addChessAi={(payload: chessAiMode) =>
               dispatch({
-                type: 'loadedChapter:setPuzzleMoves',
+                type: 'loadedChapter:chessAiSetup',
                 payload: payload as chessAiMode,
               })
             }
@@ -272,6 +287,7 @@ export const AichessActivity = ({
                 payload: { color: swapColor(currentChapter.orientation) },
               })
             }
+            userData={userData}
             currentChapterState={currentChapter}
             chaptersMap={remoteState?.chaptersMap || {}}
             inputModeState={inputState}

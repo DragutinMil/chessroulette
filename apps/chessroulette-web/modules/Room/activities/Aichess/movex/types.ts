@@ -48,6 +48,8 @@ export type chessAiMode = {
   puzzleId: number;
   prevUserPuzzleRating: number;
   fen: ChessFEN;
+  responseId:string,
+  message:string
 };
 export type evaluation = {
   prevCp: number;
@@ -59,7 +61,11 @@ export type Message = {
   participantId: string;
   idResponse: string;
 };
-
+export type UserData = {
+  name_first: string;
+  name_last: string;
+  picture: string;
+};
 export type ChapterState = {
   name: string;
   messages: Message[];

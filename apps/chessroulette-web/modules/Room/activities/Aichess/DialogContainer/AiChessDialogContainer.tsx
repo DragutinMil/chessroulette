@@ -37,6 +37,8 @@ export const AiChessDialogContainer: React.FC<AiChessDialogContainerProps> = ({
       puzzleId: 0,
       prevUserPuzzleRating: 0,
       fen: currentChapter.displayFen,
+      responseId:'',
+      message:''
     });
   };
   const newPuzzle = async () => {
@@ -59,6 +61,8 @@ export const AiChessDialogContainer: React.FC<AiChessDialogContainerProps> = ({
         puzzleId: data.puzzle_id,
         prevUserPuzzleRating: currentChapter.chessAiMode.userPuzzleRating,
         fen: data.fen,
+        responseId:'',
+        message:''
       });
 
       //FIRST MOVE
@@ -112,22 +116,25 @@ export const AiChessDialogContainer: React.FC<AiChessDialogContainerProps> = ({
             >
               ✅ Next Puzzle
             </ButtonGreen>
+            
             <ButtonGreen
               // icon="ArrowLeftIcon"
               size="lg"
               className="w-full text-[16px] h-[44px] rounded-[22px] "
-              style={{ marginTop: 12 }}
+              style={{ marginTop: 20 }}
               onClick={() => {
                 play();
               }}
             >
               ♟️ Free Play
             </ButtonGreen>
+            
+            
             <ButtonGreen
               // icon="ArrowLeftIcon"
               size="lg"
               className=" w-full text-[16px] h-[44px] rounded-[22px]"
-              style={{ marginTop: 12 }}
+              style={{ marginTop: 20 }}
               onClick={() => {
                 setRemovePopup(true);
               }}

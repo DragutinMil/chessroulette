@@ -73,7 +73,7 @@ export type ChessboardContainerProps = Omit<
       }
   );
 
-const BOARD_ANIMATION_DELAY = 200;
+const BOARD_ANIMATION_DELAY = 350;
 
 export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
   fen,

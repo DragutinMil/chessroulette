@@ -17,7 +17,9 @@ import React from 'react';
 import { CircleDrawTuple, ArrowsMap } from '@app/components/Chessboard/types';
 import { EngineData } from '../../../../../ChessEngine/lib/io';
 import { AiChessWidgetPanel } from './AiChessWidgetPanel';
-
+import type {
+  UserData
+} from '../../movex/types';
 type Props = {
   chaptersMap: Record<Chapter['id'], Chapter>;
   chaptersMapIndex: number;
@@ -36,6 +38,7 @@ type Props = {
   onHistoryNotationRefocus: FreeBoardNotationProps['onRefocus'];
   onHistoryNotationDelete: FreeBoardNotationProps['onDelete'];
   addGameEvaluation: (score: number) => void;
+  userData:UserData
   // Mode
   isInstructor: boolean;
 
@@ -76,6 +79,7 @@ export const WidgetPanel = React.forwardRef<TabsRef, Props>(
       onMessage,
       puzzleOrientation,
       addGameEvaluation,
+      userData,
       onHistoryNotationRefocus,
       ...chaptersTabProps
     },
@@ -83,6 +87,7 @@ export const WidgetPanel = React.forwardRef<TabsRef, Props>(
   ) => {
     return (
       <AiChessWidgetPanel
+        userData={userData}
         onHistoryNotationDelete={onHistoryNotationDelete}
         onHistoryNotationRefocus={onHistoryNotationRefocus}
         puzzleOrientation={puzzleOrientation}
