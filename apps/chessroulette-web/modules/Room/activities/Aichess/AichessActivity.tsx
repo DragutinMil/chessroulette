@@ -6,7 +6,7 @@ import movexConfig from '@app/movex.config';
 import { TabsRef } from '@app/components/Tabs';
 import { ResizableDesktopLayout } from '@app/templates/ResizableDesktopLayout';
 import { useAichessActivitySettings } from './hooks/useAichessActivitySettings';
-import { getUserInfo} from './util';
+import { getUserInfo } from './util';
 import { AiChessDialogContainer } from './DialogContainer/AiChessDialogContainer';
 import {
   AichessActivityState,
@@ -40,18 +40,17 @@ export const AichessActivity = ({
   const dispatch = optionalDispatch || noop;
   const [cameraOff, setCameraOff] = useState(false);
   const [userData, setUserData] = useState({
-  name_first: "",
-  name_last: "",
-  picture: "",
-});
-  ;
+    name_first: '',
+    name_last: '',
+    picture: '',
+  });
   // const [onChangePuzzleAnimation, setChangePuzzleAnimation] = useState(false);
   const settings = useAichessActivitySettings();
   const [inputState, dispatchInputState] = useReducer(
     inputReducer,
     initialInputState
   );
-  
+
   const currentChapter =
     findLoadedChapter(remoteState) || initialDefaultChapter;
 
@@ -62,19 +61,16 @@ export const AichessActivity = ({
     if (rawPgn) {
       setCameraOff(true);
     }
-    getUserData()
-     
+    getUserData();
   }, []);
- const getUserData = async () => {
-  const data = await getUserInfo();
-  setUserData({
-     name_first:data.name_first,
-     name_last:data.name_last,
-     picture:data.profile.file_url
-     
-  })
-
- }
+  const getUserData = async () => {
+    const data = await getUserInfo();
+    setUserData({
+      name_first: data.name_first,
+      name_last: data.name_last,
+      picture: data.profile.file_url,
+    });
+  };
   // useEffect(() => {
   //   if (
   //     currentChapter.chessAiMode.mode === 'puzzle' &&
@@ -135,22 +131,20 @@ export const AichessActivity = ({
             />
           ) : ( */}
           {/* Learn Mode */}
- <AiChessDialogContainer
-              onPuzzleMove={(payload) => {
-                moveSound.play();
-                dispatch({ type: 'loadedChapter:addMove', payload });
-              }}
-              addChessAi={(payload: chessAiMode) =>
-                dispatch({
-                  type: 'loadedChapter:setPuzzleMoves',
-                  payload: payload as chessAiMode,
-                })
-              }
-              currentChapter={currentChapter}
-            />
+          <AiChessDialogContainer
+            onPuzzleMove={(payload) => {
+              moveSound.play();
+              dispatch({ type: 'loadedChapter:addMove', payload });
+            }}
+            addChessAi={(payload: chessAiMode) =>
+              dispatch({
+                type: 'loadedChapter:setPuzzleMoves',
+                payload: payload as chessAiMode,
+              })
+            }
+            currentChapter={currentChapter}
+          />
           <div>
-           
-
             <AichessBoard
               sizePx={boardSize}
               // onChangePuzzleAnimation={onChangePuzzleAnimation}
@@ -222,12 +216,9 @@ export const AichessActivity = ({
                 </>
               }
             />
-            
           </div>
           {/* )} */}
-          
         </>
-        
       )}
       rightComponent={
         <div className="flex flex-col flex-1 min-h-0 gap-4max-h-screen ">
@@ -253,7 +244,7 @@ export const AichessActivity = ({
               });
             }}
             addGameEvaluation={(payload) => {
-              console.log('evaluacija', payload);
+              //console.log('evaluacija', payload);
               dispatch({ type: 'loadedChapter:gameEvaluation', payload });
             }}
             onPuzzleMove={(payload) => {

@@ -58,7 +58,6 @@ module.exports = {
           200: 'rgba(255, 255, 255, 0.15)',
           300: 'rgba(255, 255, 255, 0.25)',
         },
-        
       },
       keyframes: {
         fadeUp: {
@@ -73,13 +72,13 @@ module.exports = {
           '60%': { transform: 'translateX(-5px)' },
           '80%': { transform: 'translateX(5px)' },
         },
-       
       },
       boxShadow: {
         'green-soft': '0px 2px 10px 0px rgba(7, 218, 99, 0.1)',
       },
       backgroundImage: {
-        'op-widget': "radial-gradient(61.84% 61.84% at 50% 131.62%, rgba(5, 135, 44, 0.2) 0%, #01210B 100%)",
+        'op-widget':
+          'radial-gradient(61.84% 61.84% at 50% 131.62%, rgba(5, 135, 44, 0.2) 0%, #01210B 100%)',
       },
       animation: {
         fadeUp: 'fadeUp 1s ease-out',

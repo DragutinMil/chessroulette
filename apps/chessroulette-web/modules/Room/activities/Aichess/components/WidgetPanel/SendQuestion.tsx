@@ -26,7 +26,10 @@ export async function SendQuestion(
           ]?.length - 1
         ].san
       : '';
-  const evaluationStockfish = currentChapterState.orientation == 'w' ? Number(currentChapterState.evaluation.newCp/100) : Number(-(currentChapterState.evaluation.newCp/100))
+  const evaluationStockfish =
+    currentChapterState.orientation == 'w'
+      ? Number(currentChapterState.evaluation.newCp / 100)
+      : Number(-(currentChapterState.evaluation.newCp / 100));
 
   const question =
     'QUESTION:\n' +
@@ -41,15 +44,15 @@ export async function SendQuestion(
     '\n' +
     'Stockfish best line: ' +
     bestline +
-    '\n' 
-    + 'Evaluation stockfich: ' + evaluationStockfish 
-    +'\n' +
+    '\n' +
+    'Evaluation stockfich: ' +
+    evaluationStockfish +
+    '\n' +
     'User color pieces: ' +
     piecesUserColor +
     '\n' +
     'Last move: ' +
     lastMoveSan;
-  
 
   //  JSON VARIANT
   // {

@@ -113,7 +113,6 @@ export const MatchStateDialogContainer: React.FC<Props> = (
                 <div className="justify-center items-center flex flex-col">
                   <Button
                     icon="ArrowPathRoundedSquareIcon"
-                   
                     style={{
                       marginTop: 18,
                       background: '#07da63',

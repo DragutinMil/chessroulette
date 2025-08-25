@@ -48,8 +48,8 @@ export type chessAiMode = {
   puzzleId: number;
   prevUserPuzzleRating: number;
   fen: ChessFEN;
-  responseId:string,
-  message:string
+  responseId: string;
+  message: string;
 };
 export type evaluation = {
   prevCp: number;
