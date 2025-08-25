@@ -7,7 +7,7 @@ import Image from 'next/image';
 type Props = {
   currentChapterState: ChapterState;
   pulseDot: boolean;
-  userData:UserData,
+  userData: UserData;
   takeBack: () => void;
   playNext: () => void;
   hint: () => void;
@@ -25,7 +25,7 @@ const Conversation = ({
   onSelectPuzzle,
 }: Props) => {
   const scrollRef = useRef<HTMLDivElement>(null);
-  
+
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
@@ -98,17 +98,20 @@ const Conversation = ({
                     {msg.content}
                   </p>
                 </div>
-               { userData.picture ?(
-             <div className="w-9 h-9 min-w-8  flex items-center justify-center rounded-full">
-                  <img className="w-9 h-9 min-w-8  flex items-center justify-center rounded-full"  src={userData.picture} alt="user_picture" />
-                </div>
-               ):
-(
-<div className="w-9 h-9 min-w-8  flex items-center justify-center rounded-full bg-indigo-1600 text-white font-semibold text-sm">
-                   {userData.name_first?.slice(0,1)}{userData.name_last?.slice(0,1)}
-                </div>
-)  }      
-        
+                {userData.picture ? (
+                  <div className="w-9 h-9 min-w-8  flex items-center justify-center rounded-full">
+                    <img
+                      className="w-9 h-9 min-w-8  flex items-center justify-center rounded-full"
+                      src={userData.picture}
+                      alt="user_picture"
+                    />
+                  </div>
+                ) : (
+                  <div className="w-9 h-9 min-w-8  flex items-center justify-center rounded-full bg-indigo-1600 text-white font-semibold text-sm">
+                    {userData.name_first?.slice(0, 1)}
+                    {userData.name_last?.slice(0, 1)}
+                  </div>
+                )}
               </div>
             )}
             {pulseDot && isLastMessage && (

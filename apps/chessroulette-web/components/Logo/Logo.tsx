@@ -23,7 +23,7 @@ export const Logo: React.FC<Props> = ({ themeName, style }) => {
     if (themeName === 'op' || themeName === 'outpost') {
       return {
         src: newLogo,
-       // width: 250,
+        // width: 250,
         height: 31,
         title: 'Chessroulette + Outpost = ♥️',
       };

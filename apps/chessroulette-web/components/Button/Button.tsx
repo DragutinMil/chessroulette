@@ -68,7 +68,9 @@ const classes = {
   sm: 'p-1 px-2 text-sm rounded-lg',
   xs: 'p-1 px-2 text-xs rounded-md',
   primary: (bgColor?: BgColor) =>
-  `text-white font-bold ${toStringColors(getButtonColors(bgColor || 'indigo'))}`,
+    `text-white font-bold ${toStringColors(
+      getButtonColors(bgColor || 'indigo')
+    )}`,
   clear: `text-gray-300 font-bold hover:text-white`,
   secondary: `${toStringColors(getButtonColors('slate'))}`,
   custom: '',

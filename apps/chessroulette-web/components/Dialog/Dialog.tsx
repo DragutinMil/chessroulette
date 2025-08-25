@@ -19,7 +19,7 @@ export const Dialog: React.FC<Props> = ({ modalBG = 'dark', ...props }) => {
       }`}
     >
       <div
-        className="flex bg-black rounded-lg px-12 py-8 shadow-2xl shadow-black w-[280px] md:w-[420px]"
+        className="flex bg-black rounded-lg md:px-12 px-4 py-8 shadow-2xl shadow-black w-[280px] md:w-[420px]"
         style={{ boxShadow: '0px 0px 30px 0px #07DA6366' }}
       >
         <div className="flex flex-col gap-4 w-full">

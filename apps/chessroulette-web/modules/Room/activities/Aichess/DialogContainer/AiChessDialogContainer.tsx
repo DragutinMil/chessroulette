@@ -37,8 +37,8 @@ export const AiChessDialogContainer: React.FC<AiChessDialogContainerProps> = ({
       puzzleId: 0,
       prevUserPuzzleRating: 0,
       fen: currentChapter.displayFen,
-      responseId:'',
-      message:''
+      responseId: '',
+      message: '',
     });
   };
   const newPuzzle = async () => {
@@ -46,7 +46,6 @@ export const AiChessDialogContainer: React.FC<AiChessDialogContainerProps> = ({
     if (ChessFENBoard.validateFenString(data.fen).ok) {
       const changeOrientation =
         currentChapter.orientation === data.fen.split(' ')[1];
-      
 
       addChessAi({
         mode: 'puzzle',
@@ -61,8 +60,8 @@ export const AiChessDialogContainer: React.FC<AiChessDialogContainerProps> = ({
         puzzleId: data.puzzle_id,
         prevUserPuzzleRating: currentChapter.chessAiMode.userPuzzleRating,
         fen: data.fen,
-        responseId:'',
-        message:''
+        responseId: '',
+        message: '',
       });
 
       //FIRST MOVE
@@ -116,7 +115,7 @@ export const AiChessDialogContainer: React.FC<AiChessDialogContainerProps> = ({
             >
               ✅ Next Puzzle
             </ButtonGreen>
-            
+
             <ButtonGreen
               // icon="ArrowLeftIcon"
               size="lg"
@@ -128,8 +127,7 @@ export const AiChessDialogContainer: React.FC<AiChessDialogContainerProps> = ({
             >
               ♟️ Free Play
             </ButtonGreen>
-            
-            
+
             <ButtonGreen
               // icon="ArrowLeftIcon"
               size="lg"

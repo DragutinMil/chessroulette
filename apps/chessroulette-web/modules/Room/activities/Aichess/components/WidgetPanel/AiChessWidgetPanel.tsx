@@ -14,7 +14,7 @@ import type {
   MovePiece,
   chessAiMode,
   Message,
-  UserData
+  UserData,
 } from '../../movex/types';
 import { CircleDrawTuple, ArrowsMap } from '@app/components/Chessboard/types';
 import {
@@ -60,7 +60,7 @@ type Props = {
   onHistoryNotationRefocus: FreeBoardNotationProps['onRefocus'];
   onHistoryNotationDelete: FreeBoardNotationProps['onDelete'];
   addGameEvaluation: (score: number) => void;
-  userData:UserData;
+  userData: UserData;
 
   // Engine
   showEngine?: boolean;
@@ -165,14 +165,13 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
       }
       setAnswer(data.answer.text);
 
-
-      console.log('fen ai', data.answer.fen)
+      console.log('fen ai', data.answer.fen);
       if (
         data.puzzle &&
         data.puzzle.fen &&
         ChessFENBoard.validateFenString(data.puzzle.fen).ok
       ) {
-         console.log('fen ai 2', data.fen)
+        console.log('fen ai 2', data.fen);
         const changeOrientation =
           currentChapterState.orientation === data.puzzle.fen.split(' ')[1];
         const userRating =
@@ -193,8 +192,8 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
           puzzleId: data.puzzle.puzzle_id,
           prevUserPuzzleRating: userRating,
           fen: data.puzzle.fen,
-          responseId:'',
-           message:''
+          responseId: '',
+          message: '',
         });
         setTimeout(() => {
           const from = data.puzzle.solution[0].slice(0, 2);
@@ -220,53 +219,52 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
         }, 1000);
 
         //FIRST MOVE
-      }
-      
-      else if(data.answer.fen && ChessFENBoard.validateFenString(data.answer.fen).ok){
-         const changeOrientation =
+      } else if (
+        data.answer.fen &&
+        ChessFENBoard.validateFenString(data.answer.fen).ok
+      ) {
+        const changeOrientation =
           currentChapterState.orientation === data.answer.fen.split(' ')[1];
         addChessAi({
           ...currentChapterState.chessAiMode,
           mode: 'play',
-          moves:[],
+          moves: [],
           movesCount: 0,
           badMoves: 0,
           goodMoves: 0,
           orientationChange: changeOrientation,
           fen: data.answer.fen,
-          responseId:data.id,
-          message:data.answer.text
+          responseId: data.id,
+          message: data.answer.text,
+        });
+      } else {
+        onMessage({
+          content: data.answer.text,
+          participantId: 'chatGPT123456',
+          idResponse: data.id,
         });
       }
-      else{
-        onMessage({
-                content: data.answer.text,
-                participantId: 'chatGPT123456',
-                idResponse: data.id,
-              });
-      }
-     
     };
-    useEffect( () => {
+    useEffect(() => {
       if (currentChapterState.evaluation.prevCp !== 0) {
         if (!isMyTurn) {
-         const probability = async () => {
+          const probability = async () => {
             const ProbabilityChange = await ChessEngineProbabilityCalc(
-            currentChapterState.evaluation.newCp,
-            currentChapterState.evaluation.prevCp
-          );
-           if (ProbabilityChange.diff < -10) {
-            moveReaction(0);
-          }
-          console.log('probabilities', ProbabilityChange);
-          if (ProbabilityChange.diff > 3) {
+              currentChapterState.evaluation.newCp,
+              currentChapterState.evaluation.prevCp
+            );
+            if (ProbabilityChange.diff < -10) {
+              moveReaction(0);
+            }
             console.log('probabilities', ProbabilityChange);
-            if (ProbabilityChange.diff > 7) {
-              moveReaction(2);
-            } else moveReaction(1);
-          }
-         }
-         probability()
+            if (ProbabilityChange.diff > 3) {
+              console.log('probabilities', ProbabilityChange);
+              if (ProbabilityChange.diff > 7) {
+                moveReaction(2);
+              } else moveReaction(1);
+            }
+          };
+          probability();
         }
       }
     }, [currentChapterState.evaluation.newCp]);
@@ -291,6 +289,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
           !isMyTurn &&
           currentChapterState.chessAiMode.movesCount > length
         ) {
+          setHintCircle(false);
           const from = currentChapterState.chessAiMode.moves[2 * length].slice(
             0,
             2
@@ -313,6 +312,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
           !isMyTurn &&
           currentChapterState.chessAiMode.movesCount >= length
         ) {
+          setHintCircle(false);
           const from = currentChapterState.chessAiMode.moves[
             2 * length - 2
           ].slice(0, 2); // "d3"
@@ -395,7 +395,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
           'Smart move! 🧠',
         ];
         const randomIndex = Math.floor(Math.random() * responses.length);
-        
+
         setTimeout(
           () =>
             onMessage({
@@ -451,8 +451,8 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
               prevUserPuzzleRating:
                 currentChapterState.chessAiMode.prevUserPuzzleRating,
               fen: currentChapterState.displayFen,
-              responseId:'',
-              message:''
+              responseId: '',
+              message: '',
             }),
           1000
         );
@@ -484,7 +484,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
     //   addQuestion(fullQuestion);
     // };
     const hint = async () => {
-     // console.log('stockfishMovesInfo', stockfishMovesInfo);
+      // console.log('stockfishMovesInfo', stockfishMovesInfo);
       if (currentChapterState.chessAiMode.mode == 'puzzle') {
         const fieldFrom = currentChapterState.chessAiMode.moves[
           currentChapterState.chessAiMode.goodMoves
@@ -509,25 +509,27 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
           onCircleDraw(circle as CircleDrawTuple);
         }
       } else if (stockfishMovesInfo) {
-        const m = stockfishMovesInfo;
-        let from = m.slice(0, 2);
-        let to = m.slice(2, 4);
+        if (isMyTurn) {
+          const m = stockfishMovesInfo;
+          let from = m.slice(0, 2);
+          let to = m.slice(2, 4);
 
-        const color = '#07da63';
-        if (hintCircle) {
-          const arrowId = `${from}${to}-${color}`;
-          onArrowsChange({
-            [arrowId]: [from as Square, to as Square, color],
-          });
-          setHintCircle(false);
-        } else {
-          const piece = await CheckPiece(
-            from as Square,
-            currentChapterState.displayFen
-          );
-          const circle = [from, color, piece];
-          setHintCircle(true);
-          onCircleDraw(circle as CircleDrawTuple);
+          const color = '#07da63';
+          if (hintCircle) {
+            const arrowId = `${from}${to}-${color}`;
+            onArrowsChange({
+              [arrowId]: [from as Square, to as Square, color],
+            });
+            setHintCircle(false);
+          } else {
+            const piece = await CheckPiece(
+              from as Square,
+              currentChapterState.displayFen
+            );
+            const circle = [from, color, piece];
+            setHintCircle(true);
+            onCircleDraw(circle as CircleDrawTuple);
+          }
         }
       }
 
@@ -567,12 +569,13 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
 
       if (
         !isMyTurn &&
-        currentChapterState.chessAiMode.mode == 'play' 
+        currentChapterState.chessAiMode.mode == 'play'
         // && (!currentChapterState.messages[
         //   currentChapterState.messages.length - 1
         // ].content.includes('Ouch,') ||
         //   n)
       ) {
+        setHintCircle(false);
         let fromChess = m.slice(0, 2);
         let toChess = m.slice(2, 4);
         setStockfishMovesInfo(m);
@@ -626,8 +629,8 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
           puzzleId: data.puzzle_id,
           prevUserPuzzleRating: userRating,
           fen: data.fen,
-          responseId:'',
-          message:''
+          responseId: '',
+          message: '',
         });
         setHintCircle(false);
         //FIRST MOVE
@@ -689,38 +692,45 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
         puzzleId: 0,
         prevUserPuzzleRating: currentChapterState.chessAiMode.userPuzzleRating,
         fen: currentChapterState.displayFen,
-        responseId:'',
-        message:''
+        responseId: '',
+        message: '',
       });
     };
 
     const moveReaction = async (probabilityDiff: number) => {
-      const blunderText = ["That move hit a wall 😬 Shall we undo?","Uh-oh, blunder alert 🚨 Take it back?" ]
+      const blunderText = [
+        'That move hit a wall 😬 Shall we undo?',
+        'Uh-oh, blunder alert 🚨 Take it back?',
+      ];
 
-      const prompt = blunderText[Math.floor(Math.random() * blunderText.length)];
+      const prompt =
+        blunderText[Math.floor(Math.random() * blunderText.length)];
       const content =
         probabilityDiff === 0
           ? prompt
-
           : probabilityDiff === 1
           ? 'Nice move'
           : probabilityDiff === 2 && 'Great move! ✅';
-       if(probabilityDiff===0 && currentChapterState.chessAiMode.mode==='play'){ 
-
-        setTakeBakeShake(true);  
-        setTimeout(() => { setTakeBakeShake(false)}, 3000);
+      if (
+        probabilityDiff === 0 &&
+        currentChapterState.chessAiMode.mode === 'play'
+      ) {
+        setTakeBakeShake(true);
+        setTimeout(() => {
+          setTakeBakeShake(false);
+        }, 3000);
       }
       if (currentChapterState.chessAiMode.mode == 'play') {
-         setTimeout(() => {
-        onMessage({
-          content: content.toString(),
-          participantId: 'chatGPT123456',
-          idResponse:
-            currentChapterState.messages[
-              currentChapterState.messages.length - 1
-            ].idResponse,
-        });
-         }, 400);
+        setTimeout(() => {
+          onMessage({
+            content: content.toString(),
+            participantId: 'chatGPT123456',
+            idResponse:
+              currentChapterState.messages[
+                currentChapterState.messages.length - 1
+              ].idResponse,
+          });
+        }, 400);
       }
     };
 
@@ -774,7 +784,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
               ),
               renderContent: () => (
                 <div className="flex flex-col flex-1 gap-2 min-h-0">
-                   {(currentChapterState.chessAiMode.mode == 'puzzle' ||
+                  {(currentChapterState.chessAiMode.mode == 'puzzle' ||
                     currentChapterState.chessAiMode.mode == 'popup') && (
                     <div className="block md:hidden">
                       <PuzzleScore
@@ -782,11 +792,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
                       />
                     </div>
                   )}
-                  <div
-                    className="border bg-op-widget border-conversation-100 py-2 px-2 md:px-4 md:py-4 rounded-lg "
-                  
-                  >
-                   
+                  <div className="border bg-op-widget border-conversation-100 py-2 px-2 md:px-4 md:py-4 rounded-lg ">
                     <Conversation
                       currentChapterState={currentChapterState}
                       onSelectPuzzle={puzzles}
@@ -828,7 +834,9 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
                           Object.keys(currentChapterState.arrowsMap).length !==
                             0 ||
                           (currentChapterState.chessAiMode.mode !== 'puzzle' &&
-                            currentChapterState.chessAiMode.mode !== 'play') || stockfishMovesInfo==='no best moves,game is ended by checkmate' 
+                            currentChapterState.chessAiMode.mode !== 'play') ||
+                          stockfishMovesInfo ===
+                            'no best moves,game is ended by checkmate'
                         }
                       >
                         {/* 🔍 */}
@@ -849,10 +857,11 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
                           takeBack();
                         }}
                         disabled={
-                          currentChapterState.notation.history.length < 1 || currentChapterState.chessAiMode.mode=='puzzle'
+                          currentChapterState.notation.history.length < 1 ||
+                          currentChapterState.chessAiMode.mode == 'puzzle'
                         }
                         size="sm"
-                        className={  takeBakeShake ? "animate-shake" : ""}
+                        className={takeBakeShake ? 'animate-shake' : ''}
                       >
                         Take Back
                       </ButtonGreen>

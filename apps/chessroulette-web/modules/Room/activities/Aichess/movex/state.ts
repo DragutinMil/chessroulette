@@ -27,8 +27,8 @@ export const initialChapterState: ChapterState = {
     puzzleId: 0,
     prevUserPuzzleRating: 0,
     fen: ChessFENBoard.STARTING_FEN,
-    responseId:'',
-    message:''
+    responseId: '',
+    message: '',
   },
   evaluation: {
     prevCp: 0,
@@ -50,7 +50,6 @@ export const initialDefaultChapter: Chapter = {
   name: 'Chapter 1',
   id: '0',
 };
-
 
 export const initialAichessStateActivityState: AichessActivityState['activityState'] =
   {

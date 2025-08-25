@@ -97,7 +97,6 @@ export async function getOpenings() {
 }
 //PUZZLE
 export async function getPuzzle(category?: string) {
-  console.log('Cookies.getsessionToken',Cookies.get('sessionToken'))
   const token = Cookies.get('sessionToken');
   const puzzleCategory = category !== undefined ? `?theme=${category}` : '';
   try {
@@ -157,14 +156,13 @@ export async function sendPuzzleUserRating(
 //GET TOKEN
 export async function getToken() {
   const token = Cookies.get('sessionToken');
-  
+
   return token;
 }
 
-
 export async function getUserInfo() {
   const token = Cookies.get('sessionToken');
-  
+
   try {
     const response = await fetch(
       process.env.NEXT_PUBLIC_API_WEB + 'current_user_info',
@@ -174,7 +172,6 @@ export async function getUserInfo() {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-
       }
     );
 

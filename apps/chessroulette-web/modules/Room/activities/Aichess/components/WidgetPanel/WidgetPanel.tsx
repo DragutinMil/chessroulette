@@ -17,9 +17,7 @@ import React from 'react';
 import { CircleDrawTuple, ArrowsMap } from '@app/components/Chessboard/types';
 import { EngineData } from '../../../../../ChessEngine/lib/io';
 import { AiChessWidgetPanel } from './AiChessWidgetPanel';
-import type {
-  UserData
-} from '../../movex/types';
+import type { UserData } from '../../movex/types';
 type Props = {
   chaptersMap: Record<Chapter['id'], Chapter>;
   chaptersMapIndex: number;
@@ -38,7 +36,7 @@ type Props = {
   onHistoryNotationRefocus: FreeBoardNotationProps['onRefocus'];
   onHistoryNotationDelete: FreeBoardNotationProps['onDelete'];
   addGameEvaluation: (score: number) => void;
-  userData:UserData
+  userData: UserData;
   // Mode
   isInstructor: boolean;
 
