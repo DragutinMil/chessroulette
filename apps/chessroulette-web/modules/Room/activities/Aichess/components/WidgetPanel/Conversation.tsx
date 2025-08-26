@@ -39,7 +39,11 @@ const Conversation = ({
   return (
     <div
       ref={scrollRef}
-      className="overflow-scroll  rounded-lg  h-[85px] md:h-[316px] no-scrollbar  scroll-smooth"
+      className={`
+    overflow-scroll rounded-lg no-scrollbar scroll-smooth
+    ${currentChapterState.chessAiMode.mode !== 'puzzle' ? 'h-[135px]' : 'h-[85px]'}
+    md:h-[316px]
+  `}
     >
       {currentChapterState.messages.map((msg, index) => {
         const participant = msg.participantId;

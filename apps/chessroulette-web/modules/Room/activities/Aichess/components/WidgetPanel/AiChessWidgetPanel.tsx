@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState, useEffect } from 'react';
+import React, { useCallback, useMemo, useState, useEffect,useRef } from 'react';
 import { Button } from '@app/components/Button';
 import { ButtonGreen } from '@app/components/Button/ButtonGreen';
 import { ChessFENBoard, isValidPgn } from '@xmatter/util-kit';
@@ -114,6 +114,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
     const [isFocusedInput, setIsFocusedInput] = useState(false);
     const [question, setQuestion] = useState('');
     const [takeBakeShake, setTakeBakeShake] = useState(false);
+    const lastClick = useRef(0);
 
     const [stockfishMovesInfo, setStockfishMovesInfo] = useState('');
     const [lines, setLines] = useState<StockfishLines>({
@@ -171,7 +172,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
         data.puzzle.fen &&
         ChessFENBoard.validateFenString(data.puzzle.fen).ok
       ) {
-        console.log('fen ai 2', data.fen);
+        // console.log('fen ai 2', data.fen);
         const changeOrientation =
           currentChapterState.orientation === data.puzzle.fen.split(' ')[1];
         const userRating =
@@ -603,8 +604,17 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
     const engineLines = (m: StockfishLines) => {
       setLines(m);
     };
-
+   
+   
+   
     const puzzles = async (category?: string) => {
+
+          const now = Date.now();
+    
+
+    if (now - lastClick.current < 500) return; // ignoriši dvoklik unutar 0.5s
+    lastClick.current = now;
+ 
       const data = await getPuzzle(category);
 
       if (ChessFENBoard.validateFenString(data.fen).ok) {
@@ -615,7 +625,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
           currentChapterState.chessAiMode.userPuzzleRating > 0
             ? currentChapterState.chessAiMode.userPuzzleRating
             : data.user_puzzle_rating;
-
+      
         addChessAi({
           mode: 'puzzle',
           moves: data.solution,
@@ -632,6 +642,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
           responseId: '',
           message: '',
         });
+       
         setHintCircle(false);
         //FIRST MOVE
         const from = data.solution[0].slice(0, 2);
@@ -867,8 +878,10 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
                       </ButtonGreen>
                       <ButtonGreen
                         onClick={() => {
+                    
                           puzzles();
                         }}
+                       
                         size="sm"
                       >
                         New Puzzle
