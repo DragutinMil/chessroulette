@@ -7,68 +7,124 @@ type Props = {
 };
 export const puzzleRatingLevels = [
   {
-    title: '💪 Novice',
+    title: '😵 Novice',
     range: [1200, 1349],
     sublevels: [
-      { label: 'Novice 1', start: 1200, end: 1249 },
-      { label: 'Novice 2', start: 1250, end: 1299 },
-      { label: 'Novice 3', start: 1300, end: 1349 },
+      { label: '😵 Very Beginner 1', start: 1200, end: 1249 },
+      { label: '😵 Very Beginner 2', start: 1250, end: 1299 },
+      { label: '😵 Very Beginner 3', start: 1300, end: 1349 },
+    ],
+  },
+  {
+    title: '💪 Novice',
+    range: [1350, 1499],
+    sublevels: [
+      { label: '💪 Novice 1', start: 1350, end: 1399 },
+      { label: '💪 Novice 2', start: 1400, end: 1449  },
+      { label: '💪 Novice 3', start: 1450, end: 1499 },
     ],
   },
   {
     title: '🧠 Tactician',
-    range: [1350, 1499],
+    range: [1500, 1649],
     sublevels: [
-      { label: 'Tactician 1', start: 1350, end: 1399 },
-      { label: 'Tactician 2', start: 1400, end: 1449 },
-      { label: 'Tactician 3', start: 1450, end: 1499 },
+      { label: '🧠 Tactician 1', start: 1500, end: 1549 },
+      { label: '🧠 Tactician 2', start: 1550, end: 1599},
+      { label: '🧠 Tactician 3', start: 1600, end: 1649 },
     ],
   },
   {
     title: '⚔️ Attacker',
-    range: [1500, 1649],
+    range: [1650, 1799],
     sublevels: [
-      { label: 'Attacker 1', start: 1500, end: 1549 },
-      { label: 'Attacker 2', start: 1550, end: 1599 },
-      { label: 'Attacker 3', start: 1600, end: 1649 },
+      { label: '⚔️ Attacker 1', start: 1650, end: 1699 },
+      { label: '⚔️ Attacker 2', start: 1700, end: 1749 },
+      { label: '⚔️ Attacker 3', start: 1750, end: 1799},
     ],
   },
   {
     title: '🧙 Strategist',
-    range: [1650, 1799],
+    range: [1800, 1949],
     sublevels: [
-      { label: 'Strategist 1', start: 1650, end: 1699 },
-      { label: 'Strategist 2', start: 1700, end: 1749 },
-      { label: 'Strategist 2', start: 1750, end: 1799 },
+      { label: '🧙 Strategist 1', start: 1800, end: 1849 },
+      { label: '🧙 Strategist 2', start: 1850, end: 1899 },
+      { label: '🧙 Strategist 3', start: 1900, end: 1949 },
     ],
   },
   {
     title: '🧠 Mastermind',
-    range: [1800, 1949],
+    range: [1950, 2099],
     sublevels: [
-      { label: 'Mastermind 1', start: 1800, end: 1849 },
-      { label: 'Mastermind 2', start: 1850, end: 1899 },
-      { label: 'Mastermind 3', start: 1900, end: 1949 },
+      { label: '🧠 Mastermind 1',  start: 1950, end: 1999  },
+      { label: '🧠 Mastermind 2', start: 2000, end: 2049  },
+      { label: '🧠 Mastermind 3', start: 2050, end: 2099 },
     ],
   },
   {
     title: '🦾 Elite',
-    range: [1950, 2099],
+    range: [2100, 2250],
     sublevels: [
-      { label: 'Elite 1', start: 1950, end: 1999 },
-      { label: 'Elite 2', start: 2000, end: 2049 },
-      { label: 'Elite 3', start: 2050, end: 2099 },
+      { label: '🦾 Elite 1', start: 2100, end: 2149 },
+      { label: '🦾 Elite 2', start: 2150, end: 2199  },
+      { label: '🦾 Elite 3',start: 2200, end: 2249 },
     ],
   },
   {
     title: '🐉 Puzzle Beast',
-    range: [2100, Infinity],
+    range: [2250, 2399],
     sublevels: [
-      { label: 'Beast 1', start: 2100, end: 2149 },
-      { label: 'Beast 2', start: 2150, end: 2199 },
-      { label: 'Beast 3', start: 2200, end: Infinity },
+      { label: '🐉 Beast 1', start: 2250, end: 2299 },
+      { label: '🐉 Beast 2', start: 2300, end: 2349 },
+      { label: '🐉 Beast 3', start: 2350, end: 2399 },
     ],
   },
+  {
+  title: '🛡️ Grandmaster',
+  range: [2400, 2549],
+  sublevels: [
+    { label: '🛡️ Grandmaster 1', start: 2400, end: 2449 },
+    { label: '🛡️ Grandmaster 2', start: 2450, end: 2499 },
+    { label: '🛡️ Grandmaster 3', start: 2500, end: 2549 },
+  ],
+},
+{
+  title: '🔥 Legend',
+  range: [2550, 2699],
+  sublevels: [
+    { label: '🔥 Legend 1', start: 2550, end: 2599 },
+    { label: '🔥 Legend 2', start: 2600, end: 2649 },
+    { label: '🔥 Legend 3', start: 2650, end: 2699 },
+  ],
+},
+{
+  title: '🌟 Champion',
+  range: [2700, 2849],
+  sublevels: [
+    { label: '🌟 Champion 1', start: 2700, end: 2749 },
+    { label: '🌟 Champion 2', start: 2750, end: 2799 },
+    { label: '🌟 Champion 3', start: 2800, end: 2849 },
+  ],
+},
+{
+  title: '🐲 Dragon Lord',
+  range: [2850, 2949],
+  sublevels: [
+    { label: '🐲 Dragon Lord 1', start: 2850, end: 2899 },
+    { label: '🐲 Dragon Lord 2', start: 2900, end: 2949 },
+    { label: '🐲 Dragon Lord 3', start: 2950, end: 2999}, 
+  ],
+},
+{
+  title: '👑 Ultimate',
+  range: [2950, 3000],
+  sublevels: [
+    { label: 'Ultimate 1', start: 3000, end: 3049 },
+    { label: 'Ultimate 2', start: 3050, end: 3099 },
+    { label: 'Ultimate 3', start: 3100, end: Infinity },
+  ],
+},
+ 
+ 
 ];
 
 //console.log('currentChapterState',currentChapterState)

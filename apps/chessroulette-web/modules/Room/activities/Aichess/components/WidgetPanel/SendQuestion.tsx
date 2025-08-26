@@ -1,7 +1,8 @@
 import { getToken } from '../../util';
 
 import type { ChapterState } from '../../movex/types';
-
+import { CheckPiece } from './CheckPiece';
+import { Square } from 'chess.js';
 export async function SendQuestion(
   prompt: string,
   currentChapterState: ChapterState,
@@ -15,6 +16,12 @@ export async function SendQuestion(
 
   const piecesUserColor =
     currentChapterState.orientation == 'w' ? 'white' : 'black';
+
+  const from = stockfishMovesInfo.slice(0,2)
+  const bestMovePiece = await CheckPiece(
+              from as Square,
+              currentChapterState.displayFen
+            );
 
   const lastMoveSan =
     currentChapterState.notation.history.length > 0
@@ -36,8 +43,8 @@ export async function SendQuestion(
     prompt +
     '\n\n' +
     'CONTEXT:\n' +
-    'Best Moves: ' +
-    stockfishMovesInfo +
+    'Best Move: ' +
+    stockfishMovesInfo +" "+ bestMovePiece +
     '\n' +
     'FEN: ' +
     currentChapterState.displayFen +
@@ -52,7 +59,7 @@ export async function SendQuestion(
     piecesUserColor +
     '\n' +
     'Last move: ' +
-    lastMoveSan;
+    lastMoveSan 
 
   //  JSON VARIANT
   // {
