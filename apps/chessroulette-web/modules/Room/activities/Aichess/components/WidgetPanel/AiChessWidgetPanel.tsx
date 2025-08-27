@@ -178,7 +178,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
         const userRating =
           currentChapterState.chessAiMode.userPuzzleRating > 0
             ? currentChapterState.chessAiMode.userPuzzleRating
-            : data.user_puzzle_rating;
+            : data.puzzle.user_puzzle_rating;
 
         addChessAi({
           mode: 'puzzle',
@@ -254,8 +254,11 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
               currentChapterState.evaluation.newCp,
               currentChapterState.evaluation.prevCp
             );
-            if (ProbabilityChange.diff < -10) {
+            if (ProbabilityChange.diff < -8 && ProbabilityChange.diff > -11) {
               moveReaction(0);
+            }
+            else if (ProbabilityChange.diff < -11.01 ) {
+              moveReaction(-1);
             }
             console.log('probabilities', ProbabilityChange);
             if (ProbabilityChange.diff > 3) {
@@ -409,27 +412,28 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
             }),
           600
         );
-      } else if (
-        currentChapterState.chessAiMode.goodMoves ===
-          currentChapterState.chessAiMode.moves.length &&
-        currentChapterState.chessAiMode.goodMoves % 2 === 0 &&
-        currentChapterState.chessAiMode.goodMoves > 0
-      ) {
-        setTimeout(
-          () =>
-            addChessAi({
-              ...currentChapterState.chessAiMode,
-              mode: 'popup',
-              moves: [],
-              movesCount: 0,
-              badMoves: 0,
-              goodMoves: 0,
-              orientationChange: false,
-              fen: currentChapterState.displayFen,
-            }),
-          1000
-        );
-      }
+      } 
+      // else if (
+      //   currentChapterState.chessAiMode.goodMoves ===
+      //     currentChapterState.chessAiMode.moves.length &&
+      //   currentChapterState.chessAiMode.goodMoves % 2 === 0 &&
+      //   currentChapterState.chessAiMode.goodMoves > 0
+      // ) {
+      //   setTimeout(
+      //     () =>
+      //       addChessAi({
+      //         ...currentChapterState.chessAiMode,
+      //         mode: 'popup',
+      //         moves: [],
+      //         movesCount: 0,
+      //         badMoves: 0,
+      //         goodMoves: 0,
+      //         orientationChange: false,
+      //         fen: currentChapterState.displayFen,
+      //       }),
+      //     1000
+      //   );
+      // }
     }, [currentChapterState.chessAiMode.goodMoves]);
 
     const isMate = async () => {
@@ -709,19 +713,16 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
     };
 
     const moveReaction = async (probabilityDiff: number) => {
-      const blunderText = [
-        'That move hit a wall 😬 Shall we undo?',
-        'Uh-oh, blunder alert 🚨 Take it back?',
-      ];
+     
 
-      const prompt =
-        blunderText[Math.floor(Math.random() * blunderText.length)];
+      
       const content =
+        probabilityDiff ==-1 ? 'Uh-oh, blunder alert 🚨 Take it back?':
         probabilityDiff === 0
-          ? prompt
+          ? 'Oops! This gives your opponent a strong chance.'
           : probabilityDiff === 1
-          ? 'Nice move'
-          : probabilityDiff === 2 && 'Great move! ✅';
+          ? 'Nice! You’re gaining a slight edge.'
+          : probabilityDiff === 2 && 'Excellent move! You’re taking control. ✅';
       if (
         probabilityDiff === 0 &&
         currentChapterState.chessAiMode.mode === 'play'
@@ -744,7 +745,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
         }, 400);
       }
     };
-
+//console.log('mode',currentChapterState.chessAiMode.mode)
     // const importPgn = async () => {
     //   const fen = '7R/2r3P1/8/8/2b4p/P4k2/8/4K3 b - - 10 55';
     //   if (ChessFENBoard.validateFenString(fen).ok) {
@@ -795,7 +796,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
               ),
               renderContent: () => (
                 <div className="flex flex-col flex-1 gap-2 min-h-0">
-                  {(currentChapterState.chessAiMode.mode == 'puzzle' ||
+                  {(currentChapterState.chessAiMode.mode === 'puzzle' ||
                     currentChapterState.chessAiMode.mode == 'popup') && (
                     <div className="block md:hidden">
                       <PuzzleScore

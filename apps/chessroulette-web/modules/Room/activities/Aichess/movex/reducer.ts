@@ -302,7 +302,7 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
         prevChapter.chessAiMode.mode == 'puzzle'
           ? 2
           : 0;
-
+      
       const chengeRatingPoints =
         prevChapter.chessAiMode.goodMoves + 1 ==
           prevChapter.chessAiMode.moves.length &&
@@ -317,7 +317,52 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
       const userPuzzleRating =
         prevChapter.chessAiMode.userPuzzleRating + afterGoodMovePoints;
       prevChapter.chessAiMode.ratingChange;
-      const nextChapter: Chapter = {
+
+      
+      
+
+      
+
+      
+      if(finnishPoint==5){
+        const nextChapterEnd: Chapter = {
+        ...prevChapter,
+        displayFen: fenBoard.fen,
+        circlesMap: {},
+        arrowsMap: {},
+        notation: {
+          ...prevChapter.notation,
+          history: nextHistory,
+          focusedIndex: addedAtIndex,
+        },
+        chessAiMode: {
+          ...prevChapter.chessAiMode,
+          userPuzzleRating: userPuzzleRating,
+          ratingChange: afterGoodMovePoints,
+          mode: 'popup',
+          moves: [],
+          movesCount: 0,
+          badMoves: 0,
+          goodMoves: 0,
+          orientationChange: false,
+          fen: prev.activityState.chaptersMap[0].displayFen
+        },
+      };
+        return {
+        ...prev,
+        activityState: {
+          ...prev.activityState,
+
+          chaptersMap: {
+            ...prev.activityState.chaptersMap,
+            [prevChapter.id]: nextChapterEnd,
+            
+          },
+        },
+      };
+      }
+      else{
+        const nextChapter: Chapter = {
         ...prevChapter,
         displayFen: fenBoard.fen,
         circlesMap: {},
@@ -334,8 +379,7 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
           ratingChange: afterGoodMovePoints,
         },
       };
-
-      return {
+       return {
         ...prev,
         activityState: {
           ...prev.activityState,
@@ -346,6 +390,8 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
           },
         },
       };
+      }
+      
     } catch (e) {
       console.error('Action Error', action, prev, e);
       return prev;
@@ -567,7 +613,7 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
     const hintCorrection =
       Object.keys(action.payload).length > 0 &&
       prevChapter.chessAiMode.mode == 'puzzle'
-        ? 1
+        ? 2
         : 0;
     const nextChapter: Chapter = {
       ...prevChapter,

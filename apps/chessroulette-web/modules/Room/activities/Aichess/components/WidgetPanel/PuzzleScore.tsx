@@ -168,13 +168,14 @@ const PuzzleScore = ({ chessAiMode }: Props) => {
     }
     return null;
   };
+  
   const currentSublevel = getSublevel(value);
   const percentage = currentSublevel
     ? ((value - currentSublevel.start) /
         (currentSublevel.end - currentSublevel.start)) *
       100
     : 0;
-
+//console.log(value,'kik',currentSublevel, 'rik',percentage)
   return (
     <div className="rounded-lg  mb-1 mt-1 md:px-4 md:pb-4 px-2 pb-2 pt-2 border border-conversation-100 bg-[#01210B]">
       {value > 0 && (
