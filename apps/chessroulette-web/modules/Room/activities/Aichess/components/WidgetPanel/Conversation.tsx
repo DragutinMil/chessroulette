@@ -41,7 +41,7 @@ const Conversation = ({
       ref={scrollRef}
       className={`
     overflow-scroll rounded-lg no-scrollbar scroll-smooth
-    ${currentChapterState.chessAiMode.mode !== 'puzzle' ? 'h-[135px]' : 'h-[85px]'}
+    ${currentChapterState.chessAiMode.mode !== 'puzzle' ? 'h-[135px]' : 'h-[74px]'}
     md:h-[316px]
   `}
     >
