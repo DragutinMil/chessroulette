@@ -15,6 +15,8 @@ export type RowProps = {
   rowId: string;
   historyTurn: FBHTurn;
   historyTurnIndex: number;
+  evalRow: string[];
+  bestMovesEngine: string[][];
   onFocus: (i: FBHIndex) => void;
   onDelete: (i: FBHIndex) => void;
   focusedOnMovePosition?: 0 | 1;
@@ -39,10 +41,12 @@ export const HistoryRow = React.forwardRef<HTMLDivElement | null, RowProps>(
   (
     {
       rowId,
+      evalRow,
       historyTurn: [whiteMove, blackMove],
       historyTurnIndex,
       onFocus,
       onDelete,
+      bestMovesEngine,
       className,
       containerClassName,
       moveCount = historyTurnIndex + 1,
@@ -62,9 +66,14 @@ export const HistoryRow = React.forwardRef<HTMLDivElement | null, RowProps>(
 
     const shouldSplit = !!whiteMove.branchedHistories;
 
+    //  console.log('bestMovesEngine',bestMovesEngine)
+    //  console.log('blackMove', blackMove)
+
     const blackMoveRender = (
       <HistoryMove
         move={blackMove}
+        evalDiff={Number(evalRow[1]) * -1}
+        bestMoves={bestMovesEngine[1]}
         color="b"
         isFocused={!focusedOnRecursiveIndexes && focusedOnMovePosition === 1}
         onContextMenu={(event) => show({ event, props: { color: 'black' } })}
@@ -96,6 +105,8 @@ export const HistoryRow = React.forwardRef<HTMLDivElement | null, RowProps>(
             </Text>
             <HistoryMove
               move={whiteMove}
+              evalDiff={Number(evalRow[0])}
+              bestMoves={bestMovesEngine[0]}
               color="w"
               isFocused={
                 !focusedOnRecursiveIndexes && focusedOnMovePosition === 0

@@ -8,12 +8,14 @@ import {
   WhiteShortColor,
 } from '@xmatter/util-kit';
 import { RowItem } from './RowItem';
-
+import { IconProps, Icon } from '../../Icon/Icon';
 import { MouseEvent } from 'react';
 
 type Props = {
   rootHistoryIndex: FBHIndex;
   isFocused: boolean;
+  evalDiff: number;
+  bestMoves: string[];
   onFocus: (index: FBHIndex) => void;
   onContextMenu: (event: MouseEvent) => void;
   nextValidMoveAndIndex?: [FBHMove, FBHIndex];
@@ -43,17 +45,66 @@ export const HistoryMove = ({
   move,
   onFocus,
   onContextMenu,
+  bestMoves,
   isFocused,
   rootHistoryIndex,
   nextValidMoveAndIndex,
+  evalDiff,
 }: Props) => {
   if (!move) {
     return <div className="flex-1" />;
   }
 
+  // let iconic: React.ReactNode;
+
+  // if (Number(evalDiff) <= -1) {
+  //   iconic ='✅' ;
+  // } else if (Number(evalDiff) <= -0.5) {
+  //   iconic = "bad move";
+  // } else if (Number(evalDiff) > -0.5 && Number(evalDiff) < 0.5) {
+  //   iconic = "neutral";
+  // } else if (Number(evalDiff) < 1) {
+  //   iconic = "dobar";
+  // } else {
+  //   iconic = "veoma dobar";
+  // }
+  console.log('move conscat', move.from?.concat(move.to), bestMoves);
+
+  const iconicEngine =
+    bestMoves && move.from?.concat(move.to) == bestMoves[0]
+      ? '🎯'
+      : (bestMoves && move.from?.concat(move.to) == bestMoves[1]) ||
+        (bestMoves && move.from?.concat(move.to) == bestMoves[2])
+      ? '⚡'
+      : '';
+
+  const iconic =
+    evalDiff <= -2
+      ? '❌'
+      : evalDiff <= -0.5
+      ? '⬇️'
+      : evalDiff > -0.5 && evalDiff < 0.3
+      ? ''
+      : evalDiff < 1
+      ? '✅'
+      : '✅✅';
+  //➖
+  const moveCoplete =
+    evalDiff < -0.5 && iconicEngine !== ''
+      ? `${move.san} ${iconic}`
+      : evalDiff && iconicEngine !== ''
+      ? `${move.san} ${iconic} ${iconicEngine}`
+      : evalDiff
+      ? `${move.san} ${iconic}`
+      : `${move.san}`;
+
+  //  if(evalDiff){
+  //  console.log(evalDiff)
+  //  }
+
   return (
     <RowItem
-      san={move.san}
+      san={moveCoplete}
       isFocused={isFocused}
       onClick={() => onFocus(rootHistoryIndex)}
       onContextMenu={onContextMenu}

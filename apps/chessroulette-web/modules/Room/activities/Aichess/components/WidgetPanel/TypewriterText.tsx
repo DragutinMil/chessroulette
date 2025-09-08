@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Button } from '@app/components/Button';
 import { ButtonGreen } from '@app/components/Button/ButtonGreen';
+
 interface TypewriterTextProps {
   lastMessage: string;
 
@@ -52,7 +53,7 @@ const TypewriterText: React.FC<TypewriterTextProps> = ({
           return prev;
         }
       });
-    }, 25);
+    }, 20);
 
     return () => clearInterval(interval);
   }, [lastMessage]);

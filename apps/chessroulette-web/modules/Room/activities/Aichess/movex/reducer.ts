@@ -74,11 +74,9 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
       participantId: 'chatGPT123456',
       idResponse: idResponse,
     };
-    if (
-      prevChapter.messages[prevChapter.messages.length - 1].content.includes(
-        'Let’s '
-      )
-    ) {
+    const lastMessage =
+      prevChapter.messages[prevChapter.messages.length - 1]?.content;
+    if (typeof lastMessage === 'string' && lastMessage.includes('Let’s ')) {
       const nextChapterState: ChapterState = {
         ...prevChapter,
         displayFen: fenBoard.fen,
@@ -302,7 +300,7 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
         prevChapter.chessAiMode.mode == 'puzzle'
           ? 2
           : 0;
-      
+
       const chengeRatingPoints =
         prevChapter.chessAiMode.goodMoves + 1 ==
           prevChapter.chessAiMode.moves.length &&
@@ -318,80 +316,71 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
         prevChapter.chessAiMode.userPuzzleRating + afterGoodMovePoints;
       prevChapter.chessAiMode.ratingChange;
 
-      
-      
-
-      
-
-      
-      if(finnishPoint==5){
+      if (finnishPoint == 5) {
         const nextChapterEnd: Chapter = {
-        ...prevChapter,
-        displayFen: fenBoard.fen,
-        circlesMap: {},
-        arrowsMap: {},
-        notation: {
-          ...prevChapter.notation,
-          history: nextHistory,
-          focusedIndex: addedAtIndex,
-        },
-        chessAiMode: {
-          ...prevChapter.chessAiMode,
-          userPuzzleRating: userPuzzleRating,
-          ratingChange: afterGoodMovePoints,
-          mode: 'popup',
-          moves: [],
-          movesCount: 0,
-          badMoves: 0,
-          goodMoves: 0,
-          orientationChange: false,
-          fen: prev.activityState.chaptersMap[0].displayFen
-        },
-      };
+          ...prevChapter,
+          displayFen: fenBoard.fen,
+          circlesMap: {},
+          arrowsMap: {},
+          notation: {
+            ...prevChapter.notation,
+            history: nextHistory,
+            focusedIndex: addedAtIndex,
+          },
+          chessAiMode: {
+            ...prevChapter.chessAiMode,
+            userPuzzleRating: userPuzzleRating,
+            ratingChange: afterGoodMovePoints,
+            mode: 'popup',
+            moves: [],
+            movesCount: 0,
+            badMoves: 0,
+            goodMoves: 0,
+            orientationChange: false,
+            fen: prev.activityState.chaptersMap[0].displayFen,
+          },
+        };
         return {
-        ...prev,
-        activityState: {
-          ...prev.activityState,
+          ...prev,
+          activityState: {
+            ...prev.activityState,
 
-          chaptersMap: {
-            ...prev.activityState.chaptersMap,
-            [prevChapter.id]: nextChapterEnd,
-            
+            chaptersMap: {
+              ...prev.activityState.chaptersMap,
+              [prevChapter.id]: nextChapterEnd,
+            },
           },
-        },
-      };
-      }
-      else{
+        };
+      } else {
         const nextChapter: Chapter = {
-        ...prevChapter,
-        displayFen: fenBoard.fen,
-        circlesMap: {},
-        arrowsMap: {},
-        notation: {
-          ...prevChapter.notation,
-          history: nextHistory,
-          focusedIndex: addedAtIndex,
-        },
-        chessAiMode: {
-          ...prevChapter.chessAiMode,
-          goodMoves: goodMoves,
-          userPuzzleRating: userPuzzleRating,
-          ratingChange: afterGoodMovePoints,
-        },
-      };
-       return {
-        ...prev,
-        activityState: {
-          ...prev.activityState,
-
-          chaptersMap: {
-            ...prev.activityState.chaptersMap,
-            [prevChapter.id]: nextChapter,
+          ...prevChapter,
+          displayFen: fenBoard.fen,
+          circlesMap: {},
+          arrowsMap: {},
+          notation: {
+            ...prevChapter.notation,
+            history: nextHistory,
+            focusedIndex: addedAtIndex,
           },
-        },
-      };
+          chessAiMode: {
+            ...prevChapter.chessAiMode,
+            goodMoves: goodMoves,
+            userPuzzleRating: userPuzzleRating,
+            ratingChange: afterGoodMovePoints,
+          },
+        };
+        return {
+          ...prev,
+          activityState: {
+            ...prev.activityState,
+
+            chaptersMap: {
+              ...prev.activityState.chaptersMap,
+              [prevChapter.id]: nextChapter,
+            },
+          },
+        };
       }
-      
     } catch (e) {
       console.error('Action Error', action, prev, e);
       return prev;
@@ -863,16 +852,11 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
   }
 
   if (action.type === 'loadedChapter:setPuzzleMoves') {
-    ////import FEN
     const nextFen = action.payload.fen;
-
     const chessAiMode = action.payload;
 
-    //PLAY
+    ///////////PLAY
     if (action.payload.mode === 'play') {
-      // TWO WAYS:
-      //1. continuation of the game
-      //2. new FEN position
       const responses =
         chessAiMode.message !== ''
           ? [chessAiMode.message]
@@ -933,7 +917,7 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
       };
     }
 
-    // POPUP
+    ///////////// POPUP
     if (action.payload.mode === 'popup') {
       const responses = [
         'Congratulations! You solved it 🎉',
@@ -976,6 +960,104 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
       };
     }
 
+    ///////////// REVIEW
+    if (action.payload.mode === 'review') {
+      if (!isValidPgn(action.payload.fen)) {
+        return prev;
+      }
+      const chessGame = getNewChessGame({
+        pgn: action.payload.fen,
+      });
+
+      const nextHistory = FreeBoardHistory.pgnToHistory(action.payload.fen);
+
+      const message =
+        prev.activityState.chaptersMap[0].messages.length == 0
+          ? [
+              ...prev.activityState.chaptersMap[0].messages,
+              {
+                content: 'Hey! 👋 Up for a quick game review?',
+                participantId: 'chatGPT123456',
+                idResponse: '',
+              },
+            ]
+          : [...prev.activityState.chaptersMap[0].messages];
+
+      if (action.payload.orientationChange === true) {
+        if (prev.activityState.chaptersMap[0].orientation == 'b') {
+          const toOrientation = 'w';
+          return {
+            ...prev,
+            activityState: {
+              ...prev.activityState,
+              chaptersMap: {
+                ...prev.activityState.chaptersMap,
+                [0]: {
+                  ...prev.activityState.chaptersMap[0],
+                  displayFen: chessGame.fen(),
+                  chessAiMode: chessAiMode,
+                  orientation: toOrientation,
+                  messages: message,
+                  notation: {
+                    startingFen: ChessFENBoard.STARTING_FEN,
+                    history: nextHistory,
+                    focusedIndex:
+                      FreeBoardHistory.getLastIndexInHistory(nextHistory),
+                  },
+                },
+              },
+            },
+          };
+        } else if (prev.activityState.chaptersMap[0].orientation == 'w') {
+          const toOrientation = 'b';
+          return {
+            ...prev,
+            activityState: {
+              ...prev.activityState,
+              chaptersMap: {
+                ...prev.activityState.chaptersMap,
+                [0]: {
+                  ...prev.activityState.chaptersMap[0],
+                  displayFen: chessGame.fen(),
+                  chessAiMode: chessAiMode,
+                  orientation: toOrientation,
+                  messages: message,
+                  notation: {
+                    startingFen: ChessFENBoard.STARTING_FEN,
+                    history: nextHistory,
+                    focusedIndex:
+                      FreeBoardHistory.getLastIndexInHistory(nextHistory),
+                  },
+                },
+              },
+            },
+          };
+        }
+      }
+      return {
+        ...prev,
+        activityState: {
+          ...prev.activityState,
+          chaptersMap: {
+            ...prev.activityState.chaptersMap,
+            [0]: {
+              ...prev.activityState.chaptersMap[0],
+              displayFen: chessGame.fen(),
+              chessAiMode: chessAiMode,
+              messages: message,
+              notation: {
+                startingFen: ChessFENBoard.STARTING_FEN,
+                history: nextHistory,
+                focusedIndex:
+                  FreeBoardHistory.getLastIndexInHistory(nextHistory),
+              },
+            },
+          },
+        },
+      };
+    }
+
+    ///////////// PUZZLE
     if (action.payload.movesCount > 0 && action.payload.goodMoves == 0) {
       const responses =
         chessAiMode.movesCount == 1

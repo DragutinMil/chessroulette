@@ -39,6 +39,7 @@ export const AichessActivity = ({
   const moveSound = new Audio('/chessmove.mp3');
   const dispatch = optionalDispatch || noop;
   const [cameraOff, setCameraOff] = useState(false);
+  const [userSideReview, setUserSide] = useState('');
   const [userData, setUserData] = useState({
     name_first: '',
     name_last: '',
@@ -50,7 +51,12 @@ export const AichessActivity = ({
     inputReducer,
     initialInputState
   );
-
+  const gameReview = (payload: chessAiMode) => {
+    dispatch({
+      type: 'loadedChapter:setPuzzleMoves',
+      payload: payload as chessAiMode,
+    });
+  };
   const currentChapter =
     findLoadedChapter(remoteState) || initialDefaultChapter;
 
@@ -58,8 +64,65 @@ export const AichessActivity = ({
   useEffect(() => {
     const url = new URL(window.location.href);
     const rawPgn = url.searchParams.get('pgn');
+    const userId = url.searchParams.get('userId');
+    //&& rawPgn!=='oph7QJbGF'. OVO IZBRISATI
     if (rawPgn) {
-      setCameraOff(true);
+      // && rawPgn!=='oph7QJbGF'
+      const getMatchInfo = async () => {
+        const partUrl =
+          userId === '8UWCweKl1Gvoi'
+            ? 'https://movex.outpostchess.com'
+            : 'https://movex.outpostchess.com';
+        //http://localhost:3333 IZBRISATI PREPRAVITI GORE ili satviti MVX
+
+        const data = await fetch(
+          `${partUrl}/api/resources/room:${rawPgn}`
+        ).then((res) => {
+          if (!res.ok) {
+            throw new Error(`HTTP error! status: ${res.status}`);
+          }
+          return res.json();
+        });
+
+        const pgn = data.state[0].activity.activityState.endedGames[0].pgn;
+        if (
+          data.state[0].activity.activityState.endedGames[0].players.w == userId
+        ) {
+          setUserSide('w');
+        } else if (
+          data.state[0].activity.activityState.endedGames[0].players.b == userId
+        ) {
+          setUserSide('b');
+        }
+        const white =
+          data.state[0].activity.activityState.endedGames[0].players.w ==
+          userId;
+        const black =
+          data.state[0].activity.activityState.endedGames[0].players.b ==
+          userId;
+
+        const changeOrientation =
+          (currentChapter.orientation === 'b' && white) ||
+          (currentChapter.orientation === 'w' && black);
+
+        gameReview({
+          moves: [],
+          movesCount: 0,
+          badMoves: 0,
+          goodMoves: 0,
+          orientationChange: changeOrientation,
+          mode: 'review',
+          ratingChange: 0,
+          puzzleRatting: 0,
+          userPuzzleRating: 0,
+          puzzleId: 0,
+          prevUserPuzzleRating: 0,
+          fen: pgn,
+          responseId: '',
+          message: '',
+        });
+      };
+      getMatchInfo();
     }
     getUserData();
   }, []);
@@ -71,17 +134,7 @@ export const AichessActivity = ({
       picture: data.profile.file_url,
     });
   };
-  // useEffect(() => {
-  //   if (
-  //     currentChapter.chessAiMode.mode === 'puzzle' &&
-  //     currentChapter.chessAiMode.goodMoves < 1
-  //   ) {
-  //     setChangePuzzleAnimation(true);
-  //     setTimeout(() => {
-  //       setChangePuzzleAnimation(false);
-  //     }, 600);
-  //   }
-  // }, [currentChapter.chessAiMode.moves]);
+
   return (
     <ResizableDesktopLayout
       rightSideSize={RIGHT_SIDE_SIZE_PX}
@@ -244,7 +297,7 @@ export const AichessActivity = ({
               });
             }}
             addGameEvaluation={(payload) => {
-              //console.log('evaluacija', payload);
+              console.log('evaluacija', payload);
               dispatch({ type: 'loadedChapter:gameEvaluation', payload });
             }}
             onPuzzleMove={(payload) => {
@@ -279,6 +332,7 @@ export const AichessActivity = ({
               })
             }
             userData={userData}
+            userSideReview={userSideReview}
             currentChapterState={currentChapter}
             chaptersMap={remoteState?.chaptersMap || {}}
             inputModeState={inputState}
