@@ -56,6 +56,14 @@ export type evaluation = {
   newCp: number;
   diffCp: number;
 };
+
+export type EvaluationMove = {
+  move: string;
+  moveNumber: number;
+  eval: number;
+  diff: string;
+  bestMoves: string[];
+};
 export type Message = {
   content: string;
   participantId: string;

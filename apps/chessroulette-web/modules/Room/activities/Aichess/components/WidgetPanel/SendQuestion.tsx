@@ -17,11 +17,11 @@ export async function SendQuestion(
   const piecesUserColor =
     currentChapterState.orientation == 'w' ? 'white' : 'black';
 
-  const from = stockfishMovesInfo.slice(0,2)
+  const from = stockfishMovesInfo.slice(0, 2);
   const bestMovePiece = await CheckPiece(
-              from as Square,
-              currentChapterState.displayFen
-            );
+    from as Square,
+    currentChapterState.displayFen
+  );
 
   const lastMoveSan =
     currentChapterState.notation.history.length > 0
@@ -44,7 +44,9 @@ export async function SendQuestion(
     '\n\n' +
     'CONTEXT:\n' +
     'Best Move: ' +
-    stockfishMovesInfo +" "+ bestMovePiece +
+    stockfishMovesInfo +
+    ' ' +
+    bestMovePiece +
     '\n' +
     'FEN: ' +
     currentChapterState.displayFen +
@@ -59,7 +61,7 @@ export async function SendQuestion(
     piecesUserColor +
     '\n' +
     'Last move: ' +
-    lastMoveSan 
+    lastMoveSan;
 
   //  JSON VARIANT
   // {

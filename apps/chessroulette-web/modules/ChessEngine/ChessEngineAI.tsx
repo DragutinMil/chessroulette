@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import {
   ChessColor,
   ChessFEN,
@@ -9,6 +9,7 @@ import {
 
 type StockfishEngineAIProps = {
   fen: ChessFEN;
+  orientation: string;
   isMyTurn: boolean;
   engineMove: any;
   engineLines: any;
@@ -27,6 +28,7 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
   puzzleMode,
   playMode,
   engineLines,
+  orientation,
   prevScore,
   addGameEvaluation,
   // moveReaction,
@@ -51,8 +53,10 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
     setContempt('22');
 
     try {
-      const stockfish = new Worker('/stockfish2.js');
+      const stockfish = new Worker('/stockfish-17-single.js');
+
       stockfish.onmessage = (event) => {
+        //console.log('event.data',event.data)
         if (event.data.startsWith('bestmove')) {
           setTimeout(() => {
             setBestMove(event.data.split(' ')[1]), 1000;
@@ -61,8 +65,12 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
         if (event.data.startsWith('info depth')) {
           if (event.data == 'info depth 0 score mate 0') {
             IsMate(true);
+            const parts = fen.split(' ');
+            parts[1] === 'w'
+              ? addGameEvaluation(50000)
+              : addGameEvaluation(-50000);
           }
-
+          //console.log('sta',event.data)
           if (event.data.startsWith('info depth 10')) {
             const pvIndex = event.data.indexOf(' pv ');
             //  console.log(event.data)
@@ -71,29 +79,29 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
             }
             if (event.data.includes('multipv 1')) {
               setLineOne(event.data.slice(pvIndex + 4));
-              const match = event.data.match(/score cp (-?\d+)/);
+              const match = event.data.match(/score (cp|mate) (-?\d+)/);
 
               // POTEZI EVALUACIJA
+              console.log('match', match[0]);
+
               if (match) {
-                const score = isMyTurn
-                  ? parseInt(match[1], 10)
-                  : -1 * parseInt(match[1], 10);
-                // setStupidMove(false);
-                // setGoodMove(false);
-                // if (prevScore !== 0) {
-                //   const evalDiff = score - prevScore;
-                //   if (evalDiff < -500) {
-                //     console.log('evalDiff',evalDiff)
-                //      console.log('evalDiffscore',score)
-                //       console.log('evalDiffprevScore',prevScore)
-                //     setStupidMove(true);
-                //     setGoodMove(false);
-                //   } else if (evalDiff > 400) {
-                //     setStupidMove(false);
-                //     setGoodMove(true);
-                //   }
-                // }
-                addGameEvaluation(score);
+                const type = match[0];
+                const value = parseInt(match[2], 10);
+                if (type == 'score mate 1' || type == 'score mate 3') {
+                  console.log('ide mat 1 ili 3');
+                  const parts = fen.split(' ');
+                  parts[1] === 'b'
+                    ? addGameEvaluation(50000)
+                    : addGameEvaluation(-50000);
+                } else if (type === 'score mate 2') {
+                  const parts = fen.split(' ');
+                  parts[1] === 'b'
+                    ? addGameEvaluation(-50000)
+                    : addGameEvaluation(50000);
+                } else {
+                  const score = isMyTurn ? value : -1 * value;
+                  addGameEvaluation(score);
+                }
               }
             }
             if (event.data.includes('multipv 3')) {

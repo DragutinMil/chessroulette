@@ -37,6 +37,7 @@ type Props = {
   onHistoryNotationDelete: FreeBoardNotationProps['onDelete'];
   addGameEvaluation: (score: number) => void;
   userData: UserData;
+  userSideReview: string;
   // Mode
   isInstructor: boolean;
 
@@ -78,6 +79,7 @@ export const WidgetPanel = React.forwardRef<TabsRef, Props>(
       puzzleOrientation,
       addGameEvaluation,
       userData,
+      userSideReview,
       onHistoryNotationRefocus,
       ...chaptersTabProps
     },
@@ -86,6 +88,7 @@ export const WidgetPanel = React.forwardRef<TabsRef, Props>(
     return (
       <AiChessWidgetPanel
         userData={userData}
+        userSideReview={userSideReview}
         onHistoryNotationDelete={onHistoryNotationDelete}
         onHistoryNotationRefocus={onHistoryNotationRefocus}
         puzzleOrientation={puzzleOrientation}

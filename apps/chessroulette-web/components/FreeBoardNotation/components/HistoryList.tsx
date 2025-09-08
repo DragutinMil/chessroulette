@@ -8,6 +8,7 @@ import {
   FBHMove,
   FreeBoardHistory,
 } from '@xmatter/util-kit';
+import type { EvaluationMove } from '../../../modules/Room/activities/Aichess/movex/types';
 
 export type ListProps = {
   history: FBHHistory;
@@ -15,8 +16,10 @@ export type ListProps = {
   onDelete: (atIndex: FBHIndex) => void;
   focusedIndex?: FBHIndex;
   className?: string;
+  userSideReview?: string;
   rowClassName?: string;
   canDelete?: boolean;
+  reviewData: EvaluationMove[];
 } & (
   | {
       isNested: true;
@@ -40,8 +43,10 @@ export const List: React.FC<ListProps> = ({
   className,
   rowClassName,
   rootHistoryIndex,
+  userSideReview,
   isNested = false,
   canDelete,
+  reviewData,
 }) => {
   const rowElementRefs = useRef<Record<number, HTMLDivElement | null>>({});
   const containerElementRef = useRef<HTMLDivElement | null>();
@@ -108,10 +113,12 @@ export const List: React.FC<ListProps> = ({
         <p className="text-[#8F8F90] text-[10px] font-bold   ">MOVE</p>
         <div className="flex  w-full">
           <p className="text-[#8F8F90] text-[10px] font-bold w-[51%] ml-[7px] ">
-            WHITE
+            WHITE {userSideReview == 'w' && '( YOU )'}
           </p>
 
-          <p className="text-[#8F8F90] text-[10px] font-bold  ">BLACK</p>
+          <p className="text-[#8F8F90] text-[10px] font-bold  ">
+            BLACK {userSideReview == 'b' && '( YOU )'}
+          </p>
         </div>
       </div>
       <div
@@ -124,10 +131,26 @@ export const List: React.FC<ListProps> = ({
           const rowId = `${rootHistoryTurnIndex + historyTurnIndex}.${
             historyTurn[0].san
           }-${historyTurn[1]?.san || ''}`;
+          const evalRow =
+            reviewData?.length > 0
+              ? [
+                  reviewData[historyTurnIndex * 2].diff,
+                  reviewData[(historyTurnIndex + 1) * 2 - 1]?.diff,
+                ]
+              : [];
+          const bestMovesEngine =
+            reviewData?.length > 0
+              ? [
+                  reviewData[historyTurnIndex * 2 - 1]?.bestMoves,
+                  reviewData[(historyTurnIndex + 1) * 2 - 2]?.bestMoves,
+                ]
+              : [];
 
           return (
             <HistoryRow
               key={rowId}
+              evalRow={evalRow}
+              bestMovesEngine={bestMovesEngine}
               rowId={rowId}
               ref={(r) => (rowElementRefs.current[historyTurnIndex] = r)}
               canDelete={canDelete}

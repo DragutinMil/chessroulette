@@ -11,6 +11,7 @@ type Props = {
   takeBack: () => void;
   playNext: () => void;
   hint: () => void;
+
   onSelectPuzzle: (category: string) => void;
 };
 //console.log('currentChapterState',currentChapterState)
@@ -41,7 +42,11 @@ const Conversation = ({
       ref={scrollRef}
       className={`
     overflow-scroll rounded-lg no-scrollbar scroll-smooth
-    ${currentChapterState.chessAiMode.mode !== 'puzzle' ? 'h-[135px]' : 'h-[74px]'}
+    ${
+      currentChapterState.chessAiMode.mode !== 'puzzle'
+        ? 'h-[135px]'
+        : 'h-[74px]'
+    }
     md:h-[316px]
   `}
     >
@@ -54,9 +59,9 @@ const Conversation = ({
         const lastMessage =
           currentChapterState.messages[currentChapterState.messages.length - 1]
             .content;
-        //   console.log('message',lastMessage)
+
         return (
-          <div key={index} className="mb-1 pt-1 text-[15px] md:pt-2 md:mb-2">
+          <div key={index} className="mb-1 pt-1 text-[15px] md:pt-2 md:mb-2 ">
             {/* CHAT GPT TEXT */}
             {participant == 'chatGPT123456' ? (
               <div className="flex">
@@ -75,8 +80,17 @@ const Conversation = ({
                     />
                   )}
                 </div>
-                <div className="max-w-xs  max-w-[80%]   text-white   text-sm px-4">
-                  {isLastMessage && lastMessage ? (
+
+                <div
+                  className={`text-white text-sm px-4 ${
+                    currentChapterState.chessAiMode.mode === 'review'
+                      ? 'w-full'
+                      : 'max-w-xs max-w-[80%]'
+                  }`}
+                >
+                  {isLastMessage &&
+                  lastMessage &&
+                  typeof lastMessage === 'string' ? (
                     <TypewriterText
                       lastMessage={lastMessage}
                       onSelectPuzzle={onSelectPuzzle}
@@ -118,11 +132,13 @@ const Conversation = ({
                 )}
               </div>
             )}
+
             {pulseDot && isLastMessage && (
               <div className="flex justify-start items-center mt-4 ">
                 <div className="w-9 h-9 rounded-full items-center flex overflow-hidden ">
                   <Image src={greenLogo} alt="outpost" />
                 </div>
+
                 <div className="max-w-xs  mr-4 max-w-[80%]  text-white  rounded-xl  py-2 text-sm px-4">
                   <div className="flex items-center pt-2 space-x-1">
                     <span className="w-2 h-2 bg-[#D9D9D9]/20 rounded-full animate-bounce [animation-delay:-0.3s]"></span>
