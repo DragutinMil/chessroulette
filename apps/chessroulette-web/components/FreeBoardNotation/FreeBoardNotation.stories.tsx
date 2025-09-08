@@ -25,6 +25,7 @@ export const LinearHistory: Story = {
     <div style={{ width: '400px' }}>
       <FreeBoardNotation
         history={BASIC_HISTORY}
+        
         onDelete={action('OnDelete')}
         onRefocus={action('OnRefocus')}
         focusedIndex={[0, 1]}
@@ -218,6 +219,7 @@ export const BugMultipleFocuses: Story = {
         <div className="p-2 border border-slate-600" style={{ width: '400px' }}>
           <FreeBoardNotation
             history={bugMultipleFocusesHistory}
+            
             onDelete={(p) => {
               console.log('on delete', p);
 

@@ -14,7 +14,7 @@ export type FreeBoardNotationProps = {
   containerClassName?: string;
   canDelete?: boolean;
   userSideReview?: string;
-  reviewData: EvaluationMove[];
+  reviewData?: EvaluationMove[];
 };
 
 /**
@@ -46,14 +46,14 @@ export const FreeBoardNotation: React.FC<FreeBoardNotationProps> = ({
     <div
       className={`md:flex flex-col h-full flex-1  overflow-scroll  min-h-0 min-w-0 ${containerClassName} `}
     >
-      {history.length > 0 ? (
+      {history.length > 0  ? (
         <List
           history={history}
           userSideReview={userSideReview}
           focusedIndex={focusedIndex}
           onRefocus={onRefocus}
           onDelete={onDelete}
-          reviewData={reviewData}
+          reviewData={reviewData || []}
           className={`flex flex-1 flex-col overflow-scroll  ${className} ${
             canDelete === false ? 'hidden md:flex' : 'flex'
           }`}
@@ -61,6 +61,7 @@ export const FreeBoardNotation: React.FC<FreeBoardNotationProps> = ({
           canDelete={canDelete}
         />
       ) : (
+
         <div className="flex-1 flex items-center   hidden md:flex  justify-center text-slate-500">
           {emptyContent}
         </div>

@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { List } from './HistoryList';
 import { RowProps } from './HistoryRow';
 import { FBHHistory, FBHIndex, FBHRecursiveIndexes } from '@xmatter/util-kit';
-
+import type { EvaluationMove } from '../../../modules/Room/activities/Aichess/movex/types';
 type Props = {
   branchedHistories: FBHHistory[];
   rootHistoryIndex: FBHIndex;
@@ -12,6 +12,7 @@ type Props = {
   rowClassName?: RowProps['className'];
   className?: string;
   canDelete?: boolean;
+  reviewData?:EvaluationMove[]
 };
 
 export const NestedLists = ({
@@ -21,6 +22,7 @@ export const NestedLists = ({
   className,
   rowClassName,
   canDelete,
+  reviewData,
   onFocus,
   onDelete,
 }: Props) => {
@@ -45,6 +47,7 @@ export const NestedLists = ({
         <List
           key={`${rootTurnIndex}-${rootMovePosition}--${branchIndex}`}
           history={branchedHistory}
+          reviewData={reviewData || []} 
           onRefocus={(ni) => onFocus(constructNestedIndex(ni, branchIndex))}
           onDelete={(ni) => onDelete(constructNestedIndex(ni, branchIndex))}
           className={className}
