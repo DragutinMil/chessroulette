@@ -1,12 +1,23 @@
+
+
 import Cookies from 'js-cookie';
 export type ContainerDimensions = {
   width: number;
   height: number;
 };
 
+
 export type Dimensions = ContainerDimensions & {
   verticalPadding: number;
 };
+export type EvaluationMove = {
+  move: string;
+  moveNumber: number;
+  eval: number;
+  diff: string;
+  bestMoves: string[];
+};
+
 
 export type Ratios = {
   leftSide: number;
@@ -33,6 +44,73 @@ export const normalizeRatios = (r: Ratios): Ratios => {
     [maxKey]: 1,
   };
 };
+
+
+export const reviewAnalitics= (moves:EvaluationMove[])=> {
+
+  const stats = {
+    white: {
+      blunders: 0,
+      badMoves: 0,
+      goodMoves: 0,
+      excellentMoves: 0,
+      firstLine: 0,
+      secondLine: 0,
+      thirdLine: 0,
+    },
+    black: {
+      blunders: 0,
+      badMoves: 0,
+      goodMoves: 0,
+      excellentMoves: 0,
+      firstLine: 0,
+      secondLine: 0,
+      thirdLine: 0,
+    },
+  };
+
+let prevBestMoves: string[] | null = null;
+
+  moves.forEach((m) => {
+    const colorStats = m.moveNumber%2!==0 ? stats.white : stats.black;
+    const diff = Number(m.diff);
+
+    // Diff evaluacija
+    if(m.moveNumber%2!==0){
+ if (diff < -2) colorStats.blunders++;
+    else if (diff <= -0.5) colorStats.badMoves++;
+    else if (diff > 0.3 && diff <= 1) colorStats.goodMoves++;
+    else if (diff > 1) colorStats.excellentMoves++;
+    }else{
+       if (diff > 2) colorStats.blunders++;
+    else if (diff >= 0.5) colorStats.badMoves++;
+    else if (diff < -0.3 && diff >= -1) colorStats.goodMoves++;
+    else if (diff < -1) colorStats.excellentMoves++;
+    }
+   
+
+    // Stockfish linije iz prethodnog poteza
+    if (prevBestMoves) {
+      if (m.move === prevBestMoves[0]) colorStats.firstLine++;
+      else if (m.move === prevBestMoves[1]) colorStats.secondLine++;
+      else if (m.move === prevBestMoves[2]) colorStats.thirdLine++;
+    }
+
+    // Sačuvaj trenutni bestMoves za sledeću iteraciju
+    prevBestMoves = m.bestMoves;
+  });
+
+  const result = [
+  ...Object.values(stats.white),
+  ...Object.values(stats.black)
+].join('/');
+
+  return result;
+}
+
+
+
+
 
 export const getLayoutSizes = (
   containerDimensions: ContainerDimensions,
@@ -112,16 +190,48 @@ export async function getPuzzle(category?: string) {
         },
       }
     );
+      const data = await response.json();
+    if (!response.ok) {
+      const err = new Error(data.message || `HTTP Error ${response.status}`);
+    (err as any).status = response.status;
+    (err as any).errorCode = data.errorCode;
+    throw err;
+    }
+
+   return data;
+  } catch (error) {
+   
+     return {
+    message:
+      error instanceof Error
+        ? error.message // 👈 sada će biti "puzzle_daily_limit_reached"
+        : 'Unknown error',
+  };
+  }
+}
+export async function getMatch(
+  matchId:string
+){
+  try {
+    const response = await fetch(
+      process.env.NEXT_PUBLIC_API_WEB + `challenge_by_match_id?match_id=${matchId}`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+
     if (!response.ok) {
       throw new Error(`Error: ${response.status}`);
     }
-
-    return response.json();
+     return response.json();
   } catch (error) {
     console.error('Fetch error', error);
   }
-}
 
+}
 ///SEND USER PUZZLE RATING
 export async function sendPuzzleUserRating(
   userPuzzleRating: number,
@@ -183,3 +293,28 @@ export async function getUserInfo() {
     console.error('Fetch error', error);
   }
 }
+export async function getSubscribeInfo() {
+  const token = Cookies.get('sessionToken');
+
+  try {
+    const response = await fetch(
+      process.env.NEXT_PUBLIC_API_WEB + 'current_user_subscription',
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`Error: ${response.status}`);
+    }
+    return response.json();
+  } catch (error) {
+    console.error('Fetch error', error);
+  }
+}
+
+

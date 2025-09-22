@@ -6,6 +6,7 @@ import {
   isValidPgn,
 } from '@xmatter/util-kit';
 import { Chapter, ChapterState, AichessActivityState } from './types';
+
 import { initialChapterState, initialDefaultChapter } from './state';
 import {
   ActivityActions,
@@ -634,11 +635,11 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
       console.error('No loaded chapter');
       return prev;
     }
-    console.log('ide draw circle', action.payload);
+    //console.log('ide draw circle', action.payload);
     const hintCorrection =
       Object.keys(action.payload).length > 0 &&
       prevChapter.chessAiMode.mode == 'puzzle'
-        ? 1
+        ? 2
         : 0;
 
     const [at, hex, piece] = action.payload;
@@ -1188,7 +1189,9 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
     //     prev.activityState.chaptersMap[0].messages.length - 1
     //   ].participantId !== action.payload.participantId
     // ) {
+ 
 
+// console.log(action)
     return {
       ...prev,
       activityState: {
@@ -1202,6 +1205,7 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
               {
                 content: action.payload.content,
                 participantId: action.payload.participantId,
+                
                 idResponse: action.payload.idResponse,
               },
             ],

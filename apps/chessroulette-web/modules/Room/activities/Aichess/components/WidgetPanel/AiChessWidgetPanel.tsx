@@ -33,7 +33,7 @@ import Conversation from './Conversation';
 import ConversationReview from './GameReview/ConversationReview';
 
 import PuzzleScore from './PuzzleScore';
-import { Square } from 'chess.js';
+import { Square,Chess } from 'chess.js';
 import StockFishEngineAI from '@app/modules/ChessEngine/ChessEngineAI';
 import { analyzePGN } from '@app/modules/ChessEngine/ChessEngineReviewMatch';
 import { ChaptersTab, ChaptersTabProps } from '../../chapters/ChaptersTab';
@@ -45,7 +45,7 @@ import { EngineData } from '../../../../../ChessEngine/lib/io';
 import { useUpdateableSearchParams } from '@app/hooks/useSearchParams';
 import { ChessEngineProbabilityCalc } from '@app/modules/ChessEngine/components/ChessEngineCalculator';
 import { Switch } from '@app/components/Switch';
-import { getOpenings, getPuzzle } from '../../util';
+import { getOpenings, getPuzzle, reviewAnalitics } from '../../util';
 
 // import { generateGptResponse } from '../../../../../../server.js';
 type StockfishLines = {
@@ -65,6 +65,7 @@ type Props = {
   puzzleOrientation: () => void;
   addChessAi: (moves: chessAiMode) => void;
   onMessage: (message: Message) => void;
+  playerNames:Array<string>
   // Board
   onImport: PgnInputBoxProps['onChange'];
   onQuickImport: PgnInputBoxProps['onChange'];
@@ -98,6 +99,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
       currentLoadedChapterId,
       currentChapterState,
       // engine,
+      playerNames,
       showEngine,
       onImport,
       onTakeBack,
@@ -134,6 +136,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
     const [percentW, setPercentW] = useState(50);
     const [percentB, setPercentB] = useState(50);
 
+const [moveSan, setMoveSan] = useState('');
     const [stockfishMovesInfo, setStockfishMovesInfo] = useState('');
     const [lines, setLines] = useState<StockfishLines>({
       1: '',
@@ -185,7 +188,8 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
           setPulseDot(false);
         }
         setAnswer(data.answer.text);
-
+       
+       
         if (
           data.puzzle &&
           data.puzzle.fen &&
@@ -258,14 +262,26 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
             message: data.answer.text,
           });
         } else {
-          onMessage({
-            content: data.answer.text,
+          if(data?.puzzle?.error == 'Daily limit reached!' ){
+           onMessage({
+            content: data.answer.text  ,
+            participantId: 'chatGPT123456sales',
+            idResponse: data.id,
+          });
+          }else{
+             onMessage({
+            content: data.answer.text ,
             participantId: 'chatGPT123456',
             idResponse: data.id,
           });
+          }
+          
+         
+           
+        
         }
       } else {
-        const data = await SendQuestionReview(question, currentChapterState);
+        const data = await SendQuestionReview(question, currentChapterState, reviewData);
         if (data) {
           setPulseDot(false);
         }
@@ -309,9 +325,9 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
             } else if (ProbabilityChange.diff < -11.01) {
               moveReaction(-1);
             }
-            console.log('probabilities', ProbabilityChange);
+            // console.log('probabilities', ProbabilityChange);
             if (ProbabilityChange.diff > 3) {
-              console.log('probabilities', ProbabilityChange);
+              // console.log('probabilities', ProbabilityChange);
               if (ProbabilityChange.diff > 7) {
                 moveReaction(2);
               } else moveReaction(1);
@@ -328,7 +344,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
       // IF END OF PUZZLE RETURN
       if (
         currentChapterState.chessAiMode.goodMoves ===
-          currentChapterState.chessAiMode.moves.length &&
+          currentChapterState.chessAiMode.moves?.length &&
         currentChapterState.chessAiMode.goodMoves % 2 === 0 &&
         currentChapterState.chessAiMode.goodMoves > 0
       ) {
@@ -354,7 +370,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
           const m = currentChapterState.chessAiMode.moves[2 * length];
           if (m.length == 5 && (m.slice(-1) == 'q' || m.slice(-1) == 'r')) {
             let n = { from: from as Square, to: to as Square, promoteTo: 'Q' };
-            console.log('engine n', n);
+            // console.log('engine n', n);
             setTimeout(() => onPuzzleMove(n), 800);
           } else {
             const n = { from: from as Square, to: to as Square };
@@ -381,7 +397,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
                 to: to as Square,
                 promoteTo: 'q',
               };
-              console.log('engine nk', n);
+              // console.log('engine nk', n);
               setTimeout(() => onPuzzleMove(n), 800);
             } else {
               const n = { from: from as Square, to: to as Square };
@@ -396,6 +412,34 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
       if (currentChapterState.chessAiMode.mode == 'review') {
       }
     }, [currentChapterState.chessAiMode.mode]);
+     useEffect(() => {
+      
+      if(currentChapterState.chessAiMode.puzzleId == -1 && !currentChapterState.messages[currentChapterState.messages.length-1].participantId.includes('sales')){
+          setPulseDot(true);
+      
+         const limitQuestion = async() => {
+           const question = 'Daily limit reached. Explane what to do to continue play puzzle'
+          const data = await SendQuestion(
+          question,
+          currentChapterState,
+          stockfishMovesInfo,
+          lines[1]
+        );
+        if(data){
+          setPulseDot(false);
+        }
+          onMessage({
+            content: data.answer.text  ,
+            participantId: 'chatGPT123456sales',
+            idResponse: data.id,
+          });
+           }
+limitQuestion()
+        
+         
+        }
+      
+    }, [currentChapterState.chessAiMode.puzzleId]);
 
     useEffect(() => {
       if (
@@ -509,7 +553,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
           const m = stockfishMovesInfo;
           let from = m.slice(0, 2);
           let to = m.slice(2, 4);
-
+         
           const color = '#07da63';
           if (hintCircle) {
             const arrowId = `${from}${to}-${color}`;
@@ -544,9 +588,26 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
       //   });
       // }
     };
-
+    
     const engineMove = (m: any, n?: boolean) => {
       setStockfishMovesInfo(m);
+       let fromChess = m.slice(0, 2);
+        let toChess = m.slice(2, 4);
+
+       if ((fromChess && toChess) && currentChapterState.chessAiMode.mode === 'review') {
+          try {
+            const chess = new Chess(currentChapterState.displayFen);
+            const move = chess.move({ from: fromChess, to: toChess});
+            if (move) {
+              setMoveSan(move.san);
+            }
+          } catch (e) {
+            // Potez nije validan, ne radi ništa
+            console.warn('Invalid move, ignoring', { fromChess, toChess });
+          }
+        }
+      
+
       if (currentChapterState.notation.history.length > 0) {
         if (
           currentChapterState.notation.focusedIndex[0] !==
@@ -566,8 +627,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
 
       if (!isMyTurn && currentChapterState.chessAiMode.mode == 'play') {
         setHintCircle(false);
-        let fromChess = m.slice(0, 2);
-        let toChess = m.slice(2, 4);
+       
 
         if (
           m.length == 5 &&
@@ -586,7 +646,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
           if (currentChapterState.notation.history.length == 0) {
             setTimeout(() => onPuzzleMove(n), 1500);
           } else {
-            onPuzzleMove(n);
+             setTimeout(() => onPuzzleMove(n), 500);
           }
         }
       }
@@ -602,7 +662,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
       //   "_self",
       // );
     };
-
+    const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
     const puzzles = async (category?: string) => {
       const now = Date.now();
 
@@ -610,8 +670,31 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
       lastClick.current = now;
 
       const data = await getPuzzle(category);
-
-      if (ChessFENBoard.validateFenString(data.fen).ok) {
+      
+ 
+      if(!data.fen && data.message){
+        if(!currentChapterState.messages[currentChapterState.messages.length-1].participantId.includes('sales')){
+          setTimeout(() => {
+        setPulseDot(true);
+      }, 500);
+           const question = 'Daily limit reached. Explane what to do to continue play puzzle'
+          const data = await SendQuestion(
+          question,
+          currentChapterState,
+          stockfishMovesInfo,
+          lines[1]
+        );
+        if(data){
+          setPulseDot(false);
+        }
+          onMessage({
+            content: data.answer.text  ,
+            participantId: 'chatGPT123456sales',
+            idResponse: data.id,
+          });
+        }
+      }
+      if (data.fen &&  ChessFENBoard.validateFenString(data.fen).ok) {
         // onQuickImport({ type: 'FEN', val: data.fen });
         const changeOrientation =
           currentChapterState.orientation === data.fen.split(' ')[1];
@@ -658,7 +741,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
           const first_move = { from: from, to: to };
           setTimeout(() => onPuzzleMove(first_move), 1000);
         }
-      }
+      } 
     };
 
     const takeBack = async () => {
@@ -690,27 +773,27 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
         onProgress: (progress: number) => setProgressReview(progress),
       });
       console.log('dats', data);
+
       setReviewData(data);
       if (data) {
         setPulseDot(false);
       }
 
-      //   const question = 'Analyze this chess game. Send me game review. '
-      //   const data = await SendQuestionReview(
-      //   question,
-      //   currentChapterState
+      const analiticsReview =  reviewAnalitics( data)
 
-      // );
-      // if (data) {
-      //   setPulseDot(false);
-      // }
-      // setAnswer(data.answer);
-
-      // onMessage({
-      //     content: data.answer,
-      //     participantId: 'chatGPT123456',
-      //     idResponse: data.id,})
+      if( !currentChapterState.messages[1]?.content.includes('analyzeReview') ){
+         onMessage({
+             content: analiticsReview + '/analyzeReview',
+            participantId: 'chatGPT123456',
+            idResponse:
+              currentChapterState.messages[
+                currentChapterState.messages.length - 1
+              ].idResponse
+          });
+      }
+      
     };
+    
     const play = async () => {
       addChessAi({
         moves: [],
@@ -729,8 +812,8 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
         message: '',
       });
     };
-
-    const moveReaction = async (probabilityDiff: number) => {
+       const moveReaction = async (probabilityDiff: number) => {
+    
       const content =
         probabilityDiff == -1
           ? 'Uh-oh, blunder alert 🚨 Take it back?'
@@ -741,9 +824,10 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
           : probabilityDiff === 2 &&
             'Excellent move! You’re taking control. ✅';
       if (
-        probabilityDiff === 0 &&
+        probabilityDiff === -1 &&
         currentChapterState.chessAiMode.mode === 'play'
       ) {
+       
         setTakeBakeShake(true);
         setTimeout(() => {
           setTakeBakeShake(false);
@@ -806,7 +890,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
         />
 
         <Tabs
-          containerClassName="overflow-scroll flex flex-col flex-1 min-h-0 rounded-lg shadow-2xl no-scrollbar"
+          containerClassName=" flex flex-col flex-1 min-h-0 rounded-lg shadow-2xl "
           headerContainerClassName="flex gap-3"
           contentClassName="flex-1 flex min-h-0"
           currentIndex={currentTabIndex}
@@ -829,10 +913,11 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
                 // </Button>
               ),
               renderContent: () => (
-                <div className="flex flex-col flex-1 gap-2 min-h-0">
-                  {(currentChapterState.chessAiMode.mode === 'puzzle' ||
+                <div className="flex flex-col flex-1 gap-2 min-h-0 overflow-scroll no-scrollbar">
+                  {(currentChapterState.chessAiMode.mode === 'puzzle'  ||
                     currentChapterState.chessAiMode.mode == 'popup') && (
                     <div className="block md:hidden">
+                   
                       <PuzzleScore
                         chessAiMode={currentChapterState.chessAiMode}
                       />
@@ -843,6 +928,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
                       <div className="mt-4">
                         <Conversation
                           currentChapterState={currentChapterState}
+                          openViewSubscription={openViewSubscription}
                           onSelectPuzzle={puzzles}
                           pulseDot={pulseDot}
                           takeBack={takeBack}
@@ -859,6 +945,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
                             }}
                             size="sm"
                             disabled={
+                               currentChapterState.messages[currentChapterState.messages.length-1]?.participantId.includes('sales') ||
                               currentChapterState.chessAiMode.mode == 'play'
                             }
                           >
@@ -880,6 +967,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
                             }}
                             size="sm"
                             disabled={
+                               currentChapterState.messages[currentChapterState.messages.length-1]?.participantId.includes('sales') ||
                               Object.keys(currentChapterState.arrowsMap)
                                 .length !== 0 ||
                               (currentChapterState.chessAiMode.mode !==
@@ -929,6 +1017,9 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
                               puzzles();
                             }}
                             size="sm"
+                           disabled={
+                              currentChapterState.messages[currentChapterState.messages.length-1]?.participantId.includes('sales')
+                            }
                           >
                             New Puzzle
                           </ButtonGreen>
@@ -962,8 +1053,8 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
                         </div>
                       </div>
                     )}
-                    {(currentChapterState.chessAiMode.mode !== 'review' ||
-                      reviewData?.length !== 0) && (
+                    {((currentChapterState.chessAiMode.mode !== 'review' ||
+                      reviewData?.length !== 0)) && !currentChapterState.messages[currentChapterState.messages.length-1]?.participantId.includes('sales') && (
                       <div className="flex mb-2 mt-2 md:mt-0">
                         <input
                           id="title"
@@ -1007,7 +1098,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
 
                     {currentChapterState.chessAiMode.mode == 'review' && (
                       <div>
-                        <div className="w-full mt-1 h-4 flex overflow-hidden rounded mt-4">
+                        <div className="w-full mt-1 h-4 md:flex hidden overflow-hidden rounded mt-4 ">
                           <div
                             className={`bg-white transition-all duration-500`}
                             style={{ width: `${percentW}%` }}
@@ -1026,8 +1117,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
                                 <p className={'font-bold '}>
                                   {' '}
                                   {(currentChapterState.evaluation.newCp /
-                                    100) *
-                                    -1}
+                                    100)*-1  }
                                 </p>
                               ) : (
                                 <p className={'font-bold '}>
@@ -1036,19 +1126,22 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
                                 </p>
                               ))}
                             &nbsp;&nbsp;{' '}
+                     
                             <p className={'text-sm  '}>
                               {' '}
-                              Best Move: {stockfishMovesInfo}{' '}
+                                  Best Move: {moveSan}{' '}  
                             </p>
+                           
                           </div>
                         )}
                       </div>
                     )}
                   </div>
 
-                  {(currentChapterState.chessAiMode.mode == 'puzzle' ||
-                    currentChapterState.chessAiMode.mode == 'popup') && (
+                  {(currentChapterState.chessAiMode.mode === 'puzzle'  ||
+                    currentChapterState.chessAiMode.mode === 'popup') && (
                     <div className="hidden md:block">
+                      
                       <PuzzleScore
                         chessAiMode={currentChapterState.chessAiMode}
                       />
@@ -1069,17 +1162,27 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
                     style={{
                       backgroundImage:
                         'radial-gradient(61.84% 61.84% at 50% 131.62%, rgba(5, 135, 44, 0.2) 0%, #01210B 100%)',
-                      height:
+                         height:isMobile?
                         currentChapterState.chessAiMode.mode == 'puzzle'
                           ? 'calc(100% - 600px)'
-                          : 'calc(100% - 300px)',
-                    }}
-                    className="hidden md:block rounded-lg border border-conversation-100 p-4 overflow-scroll"
+                          : '300px'
+                           : currentChapterState.chessAiMode.mode === "puzzle"
+                          ? "calc(100% - 600px)"
+                          : "calc(100% - 300px)",
+                          minHeight: "300px"
+                          }}
+                    className={`
+                      ${currentChapterState.chessAiMode.mode === "review" ? "block" : "hidden"}  
+                      
+                      md:block rounded-lg border border-conversation-100 p-4 overflow-scroll no-scrollbar 
+                    `}
                   >
+                    
                     <FreeBoardNotation
                       reviewData={reviewData}
                       history={currentChapterState.notation?.history}
                       userSideReview={userSideReview}
+                      playerNames={playerNames}
                       focusedIndex={currentChapterState.notation?.focusedIndex}
                       onDelete={onHistoryNotationDelete}
                       onRefocus={onHistoryNotationRefocus}

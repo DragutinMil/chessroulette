@@ -82,7 +82,7 @@ export const ResizableDesktopLayout = ({
           <Panel
             //defaultSize={70}
 
-            className="h-auto [flex:none_!important] my-2 justify-center"
+            className="h-auto [flex:none_!important] my-2 md:my-0 justify-center"
             onResize={setMainPanelPercentageSize}
             tagName="main"
             style={{

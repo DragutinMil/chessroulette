@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Button } from '@app/components/Button';
 import { ButtonGreen } from '@app/components/Button/ButtonGreen';
+import { Message } from '../../movex';
 
 interface TypewriterTextProps {
   lastMessage: string;
-
   scrollToBottom: () => void;
   takeBack: () => void;
   playNext: () => void;
@@ -14,7 +14,6 @@ interface TypewriterTextProps {
 const TypewriterText: React.FC<TypewriterTextProps> = ({
   lastMessage = '',
   scrollToBottom,
-
   takeBack,
   playNext,
   hint,
@@ -67,28 +66,7 @@ const TypewriterText: React.FC<TypewriterTextProps> = ({
         {displayedText.replace(/undefined/g, '')}
         {showCursor && <span className="animate-pulse">|</span>}
       </p>
-      {/* {lastMessage.includes('Ouch,') &&
-        displayedText.length == lastMessage.length && (
-          <div className="flex  sitems-center gap-3 hidden md:flex mt-2">
-            <ButtonGreen
-              onClick={() => {
-                takeBack();
-              }}
-              size="lg"
-            >
-              Take Back
-            </ButtonGreen>
-            <ButtonGreen
-              onClick={() => {
-                playNext();
-              }}
-              size="lg"
-              className="w-32"
-            >
-              Continue to play
-            </ButtonGreen>
-          </div>
-        )} */}
+     
       {lastMessage.includes('Would you like a hint') &&
         displayedText.length == lastMessage.length && (
           <div className="flex  sitems-center gap-3 hidden md:flex mt-2">
