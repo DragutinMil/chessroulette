@@ -102,7 +102,18 @@ function getEvaluation(worker, fen) {
           const pvMoves = multipvMatch[2].split(' ');
 
           if (index <= 3) {
-            topMoves[index - 1] = pvMoves[0];
+             const chess = new Chess(fen); // koristi trenutni FEN
+            const from = pvMoves[0].slice(0, 2);
+            const to = pvMoves[0].slice(2, 4);
+            const promo = pvMoves[0].length === 5 ? pvMoves[0][4] : undefined;
+
+            const move = chess.move({
+              from,
+              to,
+              promotion: promo,
+            });
+
+            topMoves[index - 1] = move?.san ?? pvMoves[0];
           }
 
           // ✅ evaluaciju uzimamo samo iz multipv 1

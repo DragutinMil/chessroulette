@@ -55,48 +55,47 @@ export const HistoryMove = ({
     return <div className="flex-1" />;
   }
 
-  // let iconic: React.ReactNode;
-
-  // if (Number(evalDiff) <= -1) {
-  //   iconic ='✅' ;
-  // } else if (Number(evalDiff) <= -0.5) {
-  //   iconic = "bad move";
-  // } else if (Number(evalDiff) > -0.5 && Number(evalDiff) < 0.5) {
-  //   iconic = "neutral";
-  // } else if (Number(evalDiff) < 1) {
-  //   iconic = "dobar";
-  // } else {
-  //   iconic = "veoma dobar";
-  // }
-  console.log('move conscat', move.from?.concat(move.to), bestMoves);
-
+  
   const iconicEngine =
-    bestMoves && move.from?.concat(move.to) == bestMoves[0]
-      ? '🎯'
-      : (bestMoves && move.from?.concat(move.to) == bestMoves[1]) ||
-        (bestMoves && move.from?.concat(move.to) == bestMoves[2])
+   bestMoves && bestMoves.length<2 && move.san == bestMoves[0] 
+      ? '⏹️'
+      : (bestMoves && move.san == bestMoves[0]) ? '🎯':
+       (bestMoves && move.san == bestMoves[1]) ||
+        (bestMoves && move.san == bestMoves[2])
       ? '⚡'
       : '';
+
+  
 
   const iconic =
     evalDiff <= -2
       ? '❌'
       : evalDiff <= -0.5
       ? '⬇️'
-      : evalDiff > -0.5 && evalDiff < 0.3
+      : evalDiff > -0.5 && evalDiff < 0.4
       ? ''
       : evalDiff < 1
       ? '✅'
       : '✅✅';
-  //➖
-  const moveCoplete =
-    evalDiff < -0.5 && iconicEngine !== ''
-      ? `${move.san} ${iconic}`
-      : evalDiff && iconicEngine !== ''
-      ? `${move.san} ${iconic} ${iconicEngine}`
-      : evalDiff
-      ? `${move.san} ${iconic}`
-      : `${move.san}`;
+
+    
+     
+  
+ let moveCoplete = ''
+ if( iconicEngine!=='' &&  bestMoves.length<2 ){
+  moveCoplete = `${move.san} ${iconicEngine}`
+ } else if( evalDiff < -0.5 && iconicEngine !== ''){
+    moveCoplete =`${move.san} ${iconic}`
+ }else if(evalDiff && iconicEngine !== ''){
+ moveCoplete = `${move.san} ${iconic} ${iconicEngine}`
+ } else if(evalDiff){
+ moveCoplete = moveCoplete =`${move.san} ${iconic}`
+ }else{
+ moveCoplete =`${move.san}`
+ }
+   
+ 
+
 
   //  if(evalDiff){
   //  console.log(evalDiff)

@@ -3,6 +3,7 @@ import type { ChapterState, UserData } from '../../movex/types';
 import TypewriterText from './TypewriterText';
 import greenLogo from '../../../../../../components/Logo/assets/Logo_green_small.svg';
 import Image from 'next/image';
+import { ButtonGreen } from '@app/components/Button/ButtonGreen';
 
 type Props = {
   currentChapterState: ChapterState;
@@ -11,6 +12,7 @@ type Props = {
   takeBack: () => void;
   playNext: () => void;
   hint: () => void;
+  openViewSubscription:() =>void;
 
   onSelectPuzzle: (category: string) => void;
 };
@@ -22,6 +24,7 @@ const Conversation = ({
   userData,
   takeBack,
   playNext,
+  openViewSubscription,
   hint,
   onSelectPuzzle,
 }: Props) => {
@@ -59,11 +62,13 @@ const Conversation = ({
         const lastMessage =
           currentChapterState.messages[currentChapterState.messages.length - 1]
             .content;
+        const isSales = currentChapterState.messages[currentChapterState.messages.length - 1].participantId.includes('sales')
+          
 
         return (
           <div key={index} className="mb-1 pt-1 text-[15px] md:pt-2 md:mb-2 ">
             {/* CHAT GPT TEXT */}
-            {participant == 'chatGPT123456' ? (
+            {participant.includes('chatGPT123456') ? (
               <div className="flex">
                 <div>
                   {isLastFromThisParticipant ? (
@@ -90,9 +95,10 @@ const Conversation = ({
                 >
                   {isLastMessage &&
                   lastMessage &&
-                  typeof lastMessage === 'string' ? (
+                  typeof lastMessage === 'string' && !isSales ? (
                     <TypewriterText
                       lastMessage={lastMessage}
+                    
                       onSelectPuzzle={onSelectPuzzle}
                       hint={hint}
                       scrollToBottom={scrollToBottom}
@@ -100,9 +106,24 @@ const Conversation = ({
                       playNext={playNext}
                     />
                   ) : (
+                    <div>
                     <p className="flex  items-center text-[14px]  justify-end  text-left whitespace-pre-line">
                       {msg.content}
                     </p>
+                     {isSales && isLastMessage &&(
+                              <div className="flex  sitems-center gap-3 hidden md:flex mt-2">
+                                <ButtonGreen
+                                  onClick={() => {
+                                   openViewSubscription()
+                                  }}
+                                  size="lg"
+                                >
+                                  Subscribe
+                                </ButtonGreen>
+                               
+                              </div>
+                            )}
+                            </div>
                   )}
                 </div>
                 {/* <div className="w-8 h-8 min-w-8  flex items-center justify-center rounded-full bg-indigo-1600 text-white font-semibold text-sm">
@@ -115,6 +136,7 @@ const Conversation = ({
                   <p className="flex p-[14px]   justify-start  text-left whitespace-pre-line">
                     {msg.content}
                   </p>
+
                 </div>
                 {userData.picture ? (
                   <div className="w-9 h-9 min-w-8  flex items-center justify-center rounded-full">

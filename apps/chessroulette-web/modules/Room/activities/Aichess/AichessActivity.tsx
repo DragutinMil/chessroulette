@@ -6,7 +6,7 @@ import movexConfig from '@app/movex.config';
 import { TabsRef } from '@app/components/Tabs';
 import { ResizableDesktopLayout } from '@app/templates/ResizableDesktopLayout';
 import { useAichessActivitySettings } from './hooks/useAichessActivitySettings';
-import { getUserInfo } from './util';
+import {  getSubscribeInfo } from './util';
 import { AiChessDialogContainer } from './DialogContainer/AiChessDialogContainer';
 import {
   AichessActivityState,
@@ -15,6 +15,7 @@ import {
   chessAiMode,
   MovePiece,
 } from './movex';
+import { getMatch} from './util';
 
 import { WidgetPanel } from './components/WidgetPanel';
 import { AichessBoard } from './components/AichessBoard';
@@ -23,6 +24,7 @@ import inputReducer, { initialInputState } from './reducers/inputReducer';
 
 import { InstructorBoard } from './components/InstructorBoard';
 import { Square } from 'chess.js';
+import { boolean } from 'zod';
 
 type Props = {
   remoteState: AichessActivityState['activityState'];
@@ -40,10 +42,15 @@ export const AichessActivity = ({
   const dispatch = optionalDispatch || noop;
   const [cameraOff, setCameraOff] = useState(false);
   const [userSideReview, setUserSide] = useState('');
+    const [playerNames, setPlayerNames] = useState(Array<string>);
+  
   const [userData, setUserData] = useState({
     name_first: '',
     name_last: '',
     picture: '',
+    is_trial:false,
+    product_name:'',
+    user_id:''
   });
   // const [onChangePuzzleAnimation, setChangePuzzleAnimation] = useState(false);
   const settings = useAichessActivitySettings();
@@ -65,47 +72,28 @@ export const AichessActivity = ({
     const url = new URL(window.location.href);
     const rawPgn = url.searchParams.get('pgn');
     const userId = url.searchParams.get('userId');
-    //&& rawPgn!=='oph7QJbGF'. OVO IZBRISATI
+    
     if (rawPgn) {
-      // && rawPgn!=='oph7QJbGF'
+  
       const getMatchInfo = async () => {
-        const partUrl =
-          userId === '8UWCweKl1Gvoi'
-            ? 'https://movex.outpostchess.com'
-            : 'https://movex.outpostchess.com';
-        //http://localhost:3333 IZBRISATI PREPRAVITI GORE ili satviti MVX
-
-        const data = await fetch(
-          `${partUrl}/api/resources/room:${rawPgn}`
-        ).then((res) => {
-          if (!res.ok) {
-            throw new Error(`HTTP error! status: ${res.status}`);
+        const data = await getMatch(rawPgn);
+        if(data){
+         const pgn = data.results.endedGames[data.results.endedGames.length-1].pgn
+         const white = data.results.endedGames[data.results.endedGames.length-1].players.w ==  userId;
+         const black = data.results.endedGames[data.results.endedGames.length-1].players.b == userId;
+         if(white){ setUserSide('w');}
+         if(black){ setUserSide('b');}
+          if(data.results.initiator_id === userId){
+      
+            setPlayerNames([data.initiator_name_first,data.target_name_first] )
+          }else{
+            setPlayerNames([data.target_name_first, data.initiator_name_first] )
           }
-          return res.json();
-        });
-
-        const pgn = data.state[0].activity.activityState.endedGames[0].pgn;
-        if (
-          data.state[0].activity.activityState.endedGames[0].players.w == userId
-        ) {
-          setUserSide('w');
-        } else if (
-          data.state[0].activity.activityState.endedGames[0].players.b == userId
-        ) {
-          setUserSide('b');
-        }
-        const white =
-          data.state[0].activity.activityState.endedGames[0].players.w ==
-          userId;
-        const black =
-          data.state[0].activity.activityState.endedGames[0].players.b ==
-          userId;
-
         const changeOrientation =
           (currentChapter.orientation === 'b' && white) ||
           (currentChapter.orientation === 'w' && black);
 
-        gameReview({
+           gameReview({
           moves: [],
           movesCount: 0,
           badMoves: 0,
@@ -121,18 +109,27 @@ export const AichessActivity = ({
           responseId: '',
           message: '',
         });
+        }
+       
       };
       getMatchInfo();
     }
+   
     getUserData();
   }, []);
+ 
+
   const getUserData = async () => {
-    const data = await getUserInfo();
-    setUserData({
-      name_first: data.name_first,
-      name_last: data.name_last,
-      picture: data.profile.file_url,
-    });
+      const data = await getSubscribeInfo();
+      setUserData({
+        name_first: data.name_first,
+        name_last: data.name_last,
+        picture: data.profile_image_url,
+        is_trial:data.is_trial,
+        product_name:data.product_name,
+        user_id:data.user_id
+      });
+     
   };
 
   return (
@@ -140,7 +137,7 @@ export const AichessActivity = ({
       rightSideSize={RIGHT_SIDE_SIZE_PX}
       mainComponent={({ boardSize }) => (
         <>
-          {/* {settings.isInstructor && inputState.isActive ? (
+        {settings.isInstructor && inputState.isActive ? (
             <InstructorBoard
               fen={inputState.chapterState.displayFen}
               boardOrientation={swapColor(inputState.chapterState.orientation)}
@@ -182,9 +179,16 @@ export const AichessActivity = ({
               }}
               onMove={noop}
             />
-          ) : ( */}
-          {/* Learn Mode */}
+          ) : ( 
+          //  Learn Mode */}
+          <div>
           <AiChessDialogContainer
+             onMessage={(payload) =>
+              dispatch({
+                type: 'loadedChapter:writeMessage',
+                payload: payload,
+              })
+            }
             onPuzzleMove={(payload) => {
               moveSound.play();
               dispatch({ type: 'loadedChapter:addMove', payload });
@@ -269,8 +273,9 @@ export const AichessActivity = ({
                 </>
               }
             />
+           </div>
           </div>
-          {/* )} */}
+           )} 
         </>
       )}
       rightComponent={
@@ -297,7 +302,7 @@ export const AichessActivity = ({
               });
             }}
             addGameEvaluation={(payload) => {
-              console.log('evaluacija', payload);
+              // console.log('evaluacija', payload);
               dispatch({ type: 'loadedChapter:gameEvaluation', payload });
             }}
             onPuzzleMove={(payload) => {
@@ -320,6 +325,7 @@ export const AichessActivity = ({
               dispatch({ type: 'loadedChapter:setArrows', payload });
             }}
             onMessage={(payload) =>
+             
               dispatch({
                 type: 'loadedChapter:writeMessage',
                 payload: payload,
@@ -333,6 +339,7 @@ export const AichessActivity = ({
             }
             userData={userData}
             userSideReview={userSideReview}
+            playerNames={playerNames}
             currentChapterState={currentChapter}
             chaptersMap={remoteState?.chaptersMap || {}}
             inputModeState={inputState}

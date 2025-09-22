@@ -20,6 +20,7 @@ export type ListProps = {
   rowClassName?: string;
   canDelete?: boolean;
   reviewData: EvaluationMove[];
+  playerNames?:Array<string> 
 } & (
   | {
       isNested: true;
@@ -46,6 +47,7 @@ export const List: React.FC<ListProps> = ({
   userSideReview,
   isNested = false,
   canDelete,
+  playerNames,
   reviewData,
 }) => {
   const rowElementRefs = useRef<Record<number, HTMLDivElement | null>>({});
@@ -106,18 +108,39 @@ export const List: React.FC<ListProps> = ({
 
     return [move, index];
   }, [history, focusedIndex]);
-
+   
   return (
     <div>
       <div className="flex  mb-2 ">
-        <p className="text-[#8F8F90] text-[10px] font-bold   ">MOVE</p>
+        <p className="text-[#8F8F90] text-[10px] font-bold">MOVE</p>
         <div className="flex  w-full">
           <p className="text-[#8F8F90] text-[10px] font-bold w-[51%] ml-[7px] ">
-            WHITE {userSideReview == 'w' && '( YOU )'}
+            WHITE 
+          { playerNames && (
+            
+           <span className='text-white'>
+             &nbsp; &nbsp;{userSideReview === "w"
+    ? ` ${playerNames?.[0] ?? ""} `
+    : ` ${playerNames?.[1] ?? ""} `}
+            
+    </span>
+            
+          ) }  
+           
           </p>
 
-          <p className="text-[#8F8F90] text-[10px] font-bold  ">
-            BLACK {userSideReview == 'b' && '( YOU )'}
+          <p className="text-[#8F8F90] text-[10px] font-bold   ">
+            BLACK
+            { playerNames && (
+             
+              <span className='text-white'>
+                 &nbsp; &nbsp;
+            {userSideReview === "b"
+    ? ` ${playerNames?.[0] ?? ""} `
+    : ` ${playerNames?.[1] ?? ""} `}
+    </span>
+            
+             ) }  
           </p>
         </div>
       </div>

@@ -166,7 +166,7 @@ const PuzzleScore = ({ chessAiMode }: Props) => {
     }
     return null;
   };
-
+   
   const currentSublevel = getSublevel(value);
   const percentage = currentSublevel
     ? ((value - currentSublevel.start) /
@@ -175,9 +175,9 @@ const PuzzleScore = ({ chessAiMode }: Props) => {
     : 0;
   //console.log(value,'kik',currentSublevel, 'rik',percentage)
   return (
-    <div className="rounded-lg  mb-1 mt-1 md:px-4 md:pb-4 px-2 pb-2 pt-2 border border-conversation-100 bg-[#01210B]">
-      {value > 0 && (
-        <div>
+    <div >
+      {/* {value > 0 && ( */}
+        <div className="rounded-lg  mb-1 mt-1 md:px-4 md:pb-4 px-2 pb-2 pt-2 border border-conversation-100 bg-[#01210B]">
           <div className="flex justify-between">
             <div className="text-[10px] font-bold text-[#8F8F90] mb-1">
               RATING
@@ -225,7 +225,7 @@ const PuzzleScore = ({ chessAiMode }: Props) => {
             ></div>
           </div>
         </div>
-      )}
+      {/* )} */}
     </div>
   );
 };
