@@ -5,7 +5,7 @@ import { Button } from '../../../../../components/Button/Button';
 import { Dialog } from '@app/components/Dialog';
 import { getPuzzle, sendPuzzleUserRating } from '../util';
 import { ChessFENBoard } from '@xmatter/util-kit';
-import { chessAiMode, MovePiece,Message } from '../movex';
+import { chessAiMode, MovePiece, Message } from '../movex';
 import { PgnInputBoxProps } from '@app/components/PgnInputBox/PgnInputBox';
 import { ButtonGreen } from '@app/components/Button/ButtonGreen';
 import { SendQuestion } from '../components/WidgetPanel/SendQuestion';
@@ -14,7 +14,7 @@ type AiChessDialogContainerProps = {
   currentChapter: any; // možeš zameniti `any` konkretnijim tipom kasnije
   addChessAi: (moves: chessAiMode) => void;
   onPuzzleMove: (move: MovePiece) => void;
-   onMessage: (message: Message) => void;
+  onMessage: (message: Message) => void;
   //onQuickImport: PgnInputBoxProps['onChange'];
 };
 
@@ -46,37 +46,32 @@ export const AiChessDialogContainer: React.FC<AiChessDialogContainerProps> = ({
   };
   const newPuzzle = async () => {
     const data = await getPuzzle();
-    if(data.message==='puzzle_daily_limit_reached'){
+    if (data.message === 'puzzle_daily_limit_reached') {
       addChessAi({
         ...currentChapter.chessAiMode,
         mode: 'puzzle',
         puzzleId: -1,
       });
-        // const question = 'Daily limit reached. Explane what to do to continue play puzzle'
-        //   const stockfishMovesInfo = ''
-        //     const lines = ''
-        //         const data = await SendQuestion(
-        //         question,
-        //         currentChapter,
-        //         stockfishMovesInfo,
-        //         lines[1]
-        //       );
-        //       if(data){
-        //      onMessage({
-        //     content: data.answer.text,
-        //     participantId: 'chatGPT123456sales',
-        //     idResponse: data.id,
-        //   });
-        //       }
-     
-       
-         
-      
-      
+      // const question = 'Daily limit reached. Explane what to do to continue play puzzle'
+      //   const stockfishMovesInfo = ''
+      //     const lines = ''
+      //         const data = await SendQuestion(
+      //         question,
+      //         currentChapter,
+      //         stockfishMovesInfo,
+      //         lines[1]
+      //       );
+      //       if(data){
+      //      onMessage({
+      //     content: data.answer.text,
+      //     participantId: 'chatGPT123456sales',
+      //     idResponse: data.id,
+      //   });
+      //       }
     } else if (ChessFENBoard.validateFenString(data.fen).ok) {
       const changeOrientation =
         currentChapter.orientation === data.fen.split(' ')[1];
-     
+
       addChessAi({
         mode: 'puzzle',
         moves: data.solution,
@@ -118,7 +113,7 @@ export const AiChessDialogContainer: React.FC<AiChessDialogContainerProps> = ({
   }, [currentChapter.chessAiMode.mode, removePopup]);
 
   if (
-    (currentChapter.chessAiMode.mode == 'popup'  ||
+    (currentChapter.chessAiMode.mode == 'popup' ||
       currentChapter.chessAiMode.mode == 'checkmate') &&
     !removePopup
   ) {
@@ -164,7 +159,7 @@ export const AiChessDialogContainer: React.FC<AiChessDialogContainerProps> = ({
               className=" w-full text-[16px] h-[44px] rounded-[22px]"
               style={{ marginTop: 20 }}
               onClick={() => {
-                window.location.href = "http://localhost:8080/puzzleAi";
+                window.location.href = 'http://localhost:8080/puzzleAi';
               }}
             >
               🏠 Home

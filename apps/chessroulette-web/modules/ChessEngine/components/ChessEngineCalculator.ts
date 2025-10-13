@@ -8,7 +8,6 @@ export async function ChessEngineProbabilityCalc(
   );
   //console.log('old', prevCp, newCp);
 
-
   const prevPercentage = Number(
     ((1 / (1 + Math.exp(-k * prevCp))) * 100).toFixed(2)
   );

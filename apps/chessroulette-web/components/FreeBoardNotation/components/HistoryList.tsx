@@ -19,7 +19,7 @@ export type ListProps = {
   rowClassName?: string;
   canDelete?: boolean;
   reviewData: EvaluationMove[];
-  playerNames?:Array<string> 
+  playerNames?: Array<string>;
 } & (
   | {
       isNested: true;
@@ -106,41 +106,30 @@ export const List: React.FC<ListProps> = ({
 
     return [move, index];
   }, [history, focusedIndex]);
-   
+
   return (
     <div className="flex flex-col h-full">
       <div className="flex  mb-2  ">
         <p className="text-[#8F8F90] text-[10px] font-bold">MOVE</p>
         <div className="flex  w-full">
           <p className="text-[#8F8F90] text-[10px] font-bold w-[51%] ml-[7px] ">
-            WHITE 
-          { playerNames && (
-            
-           <span className='text-white'>
-              &nbsp; {playerNames[0]}
-         
-            
-    </span>
-            
-          ) }  
-           
+            WHITE
+            {playerNames && (
+              <span className="text-white">&nbsp; {playerNames[0]}</span>
+            )}
           </p>
 
           <p className="text-[#8F8F90] text-[10px] font-bold   ">
             BLACK
-            { playerNames && (
-             
-              <span className='text-white'>
-               &nbsp; {playerNames[1]}
-    </span>
-            
-             ) }  
+            {playerNames && (
+              <span className="text-white">&nbsp; {playerNames[1]}</span>
+            )}
           </p>
         </div>
       </div>
-      <div className=' flex-1 overflow-scroll no-scrollbar '     >
-                         {/* */}
-                               {/* height:isMobile?
+      <div className=" flex-1 overflow-scroll no-scrollbar ">
+        {/* */}
+        {/* height:isMobile?
                               currentChapterState.chessAiMode.mode == 'puzzle'
                                 ? 'calc(100% - 600px)'
                                 : '300px'
@@ -148,70 +137,69 @@ export const List: React.FC<ListProps> = ({
                                 ? "calc(100% - 600px)"
                                 : "calc(100% - 300px)",
                                 minHeight: "300px" */}
-                             
-      <div
-        className={`${className} overflow-scroll  no-scrollbar` }
-        ref={(e) => (containerElementRef.current = e)}
-      >
-        {history.map((historyTurn, historyTurnIndex) => {
-          const rootHistoryTurnIndex = rootHistoryIndex?.[0] || 0;
 
-          const rowId = `${rootHistoryTurnIndex + historyTurnIndex}.${
-            historyTurn[0].san
-          }-${historyTurn[1]?.san || ''}`;
-          const evalRow =
-            reviewData?.length > 0
-              ? [
-                  reviewData[historyTurnIndex * 2].diff,
-                  reviewData[(historyTurnIndex + 1) * 2 - 1]?.diff,
-                ]
-              : [];
-          const bestMovesEngine =
-            reviewData?.length > 0
-              ? [
-                  reviewData[historyTurnIndex * 2 - 1]?.bestMoves,
-                  reviewData[(historyTurnIndex + 1) * 2 - 2]?.bestMoves,
-                ]
-              : [];
+        <div
+          className={`${className} overflow-scroll  no-scrollbar`}
+          ref={(e) => (containerElementRef.current = e)}
+        >
+          {history.map((historyTurn, historyTurnIndex) => {
+            const rootHistoryTurnIndex = rootHistoryIndex?.[0] || 0;
 
-          return (
-            <HistoryRow
-              key={rowId}
-              evalRow={evalRow}
-              bestMovesEngine={bestMovesEngine}
-              rowId={rowId}
-              ref={(r) => (rowElementRefs.current[historyTurnIndex] = r)}
-              canDelete={canDelete}
-              historyTurn={historyTurn}
-              historyTurnIndex={historyTurnIndex}
-              moveCount={rootHistoryTurnIndex + 1 + historyTurnIndex}
-              onFocus={onRefocus}
-              onDelete={onDelete}
-              focusedOnMovePosition={
-                historyTurnIndex === focusedTurnIndex
-                  ? focusedMovePosition
-                  : undefined
-              }
-              focusedOnRecursiveIndexes={
-                historyTurnIndex === focusedTurnIndex
-                  ? recursiveFocusedIndexes
-                  : undefined
-              }
-              containerClassName={rowClassName}
-              nextValidMoveAndIndex={nextValidMoveAndIndex}
-              {...(isNested
-                ? {
-                    isNested: true,
-                    rootHistoryIndex,
-                  }
-                : {
-                    isNested: false,
-                  })}
-            />
-          );
-        })}
-      </div>
-      
+            const rowId = `${rootHistoryTurnIndex + historyTurnIndex}.${
+              historyTurn[0].san
+            }-${historyTurn[1]?.san || ''}`;
+            const evalRow =
+              reviewData?.length > 0
+                ? [
+                    reviewData[historyTurnIndex * 2].diff,
+                    reviewData[(historyTurnIndex + 1) * 2 - 1]?.diff,
+                  ]
+                : [];
+            const bestMovesEngine =
+              reviewData?.length > 0
+                ? [
+                    reviewData[historyTurnIndex * 2 - 1]?.bestMoves,
+                    reviewData[(historyTurnIndex + 1) * 2 - 2]?.bestMoves,
+                  ]
+                : [];
+
+            return (
+              <HistoryRow
+                key={rowId}
+                evalRow={evalRow}
+                bestMovesEngine={bestMovesEngine}
+                rowId={rowId}
+                ref={(r) => (rowElementRefs.current[historyTurnIndex] = r)}
+                canDelete={canDelete}
+                historyTurn={historyTurn}
+                historyTurnIndex={historyTurnIndex}
+                moveCount={rootHistoryTurnIndex + 1 + historyTurnIndex}
+                onFocus={onRefocus}
+                onDelete={onDelete}
+                focusedOnMovePosition={
+                  historyTurnIndex === focusedTurnIndex
+                    ? focusedMovePosition
+                    : undefined
+                }
+                focusedOnRecursiveIndexes={
+                  historyTurnIndex === focusedTurnIndex
+                    ? recursiveFocusedIndexes
+                    : undefined
+                }
+                containerClassName={rowClassName}
+                nextValidMoveAndIndex={nextValidMoveAndIndex}
+                {...(isNested
+                  ? {
+                      isNested: true,
+                      rootHistoryIndex,
+                    }
+                  : {
+                      isNested: false,
+                    })}
+              />
+            );
+          })}
+        </div>
       </div>
     </div>
   );

@@ -66,8 +66,6 @@ export const HistoryRow = React.forwardRef<HTMLDivElement | null, RowProps>(
 
     const shouldSplit = !!whiteMove.branchedHistories;
 
- 
-
     const blackMoveRender = (
       <HistoryMove
         move={blackMove}

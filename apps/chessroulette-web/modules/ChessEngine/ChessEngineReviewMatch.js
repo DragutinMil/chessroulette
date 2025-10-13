@@ -38,7 +38,7 @@ export async function analyzePGN(pgn, { onProgress } = {}) {
     if (turn === 'b') {
       evaluation = -evaluation;
     }
-    
+
     results.push({
       moveNumber: i + 1,
       move: move.san,
@@ -103,7 +103,7 @@ function getEvaluation(worker, fen) {
           const pvMoves = multipvMatch[2].split(' ');
 
           if (index <= 3) {
-             const chess = new Chess(fen); // koristi trenutni FEN
+            const chess = new Chess(fen); // koristi trenutni FEN
             const from = pvMoves[0].slice(0, 2);
             const to = pvMoves[0].slice(2, 4);
             const promo = pvMoves[0].length === 5 ? pvMoves[0][4] : undefined;

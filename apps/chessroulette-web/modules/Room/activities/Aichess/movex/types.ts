@@ -65,7 +65,7 @@ export type EvaluationMove = {
   bestMoves: string[];
 };
 export type Message = {
-  content: string ;
+  content: string;
   participantId: string;
   idResponse: string;
 };
@@ -74,9 +74,9 @@ export type UserData = {
   name_first: string;
   name_last: string;
   picture: string;
-  is_trial:boolean,
-    product_name:string,
-    user_id:string
+  is_trial: boolean;
+  product_name: string;
+  user_id: string;
 };
 export type ChapterState = {
   name: string;

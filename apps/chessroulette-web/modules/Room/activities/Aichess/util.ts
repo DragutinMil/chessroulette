@@ -1,11 +1,8 @@
-
-
 import Cookies from 'js-cookie';
 export type ContainerDimensions = {
   width: number;
   height: number;
 };
-
 
 export type Dimensions = ContainerDimensions & {
   verticalPadding: number;
@@ -17,7 +14,6 @@ export type EvaluationMove = {
   diff: string;
   bestMoves: string[];
 };
-
 
 export type Ratios = {
   leftSide: number;
@@ -45,9 +41,7 @@ export const normalizeRatios = (r: Ratios): Ratios => {
   };
 };
 
-
-export const reviewAnalitics= (moves:EvaluationMove[])=> {
-
+export const reviewAnalitics = (moves: EvaluationMove[]) => {
   const stats = {
     white: {
       blunders: 0,
@@ -69,25 +63,24 @@ export const reviewAnalitics= (moves:EvaluationMove[])=> {
     },
   };
 
-let prevBestMoves: string[] | null = null;
+  let prevBestMoves: string[] | null = null;
 
   moves.forEach((m) => {
-    const colorStats = m.moveNumber%2!==0 ? stats.white : stats.black;
+    const colorStats = m.moveNumber % 2 !== 0 ? stats.white : stats.black;
     const diff = Number(m.diff);
 
     // Diff evaluacija
-    if(m.moveNumber%2!==0){
- if (diff < -2) colorStats.blunders++;
-    else if (diff <= -0.5) colorStats.badMoves++;
-    else if (diff > 0.3 && diff <= 1) colorStats.goodMoves++;
-    else if (diff > 1) colorStats.excellentMoves++;
-    }else{
-       if (diff > 2) colorStats.blunders++;
-    else if (diff >= 0.5) colorStats.badMoves++;
-    else if (diff < -0.3 && diff >= -1) colorStats.goodMoves++;
-    else if (diff < -1) colorStats.excellentMoves++;
+    if (m.moveNumber % 2 !== 0) {
+      if (diff < -2) colorStats.blunders++;
+      else if (diff <= -0.5) colorStats.badMoves++;
+      else if (diff > 0.3 && diff <= 1) colorStats.goodMoves++;
+      else if (diff > 1) colorStats.excellentMoves++;
+    } else {
+      if (diff > 2) colorStats.blunders++;
+      else if (diff >= 0.5) colorStats.badMoves++;
+      else if (diff < -0.3 && diff >= -1) colorStats.goodMoves++;
+      else if (diff < -1) colorStats.excellentMoves++;
     }
-   
 
     // Stockfish linije iz prethodnog poteza
     if (prevBestMoves) {
@@ -101,16 +94,12 @@ let prevBestMoves: string[] | null = null;
   });
 
   const result = [
-  ...Object.values(stats.white),
-  ...Object.values(stats.black)
-].join('/');
+    ...Object.values(stats.white),
+    ...Object.values(stats.black),
+  ].join('/');
 
   return result;
-}
-
-
-
-
+};
 
 export const getLayoutSizes = (
   containerDimensions: ContainerDimensions,
@@ -190,31 +179,29 @@ export async function getPuzzle(category?: string) {
         },
       }
     );
-      const data = await response.json();
+    const data = await response.json();
     if (!response.ok) {
       const err = new Error(data.message || `HTTP Error ${response.status}`);
-    (err as any).status = response.status;
-    (err as any).errorCode = data.errorCode;
-    throw err;
+      (err as any).status = response.status;
+      (err as any).errorCode = data.errorCode;
+      throw err;
     }
 
-   return data;
+    return data;
   } catch (error) {
-   
-     return {
-    message:
-      error instanceof Error
-        ? error.message // 👈 sada će biti "puzzle_daily_limit_reached"
-        : 'Unknown error',
-  };
+    return {
+      message:
+        error instanceof Error
+          ? error.message // 👈 sada će biti "puzzle_daily_limit_reached"
+          : 'Unknown error',
+    };
   }
 }
-export async function getMatch(
-  matchId:string
-){
+export async function getMatch(matchId: string) {
   try {
     const response = await fetch(
-      process.env.NEXT_PUBLIC_API_WEB + `challenge_by_match_id?match_id=${matchId}`,
+      process.env.NEXT_PUBLIC_API_WEB +
+        `challenge_by_match_id?match_id=${matchId}`,
       {
         method: 'GET',
         headers: {
@@ -226,11 +213,10 @@ export async function getMatch(
     if (!response.ok) {
       throw new Error(`Error: ${response.status}`);
     }
-     return response.json();
+    return response.json();
   } catch (error) {
     console.error('Fetch error', error);
   }
-
 }
 ///SEND USER PUZZLE RATING
 export async function sendPuzzleUserRating(
@@ -316,5 +302,3 @@ export async function getSubscribeInfo() {
     console.error('Fetch error', error);
   }
 }
-
-
