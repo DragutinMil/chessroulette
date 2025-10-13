@@ -37,7 +37,7 @@ type Props = {
   onHistoryNotationDelete: FreeBoardNotationProps['onDelete'];
   addGameEvaluation: (score: number) => void;
   userData: UserData;
-  playerNames:Array<string>;
+  playerNames: Array<string>;
   // Mode
   isInstructor: boolean;
 
@@ -85,7 +85,6 @@ export const WidgetPanel = React.forwardRef<TabsRef, Props>(
     },
     tabsRef
   ) => {
-    
     return (
       <AiChessWidgetPanel
         userData={userData}

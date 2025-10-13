@@ -166,7 +166,7 @@ const PuzzleScore = ({ chessAiMode }: Props) => {
     }
     return null;
   };
-   
+
   const currentSublevel = getSublevel(value);
   const percentage = currentSublevel
     ? ((value - currentSublevel.start) /
@@ -175,56 +175,54 @@ const PuzzleScore = ({ chessAiMode }: Props) => {
     : 0;
   //console.log(value,'kik',currentSublevel, 'rik',percentage)
   return (
-    <div >
+    <div>
       {/* {value > 0 && ( */}
-        <div className="rounded-lg  mb-1 mt-1 md:px-4 md:pb-4 px-2 pb-2 pt-2 border border-conversation-100 bg-[#01210B]">
-          <div className="flex justify-between">
-            <div className="text-[10px] font-bold text-[#8F8F90] mb-1">
-              RATING
-            </div>
-            <div className=" text-[10px] font-bold text-[#8F8F90] mb-1">
-              LEVEL
-            </div>
+      <div className="rounded-lg  mb-1 mt-1 md:px-4 md:pb-4 px-2 pb-2 pt-2 border border-conversation-100 bg-[#01210B]">
+        <div className="flex justify-between">
+          <div className="text-[10px] font-bold text-[#8F8F90] mb-1">
+            RATING
           </div>
-          <div
-            className={`${styles.flipNumber} w-full text-white text-xl font-bold mb-2 inline-block min-w-[40px] min-h-[24px]`}
-          >
-            <div className="flex justify-between align-center">
-              <div>
-                <span
-                  key={value}
-                  className={`${styles.flipInner} ${
-                    flipping ? styles.flip : ''
-                  }`}
-                >
-                  {value}
-                </span>
-
-                {showChange &&
-                  change !== 0 &&
-                  (change > 0 ? (
-                    <span className="absolute -bottom-1  ml-1 text-green-400 text-[18px] font-bold animate-fadeUp">
-                      +{change}
-                    </span>
-                  ) : (
-                    <span className="absolute -top-4  ml-1 text-red-500 text-[18px] font-bold animate-fadeUp">
-                      {change}
-                    </span>
-                  ))}
-              </div>
-              <span className=" flex items-center justify-center font-bold text-green-400 text-[18px] ">
-                {currentSublevel?.label}
-              </span>
-            </div>
-          </div>
-
-          <div className="w-full h-4 bg-[#414141] rounded-full overflow-hidden">
-            <div
-              className="h-full bg-red-500 transition-all duration-500 rounded-full"
-              style={{ width: `${percentage}%` }}
-            ></div>
+          <div className=" text-[10px] font-bold text-[#8F8F90] mb-1">
+            LEVEL
           </div>
         </div>
+        <div
+          className={`${styles.flipNumber} w-full text-white text-xl font-bold mb-2 inline-block min-w-[40px] min-h-[24px]`}
+        >
+          <div className="flex justify-between align-center">
+            <div>
+              <span
+                key={value}
+                className={`${styles.flipInner} ${flipping ? styles.flip : ''}`}
+              >
+                {value}
+              </span>
+
+              {showChange &&
+                change !== 0 &&
+                (change > 0 ? (
+                  <span className="absolute -bottom-1  ml-1 text-green-400 text-[18px] font-bold animate-fadeUp">
+                    +{change}
+                  </span>
+                ) : (
+                  <span className="absolute -top-4  ml-1 text-red-500 text-[18px] font-bold animate-fadeUp">
+                    {change}
+                  </span>
+                ))}
+            </div>
+            <span className=" flex items-center justify-center font-bold text-green-400 text-[18px] ">
+              {currentSublevel?.label}
+            </span>
+          </div>
+        </div>
+
+        <div className="w-full h-4 bg-[#414141] rounded-full overflow-hidden">
+          <div
+            className="h-full bg-red-500 transition-all duration-500 rounded-full"
+            style={{ width: `${percentage}%` }}
+          ></div>
+        </div>
+      </div>
       {/* )} */}
     </div>
   );

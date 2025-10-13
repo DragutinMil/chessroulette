@@ -55,17 +55,15 @@ export const HistoryMove = ({
     return <div className="flex-1" />;
   }
 
-  
   const iconicEngine =
-   bestMoves && bestMoves.length<2 && move.san == bestMoves[0] 
+    bestMoves && bestMoves.length < 2 && move.san == bestMoves[0]
       ? '⏹️'
-      : (bestMoves && move.san == bestMoves[0]) ? '🎯':
-       (bestMoves && move.san == bestMoves[1]) ||
+      : bestMoves && move.san == bestMoves[0]
+      ? '🎯'
+      : (bestMoves && move.san == bestMoves[1]) ||
         (bestMoves && move.san == bestMoves[2])
       ? '⚡'
       : '';
-
-  
 
   const iconic =
     evalDiff <= -2
@@ -78,24 +76,18 @@ export const HistoryMove = ({
       ? '✅'
       : '✅✅';
 
-    
-     
-  
- let moveCoplete = ''
- if( iconicEngine!=='' &&  bestMoves.length<2 ){
-  moveCoplete = `${move.san} ${iconicEngine}`
- } else if( evalDiff < -0.5 && iconicEngine !== ''){
-    moveCoplete =`${move.san} ${iconic}`
- }else if(evalDiff && iconicEngine !== ''){
- moveCoplete = `${move.san} ${iconic} ${iconicEngine}`
- } else if(evalDiff){
- moveCoplete = moveCoplete =`${move.san} ${iconic}`
- }else{
- moveCoplete =`${move.san}`
- }
-   
- 
-
+  let moveCoplete = '';
+  if (iconicEngine !== '' && bestMoves.length < 2) {
+    moveCoplete = `${move.san} ${iconicEngine}`;
+  } else if (evalDiff < -0.5 && iconicEngine !== '') {
+    moveCoplete = `${move.san} ${iconic}`;
+  } else if (evalDiff && iconicEngine !== '') {
+    moveCoplete = `${move.san} ${iconic} ${iconicEngine}`;
+  } else if (evalDiff) {
+    moveCoplete = moveCoplete = `${move.san} ${iconic}`;
+  } else {
+    moveCoplete = `${move.san}`;
+  }
 
   //  if(evalDiff){
   //  console.log(evalDiff)

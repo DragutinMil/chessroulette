@@ -12,7 +12,7 @@ type Props = {
   takeBack: () => void;
   playNext: () => void;
   hint: () => void;
-  openViewSubscription:() =>void;
+  openViewSubscription: () => void;
   onSelectRating: (category: number) => void;
   onSelectPuzzle: (category: string) => void;
 };
@@ -27,7 +27,7 @@ const Conversation = ({
   openViewSubscription,
   hint,
   onSelectPuzzle,
-  onSelectRating
+  onSelectRating,
 }: Props) => {
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -63,8 +63,10 @@ const Conversation = ({
         const lastMessage =
           currentChapterState.messages[currentChapterState.messages.length - 1]
             .content;
-        const isSales = currentChapterState.messages[currentChapterState.messages.length - 1].participantId.includes('sales')
-          
+        const isSales =
+          currentChapterState.messages[
+            currentChapterState.messages.length - 1
+          ].participantId.includes('sales');
 
         return (
           <div key={index} className="mb-1 pt-1 text-[15px] md:pt-2 md:mb-2 ">
@@ -96,7 +98,8 @@ const Conversation = ({
                 >
                   {isLastMessage &&
                   lastMessage &&
-                  typeof lastMessage === 'string' && !isSales ? (
+                  typeof lastMessage === 'string' &&
+                  !isSales ? (
                     <TypewriterText
                       lastMessage={lastMessage}
                       onSelectRating={onSelectRating}
@@ -108,23 +111,22 @@ const Conversation = ({
                     />
                   ) : (
                     <div>
-                    <p className="flex  items-center text-[14px]  justify-end  text-left whitespace-pre-line">
-                      {msg.content}
-                    </p>
-                     {isSales && isLastMessage &&(
-                              <div className="flex  sitems-center gap-3 hidden md:flex mt-2">
-                                <ButtonGreen
-                                  onClick={() => {
-                                   openViewSubscription()
-                                  }}
-                                  size="lg"
-                                >
-                                  Subscribe
-                                </ButtonGreen>
-                               
-                              </div>
-                            )}
-                            </div>
+                      <p className="flex  items-center text-[14px]  justify-end  text-left whitespace-pre-line">
+                        {msg.content}
+                      </p>
+                      {isSales && isLastMessage && (
+                        <div className="flex  sitems-center gap-3 hidden md:flex mt-2">
+                          <ButtonGreen
+                            onClick={() => {
+                              openViewSubscription();
+                            }}
+                            size="lg"
+                          >
+                            Subscribe
+                          </ButtonGreen>
+                        </div>
+                      )}
+                    </div>
                   )}
                 </div>
                 {/* <div className="w-8 h-8 min-w-8  flex items-center justify-center rounded-full bg-indigo-1600 text-white font-semibold text-sm">
@@ -137,7 +139,6 @@ const Conversation = ({
                   <p className="flex p-[14px]   justify-start  text-left whitespace-pre-line">
                     {msg.content}
                   </p>
-
                 </div>
                 {userData.picture ? (
                   <div className="w-9 h-9 min-w-8  flex items-center justify-center rounded-full">

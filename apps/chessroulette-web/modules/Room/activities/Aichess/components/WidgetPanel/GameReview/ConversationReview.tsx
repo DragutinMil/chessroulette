@@ -7,7 +7,7 @@ import type {
 import greenLogo from '../../../../../../../components/Logo/assets/Logo_green_small.svg';
 import Image from 'next/image';
 import { ButtonGreen } from '@app/components/Button/ButtonGreen';
-import { StatsTable } from "./StatsTable";
+import { StatsTable } from './StatsTable';
 type Props = {
   currentChapterState: ChapterState;
   pulseDot: boolean;
@@ -73,7 +73,7 @@ const ConversationReview = ({
             {/* CHAT GPT TEXT */}
             {participant.includes('chatGPT123456') ? (
               <div className="flex">
-                <div className="md:flex items-start hidden" >
+                <div className="md:flex items-start hidden">
                   {isLastFromThisParticipant ? (
                     <Image
                       src={greenLogo}
@@ -92,61 +92,60 @@ const ConversationReview = ({
                 <div
                   className={`text-white text-sm px-4  w-full flex   flex-col  items-start `}
                 >
-     
-                  { msg.content.includes('analyzeReview')?(
-                     <StatsTable content={msg.content} />
-  //                <div className='w-[85%] justify-center'>
-  //                     <div  className="flex">
-  //                       <div className="w-[50%]" > </div>
-  //                       <div className="w-[25%] text-center" >White </div>
-  //                       <div className="w-[25%] text-center" >Black</div>
-  //                     </div>
-  //                     <div  className="flex mt-1">
-  //                        <div className="w-[50%]" >✅ Good moves: </div>
-  //                       <div className="w-[25%] text-center" >{msg.content.split('/').map(Number)[2] } </div>
-  //                       <div className={`w-[25%] text-center ${
-  //   msg.content.split('/').map(Number)[2] > 9 ? "text-red-500 text-bold" : msg.content.split('/').map(Number)[2] > 4 ? "text-bold" : ""
-  // }`} >{msg.content.split('/').map(Number)[9] }</div>
-  //                     </div>
-  //                    <div  className="flex mt-1">
-  //                      <div className="w-[50%]" >✅ Excellente: </div>
-  //                       <div className="w-[25%] text-center" >{msg.content.split('/').map(Number)[3] } </div>
-  //                       <div className="w-[25%] text-center" >{msg.content.split('/').map(Number)[10] }</div>
-  //                    </div>
-  //                      <div  className="flex mt-1">
-  //                        <div className="w-[50%] " >⬇️ Bad moves: </div>
-  //                       <div className="w-[25%] text-center" >{msg.content.split('/').map(Number)[1] } </div>
-  //                       <div className="w-[25%] text-center" >{msg.content.split('/').map(Number)[8] }</div>
-  //                      </div>
-  //                     <div  className="flex mt-1">
-  //                        <div className="w-[50%] " >❌ Blunder: </div>
-  //                       <div className="w-[25%] text-center" >{msg.content.split('/').map(Number)[0] } </div>
-  //                       <div className="w-[25%] text-center" >{msg.content.split('/').map(Number)[7] }</div>
-  //                     </div>
-  //                      <div  className="flex mt-1">
-  //                        <div className="w-[50%]" >🎯 First Line </div>
-  //                       <div className={`w-[25%] text-center ${
-  //   msg.content.split('/').map(Number)[4] > 9 ? "text-red-500 font-bold" : msg.content.split('/').map(Number)[4] > 4 ? "font-bold text-yellow-500" : ""
-  // }`}>{msg.content.split('/').map(Number)[4] }  </div>
-  //                       <div className="w-[25%] text-center" >{msg.content.split('/').map(Number)[11] } </div>
-  //                      </div>
-  //                       <div  className="flex mt-1">
-  //                        <div className="w-[50%]" >⚡ Second:  </div>
-  //                       <div className="w-[25%] text-center" > {msg.content.split('/').map(Number)[5] }</div>
-  //                       <div className="w-[25%] text-center" >{msg.content.split('/').map(Number)[12] }</div>
-  //                      </div>
-  //                       <div  className="flex mt-1">
-  //                        <div className="w-[50%]" >⚡ Third: </div>
-  //                       <div className="w-[25%] text-center" >{msg.content.split('/').map(Number)[6] } </div>
-  //                       <div className="w-[25%] text-center" >{msg.content.split('/').map(Number)[13] }</div>
-  //                      </div>
-  //                 </div>
-                  ):(
+                  {msg.content.includes('analyzeReview') ? (
+                    <StatsTable content={msg.content} />
+                  ) : (
+                    //                <div className='w-[85%] justify-center'>
+                    //                     <div  className="flex">
+                    //                       <div className="w-[50%]" > </div>
+                    //                       <div className="w-[25%] text-center" >White </div>
+                    //                       <div className="w-[25%] text-center" >Black</div>
+                    //                     </div>
+                    //                     <div  className="flex mt-1">
+                    //                        <div className="w-[50%]" >✅ Good moves: </div>
+                    //                       <div className="w-[25%] text-center" >{msg.content.split('/').map(Number)[2] } </div>
+                    //                       <div className={`w-[25%] text-center ${
+                    //   msg.content.split('/').map(Number)[2] > 9 ? "text-red-500 text-bold" : msg.content.split('/').map(Number)[2] > 4 ? "text-bold" : ""
+                    // }`} >{msg.content.split('/').map(Number)[9] }</div>
+                    //                     </div>
+                    //                    <div  className="flex mt-1">
+                    //                      <div className="w-[50%]" >✅ Excellente: </div>
+                    //                       <div className="w-[25%] text-center" >{msg.content.split('/').map(Number)[3] } </div>
+                    //                       <div className="w-[25%] text-center" >{msg.content.split('/').map(Number)[10] }</div>
+                    //                    </div>
+                    //                      <div  className="flex mt-1">
+                    //                        <div className="w-[50%] " >⬇️ Bad moves: </div>
+                    //                       <div className="w-[25%] text-center" >{msg.content.split('/').map(Number)[1] } </div>
+                    //                       <div className="w-[25%] text-center" >{msg.content.split('/').map(Number)[8] }</div>
+                    //                      </div>
+                    //                     <div  className="flex mt-1">
+                    //                        <div className="w-[50%] " >❌ Blunder: </div>
+                    //                       <div className="w-[25%] text-center" >{msg.content.split('/').map(Number)[0] } </div>
+                    //                       <div className="w-[25%] text-center" >{msg.content.split('/').map(Number)[7] }</div>
+                    //                     </div>
+                    //                      <div  className="flex mt-1">
+                    //                        <div className="w-[50%]" >🎯 First Line </div>
+                    //                       <div className={`w-[25%] text-center ${
+                    //   msg.content.split('/').map(Number)[4] > 9 ? "text-red-500 font-bold" : msg.content.split('/').map(Number)[4] > 4 ? "font-bold text-yellow-500" : ""
+                    // }`}>{msg.content.split('/').map(Number)[4] }  </div>
+                    //                       <div className="w-[25%] text-center" >{msg.content.split('/').map(Number)[11] } </div>
+                    //                      </div>
+                    //                       <div  className="flex mt-1">
+                    //                        <div className="w-[50%]" >⚡ Second:  </div>
+                    //                       <div className="w-[25%] text-center" > {msg.content.split('/').map(Number)[5] }</div>
+                    //                       <div className="w-[25%] text-center" >{msg.content.split('/').map(Number)[12] }</div>
+                    //                      </div>
+                    //                       <div  className="flex mt-1">
+                    //                        <div className="w-[50%]" >⚡ Third: </div>
+                    //                       <div className="w-[25%] text-center" >{msg.content.split('/').map(Number)[6] } </div>
+                    //                       <div className="w-[25%] text-center" >{msg.content.split('/').map(Number)[13] }</div>
+                    //                      </div>
+                    //                 </div>
                     <p className="flex  items-center text-[14px]  justify-start  text-left whitespace-pre-line">
-                    {msg.content}
-                  </p>
-                  ) }
-                  
+                      {msg.content}
+                    </p>
+                  )}
+
                   <div className="flex flex-wrap mt-2">
                     {index == 0 && currentChapterState.messages.length == 1 && (
                       <ButtonGreen

@@ -14,7 +14,7 @@ export type FreeBoardNotationProps = {
   containerClassName?: string;
   canDelete?: boolean;
   reviewData?: EvaluationMove[];
-  playerNames?:Array<string>
+  playerNames?: Array<string>;
 };
 
 /**
@@ -46,11 +46,9 @@ export const FreeBoardNotation: React.FC<FreeBoardNotationProps> = ({
     <div
       className={`md:flex flex-col h-full flex-1 overflow-hidden  min-h-0 min-w-0 ${containerClassName} `}
     >
-     
-      {history.length > 0  ? (
+      {history.length > 0 ? (
         <List
           history={history}
-         
           playerNames={playerNames}
           focusedIndex={focusedIndex}
           onRefocus={onRefocus}

@@ -19,7 +19,7 @@ const TypewriterText: React.FC<TypewriterTextProps> = ({
   playNext,
   hint,
   onSelectPuzzle,
-  onSelectRating
+  onSelectRating,
 }) => {
   const [displayedText, setDisplayedText] = useState('');
   const [showCursor, setShowCursor] = useState(true);
@@ -35,11 +35,11 @@ const TypewriterText: React.FC<TypewriterTextProps> = ({
     //   {"label":"Check Mate in 7"},{"label":"Check-Mate Puzzles"},{"label":"Endgame"},{"label":"Pattern Puzzles"}]
   ];
   const ratingBot = [
-     { label: '1300', value: 1300 },
+    { label: '1300', value: 1300 },
     { label: '1700', value: 1700 },
     { label: '2100', value: 2100 },
     { label: '2400', value: 2400 },
-   // { label: '2400', value: '2400' },
+    // { label: '2400', value: '2400' },
   ];
   useEffect(() => {
     if (!lastMessage || lastMessage.trim() === '') return;
@@ -75,7 +75,7 @@ const TypewriterText: React.FC<TypewriterTextProps> = ({
         {displayedText.replace(/undefined/g, '')}
         {showCursor && <span className="animate-pulse">|</span>}
       </p>
-     
+
       {lastMessage.includes('Would you like a hint') &&
         displayedText.length == lastMessage.length && (
           <div className="flex  sitems-center gap-3 hidden md:flex mt-2">
@@ -107,7 +107,9 @@ const TypewriterText: React.FC<TypewriterTextProps> = ({
           ))}
       </div>
       <div className="flex flex-wrap">
-        {lastMessage.includes('Which strength level would you like to play against') &&
+        {lastMessage.includes(
+          'Which strength level would you like to play against'
+        ) &&
           displayedText.length == lastMessage.length &&
           ratingBot.map((category) => (
             <ButtonGreen

@@ -862,7 +862,9 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
         chessAiMode.message !== ''
           ? [chessAiMode.message]
           : prev.activityState.chaptersMap[0].chessAiMode.mode == ''
-          ? ["Awesome, let's play chess. Which strength level would you like to play against?"]
+          ? [
+              "Awesome, let's play chess. Which strength level would you like to play against?",
+            ]
           : [
               'Let’s keep it going, nice and casual! Which strength level would you like to play against?',
               'Let’s keep the game rolling, just for fun! Which strength level would you like to play against?',
@@ -1189,9 +1191,8 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
     //     prev.activityState.chaptersMap[0].messages.length - 1
     //   ].participantId !== action.payload.participantId
     // ) {
- 
 
-// console.log(action)
+    // console.log(action)
     return {
       ...prev,
       activityState: {
@@ -1205,7 +1206,7 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
               {
                 content: action.payload.content,
                 participantId: action.payload.participantId,
-                
+
                 idResponse: action.payload.idResponse,
               },
             ],

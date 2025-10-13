@@ -23,11 +23,10 @@ module.exports = {
           600: 'rgba(7, 218, 99,0.76)',
           800: 'rgba(7, 218, 99)',
         },
-         blue: {
+        blue: {
           ...colors.blue,
-         
+
           600: '#11c6d1',
-         
         },
         yellow: {
           ...colors.yellow,

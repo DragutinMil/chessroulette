@@ -6,7 +6,7 @@ import movexConfig from '@app/movex.config';
 import { TabsRef } from '@app/components/Tabs';
 import { ResizableDesktopLayout } from '@app/templates/ResizableDesktopLayout';
 import { useAichessActivitySettings } from './hooks/useAichessActivitySettings';
-import {  getSubscribeInfo } from './util';
+import { getSubscribeInfo } from './util';
 import { AiChessDialogContainer } from './DialogContainer/AiChessDialogContainer';
 import {
   AichessActivityState,
@@ -15,7 +15,7 @@ import {
   chessAiMode,
   MovePiece,
 } from './movex';
-import { getMatch} from './util';
+import { getMatch } from './util';
 
 import { WidgetPanel } from './components/WidgetPanel';
 import { AichessBoard } from './components/AichessBoard';
@@ -41,15 +41,15 @@ export const AichessActivity = ({
   const moveSound = new Audio('/chessmove.mp3');
   const dispatch = optionalDispatch || noop;
   const [cameraOff, setCameraOff] = useState(false);
-    const [playerNames, setPlayerNames] = useState(Array<string>);
-  
+  const [playerNames, setPlayerNames] = useState(Array<string>);
+
   const [userData, setUserData] = useState({
     name_first: '',
     name_last: '',
     picture: '',
-    is_trial:false,
-    product_name:'',
-    user_id:''
+    is_trial: false,
+    product_name: '',
+    user_id: '',
   });
   // const [onChangePuzzleAnimation, setChangePuzzleAnimation] = useState(false);
   const settings = useAichessActivitySettings();
@@ -71,73 +71,80 @@ export const AichessActivity = ({
     const url = new URL(window.location.href);
     const rawPgn = url.searchParams.get('pgn');
     const userId = url.searchParams.get('userId');
-    
+
     if (rawPgn) {
-  
       const getMatchInfo = async () => {
         const data = await getMatch(rawPgn);
-        console.log('review macevo', data)
-        if(data){
-         const pgn = data.results.endedGames[data.results.endedGames.length-1].pgn
-         const white = data.results.endedGames[data.results.endedGames.length-1].players.w ==  userId;
-         const black = data.results.endedGames[data.results.endedGames.length-1].players.b == userId;
+        console.log('review macevo', data);
+        if (data) {
+          const pgn =
+            data.results.endedGames[data.results.endedGames.length - 1].pgn;
+          const white =
+            data.results.endedGames[data.results.endedGames.length - 1].players
+              .w == userId;
+          const black =
+            data.results.endedGames[data.results.endedGames.length - 1].players
+              .b == userId;
 
-         const whitePlayerName =  data.results.endedGames[data.results.endedGames.length-1].players.w == data.initiator_id ?
-                 data.initiator_name_first : data.target_name_first
-          const blackPlayerName =  data.results.endedGames[data.results.endedGames.length-1].players.b == data.initiator_id ?
-                 data.initiator_name_first : data.target_name_first
-         
-         setPlayerNames([whitePlayerName, blackPlayerName])
-       
-        //  if(white){ setUserSide('w');}
-        //  if(black){ setUserSide('b');}
-        //   if(data.results.initiator_id === userId){
-      
-        //     setPlayerNames([data.initiator_name_first,data.target_name_first] )
-        //   }else{
-        //     setPlayerNames([data.target_name_first, data.initiator_name_first] )
-        //   }
-        const changeOrientation =
-          (currentChapter.orientation === 'b' && white) ||
-          (currentChapter.orientation === 'w' && black);
+          const whitePlayerName =
+            data.results.endedGames[data.results.endedGames.length - 1].players
+              .w == data.initiator_id
+              ? data.initiator_name_first
+              : data.target_name_first;
+          const blackPlayerName =
+            data.results.endedGames[data.results.endedGames.length - 1].players
+              .b == data.initiator_id
+              ? data.initiator_name_first
+              : data.target_name_first;
 
-           gameReview({
-          moves: [],
-          movesCount: 0,
-          badMoves: 0,
-          goodMoves: 0,
-          orientationChange: changeOrientation,
-          mode: 'review',
-          ratingChange: 0,
-          puzzleRatting: 0,
-          userPuzzleRating: 0,
-          puzzleId: 0,
-          prevUserPuzzleRating: 0,
-          fen: pgn,
-          responseId: '',
-          message: '',
-        });
+          setPlayerNames([whitePlayerName, blackPlayerName]);
+
+          //  if(white){ setUserSide('w');}
+          //  if(black){ setUserSide('b');}
+          //   if(data.results.initiator_id === userId){
+
+          //     setPlayerNames([data.initiator_name_first,data.target_name_first] )
+          //   }else{
+          //     setPlayerNames([data.target_name_first, data.initiator_name_first] )
+          //   }
+          const changeOrientation =
+            (currentChapter.orientation === 'b' && white) ||
+            (currentChapter.orientation === 'w' && black);
+
+          gameReview({
+            moves: [],
+            movesCount: 0,
+            badMoves: 0,
+            goodMoves: 0,
+            orientationChange: changeOrientation,
+            mode: 'review',
+            ratingChange: 0,
+            puzzleRatting: 0,
+            userPuzzleRating: 0,
+            puzzleId: 0,
+            prevUserPuzzleRating: 0,
+            fen: pgn,
+            responseId: '',
+            message: '',
+          });
         }
-       
       };
       getMatchInfo();
     }
-   
+
     getUserData();
   }, []);
- 
 
   const getUserData = async () => {
-      const data = await getSubscribeInfo();
-      setUserData({
-        name_first: data.name_first,
-        name_last: data.name_last,
-        picture: data.profile_image_url,
-        is_trial:data.is_trial,
-        product_name:data.product_name,
-        user_id:data.user_id
-      });
-     
+    const data = await getSubscribeInfo();
+    setUserData({
+      name_first: data.name_first,
+      name_last: data.name_last,
+      picture: data.profile_image_url,
+      is_trial: data.is_trial,
+      product_name: data.product_name,
+      user_id: data.user_id,
+    });
   };
 
   return (
@@ -145,7 +152,7 @@ export const AichessActivity = ({
       rightSideSize={RIGHT_SIDE_SIZE_PX}
       mainComponent={({ boardSize }) => (
         <>
-        {settings.isInstructor && inputState.isActive ? (
+          {settings.isInstructor && inputState.isActive ? (
             <InstructorBoard
               fen={inputState.chapterState.displayFen}
               boardOrientation={swapColor(inputState.chapterState.orientation)}
@@ -187,103 +194,103 @@ export const AichessActivity = ({
               }}
               onMove={noop}
             />
-          ) : ( 
-          //  Learn Mode */}
-          <div>
-          <AiChessDialogContainer
-             onMessage={(payload) =>
-              dispatch({
-                type: 'loadedChapter:writeMessage',
-                payload: payload,
-              })
-            }
-            onPuzzleMove={(payload) => {
-              moveSound.play();
-              dispatch({ type: 'loadedChapter:addMove', payload });
-            }}
-            addChessAi={(payload: chessAiMode) =>
-              dispatch({
-                type: 'loadedChapter:setPuzzleMoves',
-                payload: payload as chessAiMode,
-              })
-            }
-            currentChapter={currentChapter}
-          />
-          <div>
-            <AichessBoard
-              sizePx={boardSize}
-              // onChangePuzzleAnimation={onChangePuzzleAnimation}
-              {...currentChapter}
-              orientation={
-                // The instructor gets the opposite side as the student (so they can play together)
-                settings.isInstructor
-                  ? swapColor(currentChapter.orientation)
-                  : currentChapter.orientation
-              }
-              onFlip={() => {
-                dispatch({
-                  type: 'loadedChapter:setOrientation',
-                  payload: { color: swapColor(currentChapter.orientation) },
-                });
-              }}
-              onMove={(payload) => {
-                moveSound.play();
-                dispatch({ type: 'loadedChapter:addMove', payload });
+          ) : (
+            //  Learn Mode */}
+            <div>
+              <AiChessDialogContainer
+                onMessage={(payload) =>
+                  dispatch({
+                    type: 'loadedChapter:writeMessage',
+                    payload: payload,
+                  })
+                }
+                onPuzzleMove={(payload) => {
+                  moveSound.play();
+                  dispatch({ type: 'loadedChapter:addMove', payload });
+                }}
+                addChessAi={(payload: chessAiMode) =>
+                  dispatch({
+                    type: 'loadedChapter:setPuzzleMoves',
+                    payload: payload as chessAiMode,
+                  })
+                }
+                currentChapter={currentChapter}
+              />
+              <div>
+                <AichessBoard
+                  sizePx={boardSize}
+                  // onChangePuzzleAnimation={onChangePuzzleAnimation}
+                  {...currentChapter}
+                  orientation={
+                    // The instructor gets the opposite side as the student (so they can play together)
+                    settings.isInstructor
+                      ? swapColor(currentChapter.orientation)
+                      : currentChapter.orientation
+                  }
+                  onFlip={() => {
+                    dispatch({
+                      type: 'loadedChapter:setOrientation',
+                      payload: { color: swapColor(currentChapter.orientation) },
+                    });
+                  }}
+                  onMove={(payload) => {
+                    moveSound.play();
+                    dispatch({ type: 'loadedChapter:addMove', payload });
 
-                // TODO: This can be returned from a more internal component
-                return true;
-              }}
-              onArrowsChange={(payload) => {
-                // console.log('arrow karioka');
-                // dispatch({ type: 'loadedChapter:setArrows', payload });
-              }}
-              onCircleDraw={(tuple) => {
-                // dispatch({
-                //   type: 'loadedChapter:drawCircle',
-                //   payload: tuple,
-                // });
-              }}
-              onClearCircles={() => {
-                dispatch({ type: 'loadedChapter:clearCircles' });
-              }}
-              onClearBoard={() => {
-                dispatch({
-                  type: 'loadedChapter:updateFen',
-                  payload: ChessFENBoard.ONLY_KINGS_FEN,
-                });
-              }}
-              onResetBoard={() => {
-                dispatch({
-                  type: 'loadedChapter:updateFen',
-                  payload: ChessFENBoard.STARTING_FEN,
-                });
-              }}
-              onBoardEditor={() => {
-                dispatchInputState({
-                  type: 'activate',
-                  payload: {
-                    isBoardEditorShown: true,
-                    chapterState: currentChapter,
-                  },
-                });
-                tabsRef.current?.focusByTabId('chapters', 2);
-              }}
-              rightSideClassName="flex-1"
-              rightSideComponent={
-                <>
-                  <div className="relative flex flex-1 flex-col items-center justify-center">
-                    <PanelResizeHandle
-                      className="w-1 h-20 rounded-lg bg-slate-600"
-                      title="Resize"
-                    />
-                  </div>
-                  <div className="flex-1" />
-                </>
-              }
-            />
-           </div>
-          </div>
-           )} 
+                    // TODO: This can be returned from a more internal component
+                    return true;
+                  }}
+                  onArrowsChange={(payload) => {
+                    // console.log('arrow karioka');
+                    // dispatch({ type: 'loadedChapter:setArrows', payload });
+                  }}
+                  onCircleDraw={(tuple) => {
+                    // dispatch({
+                    //   type: 'loadedChapter:drawCircle',
+                    //   payload: tuple,
+                    // });
+                  }}
+                  onClearCircles={() => {
+                    dispatch({ type: 'loadedChapter:clearCircles' });
+                  }}
+                  onClearBoard={() => {
+                    dispatch({
+                      type: 'loadedChapter:updateFen',
+                      payload: ChessFENBoard.ONLY_KINGS_FEN,
+                    });
+                  }}
+                  onResetBoard={() => {
+                    dispatch({
+                      type: 'loadedChapter:updateFen',
+                      payload: ChessFENBoard.STARTING_FEN,
+                    });
+                  }}
+                  onBoardEditor={() => {
+                    dispatchInputState({
+                      type: 'activate',
+                      payload: {
+                        isBoardEditorShown: true,
+                        chapterState: currentChapter,
+                      },
+                    });
+                    tabsRef.current?.focusByTabId('chapters', 2);
+                  }}
+                  rightSideClassName="flex-1"
+                  rightSideComponent={
+                    <>
+                      <div className="relative flex flex-1 flex-col items-center justify-center">
+                        <PanelResizeHandle
+                          className="w-1 h-20 rounded-lg bg-slate-600"
+                          title="Resize"
+                        />
+                      </div>
+                      <div className="flex-1" />
+                    </>
+                  }
+                />
+              </div>
+            </div>
+          )}
         </>
       )}
       rightComponent={
@@ -333,7 +340,6 @@ export const AichessActivity = ({
               dispatch({ type: 'loadedChapter:setArrows', payload });
             }}
             onMessage={(payload) =>
-             
               dispatch({
                 type: 'loadedChapter:writeMessage',
                 payload: payload,
