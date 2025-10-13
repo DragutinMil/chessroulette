@@ -16,7 +16,6 @@ export type ListProps = {
   onDelete: (atIndex: FBHIndex) => void;
   focusedIndex?: FBHIndex;
   className?: string;
-  userSideReview?: string;
   rowClassName?: string;
   canDelete?: boolean;
   reviewData: EvaluationMove[];
@@ -44,7 +43,6 @@ export const List: React.FC<ListProps> = ({
   className,
   rowClassName,
   rootHistoryIndex,
-  userSideReview,
   isNested = false,
   canDelete,
   playerNames,
@@ -110,8 +108,8 @@ export const List: React.FC<ListProps> = ({
   }, [history, focusedIndex]);
    
   return (
-    <div>
-      <div className="flex  mb-2 ">
+    <div className="flex flex-col h-full">
+      <div className="flex  mb-2  ">
         <p className="text-[#8F8F90] text-[10px] font-bold">MOVE</p>
         <div className="flex  w-full">
           <p className="text-[#8F8F90] text-[10px] font-bold w-[51%] ml-[7px] ">
@@ -119,9 +117,8 @@ export const List: React.FC<ListProps> = ({
           { playerNames && (
             
            <span className='text-white'>
-             &nbsp; &nbsp;{userSideReview === "w"
-    ? ` ${playerNames?.[0] ?? ""} `
-    : ` ${playerNames?.[1] ?? ""} `}
+              &nbsp; {playerNames[0]}
+         
             
     </span>
             
@@ -134,18 +131,26 @@ export const List: React.FC<ListProps> = ({
             { playerNames && (
              
               <span className='text-white'>
-                 &nbsp; &nbsp;
-            {userSideReview === "b"
-    ? ` ${playerNames?.[0] ?? ""} `
-    : ` ${playerNames?.[1] ?? ""} `}
+               &nbsp; {playerNames[1]}
     </span>
             
              ) }  
           </p>
         </div>
       </div>
+      <div className=' flex-1 overflow-scroll no-scrollbar '     >
+                         {/* */}
+                               {/* height:isMobile?
+                              currentChapterState.chessAiMode.mode == 'puzzle'
+                                ? 'calc(100% - 600px)'
+                                : '300px'
+                                 : currentChapterState.chessAiMode.mode === "puzzle"
+                                ? "calc(100% - 600px)"
+                                : "calc(100% - 300px)",
+                                minHeight: "300px" */}
+                             
       <div
-        className={`${className}`}
+        className={`${className} overflow-scroll  no-scrollbar` }
         ref={(e) => (containerElementRef.current = e)}
       >
         {history.map((historyTurn, historyTurnIndex) => {
@@ -205,6 +210,8 @@ export const List: React.FC<ListProps> = ({
             />
           );
         })}
+      </div>
+      
       </div>
     </div>
   );

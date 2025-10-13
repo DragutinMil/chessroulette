@@ -41,7 +41,6 @@ export const AichessActivity = ({
   const moveSound = new Audio('/chessmove.mp3');
   const dispatch = optionalDispatch || noop;
   const [cameraOff, setCameraOff] = useState(false);
-  const [userSideReview, setUserSide] = useState('');
     const [playerNames, setPlayerNames] = useState(Array<string>);
   
   const [userData, setUserData] = useState({
@@ -77,18 +76,27 @@ export const AichessActivity = ({
   
       const getMatchInfo = async () => {
         const data = await getMatch(rawPgn);
+        console.log('review macevo', data)
         if(data){
          const pgn = data.results.endedGames[data.results.endedGames.length-1].pgn
          const white = data.results.endedGames[data.results.endedGames.length-1].players.w ==  userId;
          const black = data.results.endedGames[data.results.endedGames.length-1].players.b == userId;
-         if(white){ setUserSide('w');}
-         if(black){ setUserSide('b');}
-          if(data.results.initiator_id === userId){
+
+         const whitePlayerName =  data.results.endedGames[data.results.endedGames.length-1].players.w == data.initiator_id ?
+                 data.initiator_name_first : data.target_name_first
+          const blackPlayerName =  data.results.endedGames[data.results.endedGames.length-1].players.b == data.initiator_id ?
+                 data.initiator_name_first : data.target_name_first
+         
+         setPlayerNames([whitePlayerName, blackPlayerName])
+       
+        //  if(white){ setUserSide('w');}
+        //  if(black){ setUserSide('b');}
+        //   if(data.results.initiator_id === userId){
       
-            setPlayerNames([data.initiator_name_first,data.target_name_first] )
-          }else{
-            setPlayerNames([data.target_name_first, data.initiator_name_first] )
-          }
+        //     setPlayerNames([data.initiator_name_first,data.target_name_first] )
+        //   }else{
+        //     setPlayerNames([data.target_name_first, data.initiator_name_first] )
+        //   }
         const changeOrientation =
           (currentChapter.orientation === 'b' && white) ||
           (currentChapter.orientation === 'w' && black);
@@ -338,7 +346,6 @@ export const AichessActivity = ({
               })
             }
             userData={userData}
-            userSideReview={userSideReview}
             playerNames={playerNames}
             currentChapterState={currentChapter}
             chaptersMap={remoteState?.chaptersMap || {}}

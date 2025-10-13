@@ -38,6 +38,7 @@ export async function analyzePGN(pgn, { onProgress } = {}) {
     if (turn === 'b') {
       evaluation = -evaluation;
     }
+    
     results.push({
       moveNumber: i + 1,
       move: move.san,
@@ -149,6 +150,6 @@ function getEvaluation(worker, fen) {
     worker.postMessage('ucinewgame');
 
     worker.postMessage(`position fen ${fen}`);
-    worker.postMessage(`go depth 10`);
+    worker.postMessage(`go depth 11`);
   });
 }

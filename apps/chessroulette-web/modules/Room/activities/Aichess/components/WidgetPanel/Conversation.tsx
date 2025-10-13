@@ -13,7 +13,7 @@ type Props = {
   playNext: () => void;
   hint: () => void;
   openViewSubscription:() =>void;
-
+  onSelectRating: (category: number) => void;
   onSelectPuzzle: (category: string) => void;
 };
 //console.log('currentChapterState',currentChapterState)
@@ -27,6 +27,7 @@ const Conversation = ({
   openViewSubscription,
   hint,
   onSelectPuzzle,
+  onSelectRating
 }: Props) => {
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -98,7 +99,7 @@ const Conversation = ({
                   typeof lastMessage === 'string' && !isSales ? (
                     <TypewriterText
                       lastMessage={lastMessage}
-                    
+                      onSelectRating={onSelectRating}
                       onSelectPuzzle={onSelectPuzzle}
                       hint={hint}
                       scrollToBottom={scrollToBottom}

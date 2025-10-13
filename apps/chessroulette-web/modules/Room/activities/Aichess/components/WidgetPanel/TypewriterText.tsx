@@ -10,6 +10,7 @@ interface TypewriterTextProps {
   playNext: () => void;
   hint: () => void;
   onSelectPuzzle: (category: string) => void;
+  onSelectRating: (category: number) => void;
 }
 const TypewriterText: React.FC<TypewriterTextProps> = ({
   lastMessage = '',
@@ -18,6 +19,7 @@ const TypewriterText: React.FC<TypewriterTextProps> = ({
   playNext,
   hint,
   onSelectPuzzle,
+  onSelectRating
 }) => {
   const [displayedText, setDisplayedText] = useState('');
   const [showCursor, setShowCursor] = useState(true);
@@ -31,6 +33,13 @@ const TypewriterText: React.FC<TypewriterTextProps> = ({
 
     // [{"label":"Check Mate in 1"},{"label":"Check Mate in 2"},{"label":"Check Mate in 3"},{"label":"Check Mate in 4"},{"label":"Check Mate in 5"},{"label":"Check Mate in 6"},
     //   {"label":"Check Mate in 7"},{"label":"Check-Mate Puzzles"},{"label":"Endgame"},{"label":"Pattern Puzzles"}]
+  ];
+  const ratingBot = [
+     { label: '1300', value: 1300 },
+    { label: '1700', value: 1700 },
+    { label: '2100', value: 2100 },
+    { label: '2400', value: 2400 },
+   // { label: '2400', value: '2400' },
   ];
   useEffect(() => {
     if (!lastMessage || lastMessage.trim() === '') return;
@@ -89,6 +98,22 @@ const TypewriterText: React.FC<TypewriterTextProps> = ({
               key={category.value}
               onClick={() => {
                 onSelectPuzzle(category.value);
+              }}
+              size="md"
+              className=" font-bold mt-2 px-1 mr-2 whitespace-nowrap"
+            >
+              {category.label}
+            </ButtonGreen>
+          ))}
+      </div>
+      <div className="flex flex-wrap">
+        {lastMessage.includes('Which strength level would you like to play against') &&
+          displayedText.length == lastMessage.length &&
+          ratingBot.map((category) => (
+            <ButtonGreen
+              key={category.value}
+              onClick={() => {
+                onSelectRating(category.value);
               }}
               size="md"
               className=" font-bold mt-2 px-1 mr-2 whitespace-nowrap"

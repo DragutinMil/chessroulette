@@ -27,6 +27,17 @@ export const StatsTable: React.FC<StatsTableProps> = ({ content }) => {
       <div className="w-[25%] text-center">Black</div>
     </div>
 
+     {/* ✅ Excellent */}
+    <div className="flex mt-1">
+      <div className="w-[50%]">✅ Excellent:</div>
+      <div className={`w-[25%] text-center ${getHighlightClassGood(values[3])}`}>
+        {values[3]}
+      </div>
+      <div className={`w-[25%] text-center ${getHighlightClassGood(values[10])}`}>
+        {values[10]}
+      </div>
+    </div>
+
     {/* ✅ Good moves */}
     <div className="flex mt-1">
       <div className="w-[50%]">✅ Good moves:</div>
@@ -35,17 +46,6 @@ export const StatsTable: React.FC<StatsTableProps> = ({ content }) => {
       </div>
       <div className={`w-[25%] text-center ${getHighlightClassGood(values[9])}`}>
         {values[9]}
-      </div>
-    </div>
-
-    {/* ✅ Excellent */}
-    <div className="flex mt-1">
-      <div className="w-[50%]">✅ Excellent:</div>
-      <div className={`w-[25%] text-center ${getHighlightClassGood(values[3])}`}>
-        {values[3]}
-      </div>
-      <div className={`w-[25%] text-center ${getHighlightClassGood(values[10])}`}>
-        {values[10]}
       </div>
     </div>
 

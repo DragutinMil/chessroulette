@@ -862,11 +862,11 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
         chessAiMode.message !== ''
           ? [chessAiMode.message]
           : prev.activityState.chaptersMap[0].chessAiMode.mode == ''
-          ? ["Awesome, let's play chess."]
+          ? ["Awesome, let's play chess. Which strength level would you like to play against?"]
           : [
-              'Let’s keep it going, nice and casual!',
-              'Let’s keep the game rolling, just for fun! ',
-              'Let’s play on, nice and easy! ',
+              'Let’s keep it going, nice and casual! Which strength level would you like to play against?',
+              'Let’s keep the game rolling, just for fun! Which strength level would you like to play against?',
+              'Let’s play on, nice and easy! Which strength level would you like to play against?',
             ];
 
       const prompt = responses[Math.floor(Math.random() * responses.length)];
