@@ -12,7 +12,7 @@ export async function SendQuestionReview(
       .idResponse;
   console.log('reviewData', reviewData);
   const normalizedReview = reviewData.map((m, index, arr) => {
-    const previous = arr[index + 1];
+    const previous = arr[index - 1];
     return {
       moveNumber: m.moveNumber,
       move: m.move,
