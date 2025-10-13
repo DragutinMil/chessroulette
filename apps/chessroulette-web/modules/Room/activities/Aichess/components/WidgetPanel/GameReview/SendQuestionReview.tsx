@@ -12,24 +12,32 @@ export async function SendQuestionReview(
   const previusMessageId =
     currentChapterState.messages[currentChapterState.messages.length - 1]
       .idResponse;
-
+ console.log('reviewData',reviewData)
+const normalizedReview = reviewData.map((m, index, arr) => {
+  const previous = arr[index+1];
+  return {
+    moveNumber: m.moveNumber,
+    move: m.move,
+    eval: m.eval,
+    diff: parseFloat(m.diff),
+    // ako postoji prethodni objekat, uzmi njegov prvi bestMoves
+    bestMove: previous && Array.isArray(previous.bestMoves)
+      ? previous.bestMoves[0]
+      : null
+  };
+});
   const question =
     'QUESTION:\n' +
     prompt +
     '\n\n' +
-    'CONTEXT:\n' +
-    'PGN:\n ' +
+    'CONTEXT:\n'  +
+    'pgn:\n ' +
     currentChapterState.chessAiMode.fen 
-    +'\n '+ 'REVIEW:\n ' + `
-${reviewData
-   .map((m, index) => {
-    const previous = reviewData[index - 1]; // prethodni potez, undefined za prvi
-    const previousBestMove = previous ? previous.bestMoves[0] : "N/A";
+    +'\n '+ 'REVIEW:\n ' +  ` 
+${JSON.stringify(normalizedReview, null, 2)}
+`;
 
-    return `Move ${m.moveNumber}: ${m.move} | Eval: ${m.eval} | Diff: ${m.diff} 
-    )} | Recommended move : ${previousBestMove}`;
-  })
-  .join("\n")}`;
+
 
   console.log('question review', question);
   try {

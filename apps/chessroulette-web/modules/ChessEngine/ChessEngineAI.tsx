@@ -16,6 +16,8 @@ type StockfishEngineAIProps = {
   puzzleMode: boolean;
   playMode: boolean;
   prevScore: number;
+  newRatingEngine:number;
+  ratingEngine:any;
   // moveReaction: (moveDeffinition: number) => void;
   addGameEvaluation: (score: number) => void;
   IsMate: (mate: boolean) => void;
@@ -31,6 +33,8 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
   orientation,
   prevScore,
   addGameEvaluation,
+  newRatingEngine,
+  ratingEngine,
   // moveReaction,
   IsMate,
 }) => {
@@ -42,7 +46,11 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
   const [lineTwo, setLinesTwo] = useState('');
   const [lineThree, setLineThree] = useState('');
   const [changes, setChanges] = useState(0);
-  const [depth, setDepth] = useState('10');
+  const [depth, setDepth] = useState(10);
+  const [skill, setSkill] = useState(12);
+  const [currentRating, setCurrentRating] = useState(2000);
+  
+  
   const [error, setError] = useState(false);
 
   // const [skill, setSkill] = useState('');
@@ -54,14 +62,48 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
  const stockfishRef = useRef<Worker | null>(null);
 
 
+useEffect(() => {
+  
+  function getStockfishSettingsByRating(rating:number) {
+ 
+  if (rating < 900) return { skill: 1, depth: 2 , ratingCurr:800 };
+  if (rating < 1000) return { skill: 2, depth: 3 , ratingCurr:900 };
+  if (rating < 1100) return { skill: 3, depth: 3 , ratingCurr:1000 };
+  if (rating < 1200) return { skill: 4, depth: 4 , ratingCurr:1100 };
+  if (rating < 1300) return { skill: 5, depth: 4 , ratingCurr:1200 };
+  if (rating < 1400) return { skill: 6, depth: 5 , ratingCurr:1300 };
+  if (rating < 1500) return { skill: 7, depth: 5 , ratingCurr:1400 };
+  if (rating < 1600) return { skill: 8, depth: 6 , ratingCurr:1500 };
+  if (rating < 1700) return { skill: 9, depth: 6 , ratingCurr:1600 };
+  if (rating < 1800) return { skill: 10, depth: 7 , ratingCurr:1700 };
+  if (rating < 1900) return { skill: 11, depth: 8 , ratingCurr:1800 };
+  if (rating < 2000) return { skill: 12, depth: 9 , ratingCurr:1900 };
+  if (rating < 2100) return { skill: 13, depth: 10 , ratingCurr:2000 };
+  if (rating < 2200) return { skill: 14, depth: 11 , ratingCurr:2100 };
+  if (rating < 2300) return { skill: 15, depth: 12 , ratingCurr:2200 };
+  if (rating < 2400) return { skill: 16, depth: 13 , ratingCurr:2300 };
+  if (rating < 2500) return { skill: 17, depth: 14 , ratingCurr:2400 };
+  if (rating < 2600) return { skill: 18, depth: 16, ratingCurr:2500 };
+  if (rating < 2700) return { skill: 19, depth: 18, ratingCurr:2600 };
+  return { skill: 20, depth: 20 };
+}
+
+const { skill, depth, ratingCurr } = getStockfishSettingsByRating(newRatingEngine);
+  if(newRatingEngine){
+    setSkill(skill);
+    setDepth(depth);
+ //   setCurrentRating(ratingCurr ?? currentRating);
+    console.log(skill, depth,ratingCurr )
+    ratingEngine(ratingCurr ?? currentRating);
+  }
+  }, [newRatingEngine]);
 
 
-///MOJ STARI KOD , UCITAVANJE POSLE SVAKE POZICIJE, NE VALJA
 
   useEffect(() => {
-    console.log('ideee')
+    
     if (typeof window === 'undefined') return; // Ensure it's client-side
-    setDepth('10');
+    
   
     
 
@@ -84,10 +126,10 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
               ? addGameEvaluation(50000)
               : addGameEvaluation(-50000);
           }
-          //console.log('sta',event.data)
-          if (event.data.startsWith('info depth 10')) {
+       //   console.log('sta',event.data)
+          if (event.data.startsWith(`info depth ${depth}`)) {
             const pvIndex = event.data.indexOf(' pv ');
-            //  console.log(event.data)
+           //   console.log('deptara',event.data)
             if (event.data.includes('multipv 2')) {
               setLinesTwo(event.data.slice(pvIndex + 4));
             }
@@ -145,8 +187,10 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
       stockfish.postMessage(`setoption name MultiPV value 3`);
       stockfish.postMessage('setoption name Threads value 2');
       stockfish.postMessage('setoption name Hash value 64');
+    //  stockfish.postMessage(`setoption name Skill Level value ${skill}`);
       stockfish.postMessage(`position fen ${fen}`);
       stockfish.postMessage(`go depth ${depth}`);
+      
 
     //  return () => stockfish.terminate(); // Cleanup on unmount
     } catch (error) {
@@ -174,9 +218,9 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
               : addGameEvaluation(-50000);
           }
           //console.log('sta',event.data)
-          if (event.data.startsWith('info depth 10')) {
+          if (event.data.startsWith(`info depth ${depth}`)) {
             const pvIndex = event.data.indexOf(' pv ');
-            //  console.log(event.data)
+             // console.log(event.data)
             if (event.data.includes('multipv 2')) {
               setLinesTwo(event.data.slice(pvIndex + 4));
             }
@@ -235,15 +279,9 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
     }
   }, [fen]);
 
-
-
-useEffect(() => {
-
-  }, []);
-
   useEffect(() => {
     let m = bestMove;
-   // console.log(m);
+    // console.log('rokni',m);
     if (!isMyTurn && bestMove && !puzzleMode && playMode) {
       engineMove(m);
     }

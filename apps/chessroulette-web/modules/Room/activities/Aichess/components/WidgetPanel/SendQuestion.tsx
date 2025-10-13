@@ -7,9 +7,11 @@ export async function SendQuestion(
   prompt: string,
   currentChapterState: ChapterState,
   stockfishMovesInfo: string,
-  bestline: string
+  bestline: string,
+  currentRatingEngine:number | null
+
 ) {
-  const model = 'gpt-4.1';
+  const model = 'gpt-4.1-mini';
   const previusMessageId =
     currentChapterState.messages[currentChapterState.messages.length - 1]
       .idResponse;
@@ -61,7 +63,9 @@ export async function SendQuestion(
     piecesUserColor +
     '\n' +
     'Last move: ' +
-    lastMoveSan;
+    lastMoveSan +
+    '\n' +
+    'current rating engine: ' + currentRatingEngine
 
   //  JSON VARIANT
   // {
@@ -75,7 +79,7 @@ export async function SendQuestion(
   //   }
   // };
 
-  console.log('question in send question', question);
+  console.log('send question', question);
   try {
     const token = await getToken();
 

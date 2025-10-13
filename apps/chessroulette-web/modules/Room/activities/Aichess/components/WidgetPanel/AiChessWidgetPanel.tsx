@@ -73,7 +73,6 @@ type Props = {
   onHistoryNotationDelete: FreeBoardNotationProps['onDelete'];
   addGameEvaluation: (score: number) => void;
   userData: UserData;
-  userSideReview: string;
 
   // Engine
   showEngine?: boolean;
@@ -114,7 +113,6 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
       onHistoryNotationRefocus,
       addGameEvaluation,
       userData,
-      userSideReview,
       ...chaptersTabProps
     },
     tabsRef
@@ -131,7 +129,9 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
     const [popupSubscribe, setPopupSubscribe] = useState(false);
     const [progressReview, setProgressReview] = useState(0);
     const [reviewData, setReviewData] = useState<EvaluationMove[]>([]);
-
+    const [newRatingEngine, setRatingBotEngine] = useState(2000);
+    const [currentRatingEngine, setCurrentRatingEngine] = useState<number | null>(null);
+    
     const lastClick = useRef(0);
     const [percentW, setPercentW] = useState(50);
     const [percentB, setPercentB] = useState(50);
@@ -182,10 +182,17 @@ const [moveSan, setMoveSan] = useState('');
           question,
           currentChapterState,
           stockfishMovesInfo,
-          lines[1]
+          lines[1],
+          currentRatingEngine
         );
         if (data) {
           setPulseDot(false);
+        }
+        if(data.answer.messageType=='ratingChange'){
+          const number = data.answer.text.match(/\d+/);
+         const newRating =  parseInt(number[0], 10);
+        
+          setRatingBotEngine(newRating)
         }
         setAnswer(data.answer.text);
        
@@ -337,7 +344,7 @@ const [moveSan, setMoveSan] = useState('');
         probability();
       }
     }, [currentChapterState.evaluation.newCp]);
-
+    
     useEffect(() => {
       const length = currentChapterState.notation.history.length;
 
@@ -423,7 +430,8 @@ const [moveSan, setMoveSan] = useState('');
           question,
           currentChapterState,
           stockfishMovesInfo,
-          lines[1]
+          lines[1],
+          currentRatingEngine
         );
         if(data){
           setPulseDot(false);
@@ -588,7 +596,9 @@ limitQuestion()
       //   });
       // }
     };
-    
+    const ratingEngine = (rating:number)=>{
+       setCurrentRatingEngine(rating)
+    }
     const engineMove = (m: any, n?: boolean) => {
       setStockfishMovesInfo(m);
        let fromChess = m.slice(0, 2);
@@ -656,13 +666,21 @@ limitQuestion()
     };
 
     const openViewSubscription = async () => {
-      setPopupSubscribe(true);
-      // window.open(
-      //   "http://localhost:8080/subscribe",
-      //   "_self",
-      // );
+      // setPopupSubscribe(true);
+      window.location.href =   "http://localhost:8080/subscribe",
+        "_self";
+  
     };
     const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
+    const setRatingEngine = async (category: number) => {
+      setRatingBotEngine(category)
+      onMessage({
+            content: `The rating is now set to ${category}` ,
+            participantId: 'chatGPT123456',
+            idResponse: currentChapterState.messages[currentChapterState.messages.length - 1].idResponse
+          });
+
+    }
     const puzzles = async (category?: string) => {
       const now = Date.now();
 
@@ -682,7 +700,8 @@ limitQuestion()
           question,
           currentChapterState,
           stockfishMovesInfo,
-          lines[1]
+          lines[1],
+          currentRatingEngine
         );
         if(data){
           setPulseDot(false);
@@ -876,6 +895,8 @@ limitQuestion()
           </div>
         )}
         <StockFishEngineAI
+          ratingEngine={ratingEngine}
+          newRatingEngine={newRatingEngine}
           fen={currentChapterState.displayFen}
           orientation={currentChapterState.orientation}
           prevScore={currentChapterState.evaluation.prevCp}
@@ -885,6 +906,7 @@ limitQuestion()
           IsMate={isMate}
           isMyTurn={isMyTurn}
           engineMove={engineMove}
+         
           addGameEvaluation={addGameEvaluation}
           // moveReaction={moveReaction}
         />
@@ -930,6 +952,7 @@ limitQuestion()
                           currentChapterState={currentChapterState}
                           openViewSubscription={openViewSubscription}
                           onSelectPuzzle={puzzles}
+                          onSelectRating={setRatingEngine}
                           pulseDot={pulseDot}
                           takeBack={takeBack}
                           playNext={playNext}
@@ -1181,7 +1204,6 @@ limitQuestion()
                     <FreeBoardNotation
                       reviewData={reviewData}
                       history={currentChapterState.notation?.history}
-                      userSideReview={userSideReview}
                       playerNames={playerNames}
                       focusedIndex={currentChapterState.notation?.focusedIndex}
                       onDelete={onHistoryNotationDelete}
