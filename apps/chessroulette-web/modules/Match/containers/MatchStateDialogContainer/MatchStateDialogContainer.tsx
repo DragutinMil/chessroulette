@@ -145,7 +145,7 @@ export const MatchStateDialogContainer: React.FC<Props> = (
                   >
                     Rematch
                   </Button> */}
-                  {/* <Link
+                   <Link
                     href={`http://localhost:4200/room/new/r${matchId}?activity=aichess&userId=${userId}&theme=op&pgn=${matchId}`}
                   >
                    <Button
@@ -162,7 +162,7 @@ export const MatchStateDialogContainer: React.FC<Props> = (
                   >
                     Review
                   </Button>
-</Link> */}
+</Link>
                   {/* { (document.referrer.includes('app.outpostchess.com') || document.referrer.includes('localhost:8080') || document.referrer.includes('test-app.outpostchess.com')) && */}
                   {fromWeb && (
                     <Button

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import {
   SmartCountdownDisplay,
   SmartCountdownDisplayProps,
@@ -12,6 +12,8 @@ export type SmartCountdownProps = {
   isActive: boolean;
   className?: string;
   onFinished?: () => void;
+  warningSound?: string;
+  warningThresholdMs?: number;
 } & Pick<
   SmartCountdownDisplayProps,
   'activeTextClassName' | 'inactiveTextClassName'
@@ -24,15 +26,31 @@ export const SmartCountdown = ({
   // Note - the onFinished prop changes do not trigger an update
   //  This is in order to not enter infinite loops when passing a callback
   onFinished = noop,
+  warningSound = '/warning.mp3', // ili dodajte novi zvuk
+  warningThresholdMs = 30000,
   ...countDownDislplayProps
 }: SmartCountdownProps) => {
   const [finished, setFinished] = useState(false);
   const [timeLeft, setTimeLeft] = useState(msLeft);
   const [interval, setInterval] = useState(timeLeftToIntervalMs(msLeft));
 
+  const hasPlayedWarning = useRef(false);
+  const warningAudioRef = useRef<HTMLAudioElement | null>(null);
+  const prevTimeLeft = useRef<number>(msLeft); // NOVO: pratimo prethodno vreme
+
+  useEffect(() => {
+    if (warningSound) {
+      warningAudioRef.current = new Audio(warningSound);
+    }
+  }, [warningSound]);
+
   useEffect(() => {
     setTimeLeft(msLeft);
-  }, [msLeft]);
+    prevTimeLeft.current = msLeft; // NOVO: update prethodno vreme
+    if (msLeft > warningThresholdMs) {
+      hasPlayedWarning.current = false;
+    }
+  }, [msLeft, warningThresholdMs]);
 
   useEffect(() => {
     if (!isActive) {
@@ -43,8 +61,20 @@ export const SmartCountdown = ({
       setFinished(true);
     } else {
       setInterval(timeLeftToIntervalMs(timeLeft));
+       // Proveri da li treba pustiti zvučno upozorenje
+       if (
+        prevTimeLeft.current > warningThresholdMs && // bilo je IZNAD praga
+        timeLeft <= warningThresholdMs &&             // sada je ISPOD praga
+        !hasPlayedWarning.current &&
+        warningAudioRef.current
+      ) {
+        warningAudioRef.current.play().catch((err) => {
+          console.warn('Failed to play warning sound:', err);
+        });
+        hasPlayedWarning.current = true;
+      }
     }
-  }, [timeLeft]);
+  }, [timeLeft, isActive, warningThresholdMs]);
 
   useEffect(() => {
     if (finished) {
