@@ -51,6 +51,7 @@ export type MatchState =
       endedGames: EndedGame[];
       gameInPlay: NotEndedGame | null;
       rematch?: Boolean;
+      messages: ChatMessage[];
       /**
        * This is the time allowed for one player to abort
        */
@@ -63,3 +64,9 @@ export type MatchState =
   | null; // TODO: This should not be null, but another status
 
 export type MatchActions = PlayActions | Action<'match:startNewGame'>;
+
+export type ChatMessage = {
+  senderId: User['id'];
+  content: string;
+  timestamp: number;
+};

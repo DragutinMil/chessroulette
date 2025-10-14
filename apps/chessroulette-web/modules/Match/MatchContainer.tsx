@@ -13,6 +13,9 @@ import {
 import { PlayControlsContainer } from './Play/containers';
 import { PeerToPeerCameraWidget } from '../PeerToPeer';
 
+import { ChatWidget } from './widgets/ChatWidget';
+import { useCurrentOrPrevMatchPlay } from './Play/hooks';
+
 type Props = DistributivePick<
   PlayerContainerProps,
   'rightSideClassName' | 'rightSideComponent' | 'rightSideSizePx'
@@ -31,6 +34,7 @@ export const MatchContainer = ({
   dispatch,
   ...boardProps
 }: Props) => (
+
   <MatchProvider match={match} userId={userId} dispatch={dispatch}>
     <ResizableDesktopLayout
       mainComponent={({ boardSize }) => (
@@ -55,6 +59,32 @@ export const MatchContainer = ({
               <MatchStateDisplayContainer />
             </div>
           </div>
+
+
+        {/*CHAT WIDGET*/}
+          <div className="flex-1 min-h-[200px] max-h-[400px] md:max-h-[300px]">
+              <ChatWidget
+                messages={match.messages || []}
+                currentUserId={userId}
+                playerNames={{
+                  [match.challenger.id]: match.challenger.displayName || 'Challenger',
+                  [match.challengee.id]: match.challengee.displayName || 'Challengee',
+                }}
+                onSendMessage={(content) => {
+                  dispatch((masterContext) => ({
+                    type: 'play:sendMessage',
+                    payload: {
+                      senderId: userId,
+                      content,
+                      timestamp: masterContext.requestAt(),
+                    },
+                  }));
+                }}
+              />
+            </div>
+
+
+
           <div className="bg-op-widget pl-2 pr-2 pt-2 pb-2 md:p-3  flex flex-col gap-2 md:flex-1 min-h-0 rounded-lg shadow-2xl  md:overflow-y-scroll">
             <GameNotationWidget />
             <PlayControlsContainer />
