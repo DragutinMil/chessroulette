@@ -60,10 +60,8 @@ export const HistoryMove = ({
       ? '⏹️'
       : bestMoves && move.san == bestMoves[0]
       ? '🎯'
-      : (bestMoves && move.san == bestMoves[1]) ||
-        (bestMoves && move.san == bestMoves[2])
-      ? '⚡'
-      : '';
+      : (bestMoves && move.san == bestMoves[1])? '⚡⚡':
+      (bestMoves && move.san == bestMoves[2])? '⚡': '';
 
   const iconic =
     evalDiff <= -2
