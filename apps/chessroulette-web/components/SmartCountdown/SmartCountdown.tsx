@@ -36,7 +36,8 @@ export const SmartCountdown = ({
 
   const hasPlayedWarning = useRef(false);
   const warningAudioRef = useRef<HTMLAudioElement | null>(null);
-  const prevTimeLeft = useRef<number>(msLeft); // NOVO: pratimo prethodno vreme
+  const startTimeRef = useRef<number>(Date.now());
+  const initialMsLeft = useRef<number>(msLeft);
 
   useEffect(() => {
     if (warningSound) {
@@ -46,12 +47,29 @@ export const SmartCountdown = ({
 
   useEffect(() => {
     setTimeLeft(msLeft);
-    prevTimeLeft.current = msLeft; // NOVO: update prethodno vreme
+    startTimeRef.current = Date.now();
+    initialMsLeft.current = msLeft;
+
     if (msLeft > warningThresholdMs) {
       hasPlayedWarning.current = false;
     }
   }, [msLeft, warningThresholdMs]);
 
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden && isActive) {
+        const elapsed = Date.now() - startTimeRef.current;
+        const newTimeLeft = Math.max(0, initialMsLeft.current - elapsed);
+        setTimeLeft(newTimeLeft);
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [isActive]);
+ 
   useEffect(() => {
     if (!isActive) {
       return;
@@ -61,10 +79,10 @@ export const SmartCountdown = ({
       setFinished(true);
     } else {
       setInterval(timeLeftToIntervalMs(timeLeft));
-       // Proveri da li treba pustiti zvučno upozorenje
-       if (
-        prevTimeLeft.current > warningThresholdMs && // bilo je IZNAD praga
-        timeLeft <= warningThresholdMs &&             // sada je ISPOD praga
+      
+      // Check if warning sound should play
+      if (
+        timeLeft <= warningThresholdMs &&
         !hasPlayedWarning.current &&
         warningAudioRef.current
       ) {
@@ -84,7 +102,13 @@ export const SmartCountdown = ({
 
   const intervalPlay = isActive && !finished ? interval : undefined;
 
-  useInterval(() => setTimeLeft((prev) => prev - interval), intervalPlay);
+  useInterval(() => {
+    if (!isActive) return;
+    
+    const elapsed = Date.now() - startTimeRef.current;
+    const newTimeLeft = Math.max(0, initialMsLeft.current - elapsed);
+    setTimeLeft(newTimeLeft);
+  }, intervalPlay);
 
   const { major, minor } = useMemo(() => {
     const times = timeLeftToTimeUnits(timeLeft);
