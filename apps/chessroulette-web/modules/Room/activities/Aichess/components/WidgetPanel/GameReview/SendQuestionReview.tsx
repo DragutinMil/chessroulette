@@ -43,14 +43,18 @@ ${JSON.stringify(normalizedReview, null, 2)}
     const token = await getToken();
 
     const response = await fetch(
-      process.env.NEXT_PUBLIC_API_WEB +
-        `ai_prompt_v2r?prompt=${question}&previous_response_id=${previusMessageId}&model=${model}`,
+      process.env.NEXT_PUBLIC_API_WEB + `ai_prompt_v2r`,
       {
-        method: 'GET',
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
+        body: JSON.stringify({
+          prompt: question,
+          previous_response_id: previusMessageId,
+          model: model,
+        }),
       }
     );
     if (!response.ok) {

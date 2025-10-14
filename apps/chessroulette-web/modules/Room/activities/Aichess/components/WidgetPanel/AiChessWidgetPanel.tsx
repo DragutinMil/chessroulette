@@ -672,7 +672,8 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
 
     const openViewSubscription = async () => {
       // setPopupSubscribe(true);
-      (window.location.href = 'https://test-app.outpostchess.com/subscribe', '_self');
+      (window.location.href = 'https://test-app.outpostchess.com/subscribe'),
+        '_self';
     };
     const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
     const setRatingEngine = async (category: number) => {
@@ -799,7 +800,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
       const data = await analyzePGN(currentChapterState.chessAiMode.fen, {
         onProgress: (progress: number) => setProgressReview(progress),
       });
-     // console.log('dats', data);
+      // console.log('dats', data);
 
       setReviewData(data);
       if (data) {
