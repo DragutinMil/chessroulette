@@ -288,7 +288,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
         const data = await SendQuestionReview(
           question,
           currentChapterState,
-        //  reviewData
+          reviewData
         );
         if (data) {
           setPulseDot(false);
