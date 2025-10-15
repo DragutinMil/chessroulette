@@ -46,8 +46,8 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
   const [lineTwo, setLinesTwo] = useState('');
   const [lineThree, setLineThree] = useState('');
   const [changes, setChanges] = useState(0);
-  const [depth, setDepth] = useState(10);
-  const [skill, setSkill] = useState(12);
+  const [depth, setDepth] = useState(11);
+  const [skill, setSkill] = useState(13);
   const [currentRating, setCurrentRating] = useState(2000);
 
   const [error, setError] = useState(false);
@@ -171,7 +171,7 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
       stockfish.postMessage(`setoption name MultiPV value 3`);
       stockfish.postMessage('setoption name Threads value 2');
       stockfish.postMessage('setoption name Hash value 64');
-      //  stockfish.postMessage(`setoption name Skill Level value ${skill}`);
+      stockfish.postMessage(`setoption name Skill Level value ${skill}`);
       stockfish.postMessage(`position fen ${fen}`);
       stockfish.postMessage(`go depth ${depth}`);
 

@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect ,useRef} from 'react';
 import { DistributiveOmit } from 'movex-core-util';
 import { useCurrentOrPrevMatchPlay, usePlayActionsDispatch } from './hooks';
 import {
@@ -14,7 +14,9 @@ export type PlayerContainerProps = DistributiveOmit<
 export const PlayContainer = (playBoardProps: PlayerContainerProps) => {
   const play = useCurrentOrPrevMatchPlay();
   const dispatch = usePlayActionsDispatch();
-  const moveSound = new Audio('/chessmove.mp3');
+  //const moveSound = new Audio('/chessmove.mp3');
+  const audioCtxRef = useRef<AudioContext | null>(null);
+  const bufferRef = useRef<AudioBuffer | null>(null);
   useEffect(() => {
     if (!play.hasGame) {
       return;
@@ -36,11 +38,44 @@ export const PlayContainer = (playBoardProps: PlayerContainerProps) => {
     }
   }, [play.game?.status, play.canUserPlay, dispatch]);
 
+ useEffect(() => {
+    // Kreiramo novi AudioContext
+    audioCtxRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+
+    const resumeAudio = () => {
+      if (audioCtxRef.current?.state === 'suspended') {
+        audioCtxRef.current.resume();
+      }
+    };
+
+    document.addEventListener('click', resumeAudio);
+    return () => document.removeEventListener('click', resumeAudio);
+  }, []);
+
   useEffect(() => {
+     console.log('koliko0')
+     const playSound = async () => {
+    
     if (play.game?.pgn !== '') {
       //sound on move
-      moveSound.play();
+       const audioCtx = audioCtxRef.current;
+    if (!audioCtx) return;
+
+    
+    if (!bufferRef.current) {
+      const res = await fetch('/chessmove.mp3');
+      const data = await res.arrayBuffer();
+      bufferRef.current = await audioCtx.decodeAudioData(data);
     }
+
+    const source = audioCtx.createBufferSource();
+    source.buffer = bufferRef.current!;
+    source.connect(audioCtx.destination);
+    source.start();
+  }
+}
+      playSound()
+    
   }, [play.game?.lastMoveBy]);
   return (
     <GameBoardContainer
