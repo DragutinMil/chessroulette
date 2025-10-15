@@ -125,6 +125,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
     const [hintCircle, setHintCircle] = useState(false);
     const [isFocusedInput, setIsFocusedInput] = useState(false);
     const [question, setQuestion] = useState('');
+    const [timeoutEnginePlay, setTimeoutEnginePlay] = useState(false);
     const [takeBakeShake, setTakeBakeShake] = useState(false);
     const [popupSubscribe, setPopupSubscribe] = useState(false);
     const [progressReview, setProgressReview] = useState(0);
@@ -419,6 +420,10 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
     useEffect(() => {
       if (currentChapterState.chessAiMode.mode == 'review') {
       }
+      if(currentChapterState.chessAiMode.mode == 'play'){
+      setTimeoutEnginePlay(true)
+
+      }
     }, [currentChapterState.chessAiMode.mode]);
     useEffect(() => {
       if (
@@ -603,6 +608,8 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
       setCurrentRatingEngine(rating);
     };
     const engineMove = (m: any, n?: boolean) => {
+       
+
       setStockfishMovesInfo(m);
       let fromChess = m.slice(0, 2);
       let toChess = m.slice(2, 4);
@@ -637,10 +644,10 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
           return;
         }
       }
-      if (m.length == 0) {
+      if (m.length == 0 || currentChapterState.chessAiMode.mode == 'review') {
         return;
       }
-
+      
       if (!isMyTurn && currentChapterState.chessAiMode.mode == 'play') {
         setHintCircle(false);
 
@@ -655,13 +662,19 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
             currentChapterState.orientation == 'w'
               ? { from: fromChess, to: toChess, promoteTo: 'q' }
               : { from: fromChess, to: toChess, promoteTo: 'Q' };
-          setTimeout(() => onPuzzleMove(n), 1000);
+          setTimeout(() => onPuzzleMove(n), 1500);
         } else {
           let n = { from: fromChess, to: toChess };
           if (currentChapterState.notation.history.length == 0) {
             setTimeout(() => onPuzzleMove(n), 1500);
           } else {
-            setTimeout(() => onPuzzleMove(n), 500);
+            if(timeoutEnginePlay){
+setTimeout(() => onPuzzleMove(n), 2500);
+setTimeoutEnginePlay(false)
+            }else{
+setTimeout(() => onPuzzleMove(n), 700);
+            }
+            
           }
         }
       }
@@ -773,6 +786,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
     };
 
     const takeBack = async () => {
+      setTimeoutEnginePlay(true)
       if (currentChapterState.notation.focusedIndex[0] !== -1) {
         if (currentChapterState.notation.focusedIndex[1] == 0) {
           onTakeBack([currentChapterState.notation.focusedIndex[0] - 1, 1]);
@@ -782,17 +796,17 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
       }
     };
     const playNext = async () => {
-      onMessage({
-        content: 'Fair play, touch-move it is.',
-        participantId: 'chatGPT123456',
-        idResponse:
-          currentChapterState.messages[currentChapterState.messages.length - 1]
-            .idResponse,
-      });
+      // onMessage({
+      //   content: 'Fair play, touch-move it is.',
+      //   participantId: 'chatGPT123456',
+      //   idResponse:
+      //     currentChapterState.messages[currentChapterState.messages.length - 1]
+      //       .idResponse,
+      // });
 
-      setTimeout(() => {
-        engineMove(lines[1].slice(0, 4), true);
-      }, 1000);
+      // setTimeout(() => {
+      //   engineMove(lines[1].slice(0, 4), true);
+      // }, 1000);
     };
 
     const analizeMatch = async () => {

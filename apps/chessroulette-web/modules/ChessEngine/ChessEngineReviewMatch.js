@@ -123,8 +123,8 @@ function getEvaluation(worker, fen) {
               bestEval = parseInt(scoreMatch[2], 10) / 100;
             } else if (scoreMatch[1] === 'mate') {
               const mateIn = parseInt(scoreMatch[2], 10);
-              bestEval = mateIn > 0 ? 100 : -100;
-            }
+  bestEval = mateIn > 0 ? 1000 - mateIn : -1000 - mateIn; // Mate closer = stronger eval
+}
           }
         } else if (scoreMatch) {
           // fallback ako nema multipv (ne bi trebalo da se desi jer smo ga setovali)
@@ -146,10 +146,10 @@ function getEvaluation(worker, fen) {
     worker.addEventListener('message', listener);
     worker.postMessage('setoption name Threads value 2');
     worker.postMessage('setoption name Hash value 64');
-    worker.postMessage('setoption name  setoption name MultiPV value 3');
-    worker.postMessage('ucinewgame');
-
+    worker.postMessage('setoption name MultiPV value 3');
+    //worker.postMessage('ucinewgame');
     worker.postMessage(`position fen ${fen}`);
-    worker.postMessage(`go depth 11`);
+    worker.postMessage(`go depth 12`);
   });
+  
 }
