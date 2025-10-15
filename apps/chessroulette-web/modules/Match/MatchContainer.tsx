@@ -88,6 +88,7 @@ export const MatchContainer = ({
                     [match.challenger.id]: match.challenger.displayName || 'Challenger',
                     [match.challengee.id]: match.challengee.displayName || 'Challengee',
                   }}
+
                   onSendMessage={(content) => {
                     dispatch((masterContext) => ({
                       type: 'play:sendMessage',
@@ -100,7 +101,16 @@ export const MatchContainer = ({
                   }}
                   //razmotriti uslove kada ce chat da bude disabled
                 //  disabled={!play.game || play.game.status === 'aborted' || play.game.status === 'complete'}
+                onToggleChat={(enabled) => {
+                  ({ isChatEnabled: enabled });
+                  console.log('Chat je', enabled ? 'uključen' : 'isključen');
+                }}
+              
                 />
+
+
+
+
               )}
             </div>
 
