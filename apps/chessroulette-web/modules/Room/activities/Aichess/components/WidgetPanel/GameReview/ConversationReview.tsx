@@ -109,7 +109,7 @@ const ConversationReview = ({
                         }}
                         disabled={disableButton}
                         size="md"
-                        className=" font-bold mt-2 px-1 mr-2 whitespace-nowrap px-4"
+                        className="bg-green-600  text-black font-bold mt-2 px-1 mr-2 whitespace-nowrap px-4"
                       >
                         Game Review
                       </ButtonGreen>
@@ -149,21 +149,8 @@ const ConversationReview = ({
                 <div className="w-9 h-9 rounded-full items-center flex overflow-hidden ">
                   <Image src={greenLogo} alt="outpost" />
                 </div>
-                {currentChapterState.messages.length == 1 ? (
-                  progressReview == 0 ? (
-                    <div className="max-w-xs  mr-4 max-w-[80%]  text-white  rounded-xl  py-2 text-sm px-4">
-                      <div className="flex items-center pt-2 space-x-1">
-                        <span className="w-2 h-2 bg-[#D9D9D9]/20 rounded-full animate-bounce [animation-delay:-0.3s]"></span>
-                        <span className="w-2 h-2 bg-[#D9D9D9]/20 rounded-full animate-bounce [animation-delay:-0.15s]"></span>
-                        <span className="w-2 h-2 bg-[#D9D9D9]/20 rounded-full animate-bounce"></span>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="ml-4 text-white text-bold">
-                      {progressReview.toFixed(0)}%
-                    </div>
-                  )
-                ) : (
+                {/* {currentChapterState.messages.length == 1 ? ( */}
+                {progressReview == 0 ? (
                   <div className="max-w-xs  mr-4 max-w-[80%]  text-white  rounded-xl  py-2 text-sm px-4">
                     <div className="flex items-center pt-2 space-x-1">
                       <span className="w-2 h-2 bg-[#D9D9D9]/20 rounded-full animate-bounce [animation-delay:-0.3s]"></span>
@@ -171,7 +158,20 @@ const ConversationReview = ({
                       <span className="w-2 h-2 bg-[#D9D9D9]/20 rounded-full animate-bounce"></span>
                     </div>
                   </div>
+                ) : (
+                  <div className="ml-4 text-white text-bold">
+                    {progressReview.toFixed(0)}%
+                  </div>
                 )}
+                {/* ) : (
+                  <div className="max-w-xs  mr-4 max-w-[80%]  text-white  rounded-xl  py-2 text-sm px-4">
+                    <div className="flex items-center pt-2 space-x-1">
+                      <span className="w-2 h-2 bg-[#D9D9D9]/20 rounded-full animate-bounce [animation-delay:-0.3s]"></span>
+                      <span className="w-2 h-2 bg-[#D9D9D9]/20 rounded-full animate-bounce [animation-delay:-0.15s]"></span>
+                      <span className="w-2 h-2 bg-[#D9D9D9]/20 rounded-full animate-bounce"></span>
+                    </div>
+                  </div>
+                )} */}
               </div>
             )}
           </div>
