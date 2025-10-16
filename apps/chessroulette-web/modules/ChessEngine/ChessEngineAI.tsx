@@ -40,15 +40,13 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
 }) => {
   const [stockfishOutput, setStockfishOutput] = useState('Initializing...');
   const [bestMove, setBestMove] = useState('');
-  const [stupidMove, setStupidMove] = useState(false);
-  const [GoodMove, setGoodMove] = useState(false);
   const [lineOne, setLineOne] = useState('');
   const [lineTwo, setLinesTwo] = useState('');
   const [lineThree, setLineThree] = useState('');
   const [changes, setChanges] = useState(0);
   const [depth, setDepth] = useState(11);
   const [skill, setSkill] = useState(13);
-  const [currentRating, setCurrentRating] = useState(2000);
+  const [currentRating, setCurrentRating] = useState(2100);
 
   const [error, setError] = useState(false);
 
@@ -97,7 +95,7 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
 
   useEffect(() => {
     if (typeof window === 'undefined') return; // Ensure it's client-side
-
+    console.log('ucitavanje error ili inicijacija');
     try {
       const stockfish = new Worker('/stockfish-17-single.js');
       stockfishRef.current = stockfish;
@@ -105,9 +103,10 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
         //console.log('event.data',event.data)
         if (event.data.startsWith('bestmove')) {
           setTimeout(() => {
-            setBestMove(event.data.split(' ')[1]), 1000;
-          });
+            setBestMove(event.data.split(' ')[1]);
+          }, 1000);
         }
+
         if (event.data.startsWith('info depth')) {
           if (event.data == 'info depth 0 score mate 0') {
             IsMate(true);
@@ -133,13 +132,15 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
                 const type = match[0];
                 const value = parseInt(match[2], 10);
                 if (type == 'score mate 1' || type == 'score mate 3') {
-                  //  console.log('ide mat 1 ili 3');
+                  console.log('ide mat 1 ili 3', type);
                   const parts = fen.split(' ');
+
                   parts[1] === 'b'
                     ? addGameEvaluation(50000)
                     : addGameEvaluation(-50000);
                 } else if (type === 'score mate 2') {
                   const parts = fen.split(' ');
+
                   parts[1] === 'b'
                     ? addGameEvaluation(-50000)
                     : addGameEvaluation(50000);
@@ -153,7 +154,7 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
               setLineThree(event.data.slice(pvIndex + 4));
             }
 
-            setChanges(changes + 1);
+            setChanges((prev) => prev + 1);
           }
         }
         setStockfishOutput(event.data);
@@ -165,15 +166,15 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
         setError(true);
       };
       // Send UCI command to initialize Stockfish
-
-      stockfish.postMessage(`isready`);
-
-      stockfish.postMessage(`setoption name MultiPV value 3`);
-      stockfish.postMessage('setoption name Threads value 2');
-      stockfish.postMessage('setoption name Hash value 64');
-      stockfish.postMessage(`setoption name Skill Level value ${skill}`);
-      stockfish.postMessage(`position fen ${fen}`);
-      stockfish.postMessage(`go depth ${depth}`);
+      setTimeout(() => {
+        stockfish.postMessage(`isready`);
+        stockfish.postMessage(`setoption name MultiPV value 3`);
+        stockfish.postMessage('setoption name Threads value 2');
+        stockfish.postMessage('setoption name Hash value 64');
+        stockfish.postMessage(`setoption name Skill Level value ${skill}`);
+        stockfish.postMessage(`position fen ${fen}`);
+        stockfish.postMessage(`go depth ${depth}`);
+      }, 2000);
 
       //  return () => stockfish.terminate(); // Cleanup on unmount
     } catch (error) {
@@ -183,6 +184,7 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
   }, [error]);
 
   useEffect(() => {
+    console.log('potez');
     // console.log('stockfishRef.current',stockfishRef.current)
     if (stockfishRef.current) {
       stockfishRef.current.onmessage = (event) => {
@@ -192,13 +194,17 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
             setBestMove(event.data.split(' ')[1]), 1000;
           });
         }
+
         if (event.data.startsWith('info depth')) {
           if (event.data == 'info depth 0 score mate 0') {
             IsMate(true);
+            console.log('event.data', event.data);
             const parts = fen.split(' ');
-            parts[1] === 'w'
-              ? addGameEvaluation(50000)
-              : addGameEvaluation(-50000);
+            // console.log('parts',parts)
+            (parts[1] === 'w' && orientation === 'w') ||
+            (parts[1] === 'b' && orientation === 'b')
+              ? addGameEvaluation(-50000)
+              : addGameEvaluation(50000);
           }
           //console.log('sta',event.data)
           if (event.data.startsWith(`info depth ${depth}`)) {
@@ -219,13 +225,18 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
                 if (type == 'score mate 1' || type == 'score mate 3') {
                   //  console.log('ide mat 1 ili 3');
                   const parts = fen.split(' ');
-                  parts[1] === 'b'
+
+                  (parts[1] === 'w' && orientation === 'w') ||
+                  (parts[1] === 'b' && orientation === 'b')
                     ? addGameEvaluation(50000)
                     : addGameEvaluation(-50000);
                 } else if (type === 'score mate 2') {
                   const parts = fen.split(' ');
-                  parts[1] === 'b'
-                    ? addGameEvaluation(-50000)
+                  console.log('ide mat 2', parts);
+                  (parts[1] === 'w' && orientation === 'w') ||
+                  (parts[1] === 'b' && orientation === 'b')
+                    ? // (parts[1] === 'w' && orientation==='b') || (parts[1] === 'b' && orientation==='w')
+                      addGameEvaluation(-50000)
                     : addGameEvaluation(50000);
                 } else {
                   const score = isMyTurn ? value : -1 * value;
@@ -250,13 +261,11 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
       };
       // Send UCI command to initialize Stockfish
 
-      stockfishRef.current.postMessage(`isready`);
-
-      stockfishRef.current.postMessage(`setoption name MultiPV value 3`);
-      stockfishRef.current.postMessage('setoption name Threads value 2');
-      stockfishRef.current.postMessage('setoption name Hash value 64');
       stockfishRef.current.postMessage(`position fen ${fen}`);
       stockfishRef.current.postMessage(`go depth ${depth}`);
+      stockfishRef.current.postMessage(
+        `setoption name Skill Level value ${skill}`
+      );
     }
   }, [fen]);
 

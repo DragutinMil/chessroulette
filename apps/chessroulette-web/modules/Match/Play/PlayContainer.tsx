@@ -1,4 +1,4 @@
-import { useEffect ,useRef} from 'react';
+import { useEffect, useRef } from 'react';
 import { DistributiveOmit } from 'movex-core-util';
 import { useCurrentOrPrevMatchPlay, usePlayActionsDispatch } from './hooks';
 import {
@@ -38,9 +38,10 @@ export const PlayContainer = (playBoardProps: PlayerContainerProps) => {
     }
   }, [play.game?.status, play.canUserPlay, dispatch]);
 
- useEffect(() => {
+  useEffect(() => {
     // Kreiramo novi AudioContext
-    audioCtxRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+    audioCtxRef.current = new (window.AudioContext ||
+      (window as any).webkitAudioContext)();
 
     const resumeAudio = () => {
       if (audioCtxRef.current?.state === 'suspended') {
@@ -53,29 +54,26 @@ export const PlayContainer = (playBoardProps: PlayerContainerProps) => {
   }, []);
 
   useEffect(() => {
-     console.log('koliko0')
-     const playSound = async () => {
-    
-    if (play.game?.pgn !== '') {
-      //sound on move
-       const audioCtx = audioCtxRef.current;
-    if (!audioCtx) return;
+    console.log('koliko0');
+    const playSound = async () => {
+      if (play.game?.pgn !== '') {
+        //sound on move
+        const audioCtx = audioCtxRef.current;
+        if (!audioCtx) return;
 
-    
-    if (!bufferRef.current) {
-      const res = await fetch('/chessmove.mp3');
-      const data = await res.arrayBuffer();
-      bufferRef.current = await audioCtx.decodeAudioData(data);
-    }
+        if (!bufferRef.current) {
+          const res = await fetch('/chessmove.mp3');
+          const data = await res.arrayBuffer();
+          bufferRef.current = await audioCtx.decodeAudioData(data);
+        }
 
-    const source = audioCtx.createBufferSource();
-    source.buffer = bufferRef.current!;
-    source.connect(audioCtx.destination);
-    source.start();
-  }
-}
-      playSound()
-    
+        const source = audioCtx.createBufferSource();
+        source.buffer = bufferRef.current!;
+        source.connect(audioCtx.destination);
+        source.start();
+      }
+    };
+    playSound();
   }, [play.game?.lastMoveBy]);
   return (
     <GameBoardContainer
