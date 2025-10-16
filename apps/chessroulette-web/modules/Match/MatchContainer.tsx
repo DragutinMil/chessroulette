@@ -1,5 +1,5 @@
 import { DispatchOf, DistributivePick } from '@xmatter/util-kit';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { GameNotationWidget } from '@app/modules/Game/widgets';
 import { UserId } from '@app/modules/User';
 import { ResizableDesktopLayout } from '@app/templates/ResizableDesktopLayout';
@@ -35,8 +35,50 @@ export const MatchContainer = ({
   dispatch,
   ...boardProps
 }: Props) => {
-  const [activeWidget, setActiveWidget] = useState<'chat' | 'camera'>('camera');
+  const [activeWidget, setActiveWidget] = useState<'chat' | 'camera'>(() => {
+    const savedWidget = localStorage.getItem('chessroulette-active-widget');
+    return (savedWidget === 'chat' || savedWidget === 'camera') ? savedWidget : 'camera';
+  });
+
+  // Initialize chat state from localStorage
+  const [isChatEnabled, setIsChatEnabled] = useState(() => {
+    const savedState = localStorage.getItem('chessroulette-chat-enabled');
+    return savedState === null ? true : savedState === 'true';
+  });
+
   const play = useCurrentOrPrevMatchPlay();
+
+  useEffect(() => {
+    localStorage.setItem('chessroulette-active-widget', activeWidget);
+  }, [activeWidget]);
+
+  // Save chat state to localStorage when it changes
+  useEffect(() => {
+    localStorage.setItem('chessroulette-chat-enabled', isChatEnabled.toString());
+  }, [isChatEnabled]);
+
+  // Dispatch chat state changes to Movex
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      dispatch((masterContext) => ({
+        type: 'play:updateChatState',
+        payload: {
+          userId,
+          isChatEnabled,
+          timestamp: masterContext.requestAt(),
+        },
+      }));
+    }, 100);
+
+    return () => clearTimeout(timeoutId);
+  }, [isChatEnabled, userId, dispatch]);
+
+  const otherPlayerChatEnabled = useMemo(() => {
+    const otherPlayer = match.challenger.id === userId 
+      ? match.challengee 
+      : match.challenger;
+    return otherPlayer.isChatEnabled !== false;  // default to true if undefined
+  }, [match.challenger, match.challengee, userId]);
 
   return (
     <MatchProvider match={match} userId={userId} dispatch={dispatch}>
@@ -60,59 +102,54 @@ export const MatchContainer = ({
               </div>
             </div>
 
-            {/* Widget Controls */}
             <div className="flex gap-2">
-              <ButtonGreen
-                onClick={() => setActiveWidget('camera')}
-                className={`flex-1 ${activeWidget === 'camera' ? '' : 'opacity-50'}`}
-              >
-                Camera
-              </ButtonGreen>
-              <ButtonGreen
-                onClick={() => setActiveWidget('chat')}
-                className={`flex-1 ${activeWidget === 'chat' ? '' : 'opacity-50'}`}
-              >
-                Chat
-              </ButtonGreen>
-            </div>
+        <ButtonGreen
+          onClick={() => setActiveWidget('camera')}
+          className={`flex-1 ${activeWidget === 'camera' ? '' : 'opacity-50'}`}
+        >
+          Camera
+        </ButtonGreen>
+        <ButtonGreen
+          onClick={() => setActiveWidget('chat')}
+          className={`flex-1 ${activeWidget === 'chat' ? '' : 'opacity-50'}`}
+        >
+          Chat
+        </ButtonGreen>
+      </div>
 
-            {/* Widget Container */}
-            <div className="w-full h-[300px] overflow-hidden rounded-lg shadow-2xl">
-              {activeWidget === 'camera' ? (
-                <PeerToPeerCameraWidget />
-              ) : (
-                <ChatWidget
-                  messages={match.messages || []}
-                  currentUserId={userId}
-                  playerNames={{
-                    [match.challenger.id]: match.challenger.displayName || 'Challenger',
-                    [match.challengee.id]: match.challengee.displayName || 'Challengee',
-                  }}
-
-                  onSendMessage={(content) => {
-                    dispatch((masterContext) => ({
-                      type: 'play:sendMessage',
-                      payload: {
-                        senderId: userId,
-                        content,
-                        timestamp: masterContext.requestAt(),
-                      },
-                    }));
-                  }}
-                  //razmotriti uslove kada ce chat da bude disabled
-                //  disabled={!play.game || play.game.status === 'aborted' || play.game.status === 'complete'}
-                onToggleChat={(enabled) => {
-                  ({ isChatEnabled: enabled });
-                  console.log('Chat je', enabled ? 'uključen' : 'isključen');
-                }}
-              
-                />
-
-
-
-
-              )}
-            </div>
+      <div className="w-full h-[300px] overflow-hidden rounded-lg shadow-2xl">
+        {activeWidget === 'camera' ? (
+          <PeerToPeerCameraWidget />
+        ) : (
+          <ChatWidget
+            messages={match.messages || []}
+            currentUserId={userId}
+            playerNames={{
+              [match.challenger.id]: match.challenger.displayName || 'Challenger',
+              [match.challengee.id]: match.challengee.displayName || 'Challengee',
+            }}
+            onSendMessage={(content) => {
+              dispatch((masterContext) => ({
+                type: 'play:sendMessage',
+                payload: {
+                  senderId: userId,
+                  content,
+                  timestamp: masterContext.requestAt(),
+                },
+              }));
+            }}
+           // disabled={!play.game || play.game.status === 'aborted' || play.game.status === 'complete'}
+            onToggleChat={(enabled) => {
+              setIsChatEnabled(enabled);
+            }}
+            otherPlayerChatEnabled={
+              match.challenger.id === userId 
+                ? match.challengee.isChatEnabled !== false 
+                : match.challenger.isChatEnabled !== false
+            }
+          />
+        )}
+      </div>
 
             <div className="bg-op-widget pl-2 pr-2 pt-2 pb-2 md:p-3 flex flex-col gap-2 md:flex-1 min-h-0 rounded-lg shadow-2xl md:overflow-y-scroll">
               <GameNotationWidget />
@@ -120,6 +157,7 @@ export const MatchContainer = ({
             </div>
           </div>
         }
+        
       />
     </MatchProvider>
   );

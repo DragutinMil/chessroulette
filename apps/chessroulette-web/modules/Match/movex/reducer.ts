@@ -96,6 +96,26 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
     };
   }
 
+  if (action.type === 'play:updateChatState') {
+    const { userId, isChatEnabled } = action.payload;
+    
+    // Only update if the state would actually change
+    const player = prev.challenger.id === userId ? prev.challenger : prev.challengee;
+    if (player.isChatEnabled === isChatEnabled) {
+      return prev; // No change needed
+    }
+  
+    return {
+      ...prev,
+      challenger: prev.challenger.id === userId 
+        ? { ...prev.challenger, isChatEnabled }
+        : prev.challenger,
+      challengee: prev.challengee.id === userId
+        ? { ...prev.challengee, isChatEnabled }
+        : prev.challengee,
+    };
+  }
+
   //OFFER REMATCH - here to effect completed matches
   if (action.type === 'play:sendOffer') {
     console.log('rematch', prev);
