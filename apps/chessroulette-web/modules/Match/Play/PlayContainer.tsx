@@ -14,9 +14,14 @@ export type PlayerContainerProps = DistributiveOmit<
 export const PlayContainer = (playBoardProps: PlayerContainerProps) => {
   const play = useCurrentOrPrevMatchPlay();
   const dispatch = usePlayActionsDispatch();
-  //const moveSound = new Audio('/chessmove.mp3');
-  const audioCtxRef = useRef<AudioContext | null>(null);
-  const bufferRef = useRef<AudioBuffer | null>(null);
+
+  const moveAudioRef = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    moveAudioRef.current = new Audio('/chessmove.mp3');
+  }, []);
+  
+
   useEffect(() => {
     if (!play.hasGame) {
       return;
@@ -39,42 +44,20 @@ export const PlayContainer = (playBoardProps: PlayerContainerProps) => {
   }, [play.game?.status, play.canUserPlay, dispatch]);
 
   useEffect(() => {
-    // Kreiramo novi AudioContext
-    audioCtxRef.current = new (window.AudioContext ||
-      (window as any).webkitAudioContext)();
 
-    const resumeAudio = () => {
-      if (audioCtxRef.current?.state === 'suspended') {
-        audioCtxRef.current.resume();
+    if (play.game?.pgn !== '' && moveAudioRef.current) {
+      // Resetujemo zvuk ako je već završio
+      if (moveAudioRef.current.ended) {
+        moveAudioRef.current.currentTime = 0;
       }
-    };
+      // Pokušavamo da pustimo zvuk sa error handlingom
+      moveAudioRef.current.play().catch((err) => {
+        console.warn('Failed to play move sound:', err);
+      });
+    }
 
-    document.addEventListener('click', resumeAudio);
-    return () => document.removeEventListener('click', resumeAudio);
-  }, []);
-
-  useEffect(() => {
-    console.log('koliko0');
-    const playSound = async () => {
-      if (play.game?.pgn !== '') {
-        //sound on move
-        const audioCtx = audioCtxRef.current;
-        if (!audioCtx) return;
-
-        if (!bufferRef.current) {
-          const res = await fetch('/chessmove.mp3');
-          const data = await res.arrayBuffer();
-          bufferRef.current = await audioCtx.decodeAudioData(data);
-        }
-
-        const source = audioCtx.createBufferSource();
-        source.buffer = bufferRef.current!;
-        source.connect(audioCtx.destination);
-        source.start();
-      }
-    };
-    playSound();
   }, [play.game?.lastMoveBy]);
+  
   return (
     <GameBoardContainer
       {...(play?.canUserPlay
