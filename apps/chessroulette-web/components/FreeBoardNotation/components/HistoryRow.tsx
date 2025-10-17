@@ -97,7 +97,7 @@ export const HistoryRow = React.forwardRef<HTMLDivElement | null, RowProps>(
       >
         <div className={`flex ${className} ${shouldSplit && 'flex-col'}`}>
           <div id="header" className="flex flex-1 relative">
-            <Text className="flex-0 p-1 pr-2 cursor-pointer text-[14px] font-bold">
+            <Text className="flex-0  md:pr-3 pr-0 cursor-pointer text-[14px] font-bold pt-1.5 md:ml-0 ml-2">
               {moveCount}.
             </Text>
             <HistoryMove

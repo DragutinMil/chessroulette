@@ -983,6 +983,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
                               play();
                             }}
                             size="sm"
+                            className="max-w-[94px]"
                             disabled={
                               currentChapterState.messages[
                                 currentChapterState.messages.length - 1
@@ -1007,6 +1008,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
                               hint();
                             }}
                             size="sm"
+                            className="max-w-[94px]"
                             disabled={
                               currentChapterState.messages[
                                 currentChapterState.messages.length - 1
@@ -1043,7 +1045,9 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
                               currentChapterState.chessAiMode.mode == 'puzzle'
                             }
                             size="sm"
-                            className={takeBakeShake ? 'animate-shake' : ''}
+                            className={`${
+                              takeBakeShake ? 'animate-shake' : ''
+                            } max-w-[94px]`}
                           >
                             Take Back
                           </ButtonGreen>
@@ -1060,6 +1064,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
                               puzzles();
                             }}
                             size="sm"
+                            className="max-w-[94px]"
                             disabled={currentChapterState.messages[
                               currentChapterState.messages.length - 1
                             ]?.participantId.includes('sales')}
@@ -1210,11 +1215,11 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
                       height: isMobile
                         ? currentChapterState.chessAiMode.mode == 'puzzle'
                           ? 'calc(100% - 600px)'
-                          : '300px'
+                          : '52px'
                         : currentChapterState.chessAiMode.mode === 'puzzle'
                         ? 'calc(100% - 600px)'
                         : 'calc(100% - 300px)',
-                      minHeight: '300px',
+                      minHeight: '52px',
                     }}
                     className={`
                       ${
@@ -1223,11 +1228,12 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
                           : 'hidden'
                       }  
                       
-                      md:block rounded-lg border border-conversation-100 p-4 overflow-scroll no-scrollbar 
+                      md:block rounded-lg border border-conversation-100 md:p-4 p-2 overflow-scroll no-scrollbar 
                     `}
                   >
                     <FreeBoardNotation
                       reviewData={reviewData}
+                      isMobile={isMobile}
                       history={currentChapterState.notation?.history}
                       playerNames={playerNames}
                       focusedIndex={currentChapterState.notation?.focusedIndex}

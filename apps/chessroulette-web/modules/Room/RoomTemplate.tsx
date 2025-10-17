@@ -38,7 +38,8 @@ export const RoomTemplate = (props: Props) => {
            ml-[max(env(safe-area-inset-left),0.5rem)]
            mr-[max(env(safe-area-inset-right),0.5rem)]
            mb-[max(env(safe-area-inset-right),2rem)] 
-           mt-2
+           md:mt-2
+           mt-0
            flex-1 relative overflow-hidden ${props.contentClassname}`}
         >
           <div className="absolute inset-0">{props.children}</div>

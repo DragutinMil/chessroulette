@@ -2,6 +2,8 @@ import React, { useEffect, useMemo, useRef } from 'react';
 import debounce from 'debounce';
 import useDebouncedEffect from 'use-debounced-effect';
 import { HistoryRow } from './HistoryRow';
+import { ChevronRightIcon, ChevronLeftIcon } from '@heroicons/react/16/solid';
+
 import {
   FBHHistory,
   FBHIndex,
@@ -15,6 +17,7 @@ export type ListProps = {
   onRefocus: (atIndex: FBHIndex) => void;
   onDelete: (atIndex: FBHIndex) => void;
   focusedIndex?: FBHIndex;
+  isMobile?: boolean;
   className?: string;
   rowClassName?: string;
   canDelete?: boolean;
@@ -37,6 +40,7 @@ const scrollIntoView = debounce((elm: HTMLDivElement) => {
 
 export const List: React.FC<ListProps> = ({
   history,
+  isMobile,
   focusedIndex,
   onRefocus,
   onDelete,
@@ -87,6 +91,46 @@ export const List: React.FC<ListProps> = ({
   const [focusedTurnIndex, focusedMovePosition, recursiveFocusedIndexes] =
     focusedIndex || [];
 
+  const backFocus = async () => {
+    if (focusedIndex) {
+      let moveNum;
+      let moveTurn;
+      if (focusedIndex[1] === 0 && focusedIndex[0] !== 0) {
+        moveNum = 1;
+        moveTurn = focusedIndex[0] - 1;
+        onRefocus([moveTurn, moveNum as any]);
+      }
+      if (focusedIndex[1] === 1) {
+        moveNum = 0;
+        moveTurn = focusedIndex[0];
+        onRefocus([moveTurn, moveNum as any]);
+      }
+    }
+  };
+  const forwardFocus = async () => {
+    if (focusedIndex) {
+      //console.log('history[history.length][1]',history[history.length][1])
+      console.log('history.length', history.length, focusedIndex[0] + 2);
+      //  history[history.length][1])
+      let moveNum;
+      let moveTurn;
+      if (
+        (focusedIndex[1] === 0 && history.length !== focusedIndex[0] + 1) ||
+        (history.length == focusedIndex[0] + 1 &&
+          history[history.length - 1]?.[1] !== undefined)
+      ) {
+        moveNum = 1;
+        moveTurn = focusedIndex[0];
+        onRefocus([moveTurn, moveNum as any]);
+      }
+
+      if (focusedIndex[1] === 1 && history.length > focusedIndex[0] + 1) {
+        moveNum = 0;
+        moveTurn = focusedIndex[0] + 1;
+        onRefocus([moveTurn, moveNum as any]);
+      }
+    }
+  };
   const nextValidMoveAndIndex = useMemo<[FBHMove, FBHIndex] | undefined>(() => {
     if (!focusedIndex) {
       return undefined;
@@ -108,11 +152,11 @@ export const List: React.FC<ListProps> = ({
   }, [history, focusedIndex]);
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="flex  mb-2  ">
+    <div className="flex md:flex-col flex-row h-full ">
+      <div className="hidden md:flex   mb-2  ">
         <p className="text-[#8F8F90] text-[10px] font-bold">MOVE</p>
         <div className="flex  w-full">
-          <p className="text-[#8F8F90] text-[10px] font-bold w-[51%] ml-[7px] ">
+          <p className="text-[#8F8F90] md: text-[10px] font-bold w-[51%] ml-[7px] ">
             WHITE
             {playerNames && (
               <span className="text-white">&nbsp; {playerNames[0]}</span>
@@ -127,19 +171,18 @@ export const List: React.FC<ListProps> = ({
           </p>
         </div>
       </div>
-      <div className=" flex-1 overflow-scroll no-scrollbar ">
-        {/* */}
-        {/* height:isMobile?
-                              currentChapterState.chessAiMode.mode == 'puzzle'
-                                ? 'calc(100% - 600px)'
-                                : '300px'
-                                 : currentChapterState.chessAiMode.mode === "puzzle"
-                                ? "calc(100% - 600px)"
-                                : "calc(100% - 300px)",
-                                minHeight: "300px" */}
 
+      <ChevronLeftIcon
+        onClick={() => backFocus()}
+        className="md:hidden flex -translate-x-1 scale-90"
+      />
+      <div
+        className=" flex-1  overflow-x-scroll no-scrollbar "
+        style={{ width: isMobile ? 'calc(100vw - 3rem - 68px)' : '' }}
+      >
         <div
-          className={`${className} overflow-scroll  no-scrollbar`}
+          className={`${className} `}
+          style={{ flexDirection: isMobile ? 'row' : 'column' }}
           ref={(e) => (containerElementRef.current = e)}
         >
           {history.map((historyTurn, historyTurnIndex) => {
@@ -201,6 +244,10 @@ export const List: React.FC<ListProps> = ({
           })}
         </div>
       </div>
+      <ChevronRightIcon
+        onClick={() => forwardFocus()}
+        className="md:hidden flex translate-x-1 scale-90"
+      />
     </div>
   );
 };
