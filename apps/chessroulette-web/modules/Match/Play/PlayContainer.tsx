@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { DistributiveOmit } from 'movex-core-util';
 import { useCurrentOrPrevMatchPlay, usePlayActionsDispatch } from './hooks';
 import {
@@ -14,7 +14,12 @@ export type PlayerContainerProps = DistributiveOmit<
 export const PlayContainer = (playBoardProps: PlayerContainerProps) => {
   const play = useCurrentOrPrevMatchPlay();
   const dispatch = usePlayActionsDispatch();
-  const moveSound = new Audio('/chessmove.mp3');
+  const moveAudioRef = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    moveAudioRef.current = new Audio('/chessmove.mp3');
+  }, []);
+  
   useEffect(() => {
     if (!play.hasGame) {
       return;
@@ -37,11 +42,18 @@ export const PlayContainer = (playBoardProps: PlayerContainerProps) => {
   }, [play.game?.status, play.canUserPlay, dispatch]);
 
   useEffect(() => {
-    if (play.game?.pgn !== '') {
-      //sound on move
-      moveSound.play();
+    if (play.game?.pgn !== '' && moveAudioRef.current) {
+      // Resetujemo zvuk ako je već završio
+      if (moveAudioRef.current.ended) {
+        moveAudioRef.current.currentTime = 0;
+      }
+      // Pokušavamo da pustimo zvuk sa error handlingom
+      moveAudioRef.current.play().catch((err) => {
+        console.warn('Failed to play move sound:', err);
+      });
     }
   }, [play.game?.lastMoveBy]);
+  
   return (
     <GameBoardContainer
       {...(play?.canUserPlay
