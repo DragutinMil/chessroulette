@@ -14,12 +14,14 @@ export type PlayerContainerProps = DistributiveOmit<
 export const PlayContainer = (playBoardProps: PlayerContainerProps) => {
   const play = useCurrentOrPrevMatchPlay();
   const dispatch = usePlayActionsDispatch();
+
   const moveAudioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     moveAudioRef.current = new Audio('/chessmove.mp3');
   }, []);
   
+
   useEffect(() => {
     if (!play.hasGame) {
       return;
@@ -42,6 +44,7 @@ export const PlayContainer = (playBoardProps: PlayerContainerProps) => {
   }, [play.game?.status, play.canUserPlay, dispatch]);
 
   useEffect(() => {
+
     if (play.game?.pgn !== '' && moveAudioRef.current) {
       // Resetujemo zvuk ako je već završio
       if (moveAudioRef.current.ended) {
@@ -52,6 +55,7 @@ export const PlayContainer = (playBoardProps: PlayerContainerProps) => {
         console.warn('Failed to play move sound:', err);
       });
     }
+
   }, [play.game?.lastMoveBy]);
   
   return (

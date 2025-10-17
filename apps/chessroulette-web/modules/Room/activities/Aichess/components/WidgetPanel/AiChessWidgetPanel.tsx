@@ -121,10 +121,10 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
     const widgetPanelTabsNav = useWidgetPanelTabsNavAsSearchParams();
     const updateableSearchParams = useUpdateableSearchParams();
     const [pulseDot, setPulseDot] = useState(false);
-    const [answer, setAnswer] = useState(null);
     const [hintCircle, setHintCircle] = useState(false);
     const [isFocusedInput, setIsFocusedInput] = useState(false);
     const [question, setQuestion] = useState('');
+    const [timeoutEnginePlay, setTimeoutEnginePlay] = useState(false);
     const [takeBakeShake, setTakeBakeShake] = useState(false);
     const [popupSubscribe, setPopupSubscribe] = useState(false);
     const [progressReview, setProgressReview] = useState(0);
@@ -164,6 +164,95 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
     const puzzleMode = currentChapterState.chessAiMode.mode === 'puzzle';
     //console.log('Object.keys(currentChapterState.arrowsMap).length == 0',Object.keys(currentChapterState.arrowsMap).length)
 
+    const checkAnswerGPT = async (data: any) => {
+      if (
+        data.puzzle &&
+        data.puzzle.fen &&
+        ChessFENBoard.validateFenString(data.puzzle.fen).ok
+      ) {
+        // console.log('fen ai 2', data.fen);
+        const changeOrientation =
+          currentChapterState.orientation === data.puzzle.fen.split(' ')[1];
+        const userRating =
+          currentChapterState.chessAiMode.userPuzzleRating > 0
+            ? currentChapterState.chessAiMode.userPuzzleRating
+            : data.puzzle.user_puzzle_rating;
+
+        addChessAi({
+          mode: 'puzzle',
+          moves: data.puzzle.solution,
+          movesCount: data.puzzle.solution.length / 2,
+          badMoves: 0,
+          goodMoves: 0,
+          orientationChange: changeOrientation,
+          puzzleRatting: currentChapterState.chessAiMode.puzzleRatting,
+          userPuzzleRating: userRating,
+          ratingChange: currentChapterState.chessAiMode.ratingChange,
+          puzzleId: data.puzzle.puzzle_id,
+          prevUserPuzzleRating: userRating,
+          fen: data.puzzle.fen,
+          responseId: '',
+          message: '',
+        });
+        setTimeout(() => {
+          const from = data.puzzle.solution[0].slice(0, 2);
+          const to = data.puzzle.solution[0].slice(2, 4);
+          const m = data.puzzle.solution[0];
+
+          if (
+            (m.length == 5 &&
+              (m.slice(-1) == 'q' ||
+                m.slice(-1) == 'r' ||
+                m.slice(-1) == 'k')) ||
+            m.slice(-1) == 'b'
+          ) {
+            let n =
+              currentChapterState.orientation == 'w'
+                ? { from: from, to: to, promoteTo: 'q' }
+                : { from: from, to: to, promoteTo: 'Q' };
+            setTimeout(() => onPuzzleMove(n), 800);
+          } else {
+            const first_move = { from: from, to: to };
+            setTimeout(() => onPuzzleMove(first_move), 800);
+          }
+        }, 1000);
+
+        //FIRST MOVE
+      } else if (
+        data.answer.fen &&
+        ChessFENBoard.validateFenString(data.answer.fen).ok
+      ) {
+        const changeOrientation =
+          currentChapterState.orientation === data.answer.fen.split(' ')[1];
+        addChessAi({
+          ...currentChapterState.chessAiMode,
+          mode: 'play',
+          moves: [],
+          movesCount: 0,
+          badMoves: 0,
+          goodMoves: 0,
+          orientationChange: changeOrientation,
+          fen: data.answer.fen,
+          responseId: data.id,
+          message: data.answer.text,
+        });
+      } else {
+        if (data?.puzzle?.error == 'Daily limit reached!') {
+          onMessage({
+            content: data.answer.text,
+            participantId: 'chatGPT123456sales',
+            idResponse: data.id,
+          });
+        } else {
+          onMessage({
+            content: data.answer.text,
+            participantId: 'chatGPT123456',
+            idResponse: data.id,
+          });
+        }
+      }
+    };
+
     const addQuestion = async (question: string) => {
       const url = new URL(window.location.href);
       const userId = url.searchParams.get('userId');
@@ -196,94 +285,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
 
           setRatingBotEngine(newRating);
         }
-        setAnswer(data.answer.text);
-
-        if (
-          data.puzzle &&
-          data.puzzle.fen &&
-          ChessFENBoard.validateFenString(data.puzzle.fen).ok
-        ) {
-          // console.log('fen ai 2', data.fen);
-          const changeOrientation =
-            currentChapterState.orientation === data.puzzle.fen.split(' ')[1];
-          const userRating =
-            currentChapterState.chessAiMode.userPuzzleRating > 0
-              ? currentChapterState.chessAiMode.userPuzzleRating
-              : data.puzzle.user_puzzle_rating;
-
-          addChessAi({
-            mode: 'puzzle',
-            moves: data.puzzle.solution,
-            movesCount: data.puzzle.solution.length / 2,
-            badMoves: 0,
-            goodMoves: 0,
-            orientationChange: changeOrientation,
-            puzzleRatting: currentChapterState.chessAiMode.puzzleRatting,
-            userPuzzleRating: userRating,
-            ratingChange: currentChapterState.chessAiMode.ratingChange,
-            puzzleId: data.puzzle.puzzle_id,
-            prevUserPuzzleRating: userRating,
-            fen: data.puzzle.fen,
-            responseId: '',
-            message: '',
-          });
-          setTimeout(() => {
-            const from = data.puzzle.solution[0].slice(0, 2);
-            const to = data.puzzle.solution[0].slice(2, 4);
-            const m = data.puzzle.solution[0];
-
-            if (
-              (m.length == 5 &&
-                (m.slice(-1) == 'q' ||
-                  m.slice(-1) == 'r' ||
-                  m.slice(-1) == 'k')) ||
-              m.slice(-1) == 'b'
-            ) {
-              let n =
-                currentChapterState.orientation == 'w'
-                  ? { from: from, to: to, promoteTo: 'q' }
-                  : { from: from, to: to, promoteTo: 'Q' };
-              setTimeout(() => onPuzzleMove(n), 800);
-            } else {
-              const first_move = { from: from, to: to };
-              setTimeout(() => onPuzzleMove(first_move), 800);
-            }
-          }, 1000);
-
-          //FIRST MOVE
-        } else if (
-          data.answer.fen &&
-          ChessFENBoard.validateFenString(data.answer.fen).ok
-        ) {
-          const changeOrientation =
-            currentChapterState.orientation === data.answer.fen.split(' ')[1];
-          addChessAi({
-            ...currentChapterState.chessAiMode,
-            mode: 'play',
-            moves: [],
-            movesCount: 0,
-            badMoves: 0,
-            goodMoves: 0,
-            orientationChange: changeOrientation,
-            fen: data.answer.fen,
-            responseId: data.id,
-            message: data.answer.text,
-          });
-        } else {
-          if (data?.puzzle?.error == 'Daily limit reached!') {
-            onMessage({
-              content: data.answer.text,
-              participantId: 'chatGPT123456sales',
-              idResponse: data.id,
-            });
-          } else {
-            onMessage({
-              content: data.answer.text,
-              participantId: 'chatGPT123456',
-              idResponse: data.id,
-            });
-          }
-        }
+        checkAnswerGPT(data);
       } else {
         const data = await SendQuestionReview(
           question,
@@ -293,13 +295,13 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
         if (data) {
           setPulseDot(false);
         }
-        setAnswer(data.answer.text);
+        checkAnswerGPT(data);
 
-        onMessage({
-          content: data.answer.text,
-          participantId: 'chatGPT123456',
-          idResponse: data.id,
-        });
+        // onMessage({
+        //   content: data.answer.text,
+        //   participantId: 'chatGPT123456',
+        //   idResponse: data.id,
+        // });
       }
     };
     useEffect(() => {
@@ -419,6 +421,9 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
     useEffect(() => {
       if (currentChapterState.chessAiMode.mode == 'review') {
       }
+      if (currentChapterState.chessAiMode.mode == 'play') {
+        setTimeoutEnginePlay(true);
+      }
     }, [currentChapterState.chessAiMode.mode]);
     useEffect(() => {
       if (
@@ -524,7 +529,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
     //     puzzleId: 0,
     //     prevUserPuzzleRating: 0,
     //   });
-    //   setAnswer(null);
+
     //   const data = await getOpenings();
     //   const fullQuestion =
     //     data.name +
@@ -637,7 +642,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
           return;
         }
       }
-      if (m.length == 0) {
+      if (m.length == 0 || currentChapterState.chessAiMode.mode == 'review') {
         return;
       }
 
@@ -655,13 +660,18 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
             currentChapterState.orientation == 'w'
               ? { from: fromChess, to: toChess, promoteTo: 'q' }
               : { from: fromChess, to: toChess, promoteTo: 'Q' };
-          setTimeout(() => onPuzzleMove(n), 1000);
+          setTimeout(() => onPuzzleMove(n), 1500);
         } else {
           let n = { from: fromChess, to: toChess };
           if (currentChapterState.notation.history.length == 0) {
             setTimeout(() => onPuzzleMove(n), 1500);
           } else {
-            setTimeout(() => onPuzzleMove(n), 500);
+            if (timeoutEnginePlay) {
+              setTimeout(() => onPuzzleMove(n), 2500);
+              setTimeoutEnginePlay(false);
+            } else {
+              setTimeout(() => onPuzzleMove(n), 700);
+            }
           }
         }
       }
@@ -672,7 +682,8 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
 
     const openViewSubscription = async () => {
       // setPopupSubscribe(true);
-      (window.location.href = 'https://test-app.outpostchess.com/subscribe', '_self');
+      (window.location.href = 'https://test-app.outpostchess.com/subscribe'),
+        '_self';
     };
     const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
     const setRatingEngine = async (category: number) => {
@@ -721,6 +732,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
           });
         }
       }
+
       if (data.fen && ChessFENBoard.validateFenString(data.fen).ok) {
         // onQuickImport({ type: 'FEN', val: data.fen });
         const changeOrientation =
@@ -766,12 +778,13 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
           setTimeout(() => onPuzzleMove(first_move), 800);
         } else {
           const first_move = { from: from, to: to };
-          setTimeout(() => onPuzzleMove(first_move), 1000);
+          setTimeout(() => onPuzzleMove(first_move), 1500);
         }
       }
     };
 
     const takeBack = async () => {
+      setTimeoutEnginePlay(true);
       if (currentChapterState.notation.focusedIndex[0] !== -1) {
         if (currentChapterState.notation.focusedIndex[1] == 0) {
           onTakeBack([currentChapterState.notation.focusedIndex[0] - 1, 1]);
@@ -781,17 +794,16 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
       }
     };
     const playNext = async () => {
-      onMessage({
-        content: 'Fair play, touch-move it is.',
-        participantId: 'chatGPT123456',
-        idResponse:
-          currentChapterState.messages[currentChapterState.messages.length - 1]
-            .idResponse,
-      });
-
-      setTimeout(() => {
-        engineMove(lines[1].slice(0, 4), true);
-      }, 1000);
+      // onMessage({
+      //   content: 'Fair play, touch-move it is.',
+      //   participantId: 'chatGPT123456',
+      //   idResponse:
+      //     currentChapterState.messages[currentChapterState.messages.length - 1]
+      //       .idResponse,
+      // });
+      // setTimeout(() => {
+      //   engineMove(lines[1].slice(0, 4), true);
+      // }, 1000);
     };
 
     const analizeMatch = async () => {
@@ -799,11 +811,12 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
       const data = await analyzePGN(currentChapterState.chessAiMode.fen, {
         onProgress: (progress: number) => setProgressReview(progress),
       });
-     // console.log('dats', data);
+      // console.log('dats', data);
 
       setReviewData(data);
       if (data) {
         setPulseDot(false);
+        setProgressReview(0);
       }
 
       const analiticsReview = reviewAnalitics(data);
@@ -1076,6 +1089,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
                                 }}
                                 disabled={pulseDot || progressReview > 0}
                                 size="sm"
+                                className="bg-green-600 text-black"
                               >
                                 <p>Game Review</p>
                               </ButtonGreen>

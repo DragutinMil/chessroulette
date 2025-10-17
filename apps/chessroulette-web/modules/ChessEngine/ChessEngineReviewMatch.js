@@ -93,8 +93,12 @@ function getEvaluation(worker, fen) {
 
     const listener = (event) => {
       const line = event.data;
+      if (line.includes('mate 0')) {
+        const parts = fen.split(' ');
 
-      if (line.startsWith('info depth')) {
+        bestEval = 'w' ? -50000 : 50000;
+      }
+      if (line.startsWith('info depth 11')) {
         const scoreMatch = line.match(/score (cp|mate) (-?\d+)/);
         const multipvMatch = line.match(/multipv (\d+) .+ pv (.+)/);
 
@@ -122,8 +126,25 @@ function getEvaluation(worker, fen) {
             if (scoreMatch[1] === 'cp') {
               bestEval = parseInt(scoreMatch[2], 10) / 100;
             } else if (scoreMatch[1] === 'mate') {
+              console.log('scoreMatch', scoreMatch[2]);
               const mateIn = parseInt(scoreMatch[2], 10);
-              bestEval = mateIn > 0 ? 100 : -100;
+              console.log('mateIn', mateIn);
+              //  if (type == 'score mate 1' || type == 'score mate 3') {
+              //   //  console.log('ide mat 1 ili 3');
+              //   const parts = fen.split(' ');
+
+              //   parts[1] === 'w'
+              //     ? addGameEvaluation(50000)
+              //     : addGameEvaluation(-50000);
+              // } else if (type === 'score mate 2') {
+              //   const parts = fen.split(' ');
+              //    console.log('ide mat 2',parts);
+              //   parts[1] === 'b'
+              //     ? addGameEvaluation(-50000)
+              //     : addGameEvaluation(50000);
+              // }
+              //ovde proveriti dal se dobro menja za mate in 1,2,3
+              bestEval = mateIn > 0 ? 1000 - mateIn : -1000 - mateIn; // Mate closer = stronger eval
             }
           }
         } else if (scoreMatch) {
@@ -146,10 +167,9 @@ function getEvaluation(worker, fen) {
     worker.addEventListener('message', listener);
     worker.postMessage('setoption name Threads value 2');
     worker.postMessage('setoption name Hash value 64');
-    worker.postMessage('setoption name  setoption name MultiPV value 3');
-    worker.postMessage('ucinewgame');
-
+    worker.postMessage('setoption name MultiPV value 3');
+    //worker.postMessage('ucinewgame');
     worker.postMessage(`position fen ${fen}`);
-    worker.postMessage(`go depth 11`);
+    worker.postMessage(`go depth 12`);
   });
 }

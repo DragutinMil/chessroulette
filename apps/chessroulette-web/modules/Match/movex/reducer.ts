@@ -6,6 +6,8 @@ import { MatchActions, MatchState } from './types';
 import { initialMatchState } from './state';
 import { getMatchPlayerRoleById } from './util';
 import { GameOffer } from '@app/modules/Game';
+import { ChatMessage } from './types';
+
 export const reducer: MovexReducer<MatchState, MatchActions> = (
   prev: MatchState = initialMatchState,
   action: MatchActions
@@ -78,6 +80,41 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
   //     };
   //   }
   // }
+
+
+  if (action.type === 'play:sendMessage') {
+  
+    const newMessage: ChatMessage = {
+      senderId: action.payload.senderId,
+      content: action.payload.content,
+      timestamp: action.payload.timestamp,
+    };
+  
+    return {
+      ...prev,
+      messages: [...(prev.messages || []), newMessage], // <-- Dodajte || [] kao fallback
+    };
+  }
+
+  if (action.type === 'play:updateChatState') {
+    const { userId, isChatEnabled } = action.payload;
+    
+    // Only update if the state would actually change
+    const player = prev.challenger.id === userId ? prev.challenger : prev.challengee;
+    if (player.isChatEnabled === isChatEnabled) {
+      return prev; // No change needed
+    }
+  
+    return {
+      ...prev,
+      challenger: prev.challenger.id === userId 
+        ? { ...prev.challenger, isChatEnabled }
+        : prev.challenger,
+      challengee: prev.challengee.id === userId
+        ? { ...prev.challengee, isChatEnabled }
+        : prev.challengee,
+    };
+  }
 
   //OFFER REMATCH - here to effect completed matches
   if (action.type === 'play:sendOffer') {
