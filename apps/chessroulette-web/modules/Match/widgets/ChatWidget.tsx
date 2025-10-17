@@ -3,7 +3,6 @@ import { ChatMessage } from '@app/modules/Match/movex/types';
 import { Text } from '@app/components/Text';
 import { User } from '@app/modules/User';
 
-const CHAT_ENABLED_STORAGE_KEY = 'chessroulette-chat-enabled';
 
 type Props = {
   messages: ChatMessage[];
@@ -24,6 +23,8 @@ export const ChatWidget: React.FC<Props> = ({
   onToggleChat,
   otherPlayerChatEnabled = true,
 }) => {
+  const CHAT_ENABLED_STORAGE_KEY = `chessroulette-chat-enabled-${currentUserId}`;
+  
   const [lastDisabledMessages, setLastDisabledMessages] = useState<ChatMessage[]>(messages);
   const [inputValue, setInputValue] = useState('');
   const [unreadCount, setUnreadCount] = useState(0);  

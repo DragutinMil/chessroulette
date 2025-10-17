@@ -42,7 +42,7 @@ export const MatchContainer = ({
 
   // Initialize chat state from localStorage
   const [isChatEnabled, setIsChatEnabled] = useState(() => {
-    const savedState = localStorage.getItem('chessroulette-chat-enabled');
+    const savedState = localStorage.getItem(`chessroulette-chat-enabled-${userId}`);
     return savedState === null ? true : savedState === 'true';
   });
 
@@ -54,7 +54,7 @@ export const MatchContainer = ({
 
   // Save chat state to localStorage when it changes
   useEffect(() => {
-    localStorage.setItem('chessroulette-chat-enabled', isChatEnabled.toString());
+    localStorage.setItem(`chessroulette-chat-enabled-${userId}`, isChatEnabled.toString());
   }, [isChatEnabled]);
 
   // Dispatch chat state changes to Movex
