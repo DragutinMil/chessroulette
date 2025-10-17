@@ -15,6 +15,7 @@ export type FreeBoardNotationProps = {
   canDelete?: boolean;
   reviewData?: EvaluationMove[];
   playerNames?: Array<string>;
+  isMobile?: boolean;
 };
 
 /**
@@ -33,6 +34,7 @@ export const FreeBoardNotation: React.FC<FreeBoardNotationProps> = ({
   canDelete,
   reviewData,
   playerNames,
+  isMobile,
   containerClassName = '',
   className = '',
 }) => {
@@ -48,6 +50,7 @@ export const FreeBoardNotation: React.FC<FreeBoardNotationProps> = ({
     >
       {history.length > 0 ? (
         <List
+          isMobile={isMobile}
           history={history}
           playerNames={playerNames}
           focusedIndex={focusedIndex}
@@ -57,7 +60,7 @@ export const FreeBoardNotation: React.FC<FreeBoardNotationProps> = ({
           className={`flex flex-1 flex-col  ${className} ${
             canDelete === false ? 'hidden md:flex' : 'flex'
           }`}
-          rowClassName="border-b border-slate-800"
+          rowClassName={isMobile ? '' : 'border-b border-slate-800'}
           canDelete={canDelete}
         />
       ) : (

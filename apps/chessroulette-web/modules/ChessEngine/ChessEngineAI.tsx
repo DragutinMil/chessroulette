@@ -95,7 +95,7 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
 
   useEffect(() => {
     if (typeof window === 'undefined') return; // Ensure it's client-side
-    console.log('ucitavanje error ili inicijacija');
+
     try {
       const stockfish = new Worker('/stockfish-17-single.js');
       stockfishRef.current = stockfish;

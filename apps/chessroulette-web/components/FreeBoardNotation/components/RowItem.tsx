@@ -2,6 +2,7 @@ import { MouseEvent } from 'react';
 import { Text } from '../../Text';
 import { ChessMoveSan } from '@xmatter/util-kit';
 import { VariantMenuContainer, VariantMenuProps } from './VariantMenu';
+import { isMobile } from '@app/modules/Room/activities/Aichess/util';
 
 type Props = {
   isFocused: boolean;
@@ -27,7 +28,9 @@ export const RowItem = ({
     onClick={onClick}
     onContextMenu={onContextMenu}
   >
-    <Text className={`text-[14px] font-bold `}>{san}</Text>
+    <Text className={`text-[14px] font-bold inline-block whitespace-nowrap `}>
+      {san}
+    </Text>
     {variantMenu && <VariantMenuContainer {...variantMenu} />}
   </div>
 );
