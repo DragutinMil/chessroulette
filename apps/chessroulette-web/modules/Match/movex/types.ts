@@ -10,6 +10,8 @@ export type MatchPlayer = {
 
   // Maybe this needs to come only on the client? In a MatchPlayerDisplay, but not be part of movex
   displayName?: string;
+  isChatEnabled?: boolean;  // Add this field
+
 };
 export type GameOffer = {
   // TODO: this should not be byPlayer but byColor, since inside the Game there is no notion of player but just of color
@@ -51,6 +53,7 @@ export type MatchState =
       endedGames: EndedGame[];
       gameInPlay: NotEndedGame | null;
       rematch?: Boolean;
+      messages: ChatMessage[];
       /**
        * This is the time allowed for one player to abort
        */
@@ -62,4 +65,19 @@ export type MatchState =
     } & MatchPlayersByRole)
   | null; // TODO: This should not be null, but another status
 
-export type MatchActions = PlayActions | Action<'match:startNewGame'>;
+export type MatchActions = PlayActions | Action<'match:startNewGame'>
+| {
+  type: 'play:updateChatState';
+  payload: {
+    userId: string;
+    isChatEnabled: boolean;
+    timestamp: number;
+  };
+};
+
+
+export type ChatMessage = {
+  senderId: User['id'];
+  content: string;
+  timestamp: number;
+};

@@ -11,6 +11,7 @@ export const createMatchState = (
   );
 
   return {
+    messages: [],
     status: 'pending',
     ...(params.type === 'bestOf'
       ? {
