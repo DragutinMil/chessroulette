@@ -961,9 +961,10 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
                       />
                     </div>
                   )}
-                  <div className="border bg-op-widget border-conversation-100 pb-2 px-2 md:px-4 md:pb-4 rounded-lg ">
+                  <div className="flex-1 border bg-op-widget border-conversation-100 pb-2 px-2 md:px-4 md:pb-4 rounded-lg ">
                     {currentChapterState.chessAiMode.mode !== 'review' ? (
-                      <div className="mt-4">
+                      <div className="mt-4 ">
+                       
                         <Conversation
                           currentChapterState={currentChapterState}
                           openViewSubscription={openViewSubscription}
@@ -975,6 +976,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
                           hint={hint}
                           userData={userData}
                         />
+                       
 
                         <div className="flex md:my-[20px] justify-around  sitems-center gap-3 my-[14px]">
                           {/* hidden md:flex  */}
@@ -1074,7 +1076,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
                         </div>
                       </div>
                     ) : (
-                      <div>
+                      <div className="h-full">
                         <ConversationReview
                           analizeMatch={analizeMatch}
                           reviewData={reviewData}
@@ -1149,7 +1151,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
                       )}
 
                     {currentChapterState.chessAiMode.mode == 'review' && (
-                      <div>
+                      <div className="md:block hidden">
                         <div className="w-full mt-1 h-4 md:flex hidden overflow-hidden rounded mt-4 ">
                           <div
                             className={`bg-white transition-all duration-500`}

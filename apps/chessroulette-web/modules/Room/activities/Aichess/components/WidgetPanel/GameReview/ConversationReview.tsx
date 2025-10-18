@@ -46,15 +46,12 @@ const ConversationReview = ({
   return (
     <div
       ref={scrollRef}
-      className={`
-    overflow-scroll rounded-lg no-scrollbar scroll-smooth
-    ${
-      currentChapterState.chessAiMode.mode !== 'puzzle'
-        ? 'h-[140px]'
-        : 'h-[74px]'
-    }
+      className={` flex-1
+    overflow-scroll rounded-lg no-scrollbar scroll-smooth 
+   
     md:h-[316px]
   `}
+  
     >
       {currentChapterState.messages.map((msg, index) => {
         const participant = msg.participantId;
