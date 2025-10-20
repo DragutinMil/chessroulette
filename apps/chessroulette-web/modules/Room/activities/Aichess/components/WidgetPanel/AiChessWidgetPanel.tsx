@@ -155,7 +155,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
       () => widgetPanelTabsNav.getCurrentTabIndex(),
       [widgetPanelTabsNav.getCurrentTabIndex]
     );
-    //console.log('currentChapterState',currentChapterState)
+
     const onTabChange = useCallback(
       (p: { tabIndex: number }) => {
         widgetPanelTabsNav.setTabIndex(p.tabIndex);
@@ -167,15 +167,14 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
       currentChapterState.orientation;
     const playMode = currentChapterState.chessAiMode.mode === 'play';
     const puzzleMode = currentChapterState.chessAiMode.mode === 'puzzle';
-    //console.log('Object.keys(currentChapterState.arrowsMap).length == 0',Object.keys(currentChapterState.arrowsMap).length)
-
+   
     const checkAnswerGPT = async (data: any) => {
       if (
         data.puzzle &&
         data.puzzle.fen &&
         ChessFENBoard.validateFenString(data.puzzle.fen).ok
       ) {
-        // console.log('fen ai 2', data.fen);
+      
         const changeOrientation =
           currentChapterState.orientation === data.puzzle.fen.split(' ')[1];
         const userRating =
@@ -340,9 +339,9 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
             } else if (ProbabilityChange.diff < -11.01) {
               moveReaction(-1);
             }
-            // console.log('probabilities', ProbabilityChange);
+           
             if (ProbabilityChange.diff > 3) {
-              // console.log('probabilities', ProbabilityChange);
+         
               if (ProbabilityChange.diff > 7) {
                 moveReaction(2);
               } else moveReaction(1);
