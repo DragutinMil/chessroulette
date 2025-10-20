@@ -15,6 +15,7 @@ type Props = {
   progressReview: number;
   reviewData: EvaluationMove[];
   analizeMatch: () => void;
+  smallMobile: boolean;
   hint: () => void;
   onSelectPuzzle: (category: string) => void;
 };
@@ -27,6 +28,7 @@ const ConversationReview = ({
   progressReview,
   analizeMatch,
   reviewData,
+  smallMobile,
   hint,
   onSelectPuzzle,
 }: Props) => {
@@ -47,14 +49,14 @@ const ConversationReview = ({
     <div
       ref={scrollRef}
       className={`
-    overflow-scroll rounded-lg no-scrollbar scroll-smooth
-    ${
-      currentChapterState.chessAiMode.mode !== 'puzzle'
-        ? 'h-[140px]'
-        : 'h-[74px]'
-    }
-    md:h-[316px]
-  `}
+  flex-1 overflow-y-auto rounded-lg no-scrollbar scroll-smooth
+  min-h-[150px]
+ md:max-h-[500px] max-h-[200px] 
+  md:h-[316px]
+`}
+      style={{
+        maxHeight: smallMobile ? '140px' : '',
+      }}
     >
       {currentChapterState.messages.map((msg, index) => {
         const participant = msg.participantId;

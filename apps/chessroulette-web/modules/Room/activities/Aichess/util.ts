@@ -41,6 +41,8 @@ export const normalizeRatios = (r: Ratios): Ratios => {
   };
 };
 
+// GAME REVIEW
+
 export const reviewAnalitics = (moves: EvaluationMove[]) => {
   const stats = {
     white: {

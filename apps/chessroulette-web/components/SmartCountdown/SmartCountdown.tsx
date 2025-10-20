@@ -69,7 +69,7 @@ export const SmartCountdown = ({
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, [isActive]);
- 
+
   useEffect(() => {
     if (!isActive) {
       return;
@@ -79,7 +79,7 @@ export const SmartCountdown = ({
       setFinished(true);
     } else {
       setInterval(timeLeftToIntervalMs(timeLeft));
-      
+
       // Check if warning sound should play
       if (
         timeLeft <= warningThresholdMs &&
@@ -104,7 +104,7 @@ export const SmartCountdown = ({
 
   useInterval(() => {
     if (!isActive) return;
-    
+
     const elapsed = Date.now() - startTimeRef.current;
     const newTimeLeft = Math.max(0, initialMsLeft.current - elapsed);
     setTimeLeft(newTimeLeft);

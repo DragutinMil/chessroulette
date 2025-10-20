@@ -45,7 +45,6 @@ export type PlayActions =
   | Action<'play:denyOffer'>
   // | Action<'play:rematchOffer'>
   | Action<'play:cancelOffer'>
-
   | Action<
       'play:sendMessage',
       {
@@ -54,4 +53,3 @@ export type PlayActions =
         timestamp: number;
       }
     >;
-

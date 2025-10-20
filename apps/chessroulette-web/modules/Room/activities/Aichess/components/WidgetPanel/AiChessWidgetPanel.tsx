@@ -129,7 +129,12 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
     const [popupSubscribe, setPopupSubscribe] = useState(false);
     const [progressReview, setProgressReview] = useState(0);
     const [reviewData, setReviewData] = useState<EvaluationMove[]>([]);
-    const [newRatingEngine, setRatingBotEngine] = useState(2000);
+    const smallMobile =
+      typeof window !== 'undefined' && window.innerWidth < 400;
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+    const [newRatingEngine, setRatingBotEngine] = useState(
+      isMobile ? 1999 : 2099
+    );
     const [currentRatingEngine, setCurrentRatingEngine] = useState<
       number | null
     >(null);
@@ -685,7 +690,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
       (window.location.href = 'https://test-app.outpostchess.com/subscribe'),
         '_self';
     };
-    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+
     const setRatingEngine = async (category: number) => {
       setRatingBotEngine(category);
       onMessage({
@@ -810,6 +815,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
       setPulseDot(true);
       const data = await analyzePGN(currentChapterState.chessAiMode.fen, {
         onProgress: (progress: number) => setProgressReview(progress),
+        isMobile,
       });
       // console.log('dats', data);
 
@@ -922,6 +928,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
           playMode={playMode}
           engineLines={engineLines}
           IsMate={isMate}
+          isMobile={isMobile}
           isMyTurn={isMyTurn}
           engineMove={engineMove}
           addGameEvaluation={addGameEvaluation}
@@ -961,9 +968,9 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
                       />
                     </div>
                   )}
-                  <div className="border bg-op-widget border-conversation-100 pb-2 px-2 md:px-4 md:pb-4 rounded-lg ">
+                  <div className="flex-1 justify-between flex flex-col border bg-op-widget border-conversation-100 pb-2 px-2 md:px-4 md:pb-4 rounded-lg  ">
                     {currentChapterState.chessAiMode.mode !== 'review' ? (
-                      <div className="mt-4">
+                      <div className="mt-4 flex flex-col justify-between  h-full max-h-[500px]">
                         <Conversation
                           currentChapterState={currentChapterState}
                           openViewSubscription={openViewSubscription}
@@ -974,16 +981,20 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
                           playNext={playNext}
                           hint={hint}
                           userData={userData}
+                          smallMobile={smallMobile}
                         />
 
-                        <div className="flex md:my-[20px] justify-around  sitems-center gap-3 my-[14px]">
+                        <div className="mt-auto flex md:my-[20px] justify-around items-center gap-3 mt-3 my-[14px]">
                           {/* hidden md:flex  */}
                           <ButtonGreen
                             onClick={() => {
                               play();
                             }}
                             size="sm"
-                            className="max-w-[94px]"
+                            className=" md:max-w-[94px] max-w-[80px]"
+                            style={{
+                              maxWidth: smallMobile ? '68px' : '',
+                            }}
                             disabled={
                               currentChapterState.messages[
                                 currentChapterState.messages.length - 1
@@ -1008,7 +1019,10 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
                               hint();
                             }}
                             size="sm"
-                            className="max-w-[94px]"
+                            className="md:max-w-[94px] max-w-[80px] "
+                            style={{
+                              maxWidth: smallMobile ? '70px' : '',
+                            }}
                             disabled={
                               currentChapterState.messages[
                                 currentChapterState.messages.length - 1
@@ -1047,7 +1061,10 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
                             size="sm"
                             className={`${
                               takeBakeShake ? 'animate-shake' : ''
-                            } max-w-[94px]`}
+                            } md:max-w-[94px] max-w-[80px]`}
+                            style={{
+                              maxWidth: smallMobile ? '75px' : '',
+                            }}
                           >
                             Take Back
                           </ButtonGreen>
@@ -1064,7 +1081,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
                               puzzles();
                             }}
                             size="sm"
-                            className="max-w-[94px]"
+                            className=" md:max-w-[94px] max-w-[80px]"
                             disabled={currentChapterState.messages[
                               currentChapterState.messages.length - 1
                             ]?.participantId.includes('sales')}
@@ -1077,6 +1094,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
                       <div>
                         <ConversationReview
                           analizeMatch={analizeMatch}
+                          smallMobile={smallMobile}
                           reviewData={reviewData}
                           progressReview={progressReview}
                           currentChapterState={currentChapterState}
@@ -1085,7 +1103,8 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
                           hint={hint}
                           userData={userData}
                         />
-                        <div className="flex md:mt-[16px] flex-col justify-center gap-3 mt-[14px] ">
+
+                        <div className="mt-auto flex md:my-[20px]  items-center gap-3 mt-3 my-[14px]">
                           {reviewData.length == 0 &&
                             currentChapterState.messages.length > 1 && (
                               <ButtonGreen

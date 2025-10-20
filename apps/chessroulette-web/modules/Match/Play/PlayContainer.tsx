@@ -20,7 +20,6 @@ export const PlayContainer = (playBoardProps: PlayerContainerProps) => {
   useEffect(() => {
     moveAudioRef.current = new Audio('/chessmove.mp3');
   }, []);
-  
 
   useEffect(() => {
     if (!play.hasGame) {
@@ -44,7 +43,6 @@ export const PlayContainer = (playBoardProps: PlayerContainerProps) => {
   }, [play.game?.status, play.canUserPlay, dispatch]);
 
   useEffect(() => {
-
     if (play.game?.pgn !== '' && moveAudioRef.current) {
       // Resetujemo zvuk ako je već završio
       if (moveAudioRef.current.ended) {
@@ -55,9 +53,8 @@ export const PlayContainer = (playBoardProps: PlayerContainerProps) => {
         console.warn('Failed to play move sound:', err);
       });
     }
-
   }, [play.game?.lastMoveBy]);
-  
+
   return (
     <GameBoardContainer
       {...(play?.canUserPlay

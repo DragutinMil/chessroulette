@@ -17,6 +17,7 @@ type StockfishEngineAIProps = {
   playMode: boolean;
   prevScore: number;
   newRatingEngine: number;
+  isMobile: boolean;
   ratingEngine: any;
   // moveReaction: (moveDeffinition: number) => void;
   addGameEvaluation: (score: number) => void;
@@ -31,6 +32,7 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
   playMode,
   engineLines,
   orientation,
+  isMobile,
   prevScore,
   addGameEvaluation,
   newRatingEngine,
@@ -46,7 +48,7 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
   const [changes, setChanges] = useState(0);
   const [depth, setDepth] = useState(11);
   const [skill, setSkill] = useState(13);
-  const [currentRating, setCurrentRating] = useState(2100);
+  const [currentRating, setCurrentRating] = useState(1999);
 
   const [error, setError] = useState(false);
 
