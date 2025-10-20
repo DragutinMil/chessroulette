@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import {
   SmartCountdownDisplay,
   SmartCountdownDisplayProps,
@@ -12,6 +12,8 @@ export type SmartCountdownProps = {
   isActive: boolean;
   className?: string;
   onFinished?: () => void;
+  warningSound?: string;
+  warningThresholdMs?: number;
 } & Pick<
   SmartCountdownDisplayProps,
   'activeTextClassName' | 'inactiveTextClassName'
@@ -24,15 +26,49 @@ export const SmartCountdown = ({
   // Note - the onFinished prop changes do not trigger an update
   //  This is in order to not enter infinite loops when passing a callback
   onFinished = noop,
+  warningSound = '/warning.mp3', // ili dodajte novi zvuk
+  warningThresholdMs = 30000,
   ...countDownDislplayProps
 }: SmartCountdownProps) => {
   const [finished, setFinished] = useState(false);
   const [timeLeft, setTimeLeft] = useState(msLeft);
   const [interval, setInterval] = useState(timeLeftToIntervalMs(msLeft));
 
+  const hasPlayedWarning = useRef(false);
+  const warningAudioRef = useRef<HTMLAudioElement | null>(null);
+  const startTimeRef = useRef<number>(Date.now());
+  const initialMsLeft = useRef<number>(msLeft);
+
+  useEffect(() => {
+    if (warningSound) {
+      warningAudioRef.current = new Audio(warningSound);
+    }
+  }, [warningSound]);
+
   useEffect(() => {
     setTimeLeft(msLeft);
-  }, [msLeft]);
+    startTimeRef.current = Date.now();
+    initialMsLeft.current = msLeft;
+
+    if (msLeft > warningThresholdMs) {
+      hasPlayedWarning.current = false;
+    }
+  }, [msLeft, warningThresholdMs]);
+
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden && isActive) {
+        const elapsed = Date.now() - startTimeRef.current;
+        const newTimeLeft = Math.max(0, initialMsLeft.current - elapsed);
+        setTimeLeft(newTimeLeft);
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [isActive]);
 
   useEffect(() => {
     if (!isActive) {
@@ -43,8 +79,20 @@ export const SmartCountdown = ({
       setFinished(true);
     } else {
       setInterval(timeLeftToIntervalMs(timeLeft));
+
+      // Check if warning sound should play
+      if (
+        timeLeft <= warningThresholdMs &&
+        !hasPlayedWarning.current &&
+        warningAudioRef.current
+      ) {
+        warningAudioRef.current.play().catch((err) => {
+          console.warn('Failed to play warning sound:', err);
+        });
+        hasPlayedWarning.current = true;
+      }
     }
-  }, [timeLeft]);
+  }, [timeLeft, isActive, warningThresholdMs]);
 
   useEffect(() => {
     if (finished) {
@@ -54,7 +102,13 @@ export const SmartCountdown = ({
 
   const intervalPlay = isActive && !finished ? interval : undefined;
 
-  useInterval(() => setTimeLeft((prev) => prev - interval), intervalPlay);
+  useInterval(() => {
+    if (!isActive) return;
+
+    const elapsed = Date.now() - startTimeRef.current;
+    const newTimeLeft = Math.max(0, initialMsLeft.current - elapsed);
+    setTimeLeft(newTimeLeft);
+  }, intervalPlay);
 
   const { major, minor } = useMemo(() => {
     const times = timeLeftToTimeUnits(timeLeft);

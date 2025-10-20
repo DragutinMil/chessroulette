@@ -104,7 +104,7 @@ export const StatsTable: React.FC<StatsTableProps> = ({ content }) => {
 
       {/* ⚡ Second */}
       <div className="flex mt-1">
-        <div className="w-[50%]">⚡ Second:</div>
+        <div className="w-[50%]">⚡⚡ Second:</div>
         <div
           className={`w-[25%] text-center ${getHighlightClassGood(values[5])}`}
         >

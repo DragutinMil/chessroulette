@@ -23,8 +23,8 @@ export default (props: Props) => {
       pl-[max(env(safe-area-inset-left),1.5rem)]
       pr-[max(env(safe-area-inset-right),1.5rem)]
       pt-2 md:pt-[max(env(safe-area-inset-top),1rem)]
-      pb-0 md:pb-[1rem]
-      flex justify-between"
+      pb-0 md:pb-[1rem] 
+      flex justify-between "
     >
       <div
         onClick={() => {

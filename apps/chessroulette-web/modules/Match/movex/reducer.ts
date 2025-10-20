@@ -81,15 +81,13 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
   //   }
   // }
 
-
   if (action.type === 'play:sendMessage') {
-  
     const newMessage: ChatMessage = {
       senderId: action.payload.senderId,
       content: action.payload.content,
       timestamp: action.payload.timestamp,
     };
-  
+
     return {
       ...prev,
       messages: [...(prev.messages || []), newMessage], // <-- Dodajte || [] kao fallback
@@ -98,21 +96,24 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
 
   if (action.type === 'play:updateChatState') {
     const { userId, isChatEnabled } = action.payload;
-    
+
     // Only update if the state would actually change
-    const player = prev.challenger.id === userId ? prev.challenger : prev.challengee;
+    const player =
+      prev.challenger.id === userId ? prev.challenger : prev.challengee;
     if (player.isChatEnabled === isChatEnabled) {
       return prev; // No change needed
     }
-  
+
     return {
       ...prev,
-      challenger: prev.challenger.id === userId 
-        ? { ...prev.challenger, isChatEnabled }
-        : prev.challenger,
-      challengee: prev.challengee.id === userId
-        ? { ...prev.challengee, isChatEnabled }
-        : prev.challengee,
+      challenger:
+        prev.challenger.id === userId
+          ? { ...prev.challenger, isChatEnabled }
+          : prev.challenger,
+      challengee:
+        prev.challengee.id === userId
+          ? { ...prev.challengee, isChatEnabled }
+          : prev.challengee,
     };
   }
 

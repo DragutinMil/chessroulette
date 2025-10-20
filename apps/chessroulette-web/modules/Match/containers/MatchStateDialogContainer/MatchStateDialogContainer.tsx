@@ -145,24 +145,22 @@ export const MatchStateDialogContainer: React.FC<Props> = (
                   >
                     Rematch
                   </Button> */}
-                  {/* <Link
+                  <Link
                     href={`http://localhost:4200/room/new/r${matchId}?activity=aichess&userId=${userId}&theme=op&pgn=${matchId}`}
                   >
-                   <Button
-                    icon="EyeIcon"
-                    bgColor="yellow"
-                    style={{
-                      marginTop: 12,
-                    
-                      minWidth:'160px'
-                    }}
-                    onClick={() => {
-                      
-                    }}
-                  >
-                    Review
-                  </Button>
-</Link> */}
+                    <Button
+                      icon="EyeIcon"
+                      bgColor="yellow"
+                      style={{
+                        marginTop: 12,
+
+                        minWidth: '160px',
+                      }}
+                      onClick={() => {}}
+                    >
+                      Review
+                    </Button>
+                  </Link>
                   {/* { (document.referrer.includes('app.outpostchess.com') || document.referrer.includes('localhost:8080') || document.referrer.includes('test-app.outpostchess.com')) && */}
                   {fromWeb && (
                     <Button

@@ -9,6 +9,7 @@ type Props = {
   currentChapterState: ChapterState;
   pulseDot: boolean;
   userData: UserData;
+  smallMobile: boolean;
   takeBack: () => void;
   playNext: () => void;
   hint: () => void;
@@ -24,6 +25,7 @@ const Conversation = ({
   userData,
   takeBack,
   playNext,
+  smallMobile,
   openViewSubscription,
   hint,
   onSelectPuzzle,
@@ -45,14 +47,18 @@ const Conversation = ({
     <div
       ref={scrollRef}
       className={`
-    overflow-scroll rounded-lg no-scrollbar scroll-smooth
-    ${
-      currentChapterState.chessAiMode.mode !== 'puzzle'
-        ? 'h-[135px]'
-        : 'h-[74px]'
-    }
-    md:h-[316px]
-  `}
+  flex-1 overflow-y-auto rounded-lg no-scrollbar scroll-smooth
+  min-h-[150px]
+  ${
+    currentChapterState.chessAiMode.mode === 'puzzle'
+      ? 'md:max-h-[500px] max-h-[200px]'
+      : 'max-h-[350px]'
+  }
+  md:h-[316px]
+`}
+      style={{
+        maxHeight: smallMobile ? '150px' : '',
+      }}
     >
       {currentChapterState.messages.map((msg, index) => {
         const participant = msg.participantId;
