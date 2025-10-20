@@ -384,7 +384,6 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
           const m = currentChapterState.chessAiMode.moves[2 * length];
           if (m.length == 5 && (m.slice(-1) == 'q' || m.slice(-1) == 'r')) {
             let n = { from: from as Square, to: to as Square, promoteTo: 'Q' };
-            // console.log('engine n', n);
             setTimeout(() => onPuzzleMove(n), 800);
           } else {
             const n = { from: from as Square, to: to as Square };
@@ -994,7 +993,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
                               play();
                             }}
                             size="sm"
-                            className=" md:max-w-[94px] max-w-[80px]"
+                            className=" md:max-w-[85px] max-w-[80px]"
                             style={{
                               maxWidth: smallMobile ? '68px' : '',
                             }}
@@ -1022,7 +1021,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
                               hint();
                             }}
                             size="sm"
-                            className="md:max-w-[94px] max-w-[80px] "
+                            className="md:max-w-[85px] max-w-[80px] "
                             style={{
                               maxWidth: smallMobile ? '70px' : '',
                             }}
@@ -1064,7 +1063,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
                             size="sm"
                             className={`${
                               takeBakeShake ? 'animate-shake' : ''
-                            } md:max-w-[94px] max-w-[80px]`}
+                            } md:max-w-[92px] max-w-[80px]`}
                             style={{
                               maxWidth: smallMobile ? '75px' : '',
                             }}
@@ -1084,7 +1083,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
                               puzzles();
                             }}
                             size="sm"
-                            className=" md:max-w-[94px] max-w-[80px]"
+                            className=" md:max-w-[92px] max-w-[80px]"
                             disabled={currentChapterState.messages[
                               currentChapterState.messages.length - 1
                             ]?.participantId.includes('sales')}

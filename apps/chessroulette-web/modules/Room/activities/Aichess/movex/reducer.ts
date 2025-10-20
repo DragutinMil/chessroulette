@@ -607,7 +607,7 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
     const hintCorrection =
       Object.keys(action.payload).length > 0 &&
       prevChapter.chessAiMode.mode == 'puzzle'
-        ? 2
+        ? 3
         : 0;
     const nextChapter: Chapter = {
       ...prevChapter,
