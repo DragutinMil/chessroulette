@@ -242,7 +242,11 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
         console.error('The loaded chapter was not found');
         return prev;
       }
-      if (prevChapter.notation.history.length > 0) {
+
+      if (
+        prevChapter.notation.history.length > 0 &&
+        prevChapter.chessAiMode.mode !== 'review'
+      ) {
         if (
           prevChapter.notation.focusedIndex[0] !==
             prevChapter.notation.history?.length - 1 ||
@@ -603,7 +607,7 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
     const hintCorrection =
       Object.keys(action.payload).length > 0 &&
       prevChapter.chessAiMode.mode == 'puzzle'
-        ? 2
+        ? 3
         : 0;
     const nextChapter: Chapter = {
       ...prevChapter,

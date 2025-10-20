@@ -35,8 +35,12 @@ export type ListProps = {
 );
 
 const scrollIntoView = debounce((elm: HTMLDivElement) => {
-  elm.scrollIntoView({ block: 'end', behavior: 'auto' });
-}, 5);
+  elm.scrollIntoView({
+    behavior: 'auto',
+    block: 'nearest',
+    inline: 'nearest',
+  });
+}, 10);
 
 export const List: React.FC<ListProps> = ({
   history,
@@ -53,7 +57,7 @@ export const List: React.FC<ListProps> = ({
   reviewData,
 }) => {
   const rowElementRefs = useRef<Record<number, HTMLDivElement | null>>({});
-  const containerElementRef = useRef<HTMLDivElement | null>();
+  const containerElementRef = useRef<HTMLDivElement | null>(null);
   useDebouncedEffect(
     () => {
       if (isNested) {
@@ -81,11 +85,19 @@ export const List: React.FC<ListProps> = ({
     [history, focusedIndex, isNested]
   );
   useEffect(() => {
-    setTimeout(() => {
-      if (containerElementRef.current) {
-        containerElementRef.current.scrollTo(0, 9999);
-      }
-    }, 100);
+    const el = containerElementRef.current;
+    if (el) {
+      setTimeout(() => {
+        el.scrollTo({
+          top: el.scrollHeight,
+          left: el.scrollWidth,
+          behavior: 'auto',
+        });
+      }, 500);
+      //  if (containerElementRef.current) {
+      //   containerElementRef.current.scrollTo(0, 9999);
+      // }
+    }
   }, []);
 
   const [focusedTurnIndex, focusedMovePosition, recursiveFocusedIndexes] =
@@ -153,37 +165,39 @@ export const List: React.FC<ListProps> = ({
 
   return (
     <div className="flex md:flex-col flex-row h-full ">
-      <div className="hidden md:flex   mb-2  ">
-        <p className="text-[#8F8F90] text-[10px] font-bold">MOVE</p>
-        <div className="flex  w-full">
-          <p className="text-[#8F8F90] md: text-[10px] font-bold w-[51%] ml-[7px] ">
-            WHITE
-            {playerNames && (
-              <span className="text-white">&nbsp; {playerNames[0]}</span>
-            )}
-          </p>
+      {!isNested && (
+        <div className="hidden md:flex   mb-2  ">
+          <p className="text-[#8F8F90] text-[10px] font-bold">MOVE</p>
+          <div className="flex  w-full">
+            <p className="text-[#8F8F90] md: text-[10px] font-bold w-[51%] ml-[7px] ">
+              WHITE
+              {playerNames && (
+                <span className="text-white">&nbsp; {playerNames[0]}</span>
+              )}
+            </p>
 
-          <p className="text-[#8F8F90] text-[10px] font-bold   ">
-            BLACK
-            {playerNames && (
-              <span className="text-white">&nbsp; {playerNames[1]}</span>
-            )}
-          </p>
+            <p className="text-[#8F8F90] text-[10px] font-bold   ">
+              BLACK
+              {playerNames && (
+                <span className="text-white">&nbsp; {playerNames[1]}</span>
+              )}
+            </p>
+          </div>
         </div>
-      </div>
+      )}
 
       <ChevronLeftIcon
         onClick={() => backFocus()}
         className="md:hidden flex -translate-x-1 scale-90"
       />
       <div
-        className=" flex-1  overflow-x-scroll no-scrollbar "
+        className=" flex-1  overflow-scroll no-scrollbar"
         style={{ width: isMobile ? 'calc(100vw - 3rem - 68px)' : '' }}
+        ref={(e) => (containerElementRef.current = e)}
       >
         <div
           className={`${className} `}
           style={{ flexDirection: isMobile ? 'row' : 'column' }}
-          ref={(e) => (containerElementRef.current = e)}
         >
           {history.map((historyTurn, historyTurnIndex) => {
             const rootHistoryTurnIndex = rootHistoryIndex?.[0] || 0;

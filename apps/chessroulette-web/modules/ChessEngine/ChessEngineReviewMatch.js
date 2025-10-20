@@ -1,9 +1,9 @@
 import { Chess } from 'chess.js';
 
-export async function analyzePGN(pgn, { onProgress } = {}) {
+export async function analyzePGN(pgn, { onProgress } = {}, isMobile) {
   // ✅ 1. Kreiramo Stockfish Web Worker
   const stockfish = new Worker('/stockfish-17-single.js');
-
+  console.log('isMobile prover', isMobile);
   // Pripremimo ga za rad
   await sendCommand(stockfish, 'uci');
   await waitFor(stockfish, 'uciok');
@@ -32,7 +32,11 @@ export async function analyzePGN(pgn, { onProgress } = {}) {
 
     const fen = chess.fen();
 
-    let { eval: evaluation, topMoves } = await getEvaluation(stockfish, fen);
+    let { eval: evaluation, topMoves } = await getEvaluation(
+      stockfish,
+      fen,
+      isMobile
+    );
 
     const turn = chess.turn(); // 'w' ili 'b' nakon poteza
     if (turn === 'b') {
@@ -86,7 +90,7 @@ function waitFor(worker, textToMatch) {
 /**
  * Dobij evaluaciju pozicije iz Stockfish-a
  */
-function getEvaluation(worker, fen) {
+function getEvaluation(worker, fen, isMobile) {
   return new Promise((resolve) => {
     let bestEval = 0;
     let topMoves = [];
@@ -170,6 +174,8 @@ function getEvaluation(worker, fen) {
     worker.postMessage('setoption name MultiPV value 3');
     //worker.postMessage('ucinewgame');
     worker.postMessage(`position fen ${fen}`);
-    worker.postMessage(`go depth 12`);
+    isMobile
+      ? worker.postMessage(`go depth 10`)
+      : worker.postMessage(`go depth 11`);
   });
 }

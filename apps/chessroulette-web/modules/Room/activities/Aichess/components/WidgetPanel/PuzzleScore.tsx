@@ -178,7 +178,7 @@ const PuzzleScore = ({ chessAiMode }: Props) => {
     <div>
       {/* {value > 0 && ( */}
       <div className="rounded-lg  mb-1 mt-1 md:px-4 md:pb-4 px-2 pb-2 pt-2 border border-conversation-100 bg-[#01210B]">
-        <div className="flex justify-between">
+        <div className="md:flex hidden justify-between ">
           <div className="text-[10px] font-bold text-[#8F8F90] mb-1">
             RATING
           </div>
@@ -187,7 +187,7 @@ const PuzzleScore = ({ chessAiMode }: Props) => {
           </div>
         </div>
         <div
-          className={`${styles.flipNumber} w-full text-white text-xl font-bold mb-2 inline-block min-w-[40px] min-h-[24px]`}
+          className={`${styles.flipNumber} w-full text-white text-xl  font-bold mb-2 inline-block min-w-[40px] min-h-[24px]`}
         >
           <div className="flex justify-between align-center">
             <div>
@@ -210,7 +210,7 @@ const PuzzleScore = ({ chessAiMode }: Props) => {
                   </span>
                 ))}
             </div>
-            <span className=" flex items-center justify-center font-bold text-green-400 text-[18px] ">
+            <span className=" flex items-center justify-center font-bold text-green-400 md:text-lg  text-base ">
               {currentSublevel?.label}
             </span>
           </div>

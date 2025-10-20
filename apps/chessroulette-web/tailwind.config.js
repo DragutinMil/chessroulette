@@ -129,20 +129,20 @@ module.exports = {
   //   aspectRatio: false,
   // },
   // plugins: [require('@tailwindcss/aspect-ratio')],
-  plugins: [    
-    
-  function({ addUtilities }) {
-    addUtilities({
-      '.scrollbar-hide': {
-        /* IE and Edge */
-        '-ms-overflow-style': 'none',
-        /* Firefox */
-        'scrollbar-width': 'none',
-        /* Safari and Chrome */
-        '&::-webkit-scrollbar': {
-          display: 'none'
-        }
-      }
-    })
-  }],
+  plugins: [
+    function ({ addUtilities }) {
+      addUtilities({
+        '.scrollbar-hide': {
+          /* IE and Edge */
+          '-ms-overflow-style': 'none',
+          /* Firefox */
+          'scrollbar-width': 'none',
+          /* Safari and Chrome */
+          '&::-webkit-scrollbar': {
+            display: 'none',
+          },
+        },
+      });
+    },
+  ],
 };
