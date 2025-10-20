@@ -22,7 +22,7 @@ import { AichessBoard } from './components/AichessBoard';
 import { RIGHT_SIDE_SIZE_PX } from '../../constants';
 import inputReducer, { initialInputState } from './reducers/inputReducer';
 
-import { InstructorBoard } from './components/InstructorBoard';
+// import { InstructorBoard } from './components/InstructorBoard';
 import { Square } from 'chess.js';
 import { boolean } from 'zod';
 
@@ -41,6 +41,7 @@ export const AichessActivity = ({
   const moveSound = new Audio('/chessmove.mp3');
   const dispatch = optionalDispatch || noop;
   const [cameraOff, setCameraOff] = useState(false);
+  const [newReview, setNewReview] = useState(false);
   const [playerNames, setPlayerNames] = useState(Array<string>);
 
   const [userData, setUserData] = useState({
@@ -67,6 +68,7 @@ export const AichessActivity = ({
     findLoadedChapter(remoteState) || initialDefaultChapter;
 
   const tabsRef = useRef<TabsRef>(null);
+
   useEffect(() => {
     const url = new URL(window.location.href);
     const rawPgn = url.searchParams.get('pgn');
@@ -75,7 +77,6 @@ export const AichessActivity = ({
     if (rawPgn) {
       const getMatchInfo = async () => {
         const data = await getMatch(rawPgn);
-        console.log('review macevo', data);
         if (data) {
           const pgn =
             data.results.endedGames[data.results.endedGames.length - 1].pgn;
@@ -108,8 +109,8 @@ export const AichessActivity = ({
           //     setPlayerNames([data.target_name_first, data.initiator_name_first] )
           //   }
           const changeOrientation =
-            (currentChapter.orientation === 'b' && white) ||
-            (currentChapter.orientation === 'w' && black);
+            (currentChapter.orientation === 'b' && black) ||
+            (currentChapter.orientation === 'w' && white);
 
           gameReview({
             moves: [],
@@ -127,14 +128,17 @@ export const AichessActivity = ({
             responseId: '',
             message: '',
           });
+          setNewReview(false);
         }
       };
       getMatchInfo();
     }
 
     getUserData();
-  }, []);
-
+  }, [newReview == true]);
+  const historyBackToStart = async () => {
+    setNewReview(true);
+  };
   const getUserData = async () => {
     const data = await getSubscribeInfo();
     setUserData({
@@ -153,48 +157,49 @@ export const AichessActivity = ({
       mainComponent={({ boardSize }) => (
         <>
           {settings.isInstructor && inputState.isActive ? (
-            <InstructorBoard
-              fen={inputState.chapterState.displayFen}
-              boardOrientation={swapColor(inputState.chapterState.orientation)}
-              boardSizePx={boardSize}
-              onArrowsChange={(arrowsMap) => {
-                dispatchInputState({
-                  type: 'updatePartialChapter',
-                  payload: { arrowsMap },
-                });
-              }}
-              onCircleDraw={(payload) => {
-                dispatchInputState({
-                  type: 'drawCircle',
-                  payload,
-                });
-              }}
-              onClearCircles={() => {
-                dispatchInputState({ type: 'clearCircles' });
-              }}
-              onFlipBoard={() => {
-                dispatchInputState({
-                  type: 'updatePartialChapter',
-                  payload: {
-                    orientation: swapColor(inputState.chapterState.orientation),
-                  },
-                });
-              }}
-              onUpdateFen={(fen) => {
-                dispatchInputState({
-                  type: 'updateChapterFen',
-                  payload: { fen },
-                });
-              }}
-              onToggleBoardEditor={() => {
-                dispatchInputState({
-                  type: 'update',
-                  payload: { isBoardEditorShown: false },
-                });
-              }}
-              onMove={noop}
-            />
+            ''
           ) : (
+            // <InstructorBoard
+            //   fen={inputState.chapterState.displayFen}
+            //   boardOrientation={swapColor(inputState.chapterState.orientation)}
+            //   boardSizePx={boardSize}
+            //   onArrowsChange={(arrowsMap) => {
+            //     dispatchInputState({
+            //       type: 'updatePartialChapter',
+            //       payload: { arrowsMap },
+            //     });
+            //   }}
+            //   onCircleDraw={(payload) => {
+            //     dispatchInputState({
+            //       type: 'drawCircle',
+            //       payload,
+            //     });
+            //   }}
+            //   onClearCircles={() => {
+            //     dispatchInputState({ type: 'clearCircles' });
+            //   }}
+            //   onFlipBoard={() => {
+            //     dispatchInputState({
+            //       type: 'updatePartialChapter',
+            //       payload: {
+            //         orientation: swapColor(inputState.chapterState.orientation),
+            //       },
+            //     });
+            //   }}
+            //   onUpdateFen={(fen) => {
+            //     dispatchInputState({
+            //       type: 'updateChapterFen',
+            //       payload: { fen },
+            //     });
+            //   }}
+            //   onToggleBoardEditor={() => {
+            //     dispatchInputState({
+            //       type: 'update',
+            //       payload: { isBoardEditorShown: false },
+            //     });
+            //   }}
+            //   onMove={noop}
+            // />
             //  Learn Mode */}
             <div>
               <AiChessDialogContainer
@@ -351,6 +356,7 @@ export const AichessActivity = ({
                 payload: { color: swapColor(currentChapter.orientation) },
               })
             }
+            historyBackToStart={historyBackToStart}
             userData={userData}
             playerNames={playerNames}
             currentChapterState={currentChapter}

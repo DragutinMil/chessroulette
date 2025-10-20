@@ -72,20 +72,20 @@ export const AichessBoard = ({
       rightSideComponent={
         <>
           <div className="flex-1">
-            {settings.canFlipBoard && (
+            {/* {settings.canFlipBoard && (
               <FlipBoardIconButton className="mb-2" onClick={onFlip} />
-            )}
+            )} */}
             {settings.isInstructor && (
               <>
-                <StartPositionIconButton
+                {/* <StartPositionIconButton
                   className="mb-2"
                   onClick={onResetBoard}
-                />
-                <ClearBoardIconButton className="mb-2" onClick={onClearBoard} />
+                /> */}
+                {/* <ClearBoardIconButton className="mb-2" onClick={onClearBoard} />
                 <BoardEditorIconButton
                   className="mb-2"
                   onClick={onBoardEditor}
-                />
+                /> */}
               </>
             )}
           </div>

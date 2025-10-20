@@ -72,6 +72,7 @@ type Props = {
   onHistoryNotationRefocus: FreeBoardNotationProps['onRefocus'];
   onHistoryNotationDelete: FreeBoardNotationProps['onDelete'];
   addGameEvaluation: (score: number) => void;
+  historyBackToStart: () => void;
   userData: UserData;
 
   // Engine
@@ -112,6 +113,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
       onHistoryNotationDelete,
       onHistoryNotationRefocus,
       addGameEvaluation,
+      historyBackToStart,
       userData,
       ...chaptersTabProps
     },
@@ -167,14 +169,13 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
       currentChapterState.orientation;
     const playMode = currentChapterState.chessAiMode.mode === 'play';
     const puzzleMode = currentChapterState.chessAiMode.mode === 'puzzle';
-   
+
     const checkAnswerGPT = async (data: any) => {
       if (
         data.puzzle &&
         data.puzzle.fen &&
         ChessFENBoard.validateFenString(data.puzzle.fen).ok
       ) {
-      
         const changeOrientation =
           currentChapterState.orientation === data.puzzle.fen.split(' ')[1];
         const userRating =
@@ -339,9 +340,8 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
             } else if (ProbabilityChange.diff < -11.01) {
               moveReaction(-1);
             }
-           
+
             if (ProbabilityChange.diff > 3) {
-         
               if (ProbabilityChange.diff > 7) {
                 moveReaction(2);
               } else moveReaction(1);
@@ -811,10 +811,15 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
     };
 
     const analizeMatch = async () => {
+      historyBackToStart();
       setPulseDot(true);
-      const data = await analyzePGN(currentChapterState.chessAiMode.fen, {
-        onProgress: (progress: number) => setProgressReview(progress),
-      }, isMobile);
+      const data = await analyzePGN(
+        currentChapterState.chessAiMode.fen,
+        {
+          onProgress: (progress: number) => setProgressReview(progress),
+        },
+        isMobile
+      );
       // console.log('dats', data);
 
       setReviewData(data);

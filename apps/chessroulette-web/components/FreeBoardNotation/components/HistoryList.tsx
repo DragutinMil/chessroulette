@@ -165,24 +165,26 @@ export const List: React.FC<ListProps> = ({
 
   return (
     <div className="flex md:flex-col flex-row h-full ">
-      <div className="hidden md:flex   mb-2  ">
-        <p className="text-[#8F8F90] text-[10px] font-bold">MOVE</p>
-        <div className="flex  w-full">
-          <p className="text-[#8F8F90] md: text-[10px] font-bold w-[51%] ml-[7px] ">
-            WHITE
-            {playerNames && (
-              <span className="text-white">&nbsp; {playerNames[0]}</span>
-            )}
-          </p>
+      {!isNested && (
+        <div className="hidden md:flex   mb-2  ">
+          <p className="text-[#8F8F90] text-[10px] font-bold">MOVE</p>
+          <div className="flex  w-full">
+            <p className="text-[#8F8F90] md: text-[10px] font-bold w-[51%] ml-[7px] ">
+              WHITE
+              {playerNames && (
+                <span className="text-white">&nbsp; {playerNames[0]}</span>
+              )}
+            </p>
 
-          <p className="text-[#8F8F90] text-[10px] font-bold   ">
-            BLACK
-            {playerNames && (
-              <span className="text-white">&nbsp; {playerNames[1]}</span>
-            )}
-          </p>
+            <p className="text-[#8F8F90] text-[10px] font-bold   ">
+              BLACK
+              {playerNames && (
+                <span className="text-white">&nbsp; {playerNames[1]}</span>
+              )}
+            </p>
+          </div>
         </div>
-      </div>
+      )}
 
       <ChevronLeftIcon
         onClick={() => backFocus()}
