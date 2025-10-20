@@ -75,6 +75,7 @@ export const AichessActivity = ({
     const userId = url.searchParams.get('userId');
 
     if (rawPgn) {
+      console.log('trubadur')
       const getMatchInfo = async () => {
         const data = await getMatch(rawPgn);
         if (data) {
@@ -135,7 +136,7 @@ export const AichessActivity = ({
     }
 
     getUserData();
-  }, [newReview == true]);
+  }, [newReview==true]);
   const historyBackToStart = async () => {
     setNewReview(true);
   };

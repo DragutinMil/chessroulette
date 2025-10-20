@@ -208,7 +208,7 @@ export const List: React.FC<ListProps> = ({
             const evalRow =
               reviewData?.length > 0
                 ? [
-                    reviewData[historyTurnIndex * 2].diff,
+                    reviewData[historyTurnIndex * 2]?.diff,
                     reviewData[(historyTurnIndex + 1) * 2 - 1]?.diff,
                   ]
                 : [];

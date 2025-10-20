@@ -3,7 +3,7 @@ import { Chess } from 'chess.js';
 export async function analyzePGN(pgn, { onProgress } = {}, isMobile) {
   // ✅ 1. Kreiramo Stockfish Web Worker
   const stockfish = new Worker('/stockfish-17-single.js');
-  console.log('isMobile prover', isMobile);
+  
   // Pripremimo ga za rad
   await sendCommand(stockfish, 'uci');
   await waitFor(stockfish, 'uciok');
@@ -102,7 +102,7 @@ function getEvaluation(worker, fen, isMobile) {
 
         bestEval = 'w' ? -50000 : 50000;
       }
-      if (line.startsWith('info depth 11')) {
+      if ((isMobile && line.startsWith('info depth 10')  ) || (!isMobile && line.startsWith('info depth 11'))) {
         const scoreMatch = line.match(/score (cp|mate) (-?\d+)/);
         const multipvMatch = line.match(/multipv (\d+) .+ pv (.+)/);
 
