@@ -3,7 +3,7 @@ import { Chess } from 'chess.js';
 export async function analyzePGN(pgn, { onProgress } = {}, isMobile) {
   // ✅ 1. Kreiramo Stockfish Web Worker
   const stockfish = new Worker('/stockfish-17-single.js');
-
+  console.log('isMobile prover',isMobile)
   // Pripremimo ga za rad
   await sendCommand(stockfish, 'uci');
   await waitFor(stockfish, 'uciok');

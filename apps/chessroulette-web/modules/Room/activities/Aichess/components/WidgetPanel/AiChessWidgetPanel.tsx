@@ -815,8 +815,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
       setPulseDot(true);
       const data = await analyzePGN(currentChapterState.chessAiMode.fen, {
         onProgress: (progress: number) => setProgressReview(progress),
-        isMobile,
-      });
+      }, isMobile);
       // console.log('dats', data);
 
       setReviewData(data);
