@@ -110,22 +110,30 @@ export const MatchContainer = ({
 
             <div className="flex gap-2">
               <ButtonGreen
-                onClick={() => setActiveWidget('camera')}
-                className={`flex-1 ${
-                  activeWidget === 'camera' ? '' : 'opacity-50'
+
+                  onClick={() => setActiveWidget('camera')}
+                  className={`flex-1 font-bold text-black ${
+                  activeWidget === 'camera' 
+                   ? 'bg-[#07DA63] !bg-[#07DA63] hover:!bg-[#07DA63]' 
+                   : 'opacity-50 text-white'
+                 }`}
+            >
+             Camera
+            </ButtonGreen>
+            <ButtonGreen
+                 onClick={() => 
+                  
+                 setActiveWidget('chat')}
+                 className={`flex-1 font-bold text-black ${
+                 activeWidget === 'chat' 
+                   ? 'bg-[#07DA63] !bg-[#07DA63] hover:!bg-[#07DA63]' 
+                   : 'opacity-50 text-white'
                 }`}
-              >
-                Camera
-              </ButtonGreen>
-              <ButtonGreen
-                onClick={() => setActiveWidget('chat')}
-                className={`flex-1 ${
-                  activeWidget === 'chat' ? '' : 'opacity-50'
-                }`}
-              >
-                Chat
-              </ButtonGreen>
-            </div>
+            >
+            Chat
+           </ButtonGreen>
+      </div>
+
 
             <div className="w-full h-[300px] overflow-hidden rounded-lg shadow-2xl">
               {activeWidget === 'camera' ? (
