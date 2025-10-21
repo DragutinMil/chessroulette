@@ -101,7 +101,7 @@ export const MatchContainer = ({
         )}
         rightSideSize={boardProps.rightSideSizePx}
         rightComponent={
-          <div className="flex flex-col flex-1 min-h-0 gap-4">
+          <div className="flex flex-col flex-1 min-h-0 gap-4 h-full">
             <div className="flex flex-row md:flex-col">
               <div className="w-full">
                 <MatchStateDisplayContainer />
@@ -135,8 +135,7 @@ export const MatchContainer = ({
       </div>
 
 
-            <div className="w-full h-[300px] overflow-hidden rounded-lg shadow-2xl">
-              {activeWidget === 'camera' ? (
+      <div className="w-full flex-grow min-h-[200px] md:min-h-[300px] overflow-hidden rounded-lg shadow-2xl">              {activeWidget === 'camera' ? (
                 <PeerToPeerCameraWidget />
               ) : (
                 <ChatWidget
