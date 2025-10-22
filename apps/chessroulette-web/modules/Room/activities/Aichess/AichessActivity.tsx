@@ -212,7 +212,7 @@ export const AichessActivity = ({
                 }
                 onPuzzleMove={(payload) => {
                   moveSound.play();
-                  dispatch({ type: 'loadedChapter:addMove', payload });
+                  dispatch({ type: 'loadedChapter:addPuzzleMove', payload });
                 }}
                 addChessAi={(payload: chessAiMode) =>
                   dispatch({
@@ -241,8 +241,12 @@ export const AichessActivity = ({
                   }}
                   onMove={(payload) => {
                     moveSound.play();
-                    dispatch({ type: 'loadedChapter:addMove', payload });
-
+                    if(currentChapter.chessAiMode.mode==='puzzle'){
+                        dispatch({ type: 'loadedChapter:addPuzzleMove', payload });
+                    }else{
+                       dispatch({ type: 'loadedChapter:addMove', payload });
+                    }
+                    
                     // TODO: This can be returned from a more internal component
                     return true;
                   }}
@@ -326,9 +330,13 @@ export const AichessActivity = ({
               // console.log('evaluacija', payload);
               dispatch({ type: 'loadedChapter:gameEvaluation', payload });
             }}
-            onPuzzleMove={(payload) => {
+             onMove={(payload) => {
               moveSound.play();
               dispatch({ type: 'loadedChapter:addMove', payload });
+            }}
+            onPuzzleMove={(payload) => {
+              moveSound.play();
+              dispatch({ type: 'loadedChapter:addPuzzleMove', payload });
             }}
             addChessAi={(payload: chessAiMode) =>
               dispatch({

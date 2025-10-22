@@ -4,6 +4,7 @@ import {
   getNewChessGame,
   localChessMoveToChessLibraryMove,
   isValidPgn,
+  FBHHistory
 } from '@xmatter/util-kit';
 import { Chapter, ChapterState, AichessActivityState } from './types';
 
@@ -37,12 +38,23 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
       console.error('The chapter wasnt found');
       return prev;
     }
-    if (prevChapter.notation.focusedIndex[1] == 0) {
-      prevChapter.notation.history.pop();
-      prevChapter.notation.history.at(-1)?.pop();
-    } else if (prevChapter.notation.focusedIndex[1] == 1) {
-      prevChapter.notation.history.pop();
-    }
+    let newHistory = prevChapter.notation.history.map(inner => [...inner]);
+if (prevChapter.notation.focusedIndex[0] == 0) {
+    newHistory.pop();
+} else if (prevChapter.notation.focusedIndex[1] === 0) {
+  newHistory.pop();
+  newHistory.at(-1)?.pop();
+} else if (prevChapter.notation.focusedIndex[1] === 1) {
+  newHistory.pop();
+}
+
+
+    // if (prevChapter.notation.focusedIndex[1] == 0) {
+    //   prevChapter.notation.history.pop();
+    //   prevChapter.notation.history.at(-1)?.pop();
+    // } else if (prevChapter.notation.focusedIndex[1] == 1) {
+    //   prevChapter.notation.history.pop();
+    // }
 
     const historyAtFocusedIndex =
       FreeBoardHistory.calculateLinearHistoryToIndex(
@@ -63,7 +75,7 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
       'Let’s reset to the previous state.',
     ];
     const prompt = responses[Math.floor(Math.random() * responses.length)];
-    const idResponse =
+    const idResponseTakeBack =
       prev.activityState.chaptersMap[0].messages[
         prev.activityState.chaptersMap[0].messages.length - 1
       ].idResponse;
@@ -71,7 +83,7 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
     const message = {
       content: prompt,
       participantId: 'chatGPT123456',
-      idResponse: idResponse,
+      idResponse: idResponseTakeBack,
     };
     const lastMessage =
       prevChapter.messages[prevChapter.messages.length - 1]?.content;
@@ -90,6 +102,7 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
         notation: {
           ...prevChapter.notation,
           focusedIndex: action.payload,
+          history: newHistory as FBHHistory
         },
       };
 
@@ -145,9 +158,68 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
 
   // TODO: Should this be split?
 
+
+
   if (action.type === 'loadedChapter:addMove') {
-    // PUZZLE MOVE
-    if (prev.activityState.chaptersMap[0].chessAiMode.mode == 'puzzle') {
+  // TODO: the logic for this should be in GameHistory class/static  so it can be tested
+    try {
+      const prevChapter = findLoadedChapter(prev.activityState);
+
+      if (!prevChapter) {
+        console.error('The loaded chapter was not found');
+        return prev;
+      }
+
+      const move = action.payload;
+
+      const fenBoard = new ChessFENBoard(prevChapter.displayFen);
+      const fenPiece = fenBoard.piece(move.from);
+      if (!fenPiece) {
+        console.error('Action Err', action, prev, fenBoard.board);
+        throw new Error(`No Piece at ${move.from}`);
+      }
+
+      const nextMove = fenBoard.move(move);
+
+      // If the moves are the same introduce a non move
+      const [nextHistory, addedAtIndex] = FreeBoardHistory.addMagicMove(
+        {
+          history: prevChapter.notation.history,
+          atIndex: prevChapter.notation.focusedIndex,
+        },
+        nextMove
+      );
+
+      const nextChapter: Chapter = {
+        ...prevChapter,
+        displayFen: fenBoard.fen,
+        circlesMap: {},
+        arrowsMap: {},
+        notation: {
+          ...prevChapter.notation,
+          history: nextHistory,
+          focusedIndex: addedAtIndex,
+        },
+      };
+
+      return {
+        ...prev,
+        activityState: {
+          ...prev.activityState,
+          chaptersMap: {
+            ...prev.activityState.chaptersMap,
+            [prevChapter.id]: nextChapter,
+          },
+        },
+      };
+    } catch (e) {
+      console.error('Action Error', action, prev, e);
+      return prev;
+    }
+  }
+
+  if (action.type === 'loadedChapter:addPuzzleMove') {
+   if (prev.activityState.chaptersMap[0].chessAiMode.mode == 'puzzle') {
       const move = action.payload.from.concat(action.payload.to);
       if (
         !prev.activityState.chaptersMap[0].chessAiMode.moves[
@@ -388,6 +460,7 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
       console.error('Action Error', action, prev, e);
       return prev;
     }
+   
   }
 
   if (action.type === 'loadedChapter:import') {

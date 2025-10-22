@@ -113,6 +113,7 @@ export type AichessActivityActions =
   | Action<'deleteChapter', { id: Chapter['id'] }>
   | Action<'loadChapter', { id: Chapter['id'] }>
   | Action<'loadedChapter:addMove', ChessMove>
+  | Action<'loadedChapter:addPuzzleMove', ChessMove>
   | Action<'loadedChapter:setPuzzleMoves', chessAiMode>
   | Action<'loadedChapter:writeMessage', Message>
   | Action<'loadedChapter:focusHistoryIndex', FBHIndex>

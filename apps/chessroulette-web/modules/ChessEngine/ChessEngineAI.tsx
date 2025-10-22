@@ -90,7 +90,7 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
       setSkill(skill);
       setDepth(depth);
       //   setCurrentRating(ratingCurr ?? currentRating);
-      console.log(skill, depth, ratingCurr);
+    //  console.log(skill, depth, ratingCurr);
       ratingEngine(ratingCurr ?? currentRating);
     }
   }, [newRatingEngine]);
@@ -186,7 +186,6 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
   }, [error]);
 
   useEffect(() => {
-    console.log('potez');
     // console.log('stockfishRef.current',stockfishRef.current)
     if (stockfishRef.current) {
       stockfishRef.current.onmessage = (event) => {
@@ -200,7 +199,7 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
         if (event.data.startsWith('info depth')) {
           if (event.data == 'info depth 0 score mate 0') {
             IsMate(true);
-            console.log('event.data', event.data);
+          //  console.log('event.data', event.data);
             const parts = fen.split(' ');
             // console.log('parts',parts)
             (parts[1] === 'w' && orientation === 'w') ||
@@ -234,7 +233,7 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
                     : addGameEvaluation(-50000);
                 } else if (type === 'score mate 2') {
                   const parts = fen.split(' ');
-                  console.log('ide mat 2', parts);
+               //   console.log('ide mat 2', parts);
                   (parts[1] === 'w' && orientation === 'w') ||
                   (parts[1] === 'b' && orientation === 'b')
                     ? // (parts[1] === 'w' && orientation==='b') || (parts[1] === 'b' && orientation==='w')
