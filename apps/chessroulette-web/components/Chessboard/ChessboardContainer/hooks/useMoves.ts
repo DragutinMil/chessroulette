@@ -14,6 +14,31 @@ import {
 import { Square } from 'chess.js';
 import { Err, Ok, Result } from 'ts-results';
 
+type MoveActions = {
+  onSquareClick: (square: Square, pieceSan?: PieceSan) => void;
+  onPieceDrag: (pieceSan: PieceSan, square: Square) => void;
+  onPieceDrop: (from: Square, to: Square, pieceSan: PieceSan) => boolean;
+  onClearPromoMove: () => void;
+  promoMove: ShortChessMove | undefined;
+  preMove: ChessboardPreMove | undefined;
+  pendingMove: ChessBoardPendingMove | undefined;
+};
+
+type PlayerPendingMove = {
+  white: ChessBoardPendingMove | undefined;
+  black: ChessBoardPendingMove | undefined;
+};
+
+type PlayerMoves = {
+  pendingMove: ChessBoardPendingMove | undefined;
+  preMove: ChessboardPreMove | undefined;
+};
+
+type PlayerMovesState = {
+  white: PlayerMoves;
+  black: PlayerMoves;
+};
+
 type Props = {
   isMyTurn: boolean;
   // This is the color than can move the pieces
@@ -37,34 +62,266 @@ export const useMoves = ({
   onPreMove,
   onValidateMove,
   onSquareClickOrDrag,
-}: Props) => {
-  const [pendingMove, setPendingMove] = useState<ChessBoardPendingMove>();
+}: Props): MoveActions => {
+  const [playerMoves, setPlayerMoves] = useState<PlayerMovesState>({
+    white: { pendingMove: undefined, preMove: undefined },
+    black: { pendingMove: undefined, preMove: undefined }
+  });
+
   const [promoMove, setPromoMove] = useState<ShortChessMove>();
   //const [premoveAnimationDelay] = useState(300);
   // pre move
   const allowsPremoves = !!onPreMove;
-  const [preMove, setPreMove] = useState<ChessboardPreMove>();
-  // Promo Move calling
-  useEffect(() => {
-    // If the premove is not active cannot move
-    if (!onPreMove) {
-      return;
+ 
+  const currentPlayer = playingColor === 'w' ? 'white' : 'black';
+  const getCurrentMoves = () => playerMoves[currentPlayer];
+  
+  const setPreMove = (move: ChessboardPreMove | undefined) => {
+    setPlayerMoves(prev => ({
+      ...prev,
+      [currentPlayer]: {
+        ...prev[currentPlayer],
+        preMove: move
+      }
+    }));
+  };
+
+  const setPendingMove = (move: ChessBoardPendingMove | undefined) => {
+    setPlayerMoves(prev => ({
+      ...prev,
+      [currentPlayer]: {
+        ...prev[currentPlayer],
+        pendingMove: move
+      }
+    }));
+  };
+
+  // Debug logging
+  const logMove = (action: string, data: any) => {
+    console.log(`[ChessMove][${playingColor}] ${action}:`, {
+      ...data,
+      currentMoves: getCurrentMoves(),
+      isMyTurn
+    });
+  };
+
+  const onClickOrDrag = ({
+    square,
+    pieceSan,
+  }: {
+    square: Square;
+    pieceSan?: PieceSan;
+  }) => {
+    onSquareClickOrDrag?.();
+  
+    const piece = pieceSan ? pieceSanToPiece(pieceSan) : undefined;
+    const isMyPiece = piece?.color === playingColor;
+    const currentMoves = getCurrentMoves();
+  
+    logMove('Click/Drag', {
+      square,
+      pieceSan,
+      isMyPiece,
+      currentMoves
+    });
+  
+    // First handle premoves during opponent's turn
+    if (allowsPremoves && !isMyTurn) {
+      // Case 1: Click on my piece to start premove
+      // Case 4: Drag my piece to start premove
+      if (!currentMoves.preMove && piece && isMyPiece) {
+        setPreMove({ from: square, piece });
+        logMove('Start premove', { square, piece });
+        return;
+      }
+  
+      if (currentMoves.preMove) {
+        // Cancel premove if clicking same square
+        if (currentMoves.preMove.from === square) {
+          setPreMove(undefined);
+          logMove('Cancel premove', { square });
+          return;
+        }
+  
+        // Case 2: Complete premove by clicking destination
+        if (!piece || piece.color !== playingColor) {
+          setPreMove({
+            ...currentMoves.preMove,
+            to: square,
+          });
+          logMove('Complete premove by click', { from: currentMoves.preMove.from, to: square });
+          return;
+        }
+  
+        // Change premove piece if clicking different piece
+        if (piece && isMyPiece) {
+          setPreMove({ from: square, piece });
+          logMove('Change premove piece', { square, piece });
+          return;
+        }
+      }
+    }
+  
+    if (isMyTurn && currentMoves.preMove) {
+      // Case 3 & 4: Complete premove that was started earlier
+      if (!currentMoves.preMove.to) {
+        if (square === currentMoves.preMove.from) {
+          // Cancel premove if clicking same square
+          setPreMove(undefined);
+          logMove('Cancel pending premove', { square });
+          return;
+        }
+  
+        // Complete the premove as a regular move
+        const moveAttempt = {
+          from: currentMoves.preMove.from,
+          to: square,
+          piece: currentMoves.preMove.piece
+        };
+  
+        // Check for promotion
+        if (isValidPromoMove(moveAttempt)) {
+          setPromoMove(moveAttempt);
+          setPreMove(undefined);
+          logMove('Set promotion from premove', moveAttempt);
+          return;
+        }
+  
+        // Try regular move
+        onMoveIfValid(moveAttempt).map(() => {
+          logMove('Execute premove as regular move', moveAttempt);
+          setPreMove(undefined);
+        });
+        return;
+      }
     }
 
-    // If it's not my turn cannot move
-    if (!isMyTurn) {
-      return;
-    }
-
-    if (preMove && preMove.to) {
-      const { to } = preMove;
-      setTimeout(() => {
+    // Handle incomplete premove completion during my turn
+    if (isMyTurn && currentMoves.preMove && !currentMoves.preMove.to) {
+      if (square === currentMoves.preMove.from) {
+        // Cancel premove if clicking same square
         setPreMove(undefined);
-        onPreMove({ ...preMove, to });
-        // For some reason it it's not waiting 300ms, the animation is choppy...changed to useState GDM
-      }, premoveAnimationDelay);
+        logMove('Cancel premove on my turn', { square });
+        return;
+      }
+  
+      // Complete the premove as a regular move
+      const moveAttempt = {
+        from: currentMoves.preMove.from,
+        to: square,
+        piece: currentMoves.preMove.piece
+      };
+  
+      // Check for promotion
+      if (isValidPromoMove(moveAttempt)) {
+        setPromoMove(moveAttempt);
+        setPreMove(undefined);
+        logMove('Set promotion from premove', moveAttempt);
+        return;
+      }
+  
+      // Try regular move
+      onMoveIfValid(moveAttempt).map(() => {
+        logMove('Execute premove as regular move', moveAttempt);
+        setPreMove(undefined);
+      });
+      return;
     }
-  }, [isMyTurn, preMove, allowsPremoves, onPreMove]);
+  
+    // Clear premove if it's my turn and premove is complete
+    if (isMyTurn && currentMoves.preMove?.to) {
+      setPreMove(undefined);
+    }
+  
+    // Handle regular moves during my turn
+    if (isMyTurn) {
+      // If no pending move exists
+      if (!currentMoves.pendingMove?.from) {
+        if (!isMyPiece) {
+          logMove('Invalid piece selection', { square });
+          return;
+        }
+        setPendingMove({ from: square, piece });
+        logMove('Select piece', { square, piece });
+        return;
+      }
+  
+      // If we have a pending move without destination
+      if (!currentMoves.pendingMove.to) {
+        // Deselect if same square
+        if (square === currentMoves.pendingMove.from) {
+          setPendingMove(undefined);
+          logMove('Deselect piece', { square });
+          return;
+        }
+  
+        // Change selection if clicking another of my pieces
+        if (piece?.color === currentMoves.pendingMove.piece.color) {
+          setPendingMove({
+            piece,
+            from: square,
+          });
+          logMove('Change piece selection', { square, piece });
+          return;
+        }
+  
+        // Check for promotion
+        if (isValidPromoMove({
+          ...currentMoves.pendingMove,
+          to: square,
+        })) {
+          setPromoMove({ ...currentMoves.pendingMove, to: square });
+          logMove('Set promotion', { from: currentMoves.pendingMove.from, to: square });
+          return;
+        }
+  
+        // Regular move
+        const moveAttempt = { from: currentMoves.pendingMove.from, to: square };
+        logMove('Attempt regular move', moveAttempt);
+        
+        onMoveIfValid(moveAttempt).map(() => {
+          logMove('Move executed', moveAttempt);
+          setPendingMove(undefined);
+        });
+      }
+    }
+  };
+
+  // Promo Move calling
+// Add effect to preserve premove across turn changes
+  useEffect(() => {
+    const currentMoves = getCurrentMoves();
+  
+    logMove('Turn changed', {
+      currentMoves,
+      isMyTurn,
+  });
+
+  // If we have a complete premove and it's our turn, execute it
+  if (isMyTurn && currentMoves.preMove?.to) {
+    const moveToExecute = {
+      from: currentMoves.preMove.from,
+      to: currentMoves.preMove.to  // Now we know this exists because of the check above
+    };
+    
+    setTimeout(() => {
+      onMove(moveToExecute);
+      setPreMove(undefined);
+    }, premoveAnimationDelay);
+  }
+}, [isMyTurn]);
+
+
+  useEffect(() => {
+    const currentMoves = getCurrentMoves();
+    logMove('State updated', {
+      pendingMove: currentMoves.pendingMove,
+      preMove: currentMoves.preMove,
+      isMyTurn,
+      playingColor
+    });
+  }, [playerMoves, isMyTurn]);
+
 
   const onMoveIfValid = (m: ShortChessMove): Result<void, void> => {
     if (onValidateMove(m)) {
@@ -83,136 +340,71 @@ export const useMoves = ({
       promoteTo: 'q',
     });
 
-  const onClickOrDrag = ({
-    square,
-    pieceSan,
-  }: {
-    square: Square;
-    pieceSan?: PieceSan;
-  }) => {
-    onSquareClickOrDrag?.();
 
-    const piece = pieceSan ? pieceSanToPiece(pieceSan) : undefined;
-    const isMyPiece = piece?.color === playingColor;
-
-    // Premoves
-    // TODO: Shuld I have other checks like it's my piece etc?
-    if (allowsPremoves && !isMyTurn) {
-      // When there's no premove and the square is a piece, set it
-      if (preMove) {
-        if (preMove.from === square) {
-          // Reset it if same square
-          setPreMove(undefined);
-        } else if (piece && isMyPiece) {
-          // If clicking on my piece, just reset it to that piece
-          setPreMove({ from: square, piece });
-        } else {
-          // Otherwise finish the premove
-
-          setPreMove({
-            ...preMove,
-            to: square,
-          });
+    const onPieceDrop = (from: Square, to: Square, pieceSan: PieceSan) => {
+      const currentMoves = getCurrentMoves();
+      const piece = pieceSanToPiece(pieceSan);
+      
+      logMove('Piece drop', { from, to, pieceSan });
+    
+      // Case 1: Complete premove by dragging to destination
+      if (!isMyTurn && allowsPremoves) {
+        if (piece.color === playingColor) {
+          if (currentMoves.preMove) {
+            // Complete existing premove
+            setPreMove({ ...currentMoves.preMove, to });
+            logMove('Complete premove by drag', { from: currentMoves.preMove.from, to });
+          } else {
+            // Start new premove
+            setPreMove({ from, piece });
+            logMove('Start premove by drag', { from, piece });
+          }
+          return false;
         }
-      } else if (!preMove && piece && isMyPiece) {
-        // When there is a premove it doesn't matter if the square is a piece (capture) or not
-        setPreMove({ from: square, piece });
       }
-    } else if (isMyTurn && preMove) {
-      setPreMove(undefined);
-    }
-    //   else if(isMyTurn && preMove) {
-    //     setPreMove(undefined);
-    // }
-
-    // If there is no existent Pending Move ('from' set)
-    else if (!pendingMove?.from) {
-      // If there none of myPieces on the square return early
-      if (!isMyPiece) {
-        return;
+    
+      // Case 3 & 4: Complete premove that was started earlier
+      if (isMyTurn && currentMoves.preMove && !currentMoves.preMove.to) {
+        const moveAttempt = {
+          from: currentMoves.preMove.from,
+          to,
+          piece: currentMoves.preMove.piece
+        };
+    
+        if (isValidPromoMove(moveAttempt)) {
+          setPromoMove(moveAttempt);
+          setPreMove(undefined);
+          return true;
+        }
+    
+        const result = onMoveIfValid(moveAttempt);
+        if (result.ok) {
+          setPreMove(undefined);
+        }
+        return result.ok;
       }
-
-      setPendingMove({ from: square, piece });
-
-      return;
-    }
-
-    // Otherwise If there is an existent Pending Move without the 'to' set
-    else if (!pendingMove?.to) {
-      // Return early if the from and to square are the same
-      if (square === pendingMove.from) {
-        setPendingMove(undefined);
-        return;
+    
+      // Handle regular moves
+      setPendingMove(undefined);
+      
+      if (isValidPromoMove({ from, to, piece })) {
+        setPromoMove({ from, to });
+        return true;
       }
-
-      // Simply change the pending moves if the same side
-      else if (piece?.color === pendingMove.piece.color) {
-        setPendingMove({
-          piece,
-          from: square,
-        });
-        return;
-      }
-
-      // Check if Promo Move
-      else if (
-        isValidPromoMove({
-          ...pendingMove,
-          to: square,
-        })
-      ) {
-        setPromoMove({ ...pendingMove, to: square });
-        return;
-      }
-
-      // Otherwise simply move (on click piece and than click field)
-      else {
-        onMoveIfValid({ from: pendingMove.from, to: square }).map(() => {
-          setPendingMove(undefined);
-        });
-      }
-    }
+    
+      return onMoveIfValid({ from, to }).ok;
+    };
+    
+    // Fix the return object (remove ...moveActions since it doesn't exist)
+    return {
+      onSquareClick: (square: Square, pieceSan?: PieceSan) =>
+        onClickOrDrag({ square, pieceSan }),
+      onPieceDrag: (pieceSan: PieceSan, square: Square) =>
+        onClickOrDrag({ square, pieceSan }),
+      onPieceDrop,
+      onClearPromoMove: () => setPromoMove(undefined),
+      promoMove,
+      preMove: getCurrentMoves().preMove,
+      pendingMove: getCurrentMoves().pendingMove
+    };
   };
-
-  const onPieceDrop = (from: Square, to: Square, pieceSan: PieceSan) => {
-    //console.log('piece',pieceSan,to, from )
-    // simply move on Drag&Drop if no pre or promo move
-    // if(!preMove && !isValidPromoMove({ from, to, piece: pieceSanToPiece(pieceSan) })){
-    //   return onMoveIfValid({ from, to }).ok;
-    // }
-    // Check for premoves first
-    //Dragutin added !isMyTurn
-    if (preMove && !isMyTurn) {
-      setPreMove({ ...preMove, to });
-      // As this is not yet a valid move, return false
-      return false;
-    }
-    setPendingMove(undefined);
-    // Check first if vald Promo Move
-    if (isValidPromoMove({ from, to, piece: pieceSanToPiece(pieceSan) })) {
-      setPromoMove({ from, to });
-      return true;
-    }
-    //Otherwie simply move on Drag&Drop
-    return onMoveIfValid({ from, to }).ok;
-  };
-
-  // function makeAMove(move) {
-  //   const gameCopy = { ...game };
-  //   const result = gameCopy.move(move);
-  //   setGame(gameCopy);
-  //   return result; // null if the move was illegal, the move object if the move was legal
-  // }
-
-  return {
-    onSquareClick: (square: Square, pieceSan?: PieceSan) =>
-      onClickOrDrag({ square, pieceSan }),
-    onPieceDrag: (pieceSan: PieceSan, square: Square) =>
-      onClickOrDrag({ square, pieceSan }),
-    onPieceDrop,
-    onClearPromoMove: () => setPromoMove(undefined),
-    promoMove,
-    pendingMove,
-    preMove,
-  };
-};
