@@ -59,6 +59,7 @@ type Props = {
   chaptersMapIndex: number;
   currentChapterState: ChapterState;
   onPuzzleMove: (move: MovePiece) => void;
+  onMove: (move: MovePiece) => void;
   onTakeBack: FreeBoardNotationProps['onRefocus'];
   onCircleDraw: (tuple: CircleDrawTuple) => void;
   onArrowsChange: (tuple: ArrowsMap) => void;
@@ -106,6 +107,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
       onCircleDraw,
       onArrowsChange,
       onPuzzleMove,
+      onMove,
       puzzleOrientation,
       addChessAi,
       onMessage,
@@ -663,17 +665,17 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
             currentChapterState.orientation == 'w'
               ? { from: fromChess, to: toChess, promoteTo: 'q' }
               : { from: fromChess, to: toChess, promoteTo: 'Q' };
-          setTimeout(() => onPuzzleMove(n), 1500);
+          setTimeout(() => onMove(n), 1500);
         } else {
           let n = { from: fromChess, to: toChess };
           if (currentChapterState.notation.history.length == 0) {
-            setTimeout(() => onPuzzleMove(n), 1500);
+            setTimeout(() => onMove(n), 1500);
           } else {
             if (timeoutEnginePlay) {
-              setTimeout(() => onPuzzleMove(n), 2500);
+              setTimeout(() => onMove(n), 2500);
               setTimeoutEnginePlay(false);
             } else {
-              setTimeout(() => onPuzzleMove(n), 700);
+              setTimeout(() => onMove(n), 700);
             }
           }
         }
@@ -707,7 +709,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
 
       const data = await getPuzzle(category);
 
-      if (!data.fen && data.message) {
+      if (data && !data.fen && data.message) {
         if (
           !currentChapterState.messages[
             currentChapterState.messages.length - 1
@@ -787,7 +789,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
     };
 
     const takeBack = async () => {
-      setTimeoutEnginePlay(true);
+      // setTimeoutEnginePlay(true);
       if (currentChapterState.notation.focusedIndex[0] !== -1) {
         if (currentChapterState.notation.focusedIndex[0] == 0) {
           onTakeBack([0, 0]);

@@ -27,6 +27,7 @@ type Props = {
   onImport: PgnInputBoxProps['onChange'];
   onQuickImport: PgnInputBoxProps['onChange'];
   onPuzzleMove: (move: MovePiece) => void;
+  onMove: (move: MovePiece) => void;
   onTakeBack: FreeBoardNotationProps['onRefocus'];
   addChessAi: (moves: chessAiMode) => void;
   onMessage: (message: Message) => void;
@@ -77,6 +78,7 @@ export const WidgetPanel = React.forwardRef<TabsRef, Props>(
       onTakeBack,
       addChessAi,
       onMessage,
+      onMove,
       playerNames,
       puzzleOrientation,
       addGameEvaluation,
@@ -102,6 +104,7 @@ export const WidgetPanel = React.forwardRef<TabsRef, Props>(
         onCircleDraw={onCircleDraw}
         onArrowsChange={onArrowsChange}
         onPuzzleMove={onPuzzleMove}
+        onMove={onMove}
         onTakeBack={onTakeBack}
         historyBackToStart={historyBackToStart}
         onImport={onImport}
