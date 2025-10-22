@@ -51,7 +51,7 @@ const Conversation = ({
   min-h-[150px]
   ${
     currentChapterState.chessAiMode.mode === 'puzzle'
-      ? 'md:max-h-[500px] max-h-[200px]'
+      ? 'md:max-h-[500px] max-h-[190px]'
       : 'max-h-[350px]'
   }
   md:h-[316px]
