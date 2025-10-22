@@ -37,13 +37,11 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
       console.error('The chapter wasnt found');
       return prev;
     }
-
     if (prevChapter.notation.focusedIndex[1] == 0) {
       prevChapter.notation.history.pop();
+      prevChapter.notation.history.at(-1)?.pop();
     } else if (prevChapter.notation.focusedIndex[1] == 1) {
-      prevChapter.notation.history[
-        prevChapter.notation.history.length - 1
-      ].pop();
+      prevChapter.notation.history.pop();
     }
 
     const historyAtFocusedIndex =

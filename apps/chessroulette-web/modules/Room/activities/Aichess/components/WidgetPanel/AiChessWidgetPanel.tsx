@@ -789,10 +789,12 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
     const takeBack = async () => {
       setTimeoutEnginePlay(true);
       if (currentChapterState.notation.focusedIndex[0] !== -1) {
-        if (currentChapterState.notation.focusedIndex[1] == 0) {
-          onTakeBack([currentChapterState.notation.focusedIndex[0] - 1, 1]);
+        if (currentChapterState.notation.focusedIndex[0] == 0) {
+          onTakeBack([0, 0]);
+        } else if (currentChapterState.notation.focusedIndex[1] == 0) {
+          onTakeBack([currentChapterState.notation.focusedIndex[0] - 1, 0]);
         } else {
-          onTakeBack([currentChapterState.notation.focusedIndex[0], 0]);
+          onTakeBack([currentChapterState.notation.focusedIndex[0] - 1, 1]);
         }
       }
     };
@@ -972,7 +974,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
                   )}
                   <div className="flex-1 justify-between flex flex-col border bg-op-widget border-conversation-100 pb-2 px-2 md:px-4 md:pb-4 rounded-lg  ">
                     {currentChapterState.chessAiMode.mode !== 'review' ? (
-                      <div className="mt-4 flex flex-col justify-between  h-full max-h-[500px]">
+                      <div className="mt-4 flex flex-col justify-between  h-full max-h-[340px]">
                         <Conversation
                           currentChapterState={currentChapterState}
                           openViewSubscription={openViewSubscription}
@@ -986,7 +988,13 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
                           smallMobile={smallMobile}
                         />
 
-                        <div className="mt-auto flex md:my-[20px] justify-around items-center gap-3 mt-3 my-[14px]">
+                        <div
+                          className={` relative  flex md:my-[20px] justify-around items-center gap-3 mt-3 my-[14px] ${
+                            currentChapterState.chessAiMode.mode === 'top'
+                              ? '10px'
+                              : ''
+                          }`}
+                        >
                           {/* hidden md:flex  */}
                           <ButtonGreen
                             onClick={() => {
@@ -1240,7 +1248,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
                         : currentChapterState.chessAiMode.mode === 'puzzle'
                         ? 'calc(100% - 600px)'
                         : 'calc(100% - 300px)',
-                      minHeight: '52px',
+                      minHeight: isMobile ? '52px' : '202px',
                     }}
                     className={`
                       ${
@@ -1249,7 +1257,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
                           : 'hidden'
                       }  
                       
-                      md:block rounded-lg border border-conversation-100 md:p-4 p-2 overflow-scroll no-scrollbar 
+                     overflow-x-auto md:overflow-x-hidden  md:flex rounded-lg border border-conversation-100 md:p-4 p-2 overflow-scroll no-scrollbar 
                     `}
                   >
                     <FreeBoardNotation
