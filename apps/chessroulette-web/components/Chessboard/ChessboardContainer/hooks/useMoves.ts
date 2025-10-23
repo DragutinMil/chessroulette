@@ -351,6 +351,11 @@ export const useMoves = ({
       if (!isMyTurn && allowsPremoves) {
         if (piece.color === playingColor) {
           if (currentMoves.preMove) {
+            if (from !== currentMoves.preMove.from) {
+              setPreMove({ from, piece });
+              logMove('Change premove piece by drag', { from, piece });
+              return false;
+            }
             // Complete existing premove
             setPreMove({ ...currentMoves.preMove, to });
             logMove('Complete premove by drag', { from: currentMoves.preMove.from, to });
@@ -365,6 +370,16 @@ export const useMoves = ({
     
       // Case 3 & 4: Complete premove that was started earlier
       if (isMyTurn && currentMoves.preMove && !currentMoves.preMove.to) {
+        if (from !== currentMoves.preMove.from) {
+          setPreMove(undefined);
+          
+          if (isValidPromoMove({ from, to, piece })) {
+            setPromoMove({ from, to });
+            return true;
+          }
+          
+          return onMoveIfValid({ from, to }).ok;
+        }
         const moveAttempt = {
           from: currentMoves.preMove.from,
           to,
@@ -383,7 +398,13 @@ export const useMoves = ({
         }
         return result.ok;
       }
-    
+  // Handle regular moves during player's turn
+  // If there's a pending move and we're dragging a different piece,
+  // cancel the pending move and try the new move instead
+  if (isMyTurn && currentMoves.pendingMove && from !== currentMoves.pendingMove.from) {
+    setPendingMove(undefined);
+  }    
+
       // Handle regular moves
       setPendingMove(undefined);
       
