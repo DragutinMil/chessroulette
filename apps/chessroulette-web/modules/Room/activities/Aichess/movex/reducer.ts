@@ -38,16 +38,22 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
       console.error('The chapter wasnt found');
       return prev;
     }
-    let newHistory = prevChapter.notation.history.map((inner) => [...inner]);
-    if (prevChapter.notation.focusedIndex[0] == 0) {
-      newHistory.pop();
-    } else if (prevChapter.notation.focusedIndex[1] === 0) {
-      newHistory.pop();
-      newHistory.at(-1)?.pop();
-    } else if (prevChapter.notation.focusedIndex[1] === 1) {
-      newHistory.pop();
-    }
+let newHistory = prevChapter.notation.history.map((inner) => [...inner]);
+const [row, col] = prevChapter.notation.focusedIndex;
 
+const safeRow = Math.max(0, Math.min(row, newHistory.length - 1));
+const safeCol = Math.max(0, Math.min(col, newHistory[safeRow]?.length - 1));
+
+if (safeRow === 0 && safeCol === 0) {
+  newHistory.pop();
+} else if (safeCol === 0) {
+  newHistory.pop();
+  newHistory.at(-1)?.pop();
+} else if (safeCol === 1) {
+  newHistory.pop();
+}
+   
+   console.log('newHistory',newHistory)
     // if (prevChapter.notation.focusedIndex[1] == 0) {
     //   prevChapter.notation.history.pop();
     //   prevChapter.notation.history.at(-1)?.pop();
@@ -136,6 +142,7 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
       ],
       notation: {
         ...prevChapter.notation,
+        history: newHistory as FBHHistory,
         focusedIndex: action.payload,
       },
     };

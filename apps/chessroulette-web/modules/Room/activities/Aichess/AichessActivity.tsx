@@ -250,13 +250,13 @@ export const AichessActivity = ({
                         dispatch({ type: 'loadedChapter:addMove', payload })
                       );
                     } else if (
-                  currentChapter.notation.focusedIndex[0] !==
+                 ( currentChapter.notation.focusedIndex[0] !==
                     currentChapter.notation.history?.length - 1 ||
                   currentChapter.notation.focusedIndex[1] !==
                     currentChapter.notation.history[
                       currentChapter.notation.history.length - 1
                     ]?.length -
-                      1
+                      1) && currentChapter.notation.history.length!==0
         ) {
           return;
         }else{
