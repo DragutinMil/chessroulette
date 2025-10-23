@@ -4,7 +4,7 @@ import {
   getNewChessGame,
   localChessMoveToChessLibraryMove,
   isValidPgn,
-  FBHHistory
+  FBHHistory,
 } from '@xmatter/util-kit';
 import { Chapter, ChapterState, AichessActivityState } from './types';
 
@@ -38,16 +38,15 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
       console.error('The chapter wasnt found');
       return prev;
     }
-    let newHistory = prevChapter.notation.history.map(inner => [...inner]);
-if (prevChapter.notation.focusedIndex[0] == 0) {
-    newHistory.pop();
-} else if (prevChapter.notation.focusedIndex[1] === 0) {
-  newHistory.pop();
-  newHistory.at(-1)?.pop();
-} else if (prevChapter.notation.focusedIndex[1] === 1) {
-  newHistory.pop();
-}
-
+    let newHistory = prevChapter.notation.history.map((inner) => [...inner]);
+    if (prevChapter.notation.focusedIndex[0] == 0) {
+      newHistory.pop();
+    } else if (prevChapter.notation.focusedIndex[1] === 0) {
+      newHistory.pop();
+      newHistory.at(-1)?.pop();
+    } else if (prevChapter.notation.focusedIndex[1] === 1) {
+      newHistory.pop();
+    }
 
     // if (prevChapter.notation.focusedIndex[1] == 0) {
     //   prevChapter.notation.history.pop();
@@ -102,7 +101,7 @@ if (prevChapter.notation.focusedIndex[0] == 0) {
         notation: {
           ...prevChapter.notation,
           focusedIndex: action.payload,
-          history: newHistory as FBHHistory
+          history: newHistory as FBHHistory,
         },
       };
 
@@ -158,10 +157,8 @@ if (prevChapter.notation.focusedIndex[0] == 0) {
 
   // TODO: Should this be split?
 
-
-
   if (action.type === 'loadedChapter:addMove') {
-  // TODO: the logic for this should be in GameHistory class/static  so it can be tested
+    // TODO: the logic for this should be in GameHistory class/static  so it can be tested
     try {
       const prevChapter = findLoadedChapter(prev.activityState);
 
@@ -219,7 +216,7 @@ if (prevChapter.notation.focusedIndex[0] == 0) {
   }
 
   if (action.type === 'loadedChapter:addPuzzleMove') {
-   if (prev.activityState.chaptersMap[0].chessAiMode.mode == 'puzzle') {
+    if (prev.activityState.chaptersMap[0].chessAiMode.mode == 'puzzle') {
       const move = action.payload.from.concat(action.payload.to);
       if (
         !prev.activityState.chaptersMap[0].chessAiMode.moves[
@@ -241,42 +238,12 @@ if (prevChapter.notation.focusedIndex[0] == 0) {
           prev.activityState.chaptersMap[0].messages[
             prev.activityState.chaptersMap[0].messages.length - 1
           ].idResponse;
-        // if (
-        //   prev.activityState.chaptersMap[0].messages[prev.activityState.chaptersMap[0].messages.length - 1]
-        //     .content !== 'That wasn’t the right move.' &&
-        //   prev.activityState.chaptersMap[0].messages[prev.activityState.chaptersMap[0].messages.length - 1]
-        //     .content !== 'Would you like a hint, or try again on your own?'
-        // ) {
+
         const message = {
           content: prompt,
           participantId: 'chatGPT123456',
           idResponse: idResponse,
         };
-        //   return {
-        //   ...prev,
-        //   activityState: {
-        //     ...prev.activityState,
-        //     chaptersMap: {
-        //       ...prev.activityState.chaptersMap,
-        //       [0]: {
-        //         ...prev.activityState.chaptersMap[0],
-        //          messages: [
-        //         ...(prev.activityState.chaptersMap[0].messages ?? []),
-        //         message,
-        //       ],
-        //         chessAiMode: {
-        //           ...prev.activityState.chaptersMap[0].chessAiMode,
-        //           ratingChange: badMovePoints,
-        //           userPuzzleRating:
-        //             prev.activityState.chaptersMap[0].chessAiMode
-        //               .userPuzzleRating + badMovePoints,
-        //           // badMoves: badMoveCount,
-        //         },
-        //       },
-        //     },
-        //   },
-        // };
-        // }
 
         return {
           ...prev,
@@ -460,7 +427,6 @@ if (prevChapter.notation.focusedIndex[0] == 0) {
       console.error('Action Error', action, prev, e);
       return prev;
     }
-   
   }
 
   if (action.type === 'loadedChapter:import') {
@@ -730,29 +696,6 @@ if (prevChapter.notation.focusedIndex[0] == 0) {
       idResponse: idResponse,
     };
 
-    // messages: [
-    //           ...(prev.activityState.chaptersMap[0].messages ?? []),
-    //           {
-    //             content: action.payload.content,
-    //             participantId: action.payload.participantId,
-    //             idResponse: action.payload.idResponse,
-    //           },
-    //         ],
-
-    //  if (
-    //     !prevChapter.messages[
-    //       prevChapter.messages.length - 1
-    //     ].content.includes('Think about using')
-    //   ) {
-    //     onMessage({
-    //       content: `Think about using your ${piece}`,
-    //       participantId: 'chatGPT123456',
-    //       idResponse:
-    //         prevChapter.messages[
-    //           prevChapter.messages.length - 1
-    //         ].idResponse,
-    //     });
-    //   }
     const nextChapter: Chapter = {
       ...prevChapter,
       circlesMap: {

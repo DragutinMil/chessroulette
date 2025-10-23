@@ -31,7 +31,6 @@ type Props = {
   onTakeBack: FreeBoardNotationProps['onRefocus'];
   addChessAi: (moves: chessAiMode) => void;
   onMessage: (message: Message) => void;
-  puzzleOrientation: () => void;
   onCircleDraw: (tuple: CircleDrawTuple) => void;
   onArrowsChange: (tuple: ArrowsMap) => void;
   onHistoryNotationRefocus: FreeBoardNotationProps['onRefocus'];
@@ -80,7 +79,6 @@ export const WidgetPanel = React.forwardRef<TabsRef, Props>(
       onMessage,
       onMove,
       playerNames,
-      puzzleOrientation,
       addGameEvaluation,
       userData,
       onHistoryNotationRefocus,
@@ -94,7 +92,6 @@ export const WidgetPanel = React.forwardRef<TabsRef, Props>(
         playerNames={playerNames}
         onHistoryNotationDelete={onHistoryNotationDelete}
         onHistoryNotationRefocus={onHistoryNotationRefocus}
-        puzzleOrientation={puzzleOrientation}
         addChessAi={addChessAi}
         onMessage={onMessage}
         addGameEvaluation={addGameEvaluation}
