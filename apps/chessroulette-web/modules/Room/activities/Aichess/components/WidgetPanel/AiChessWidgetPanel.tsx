@@ -131,6 +131,8 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
     const [popupSubscribe, setPopupSubscribe] = useState(false);
     const [progressReview, setProgressReview] = useState(0);
     const [reviewData, setReviewData] = useState<EvaluationMove[]>([]);
+    const [freezeButton, setFreezeButton] = useState(false);
+    
     const smallMobile =
       typeof window !== 'undefined' && window.innerWidth < 400;
     const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
@@ -225,6 +227,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
         //FIRST MOVE
       } else if (
         data.answer.fen &&
+        data.answer.messageType == 'setTablePlay' &&
         ChessFENBoard.validateFenString(data.answer.fen).ok
       ) {
         const changeOrientation =
@@ -667,13 +670,30 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
         } else {
           let n = { from: fromChess, to: toChess };
           if (currentChapterState.notation.history.length == 0) {
-            setTimeout(() => onMove(n), 1500);
+            setTimeout(() => {
+               if (!isMyTurn){
+                onMove(n); 
+              }
+            }
+            , 1500);
           } else {
             if (timeoutEnginePlay) {
-              setTimeout(() => onMove(n), 2500);
+              setTimeout(() =>  {
+               if (!isMyTurn){
+                onMove(n); 
+              }
+            }
+              
+              , 2000);
               setTimeoutEnginePlay(false);
             } else {
-              setTimeout(() => onMove(n), 700);
+              setTimeout(() =>  {
+               if (!isMyTurn){
+                onMove(n); 
+              }
+            }
+              
+              , 700);
             }
           }
         }
@@ -700,13 +720,14 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
       });
     };
     const puzzles = async (category?: string) => {
+      setFreezeButton(true)
       const now = Date.now();
 
       if (now - lastClick.current < 500) return; // ignoriši dvoklik unutar 0.5s
       lastClick.current = now;
 
       const data = await getPuzzle(category);
-
+      
       if (data && !data.fen && data.message) {
         if (
           !currentChapterState.messages[
@@ -734,6 +755,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
             idResponse: data.id,
           });
         }
+         setTimeout(() =>   setFreezeButton(false), 2000);
       }
 
       if (data.fen && ChessFENBoard.validateFenString(data.fen).ok) {
@@ -767,6 +789,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
         const from = data.solution[0].slice(0, 2);
         const to = data.solution[0].slice(2, 4);
         const m = data.solution[0];
+        setTimeout(() =>   setFreezeButton(false), 2000);
         if (
           m.length == 5 &&
           (m.slice(-1) == 'q' ||
@@ -844,6 +867,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
     };
 
     const play = async () => {
+        setFreezeButton(true)
       addChessAi({
         moves: [],
         movesCount: 0,
@@ -860,6 +884,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
         responseId: '',
         message: '',
       });
+      setTimeout(() =>   setFreezeButton(false), 3000);
     };
     const moveReaction = async (probabilityDiff: number) => {
       const content =
@@ -893,7 +918,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
         }, 400);
       }
     };
-
+   
     // const importPgn = async () => {
     //   const fen = '7R/2r3P1/8/8/2b4p/P4k2/8/4K3 b - - 10 55';
     //   if (ChessFENBoard.validateFenString(fen).ok) {
@@ -1005,7 +1030,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
                             style={{
                               maxWidth: smallMobile ? '68px' : '',
                             }}
-                            disabled={
+                            disabled={ freezeButton || 
                               currentChapterState.messages[
                                 currentChapterState.messages.length - 1
                               ]?.participantId.includes('sales') ||
@@ -1033,7 +1058,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
                             style={{
                               maxWidth: smallMobile ? '70px' : '',
                             }}
-                            disabled={
+                            disabled={ freezeButton || 
                               currentChapterState.messages[
                                 currentChapterState.messages.length - 1
                               ]?.participantId.includes('sales') ||
@@ -1065,8 +1090,13 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
                               takeBack();
                             }}
                             disabled={
+                              freezeButton || 
                               currentChapterState.notation.history.length < 1 ||
-                              currentChapterState.chessAiMode.mode == 'puzzle'
+                              currentChapterState.chessAiMode.mode == 'puzzle' ||
+                              (currentChapterState.notation.history.length-1 !== currentChapterState.notation.focusedIndex[0])
+                              || (currentChapterState.notation.history.length-1 == currentChapterState.notation.focusedIndex[0] &&
+                              currentChapterState.notation.history[currentChapterState.notation.history.length-1].length-1 !==   currentChapterState.notation.focusedIndex[1]      
+                              )
                             }
                             size="sm"
                             className={`${
@@ -1092,7 +1122,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
                             }}
                             size="sm"
                             className=" md:max-w-[92px] max-w-[80px]"
-                            disabled={currentChapterState.messages[
+                            disabled={ freezeButton || currentChapterState.messages[
                               currentChapterState.messages.length - 1
                             ]?.participantId.includes('sales')}
                           >
