@@ -8,6 +8,7 @@ import { ResizableDesktopLayout } from '@app/templates/ResizableDesktopLayout';
 import { useAichessActivitySettings } from './hooks/useAichessActivitySettings';
 import { getSubscribeInfo } from './util';
 import { AiChessDialogContainer } from './DialogContainer/AiChessDialogContainer';
+import { enqueueMovexUpdate } from './util';
 import {
   AichessActivityState,
   findLoadedChapter,
@@ -100,15 +101,6 @@ export const AichessActivity = ({
               : data.target_name_first;
 
           setPlayerNames([whitePlayerName, blackPlayerName]);
-
-          //  if(white){ setUserSide('w');}
-          //  if(black){ setUserSide('b');}
-          //   if(data.results.initiator_id === userId){
-
-          //     setPlayerNames([data.initiator_name_first,data.target_name_first] )
-          //   }else{
-          //     setPlayerNames([data.target_name_first, data.initiator_name_first] )
-          //   }
           const changeOrientation =
             (currentChapter.orientation === 'b' && black) ||
             (currentChapter.orientation === 'w' && white);
@@ -204,21 +196,27 @@ export const AichessActivity = ({
             //  Learn Mode */}
             <div>
               <AiChessDialogContainer
-                onMessage={(payload) =>
-                  dispatch({
-                    type: 'loadedChapter:writeMessage',
-                    payload: payload,
-                  })
+                onMessage={async (payload) =>
+                  await enqueueMovexUpdate(() =>
+                    dispatch({
+                      type: 'loadedChapter:writeMessage',
+                      payload: payload,
+                    })
+                  )
                 }
-                onPuzzleMove={(payload) => {
+                onPuzzleMove={async (payload) => {
                   moveSound.play();
-                  dispatch({ type: 'loadedChapter:addPuzzleMove', payload });
+                  await enqueueMovexUpdate(() =>
+                    dispatch({ type: 'loadedChapter:addPuzzleMove', payload })
+                  );
                 }}
-                addChessAi={(payload: chessAiMode) =>
-                  dispatch({
-                    type: 'loadedChapter:setPuzzleMoves',
-                    payload: payload as chessAiMode,
-                  })
+                addChessAi={async (payload: chessAiMode) =>
+                  await enqueueMovexUpdate(() =>
+                    dispatch({
+                      type: 'loadedChapter:setPuzzleMoves',
+                      payload: payload as chessAiMode,
+                    })
+                  )
                 }
                 currentChapter={currentChapter}
               />
@@ -239,14 +237,22 @@ export const AichessActivity = ({
                       payload: { color: swapColor(currentChapter.orientation) },
                     });
                   }}
-                  onMove={(payload) => {
+                  onMove={async (payload) => {
                     moveSound.play();
-                    if(currentChapter.chessAiMode.mode==='puzzle'){
-                        dispatch({ type: 'loadedChapter:addPuzzleMove', payload });
-                    }else{
-                       dispatch({ type: 'loadedChapter:addMove', payload });
+
+                    if (currentChapter.chessAiMode.mode === 'puzzle') {
+                      await enqueueMovexUpdate(() =>
+                        dispatch({
+                          type: 'loadedChapter:addPuzzleMove',
+                          payload,
+                        })
+                      );
+                    } else {
+                      await enqueueMovexUpdate(() =>
+                        dispatch({ type: 'loadedChapter:addMove', payload })
+                      );
                     }
-                    
+
                     // TODO: This can be returned from a more internal component
                     return true;
                   }}
@@ -320,50 +326,57 @@ export const AichessActivity = ({
             </div>
           )}
           <WidgetPanel
-            onTakeBack={(payload) => {
-              dispatch({
-                type: 'loadedChapter:takeBack',
-                payload,
-              });
+            onTakeBack={async (payload) => {
+              await enqueueMovexUpdate(() =>
+                dispatch({
+                  type: 'loadedChapter:takeBack',
+                  payload,
+                })
+              );
             }}
-            addGameEvaluation={(payload) => {
+            addGameEvaluation={async (payload) => {
               // console.log('evaluacija', payload);
-              dispatch({ type: 'loadedChapter:gameEvaluation', payload });
+              await enqueueMovexUpdate(() =>
+                dispatch({ type: 'loadedChapter:gameEvaluation', payload })
+              );
             }}
-             onMove={(payload) => {
+            onMove={async (payload) => {
               moveSound.play();
-              dispatch({ type: 'loadedChapter:addMove', payload });
+              await enqueueMovexUpdate(() =>
+                dispatch({ type: 'loadedChapter:addMove', payload })
+              );
             }}
-            onPuzzleMove={(payload) => {
+            onPuzzleMove={async (payload) => {
               moveSound.play();
-              dispatch({ type: 'loadedChapter:addPuzzleMove', payload });
+              await enqueueMovexUpdate(() =>
+                dispatch({ type: 'loadedChapter:addPuzzleMove', payload })
+              );
             }}
-            addChessAi={(payload: chessAiMode) =>
-              dispatch({
-                type: 'loadedChapter:setPuzzleMoves',
-                payload: payload as chessAiMode,
-              })
+            addChessAi={async (payload: chessAiMode) =>
+              await enqueueMovexUpdate(() =>
+                dispatch({
+                  type: 'loadedChapter:setPuzzleMoves',
+                  payload: payload as chessAiMode,
+                })
+              )
             }
-            onCircleDraw={(tuple) => {
-              dispatch({
-                type: 'loadedChapter:drawCircle',
-                payload: tuple,
-              });
+            onCircleDraw={async (tuple) => {
+              await enqueueMovexUpdate(() =>
+                dispatch({
+                  type: 'loadedChapter:drawCircle',
+                  payload: tuple,
+                })
+              );
             }}
-            onArrowsChange={(payload) => {
-              dispatch({ type: 'loadedChapter:setArrows', payload });
+            onArrowsChange={async (payload) => {
+              await enqueueMovexUpdate(() =>
+                dispatch({ type: 'loadedChapter:setArrows', payload })
+              );
             }}
-            onMessage={(payload) =>
-              dispatch({
-                type: 'loadedChapter:writeMessage',
-                payload: payload,
-              })
-            }
-            puzzleOrientation={() =>
-              dispatch({
-                type: 'loadedChapter:setOrientation',
-                payload: { color: swapColor(currentChapter.orientation) },
-              })
+            onMessage={async (payload) =>
+              await enqueueMovexUpdate(() =>
+                dispatch({ type: 'loadedChapter:writeMessage', payload })
+              )
             }
             historyBackToStart={historyBackToStart}
             userData={userData}

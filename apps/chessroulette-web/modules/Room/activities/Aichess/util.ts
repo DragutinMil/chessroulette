@@ -304,3 +304,17 @@ export async function getSubscribeInfo() {
     console.error('Fetch error', error);
   }
 }
+//
+let movexUpdateQueue = Promise.resolve();
+
+export function enqueueMovexUpdate<T>(
+  updateFn: () => Promise<T> | void
+): Promise<void> {
+  movexUpdateQueue = movexUpdateQueue
+    .then(async () => {
+      await updateFn();
+    })
+    .catch((err) => console.error('Error in Movex update:', err));
+
+  return movexUpdateQueue;
+}
