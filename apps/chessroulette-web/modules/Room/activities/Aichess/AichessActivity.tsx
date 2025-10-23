@@ -17,7 +17,6 @@ import {
   MovePiece,
 } from './movex';
 import { getMatch } from './util';
-
 import { WidgetPanel } from './components/WidgetPanel';
 import { AichessBoard } from './components/AichessBoard';
 import { RIGHT_SIDE_SIZE_PX } from '../../constants';
@@ -76,7 +75,6 @@ export const AichessActivity = ({
     const userId = url.searchParams.get('userId');
 
     if (rawPgn) {
-      console.log('trubadur');
       const getMatchInfo = async () => {
         const data = await getMatch(rawPgn);
         if (data) {
@@ -247,11 +245,25 @@ export const AichessActivity = ({
                           payload,
                         })
                       );
-                    } else {
+                    } else if (currentChapter.chessAiMode.mode === 'review') {
                       await enqueueMovexUpdate(() =>
                         dispatch({ type: 'loadedChapter:addMove', payload })
                       );
-                    }
+                    } else if (
+                  currentChapter.notation.focusedIndex[0] !==
+                    currentChapter.notation.history?.length - 1 ||
+                  currentChapter.notation.focusedIndex[1] !==
+                    currentChapter.notation.history[
+                      currentChapter.notation.history.length - 1
+                    ]?.length -
+                      1
+        ) {
+          return;
+        }else{
+          await enqueueMovexUpdate(() =>
+                        dispatch({ type: 'loadedChapter:addMove', payload })
+                      );
+        }
 
                     // TODO: This can be returned from a more internal component
                     return true;
@@ -398,24 +410,25 @@ export const AichessActivity = ({
             onUpdateInputModeState={(payload) => {
               dispatchInputState({ type: 'update', payload });
             }}
-            onHistoryNotationRefocus={(payload) => {
+            onHistoryNotationRefocus={async (payload) => {
+              await enqueueMovexUpdate(() =>
               dispatch({
                 type: 'loadedChapter:focusHistoryIndex',
                 payload,
-              });
+              }))
             }}
-            onHistoryNotationDelete={(payload) => {
-              dispatch({
+            onHistoryNotationDelete={async (payload) => {
+             await enqueueMovexUpdate(() => dispatch({
                 type: 'loadedChapter:deleteHistoryMove',
                 payload,
-              });
+              }))
             }}
-            onImport={(payload) => {
+            onImport={async (payload) => {
               // TODO: This is retarded - having to check and then send the exact same thing :)
               if (payload.type === 'FEN') {
-                dispatchInputState({ type: 'import', payload });
+                await enqueueMovexUpdate(() => dispatchInputState({ type: 'import', payload }))
               } else {
-                dispatchInputState({ type: 'import', payload });
+                 await enqueueMovexUpdate(() =>dispatchInputState({ type: 'import', payload }))
               }
             }}
             onCreateChapter={() => {

@@ -225,6 +225,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
         //FIRST MOVE
       } else if (
         data.answer.fen &&
+        data.answer.messageType == 'setTablePlay' &&
         ChessFENBoard.validateFenString(data.answer.fen).ok
       ) {
         const changeOrientation =
@@ -893,7 +894,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
         }, 400);
       }
     };
-
+   
     // const importPgn = async () => {
     //   const fen = '7R/2r3P1/8/8/2b4p/P4k2/8/4K3 b - - 10 55';
     //   if (ChessFENBoard.validateFenString(fen).ok) {
@@ -1066,7 +1067,11 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
                             }}
                             disabled={
                               currentChapterState.notation.history.length < 1 ||
-                              currentChapterState.chessAiMode.mode == 'puzzle'
+                              currentChapterState.chessAiMode.mode == 'puzzle' ||
+                              (currentChapterState.notation.history.length-1 !== currentChapterState.notation.focusedIndex[0])
+                              || (currentChapterState.notation.history.length-1 == currentChapterState.notation.focusedIndex[0] &&
+                              currentChapterState.notation.history[currentChapterState.notation.history.length-1].length-1 !==   currentChapterState.notation.focusedIndex[1]      
+                              )
                             }
                             size="sm"
                             className={`${
