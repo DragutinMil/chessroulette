@@ -327,6 +327,9 @@ reducer.$transformState = (state, masterContext): MatchState => {
       at: masterContext.requestAt, // TODO: this can take in account the lag as well
       prevTimeLeft: ongoingPlay.timeLeft,
       turn,
+      timeClass: ongoingPlay.timeClass,
+      isMove: true,
+
     });
 
     return {
