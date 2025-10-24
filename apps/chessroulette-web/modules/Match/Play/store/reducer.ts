@@ -104,6 +104,8 @@ export const reducer = (
       at: moveAt,
       turn: nextLastMoveBy,
       prevTimeLeft: prev.timeLeft,
+      timeClass: prev.timeClass, // Add this
+      isMove: true, // Add this to indicate this is a move update
     });
 
     // Prev Game Status is "Ongoing"
@@ -182,6 +184,8 @@ export const reducer = (
       at: action.payload.at,
       turn,
       prevTimeLeft: prev.timeLeft,
+      timeClass: prev.timeClass,
+      isMove: true,
     });
 
     // The Game timed out
