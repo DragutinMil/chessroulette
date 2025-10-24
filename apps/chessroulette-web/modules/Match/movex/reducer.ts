@@ -323,13 +323,15 @@ reducer.$transformState = (state, masterContext): MatchState => {
   if (ongoingPlay?.status === 'ongoing') {
     const turn = swapColor(ongoingPlay.lastMoveBy);
 
-    const nextTimeLeft = PlayStore.calculateTimeLeftAt({
-      at: masterContext.requestAt, // TODO: this can take in account the lag as well
-      prevTimeLeft: ongoingPlay.timeLeft,
-      turn,
-      timeClass: ongoingPlay.timeClass,
-      isMove: true,
+  const timeSince = masterContext.requestAt - ongoingPlay.timeLeft.lastUpdatedAt;
 
+  if (timeSince > 100) {
+      const nextTimeLeft = PlayStore.calculateTimeLeftAt({
+        at: masterContext.requestAt,
+        turn,
+        prevTimeLeft: ongoingPlay.timeLeft,
+        timeClass: ongoingPlay.timeClass, // Add timeClass
+        isMove: false // This is not a move, just a time update
     });
 
     return {
@@ -340,6 +342,9 @@ reducer.$transformState = (state, masterContext): MatchState => {
       },
     };
   }
+
+  return state;
+}
 
   // If the ongoing game is idling & the abort time has passed
   if (
