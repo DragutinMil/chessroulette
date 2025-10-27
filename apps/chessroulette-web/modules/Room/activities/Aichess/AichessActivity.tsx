@@ -250,20 +250,21 @@ export const AichessActivity = ({
                         dispatch({ type: 'loadedChapter:addMove', payload })
                       );
                     } else if (
-                 ( currentChapter.notation.focusedIndex[0] !==
-                    currentChapter.notation.history?.length - 1 ||
-                  currentChapter.notation.focusedIndex[1] !==
-                    currentChapter.notation.history[
-                      currentChapter.notation.history.length - 1
-                    ]?.length -
-                      1) && currentChapter.notation.history.length!==0
-        ) {
-          return;
-        }else{
-          await enqueueMovexUpdate(() =>
+                      (currentChapter.notation.focusedIndex[0] !==
+                        currentChapter.notation.history?.length - 1 ||
+                        currentChapter.notation.focusedIndex[1] !==
+                          currentChapter.notation.history[
+                            currentChapter.notation.history.length - 1
+                          ]?.length -
+                            1) &&
+                      currentChapter.notation.history.length !== 0
+                    ) {
+                      return;
+                    } else {
+                      await enqueueMovexUpdate(() =>
                         dispatch({ type: 'loadedChapter:addMove', payload })
                       );
-        }
+                    }
 
                     // TODO: This can be returned from a more internal component
                     return true;
@@ -412,23 +413,30 @@ export const AichessActivity = ({
             }}
             onHistoryNotationRefocus={async (payload) => {
               await enqueueMovexUpdate(() =>
-              dispatch({
-                type: 'loadedChapter:focusHistoryIndex',
-                payload,
-              }))
+                dispatch({
+                  type: 'loadedChapter:focusHistoryIndex',
+                  payload,
+                })
+              );
             }}
             onHistoryNotationDelete={async (payload) => {
-             await enqueueMovexUpdate(() => dispatch({
-                type: 'loadedChapter:deleteHistoryMove',
-                payload,
-              }))
+              await enqueueMovexUpdate(() =>
+                dispatch({
+                  type: 'loadedChapter:deleteHistoryMove',
+                  payload,
+                })
+              );
             }}
             onImport={async (payload) => {
               // TODO: This is retarded - having to check and then send the exact same thing :)
               if (payload.type === 'FEN') {
-                await enqueueMovexUpdate(() => dispatchInputState({ type: 'import', payload }))
+                await enqueueMovexUpdate(() =>
+                  dispatchInputState({ type: 'import', payload })
+                );
               } else {
-                 await enqueueMovexUpdate(() =>dispatchInputState({ type: 'import', payload }))
+                await enqueueMovexUpdate(() =>
+                  dispatchInputState({ type: 'import', payload })
+                );
               }
             }}
             onCreateChapter={() => {

@@ -26,7 +26,6 @@ export async function analyzePGN(pgn, { onProgress } = {}, isMobile) {
   let previousEval = 0;
 
   for (let i = 0; i < moves.length; i++) {
-    
     const move = moves[i];
     chess.move(move);
 
