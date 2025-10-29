@@ -16,6 +16,8 @@ import { PeerToPeerCameraWidget } from '../PeerToPeer';
 import { ChatWidget } from './widgets/ChatWidget';
 import { useCurrentOrPrevMatchPlay } from './Play/hooks';
 import { ButtonGreen } from '@app/components/Button/ButtonGreen';
+import { Footer } from '@app/components/Footer/Footer';
+
 
 type Props = DistributivePick<
   PlayerContainerProps,
@@ -90,6 +92,7 @@ export const MatchContainer = ({
     <MatchProvider match={match} userId={userId} dispatch={dispatch}>
       <ResizableDesktopLayout
         mainComponent={({ boardSize }) => (
+          <>
           <PlayContainer
             key={match.endedGames.length}
             sizePx={boardSize}
@@ -98,6 +101,42 @@ export const MatchContainer = ({
             }
             {...boardProps}
           />
+
+          {activeWidget === 'chat' && (
+            <div className="md:hidden fixed inset-0 z-50 bg-black/80 flex flex-col">
+             <div className="flex-1 overflow-y-auto pb-20"> {/* Dodajemo padding na dnu za footer */}
+              <ChatWidget
+                messages={match.messages || []}
+                currentUserId={userId}
+                playerNames={{
+                  [match.challenger.id]:
+                    match.challenger.displayName || 'Challenger',
+                  [match.challengee.id]:
+                    match.challengee.displayName || 'Challengee',
+                }}
+                onSendMessage={(content) => {
+                  dispatch((masterContext) => ({
+                    type: 'play:sendMessage',
+                    payload: {
+                      senderId: userId,
+                      content,
+                      timestamp: masterContext.requestAt(),
+                    },
+                  }));
+                }}
+                onToggleChat={(enabled) => {
+                  setIsChatEnabled(enabled);
+                }}
+                otherPlayerChatEnabled={otherPlayerChatEnabled}
+              />
+            </div>  
+            </div>  
+          )}
+            <Footer 
+            activeWidget={activeWidget}
+            setActiveWidget={setActiveWidget}
+          />
+          </>
         )}
         rightSideSize={boardProps.rightSideSizePx}
         rightComponent={
@@ -108,34 +147,7 @@ export const MatchContainer = ({
               </div>
             </div>
 
-            <div className="flex gap-2">
-              <ButtonGreen
-
-                  onClick={() => setActiveWidget('camera')}
-                  className={`flex-1 font-bold text-black ${
-                  activeWidget === 'camera' 
-                   ? 'bg-[#07DA63] !bg-[#07DA63] hover:!bg-[#07DA63]' 
-                   : 'opacity-50 text-white'
-                 }`}
-            >
-             Camera
-            </ButtonGreen>
-            <ButtonGreen
-                 onClick={() => 
-                  
-                 setActiveWidget('chat')}
-                 className={`flex-1 font-bold text-black ${
-                 activeWidget === 'chat' 
-                   ? 'bg-[#07DA63] !bg-[#07DA63] hover:!bg-[#07DA63]' 
-                   : 'opacity-50 text-white'
-                }`}
-            >
-            Chat
-           </ButtonGreen>
-      </div>
-
-
-            <div className="w-full h-[300px] overflow-hidden rounded-lg shadow-2xl">
+            <div className="w-full h-[300px] overflow-hidden rounded-lg shadow-2xl md:block">
               {activeWidget === 'camera' ? (
                 <PeerToPeerCameraWidget />
               ) : (
@@ -172,8 +184,14 @@ export const MatchContainer = ({
             </div>
 
             <div className="bg-op-widget pl-2 pr-2 pt-2 pb-2 md:p-3 flex flex-col gap-2 md:flex-1 min-h-0 rounded-lg shadow-2xl md:overflow-y-scroll">
+              <div className= "hidden md:block"> 
               <GameNotationWidget />
-              <PlayControlsContainer />
+              
+              <PlayControlsContainer
+                activeWidget={activeWidget} 
+                setActiveWidget={setActiveWidget}
+              />
+              </div>
             </div>
           </div>
         }

@@ -2,8 +2,14 @@ import { PlayControls } from './PlayControls';
 import { useCurrentOrPrevMatchPlay, usePlayActionsDispatch } from '../../hooks';
 import { PENDING_UNTIMED_GAME } from '@app/modules/Game';
 import { cons } from 'fp-ts/lib/ReadonlyNonEmptyArray';
+import { useState, useEffect } from 'react';
 
-export const PlayControlsContainer = () => {
+type Props = {
+  activeWidget: 'chat' | 'camera';
+  setActiveWidget: (widget: 'chat' | 'camera') => void;
+};
+
+export const PlayControlsContainer = ({ activeWidget, setActiveWidget }: Props) => {
   const dispatch = usePlayActionsDispatch();
   const { lastOffer, game, playersBySide, hasGame } =
     useCurrentOrPrevMatchPlay();
@@ -14,6 +20,8 @@ export const PlayControlsContainer = () => {
 
   return (
     <PlayControls
+      activeWidget={activeWidget}
+      setActiveWidget={setActiveWidget}
       homeColor={playersBySide.home.color}
       playerId={playersBySide.home.id}
       onDrawOffer={() => {
