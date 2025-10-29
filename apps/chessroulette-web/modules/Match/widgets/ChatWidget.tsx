@@ -33,7 +33,6 @@ export const ChatWidget: React.FC<Props> = ({
   const LAST_MESSAGE_STATE_KEY = `chessroulette-last-message-state-${currentUserId}`;
   const LAST_DISABLED_MESSAGES_KEY = `chessroulette-last-disabled-messages-${currentUserId}`;
 
-
   const [inputValue, setInputValue] = useState('');
   const [unreadCount, setUnreadCount] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -42,15 +41,19 @@ export const ChatWidget: React.FC<Props> = ({
     return savedState === null ? true : savedState === 'true';
   });
 
-const [lastMessageState, setLastMessageState] = useState<LastMessageState>(() => {
-  const saved = localStorage.getItem(LAST_MESSAGE_STATE_KEY);
-  return saved ? JSON.parse(saved) : { count: 0, timestamp: Date.now() };
-});
+  const [lastMessageState, setLastMessageState] = useState<LastMessageState>(
+    () => {
+      const saved = localStorage.getItem(LAST_MESSAGE_STATE_KEY);
+      return saved ? JSON.parse(saved) : { count: 0, timestamp: Date.now() };
+    }
+  );
 
-const [lastDisabledMessages, setLastDisabledMessages] = useState<ChatMessage[]>(() => {
-  const saved = localStorage.getItem(LAST_DISABLED_MESSAGES_KEY);
-  return saved ? JSON.parse(saved) : messages;
-});
+  const [lastDisabledMessages, setLastDisabledMessages] = useState<
+    ChatMessage[]
+  >(() => {
+    const saved = localStorage.getItem(LAST_DISABLED_MESSAGES_KEY);
+    return saved ? JSON.parse(saved) : messages;
+  });
 
   const scrollToBottom = (): void => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -58,7 +61,10 @@ const [lastDisabledMessages, setLastDisabledMessages] = useState<ChatMessage[]>(
 
   useEffect(() => {
     if (!isChatEnabled) {
-      localStorage.setItem(LAST_DISABLED_MESSAGES_KEY, JSON.stringify(lastDisabledMessages));
+      localStorage.setItem(
+        LAST_DISABLED_MESSAGES_KEY,
+        JSON.stringify(lastDisabledMessages)
+      );
     }
   }, [lastDisabledMessages, isChatEnabled]);
 
@@ -78,22 +84,21 @@ const [lastDisabledMessages, setLastDisabledMessages] = useState<ChatMessage[]>(
     }
   }, [messages, isChatEnabled, lastDisabledMessages]);
 
-
   useEffect(() => {
     if (!isChatEnabled && messages.length > 0) {
       const newState: LastMessageState = {
         count: messages.length - lastDisabledMessages.length,
         lastMessage: messages[messages.length - 1],
-        timestamp: Date.now()
+        timestamp: Date.now(),
       };
       setLastMessageState(newState);
       localStorage.setItem(LAST_MESSAGE_STATE_KEY, JSON.stringify(newState));
     }
   }, [messages, isChatEnabled, lastDisabledMessages]);
 
-
-  const newMessageCount = !isChatEnabled ? messages.length - lastDisabledMessages.length : 0;
-  
+  const newMessageCount = !isChatEnabled
+    ? messages.length - lastDisabledMessages.length
+    : 0;
 
   const getInitials = (name: string) => {
     return name
@@ -108,14 +113,14 @@ const [lastDisabledMessages, setLastDisabledMessages] = useState<ChatMessage[]>(
     const newState = !isChatEnabled;
     setIsChatEnabled(newState);
     localStorage.setItem(CHAT_ENABLED_STORAGE_KEY, newState.toString());
-    
+
     if (!newState) {
       // Kada se chat isključi
       setLastDisabledMessages(messages);
 
       setLastMessageState({
         count: 0,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       });
     } else {
       // Kada se chat uključi
@@ -154,12 +159,11 @@ const [lastDisabledMessages, setLastDisabledMessages] = useState<ChatMessage[]>(
         <div className="flex items-center gap-2">
           <Text className="text-sm font-semibold">Chat</Text>
           {!isChatEnabled && newMessageCount > 0 && (
-        <div className="flex flex-col items-start">
-        <span className="bg-[#07DA63] text-white rounded-full px-2 py-0.5 text-xs">
-          {lastMessageState.count} new
-        </span>
-
-        </div>
+            <div className="flex flex-col items-start">
+              <span className="bg-[#07DA63] text-white rounded-full px-2 py-0.5 text-xs">
+                {lastMessageState.count} new
+              </span>
+            </div>
           )}
         </div>
         <div className="flex items-center gap-2">
@@ -183,8 +187,7 @@ const [lastDisabledMessages, setLastDisabledMessages] = useState<ChatMessage[]>(
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-3 space-y-2 scrollbar-hide">  
-
+      <div className="flex-1 overflow-y-auto p-3 space-y-2 scrollbar-hide">
         {(isChatEnabled ? messages : lastDisabledMessages).map((msg, index) => {
           const isOwnMessage = msg.senderId === currentUserId;
           const displayName = playerNames[msg.senderId] || 'Unknown';

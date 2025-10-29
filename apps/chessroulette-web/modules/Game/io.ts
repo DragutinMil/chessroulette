@@ -10,7 +10,7 @@ export const gameTimeClassRecord = z.union([
   z.literal('rapid'),
   z.literal('untimed'),
   z.literal('bullet'),
-  z.literal('bullet2')
+  z.literal('bullet2'),
 ]);
 
 export type GameTimeClass = z.infer<typeof gameTimeClassRecord>;

@@ -8,8 +8,8 @@ export const getTimeIncrement = (timeClass: GameTimeClass): number => {
       return 1000;
     case 'blitz3plus2':
       return 2000; // 2 seconds in milliseconds
-      case 'blitzplus2':
-        return 2000; // 2 seconds in milliseconds
+    case 'blitzplus2':
+      return 2000; // 2 seconds in milliseconds
     default:
       return 0;
   }

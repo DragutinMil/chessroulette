@@ -78,6 +78,7 @@ export const HistoryMove = ({
       : '✅✅';
 
   let moveCoplete = '';
+
   if (iconicEngine !== '' && bestMoves.length < 2) {
     moveCoplete = `${move.san} ${iconicEngine}`;
   } else if (evalDiff < -0.5 && iconicEngine !== '') {
@@ -97,6 +98,25 @@ export const HistoryMove = ({
   return (
     <RowItem
       san={moveCoplete}
+      tooltip={
+        !bestMoves
+          ? ''
+          : iconicEngine === '🎯'
+          ? 'Top move'
+          : iconicEngine === '⚡⚡'
+          ? 'Strong move'
+          : iconicEngine === '⚡'
+          ? 'Strong move'
+          : iconic === '❌'
+          ? 'Blunder!'
+          : iconic === '⬇️'
+          ? 'Inaccuracy'
+          : iconic === '✅'
+          ? 'Good move.'
+          : iconic === '✅✅'
+          ? 'Amazing move!'
+          : ''
+      }
       isFocused={isFocused}
       onClick={() => onFocus(rootHistoryIndex)}
       onContextMenu={onContextMenu}

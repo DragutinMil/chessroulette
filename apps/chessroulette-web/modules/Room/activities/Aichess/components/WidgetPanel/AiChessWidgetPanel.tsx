@@ -277,12 +277,21 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
       }, 500);
 
       if (currentChapterState.chessAiMode.mode !== 'review') {
+        const pgn = currentChapterState.notation.history
+          .map((pair, i) => {
+            const white = pair[0]?.san || '';
+            const black = pair[1]?.san || '';
+            return `${i + 1}. ${white} ${black}`.trim();
+          })
+          .join(' ');
+
         const data = await SendQuestion(
           question,
           currentChapterState,
           stockfishMovesInfo,
           lines[1],
-          currentRatingEngine
+          currentRatingEngine,
+          pgn
         );
         if (data) {
           setPulseDot(false);
@@ -899,16 +908,24 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
           ? 'Nice! You’re gaining a slight edge.'
           : probabilityDiff === 2 &&
             'Excellent move! You’re taking control. ✅';
+      const isAtLastMove =
+        currentChapterState.notation.focusedIndex[0] ===
+          currentChapterState.notation.history.length - 1 &&
+        currentChapterState.notation.focusedIndex[1] ===
+          (currentChapterState.notation.history.at(-1)?.length ?? 0) - 1;
+
       if (
         probabilityDiff === -1 &&
-        currentChapterState.chessAiMode.mode === 'play'
+        currentChapterState.chessAiMode.mode === 'play' &&
+        isAtLastMove
       ) {
         setTakeBakeShake(true);
         setTimeout(() => {
           setTakeBakeShake(false);
         }, 3000);
       }
-      if (currentChapterState.chessAiMode.mode == 'play') {
+
+      if (currentChapterState.chessAiMode.mode == 'play' && isAtLastMove) {
         setTimeout(() => {
           onMessage({
             content: content.toString(),
@@ -1002,7 +1019,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
                   )}
                   <div className="flex-1 justify-between flex flex-col border bg-op-widget border-conversation-100 pb-2 px-2 md:px-4 md:pb-4 rounded-lg  ">
                     {currentChapterState.chessAiMode.mode !== 'review' ? (
-                      <div className="mt-4 flex flex-col justify-between  h-full max-h-[340px]">
+                      <div className="mt-4 flex flex-col justify-between  h-full max-h-[340px] md:min-h-[300px] min-h-[200px] ">
                         <Conversation
                           currentChapterState={currentChapterState}
                           openViewSubscription={openViewSubscription}

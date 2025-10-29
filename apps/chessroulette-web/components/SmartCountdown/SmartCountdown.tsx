@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import React, {
+  useState,
+  useEffect,
+  useMemo,
+  useRef,
+  useCallback,
+} from 'react';
 import {
   SmartCountdownDisplay,
   SmartCountdownDisplayProps,
@@ -34,7 +40,6 @@ export const SmartCountdown = ({
   const [timeLeft, setTimeLeft] = useState(msLeft);
   const [interval, setInterval] = useState(timeLeftToIntervalMs(msLeft));
 
-
   const lastTickRef = useRef<number>(Date.now());
   const animationFrameRef = useRef<number>();
   const hasPlayedWarning = useRef(false);
@@ -44,11 +49,11 @@ export const SmartCountdown = ({
 
   const updateTime = () => {
     if (!isActive) return;
-    
+
     const now = Date.now();
     const elapsed = now - startTimeRef.current;
     const newTimeLeft = Math.max(0, initialMsLeft.current - elapsed);
-    
+
     // Only update if time has actually changed
     if (newTimeLeft !== timeLeft) {
       setTimeLeft(newTimeLeft);
@@ -58,7 +63,6 @@ export const SmartCountdown = ({
     // Schedule next update
     animationFrameRef.current = requestAnimationFrame(updateTime);
   };
-
 
   useEffect(() => {
     if (warningSound) {
@@ -84,7 +88,7 @@ export const SmartCountdown = ({
         const newTimeLeft = Math.max(0, initialMsLeft.current - elapsed);
         setTimeLeft(newTimeLeft);
         lastTickRef.current = Date.now();
-        
+
         // Restart animation frame loop
         if (animationFrameRef.current) {
           cancelAnimationFrame(animationFrameRef.current);
