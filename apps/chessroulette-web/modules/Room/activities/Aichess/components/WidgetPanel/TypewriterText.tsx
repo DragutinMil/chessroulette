@@ -28,8 +28,8 @@ const TypewriterText: React.FC<TypewriterTextProps> = ({
     { label: 'Mate in 1', value: 'Check Mate in 1' },
     { label: 'Mate in 2', value: 'Check Mate in 2' },
     { label: 'Mate in 3', value: 'Check Mate in 3' },
-    { label: 'Check-Mate Puzzles', value: 'Check-Mate Puzzles' },
-    { label: 'Pattern Puzzles', value: 'Pattern Puzzles' },
+    { label: 'Check-Mate Puzzle', value: 'Check-Mate Puzzle' },
+    { label: 'Pattern Puzzle', value: 'Pattern Puzzle' },
 
     // [{"label":"Check Mate in 1"},{"label":"Check Mate in 2"},{"label":"Check Mate in 3"},{"label":"Check Mate in 4"},{"label":"Check Mate in 5"},{"label":"Check Mate in 6"},
     //   {"label":"Check Mate in 7"},{"label":"Check-Mate Puzzles"},{"label":"Endgame"},{"label":"Pattern Puzzles"}]

@@ -8,7 +8,8 @@ export async function SendQuestion(
   currentChapterState: ChapterState,
   stockfishMovesInfo: string,
   bestline: string,
-  currentRatingEngine: number | null
+  currentRatingEngine: number | null,
+  pgn?: string
 ) {
   const model = 'gpt-4.1-mini';
   const previusMessageId =
@@ -66,7 +67,8 @@ export async function SendQuestion(
     '\n' +
     'current rating engine: ' +
     currentRatingEngine;
-
+  '\n' + 'pgn: ' + pgn;
+  '\n' + 'starting fen position: ' + currentChapterState.notation.startingFen;
   //  JSON VARIANT
   // {
   //   question: promptQuestion,
