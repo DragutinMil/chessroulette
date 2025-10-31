@@ -17,39 +17,42 @@ type Props = {
   onRematchOffer: () => void;
   activeWidget: 'chat' | 'camera';  // Novi prop
   setActiveWidget: (widget: 'chat' | 'camera') => void;  // Novi prop
+  unreadMessagesCount?: number; // Dodajte ovaj prop
+
 };
 
 const CameraOnIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#1f1f1f">
+  <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#000000">
     <path d="M160-160q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h480q33 0 56.5 23.5T720-720v180l160-160v440L720-420v180q0 33-23.5 56.5T640-160H160Zm0-80h480v-480H160v480Zm0 0v-480 480Z"/>
   </svg>
 );
 
 const CameraOffIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#1f1f1f">
+  <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#000000">
     <path d="M880-260 720-420v67l-80-80v-287H353l-80-80h367q33 0 56.5 23.5T720-720v180l160-160v440ZM822-26 26-822l56-56L878-82l-56 56ZM498-575ZM382-464ZM160-800l80 80h-80v480h480v-80l80 80q0 33-23.5 56.5T640-160H160q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800Z"/>
   </svg>
 );
 
 const MessageIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#1f1f1f">
+  <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#000000">
     <path d="M80-80v-720q0-33 23.5-56.5T160-880h640q33 0 56.5 23.5T880-800v480q0 33-23.5 56.5T800-240H240L80-80Zm126-240h594v-480H160v525l46-45Zm-46 0v-480 480Z"/>
   </svg>
+
 );
 
 
 const DrawOfferIcon = () => (
-<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#1f1f1f"><path d="M200-120q-33 0-56.5-23.5T120-200v-160q0-33 23.5-56.5T200-440h560q33 0 56.5 23.5T840-360v160q0 33-23.5 56.5T760-120H200Zm0-400q-33 0-56.5-23.5T120-600v-160q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v160q0 33-23.5 56.5T760-520H200Zm560-240H200v160h560v-160Z"/>
+<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#000000"><path d="M200-120q-33 0-56.5-23.5T120-200v-160q0-33 23.5-56.5T200-440h560q33 0 56.5 23.5T840-360v160q0 33-23.5 56.5T760-120H200Zm0-400q-33 0-56.5-23.5T120-600v-160q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v160q0 33-23.5 56.5T760-520H200Zm560-240H200v160h560v-160Z"/>
 </svg>
 );
 
 const TakebackIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#1f1f1f"><path d="M680-160v-400H313l144 144-56 57-241-241 240-240 57 57-144 143h447v480h-80Z"/>
+  <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#000000"><path d="M680-160v-400H313l144 144-56 57-241-241 240-240 57 57-144 143h447v480h-80Z"/>
   </svg>
 );
 
 const ResignIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#1f1f1f"><path d="M200-80v-760h640l-80 200 80 200H280v360h-80Zm80-440h442l-48-120 48-120H280v240Zm0 0v-240 240Z"/>
+  <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#000000"><path d="M200-80v-760h640l-80 200 80 200H280v360h-80Zm80-440h442l-48-120 48-120H280v240Zm0 0v-240 240Z"/>
   </svg>
 );
 
@@ -64,6 +67,8 @@ export const PlayControls: React.FC<Props> = ({
   lastOffer,
   activeWidget,  
   setActiveWidget,  
+  unreadMessagesCount = 0, 
+
 }) => {
   const { offers: offers = [] } = game;
   const { match, ...matchView } = useMatchViewState();
@@ -164,35 +169,55 @@ export const PlayControls: React.FC<Props> = ({
   }, [game.status, offers, game.lastMoveBy]);
 
   return (
-    <div className="flex flex-row gap-2">
-      <div className="flex gap-2">
-        <ButtonGreen
-          onClick={() => setActiveWidget('camera')}
-          className={`flex-1 font-bold text-black ${
-            activeWidget === 'camera' 
-              ? 'bg-[#07DA63] !bg-[#07DA63] hover:!bg-[#07DA63]' 
-              : 'opacity-50 text-white'
-          }`}
-        >
-        {activeWidget === 'camera' ? <CameraOnIcon /> : <CameraOffIcon />}
-        </ButtonGreen>
-        <ButtonGreen
-          onClick={() => setActiveWidget('chat')}
-          className={`flex-1 font-bold text-black ${
-            activeWidget === 'chat' 
-              ? 'bg-[#07DA63] !bg-[#07DA63] hover:!bg-[#07DA63]' 
-              : 'opacity-50 text-white'
-          }`}
-        >
-          <MessageIcon />
-        </ButtonGreen>
-      </div>
+    <div className="bg-indigo-1300 pl-2 pr-2 pt-2 pb-0 md:p-3  flex flex-row
+       gap-2 md:flex-1 min-h-0 rounded-lg shadow-2xl ">
+
+
+<QuickConfirmButton
+  size="sm"
+  className={`w-full h-10 rounded-[22px] transition-all duration-200 ${
+    activeWidget === 'camera' 
+      ? '!bg-[#07DA63] text-black shadow-lg' 
+      : 'shadow-md'
+  }`}
+  confirmationBgcolor="green"
+  confirmationMessage="camera"
+  bgColor='green'
+  onClick={() => setActiveWidget('camera')}
+>
+  {activeWidget === 'camera' ? <CameraOnIcon /> : <CameraOffIcon />}
+</QuickConfirmButton>
+  
+<QuickConfirmButton 
+  className={`
+    w-full h-10 rounded-[22px] transition-all duration-200
+    ${activeWidget === 'chat' 
+      ? '!bg-[#07DA63] text-black shadow-lg' 
+      : 'shadow-md'
+    }
+  `}
+  size="sm"
+  confirmationBgcolor="green"
+  confirmationMessage="chat"
+  bgColor='green'
+  onClick={() => setActiveWidget('chat')}
+>
+<div className="relative">
+    <MessageIcon />
+    {/* Indikator za nepročitane poruke kada je chat enabled ali kamera aktivna */}
+    {unreadMessagesCount > 0 && activeWidget === 'camera' && (
+      <span className="absolute -top-2 -right-2 bg-[#07DA63] text-black text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+        {unreadMessagesCount > 9 ? '9+' : unreadMessagesCount}
+      </span>
+    )}
+  </div>
+</QuickConfirmButton>
 
       <QuickConfirmButton
         size="sm"
         confirmationBgcolor="green"
-        className="w-full"
-        confirmationMessage="Invite to Draw?"
+        className="w-full h-10 rounded-[22px]"
+        confirmationMessage="draw"
         bgColor="green"
         //icon="Bars3CenterLeftIcon"
         //ArrowsRightLeftIcon
@@ -208,9 +233,9 @@ export const PlayControls: React.FC<Props> = ({
       </QuickConfirmButton>
       <QuickConfirmButton
         size="sm"
-        className="w-full"
+        className="w-full h-10 rounded-[22px]"
         confirmationBgcolor="green"
-        confirmationMessage="Ask for Takeback?"
+        confirmationMessage="takeback"
         bgColor="green"
         //icon="ArrowUturnLeftIcon"
         iconKind="solid"
@@ -225,9 +250,9 @@ export const PlayControls: React.FC<Props> = ({
 
       <QuickConfirmButton
         size="sm"
-        className="w-full"
+        className="w-full h-10 rounded-[22px]"
         confirmationBgcolor="red"
-        confirmationMessage="Confirm Resign?"
+        confirmationMessage="resign"
         bgColor="green"
         //icon="FlagIcon"
         iconKind="solid"

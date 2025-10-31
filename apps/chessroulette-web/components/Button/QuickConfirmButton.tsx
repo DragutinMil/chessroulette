@@ -25,7 +25,8 @@ export const QuickConfirmButton: React.FC<Props> = ({
   });
 
   return (
-    <Button
+    <Button 
+
       {...props}
       ref={buttonRef}
       bgColor={show ? confirmationBgcolor : bgColor}
@@ -40,7 +41,7 @@ export const QuickConfirmButton: React.FC<Props> = ({
       }}
     >
       {show ? (
-        <span className=" text-white">{confirmationMessage}</span>
+        <span className=" text-black">{confirmationMessage}</span>
       ) : (
         children
       )}

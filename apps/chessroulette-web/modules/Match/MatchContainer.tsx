@@ -102,40 +102,13 @@ export const MatchContainer = ({
             {...boardProps}
           />
 
-          {activeWidget === 'chat' && (
-            <div className="md:hidden fixed inset-0 z-50 bg-black/80 flex flex-col">
-             <div className="flex-1 overflow-y-auto pb-20"> {/* Dodajemo padding na dnu za footer */}
-              <ChatWidget
-                messages={match.messages || []}
-                currentUserId={userId}
-                playerNames={{
-                  [match.challenger.id]:
-                    match.challenger.displayName || 'Challenger',
-                  [match.challengee.id]:
-                    match.challengee.displayName || 'Challengee',
-                }}
-                onSendMessage={(content) => {
-                  dispatch((masterContext) => ({
-                    type: 'play:sendMessage',
-                    payload: {
-                      senderId: userId,
-                      content,
-                      timestamp: masterContext.requestAt(),
-                    },
-                  }));
-                }}
-                onToggleChat={(enabled) => {
-                  setIsChatEnabled(enabled);
-                }}
-                otherPlayerChatEnabled={otherPlayerChatEnabled}
-              />
-            </div>  
-            </div>  
-          )}
-            <Footer 
-            activeWidget={activeWidget}
-            setActiveWidget={setActiveWidget}
-          />
+          {activeWidget === 'chat' }
+            {//<Footer 
+            //activeWidget={activeWidget}
+            //setActiveWidget={setActiveWidget}
+            ///>
+          }
+
           </>
         )}
         rightSideSize={boardProps.rightSideSizePx}
@@ -147,10 +120,11 @@ export const MatchContainer = ({
               </div>
             </div>
 
-            <div className="w-full h-[300px] overflow-hidden rounded-lg shadow-2xl md:block">
+            <div className="w-full h-full overflow-hidden rounded-lg shadow-2xl md:flex md:pb-0">
               {activeWidget === 'camera' ? (
                 <PeerToPeerCameraWidget />
               ) : (
+        //        <></>
                 <ChatWidget
                   messages={match.messages || []}
                   currentUserId={userId}
@@ -170,6 +144,7 @@ export const MatchContainer = ({
                       },
                     }));
                   }}
+                  
                   // disabled={!play.game || play.game.status === 'aborted' || play.game.status === 'complete'}
                   onToggleChat={(enabled) => {
                     setIsChatEnabled(enabled);
@@ -183,16 +158,18 @@ export const MatchContainer = ({
               )}
             </div>
 
-            <div className="bg-op-widget pl-2 pr-2 pt-2 pb-2 md:p-3 flex flex-col gap-2 md:flex-1 min-h-0 rounded-lg shadow-2xl md:overflow-y-scroll">
+         {/*   <div className="bg-op-widget pl-2 pr-2 pt-2 pb-2 md:p-3 flex flex-col gap-2 md:flex-1 min-h-0 rounded-lg shadow-2xl">
               <div className= "hidden md:block"> 
-              <GameNotationWidget />
-              
+             { /*ameNotationWidget />
+            */}
+             {/*<div className= "hidden md:block">*/}
+             <div className = "pb-0"> 
               <PlayControlsContainer
                 activeWidget={activeWidget} 
                 setActiveWidget={setActiveWidget}
               />
               </div>
-            </div>
+           {/* </div> */}
           </div>
         }
       />

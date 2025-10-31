@@ -1,12 +1,52 @@
-import React from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ButtonGreen } from '@app/components/Button/ButtonGreen';
+import { QuickConfirmButton } from '../Button/QuickConfirmButton';
 
 type FooterProps = {
   activeWidget: 'chat' | 'camera';
   setActiveWidget: (widget: 'chat' | 'camera') => void;
 };
 
-export const Footer: React.FC<FooterProps> = ({ activeWidget, setActiveWidget }) => {
+export const Footer: React.FC<FooterProps> = ({ 
+  activeWidget, 
+  setActiveWidget }) => {
+
+    const offerAlreadySent = useRef(false);
+    const setOfferSent = useCallback(() => {
+      if (!offerAlreadySent.current) {
+        offerAlreadySent.current = true;
+      }
+    }, []);
+    
+
+    const [isDrawAllowed, setIsDrawAllowed] = useState(true);
+    const onDrawOffer = useCallback(()=>{},[]);
+    const [drawOfferNum, coundDrawOfferNum] = useState(0);
+    const [allowDraw, refreashAllDraw]=useState(0);
+    const [isBotPlay, setBots]=useState(false);
+
+    const [confirmingAction, setConfirmingAction] = useState<'draw' | 'takeback' | 'resign' | null>(null);
+    const confirmTimeoutRef = useRef<NodeJS.Timeout>();
+
+    const resetConfirmation = useCallback(() => {
+      setConfirmingAction(null);
+      if (confirmTimeoutRef.current) {
+        clearTimeout(confirmTimeoutRef.current);
+      }
+    }, []);
+    
+    // Efekat za automatsko resetovanje potvrde
+    useEffect(() => {
+      if (confirmingAction) {
+        confirmTimeoutRef.current = setTimeout(resetConfirmation, 3000);
+      }
+      return () => {
+        if (confirmTimeoutRef.current) {
+          clearTimeout(confirmTimeoutRef.current);
+        }
+      };
+    }, [confirmingAction]);   
+
   return (
     <div className="footer fixed bottom-0 left-0 right-0 bg-black p-4 flex justify-between items-center md:hidden">
       <div className="flex gap-8 w-full justify-between items-center px-4">
@@ -36,6 +76,33 @@ export const Footer: React.FC<FooterProps> = ({ activeWidget, setActiveWidget })
         <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#ffffff"><path d="M200-120q-33 0-56.5-23.5T120-200v-160q0-33 23.5-56.5T200-440h560q33 0 56.5 23.5T840-360v160q0 33-23.5 56.5T760-120H200Zm0-400q-33 0-56.5-23.5T120-600v-160q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v160q0 33-23.5 56.5T760-520H200Zm560-240H200v160h560v-160Z"/>
         </svg>
         </div>
+        <div
+  className={`icon cursor-pointer transition-all duration-200 ${
+    confirmingAction === 'draw' 
+      ? 'bg-green-600 rounded-lg px-3 py-2' 
+      : 'hover:bg-gray-700 rounded-lg p-2'
+  } ${(!isDrawAllowed || isBotPlay) ? 'opacity-50 cursor-not-allowed' : ''}`}
+  onClick={() => {
+    if (!isDrawAllowed || isBotPlay) return;
+    
+    if (confirmingAction === 'draw') {
+      setOfferSent();
+      onDrawOffer();
+      coundDrawOfferNum(drawOfferNum + 1);
+      resetConfirmation();
+    } else {
+      setConfirmingAction('draw');
+    }
+  }}
+>
+  {confirmingAction === 'draw' ? (
+    <span className="text-white text-sm font-medium">Draw?</span>
+  ) : (
+    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#ffffff">
+      <path d="M200-120q-33 0-56.5-23.5T120-200v-160q0-33 23.5-56.5T200-440h560q33 0 56.5 23.5T840-360v160q0 33-23.5 56.5T760-120H200Zm0-400q-33 0-56.5-23.5T120-600v-160q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v160q0 33-23.5 56.5T760-520H200Zm560-240H200v160h560v-160Z"/>
+    </svg>
+  )}
+</div>
 
         {/* Takeback Button */}
         <div className="icon">
