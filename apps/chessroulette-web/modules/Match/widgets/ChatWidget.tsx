@@ -152,17 +152,21 @@ const [lastDisabledMessages, setLastDisabledMessages] = useState<ChatMessage[]>(
     <div className="flex flex-col h-full bg-op-widget rounded-lg shadow-2xl md:w-full">
       <div className="p-3 border-b border-gray-700 flex justify-between items-center">
         <div className="flex items-center gap-2">
+         
           <Text className="text-sm font-semibold">Chat</Text>
-       {/*   {!isChatEnabled && newMessageCount > 0 && (
+         {/*
+          {!isChatEnabled && newMessageCount > 0 && (
        
          <div className="flex flex-col items-start">
         <span className="bg-[#07DA63] text-white rounded-full px-2 py-0.5 text-xs">
           {lastMessageState.count} new
         </span>
+        
         </div>
-       
-          )}*/}
+          )}  */}
+
         </div>
+        
         <div className="flex items-center gap-2">
           {!otherPlayerChatEnabled && (
             <span className="text-xs text-gray-400">
