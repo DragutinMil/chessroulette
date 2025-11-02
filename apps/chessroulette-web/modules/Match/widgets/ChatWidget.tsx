@@ -149,8 +149,8 @@ const [lastDisabledMessages, setLastDisabledMessages] = useState<ChatMessage[]>(
   };
 
   return (
-    <div className="flex flex-col h-full bg-op-widget rounded-lg shadow-2xl md:w-full">
-      <div className="p-3 border-b border-gray-700 flex justify-between items-center">
+    <div className="flex flex-col bg-op-widget rounded-lg shadow-2xl md:w-full overflow-hidden h-full">
+      <div className="p-3 border-b border-gray-700 flex justify-between items-center flex-shrink-0">
         <div className="flex items-center gap-2">
          
           <Text className="text-sm font-semibold">Chat</Text>
@@ -188,7 +188,7 @@ const [lastDisabledMessages, setLastDisabledMessages] = useState<ChatMessage[]>(
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-3 space-y-2 scrollbar-hide">  
+      <div className="flex-1 min-h-0 overflow-y-auto p-3 space-y-2 scrollbar-hide">  
 
         {(isChatEnabled ? messages : lastDisabledMessages).map((msg, index) => {
           const isOwnMessage = msg.senderId === currentUserId;
@@ -235,8 +235,8 @@ const [lastDisabledMessages, setLastDisabledMessages] = useState<ChatMessage[]>(
         <div ref={messagesEndRef} />
       </div>
 
-      <div className="p-3 border-t border-gray-700">
-        <div className="flex mb-2 mt-2 md:mt-0">
+      <div className="p-1 md:p-2 border-t border-gray-700 flex-shrink-0">
+        <div className="flex mb-1 md:mb-2 mt-1 md:mt-0">
           <input
             type="text"
             value={inputValue}

@@ -39,8 +39,8 @@ export const PlayersInfo = ({
   }, [game]);
 
   return (
-    <div className="flex gap-5 flex-row justify-between w-full ">
-      <div className = "flex-none ml-auto mr-auto" >
+    <div className="flex flex-row justify-between w-full max-w-full">
+      <div className = "flex-none ml-auto mr-auto min-w-0 overflow-hidden" >
       <PlayerBox
         key="away"
         playerInfo={playersBySide.away}
@@ -53,7 +53,7 @@ export const PlayersInfo = ({
         onCheckTime={onCheckTime}
       />
       </div>
-      <div className="flex-none ml-auto mr-auto">
+      <div className="flex-none mr-auto pr-2 min-w-0">
       <PlayerBoxInverted
         key="home"
         playerInfo={playersBySide.home}

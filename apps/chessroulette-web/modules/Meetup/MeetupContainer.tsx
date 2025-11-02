@@ -90,8 +90,8 @@ export const MeetupContainer = ({
         )}
         rightSideSize={boardProps.rightSideSizePx}
         rightComponent={
-          <div className="flex flex-col flex-1 min-h-0 gap-4 md:gap-4 gap-2">
-            <div className="w-full h-full overflow-hidden rounded-lg shadow-2xl md:flex md:pb-0">
+          <div className="flex flex-col flex-1 min-h-0 gap-4 md:gap-4 gap-2 overflow-hidden">
+            <div className="w-full h-full rounded-lg shadow-2xl md:flex md:pb-0 relative z-0">
               {activeWidget === 'camera' ? (
                 <PeerToPeerCameraWidget />
               ) : (
@@ -126,7 +126,7 @@ export const MeetupContainer = ({
             </div>
             <MatchStateDisplayContainer />
           
-            <div className="pb-0 bg-slate-700 md:p-3 pt-2 flex flex-col gap-2 flex-1 min-h-0 rounded-lg shadow-2xl overflow-y-scroll">
+            <div className="pb-0 bg-slate-700 md:p-3 pt-2 flex flex-col gap-2 flex-1 min-h-0 rounded-lg shadow-2xl overflow-y-scroll flex-shrink-0">
               <GameNotationWidget />
               <PlayControlsContainer activeWidget={activeWidget} setActiveWidget={setActiveWidget} />
             </div>

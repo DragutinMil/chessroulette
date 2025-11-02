@@ -50,7 +50,7 @@ export const PlayerBoxInverted: React.FC<Props> = ({
   }, []);
 
   return (
-    <div className="flex flex-1 gap-2 items-center">
+    <div className="flex flex-1 gap-1 items-center">
       {gameTimeClass !== 'untimed' && (
         <SmartCountdown
           isActive={isActive}

@@ -50,7 +50,7 @@ export const PlayerBox: React.FC<Props> = ({
   }, []);
 
   return (
-    <div className="flex flex-1 gap-2 items-center">
+    <div className="flex flex-1 gap-1 items-center">
       {isBotPlay ? (
         <div
           className={`capitalize text-sm md:text-lg ${

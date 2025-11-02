@@ -113,18 +113,22 @@ export const MatchContainer = ({
         )}
         rightSideSize={boardProps.rightSideSizePx}
         rightComponent={
-          <div className="flex flex-col flex-1 min-h-0 gap-4">
-            <div className="flex flex-row md:flex-col">
+          <div className="flex flex-col flex-1 min-h-0">
+            <div className="flex flex-row md:flex-col flex-shrink-0">
               <div className="w-full">
                 <MatchStateDisplayContainer />
               </div>
             </div>
 
-            <div className="w-full h-full overflow-hidden rounded-lg shadow-2xl md:flex md:pb-0">
+            <div className="w-full flex-1 min-h-0 rounded-lg shadow-2xl flex pb-0 relative z-20">
               {activeWidget === 'camera' ? (
+              <div className="flex-1 min-h-0 w-full h-full">
                 <PeerToPeerCameraWidget />
+                </div>
               ) : (
         //        <></>
+            <div className="flex-1 min-h-0 flex flex-col overflow-hidden h-full">
+
                 <ChatWidget
                   messages={match.messages || []}
                   currentUserId={userId}
@@ -155,6 +159,7 @@ export const MatchContainer = ({
                       : match.challenger.isChatEnabled !== false
                   }
                 />
+                </div>
               )}
             </div>
 
@@ -163,7 +168,7 @@ export const MatchContainer = ({
              { /*ameNotationWidget />
             */}
              {/*<div className= "hidden md:block">*/}
-             <div className = "pb-0"> 
+             <div className = "pb-0 flex-shrink-0" > 
               <PlayControlsContainer
                 activeWidget={activeWidget} 
                 setActiveWidget={setActiveWidget}

@@ -16,7 +16,7 @@ export const MatchStateDisplayContainer = () => {
   const dispatch = useMatchActionsDispatch();
 
   return (
-    <div className="flex flex-col gap-1 md:gap-2">
+    <div className="flex flex-col gap-1 md:gap-2 max-w-full">
       {match?.type === 'bestOf' && (
         <div className="flex flex-col md:flex-row gap-2 mt-0  md:mt-4 w-full text-sm md:text-md">
 
@@ -27,8 +27,8 @@ export const MatchStateDisplayContainer = () => {
           )}
         </div>
       )}
-      <div className="flex flex-row w-full">
-        {play.game && (
+      <div className="flex flex-row w-full max-w-full relative z-10">
+      {play.game && (
           <PlayersInfo
             key={play.game.startedAt} // refresh it on each new game
             playersBySide={play.playersBySide}

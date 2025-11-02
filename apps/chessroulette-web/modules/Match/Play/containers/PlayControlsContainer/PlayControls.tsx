@@ -34,7 +34,7 @@ const CameraOffIcon = () => (
 );
 
 const MessageIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#000000">
+  <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#000000" className="text-white">
     <path d="M80-80v-720q0-33 23.5-56.5T160-880h640q33 0 56.5 23.5T880-800v480q0 33-23.5 56.5T800-240H240L80-80Zm126-240h594v-480H160v525l46-45Zm-46 0v-480 480Z"/>
   </svg>
 
@@ -42,17 +42,17 @@ const MessageIcon = () => (
 
 
 const DrawOfferIcon = () => (
-<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#000000"><path d="M200-120q-33 0-56.5-23.5T120-200v-160q0-33 23.5-56.5T200-440h560q33 0 56.5 23.5T840-360v160q0 33-23.5 56.5T760-120H200Zm0-400q-33 0-56.5-23.5T120-600v-160q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v160q0 33-23.5 56.5T760-520H200Zm560-240H200v160h560v-160Z"/>
+<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#000000" className="text-white"><path d="M200-120q-33 0-56.5-23.5T120-200v-160q0-33 23.5-56.5T200-440h560q33 0 56.5 23.5T840-360v160q0 33-23.5 56.5T760-120H200Zm0-400q-33 0-56.5-23.5T120-600v-160q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v160q0 33-23.5 56.5T760-520H200Zm560-240H200v160h560v-160Z"/>
 </svg>
 );
 
 const TakebackIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#000000"><path d="M680-160v-400H313l144 144-56 57-241-241 240-240 57 57-144 143h447v480h-80Z"/>
+  <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#000000" className="text-white"><path d="M680-160v-400H313l144 144-56 57-241-241 240-240 57 57-144 143h447v480h-80Z"/>
   </svg>
 );
 
 const ResignIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#000000"><path d="M200-80v-760h640l-80 200 80 200H280v360h-80Zm80-440h442l-48-120 48-120H280v240Zm0 0v-240 240Z"/>
+  <svg className="text-white" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#000000"><path d="M200-80v-760h640l-80 200 80 200H280v360h-80Zm80-440h442l-48-120 48-120H280v240Zm0 0v-240 240Z"/>
   </svg>
 );
 
@@ -169,15 +169,28 @@ export const PlayControls: React.FC<Props> = ({
   }, [game.status, offers, game.lastMoveBy]);
 
   return (
-    <div className="bg-indigo-1300 pl-2 pr-2 pt-2 pb-0 md:p-3  flex flex-row
-       gap-2 md:flex-1 min-h-0 rounded-lg shadow-2xl ">
-
+    <div className=" 
+    rounded-3xl border border-[#FFFFFF0D] 
+    pl-2 pr-2 pt-2 pb-0 md:p-3  flex flex-row items-center justify-between
+       text-xs md:text-sm
+       gap-1 md:flex-1 min-h-0 rounded-lg shadow-2xl -mt-2 md:mt-0"
+          
+       style={{
+        backgroundImage: 'radial-gradient(61.84% 61.84% at 50% 131.62%, rgba(5, 135, 44, 0.2) 0%, rgb(1, 33, 11) 100%)',
+        borderRadius: '8px',
+        border: '1px solid #FFFFFF0D',
+        display: 'flex',
+        alignItems: 'center'
+      }}
+       >
 
 <QuickConfirmButton
+  type="custom"
   size="sm"
-  className={`w-full h-10 rounded-[22px] transition-all duration-200 ${
+  className={`w-full h-9 min-w-[40px] !rounded-3xl transition-all duration-200 
+    text-xs md:text-sm ${
     activeWidget === 'camera' 
-      ? '!bg-[#07DA63] text-black shadow-lg' 
+      ? '!bg-[#07DA63] shadow-lg' 
       : 'shadow-md'
   }`}
   confirmationBgcolor="green"
@@ -190,12 +203,13 @@ export const PlayControls: React.FC<Props> = ({
   
 <QuickConfirmButton 
   className={`
-    w-full h-10 rounded-[22px] transition-all duration-200
+    !flex-1 !h-9 !min-w-[40px] !rounded-3xl transition-all duration-200
     ${activeWidget === 'chat' 
-      ? '!bg-[#07DA63] text-black shadow-lg' 
+      ? '!bg-[#07DA63] shadow-lg' 
       : 'shadow-md'
     }
   `}
+  type="custom"
   size="sm"
   confirmationBgcolor="green"
   confirmationMessage="chat"
@@ -206,7 +220,9 @@ export const PlayControls: React.FC<Props> = ({
     <MessageIcon />
     {/* Indikator za nepročitane poruke kada je chat enabled ali kamera aktivna */}
     {unreadMessagesCount > 0 && activeWidget === 'camera' && (
-      <span className="absolute -top-2 -right-2 bg-[#07DA63] text-black text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+      <span className="absolute -top-2 -right-2 bg-[#07DA63] 
+      text-black text-xs font-bold rounded-full w-5 h-5 flex 
+      items-center justify-center">
         {unreadMessagesCount > 9 ? '9+' : unreadMessagesCount}
       </span>
     )}
@@ -214,10 +230,15 @@ export const PlayControls: React.FC<Props> = ({
 </QuickConfirmButton>
 
       <QuickConfirmButton
+        type="custom"
         size="sm"
         confirmationBgcolor="green"
-        className="w-full h-10 rounded-[22px]"
-        confirmationMessage="draw"
+        className={`flex-1 !h-10 min-w-[40px] !rounded-3xl ${
+          !allowDraw || isBotPlay 
+            ? '!bg-[#D9D9D9] opacity- ' 
+            : '!bg-[#D9D9D9] !opacity-20'
+        }`}        
+        confirmationMessage="draw?"
         bgColor="green"
         //icon="Bars3CenterLeftIcon"
         //ArrowsRightLeftIcon
@@ -229,13 +250,18 @@ export const PlayControls: React.FC<Props> = ({
         }}
         disabled={!allowDraw || isBotPlay}
       >
-        <DrawOfferIcon></DrawOfferIcon>
+        {/*<DrawOfferIcon ></DrawOfferIcon>
+*/}
+        <p className="text-black"> 1/2 </p>
+
       </QuickConfirmButton>
       <QuickConfirmButton
+        type="custom"
         size="sm"
-        className="w-full h-10 rounded-[22px]"
+        className="flex-1 h-9 min-w-[50px] !rounded-3xl !text-white
+        text-xs md:text-sm"
         confirmationBgcolor="green"
-        confirmationMessage="takeback"
+        confirmationMessage="undo?"
         bgColor="green"
         //icon="ArrowUturnLeftIcon"
         iconKind="solid"
@@ -249,10 +275,11 @@ export const PlayControls: React.FC<Props> = ({
       </QuickConfirmButton>
 
       <QuickConfirmButton
+        type="custom"
         size="sm"
-        className="w-full h-10 rounded-[22px]"
+        className="flex-1 h-9 min-w-[50px] !rounded-3xl !text-white"
         confirmationBgcolor="red"
-        confirmationMessage="resign"
+        confirmationMessage="resign?"
         bgColor="green"
         //icon="FlagIcon"
         iconKind="solid"
