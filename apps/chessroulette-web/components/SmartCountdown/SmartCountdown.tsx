@@ -188,7 +188,7 @@ export const SmartCountdown = ({
   }, [timeLeft]);
 
   return (
-    <div className={className}>
+    <div className={className+"rounded-md "}>
       <SmartCountdownDisplay
         major={major}
         minor={minor}

@@ -14,13 +14,13 @@ export const SmartCountdownDisplay = ({
   major,
   minor,
   active,
-  activeTextClassName = 'relative text-white    py-1 px-3 rounded-md   w-full   backdrop-blur-lg shadow-lg bg-slate-700 ',
-  inactiveTextClassName = 'relative text-slate-400  py-1 px-3  rounded-md   w-full  backdrop-blur-lg shadow-lg',
+  activeTextClassName = 'relative text-white    py-0.2 px-1 rounded-md   w-full   backdrop-blur-lg shadow-lg bg-slate-700 ',
+  inactiveTextClassName = 'relative text-slate-400  py-0.5 px-2  rounded-md   w-full  backdrop-blur-lg shadow-lg',
 }: SmartCountdownDisplayProps) => {
   //51 65 85
   if (timeLeft <= 0) {
     return (
-      <Text className="text-red-500 relative   py-1 px-3  rounded-md   w-full  backdrop-blur-lg shadow-lg ">
+      <Text className="text-red-500 relative   py-0.5 px-2  rounded-md   w-full  backdrop-blur-lg shadow-lg ">
         00:00
       </Text>
     );

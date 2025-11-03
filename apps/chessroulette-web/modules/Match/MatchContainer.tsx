@@ -17,6 +17,7 @@ import { ChatWidget } from './widgets/ChatWidget';
 import { useCurrentOrPrevMatchPlay } from './Play/hooks';
 import { ButtonGreen } from '@app/components/Button/ButtonGreen';
 import { Footer } from '@app/components/Footer/Footer';
+import { Text } from '@app/components/Text';
 
 
 type Props = DistributivePick<
@@ -123,11 +124,14 @@ export const MatchContainer = ({
             <div className="w-full flex-1 min-h-0 rounded-lg shadow-2xl flex pb-0 relative z-20">
               {activeWidget === 'camera' ? (
               <div className="flex-1 min-h-0 w-full h-full">
+
+                <div className="flex items-center gap-2 p-2 border-b border-gray-700">
+         
+                      <Text className="text-sm font-semibold">Camera</Text> 
+                 </div>
                 <PeerToPeerCameraWidget />
                 </div>
-              ) : (
-        //        <></>
-            <div className="flex-1 min-h-0 flex flex-col overflow-hidden h-full">
+              ) : (            <div className="flex-1 min-h-0 flex flex-col overflow-hidden h-full">
 
                 <ChatWidget
                   messages={match.messages || []}
@@ -162,13 +166,24 @@ export const MatchContainer = ({
                 </div>
               )}
             </div>
+            <div className="hidden md:block">
+            <div className="h-1 md:h-6"></div>
+            <div className="w-full flex-1 min-h-0 rounded-lg shadow-2xl flex flex-col pb-0 relative z-20 overflow-hidden">
+              <div className="flex-1 min-h-0 overflow-y-auto scrollbar-hide">
+                <GameNotationWidget />
+              </div>
+            </div>
+            </div>
 
          {/*   <div className="bg-op-widget pl-2 pr-2 pt-2 pb-2 md:p-3 flex flex-col gap-2 md:flex-1 min-h-0 rounded-lg shadow-2xl">
               <div className= "hidden md:block"> 
-             { /*ameNotationWidget />
+              
+              
             */}
              {/*<div className= "hidden md:block">*/}
-             <div className = "pb-0 flex-shrink-0" > 
+             
+             <div className="h-1 md:h-3"></div>
+             <div className = "pb-0 pt-0 flex-shrink-0" > 
               <PlayControlsContainer
                 activeWidget={activeWidget} 
                 setActiveWidget={setActiveWidget}

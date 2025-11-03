@@ -6,6 +6,7 @@ import { useMatchViewState } from '../../../../../modules/Match/hooks/useMatch';
 import { ButtonGreen } from '@app/components/Button/ButtonGreen';
 
 import { useRouter } from 'next/navigation';
+import { QuickHoverButton } from '@app/components/Button/QuickHoverButton';
 type Props = {
   game: Game;
   homeColor: ChessColor;
@@ -171,9 +172,9 @@ export const PlayControls: React.FC<Props> = ({
   return (
     <div className=" 
     rounded-3xl border border-[#FFFFFF0D] 
-    pl-2 pr-2 pt-2 pb-0 md:p-3  flex flex-row items-center justify-between
+    pl-2 pr-2 pb-3 pt-3 flex flex-row items-center justify-between
        text-xs md:text-sm
-       gap-1 md:flex-1 min-h-0 rounded-lg shadow-2xl -mt-2 md:mt-0"
+       gap-1 md:flex-1 min-h-0 rounded-lg shadow-2xl md:p-3"
           
        style={{
         backgroundImage: 'radial-gradient(61.84% 61.84% at 50% 131.62%, rgba(5, 135, 44, 0.2) 0%, rgb(1, 33, 11) 100%)',
@@ -184,10 +185,10 @@ export const PlayControls: React.FC<Props> = ({
       }}
        >
 
-<QuickConfirmButton
+<QuickHoverButton
   type="custom"
   size="sm"
-  className={`w-full h-9 min-w-[40px] !rounded-3xl transition-all duration-200 
+  className={`w-full h-9 min-w-[40px] !rounded-3xl transition-all duration-200 !pt-1 !pb-3
     text-xs md:text-sm ${
     activeWidget === 'camera' 
       ? '!bg-[#07DA63] shadow-lg' 
@@ -199,9 +200,9 @@ export const PlayControls: React.FC<Props> = ({
   onClick={() => setActiveWidget('camera')}
 >
   {activeWidget === 'camera' ? <CameraOnIcon /> : <CameraOffIcon />}
-</QuickConfirmButton>
+</QuickHoverButton>
   
-<QuickConfirmButton 
+<QuickHoverButton 
   className={`
     !flex-1 !h-9 !min-w-[40px] !rounded-3xl transition-all duration-200
     ${activeWidget === 'chat' 
@@ -227,7 +228,7 @@ export const PlayControls: React.FC<Props> = ({
       </span>
     )}
   </div>
-</QuickConfirmButton>
+</QuickHoverButton>
 
       <QuickConfirmButton
         type="custom"
