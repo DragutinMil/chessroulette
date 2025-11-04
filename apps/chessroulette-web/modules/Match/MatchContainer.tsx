@@ -144,7 +144,7 @@ export const MatchContainer = ({
               </ButtonGreen>
             </div>
 
-            <div className="w-full h-[300px] overflow-hidden rounded-lg shadow-2xl">
+            <div className="w-full h-full md:h-[300px] overflow-hidden rounded-lg shadow-2xl">
               {activeWidget === 'camera' ? (
                 <PeerToPeerCameraWidget />
               ) : (
