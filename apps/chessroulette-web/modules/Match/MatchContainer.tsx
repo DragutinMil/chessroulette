@@ -35,7 +35,14 @@ export const MatchContainer = ({
   dispatch,
   ...boardProps
 }: Props) => {
+  const [isMobile, setIsMobile] = useState(false);
+
   const [activeWidget, setActiveWidget] = useState<'chat' | 'camera'>(() => {
+    
+    if (typeof window !== 'undefined' && window.innerWidth <= 768) {
+      return 'camera';
+    }
+    
     const savedWidget = localStorage.getItem('chessroulette-active-widget');
     return savedWidget === 'chat' || savedWidget === 'camera'
       ? savedWidget
@@ -79,6 +86,12 @@ export const MatchContainer = ({
 
     return () => clearTimeout(timeoutId);
   }, [isChatEnabled, userId, dispatch]);
+  
+  const handleSetActiveWidget = (widget: 'chat' | 'camera') => {
+    if (!isMobile) {
+      setActiveWidget(widget);
+    }
+  };
 
   const otherPlayerChatEnabled = useMemo(() => {
     const otherPlayer =
@@ -108,9 +121,9 @@ export const MatchContainer = ({
               </div>
             </div>
 
-            <div className="flex gap-2">
+            <div className="flex gap-2 hidden md:flex">
               <ButtonGreen
-                onClick={() => setActiveWidget('camera')}
+                onClick={() => handleSetActiveWidget('camera')}
                 className={`flex-1 font-bold text-black ${
                   activeWidget === 'camera'
                     ? 'bg-[#07DA63] !bg-[#07DA63] hover:!bg-[#07DA63]'
@@ -120,7 +133,7 @@ export const MatchContainer = ({
                 Camera
               </ButtonGreen>
               <ButtonGreen
-                onClick={() => setActiveWidget('chat')}
+                onClick={() => handleSetActiveWidget('chat')}
                 className={`flex-1 font-bold text-black ${
                   activeWidget === 'chat'
                     ? 'bg-[#07DA63] !bg-[#07DA63] hover:!bg-[#07DA63]'
