@@ -121,7 +121,7 @@ const Conversation = ({
                         {msg.content}
                       </p>
                       {isSales && isLastMessage && (
-                        <div className="flex  sitems-center gap-3 hidden md:flex mt-2">
+                        <div className="flex  items-center gap-3 md:flex mt-2">
                           <ButtonGreen
                             onClick={() => {
                               openViewSubscription();
