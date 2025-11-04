@@ -159,8 +159,7 @@ export const AiChessDialogContainer: React.FC<AiChessDialogContainerProps> = ({
               className=" w-full text-[16px] h-[44px] rounded-[22px]"
               style={{ marginTop: 20 }}
               onClick={() => {
-                window.location.href =
-                  'https://test-app.outpostchess.com/puzzleAi';
+                window.location.href = 'https://app.outpostchess.com/puzzleAi';
               }}
             >
               🏠 Home

@@ -717,7 +717,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
 
     const openViewSubscription = async () => {
       // setPopupSubscribe(true);
-      (window.location.href = 'https://test-app.outpostchess.com/subscribe'),
+      (window.location.href = 'https://app.outpostchess.com/subscribe'),
         '_self';
     };
 
@@ -1019,7 +1019,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
                   )}
                   <div className="flex-1 justify-between flex flex-col border bg-op-widget border-conversation-100 pb-2 px-2 md:px-4 md:pb-4 rounded-lg  ">
                     {currentChapterState.chessAiMode.mode !== 'review' ? (
-                      <div className="mt-4 flex flex-col justify-between  h-full max-h-[340px] md:min-h-[300px] min-h-[200px] ">
+                      <div className="mt-4 flex flex-col justify-between  h-full max-h-[340px] md:max-h-[400px] md:min-h-[300px] min-h-[200px] ">
                         <Conversation
                           currentChapterState={currentChapterState}
                           openViewSubscription={openViewSubscription}

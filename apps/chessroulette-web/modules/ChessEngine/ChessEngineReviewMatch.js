@@ -43,7 +43,7 @@ export async function analyzePGN(pgn, { onProgress } = {}, isMobile) {
     }
 
     results.push({
-      moveNumber: i + 1,
+      moveNumber: Math.floor(i / 2) + 1,
       move: move.san,
       eval: evaluation,
       diff: (evaluation - previousEval).toFixed(2),
