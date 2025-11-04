@@ -9,7 +9,7 @@ type Props = ButtonProps & {
   confirmationBgcolor?: ButtonProps['bgColor'];
 };
 
-export const QuickConfirmButton: React.FC<Props> = ({
+export const QuickHoverButton: React.FC<Props> = ({
   onClick,
   confirmationMessage = 'Confirm?',
   confirmationBgcolor = 'indigo',
@@ -35,7 +35,7 @@ export const QuickConfirmButton: React.FC<Props> = ({
       transition-all duration-200
       !pt-1 !md:pt-0
       `}
-      onClick={() => {
+      onMouseEnter={() => {
         if (!show) {
           setShow(true);
         } else {

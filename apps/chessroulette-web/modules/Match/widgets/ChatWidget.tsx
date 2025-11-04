@@ -154,18 +154,24 @@ export const ChatWidget: React.FC<Props> = ({
   };
 
   return (
-    <div className="flex flex-col h-full bg-op-widget rounded-lg shadow-2xl">
-      <div className="p-3 border-b border-gray-700 flex justify-between items-center">
+    <div className="flex flex-col bg-op-widget rounded-lg shadow-2xl md:w-full overflow-hidden h-full">
+      <div className="px-3 py-2 border-b border-gray-700 flex justify-between items-center flex-shrink-0">
         <div className="flex items-center gap-2">
+         
           <Text className="text-sm font-semibold">Chat</Text>
+         {/*
           {!isChatEnabled && newMessageCount > 0 && (
-            <div className="flex flex-col items-start">
-              <span className="bg-[#07DA63] text-white rounded-full px-2 py-0.5 text-xs">
-                {lastMessageState.count} new
-              </span>
-            </div>
-          )}
+       
+         <div className="flex flex-col items-start">
+        <span className="bg-[#07DA63] text-white rounded-full px-2 py-0.5 text-xs">
+          {lastMessageState.count} new
+        </span>
+        
         </div>
+          )}  */}
+
+        </div>
+        
         <div className="flex items-center gap-2">
           {!otherPlayerChatEnabled && (
             <span className="text-xs text-gray-400">
@@ -187,7 +193,8 @@ export const ChatWidget: React.FC<Props> = ({
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-3 space-y-2 scrollbar-hide">
+      <div className="flex-1 min-h-0 overflow-y-auto px-3 py-2space-y-2 scrollbar-hide">  
+
         {(isChatEnabled ? messages : lastDisabledMessages).map((msg, index) => {
           const isOwnMessage = msg.senderId === currentUserId;
           const displayName = playerNames[msg.senderId] || 'Unknown';
@@ -233,8 +240,9 @@ export const ChatWidget: React.FC<Props> = ({
         <div ref={messagesEndRef} />
       </div>
 
-      <div className="p-3 border-t border-gray-700">
-        <div className="flex mb-2 mt-2 md:mt-0">
+      <div className="px-1 md:px-2 py-1 md:py-1 
+      border-t border-gray-700 flex-shrink-0">
+        <div className="flex mb-0 md:mb-1 mt-1 md:mt-0">
           <input
             type="text"
             value={inputValue}

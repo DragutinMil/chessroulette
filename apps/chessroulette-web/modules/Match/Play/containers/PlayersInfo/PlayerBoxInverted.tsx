@@ -11,7 +11,7 @@ type Props = {
   onCheckTime: () => void;
 };
 
-export const PlayerBox: React.FC<Props> = ({
+export const PlayerBoxInverted: React.FC<Props> = ({
   playerInfo,
   isActive,
   gameTimeClass,
@@ -51,6 +51,16 @@ export const PlayerBox: React.FC<Props> = ({
 
   return (
     <div className="flex flex-1 gap-1 items-center">
+      {gameTimeClass !== 'untimed' && (
+        <SmartCountdown
+          isActive={isActive}
+          msLeft={timeLeft}
+          onFinished={onCheckTime}
+          onRefreshMsLeft={onCheckTime}
+          className="text-xl md:text-2xl"
+        />
+      )}
+
       {isBotPlay ? (
         <div
           className={`capitalize text-sm md:text-lg ${
@@ -72,15 +82,7 @@ export const PlayerBox: React.FC<Props> = ({
           {playerInfo.displayName || 'guest'}({playerInfo.color})
         </div>
       )}
-      {gameTimeClass !== 'untimed' && (
-        <SmartCountdown
-          isActive={isActive}
-          msLeft={timeLeft}
-          onFinished={onCheckTime}
-          onRefreshMsLeft={onCheckTime}
-          className="text-xl md:text-2xl"
-        />
-      )}
+
     </div>
   );
 };

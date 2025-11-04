@@ -4,6 +4,8 @@ import { ChessColor, areColorsEqual } from '@xmatter/util-kit';
 import { PlayerBox } from './PlayerBox';
 import { PlayersBySideWithResults } from '../../types';
 import { Game } from '@app/modules/Game';
+import {PlayerBoxInverted} from './PlayerBoxInverted'
+
 
 type Props = {
   game: Game;
@@ -37,7 +39,8 @@ export const PlayersInfo = ({
   }, [game]);
 
   return (
-    <div className="flex flex-1 gap-0 md:gap-2 flex-col">
+    <div className="flex flex-row justify-between w-full max-w-full">
+      <div className = "flex-none ml-auto mr-auto min-w-0 overflow-hidden" >
       <PlayerBox
         key="away"
         playerInfo={playersBySide.away}
@@ -49,7 +52,9 @@ export const PlayersInfo = ({
         timeLeft={game.timeLeft[playersBySide.away.color]}
         onCheckTime={onCheckTime}
       />
-      <PlayerBox
+      </div>
+      <div className="flex-none mr-auto pr-2 min-w-0">
+      <PlayerBoxInverted
         key="home"
         playerInfo={playersBySide.home}
         isActive={
@@ -60,6 +65,7 @@ export const PlayersInfo = ({
         timeLeft={game.timeLeft[playersBySide.home.color]}
         onCheckTime={onCheckTime}
       />
+      </div>
     </div>
   );
 };

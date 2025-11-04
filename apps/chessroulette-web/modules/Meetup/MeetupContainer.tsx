@@ -15,9 +15,12 @@ import {
 } from '@app/modules/Match/containers';
 import { PlayControlsContainer } from '@app/modules/Match/Play/containers';
 import { FreeboardContainer } from '@app/components/Boards';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useMeetupActivitySettings } from '../Room/activities/Meetup/useMeetupActivitySettings';
 import { MeetupActions } from './movex';
+import { ChatWidget } from '@app/modules/Match/widgets/ChatWidget';
+
+
 
 type Props = DistributivePick<
   PlayerContainerProps,
@@ -38,6 +41,8 @@ export const MeetupContainer = ({
   ...boardProps
 }: Props) => {
   const meetupSettings = useMeetupActivitySettings();
+  const [activeWidget, setActiveWidget] = useState<'chat' | 'camera'>('camera');
+
   useEffect(() => {
     dispatch({
       type: 'meetup:join',
@@ -85,14 +90,45 @@ export const MeetupContainer = ({
         )}
         rightSideSize={boardProps.rightSideSizePx}
         rightComponent={
-          <div className="flex flex-col flex-1 min-h-0 gap-4">
-            <div className="overflow-hidden rounded-lg shadow-2xl">
-              <PeerToPeerCameraWidget />
+          <div className="flex flex-col flex-1 min-h-0 gap-4 md:gap-4 gap-2 overflow-hidden">
+            <div className="w-full h-full rounded-lg shadow-2xl md:flex md:pb-0 relative z-0">
+              {activeWidget === 'camera' ? (
+                <PeerToPeerCameraWidget />
+              ) : (
+                match && (
+                  <ChatWidget
+                    messages={match.messages || []}
+                    currentUserId={userId}
+                    playerNames={{
+                      [match.challenger.id]:
+                        match.challenger.displayName || 'Challenger',
+                      [match.challengee.id]:
+                        match.challengee.displayName || 'Challengee',
+                    }}
+                    onSendMessage={(content) => {
+                      dispatch((masterContext) => ({
+                        type: 'play:sendMessage',
+                        payload: {
+                          senderId: userId,
+                          content,
+                          timestamp: masterContext.requestAt(),
+                        },
+                      }));
+                    }}
+                    otherPlayerChatEnabled={
+                      match.challenger.id === userId
+                        ? match.challengee.isChatEnabled !== false
+                        : match.challenger.isChatEnabled !== false
+                    }
+                  />
+                )
+              )}
             </div>
             <MatchStateDisplayContainer />
-            <div className="bg-slate-700 p-3 flex flex-col gap-2 flex-1 min-h-0 rounded-lg shadow-2xl overflow-y-scroll">
+          
+            <div className="pb-0 bg-slate-700 md:p-3 pt-2 flex flex-col gap-2 flex-1 min-h-0 rounded-lg shadow-2xl overflow-y-scroll flex-shrink-0">
               <GameNotationWidget />
-              <PlayControlsContainer />
+              <PlayControlsContainer activeWidget={activeWidget} setActiveWidget={setActiveWidget} />
             </div>
           </div>
         }
