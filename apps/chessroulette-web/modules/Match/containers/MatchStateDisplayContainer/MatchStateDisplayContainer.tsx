@@ -16,9 +16,9 @@ export const MatchStateDisplayContainer = () => {
   const dispatch = useMatchActionsDispatch();
 
   return (
-    <div className="flex flex-col gap-1 md:gap-2">
+    <div className="flex flex-col gap-1 md:gap-1">
       {match?.type === 'bestOf' && (
-        <div className="flex flex-col md:flex-row gap-2 mt-0  md:mt-4 w-full text-sm md:text-md">
+        <div className="flex flex-col md:flex-row gap-2    md:mt-0 mt-0 w-full text-sm md:text-md">
           <div>
             <Text>Round &nbsp;</Text>
             <Text>{`${currentRound}/${match.rounds}`}</Text>

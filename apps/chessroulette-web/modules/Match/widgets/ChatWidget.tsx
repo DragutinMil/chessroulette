@@ -162,7 +162,7 @@ export const ChatWidget: React.FC<Props> = ({
   };
 
   return (
-    <div className="flex flex-col h-full bg-op-widget rounded-lg shadow-2xl">
+    <div className="flex flex-col h-full bg-op-widget rounded-lg shadow-2xl md:min-h-[250px]">
       <div className="p-3 border-b border-slate-800 flex justify-between items-center">
         <div className="flex items-center gap-2">
           <Text className="text-sm font-semibold">Chat</Text>
