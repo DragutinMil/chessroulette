@@ -70,23 +70,22 @@ export const ChatWidget: React.FC<Props> = ({
   }, [lastDisabledMessages, isChatEnabled]);
 
   useEffect(() => {
-    if(messages.length !== messageLength){
-      
-       setMessageLength(messages.length)
-       scrollToBottom();
+    console.log('messagges');
+    if (messages.length !== messageLength) {
+      setMessageLength(messages.length);
+      scrollToBottom();
     }
-    
   }, [messages]);
 
   useEffect(() => {
-    console.log('isChatEnabled')
+    console.log('isChatEnabled');
     if (!isChatEnabled) {
       setLastDisabledMessages(lastDisabledMessages);
     }
   }, [isChatEnabled]);
 
   useEffect(() => {
-    console.log('messages, isChatEnabled, lastDisabledMessages')
+    console.log('messages, isChatEnabled, lastDisabledMessages');
     if (!isChatEnabled && messages.length > lastDisabledMessages.length) {
       setUnreadCount(messages.length - lastDisabledMessages.length);
     }
@@ -94,7 +93,7 @@ export const ChatWidget: React.FC<Props> = ({
 
   useEffect(() => {
     if (!isChatEnabled && messages.length > 0) {
-       console.log('messages, isChatEnabled, lastDisabledMessages 2')
+      console.log('messages, isChatEnabled, lastDisabledMessages 2');
       const newState: LastMessageState = {
         count: messages.length - lastDisabledMessages.length,
         lastMessage: messages[messages.length - 1],

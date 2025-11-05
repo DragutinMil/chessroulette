@@ -122,7 +122,7 @@ export const List: React.FC<ListProps> = ({
   const forwardFocus = async () => {
     if (focusedIndex) {
       //console.log('history[history.length][1]',history[history.length][1])
-    //  console.log('history.length', history.length, focusedIndex[0] + 2);
+      //  console.log('history.length', history.length, focusedIndex[0] + 2);
       //  history[history.length][1])
       let moveNum;
       let moveTurn;
@@ -192,7 +192,10 @@ export const List: React.FC<ListProps> = ({
       />
       <div
         className=" flex-1 md:overflow-x-hidden  no-scrollbar"
-        style={{ width: isMobile ? 'calc(100vw - 3rem - 68px)' : '' , maxHeight:'230px'}}
+        style={{
+          width: isMobile ? 'calc(100vw - 3rem - 68px)' : '',
+          maxHeight: '230px',
+        }}
         ref={(e) => (containerElementRef.current = e)}
       >
         <div

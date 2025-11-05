@@ -42,7 +42,9 @@ export const QuickConfirmButton: React.FC<Props> = ({
       }}
     >
       {show ? (
-        <span className="whitespace-nowrap text-white">{confirmationMessage}</span>
+        <span className="whitespace-nowrap text-white">
+          {confirmationMessage}
+        </span>
       ) : (
         children
       )}

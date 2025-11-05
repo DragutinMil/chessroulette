@@ -12,6 +12,8 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
   prev: MatchState = initialMatchState,
   action: MatchActions
 ): MatchState => {
+  // console.log('prev',prev)
+  // console.log('action',action)
   if (!prev) {
     return prev;
   }
@@ -293,20 +295,19 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
 };
 
 reducer.$transformState = (state, masterContext): MatchState => {
-  
   if (!state) {
     return state;
   }
 
   if (state.status === 'complete' || state.status === 'aborted') {
-   // console.log('state 1 transformSta', state);
+    // console.log('state 1 transformSta', state);
     return state;
   }
   const ongoingPlay = state.gameInPlay;
 
   if (ongoingPlay?.status === 'ongoing') {
     const turn = swapColor(ongoingPlay.lastMoveBy);
-    
+
     const timeSince =
       masterContext.requestAt - ongoingPlay.timeLeft.lastUpdatedAt;
 

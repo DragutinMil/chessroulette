@@ -71,20 +71,23 @@ export const MatchContainer = ({
   }, [isChatEnabled]);
 
   // Dispatch chat state changes to Movex
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      dispatch((masterContext) => ({
-        type: 'play:updateChatState',
-        payload: {
-          userId,
-          isChatEnabled,
-          timestamp: masterContext.requestAt(),
-        },
-      }));
-    }, 100);
+  // useEffect(() => {
+  //   console.log(isChatEnabled)
+  //   console.log( userId)
+  //   console.log( dispatch)
+  //   const timeoutId = setTimeout(() => {
+  //     dispatch((masterContext) => ({
+  //       type: 'play:updateChatState',
+  //       payload: {
+  //         userId,
+  //         isChatEnabled,
+  //         timestamp: masterContext.requestAt(),
+  //       },
+  //     }));
+  //   }, 100);
 
-    return () => clearTimeout(timeoutId);
-  }, [isChatEnabled, userId, dispatch]);
+  //   return () => clearTimeout(timeoutId);
+  // }, [isChatEnabled, userId, dispatch]);
 
   const handleSetActiveWidget = (widget: 'chat' | 'camera') => {
     if (!isMobile) {
@@ -146,7 +149,7 @@ export const MatchContainer = ({
             <div className="w-full h-full md:h-[300px] overflow-hidden rounded-lg shadow-2xl">
               {activeWidget === 'camera' ? (
                 <PeerToPeerCameraWidget />
-               ) : (
+              ) : (
                 <ChatWidget
                   messages={match.messages || []}
                   currentUserId={userId}
@@ -176,13 +179,13 @@ export const MatchContainer = ({
                       : match.challenger.isChatEnabled !== false
                   }
                 />
-              )} 
+              )}
             </div>
 
             <div className="bg-op-widget pl-2 pr-2 pt-2  pb-4 md:mb-0 mb-4 md:p-3 flex flex-col gap-2 md:flex-1 min-h-0 rounded-lg shadow-2xl ">
-              {/* <div className="md:flex hidden flex-1"> */}
+              <div className="md:flex hidden flex-1">
                 <GameNotationWidget />
-              {/* </div> */}
+              </div>
               <PlayControlsContainer />
             </div>
           </div>
