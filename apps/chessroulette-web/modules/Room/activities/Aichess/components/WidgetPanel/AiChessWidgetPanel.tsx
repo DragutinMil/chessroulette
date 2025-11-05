@@ -1287,7 +1287,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
                           : '52px'
                         : currentChapterState.chessAiMode.mode === 'puzzle'
                         ? 'calc(100% - 600px)'
-                        : 'calc(100% - 300px)',
+                        : '290px',
                       minHeight: isMobile ? '52px' : '202px',
                     }}
                     className={`

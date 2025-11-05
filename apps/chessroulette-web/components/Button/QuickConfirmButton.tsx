@@ -15,6 +15,7 @@ export const QuickConfirmButton: React.FC<Props> = ({
   confirmationBgcolor = 'indigo',
   children,
   bgColor,
+  icon,
   ...props
 }) => {
   const [show, setShow] = useState(false);
@@ -28,6 +29,7 @@ export const QuickConfirmButton: React.FC<Props> = ({
     <Button
       {...props}
       ref={buttonRef}
+      icon={!show ? icon : undefined}
       bgColor={show ? confirmationBgcolor : bgColor}
       onClick={() => {
         if (!show) {
@@ -40,7 +42,9 @@ export const QuickConfirmButton: React.FC<Props> = ({
       }}
     >
       {show ? (
-        <span className=" text-white">{confirmationMessage}</span>
+        <span className="whitespace-nowrap text-white">
+          {confirmationMessage}
+        </span>
       ) : (
         children
       )}
