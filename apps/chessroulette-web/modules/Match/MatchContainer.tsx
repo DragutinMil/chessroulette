@@ -116,14 +116,14 @@ export const MatchContainer = ({
         )}
         rightSideSize={boardProps.rightSideSizePx}
         rightComponent={
-          <div className="flex flex-col flex-1 min-h-0 gap-4">
+          <div className="flex flex-col flex-1 min-h-0 gap-4 ">
             <div className="flex flex-row md:flex-col">
               <div className="w-full">
                 <MatchStateDisplayContainer />
               </div>
             </div>
 
-            <div className="flex gap-2 hidden md:flex">
+            <div className="flex gap-2 hidden md:flex -mb-2 -mt-2 ">
               <ButtonGreen
                 onClick={() => handleSetActiveWidget('camera')}
                 className={`flex-1 font-bold text-black ${
@@ -146,7 +146,7 @@ export const MatchContainer = ({
               </ButtonGreen>
             </div>
 
-            <div className="w-full h-full md:h-[300px] overflow-hidden rounded-lg shadow-2xl">
+            <div className="w-full h-full md:h-[250px] overflow-hidden rounded-lg shadow-2xl">
               {activeWidget === 'camera' ? (
                 <PeerToPeerCameraWidget />
               ) : (
@@ -182,8 +182,8 @@ export const MatchContainer = ({
               )}
             </div>
 
-            <div className="bg-op-widget pl-2 pr-2 pt-2  pb-4 md:mb-0 mb-4 md:p-3 flex flex-col gap-2 md:flex-1 min-h-0 rounded-lg shadow-2xl ">
-              <div className="md:flex hidden flex-1">
+            <div className="bg-op-widget pl-2 pr-2 pt-2  pb-6 md:pb-2 md:mb-0 mb-2 md:p-3 flex flex-col gap-2 md:flex-1 min-h-0 rounded-lg shadow-2xl">
+              <div className="md:flex flex-1 hidden h-max-['calc (100vw - 720px) '] md:overflow-scroll no-scrollbar">
                 <GameNotationWidget />
               </div>
               <PlayControlsContainer />
