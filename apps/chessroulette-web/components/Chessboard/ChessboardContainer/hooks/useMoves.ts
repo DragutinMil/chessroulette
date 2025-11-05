@@ -98,11 +98,11 @@ export const useMoves = ({
 
   // Debug logging
   const logMove = (action: string, data: any) => {
-    console.log(`[ChessMove][${playingColor}] ${action}:`, {
-      ...data,
-      currentMoves: getCurrentMoves(),
-      isMyTurn,
-    });
+    // console.log(`[ChessMove][${playingColor}] ${action}:`, {
+    //   ...data,
+    //   currentMoves: getCurrentMoves(),
+    //   isMyTurn,
+    // });
   };
 
   const onClickOrDrag = ({

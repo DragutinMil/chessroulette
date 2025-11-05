@@ -293,20 +293,20 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
 };
 
 reducer.$transformState = (state, masterContext): MatchState => {
+  
   if (!state) {
     return state;
   }
 
-  // Determine if Match is "aborted" onRead
   if (state.status === 'complete' || state.status === 'aborted') {
-    console.log('state 1 transformSta', state);
+   // console.log('state 1 transformSta', state);
     return state;
   }
   const ongoingPlay = state.gameInPlay;
 
   if (ongoingPlay?.status === 'ongoing') {
     const turn = swapColor(ongoingPlay.lastMoveBy);
-
+    
     const timeSince =
       masterContext.requestAt - ongoingPlay.timeLeft.lastUpdatedAt;
 

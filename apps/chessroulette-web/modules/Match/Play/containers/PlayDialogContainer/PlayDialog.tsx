@@ -48,7 +48,7 @@ export const PlayDialog: React.FC<GameStateDialogProps> = ({
   // }, [match?.rematch]);
 
   useEffect(() => {
-    console.log('lastoffer', lastOffer);
+  
     if (
       lastOffer &&
       lastOffer.status === 'accepted' &&
