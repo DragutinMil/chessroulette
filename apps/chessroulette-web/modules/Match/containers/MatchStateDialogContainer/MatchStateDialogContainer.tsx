@@ -17,6 +17,7 @@ import {
 } from '../../hooks/useMatch';
 //import { useBoardTheme } from '../../../../components/Chessboard/hooks/useBoardTheme';
 
+import Link from 'next/link';
 import { getMatchPlayerRoleById } from '../../movex/util';
 import { gameOverReasonsToDisplay } from './util';
 import { useGame } from '@app/modules/Game/hooks';
@@ -38,6 +39,8 @@ export const MatchStateDialogContainer: React.FC<Props> = (
   const { match, ...matchView } = useMatchViewState();
   const [fromWeb, setFromWeb] = useState(false);
   const [fromApp, setFromApp] = useState(false);
+  const [matchId, setMatchId] = useState('');
+  const [userId, setUserId] = useState('');
   const dispatch = useMatchActionsDispatch();
   const router = useRouter();
   const { lastOffer, playerId } = useGame();
@@ -49,15 +52,19 @@ export const MatchStateDialogContainer: React.FC<Props> = (
   }, [match?.winner]);
   useEffect(() => {
     const result = checkUser();
-    console.log('result', result);
     if (result == 'web') {
       setFromWeb(true);
     }
     if (result == 'outWeb') {
-      router.push('https://app.outpostchess.com/online-list');
+      // router.push('https://app.outpostchess.com/online-list');
     }
+    const url = new URL(window.location.href);
+    const pathParts = window.location.pathname.split('/');
+    const room = pathParts[pathParts.length - 1];
+    setUserId(url.searchParams.get('userId') ?? '');
+    setMatchId(room);
     //
-    //  setFromWeb(true)
+    setFromWeb(true);
   }, []);
 
   if (match?.status === 'aborted') {
@@ -114,18 +121,20 @@ export const MatchStateDialogContainer: React.FC<Props> = (
                 <div className="justify-center items-center flex flex-col">
                   {/* <Button
                     icon="ArrowPathRoundedSquareIcon"
+                    bgColor="yellow"
                     style={{
                       marginTop: 18,
                       background: '#07da63',
                       color: '#202122',
+                      minWidth:'160px'
                     }}
+                  className="hover:opacity-70"
                     onClick={() => {
                       if (playerId) {
-                        // dispatch({ type: 'increment' });
                         dispatch((masterContext) => ({
                           type: 'play:sendOffer',
                           payload: {
-                            byPlayer: playerId, 
+                            byPlayer: playerId,
                             offerType: 'rematch',
                             timestamp: masterContext.requestAt(),
                           },
@@ -135,13 +144,28 @@ export const MatchStateDialogContainer: React.FC<Props> = (
                   >
                     Rematch
                   </Button> */}
+                  {/* <Link
+                    href={`https://chess.outpostchess.com/room/new/r${matchId}?activity=aichess&userId=${userId}&theme=op&pgn=${matchId}`}
+                  >
+                    <Button
+                      icon="EyeIcon"
+                      bgColor="yellow"
+                      style={{
+                        marginTop: 12,
 
+                        minWidth: '160px',
+                      }}
+                      onClick={() => {}}
+                    >
+                      Review
+                    </Button>
+                  </Link> */}
                   {/* { (document.referrer.includes('app.outpostchess.com') || document.referrer.includes('localhost:8080') || document.referrer.includes('test-app.outpostchess.com')) && */}
                   {fromWeb && (
                     <Button
                       icon="ArrowLeftIcon"
                       bgColor="yellow"
-                      style={{ marginTop: 12 }}
+                      style={{ marginTop: 12, minWidth: '160px' }}
                       onClick={() => {
                         router.push('https://app.outpostchess.com/online-list');
                       }}

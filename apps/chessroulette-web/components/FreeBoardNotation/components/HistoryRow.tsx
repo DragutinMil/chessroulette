@@ -15,6 +15,8 @@ export type RowProps = {
   rowId: string;
   historyTurn: FBHTurn;
   historyTurnIndex: number;
+  evalRow: string[];
+  bestMovesEngine: string[][];
   onFocus: (i: FBHIndex) => void;
   onDelete: (i: FBHIndex) => void;
   focusedOnMovePosition?: 0 | 1;
@@ -39,10 +41,12 @@ export const HistoryRow = React.forwardRef<HTMLDivElement | null, RowProps>(
   (
     {
       rowId,
+      evalRow,
       historyTurn: [whiteMove, blackMove],
       historyTurnIndex,
       onFocus,
       onDelete,
+      bestMovesEngine,
       className,
       containerClassName,
       moveCount = historyTurnIndex + 1,
@@ -50,7 +54,8 @@ export const HistoryRow = React.forwardRef<HTMLDivElement | null, RowProps>(
       focusedOnRecursiveIndexes,
       nextValidMoveAndIndex,
       isNested = false,
-      canDelete = true,
+
+      canDelete = false,
     },
     ref
   ) => {
@@ -64,6 +69,8 @@ export const HistoryRow = React.forwardRef<HTMLDivElement | null, RowProps>(
     const blackMoveRender = (
       <HistoryMove
         move={blackMove}
+        evalDiff={Number(evalRow[1]) * -1}
+        bestMoves={bestMovesEngine[1]}
         color="b"
         isFocused={!focusedOnRecursiveIndexes && focusedOnMovePosition === 1}
         onContextMenu={(event) => show({ event, props: { color: 'black' } })}
@@ -84,12 +91,19 @@ export const HistoryRow = React.forwardRef<HTMLDivElement | null, RowProps>(
     };
 
     return (
-      <div className={containerClassName} ref={isNested ? undefined : ref}>
+      <div
+        className={`${containerClassName} relative left-[7px]`}
+        ref={isNested ? undefined : ref}
+      >
         <div className={`flex ${className} ${shouldSplit && 'flex-col'}`}>
           <div id="header" className="flex flex-1 relative">
-            <Text className="flex-0 p-1 pr-2 cursor-pointer">{moveCount}.</Text>
+            <Text className="flex-0  md:pr-3 pr-0 cursor-pointer text-[14px] font-bold pt-1.5 md:ml-0 ml-2">
+              {moveCount}.
+            </Text>
             <HistoryMove
               move={whiteMove}
+              evalDiff={Number(evalRow[0])}
+              bestMoves={bestMovesEngine[0]}
               color="w"
               isFocused={
                 !focusedOnRecursiveIndexes && focusedOnMovePosition === 0
@@ -103,7 +117,7 @@ export const HistoryRow = React.forwardRef<HTMLDivElement | null, RowProps>(
             />
             {shouldSplit ? (
               <Text
-                className={`flex-1 cursor-pointer p-1 hover:bg-slate-500`}
+                className={`flex-1 cursor-pointer p-1 hover:bg-[#D9D9D9]/20 `}
                 onContextMenu={(event) =>
                   show({ event, props: { color: 'white' } })
                 }

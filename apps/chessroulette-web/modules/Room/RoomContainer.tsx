@@ -22,6 +22,7 @@ import { movexSubcribersToUserMap } from '@app/providers/MovexProvider';
 import { PeerStreamingProvider } from '@app/modules/PeerToPeer';
 import { ActivityState } from './activities/movex';
 import { LearnActivity } from './activities/Learn';
+import { AichessActivity } from './activities/Aichess/AichessActivity';
 import { MeetupActivity } from './activities/Meetup/MeetupActivity';
 import { MatchActivity } from './activities/Match/MatchActivity';
 import { useSearchParams } from 'next/navigation';
@@ -86,6 +87,15 @@ export const RoomContainer = ({ iceServers, rid }: Props) => {
     if (activity.activityType === 'learn') {
       return (
         <LearnActivity
+          {...commonActivityProps}
+          remoteState={activity.activityState}
+          dispatch={movexResource?.dispatch}
+        />
+      );
+    }
+    if (activity.activityType === 'aichess') {
+      return (
+        <AichessActivity
           {...commonActivityProps}
           remoteState={activity.activityState}
           dispatch={movexResource?.dispatch}

@@ -21,7 +21,9 @@
 }
 
 body {
-  background-color: #171819;
+  background-color: #01210b;
+
+  /*background-color: #171819;*/
   /* rgb(32, 33, 34); */
   /* background-color: #161A2B;  */
   color: white;
@@ -42,6 +44,15 @@ html {
   scroll-behavior: smooth;
 }
 
+.no-scrollbar {
+  -ms-overflow-style: none; /* Internet Explorer and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
 html,
 body,
 #root {
@@ -49,6 +60,8 @@ body,
   width: 100%;
   padding: 0;
   margin: 0;
+  /* Sora */
+  font-family: 'Sora', 'Arial';
   /* font-family: 'Lato', 'Open Sans', sans-serif; */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

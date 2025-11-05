@@ -3,7 +3,7 @@ import { Button, ButtonProps } from '../Button';
 import { Icon } from '../Icon/Icon';
 
 type Props = {
-  title: string;
+  title: React.ReactNode;
   content: string | React.ReactNode;
   buttons?: ButtonProps[];
   onClose?: () => void;
@@ -18,8 +18,11 @@ export const Dialog: React.FC<Props> = ({ modalBG = 'dark', ...props }) => {
         modalBG === 'dark' ? 'bg-black' : 'bg-white'
       }`}
     >
-      <div className="flex bg-black rounded-lg p-2 shadow-2xl shadow-black">
-        <div className="flex flex-col gap-4">
+      <div
+        className="flex bg-black rounded-lg md:px-12 px-4 py-8 shadow-2xl shadow-black w-[280px] md:w-[420px]"
+        style={{ boxShadow: '0px 0px 30px 0px #07DA6366' }}
+      >
+        <div className="flex flex-col gap-4 w-full">
           {props.hasCloseButton && (
             <div className="flex flex-row justify-end w-full">
               <div
@@ -33,7 +36,7 @@ export const Dialog: React.FC<Props> = ({ modalBG = 'dark', ...props }) => {
               </div>
             </div>
           )}
-          <div className="p-2 gap-4 flex flex-col">
+          <div className="p-2 gap-4 flex flex-col w-full">
             {props.title && (
               <div className="flex justify-center capitalize">
                 {props.title}

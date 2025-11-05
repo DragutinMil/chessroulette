@@ -25,7 +25,11 @@ export const RoomTemplate = (props: Props) => {
   return (
     <div
       className="flex h-screen w-screen"
-      style={{ backgroundColor: isOutpost ? '#171819' : '#161A2B' }}
+      style={{
+        background: isOutpost
+          ? 'linear-gradient(112.99deg, #07DA63 -68.31%, #000000 23.1%, #01160A 73.92%, #06B251 154.15%)'
+          : '#161A2B',
+      }}
     >
       <div className="flex flex-col flex-1 ">
         <Header themeName={props.themeName} showConnectionStatus />
@@ -34,7 +38,8 @@ export const RoomTemplate = (props: Props) => {
            ml-[max(env(safe-area-inset-left),0.5rem)]
            mr-[max(env(safe-area-inset-right),0.5rem)]
            mb-[max(env(safe-area-inset-right),2rem)] 
-           mt-2
+           md:mt-2
+           mt-0
            flex-1 relative overflow-hidden ${props.contentClassname}`}
         >
           <div className="absolute inset-0">{props.children}</div>
@@ -42,7 +47,9 @@ export const RoomTemplate = (props: Props) => {
       </div>
       <menu
         className={`${
-          props.activity === 'match' ? 'md:hidden' : 'md:block'
+          props.activity === 'match' || props.activity === 'aichess'
+            ? 'md:hidden'
+            : 'md:block'
         }  hidden  bg-indigo-1300 flex-0 flex flex-col p-2`}
       >
         <OnboardingWidget session={props.session} />

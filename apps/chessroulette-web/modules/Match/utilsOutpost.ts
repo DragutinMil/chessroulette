@@ -4,7 +4,6 @@ import { decodeJwt } from 'jose';
 export function checkUser() {
   const url = new URL(window.location.href);
   const userId = url.searchParams.get('userId');
-  // console.log('userId',userId)
   //from mobile app check
   if (Cookies.get('token')) {
     const data = decodeJwt(Cookies.get('token'));
@@ -19,19 +18,21 @@ export function checkUser() {
     }
   }
   //from web check
-  //console.log('Cookies.get(sessionToken)',Cookies.get('sessionToken'))
-  if (Cookies.get('sessionToken')) {
+  else if (Cookies.get('sessionToken')) {
     const token: string | undefined = Cookies.get('sessionToken');
     if (token) {
       const data = decodeJwt(token);
       if (data?.user_id !== userId) {
         return 'outWeb';
       } else {
-        console.log('ulogovan kroz web');
+        console.log('throught web');
         return 'web';
       }
     }
   }
+  // else{
+  //   return 'outWeb'
+  // }
 }
 
 export async function sendResult() {
@@ -58,4 +59,29 @@ export async function sendResult() {
   } catch (error) {
     console.error('Fetch error', error);
   }
+}
+export async function newRematchRequest(matchId: string) {
+  const token: string | undefined = Cookies.get('sessionToken');
+  const response = await fetch(
+    process.env.NEXT_PUBLIC_API_WEB + 'challenge_rematch',
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        match_id: matchId,
+      }),
+    }
+  );
+  if (!response.ok) {
+    throw new Error(`Error: ${response.status}`);
+  }
+  const data = await response.json();
+
+  return {
+    target_url: data.target_url,
+    initiator_url: data.initiator_url,
+  };
 }

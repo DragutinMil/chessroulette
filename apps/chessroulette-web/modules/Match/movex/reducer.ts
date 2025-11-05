@@ -6,10 +6,14 @@ import { MatchActions, MatchState } from './types';
 import { initialMatchState } from './state';
 import { getMatchPlayerRoleById } from './util';
 import { GameOffer } from '@app/modules/Game';
+import { ChatMessage } from './types';
+
 export const reducer: MovexReducer<MatchState, MatchActions> = (
   prev: MatchState = initialMatchState,
   action: MatchActions
 ): MatchState => {
+  // console.log('prev',prev)
+  // console.log('action',action)
   if (!prev) {
     return prev;
   }
@@ -32,55 +36,76 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
       ],
     };
   }
-  // if (action.type === 'play:acceptOfferRematch') {
-  //   console.log('prvi prolaz');
-  //   const { target_url } = action.payload;
-  //   const { initiator_url } = action.payload;
-  //   const lastOffer: GameOffer = {
-  //     ...prev.endedGames[0].offers[prev.endedGames[0].offers.length - 1],
-  //     status: 'accepted',
-  //     linkInitiator: initiator_url,
-  //     linkTarget: target_url,
-  //   };
-  //   console.log('lastOffer', lastOffer);
-  //   console.log('drugi prolaz last offer', lastOffer);
-  //   const nextOffers = [...prev.endedGames[0].offers.slice(0, -1), lastOffer];
-  //   console.log('nextOffers', nextOffers);
-  //   const firstEndedGame = prev.endedGames[prev.endedGames.length - 1];
-  //   const pgn = firstEndedGame.pgn;
-  //   const w = firstEndedGame.players.w;
-  //   const b = firstEndedGame.players.b;
-  //   const lastMoveBy = firstEndedGame.lastMoveBy;
-  //   const timeClass = firstEndedGame.timeClass;
-  //   const lastMoveAt = firstEndedGame.lastMoveAt;
-  //   const startedAt = firstEndedGame.startedAt;
-  //   const winner = firstEndedGame.winner;
-  //   const newArray = prev.endedGames.slice(0, -1);
-  //   if (winner && lastMoveAt) {
-  //     return {
-  //       ...prev,
-  //       endedGames: [
-  //         ...newArray,
-  //         {
-  //           gameOverReason: 5,
-  //           lastMoveAt: lastMoveAt,
-  //           lastMoveBy: lastMoveBy,
-  //           offers: nextOffers,
-  //           pgn: pgn,
-  //           players: { w: w, b: b },
-  //           startedAt: startedAt,
-  //           status: 'complete',
-  //           timeClass: timeClass,
-  //           timeLeft: { lastUpdatedAt: 1746706159630, w: 600000, b: 600000 },
-  //           winner: winner,
-  //         },
-  //       ],
-  //     };
-  //   }
-  // }
+  if (action.type === 'play:acceptOfferRematch') {
+    const { target_url } = action.payload;
+    const { initiator_url } = action.payload;
+    const lastIndex = prev.endedGames.length - 1;
+    const lastGame = prev.endedGames[lastIndex];
+
+    const lastOffer: GameOffer = {
+      ...prev.endedGames[0].offers[prev.endedGames[0].offers.length - 1],
+      status: 'accepted',
+      linkInitiator: initiator_url,
+      linkTarget: target_url,
+    };
+    console.log('lastOffer', lastOffer);
+
+    const nextOffers = [...lastGame.offers.slice(0, -1), lastOffer];
+    const updatedLastGame = {
+      ...lastGame,
+      offers: nextOffers,
+    };
+    const updatedEndedGames = [
+      ...prev.endedGames.slice(0, lastIndex),
+      updatedLastGame,
+    ];
+    console.log('updatedEndedGames', updatedEndedGames);
+
+    return {
+      ...prev,
+      endedGames: updatedEndedGames,
+    };
+  }
+
+  if (action.type === 'play:sendMessage') {
+    const newMessage: ChatMessage = {
+      senderId: action.payload.senderId,
+      content: action.payload.content,
+      timestamp: action.payload.timestamp,
+    };
+
+    return {
+      ...prev,
+      messages: [...(prev.messages || []), newMessage], // <-- Dodajte || [] kao fallback
+    };
+  }
+
+  if (action.type === 'play:updateChatState') {
+    const { userId, isChatEnabled } = action.payload;
+
+    // Only update if the state would actually change
+    const player =
+      prev.challenger.id === userId ? prev.challenger : prev.challengee;
+    if (player.isChatEnabled === isChatEnabled) {
+      return prev; // No change needed
+    }
+
+    return {
+      ...prev,
+      challenger:
+        prev.challenger.id === userId
+          ? { ...prev.challenger, isChatEnabled }
+          : prev.challenger,
+      challengee:
+        prev.challengee.id === userId
+          ? { ...prev.challengee, isChatEnabled }
+          : prev.challengee,
+    };
+  }
 
   //OFFER REMATCH - here to effect completed matches
   if (action.type === 'play:sendOffer') {
+    console.log('rematch', prev);
     const { byPlayer, offerType } = action.payload;
 
     if (offerType == 'rematch') {
@@ -274,9 +299,8 @@ reducer.$transformState = (state, masterContext): MatchState => {
     return state;
   }
 
-  // Determine if Match is "aborted" onRead
   if (state.status === 'complete' || state.status === 'aborted') {
-    console.log('state 1 transformSta', state);
+    // console.log('state 1 transformSta', state);
     return state;
   }
   const ongoingPlay = state.gameInPlay;
@@ -284,19 +308,28 @@ reducer.$transformState = (state, masterContext): MatchState => {
   if (ongoingPlay?.status === 'ongoing') {
     const turn = swapColor(ongoingPlay.lastMoveBy);
 
-    const nextTimeLeft = PlayStore.calculateTimeLeftAt({
-      at: masterContext.requestAt, // TODO: this can take in account the lag as well
-      prevTimeLeft: ongoingPlay.timeLeft,
-      turn,
-    });
+    const timeSince =
+      masterContext.requestAt - ongoingPlay.timeLeft.lastUpdatedAt;
 
-    return {
-      ...state,
-      gameInPlay: {
-        ...ongoingPlay,
-        timeLeft: nextTimeLeft,
-      },
-    };
+    if (timeSince > 100) {
+      const nextTimeLeft = PlayStore.calculateTimeLeftAt({
+        at: masterContext.requestAt,
+        turn,
+        prevTimeLeft: ongoingPlay.timeLeft,
+        timeClass: ongoingPlay.timeClass, // Add timeClass
+        isMove: false, // This is not a move, just a time update
+      });
+
+      return {
+        ...state,
+        gameInPlay: {
+          ...ongoingPlay,
+          timeLeft: nextTimeLeft,
+        },
+      };
+    }
+
+    return state;
   }
 
   // If the ongoing game is idling & the abort time has passed

@@ -3,7 +3,7 @@ import {
   FreeBoardNotationProps,
 } from '@app/components/FreeBoardNotation';
 import { TabsRef } from '@app/components/Tabs';
-import { Chapter, ChapterState } from '../../movex';
+import { Chapter, ChapterState, Message } from '../../movex';
 import { PgnInputBoxProps } from '@app/components/PgnInputBox/PgnInputBox';
 import { ChaptersTabProps } from '../../chapters/ChaptersTab';
 import React from 'react';
@@ -14,7 +14,7 @@ type Props = {
   chaptersMap: Record<Chapter['id'], Chapter>;
   chaptersMapIndex: number;
   currentChapterState: ChapterState;
-
+  onMessage: (message: Message) => void;
   // Board
   onImport: PgnInputBoxProps['onChange'];
   onQuickImport: PgnInputBoxProps['onChange'];
@@ -51,6 +51,7 @@ export const WidgetPanel = React.forwardRef<TabsRef, Props>(
       showEngine,
       engine,
       isInstructor,
+      onMessage,
       onImport,
       onQuickImport,
       onHistoryNotationDelete,
@@ -69,6 +70,7 @@ export const WidgetPanel = React.forwardRef<TabsRef, Props>(
           currentLoadedChapterId={currentLoadedChapterId}
           onQuickImport={onQuickImport}
           onImport={onImport}
+          onMessage={onMessage}
           chaptersMap={chaptersMap}
           chaptersMapIndex={chaptersMapIndex}
           showEngine={showEngine}

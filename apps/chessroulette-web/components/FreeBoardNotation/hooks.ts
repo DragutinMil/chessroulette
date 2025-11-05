@@ -41,13 +41,16 @@ export const useArrowsListener = (
 export const useKeysToRefocusHistory = (
   history: FBHHistory,
   currentIndex: FBHIndex,
-  onRefocus: (i: FBHIndex, move?: FBHRecursiveMove) => void
+  onRefocus: (i: FBHIndex, move?: FBHRecursiveMove) => void,
+  isFocusedInput?: boolean
 ) => {
   useArrowsListener((arrow) => {
     if (!isOneOf(arrow, ['left', 'right'])) {
       return;
     }
-
+    if (isFocusedInput) {
+      return;
+    }
     if (
       arrow === 'right' &&
       FreeBoardHistory.findMoveAtIndex(history, currentIndex)?.branchedHistories

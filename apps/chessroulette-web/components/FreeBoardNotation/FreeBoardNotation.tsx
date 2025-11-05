@@ -2,9 +2,10 @@ import React from 'react';
 import { List, ListProps } from './components/HistoryList';
 import { useKeysToRefocusHistory } from './hooks';
 import { FBHHistory, FreeBoardHistory } from '@xmatter/util-kit';
-
+import type { EvaluationMove } from '../../modules/Room/activities/Aichess/movex/types';
 export type FreeBoardNotationProps = {
   history?: FBHHistory;
+  isFocusedInput?: boolean;
   focusedIndex?: ListProps['focusedIndex'];
   onRefocus: ListProps['onRefocus'];
   onDelete: ListProps['onDelete'];
@@ -12,6 +13,9 @@ export type FreeBoardNotationProps = {
   className?: string;
   containerClassName?: string;
   canDelete?: boolean;
+  reviewData?: EvaluationMove[];
+  playerNames?: Array<string>;
+  isMobile?: boolean;
 };
 
 /**
@@ -23,33 +27,45 @@ export type FreeBoardNotationProps = {
 export const FreeBoardNotation: React.FC<FreeBoardNotationProps> = ({
   history = [],
   emptyContent = 'Wow, So Empty!',
+  isFocusedInput,
   focusedIndex = FreeBoardHistory.getStartingIndex(),
   onRefocus,
   onDelete,
   canDelete,
+  reviewData,
+  playerNames,
+  isMobile,
   containerClassName = '',
   className = '',
 }) => {
-  useKeysToRefocusHistory(history, focusedIndex, onRefocus);
+  useKeysToRefocusHistory(
+    history,
+    focusedIndex,
+    onRefocus,
+    isFocusedInput as boolean
+  );
 
   return (
     <div
-      className={`md:flex flex-col flex-1  overflow-scroll  min-h-0 min-w-0 ${containerClassName} `}
+      className={`md:flex flex-col h-full flex-1 overflow-hidden   min-h-0 min-w-0 ${containerClassName} `}
     >
       {history.length > 0 ? (
         <List
+          isMobile={isMobile}
           history={history}
+          playerNames={playerNames}
           focusedIndex={focusedIndex}
           onRefocus={onRefocus}
           onDelete={onDelete}
-          className={`flex flex-1 flex-col overflow-scroll  ${className} ${
+          reviewData={reviewData || []}
+          className={`flex flex-1 flex-col  ${className} ${
             canDelete === false ? 'hidden md:flex' : 'flex'
           }`}
-          rowClassName="border-b border-slate-800"
+          rowClassName={isMobile ? '' : 'border-b border-slate-800'}
           canDelete={canDelete}
         />
       ) : (
-        <div className="flex-1 flex items-center  hidden md:flex  justify-center text-slate-500">
+        <div className="flex-1 flex items-center   hidden md:flex  justify-center text-slate-500">
           {emptyContent}
         </div>
       )}

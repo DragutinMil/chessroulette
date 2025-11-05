@@ -44,4 +44,12 @@ export type PlayActions =
   | Action<'play:acceptTakeBack'>
   | Action<'play:denyOffer'>
   // | Action<'play:rematchOffer'>
-  | Action<'play:cancelOffer'>;
+  | Action<'play:cancelOffer'>
+  | Action<
+      'play:sendMessage',
+      {
+        senderId: User['id'];
+        content: string;
+        timestamp: number;
+      }
+    >;
