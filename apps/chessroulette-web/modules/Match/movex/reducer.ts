@@ -34,52 +34,36 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
       ],
     };
   }
-  // if (action.type === 'play:acceptOfferRematch') {
-  //   console.log('prvi prolaz');
-  //   const { target_url } = action.payload;
-  //   const { initiator_url } = action.payload;
-  //   const lastOffer: GameOffer = {
-  //     ...prev.endedGames[0].offers[prev.endedGames[0].offers.length - 1],
-  //     status: 'accepted',
-  //     linkInitiator: initiator_url,
-  //     linkTarget: target_url,
-  //   };
-  //   console.log('lastOffer', lastOffer);
-  //   console.log('drugi prolaz last offer', lastOffer);
-  //   const nextOffers = [...prev.endedGames[0].offers.slice(0, -1), lastOffer];
-  //   console.log('nextOffers', nextOffers);
-  //   const firstEndedGame = prev.endedGames[prev.endedGames.length - 1];
-  //   const pgn = firstEndedGame.pgn;
-  //   const w = firstEndedGame.players.w;
-  //   const b = firstEndedGame.players.b;
-  //   const lastMoveBy = firstEndedGame.lastMoveBy;
-  //   const timeClass = firstEndedGame.timeClass;
-  //   const lastMoveAt = firstEndedGame.lastMoveAt;
-  //   const startedAt = firstEndedGame.startedAt;
-  //   const winner = firstEndedGame.winner;
-  //   const newArray = prev.endedGames.slice(0, -1);
-  //   if (winner && lastMoveAt) {
-  //     return {
-  //       ...prev,
-  //       endedGames: [
-  //         ...newArray,
-  //         {
-  //           gameOverReason: 5,
-  //           lastMoveAt: lastMoveAt,
-  //           lastMoveBy: lastMoveBy,
-  //           offers: nextOffers,
-  //           pgn: pgn,
-  //           players: { w: w, b: b },
-  //           startedAt: startedAt,
-  //           status: 'complete',
-  //           timeClass: timeClass,
-  //           timeLeft: { lastUpdatedAt: 1746706159630, w: 600000, b: 600000 },
-  //           winner: winner,
-  //         },
-  //       ],
-  //     };
-  //   }
-  // }
+  if (action.type === 'play:acceptOfferRematch') {
+    const { target_url } = action.payload;
+    const { initiator_url } = action.payload;
+    const lastIndex = prev.endedGames.length - 1;
+    const lastGame = prev.endedGames[lastIndex];
+
+    const lastOffer: GameOffer = {
+      ...prev.endedGames[0].offers[prev.endedGames[0].offers.length - 1],
+      status: 'accepted',
+      linkInitiator: initiator_url,
+      linkTarget: target_url,
+    };
+    console.log('lastOffer', lastOffer);
+
+    const nextOffers = [...lastGame.offers.slice(0, -1), lastOffer];
+    const updatedLastGame = {
+      ...lastGame,
+      offers: nextOffers,
+    };
+    const updatedEndedGames = [
+      ...prev.endedGames.slice(0, lastIndex),
+      updatedLastGame,
+    ];
+    console.log('updatedEndedGames', updatedEndedGames);
+
+    return {
+      ...prev,
+      endedGames: updatedEndedGames,
+    };
+  }
 
   if (action.type === 'play:sendMessage') {
     const newMessage: ChatMessage = {

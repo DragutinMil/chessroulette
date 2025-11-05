@@ -91,32 +91,28 @@ export const HistoryMove = ({
     moveCoplete = `${move.san}`;
   }
 
-  //  if(evalDiff){
-  //  console.log(evalDiff)
-  //  }
-
   return (
     <RowItem
       san={moveCoplete}
-      tooltip={
-        !bestMoves
-          ? ''
-          : iconicEngine === '🎯'
-          ? 'Top move'
-          : iconicEngine === '⚡⚡'
-          ? 'Strong move'
-          : iconicEngine === '⚡'
-          ? 'Strong move'
-          : iconic === '❌'
-          ? 'Blunder!'
-          : iconic === '⬇️'
-          ? 'Inaccuracy'
-          : iconic === '✅'
-          ? 'Good move.'
-          : iconic === '✅✅'
-          ? 'Amazing move!'
-          : ''
-      }
+      // tooltip={
+      //   !bestMoves
+      //     ? ''
+      //     : iconicEngine === '🎯'
+      //     ? 'Top move'
+      //     : iconicEngine === '⚡⚡'
+      //     ? 'Strong move'
+      //     : iconicEngine === '⚡'
+      //     ? 'Strong move'
+      //     : iconic === '❌'
+      //     ? 'Blunder!'
+      //     : iconic === '⬇️'
+      //     ? 'Inaccuracy'
+      //     : iconic === '✅'
+      //     ? 'Good move.'
+      //     : iconic === '✅✅'
+      //     ? 'Amazing move!'
+      //     : ''
+      // }
       isFocused={isFocused}
       onClick={() => onFocus(rootHistoryIndex)}
       onContextMenu={onContextMenu}

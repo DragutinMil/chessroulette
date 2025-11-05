@@ -155,7 +155,7 @@ export const ChatWidget: React.FC<Props> = ({
 
   return (
     <div className="flex flex-col h-full bg-op-widget rounded-lg shadow-2xl">
-      <div className="p-3 border-b border-gray-700 flex justify-between items-center">
+      <div className="p-3 border-b border-slate-800 flex justify-between items-center">
         <div className="flex items-center gap-2">
           <Text className="text-sm font-semibold">Chat</Text>
           {!isChatEnabled && newMessageCount > 0 && (
@@ -233,7 +233,7 @@ export const ChatWidget: React.FC<Props> = ({
         <div ref={messagesEndRef} />
       </div>
 
-      <div className="p-3 border-t border-gray-700">
+      <div className="p-3 border-t border-slate-800">
         <div className="flex mb-2 mt-2 md:mt-0">
           <input
             type="text"

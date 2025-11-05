@@ -64,7 +64,7 @@ export const MatchStateDialogContainer: React.FC<Props> = (
     setUserId(url.searchParams.get('userId') ?? '');
     setMatchId(room);
     //
-    //  setFromWeb(true)
+    setFromWeb(true);
   }, []);
 
   if (match?.status === 'aborted') {
@@ -131,7 +131,6 @@ export const MatchStateDialogContainer: React.FC<Props> = (
                   className="hover:opacity-70"
                     onClick={() => {
                       if (playerId) {
-                        // dispatch({ type: 'increment' });
                         dispatch((masterContext) => ({
                           type: 'play:sendOffer',
                           payload: {
@@ -145,8 +144,8 @@ export const MatchStateDialogContainer: React.FC<Props> = (
                   >
                     Rematch
                   </Button> */}
-                  <Link
-                    href={`http://localhost:4200/room/new/r${matchId}?activity=aichess&userId=${userId}&theme=op&pgn=${matchId}`}
+                  {/* <Link
+                    href={`https://chess.outpostchess.com/room/new/r${matchId}?activity=aichess&userId=${userId}&theme=op&pgn=${matchId}`}
                   >
                     <Button
                       icon="EyeIcon"
@@ -160,7 +159,7 @@ export const MatchStateDialogContainer: React.FC<Props> = (
                     >
                       Review
                     </Button>
-                  </Link>
+                  </Link> */}
                   {/* { (document.referrer.includes('app.outpostchess.com') || document.referrer.includes('localhost:8080') || document.referrer.includes('test-app.outpostchess.com')) && */}
                   {fromWeb && (
                     <Button
