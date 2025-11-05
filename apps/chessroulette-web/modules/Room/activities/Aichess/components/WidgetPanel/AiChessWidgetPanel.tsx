@@ -128,7 +128,6 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
     const [question, setQuestion] = useState('');
     const [timeoutEnginePlay, setTimeoutEnginePlay] = useState(false);
     const [takeBakeShake, setTakeBakeShake] = useState(false);
-    const [popupSubscribe, setPopupSubscribe] = useState(false);
     const [progressReview, setProgressReview] = useState(0);
     const [reviewData, setReviewData] = useState<EvaluationMove[]>([]);
     const [freezeButton, setFreezeButton] = useState(false);
@@ -951,22 +950,6 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
     // Instructor
     return (
       <div className="  flex flex-col flex-1 min-h-0 rounded-lg shadow-2xl flex-1 flex min-h-0 ">
-        {popupSubscribe && (
-          <div className="fixed top-0 left-0 w-[100vw] h-[100vh] bg-black/60 z-50 flex items-center justify-center">
-            <iframe
-              src="http://localhost:8080/subscribe"
-              className="w-[90vw] h-[90vh] rounded-2xl shadow-2xl bg-op-widget"
-              frameBorder="0"
-            />
-            {/* Close dugme */}
-            <button
-              onClick={() => setPopupSubscribe(false)}
-              className="absolute top-4 right-4 bg-white rounded-full px-3 py-1 shadow-md hover:bg-gray-200"
-            >
-              ✕
-            </button>
-          </div>
-        )}
         <StockFishEngineAI
           ratingEngine={ratingEngine}
           newRatingEngine={newRatingEngine}
@@ -1019,7 +1002,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
                   )}
                   <div className="flex-1 justify-between flex flex-col border bg-op-widget border-conversation-100 pb-2 px-2 md:px-4 md:pb-4 rounded-lg  ">
                     {currentChapterState.chessAiMode.mode !== 'review' ? (
-                      <div className="mt-4 flex flex-col justify-between  h-full max-h-[340px] md:max-h-[400px] md:min-h-[300px] min-h-[200px] ">
+                      <div className="mt-4 flex flex-col justify-between  h-full max-h-[340px] md:max-h-[380px] md:min-h-[300px] min-h-[200px] ">
                         <Conversation
                           currentChapterState={currentChapterState}
                           openViewSubscription={openViewSubscription}
@@ -1139,14 +1122,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
                           >
                             Take Back
                           </ButtonGreen>
-                          {/* <ButtonGreen
-                        onClick={() => {
-                          openViewSubscription()
-                        }}
-                        size="sm"
-                      >
-                        Subscribe
-                      </ButtonGreen> */}
+
                           <ButtonGreen
                             onClick={() => {
                               puzzles();
@@ -1321,7 +1297,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
                           : 'hidden'
                       }  
                       
-                     overflow-x-auto md:overflow-x-hidden  md:flex rounded-lg border border-conversation-100 md:p-4 p-2 overflow-scroll no-scrollbar 
+                     overflow-x-auto md:overflow-x-hidden  md:flex rounded-lg md:mb-0 mb-4 border border-conversation-100 md:p-4 p-2 overflow-scroll no-scrollbar 
                     `}
                   >
                     <FreeBoardNotation

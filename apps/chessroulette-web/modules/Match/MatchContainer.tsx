@@ -38,11 +38,10 @@ export const MatchContainer = ({
   const [isMobile, setIsMobile] = useState(false);
 
   const [activeWidget, setActiveWidget] = useState<'chat' | 'camera'>(() => {
-    
     if (typeof window !== 'undefined' && window.innerWidth <= 768) {
       return 'camera';
     }
-    
+
     const savedWidget = localStorage.getItem('chessroulette-active-widget');
     return savedWidget === 'chat' || savedWidget === 'camera'
       ? savedWidget
@@ -86,7 +85,7 @@ export const MatchContainer = ({
 
     return () => clearTimeout(timeoutId);
   }, [isChatEnabled, userId, dispatch]);
-  
+
   const handleSetActiveWidget = (widget: 'chat' | 'camera') => {
     if (!isMobile) {
       setActiveWidget(widget);
@@ -180,8 +179,10 @@ export const MatchContainer = ({
               )}
             </div>
 
-            <div className="bg-op-widget pl-2 pr-2 pt-2 pb-2 md:p-3 flex flex-col gap-2 md:flex-1 min-h-0 rounded-lg shadow-2xl md:overflow-y-scroll">
-              <GameNotationWidget />
+            <div className="bg-op-widget pl-2 pr-2 pt-2  pb-4 md:mb-0 mb-4 md:p-3 flex flex-col gap-2 md:flex-1 min-h-0 rounded-lg shadow-2xl md:overflow-y-scroll">
+              <div className="md:flex hidden flex-1">
+                <GameNotationWidget />
+              </div>
               <PlayControlsContainer />
             </div>
           </div>
