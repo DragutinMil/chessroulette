@@ -47,7 +47,7 @@ export const FreeBoardNotation: React.FC<FreeBoardNotationProps> = ({
 
   return (
     <div
-      className={`md:flex flex-col h-full flex-1 overflow-hidden min-h-0 min-w-0 ${containerClassName} `}
+      className={`md:flex flex-col h-full flex-1 overflow-hidden   min-h-0 min-w-0 ${containerClassName} `}
     >
       {history.length > 0 ? (
         <List
