@@ -131,7 +131,8 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
     const [progressReview, setProgressReview] = useState(0);
     const [reviewData, setReviewData] = useState<EvaluationMove[]>([]);
     const [freezeButton, setFreezeButton] = useState(false);
-
+    const [scoreCP, setScoreCP] = useState(0);
+    const [prevScoreCP, setprevScoreCP] = useState(0);
     const smallMobile =
       typeof window !== 'undefined' && window.innerWidth < 400;
     const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
@@ -286,6 +287,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
 
         const data = await SendQuestion(
           question,
+          scoreCP,
           currentChapterState,
           stockfishMovesInfo,
           lines[1],
@@ -321,21 +323,11 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
       }
     };
     useEffect(() => {
-      // if (
-      //   currentChapterState.messages.length == 0 &&
-      //   currentChapterState.chessAiMode.mode == ''
-      // ) {
-      //   onMessage({
-      //     content: 'Hi there! 👋  Ready for exercise?',
-      //     participantId: 'chatGPT123456',
-      //     idResponse: '',
-      //   });
-      // }
-      if (currentChapterState.evaluation.prevCp !== 0) {
+      if (prevScoreCP !== 0) {
         const probability = async () => {
           const ProbabilityChange = await ChessEngineProbabilityCalc(
-            currentChapterState.evaluation.newCp,
-            currentChapterState.evaluation.prevCp
+            scoreCP,
+            prevScoreCP
           );
           if (currentChapterState.orientation == 'w') {
             setPercentW(ProbabilityChange.newPercentage);
@@ -361,7 +353,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
         };
         probability();
       }
-    }, [currentChapterState.evaluation.newCp]);
+    }, [scoreCP]);
 
     useEffect(() => {
       const length = currentChapterState.notation.history.length;
@@ -453,6 +445,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
             'Daily limit reached. Explane what to do to continue play puzzle';
           const data = await SendQuestion(
             question,
+            scoreCP,
             currentChapterState,
             stockfishMovesInfo,
             lines[1],
@@ -752,6 +745,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
             'Daily limit reached. Explane what to do to continue play puzzle';
           const data = await SendQuestion(
             question,
+            scoreCP,
             currentChapterState,
             stockfishMovesInfo,
             lines[1],
@@ -876,7 +870,10 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
         });
       }
     };
-
+     const handleGameEvaluation = (newScore: number) => {
+       setprevScoreCP(scoreCP)
+       setScoreCP(newScore);
+  };
     const play = async () => {
       setFreezeButton(true);
       addChessAi({
@@ -955,7 +952,6 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
           newRatingEngine={newRatingEngine}
           fen={currentChapterState.displayFen}
           orientation={currentChapterState.orientation}
-          prevScore={currentChapterState.evaluation.prevCp}
           puzzleMode={puzzleMode}
           playMode={playMode}
           engineLines={engineLines}
@@ -963,7 +959,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
           isMobile={isMobile}
           isMyTurn={isMyTurn}
           engineMove={engineMove}
-          addGameEvaluation={addGameEvaluation}
+          addGameEvaluation={handleGameEvaluation}
           // moveReaction={moveReaction}
         />
 
@@ -1230,21 +1226,21 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
                           ></div>
                         </div>
 
-                        {currentChapterState.evaluation.newCp !== 0 && (
+                        {scoreCP !== 0 && (
                           <div className={` flex  items-center mt-2`}>
-                            {currentChapterState.evaluation.newCp < 49999 &&
-                              currentChapterState.evaluation.newCp > -49999 &&
+                            {scoreCP < 49999 &&
+                              scoreCP > -49999 &&
                               (currentChapterState.orientation == 'b' ? (
                                 <p className={'font-bold '}>
                                   {' '}
-                                  {(currentChapterState.evaluation.newCp /
+                                  {(scoreCP /
                                     100) *
                                     -1}
                                 </p>
                               ) : (
                                 <p className={'font-bold '}>
                                   {' '}
-                                  {currentChapterState.evaluation.newCp / 100}
+                                  {scoreCP / 100}
                                 </p>
                               ))}
                             &nbsp;&nbsp;{' '}
