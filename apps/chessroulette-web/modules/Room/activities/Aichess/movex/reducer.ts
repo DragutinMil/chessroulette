@@ -28,10 +28,11 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
   prev: ActivityState = initialActivityState,
   action: ActivityActions
 ): ActivityState => {
+  
   if (prev.activityType !== 'aichess') {
     return prev;
   }
-
+  console.log('aichess action',action)
   if (action.type === 'loadedChapter:takeBack') {
     const prevChapter = findLoadedChapter(prev.activityState);
     if (!prevChapter) {

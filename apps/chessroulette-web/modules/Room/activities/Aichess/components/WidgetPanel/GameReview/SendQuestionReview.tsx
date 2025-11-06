@@ -14,7 +14,7 @@ export async function SendQuestionReview(
   const normalizedReview = reviewData.map((m, index, arr) => {
     const previous = arr[index - 1];
     return {
-      moveNumber: m.moveNumber,
+      moveCalc: m.moveCalc,
       move: m.move,
       eval: m.eval,
       diff: parseFloat(m.diff),

@@ -9,7 +9,7 @@ export type Dimensions = ContainerDimensions & {
 };
 export type EvaluationMove = {
   move: string;
-  moveNumber: number;
+  moveCalc: number;
   eval: number;
   diff: string;
   bestMoves: string[];
@@ -68,11 +68,11 @@ export const reviewAnalitics = (moves: EvaluationMove[]) => {
   let prevBestMoves: string[] | null = null;
 
   moves.forEach((m) => {
-    const colorStats = m.moveNumber % 2 !== 0 ? stats.white : stats.black;
+    const colorStats = m.moveCalc % 2 !== 0 ? stats.white : stats.black;
     const diff = Number(m.diff);
 
     // Diff evaluacija
-    if (m.moveNumber % 2 !== 0) {
+    if (m.moveCalc % 2 !== 0) {
       if (diff < -2) colorStats.blunders++;
       else if (diff <= -0.5) colorStats.badMoves++;
       else if (diff > 0.3 && diff <= 1) colorStats.goodMoves++;
