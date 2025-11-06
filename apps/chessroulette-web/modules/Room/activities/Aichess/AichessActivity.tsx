@@ -349,9 +349,9 @@ export const AichessActivity = ({
             }}
             addGameEvaluation={async (payload) => {
               // console.log('evaluacija', payload);
-              await enqueueMovexUpdate(() =>
-                dispatch({ type: 'loadedChapter:gameEvaluation', payload })
-              );
+              // await enqueueMovexUpdate(() =>
+              //   dispatch({ type: 'loadedChapter:gameEvaluation', payload })
+              // );
             }}
             onMove={async (payload) => {
               moveSound.play();
