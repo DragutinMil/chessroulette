@@ -28,11 +28,10 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
   prev: ActivityState = initialActivityState,
   action: ActivityActions
 ): ActivityState => {
-  
   if (prev.activityType !== 'aichess') {
     return prev;
   }
-  console.log('aichess action',action)
+  console.log('aichess', action);
   if (action.type === 'loadedChapter:takeBack') {
     const prevChapter = findLoadedChapter(prev.activityState);
     if (!prevChapter) {
@@ -54,7 +53,7 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
       newHistory.pop();
     }
 
-    console.log('newHistory', newHistory);
+    //console.log('newHistory', newHistory);
     // if (prevChapter.notation.focusedIndex[1] == 0) {
     //   prevChapter.notation.history.pop();
     //   prevChapter.notation.history.at(-1)?.pop();
@@ -929,7 +928,7 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
                 ...(prev.activityState.chaptersMap[0].messages ?? []),
                 message,
               ],
-             // evaluation: evaluation,
+              // evaluation: evaluation,
             },
           },
         },
@@ -1183,7 +1182,7 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
         },
       };
     }
-   // const evaluation = { prevCp: 0, newCp: 0, diffCp: 0 };
+    // const evaluation = { prevCp: 0, newCp: 0, diffCp: 0 };
     //delete puzzle
     return {
       ...prev,

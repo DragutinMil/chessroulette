@@ -194,7 +194,7 @@ export const List: React.FC<ListProps> = ({
         className=" flex-1 md:overflow-x-hidden  overflow-x-scroll  no-scrollbar"
         style={{
           width: isMobile ? 'calc(100vw - 3rem - 68px)' : '',
-          height: isMobile ? '36px':'calc(100vw - 600px)' ,
+          height: isMobile ? '36px' : 'calc(100vw - 600px)',
         }}
         ref={(e) => (containerElementRef.current = e)}
       >

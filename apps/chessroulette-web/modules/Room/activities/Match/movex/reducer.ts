@@ -23,7 +23,7 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
 
 if (MatchStore.reducer.$transformState) {
   const matchStateTransformer = MatchStore.reducer.$transformState;
-  
+
   reducer.$transformState = (state, masterContext): ActivityState => {
     if (state.activityType === 'match') {
       return {
@@ -34,7 +34,7 @@ if (MatchStore.reducer.$transformState) {
         ),
       };
     }
-   
+
     return state;
   };
 }
