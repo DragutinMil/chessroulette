@@ -8,17 +8,70 @@ import { getMatchPlayerRoleById } from './util';
 import { GameOffer } from '@app/modules/Game';
 import { ChatMessage } from './types';
 
+
+const ensureOfferCounters = (match: NonNullable<MatchState>) => {
+  const { challenger, challengee } = match;
+  const takeback = {
+    [challenger.id]: match.offerCounters?.takeback?.[challenger.id] ?? 0,
+    [challengee.id]: match.offerCounters?.takeback?.[challengee.id] ?? 0,
+  };
+  const draw = {
+    [challenger.id]: match.offerCounters?.draw?.[challenger.id] ?? 0,
+    [challengee.id]: match.offerCounters?.draw?.[challengee.id] ?? 0,
+  };
+
+  return {
+    ...match,
+    offerCounters: { takeback, draw },
+  };
+};
+
 export const reducer: MovexReducer<MatchState, MatchActions> = (
   prev: MatchState = initialMatchState,
   action: MatchActions
 ): MatchState => {
   // console.log('prev',prev)
-   console.log('action match',action)
+  // console.log('action match',action)
   if (!prev) {
     return prev;
   }
   // console.log('prev movex',prev)
-  const prevMatch = prev;
+  const prevMatch = ensureOfferCounters(prev);
+  let nextOfferCounters = prevMatch.offerCounters;
+
+  if (action.type === 'play:sendOffer') {
+    const { byPlayer, offerType } = action.payload;
+
+    if (offerType === 'takeback') {
+      const current = nextOfferCounters.takeback[byPlayer] ?? 0;
+      if (current >= 1) {
+        return prevMatch;
+      }
+
+      nextOfferCounters = {
+        ...nextOfferCounters,
+        takeback: {
+          ...nextOfferCounters.takeback,
+          [byPlayer]: current + 1,
+        },
+      };
+    }
+
+    if (offerType === 'draw') {
+      const current = nextOfferCounters.draw[byPlayer] ?? 0;
+      if (current >= 3) {
+        return prevMatch;
+      }
+
+      nextOfferCounters = {
+        ...nextOfferCounters,
+        draw: {
+          ...nextOfferCounters.draw,
+          [byPlayer]: current + 1,
+        },
+      };
+    }
+  }
 
   // answer to offers on completed games
   if (
@@ -33,7 +86,9 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
           // Remove the last offer ß
           offers: prev.endedGames[0].offers.slice(0, -1),
         },
+         //... nextOfferCounters
       ],
+      offerCounters: nextOfferCounters
     };
   }
   if (action.type === 'play:acceptOfferRematch') {
@@ -64,7 +119,10 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
     return {
       ...prev,
       endedGames: updatedEndedGames,
+      offerCounters: nextOfferCounters,
+
     };
+
   }
 
   if (action.type === 'play:sendMessage') {
@@ -77,6 +135,7 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
     return {
       ...prev,
       messages: [...(prev.messages || []), newMessage], // <-- Dodajte || [] kao fallback
+      offerCounters: nextOfferCounters,
     };
   }
 
@@ -122,6 +181,7 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
       ];
       return {
         ...prev,
+        offerCounters: nextOfferCounters,
         endedGames: [
           ...newArray,
           {
@@ -221,6 +281,7 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
       ...prev,
       gameInPlay: nextOngoingGame,
       status: nextOngoingGameStatus,
+      offerCounters: nextOfferCounters,
       ...(nextOngoingGameStatus === 'aborted' && {
         winner: getMatchPlayerRoleById(
           prevMatch,
@@ -290,6 +351,7 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
     gameInPlay: null,
     status: nextMatchStatus,
     winner,
+    offerCounters: nextOfferCounters,  
     ...nextPlayersByRole,
   };
 };
