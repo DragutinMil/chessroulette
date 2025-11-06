@@ -8,11 +8,11 @@ export const initialChapterState: ChapterState = {
   arrowsMap: {},
   circlesMap: {},
   messages: [
-    // {
-    //   content: 'Hi there! 👋  Ready for exercise?',
-    //   idResponse: '',
-    //   participantId: 'chatGPT123456',
-    // },
+    {
+      content: 'Hi there! 👋  Ready for exercise?',
+      idResponse: '',
+      participantId: 'chatGPT123456',
+    },
   ],
   chessAiMode: {
     mode: '',

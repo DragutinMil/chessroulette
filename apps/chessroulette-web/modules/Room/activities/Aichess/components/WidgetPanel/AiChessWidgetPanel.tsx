@@ -321,16 +321,16 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
       }
     };
     useEffect(() => {
-      if (
-        currentChapterState.messages.length == 0 &&
-        currentChapterState.chessAiMode.mode == ''
-      ) {
-        onMessage({
-          content: 'Hi there! 👋  Ready for exercise?',
-          participantId: 'chatGPT123456',
-          idResponse: '',
-        });
-      }
+      // if (
+      //   currentChapterState.messages.length == 0 &&
+      //   currentChapterState.chessAiMode.mode == ''
+      // ) {
+      //   onMessage({
+      //     content: 'Hi there! 👋  Ready for exercise?',
+      //     participantId: 'chatGPT123456',
+      //     idResponse: '',
+      //   });
+      // }
       if (currentChapterState.evaluation.prevCp !== 0) {
         const probability = async () => {
           const ProbabilityChange = await ChessEngineProbabilityCalc(
@@ -855,7 +855,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
         },
         isMobile
       );
-      // console.log('dats', data);
+       console.log('dats', data);
 
       setReviewData(data);
       if (data) {

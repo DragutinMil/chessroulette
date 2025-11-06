@@ -13,7 +13,7 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
   action: MatchActions
 ): MatchState => {
   // console.log('prev',prev)
-  // console.log('action',action)
+   console.log('action match',action)
   if (!prev) {
     return prev;
   }
@@ -298,7 +298,7 @@ reducer.$transformState = (state, masterContext): MatchState => {
   if (!state) {
     return state;
   }
-
+   console.log('state 1 transformSta', state);
   if (state.status === 'complete' || state.status === 'aborted') {
     // console.log('state 1 transformSta', state);
     return state;

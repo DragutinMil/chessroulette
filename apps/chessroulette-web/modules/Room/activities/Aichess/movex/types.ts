@@ -59,7 +59,7 @@ export type evaluation = {
 
 export type EvaluationMove = {
   move: string;
-  moveNumber: number;
+  moveCalc: number;
   eval: number;
   diff: string;
   bestMoves: string[];
