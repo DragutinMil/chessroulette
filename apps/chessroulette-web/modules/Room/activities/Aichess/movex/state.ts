@@ -8,11 +8,11 @@ export const initialChapterState: ChapterState = {
   arrowsMap: {},
   circlesMap: {},
   messages: [
-    // {
-    //   content: 'Hi there! 👋  Ready for exercise?',
-    //   idResponse: '',
-    //   participantId: 'chatGPT123456',
-    // },
+    {
+      content: 'Hi there! 👋  Ready for exercise?',
+      idResponse: '',
+      participantId: 'chatGPT123456',
+    },
   ],
   chessAiMode: {
     mode: '',
@@ -30,11 +30,11 @@ export const initialChapterState: ChapterState = {
     responseId: '',
     message: '',
   },
-  evaluation: {
-    prevCp: 0,
-    newCp: 0,
-    diffCp: 0,
-  },
+  // evaluation: {
+  //   prevCp: 0,
+  //   newCp: 0,
+  //   diffCp: 0,
+  // },
   notation: {
     history: [],
     focusedIndex: FreeBoardHistory.getStartingIndex(),

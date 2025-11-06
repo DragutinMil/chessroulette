@@ -15,7 +15,6 @@ type StockfishEngineAIProps = {
   engineLines: any;
   puzzleMode: boolean;
   playMode: boolean;
-  prevScore: number;
   newRatingEngine: number;
   isMobile: boolean;
   ratingEngine: any;
@@ -33,7 +32,6 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
   engineLines,
   orientation,
   isMobile,
-  prevScore,
   addGameEvaluation,
   newRatingEngine,
   ratingEngine,

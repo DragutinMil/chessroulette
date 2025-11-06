@@ -51,15 +51,15 @@ export type chessAiMode = {
   responseId: string;
   message: string;
 };
-export type evaluation = {
-  prevCp: number;
-  newCp: number;
-  diffCp: number;
-};
+// export type evaluation = {
+//   prevCp: number;
+//   newCp: number;
+//   diffCp: number;
+// };
 
 export type EvaluationMove = {
   move: string;
-  moveNumber: number;
+  moveCalc: number;
   eval: number;
   diff: string;
   bestMoves: string[];
@@ -83,7 +83,7 @@ export type ChapterState = {
   messages: Message[];
   // Also the chapter might get a type: position, or puzzle (containing next correct moves)
   chessAiMode: chessAiMode;
-  evaluation: evaluation;
+  //evaluation: evaluation;
   notation: {
     // The starting fen is the chapter fen
     history: FBHHistory;

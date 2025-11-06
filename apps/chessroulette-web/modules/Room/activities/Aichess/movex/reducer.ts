@@ -31,7 +31,7 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
   if (prev.activityType !== 'aichess') {
     return prev;
   }
-
+  console.log('aichess', action);
   if (action.type === 'loadedChapter:takeBack') {
     const prevChapter = findLoadedChapter(prev.activityState);
     if (!prevChapter) {
@@ -53,7 +53,7 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
       newHistory.pop();
     }
 
-    console.log('newHistory', newHistory);
+    //console.log('newHistory', newHistory);
     // if (prevChapter.notation.focusedIndex[1] == 0) {
     //   prevChapter.notation.history.pop();
     //   prevChapter.notation.history.at(-1)?.pop();
@@ -99,11 +99,6 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
         chessAiMode: {
           ...prev.activityState.chaptersMap[0].chessAiMode,
         },
-        evaluation: {
-          prevCp: 0,
-          newCp: 0,
-          diffCp: 0,
-        },
         notation: {
           ...prevChapter.notation,
           focusedIndex: action.payload,
@@ -130,11 +125,6 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
       displayFen: fenBoard.fen,
       chessAiMode: {
         ...prev.activityState.chaptersMap[0].chessAiMode,
-      },
-      evaluation: {
-        prevCp: 0,
-        newCp: 0,
-        diffCp: 0,
       },
       messages: [
         ...(prev.activityState.chaptersMap[0].messages ?? []),
@@ -910,14 +900,14 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
         idResponse: idResponse,
       };
 
-      const evaluation =
-        chessAiMode.message !== ''
-          ? {
-              prevCp: 0,
-              newCp: 0,
-              diffCp: 0,
-            }
-          : prev.activityState.chaptersMap[0].evaluation;
+      // const evaluation =
+      //   chessAiMode.message !== ''
+      //     ? {
+      //         prevCp: 0,
+      //         newCp: 0,
+      //         diffCp: 0,
+      //       }
+      //     : prev.activityState.chaptersMap[0].evaluation;
 
       return {
         ...prev,
@@ -938,7 +928,7 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
                 ...(prev.activityState.chaptersMap[0].messages ?? []),
                 message,
               ],
-              evaluation: evaluation,
+              // evaluation: evaluation,
             },
           },
         },
@@ -1192,7 +1182,7 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
         },
       };
     }
-    const evaluation = { prevCp: 0, newCp: 0, diffCp: 0 };
+    // const evaluation = { prevCp: 0, newCp: 0, diffCp: 0 };
     //delete puzzle
     return {
       ...prev,
@@ -1203,7 +1193,7 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
           [0]: {
             ...prev.activityState.chaptersMap[0],
             chessAiMode: chessAiMode,
-            evaluation: evaluation,
+            //evaluation: evaluation,
           },
         },
       },
@@ -1241,28 +1231,28 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
     };
   }
 
-  if (action.type === 'loadedChapter:gameEvaluation') {
-    const prevCp = prev.activityState.chaptersMap[0].evaluation.newCp;
-    const newCp = action.payload;
-    const diffCp = prevCp == 0 ? 0 : newCp - prevCp;
-    return {
-      ...prev,
-      activityState: {
-        ...prev.activityState,
-        chaptersMap: {
-          ...prev.activityState.chaptersMap,
-          [0]: {
-            ...prev.activityState.chaptersMap[0],
-            evaluation: {
-              prevCp: prevCp,
-              newCp: newCp,
-              diffCp: diffCp,
-            },
-          },
-        },
-      },
-    };
-  }
+  // if (action.type === 'loadedChapter:gameEvaluation') {
+  //   const prevCp = prev.activityState.chaptersMap[0].evaluation.newCp;
+  //   const newCp = action.payload;
+  //   const diffCp = prevCp == 0 ? 0 : newCp - prevCp;
+  //   return {
+  //     ...prev,
+  //     activityState: {
+  //       ...prev.activityState,
+  //       chaptersMap: {
+  //         ...prev.activityState.chaptersMap,
+  //         [0]: {
+  //           ...prev.activityState.chaptersMap[0],
+  //           evaluation: {
+  //             prevCp: prevCp,
+  //             newCp: newCp,
+  //             diffCp: diffCp,
+  //           },
+  //         },
+  //       },
+  //     },
+  //   };
+  // }
 
   return prev;
 };
