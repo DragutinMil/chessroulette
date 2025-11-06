@@ -5,7 +5,7 @@ import { CheckPiece } from './CheckPiece';
 import { Square } from 'chess.js';
 export async function SendQuestion(
   prompt: string,
-  scoreCP:number,
+  scoreCP: number,
   currentChapterState: ChapterState,
   stockfishMovesInfo: string,
   bestline: string,

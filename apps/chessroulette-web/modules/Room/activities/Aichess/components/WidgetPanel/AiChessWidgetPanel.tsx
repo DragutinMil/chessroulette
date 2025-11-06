@@ -849,7 +849,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
         },
         isMobile
       );
-       console.log('dats', data);
+      console.log('dats', data);
 
       setReviewData(data);
       if (data) {
@@ -870,10 +870,10 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
         });
       }
     };
-     const handleGameEvaluation = (newScore: number) => {
-       setprevScoreCP(scoreCP)
-       setScoreCP(newScore);
-  };
+    const handleGameEvaluation = (newScore: number) => {
+      setprevScoreCP(scoreCP);
+      setScoreCP(newScore);
+    };
     const play = async () => {
       setFreezeButton(true);
       addChessAi({
@@ -1233,15 +1233,10 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
                               (currentChapterState.orientation == 'b' ? (
                                 <p className={'font-bold '}>
                                   {' '}
-                                  {(scoreCP /
-                                    100) *
-                                    -1}
+                                  {(scoreCP / 100) * -1}
                                 </p>
                               ) : (
-                                <p className={'font-bold '}>
-                                  {' '}
-                                  {scoreCP / 100}
-                                </p>
+                                <p className={'font-bold '}> {scoreCP / 100}</p>
                               ))}
                             &nbsp;&nbsp;{' '}
                             <p className={'text-sm  '}>
