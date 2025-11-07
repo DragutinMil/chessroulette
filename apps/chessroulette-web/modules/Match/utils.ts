@@ -24,3 +24,16 @@ export function getMovesDetailsFromPGN(pgn: string): {
     lastMoveBy: tokens.length % 2 === 0 ? 'b' : 'w',
   };
 }
+
+let movexUpdateQueue = Promise.resolve();
+export function enqueueMovexUpdatePlay<T>(
+  updateFn: () => Promise<T> | void
+): Promise<void> {
+  movexUpdateQueue = movexUpdateQueue
+    .then(async () => {
+      await updateFn();
+    })
+    .catch((err) => console.error('Error in Movex update:', err));
+
+  return movexUpdateQueue;
+}
