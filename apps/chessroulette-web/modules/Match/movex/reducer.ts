@@ -13,7 +13,7 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
   action: MatchActions
 ): MatchState => {
   // console.log('prev',prev)
-  //  console.log('action match',action)
+  console.log('action match', action);
   if (!prev) {
     return prev;
   }
