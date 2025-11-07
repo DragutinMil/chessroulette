@@ -6,6 +6,7 @@ import {
   useMatchActionsDispatch,
   useMatchViewState,
 } from '../../hooks/useMatch';
+import { enqueueMovexUpdatePlay } from '../../utils';
 import { useCurrentOrPrevMatchPlay } from '../../Play/hooks';
 
 export const MatchStateDisplayContainer = () => {
@@ -37,13 +38,15 @@ export const MatchStateDisplayContainer = () => {
             playersBySide={play.playersBySide}
             game={play.game}
             turn={play.turn}
-            onCheckTime={() => {
-              dispatch((masterContext) => ({
-                type: 'play:checkTime',
-                payload: {
-                  at: masterContext.requestAt(),
-                },
-              }));
+            onCheckTime={async () => {
+              await enqueueMovexUpdatePlay(() =>
+                dispatch((masterContext) => ({
+                  type: 'play:checkTime',
+                  payload: {
+                    at: masterContext.requestAt(),
+                  },
+                }))
+              );
             }}
           />
         )}

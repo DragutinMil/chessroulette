@@ -62,6 +62,7 @@ export async function sendResult() {
 }
 export async function newRematchRequest(matchId: string) {
   const token: string | undefined = Cookies.get('sessionToken');
+  console.log('rer', token);
   const response = await fetch(
     process.env.NEXT_PUBLIC_API_WEB + 'challenge_rematch',
     {
