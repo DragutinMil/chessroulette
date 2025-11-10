@@ -164,6 +164,7 @@ export const SmartCountdown = ({
   useEffect(() => {
     if (finished) {
       setTimeout(() => onFinished(), 1500);
+      setTimeout(() => onFinished(), 500);
     }
   }, [finished]);
 
