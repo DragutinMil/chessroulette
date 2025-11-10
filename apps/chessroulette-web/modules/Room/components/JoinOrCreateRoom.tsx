@@ -86,7 +86,6 @@ export const JoinOrCreateRoom: React.FC<Props> = ({
             activity: {
               activityType: 'match',
               activityState: createMatchState(activityParams),
-              increment: 0,
             },
           };
         }
