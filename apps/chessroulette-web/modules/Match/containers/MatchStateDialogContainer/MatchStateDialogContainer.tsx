@@ -94,7 +94,7 @@ export const MatchStateDialogContainer: React.FC<Props> = (
 
   // TODO: Here we should just check the match.status
 
-  if (match?.winner && !lastOffer) {
+  if (match?.winner) {
     return (
       <Dialog
         title="Match Completed"
