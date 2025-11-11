@@ -15,6 +15,7 @@ type Props = {
   progressReview: number;
   reviewData: EvaluationMove[];
   analizeMatch: () => void;
+  openViewSubscription: () => void;
   smallMobile: boolean;
   hint: () => void;
   onSelectPuzzle: (category: string) => void;
@@ -27,6 +28,7 @@ const ConversationReview = ({
   userData,
   progressReview,
   analizeMatch,
+  openViewSubscription,
   reviewData,
   smallMobile,
   hint,
@@ -67,6 +69,10 @@ const ConversationReview = ({
         const lastMessage =
           currentChapterState.messages[currentChapterState.messages.length - 1]
             .content;
+        const isSales =
+          currentChapterState.messages[
+            currentChapterState.messages.length - 1
+          ].participantId.includes('sales');
         return (
           <div
             key={index}
@@ -117,7 +123,20 @@ const ConversationReview = ({
                       </ButtonGreen>
                     )}
                   </div>
+                  {isSales && isLastMessage && (
+                    <div className="flex  items-center gap-3 md:flex mt-2">
+                      <ButtonGreen
+                        onClick={() => {
+                          openViewSubscription();
+                        }}
+                        size="lg"
+                      >
+                        Subscribe
+                      </ButtonGreen>
+                    </div>
+                  )}
                 </div>
+
                 {/* <div className="w-8 h-8 min-w-8  flex items-center justify-center rounded-full bg-indigo-1600 text-white font-semibold text-sm">
                 DM
               </div> */}
@@ -132,7 +151,7 @@ const ConversationReview = ({
                 {userData.picture ? (
                   <div className="w-9 h-9 min-w-8  flex items-center justify-center rounded-full">
                     <img
-                      className="w-9 h-9 min-w-8  flex items-center justify-center rounded-full"
+                      className="w-9 h-9 min-w-8  flex items-center justify-center rounded-full object-cover"
                       src={userData.picture}
                       alt="user_picture"
                     />
@@ -146,7 +165,7 @@ const ConversationReview = ({
               </div>
             )}
 
-            {pulseDot && isLastMessage && (
+            {pulseDot && isLastMessage && !isSales && (
               <div className="flex justify-start items-center mt-4 ">
                 <div className="w-9 h-9 rounded-full items-center flex overflow-hidden ">
                   <Image src={greenLogo} alt="outpost" />

@@ -38,6 +38,7 @@ const Conversation = ({
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [currentChapterState.messages, pulseDot]);
+
   const scrollToBottom = () => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
@@ -104,22 +105,17 @@ const Conversation = ({
                 >
                   {isLastMessage &&
                   lastMessage &&
-                  typeof lastMessage === 'string' &&
-                  !isSales ? (
-                    <TypewriterText
-                      lastMessage={lastMessage}
-                      onSelectRating={onSelectRating}
-                      onSelectPuzzle={onSelectPuzzle}
-                      hint={hint}
-                      scrollToBottom={scrollToBottom}
-                      takeBack={takeBack}
-                      playNext={playNext}
-                    />
-                  ) : (
+                  typeof lastMessage === 'string' ? (
                     <div>
-                      <p className="flex  items-center text-[14px]  justify-end  text-left whitespace-pre-line">
-                        {msg.content}
-                      </p>
+                      <TypewriterText
+                        lastMessage={lastMessage}
+                        onSelectRating={onSelectRating}
+                        onSelectPuzzle={onSelectPuzzle}
+                        hint={hint}
+                        scrollToBottom={scrollToBottom}
+                        takeBack={takeBack}
+                        playNext={playNext}
+                      />
                       {isSales && isLastMessage && (
                         <div className="flex  items-center gap-3 md:flex mt-2">
                           <ButtonGreen
@@ -132,6 +128,12 @@ const Conversation = ({
                           </ButtonGreen>
                         </div>
                       )}
+                    </div>
+                  ) : (
+                    <div>
+                      <p className="flex  items-center text-[14px]  justify-end  text-left whitespace-pre-line">
+                        {msg.content}
+                      </p>
                     </div>
                   )}
                 </div>
@@ -163,7 +165,7 @@ const Conversation = ({
               </div>
             )}
 
-            {pulseDot && isLastMessage && (
+            {pulseDot && isLastMessage && !isSales && (
               <div className="flex justify-start items-center mt-4 ">
                 <div className="w-9 h-9 rounded-full items-center flex overflow-hidden ">
                   <Image src={greenLogo} alt="outpost" />
