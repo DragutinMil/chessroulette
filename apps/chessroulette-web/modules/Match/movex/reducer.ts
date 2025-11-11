@@ -7,22 +7,39 @@ import { initialMatchState } from './state';
 import { getMatchPlayerRoleById } from './util';
 import { GameOffer } from '@app/modules/Game';
 import { ChatMessage } from './types';
+import { UserId } from '@app/modules/User';
 
+export const calculateOfferCounters = (match: NonNullable<MatchState>): { takeback: Record<UserId, number>; draw: Record<UserId, number> } => {
+  const { challenger, challengee } = match;
+  const playerIds = [challenger.id, challengee.id];
+  
+  const takeback: Record<UserId, number> = {
+    [challenger.id]: 0,
+    [challengee.id]: 0,
+  };
+  const draw: Record<UserId, number> = {
+    [challenger.id]: 0,
+    [challengee.id]: 0,
+  };
+
+  // Count offers from current game
+  if (match.gameInPlay?.offers) {
+    match.gameInPlay.offers.forEach(offer => {
+      if (offer.type === 'takeback' && playerIds.includes(offer.byPlayer)) {
+        takeback[offer.byPlayer] = (takeback[offer.byPlayer] || 0) + 1;
+      }
+      if (offer.type === 'draw' && playerIds.includes(offer.byPlayer)) {
+        draw[offer.byPlayer] = (draw[offer.byPlayer] || 0) + 1;
+      }
+    });
+  }
+  return { takeback, draw };
+};
 
 const ensureOfferCounters = (match: NonNullable<MatchState>) => {
-  const { challenger, challengee } = match;
-  const takeback = {
-    [challenger.id]: match.offerCounters?.takeback?.[challenger.id] ?? 0,
-    [challengee.id]: match.offerCounters?.takeback?.[challengee.id] ?? 0,
-  };
-  const draw = {
-    [challenger.id]: match.offerCounters?.draw?.[challenger.id] ?? 0,
-    [challengee.id]: match.offerCounters?.draw?.[challengee.id] ?? 0,
-  };
-
   return {
     ...match,
-    offerCounters: { takeback, draw },
+    offerCounters: calculateOfferCounters(match),
   };
 };
 
@@ -37,39 +54,48 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
   }
   // console.log('prev movex',prev)
   const prevMatch = ensureOfferCounters(prev);
-  let nextOfferCounters = prevMatch.offerCounters;
 
   if (action.type === 'play:sendOffer') {
     const { byPlayer, offerType } = action.payload;
+   
+    if (offerType === 'rematch') {
+      const newArray = prev.endedGames.slice(0, -1);
+      const nextOffers: GameOffer[] = [
+        {
+          byPlayer,
+          type: offerType,
+          status: 'pending',
+          ...(action.payload.timestamp && {
+            timestamp: action.payload.timestamp,
+          }),
+        },
+      ];
+      return {
+        ...prev,
+        endedGames: [
+          ...newArray,
+          {
+            ...prev.endedGames[prev.endedGames.length - 1],
+            offers: nextOffers,
+          },
+        ],
+      };
+    }
+   
+    const offerCounters = calculateOfferCounters(prevMatch);
 
     if (offerType === 'takeback') {
-      const current = nextOfferCounters.takeback[byPlayer] ?? 0;
+      const current = offerCounters.takeback[byPlayer] ?? 0;
       if (current >= 1) {
-        return prevMatch;
+        return prev;
       }
-
-      nextOfferCounters = {
-        ...nextOfferCounters,
-        takeback: {
-          ...nextOfferCounters.takeback,
-          [byPlayer]: current + 1,
-        },
-      };
     }
 
     if (offerType === 'draw') {
-      const current = nextOfferCounters.draw[byPlayer] ?? 0;
+      const current = offerCounters.draw[byPlayer] ?? 0;
       if (current >= 3) {
-        return prevMatch;
+        return prev;
       }
-
-      nextOfferCounters = {
-        ...nextOfferCounters,
-        draw: {
-          ...nextOfferCounters.draw,
-          [byPlayer]: current + 1,
-        },
-      };
     }
   }
 
@@ -78,19 +104,29 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
     isOneOf(action.type, ['play:denyOffer', 'play:cancelOffer']) &&
     prevMatch.gameInPlay == null
   ) {
+    if (prev.endedGames.length === 0 || !prev.endedGames[0].offers || prev.endedGames[0].offers.length === 0) {
+      return prev;
+    }
+
+    const lastOffer: GameOffer = {
+      ...prev.endedGames[0].offers[prev.endedGames[0].offers.length - 1],
+      status: action.type === 'play:denyOffer' ? 'denied' : 'cancelled',
+    };
+
+    const nextOffers = [...prev.endedGames[0].offers.slice(0, -1), lastOffer];
+
     return {
       ...prev,
       endedGames: [
         {
           ...prev.endedGames[0],
-          // Remove the last offer ß
-          offers: prev.endedGames[0].offers.slice(0, -1),
+          offers: nextOffers,
         },
-         //... nextOfferCounters
+        ...prev.endedGames.slice(1),
       ],
-      offerCounters: nextOfferCounters
     };
   }
+
   if (action.type === 'play:acceptOfferRematch') {
     const { target_url } = action.payload;
     const { initiator_url } = action.payload;
@@ -119,8 +155,6 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
     return {
       ...prev,
       endedGames: updatedEndedGames,
-      offerCounters: nextOfferCounters,
-
     };
 
   }
@@ -135,7 +169,6 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
     return {
       ...prev,
       messages: [...(prev.messages || []), newMessage], // <-- Dodajte || [] kao fallback
-      offerCounters: nextOfferCounters,
     };
   }
 
@@ -181,7 +214,6 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
       ];
       return {
         ...prev,
-        offerCounters: nextOfferCounters,
         endedGames: [
           ...newArray,
           {
@@ -229,7 +261,6 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
     }
   }
 
-  // console.log('ispred starog');
   if (!prevMatch.gameInPlay) {
     return prev;
   }
@@ -281,7 +312,6 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
       ...prev,
       gameInPlay: nextOngoingGame,
       status: nextOngoingGameStatus,
-      offerCounters: nextOfferCounters,
       ...(nextOngoingGameStatus === 'aborted' && {
         winner: getMatchPlayerRoleById(
           prevMatch,
@@ -351,7 +381,6 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
     gameInPlay: null,
     status: nextMatchStatus,
     winner,
-    offerCounters: nextOfferCounters,  
     ...nextPlayersByRole,
   };
 };

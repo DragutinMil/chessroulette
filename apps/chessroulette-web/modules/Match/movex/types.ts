@@ -1,8 +1,8 @@
 import { Action } from 'movex-core-util';
 import { PlayActions } from '@app/modules/Match/Play/store';
 import { EndedGame, NotEndedGame } from '@app/modules/Game';
-import { User } from '@app/modules/User';
-import { OfferCounters } from '@app/modules/Meetup/movex/types';
+import { User, UserId } from '@app/modules/User';
+
 type PlayerId = string;
 
 export type MatchPlayer = {
@@ -53,7 +53,6 @@ export type MatchState =
       gameInPlay: NotEndedGame | null;
       rematch?: Boolean;
       messages: ChatMessage[];
-      offerCounters: OfferCounters;
       /**
        * This is the time allowed for one player to abort
        */

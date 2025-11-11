@@ -3,17 +3,6 @@ import { MatchState } from '../types';
 import { createPendingGame } from '../../Play/store';
 import { CreateMatchParamsSchema } from './operationsSchemas';
 
-const zeroCounters = (ids: [string, string]) => ({
-  takeback: {
-    [ids[0]]: 0,
-    [ids[1]]: 0,
-  },
-  draw: {
-    [ids[0]]: 0,
-    [ids[1]]: 0,
-  },
-});
-
 export const createMatchState = (
   params: CreateMatchParamsSchema
 ): NonNullable<MatchState> => {
@@ -35,7 +24,6 @@ export const createMatchState = (
       challengee: { id: challengeeId, points: 0 },
       challenger: { id: challengerId, points: 0 },
       winner: null,
-      offerCounters: zeroCounters([challengerId, challengeeId]),
       endedGames: [],
       gameInPlay: createPendingGame({
         timeClass: params.timeClass || 'untimed',

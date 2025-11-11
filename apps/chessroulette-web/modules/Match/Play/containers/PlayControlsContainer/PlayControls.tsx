@@ -3,8 +3,9 @@ import { ChessColor } from '@xmatter/util-kit';
 import { QuickConfirmButton } from '@app/components/Button/QuickConfirmButton';
 import { Game, GameOffer } from '@app/modules/Game';
 import { useMatchViewState } from '../../../../../modules/Match/hooks/useMatch';
-
 import { useRouter } from 'next/navigation';
+import { calculateOfferCounters } from '../../../../../modules/Match/movex/reducer'; // Add this import
+
 type Props = {
   game: Game;
   homeColor: ChessColor;
@@ -34,7 +35,8 @@ export const PlayControls: React.FC<Props> = ({
   const [drawOfferNum, coundDrawOfferNum] = useState(0);
   const router = useRouter();
   const offerAlreadySent = useRef(false);
-  const offerCounters = match?.offerCounters;
+  const offerCounters = match ? calculateOfferCounters(match) : undefined;
+
 
   const setOfferSent = useCallback(() => {
     if (!offerAlreadySent.current) {

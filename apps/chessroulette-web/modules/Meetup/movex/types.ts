@@ -17,7 +17,3 @@ export type MeetupActions =
   | Action<'meetup:join', { userId: UserId; isStar?: boolean }>;
 
 export type MeetupActivityActions = MeetupActions;
-
-export type OfferCounters = { 
-   takeback: Record<UserId, number>; 
-   draw: Record<UserId, number>; }
