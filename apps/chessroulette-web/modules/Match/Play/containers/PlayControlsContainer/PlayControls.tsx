@@ -37,6 +37,8 @@ export const PlayControls: React.FC<Props> = ({
   const offerAlreadySent = useRef(false);
   const offerCounters = match ? calculateOfferCounters(match) : undefined;
 
+  const timeClass = match ? match.gameInPlay?.timeClass:undefined;
+  const isBullet = timeClass === 'bullet' || timeClass === 'bulletplus1' || timeClass === 'bullet2plus1' || timeClass === 'bullet2';
 
   const setOfferSent = useCallback(() => {
     if (!offerAlreadySent.current) {
@@ -55,6 +57,7 @@ const takebackCount = offerCounters?.takeback?.[playerId] ?? 0;
 const drawCount = offerCounters?.draw?.[playerId] ?? 0;
 
   const calculateTakebackStatus = () => {
+    if (isBullet) return false;
     if (game.lastMoveBy !== homeColor) return false;
     if (lastOffer?.status === 'pending' || offerAlreadySent.current) return false;
   
@@ -73,6 +76,7 @@ const drawCount = offerCounters?.draw?.[playerId] ?? 0;
     if (game.status !== 'ongoing') {
       return false;
     }
+    if (isBullet) return drawCount < 1;
 
     if (
       lastOffer?.status === 'pending' ||
