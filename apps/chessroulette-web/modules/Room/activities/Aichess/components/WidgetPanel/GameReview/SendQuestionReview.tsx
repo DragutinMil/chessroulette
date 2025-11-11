@@ -6,7 +6,7 @@ export async function SendQuestionReview(
   currentChapterState: ChapterState,
   reviewData: EvaluationMove[]
 ) {
-  const model = 'gpt-4.1';
+  const model = 'gpt-4.1-mini';
   const previusMessageId =
     currentChapterState.messages[currentChapterState.messages.length - 1]
       .idResponse;
@@ -57,11 +57,13 @@ ${JSON.stringify(normalizedReview, null, 2)}
         }),
       }
     );
+    const data = await response.json();
     if (!response.ok) {
-      throw new Error(`Error: ${response.status}`);
+      return data?.message || `Error: ${response.status}`;
     }
-    return response.json();
+    return data;
   } catch (error) {
     console.error('Fetch error', error);
+    return;
   }
 }
