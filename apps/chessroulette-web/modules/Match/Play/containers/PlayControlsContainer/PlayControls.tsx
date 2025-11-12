@@ -3,8 +3,9 @@ import { ChessColor } from '@xmatter/util-kit';
 import { QuickConfirmButton } from '@app/components/Button/QuickConfirmButton';
 import { Game, GameOffer } from '@app/modules/Game';
 import { useMatchViewState } from '../../../../../modules/Match/hooks/useMatch';
-
 import { useRouter } from 'next/navigation';
+import { calculateOfferCounters } from '../../../../../modules/Match/movex/reducer'; // Add this import
+
 type Props = {
   game: Game;
   homeColor: ChessColor;
@@ -34,6 +35,11 @@ export const PlayControls: React.FC<Props> = ({
   const [drawOfferNum, coundDrawOfferNum] = useState(0);
   const router = useRouter();
   const offerAlreadySent = useRef(false);
+  const offerCounters = match ? calculateOfferCounters(match) : undefined;
+
+  const timeClass = match ? match.gameInPlay?.timeClass:undefined;
+  const isBullet = timeClass === 'bullet' || timeClass === 'bulletplus1' || timeClass === 'bullet2plus1' || timeClass === 'bullet2';
+
   const setOfferSent = useCallback(() => {
     if (!offerAlreadySent.current) {
       offerAlreadySent.current = true;
@@ -46,40 +52,31 @@ export const PlayControls: React.FC<Props> = ({
     }
   }, []);
 
+
+const takebackCount = offerCounters?.takeback?.[playerId] ?? 0;
+const drawCount = offerCounters?.draw?.[playerId] ?? 0;
+
   const calculateTakebackStatus = () => {
-    if (game.lastMoveBy !== homeColor) {
-      return false;
-    }
-
-    if (lastOffer?.status === 'pending' || offerAlreadySent.current) {
-      return false;
-    }
-
-    if (
-      offers.some(
-        (offer) =>
-          offer.byPlayer === playerId &&
-          offer.type === 'takeback' &&
-          offer.status === 'accepted'
-      )
-    ) {
-      return false;
-    }
-
-    return (
-      offers.reduce((accum, offer) => {
-        if (offer.type === 'takeback' && offer.byPlayer === playerId) {
-          return accum + 1;
-        }
-        return accum;
-      }, 0) < 4
+    if (isBullet) return false;
+    if (game.lastMoveBy !== homeColor) return false;
+    if (lastOffer?.status === 'pending' || offerAlreadySent.current) return false;
+  
+    const hasAcceptedTakeback = offers.some(
+      (offer) =>
+        offer.byPlayer === playerId &&
+        offer.type === 'takeback' &&
+        offer.status === 'accepted'
     );
+    if (hasAcceptedTakeback) return false;
+  
+    return takebackCount < 1;
   };
 
   const calculateDrawStatus = () => {
     if (game.status !== 'ongoing') {
       return false;
     }
+    if (isBullet) return drawCount < 1;
 
     if (
       lastOffer?.status === 'pending' ||
@@ -88,14 +85,8 @@ export const PlayControls: React.FC<Props> = ({
     ) {
       return false;
     }
-    return (
-      offers.reduce((accum, offer) => {
-        if (offer.type === 'draw' && offer.byPlayer === playerId) {
-          return accum + 1;
-        }
-        return accum;
-      }, 0) < 4
-    );
+    return drawCount < 3;
+
   };
   useEffect(() => {
     if (match) {
@@ -140,8 +131,8 @@ export const PlayControls: React.FC<Props> = ({
           onDrawOffer();
           coundDrawOfferNum(drawOfferNum + 1);
         }}
-        disabled={!allowDraw || isBotPlay}
-      >
+        disabled={!allowDraw || isBotPlay || drawCount >= 3}
+        >
         Draw
       </QuickConfirmButton>
       <QuickConfirmButton
@@ -156,8 +147,7 @@ export const PlayControls: React.FC<Props> = ({
           setOfferSent();
           onTakebackOffer();
         }}
-        disabled={game.status !== 'ongoing' || !allowTakeback || isBotPlay}
-      >
+        disabled={game.status !== 'ongoing' || !allowTakeback || isBotPlay || takebackCount >= 1}      >
         Takeback
       </QuickConfirmButton>
 

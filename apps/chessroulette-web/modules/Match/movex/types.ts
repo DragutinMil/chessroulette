@@ -1,13 +1,13 @@
 import { Action } from 'movex-core-util';
 import { PlayActions } from '@app/modules/Match/Play/store';
 import { EndedGame, NotEndedGame } from '@app/modules/Game';
-import { User } from '@app/modules/User';
+import { User, UserId } from '@app/modules/User';
+
 type PlayerId = string;
 
 export type MatchPlayer = {
   id: PlayerId;
   points: number;
-
   // Maybe this needs to come only on the client? In a MatchPlayerDisplay, but not be part of movex
   displayName?: string;
   isChatEnabled?: boolean; // Add this field
