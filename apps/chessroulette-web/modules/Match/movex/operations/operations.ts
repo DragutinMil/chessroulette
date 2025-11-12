@@ -15,24 +15,24 @@ export const createMatchState = (
   const challengeeId =
     challengerColor === 'w' ? params.challengeeId : params.challengerId;
 
-    return {
-      messages: [],
-      status: 'pending',
-      ...(params.type === 'bestOf'
-        ? { type: params.type, rounds: params.rounds || 1 }
-        : { type: params.type }),
-      challengee: { id: challengeeId, points: 0 },
-      challenger: { id: challengerId, points: 0 },
-      winner: null,
-      endedGames: [],
-      gameInPlay: createPendingGame({
-        timeClass: params.timeClass || 'untimed',
-        players:
-          challengerColor === 'w'
-            ? { w: params.challengerId, b: params.challengeeId }
-            : { w: params.challengeeId, b: params.challengerId },
-      }),
-      timeToAbortMs: params.timeToAbortMs || 3 * 60 * 1000,
-      breakDurationMs: params.breakDurationMs || 10 * 1000,
-    };
+  return {
+    messages: [],
+    status: 'pending',
+    ...(params.type === 'bestOf'
+      ? { type: params.type, rounds: params.rounds || 1 }
+      : { type: params.type }),
+    challengee: { id: challengeeId, points: 0 },
+    challenger: { id: challengerId, points: 0 },
+    winner: null,
+    endedGames: [],
+    gameInPlay: createPendingGame({
+      timeClass: params.timeClass || 'untimed',
+      players:
+        challengerColor === 'w'
+          ? { w: params.challengerId, b: params.challengeeId }
+          : { w: params.challengeeId, b: params.challengerId },
+    }),
+    timeToAbortMs: params.timeToAbortMs || 3 * 60 * 1000,
+    breakDurationMs: params.breakDurationMs || 10 * 1000,
   };
+};
