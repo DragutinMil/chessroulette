@@ -58,6 +58,7 @@ export type chessAiMode = {
 // };
 
 export type EvaluationMove = {
+  moveNum:number,
   move: string;
   moveCalc: number;
   eval: number;

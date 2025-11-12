@@ -101,10 +101,11 @@ export async function SendQuestion(
         }),
       }
     );
+    const data = await response.json();
     if (!response.ok) {
-      throw new Error(`Error: ${response.status}`);
+      return data?.message || `Error: ${response.status}`;
     }
-    return response.json();
+    return data;
   } catch (error) {
     console.error('Fetch error', error);
   }

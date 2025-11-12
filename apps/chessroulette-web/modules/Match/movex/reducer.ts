@@ -7,35 +7,135 @@ import { initialMatchState } from './state';
 import { getMatchPlayerRoleById } from './util';
 import { GameOffer } from '@app/modules/Game';
 import { ChatMessage } from './types';
+import { UserId } from '@app/modules/User';
+
+export const calculateOfferCounters = (
+  match: NonNullable<MatchState>
+): { takeback: Record<UserId, number>; draw: Record<UserId, number> } => {
+  const { challenger, challengee } = match;
+  const playerIds = [challenger.id, challengee.id];
+
+  const takeback: Record<UserId, number> = {
+    [challenger.id]: 0,
+    [challengee.id]: 0,
+  };
+  const draw: Record<UserId, number> = {
+    [challenger.id]: 0,
+    [challengee.id]: 0,
+  };
+
+  // Count offers from current game
+  if (match.gameInPlay?.offers) {
+    match.gameInPlay.offers.forEach((offer) => {
+      if (offer.type === 'takeback' && playerIds.includes(offer.byPlayer)) {
+        takeback[offer.byPlayer] = (takeback[offer.byPlayer] || 0) + 1;
+      }
+      if (offer.type === 'draw' && playerIds.includes(offer.byPlayer)) {
+        draw[offer.byPlayer] = (draw[offer.byPlayer] || 0) + 1;
+      }
+    });
+  }
+  return { takeback, draw };
+};
+
+const ensureOfferCounters = (match: NonNullable<MatchState>) => {
+  return {
+    ...match,
+    offerCounters: calculateOfferCounters(match),
+  };
+};
 
 export const reducer: MovexReducer<MatchState, MatchActions> = (
   prev: MatchState = initialMatchState,
   action: MatchActions
 ): MatchState => {
   // console.log('prev',prev)
-  console.log('action match', action);
+
+  // console.log('action match',action)
+
   if (!prev) {
     return prev;
   }
   // console.log('prev movex',prev)
-  const prevMatch = prev;
+  const prevMatch = ensureOfferCounters(prev);
+
+  if (action.type === 'play:sendOffer') {
+    const { byPlayer, offerType } = action.payload;
+
+    if (offerType === 'rematch') {
+      const newArray = prev.endedGames.slice(0, -1);
+      const nextOffers: GameOffer[] = [
+        {
+          byPlayer,
+          type: offerType,
+          status: 'pending',
+          ...(action.payload.timestamp && {
+            timestamp: action.payload.timestamp,
+          }),
+        },
+      ];
+      return {
+        ...prev,
+        endedGames: [
+          ...newArray,
+          {
+            ...prev.endedGames[prev.endedGames.length - 1],
+            offers: nextOffers,
+          },
+        ],
+      };
+    }
+
+    const offerCounters = calculateOfferCounters(prevMatch);
+
+    if (offerType === 'takeback') {
+      const current = offerCounters.takeback[byPlayer] ?? 0;
+      if (current >= 1) {
+        return prev;
+      }
+    }
+
+    if (offerType === 'draw') {
+      const current = offerCounters.draw[byPlayer] ?? 0;
+      if (current >= 3) {
+        return prev;
+      }
+    }
+  }
 
   // answer to offers on completed games
   if (
     isOneOf(action.type, ['play:denyOffer', 'play:cancelOffer']) &&
     prevMatch.gameInPlay == null
   ) {
+    const lastGameIndex = prev.endedGames.length - 1;
+    const lastGame = prev.endedGames[lastGameIndex];
+    if (!lastGame || !lastGame.offers || lastGame.offers.length === 0) {
+      return prev;
+    }
+
+    const lastOffer: GameOffer = {
+      ...prev.endedGames[lastGameIndex].offers[
+        prev.endedGames[lastGameIndex].offers.length - 1
+      ],
+      status: action.type === 'play:denyOffer' ? 'denied' : 'cancelled',
+    };
+    const nextOffers = [...prev.endedGames[0].offers.slice(0, -1), lastOffer];
+
+    const updatedLastGame = {
+      ...prev.endedGames[lastGameIndex],
+      offers: nextOffers,
+    };
+
     return {
       ...prev,
       endedGames: [
-        {
-          ...prev.endedGames[0],
-          // Remove the last offer ß
-          offers: prev.endedGames[0].offers.slice(0, -1),
-        },
+        ...prev.endedGames.slice(0, lastGameIndex), // sve osim poslednjeg
+        updatedLastGame, // poslednji sa izmenjenim offers
       ],
     };
   }
+
   if (action.type === 'play:acceptOfferRematch') {
     const { target_url } = action.payload;
     const { initiator_url } = action.payload;
@@ -43,7 +143,7 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
     const lastGame = prev.endedGames[lastIndex];
 
     const lastOffer: GameOffer = {
-      ...prev.endedGames[0].offers[prev.endedGames[0].offers.length - 1],
+      ...lastGame.offers[prev.endedGames[lastIndex].offers.length - 1],
       status: 'accepted',
       linkInitiator: initiator_url,
       linkTarget: target_url,
@@ -169,7 +269,6 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
     }
   }
 
-  // console.log('ispred starog');
   if (!prevMatch.gameInPlay) {
     return prev;
   }

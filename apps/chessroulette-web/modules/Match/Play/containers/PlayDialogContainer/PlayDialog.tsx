@@ -25,7 +25,7 @@ export const PlayDialog: React.FC<GameStateDialogProps> = ({
 }) => {
   const dispatch = usePlayActionsDispatch();
   const [gameResultSeen, setGameResultSeen] = useState(false);
-  const router = useRouter();
+
   // TODO: Change the useGame to useMatchPlay
   const {
     lastOffer,
@@ -34,8 +34,8 @@ export const PlayDialog: React.FC<GameStateDialogProps> = ({
     playerId,
   } = useGame();
 
-  const gameUsed = useGame();
-  // console.log('gameUsed',gameUsed)
+  const gameUsed = useMatchViewState();
+
   const { match, userAsPlayer } = useMatchViewState();
   //console.log('MatchState stejterica',match)
   useEffect(() => {
@@ -46,29 +46,32 @@ export const PlayDialog: React.FC<GameStateDialogProps> = ({
   // useEffect(() => {
   //  console.log('matchmatch',match)
   // }, [match?.rematch]);
-
+  // console.log('lastOffer', lastOffer)
+  const offersLastMatch =
+    match?.endedGames[match?.endedGames?.length - 1]?.offers;
   useEffect(() => {
+    // console.log('offersLastMatch',offersLastMatch)
     if (
-      lastOffer &&
-      lastOffer.status === 'accepted' &&
-      lastOffer.type === 'rematch' &&
-      lastOffer.linkInitiator &&
-      lastOffer.linkTarget
+      offersLastMatch &&
+      offersLastMatch[0].status === 'accepted' &&
+      offersLastMatch[0].type === 'rematch' &&
+      offersLastMatch[0].linkInitiator &&
+      offersLastMatch[0].linkTarget
     ) {
       const url = new URL(window.location.href);
       const user_id = url.searchParams.get('userId');
-      const initiator_url = new URL(lastOffer.linkInitiator);
-      const target_url = new URL(lastOffer.linkTarget);
+      const initiator_url = new URL(offersLastMatch[0].linkInitiator);
+      const target_url = new URL(offersLastMatch[0].linkTarget);
       const userIdInitiator = initiator_url.searchParams.get('userId');
       const userIdTarget = target_url.searchParams.get('userId');
 
       if (userIdInitiator == user_id) {
-        window.open(lastOffer.linkInitiator, '_self');
+        window.open(offersLastMatch[0].linkInitiator, '_self');
       } else if (userIdTarget == user_id) {
-        window.open(lastOffer.linkTarget, '_self');
+        window.open(offersLastMatch[0].linkTarget, '_self');
       }
     }
-  }, [lastOffer]);
+  }, [offersLastMatch]);
 
   return invoke(() => {
     if (game.status === 'pending' && objectKeys(players || {}).length < 2) {

@@ -346,10 +346,20 @@ export const reducer = (
   }
 
   if (isOneOf(action.type, ['play:denyOffer', 'play:cancelOffer'])) {
+    if (prev.offers.length === 0) {
+      return prev;
+    }
+
+    const lastOffer: GameOffer = {
+      ...prev.offers[prev.offers.length - 1],
+      status: action.type === 'play:denyOffer' ? 'denied' : 'cancelled',
+    };
+
+    const nextOffers = [...prev.offers.slice(0, -1), lastOffer];
+
     return {
       ...prev,
-      // Remove the last offer
-      offers: prev.offers.slice(0, -1),
+      offers: nextOffers,
     };
   }
 

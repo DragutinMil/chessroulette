@@ -93,8 +93,11 @@ export const MatchStateDialogContainer: React.FC<Props> = (
   }
 
   // TODO: Here we should just check the match.status
- //console.log('kirk)
-  if (match?.winner && !lastOffer) {
+  //console.log('kirk)
+  if (
+    match?.winner &&
+    (lastOffer?.type !== 'rematch' || lastOffer?.status !== 'pending')
+  ) {
     return (
       <Dialog
         title="Match Completed"
@@ -145,7 +148,7 @@ export const MatchStateDialogContainer: React.FC<Props> = (
                     href={`https://chess.outpostchess.com/room/new/r${matchId}?activity=aichess&userId=${userId}&theme=op&pgn=${matchId}`}
                   >
                     <Button
-                      icon="EyeIcon"
+                      icon="MagnifyingGlassIcon"
                       bgColor="green"
                       style={{
                         marginTop: 12,
