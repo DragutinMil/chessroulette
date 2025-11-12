@@ -93,7 +93,7 @@ export const MatchStateDialogContainer: React.FC<Props> = (
   }
 
   // TODO: Here we should just check the match.status
-
+  //console.log('kirk)
   if (match?.winner && !lastOffer) {
     return (
       <Dialog
@@ -119,16 +119,13 @@ export const MatchStateDialogContainer: React.FC<Props> = (
               </Text>
               {match[match.winner].id.length !== 16 && (
                 <div className="justify-center items-center flex flex-col">
-                  {/* <Button
+                  <Button
                     icon="ArrowPathRoundedSquareIcon"
-                    bgColor="yellow"
+                    bgColor="green"
                     style={{
                       marginTop: 18,
-                      background: '#07da63',
-                      color: '#202122',
-                      minWidth:'160px'
+                      minWidth: '160px',
                     }}
-                  className="hover:opacity-70"
                     onClick={() => {
                       if (playerId) {
                         dispatch((masterContext) => ({
@@ -143,13 +140,13 @@ export const MatchStateDialogContainer: React.FC<Props> = (
                     }}
                   >
                     Rematch
-                  </Button> */}
-                  {/* <Link
+                  </Button>
+                  <Link
                     href={`https://chess.outpostchess.com/room/new/r${matchId}?activity=aichess&userId=${userId}&theme=op&pgn=${matchId}`}
                   >
                     <Button
                       icon="EyeIcon"
-                      bgColor="yellow"
+                      bgColor="green"
                       style={{
                         marginTop: 12,
 
@@ -159,18 +156,18 @@ export const MatchStateDialogContainer: React.FC<Props> = (
                     >
                       Review
                     </Button>
-                  </Link> */}
+                  </Link>
                   {/* { (document.referrer.includes('app.outpostchess.com') || document.referrer.includes('localhost:8080') || document.referrer.includes('test-app.outpostchess.com')) && */}
                   {fromWeb && (
                     <Button
                       icon="ArrowLeftIcon"
-                      bgColor="yellow"
+                      bgColor="green"
                       style={{ marginTop: 12, minWidth: '160px' }}
                       onClick={() => {
                         router.push('https://app.outpostchess.com/online-list');
                       }}
                     >
-                      Lobby &nbsp;&nbsp;&nbsp;&nbsp;
+                      Lobby&nbsp;&nbsp;&nbsp;
                     </Button>
                   )}
 

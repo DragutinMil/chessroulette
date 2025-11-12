@@ -14,7 +14,7 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
   if (prev.activityType !== 'meetup') {
     return prev;
   }
-console.log('meetup', action);
+  console.log('meetup', action);
   return {
     ...prev,
     activityState: MeetupStore.reducer(

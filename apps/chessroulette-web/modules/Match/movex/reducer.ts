@@ -48,7 +48,9 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
   action: MatchActions
 ): MatchState => {
   // console.log('prev',prev)
+
   // console.log('action match',action)
+
   if (!prev) {
     return prev;
   }
@@ -139,7 +141,7 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
       linkInitiator: initiator_url,
       linkTarget: target_url,
     };
-    console.log('lastOffer', lastOffer);
+    // console.log('lastOffer', lastOffer);
 
     const nextOffers = [...lastGame.offers.slice(0, -1), lastOffer];
     const updatedLastGame = {
@@ -150,7 +152,7 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
       ...prev.endedGames.slice(0, lastIndex),
       updatedLastGame,
     ];
-    console.log('updatedEndedGames', updatedEndedGames);
+    // console.log('updatedEndedGames', updatedEndedGames);
 
     return {
       ...prev,
@@ -197,7 +199,7 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
 
   //OFFER REMATCH - here to effect completed matches
   if (action.type === 'play:sendOffer') {
-    console.log('rematch', prev);
+    //  console.log('rematch', prev);
     const { byPlayer, offerType } = action.payload;
 
     if (offerType == 'rematch') {
@@ -374,7 +376,7 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
   });
 
   const nextMatchStatus = winner ? 'complete' : 'ongoing';
-  console.log(prev);
+  // console.log(prev);
   return {
     ...prev,
     endedGames: [...prevMatch.endedGames, nextOngoingGame],
@@ -389,7 +391,7 @@ reducer.$transformState = (state, masterContext): MatchState => {
   if (!state) {
     return state;
   }
-   console.log('state 1 transformSta', state);
+  // console.log('state 1 transformSta', state);
   if (state.status === 'complete' || state.status === 'aborted') {
     // console.log('state 1 transformSta', state);
     return state;
@@ -444,7 +446,7 @@ reducer.$transformState = (state, masterContext): MatchState => {
         gameInPlay: null,
       };
     }
-    console.log('state transformSta befroe ongoing', state);
+
     // A subsequent game in the match is aborted by idling too long
     // and thus the Match Gets completed with the winner the opposite player
     if (state.status === 'ongoing') {

@@ -5,6 +5,7 @@ import { CheckPiece } from './CheckPiece';
 import { Square } from 'chess.js';
 export async function SendQuestion(
   prompt: string,
+  scoreCP: number,
   currentChapterState: ChapterState,
   stockfishMovesInfo: string,
   bestline: string,
@@ -37,8 +38,8 @@ export async function SendQuestion(
       : '';
   const evaluationStockfish =
     currentChapterState.orientation == 'w'
-      ? Number(currentChapterState.evaluation.newCp / 100)
-      : Number(-(currentChapterState.evaluation.newCp / 100));
+      ? Number(scoreCP / 100)
+      : Number(-(scoreCP / 100));
 
   const question =
     'QUESTION:\n' +
@@ -100,10 +101,11 @@ export async function SendQuestion(
         }),
       }
     );
+    const data = await response.json();
     if (!response.ok) {
-      throw new Error(`Error: ${response.status}`);
+      return data?.message || `Error: ${response.status}`;
     }
-    return response.json();
+    return data;
   } catch (error) {
     console.error('Fetch error', error);
   }
