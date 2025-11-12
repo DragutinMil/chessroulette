@@ -864,7 +864,7 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
         },
         isMobile
       );
-      console.log('dats', data);
+     // console.log('dats', data);
 
       setReviewData(data);
       if (data) {
