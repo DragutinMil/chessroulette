@@ -8,6 +8,7 @@ import {
 } from '../../hooks/useMatch';
 import { enqueueMovexUpdatePlay } from '../../utils';
 import { useCurrentOrPrevMatchPlay } from '../../Play/hooks';
+import { MatchAbandonedContainer } from '../MatchAbandonedContainer';
 
 export const MatchStateDisplayContainer = () => {
   const { match, currentRound, drawsCount, endedGamesCount } =
@@ -63,6 +64,16 @@ export const MatchStateDisplayContainer = () => {
           className="md:bg-slate-700 rounded-md p-0 md:p-2 "
         />
       )}
+
+      {match && play.hasGame && play.game.status === 'abandoned' && (
+        <MatchAbandonedContainer
+          key={play.game.startedAt}
+          game={play.game}
+          playersByColor={play.playersByColor}
+          className="md:bg-slate-700 rounded-md p-2 md:p-4"
+        />
+      )}
+      
     </div>
   );
 };

@@ -26,7 +26,9 @@ export type PlayActions =
   | Action<'play:checkTime', { at: number }>
   | Action<'play:abortGame', { color: ChessColor }>
   | Action<'play:resignGame', { color: ChessColor }>
-
+  | Action<'play:abandonGame', { playerId: User['id'] }>
+  | Action<'play:resumeAbandonedGame'>
+  | Action<'play:completeAbandonedGame', { at: number }>
   // Play Offers
   | Action<
       'play:sendOffer',

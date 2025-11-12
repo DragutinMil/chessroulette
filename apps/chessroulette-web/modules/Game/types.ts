@@ -174,6 +174,30 @@ export type AbortedGame = {
   gameOverReason: null;
   players: GamePlayers;
 };
+
+export type AbandonedGame = {
+  status: 'abandoned';
+  // This reflects when the Game has Started - as Idle First and then Ongoing
+  startedAt: number; // Change this to ISODateTime
+  timeClass: GameTimeClass;
+
+  // Since lastActivity
+  timeLeft: {
+    lastUpdatedAt: number; // this is the same as lastMoveAt but can be different as well
+    w: number;
+    b: number;
+  };
+  pgn: ChessPGN;
+  lastMoveBy: ChessColor;
+  lastMoveAt: number; // TODO: Change this to ISODateTime
+  winner: null;
+  offers: GameOffer[];
+  gameOverReason: null;
+  players: GamePlayers;
+  abandonedAt: number;
+  abandonedBy: ChessColor;
+};
+
 // export type NegotiationGame = {
 //   status: 'negotiation';
 //   startedAt: number; // Change this to ISODateTime
@@ -193,7 +217,8 @@ export type Game =
   | IdlingGame
   | OngoingGame
   | CompletedGame
-  | AbortedGame;
+  | AbortedGame
+  | AbandonedGame;
 
 export type NotEndedGame = Exclude<Game, EndedGame>;
 //export type NotEndedGame =  CompletedGame | PendingGame | IdlingGame | OngoingGame;

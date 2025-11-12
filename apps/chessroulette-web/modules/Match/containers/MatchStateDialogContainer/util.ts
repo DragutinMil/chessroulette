@@ -15,4 +15,6 @@ export const gameOverReasonsToDisplay: { [k in GameOverReason]: string } = {
   [GameOverReason['timeout']]: 'Game ended due to timeout',
   [GameOverReason['drawAwardedForInsufficientMaterial']]:
     "Game timed out, but the strong side was awarded a draw due to opponent's insufficient material to force mate",
+  [GameOverReason['abandoned']]: 'Player abandoned the game',
+
 };

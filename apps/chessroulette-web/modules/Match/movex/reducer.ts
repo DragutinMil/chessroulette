@@ -1,7 +1,7 @@
 import { MovexReducer } from 'movex-core-util';
-import { invoke, swapColor, isOneOf } from '@xmatter/util-kit';
+import { invoke, swapColor, isOneOf, GameOverReason } from '@xmatter/util-kit';
 import * as PlayStore from '@app/modules/Match/Play/store';
-import { AbortedGame } from '@app/modules/Game';
+import { AbandonedGame, Game, GameStateWinner, IdlingGame, OngoingGame } from '@app/modules/Game';
 import { MatchActions, MatchState } from './types';
 import { initialMatchState } from './state';
 import { getMatchPlayerRoleById } from './util';
@@ -261,6 +261,37 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
     };
   }
 
+  if (action.type === 'play:resumeAbandonedGame') {
+    if (prev.status !== 'abandoned') {
+      return prev;
+    }
+
+    const abandonedGame = prev as AbandonedGame;
+    
+    // Proveri da li igra ima poteze da bi se odredio prethodni status
+    const chessRouler = new ChessRouler({ pgn: abandonedGame.pgn });
+    const moveNumber = chessRouler.moveNumber();
+    
+    // Ako ima 2 ili više poteza, igra je ongoing, inače je idling
+    const previousStatus = moveNumber >= 2 ? 'ongoing' : 'idling';
+    
+    // Destructure da uklonimo abandoned polja
+    const { abandonedAt, abandonedBy, ...gameWithoutAbandonedFields } = abandonedGame;
+    
+    // Vrati igru u prethodni status
+    if (previousStatus === 'ongoing') {
+      return {
+        ...gameWithoutAbandonedFields,
+        status: 'ongoing',
+      } as OngoingGame;
+    } else {
+      return {
+        ...gameWithoutAbandonedFields,
+        status: 'idling',
+      } as IdlingGame;
+    }
+  }
+
   if (!prevMatch.gameInPlay && prevMatch.endedGames !== undefined) {
     if (prevMatch.endedGames !== undefined) {
       var prevEndedGame = prevMatch.endedGames[prevMatch.endedGames.length - 1];
@@ -303,6 +334,63 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
       gameInPlay: null,
       ...nextMatchState,
     };
+  }
+
+  if (nextOngoingGame.status === 'abandoned') {
+    // Keep the game in play state, it will be completed after countdown
+    // But only if match is not already complete
+    if (prevMatch.status === 'complete') {
+      return prev;
+    }
+    
+    return {
+      ...prev,
+      gameInPlay: nextOngoingGame,
+    };
+  }
+
+  if (nextOngoingGame.status === 'complete') {
+    // Check if it was completed from abandoned state
+    if (nextOngoingGame.gameOverReason === GameOverReason['abandoned']) {
+      const abandonedCurrentPlay = nextOngoingGame;
+      
+      // Similar to aborted game logic
+      const nextMatchState = invoke(
+        (): Pick<NonNullable<MatchState>, 'winner' | 'status'> => {
+          // Proveri da li je winner validan ChessColor (ne '1/2')
+          if (nextOngoingGame.winner === '1/2') {
+            // Ako je draw, match ostaje ongoing ili complete (zavisi od prethodnog stanja)
+            return {
+              status: prevMatch.status === 'complete' ? 'complete' : 'ongoing',
+              winner: prevMatch.winner,
+            };
+          }
+          
+          return prevMatch.endedGames.length === 0
+            ? {
+                status: 'complete',
+                winner: getMatchPlayerRoleById(
+                  prevMatch,
+                  nextOngoingGame.players[nextOngoingGame.winner]
+                ),
+              }
+            : {
+                status: prevMatch.status === 'complete' ? 'complete' : 'ongoing',
+                winner: prevMatch.winner || getMatchPlayerRoleById(
+                  prevMatch,
+                  nextOngoingGame.players[nextOngoingGame.winner]
+                ),
+              };
+        }
+      );
+
+      return {
+        ...prev,
+        endedGames: [...prevMatch.endedGames, abandonedCurrentPlay],
+        gameInPlay: null,
+        ...nextMatchState,
+      };
+    }
   }
 
   if (nextOngoingGame.status !== 'complete') {
@@ -467,5 +555,51 @@ reducer.$transformState = (state, masterContext): MatchState => {
       };
     }
   }
-  return state;
-};
+
+if (ongoingPlay?.status === 'abandoned') {
+  const abandonedGame = ongoingPlay as AbandonedGame;
+  const timeSinceAbandoned = masterContext.requestAt - abandonedGame.abandonedAt;
+  const ABANDON_TIMEOUT_MS = 30000; // 30 seconds
+
+  if (timeSinceAbandoned >= ABANDON_TIMEOUT_MS) {
+    // Auto-complete the game with remaining player as winner
+    const winnerColor = swapColor(abandonedGame.abandonedBy);
+    const completedGame: CompletedGame = {
+      ...abandonedGame,
+      status: 'complete',
+      winner: winnerColor,
+      gameOverReason: GameOverReason['abandoned'],
+    };
+
+    const nextMatchState = invoke(
+      (): Pick<NonNullable<MatchState>, 'winner' | 'status'> => {
+        if (state.endedGames.length === 0) {
+          return {
+            status: 'complete',
+            winner: getMatchPlayerRoleById(
+              state,
+              completedGame.players[winnerColor]
+            ),
+          };
+        }
+        return {
+          status: state.status === 'complete' ? 'complete' : 'ongoing',
+          winner: state.winner || getMatchPlayerRoleById(
+            state,
+            completedGame.players[winnerColor]
+          ),
+        };
+      }
+    );
+
+    return {
+      ...state,
+      endedGames: [...state.endedGames, completedGame],
+      gameInPlay: null,
+      ...nextMatchState,
+    };
+  }
+}
+
+return state;
+}

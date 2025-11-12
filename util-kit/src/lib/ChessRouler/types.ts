@@ -71,4 +71,5 @@ export enum GameOverReason {
   'aborted',
   'timeout',
   'drawAwardedForInsufficientMaterial',
+  'abandoned',
 }

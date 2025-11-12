@@ -9,7 +9,7 @@ import {
 import { initialPlayState } from './state';
 import { PlayActions } from './types';
 import { calculateTimeLeftAt } from './util';
-import { Game, GameOffer, GameStateWinner } from '@app/modules/Game';
+import { AbandonedGame, Game, GameOffer, GameStateWinner } from '@app/modules/Game';
 import { ChessRouler } from 'util-kit/src/lib/ChessRouler';
 import { logsy } from '@app/lib/Logsy';
 
@@ -344,6 +344,42 @@ export const reducer = (
       offers: nextOffers,
     };
   }
+
+  if (action.type === 'play:abandonGame') {
+    // Can only abandon an ongoing or idling game
+    if (prev.status !== 'ongoing' && prev.status !== 'idling') {
+      return prev;
+    }
+
+    // Find which player abandoned (opposite of the one who made last move)
+    const abandonedPlayerId = action.payload.playerId;
+    const abandonedColor = prev.players.w === abandonedPlayerId ? 'w' : 'b';
+    
+    return {
+      ...prev,
+      status: 'abandoned',
+      // Store when abandoned for countdown
+      abandonedAt: Date.now(),
+      abandonedBy: abandonedColor,
+    } as AbandonedGame;
+  }
+
+  if (action.type === 'play:completeAbandonedGame') {
+    if (prev.status !== 'abandoned') {
+      return prev;
+    }
+
+    const abandonedGame = prev as AbandonedGame;
+    const winnerColor = swapColor(abandonedGame.abandonedBy);
+
+    return {
+      ...prev,
+      status: 'complete',
+      winner: winnerColor,
+      gameOverReason: GameOverReason['abandoned'],
+    };
+  }
+
 
   if (isOneOf(action.type, ['play:denyOffer', 'play:cancelOffer'])) {
     if (prev.offers.length === 0) {
