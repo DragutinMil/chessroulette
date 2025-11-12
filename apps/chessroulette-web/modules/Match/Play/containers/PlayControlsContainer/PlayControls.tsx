@@ -37,8 +37,12 @@ export const PlayControls: React.FC<Props> = ({
   const offerAlreadySent = useRef(false);
   const offerCounters = match ? calculateOfferCounters(match) : undefined;
 
-  const timeClass = match ? match.gameInPlay?.timeClass:undefined;
-  const isBullet = timeClass === 'bullet' || timeClass === 'bulletplus1' || timeClass === 'bullet2plus1' || timeClass === 'bullet2';
+  const timeClass = match ? match.gameInPlay?.timeClass : undefined;
+  const isBullet =
+    timeClass === 'bullet' ||
+    timeClass === 'bulletplus1' ||
+    timeClass === 'bullet2plus1' ||
+    timeClass === 'bullet2';
 
   const setOfferSent = useCallback(() => {
     if (!offerAlreadySent.current) {
@@ -52,15 +56,15 @@ export const PlayControls: React.FC<Props> = ({
     }
   }, []);
 
-
-const takebackCount = offerCounters?.takeback?.[playerId] ?? 0;
-const drawCount = offerCounters?.draw?.[playerId] ?? 0;
+  const takebackCount = offerCounters?.takeback?.[playerId] ?? 0;
+  const drawCount = offerCounters?.draw?.[playerId] ?? 0;
 
   const calculateTakebackStatus = () => {
     if (isBullet) return false;
     if (game.lastMoveBy !== homeColor) return false;
-    if (lastOffer?.status === 'pending' || offerAlreadySent.current) return false;
-  
+    if (lastOffer?.status === 'pending' || offerAlreadySent.current)
+      return false;
+
     const hasAcceptedTakeback = offers.some(
       (offer) =>
         offer.byPlayer === playerId &&
@@ -68,7 +72,7 @@ const drawCount = offerCounters?.draw?.[playerId] ?? 0;
         offer.status === 'accepted'
     );
     if (hasAcceptedTakeback) return false;
-  
+
     return takebackCount < 1;
   };
 
@@ -86,7 +90,6 @@ const drawCount = offerCounters?.draw?.[playerId] ?? 0;
       return false;
     }
     return drawCount < 3;
-
   };
   useEffect(() => {
     if (match) {
@@ -132,7 +135,7 @@ const drawCount = offerCounters?.draw?.[playerId] ?? 0;
           coundDrawOfferNum(drawOfferNum + 1);
         }}
         disabled={!allowDraw || isBotPlay || drawCount >= 3}
-        >
+      >
         Draw
       </QuickConfirmButton>
       <QuickConfirmButton
@@ -147,7 +150,13 @@ const drawCount = offerCounters?.draw?.[playerId] ?? 0;
           setOfferSent();
           onTakebackOffer();
         }}
-        disabled={game.status !== 'ongoing' || !allowTakeback || isBotPlay || takebackCount >= 1}      >
+        disabled={
+          game.status !== 'ongoing' ||
+          !allowTakeback ||
+          isBotPlay ||
+          takebackCount >= 1
+        }
+      >
         Takeback
       </QuickConfirmButton>
 

@@ -9,10 +9,12 @@ import { GameOffer } from '@app/modules/Game';
 import { ChatMessage } from './types';
 import { UserId } from '@app/modules/User';
 
-export const calculateOfferCounters = (match: NonNullable<MatchState>): { takeback: Record<UserId, number>; draw: Record<UserId, number> } => {
+export const calculateOfferCounters = (
+  match: NonNullable<MatchState>
+): { takeback: Record<UserId, number>; draw: Record<UserId, number> } => {
   const { challenger, challengee } = match;
   const playerIds = [challenger.id, challengee.id];
-  
+
   const takeback: Record<UserId, number> = {
     [challenger.id]: 0,
     [challengee.id]: 0,
@@ -24,7 +26,7 @@ export const calculateOfferCounters = (match: NonNullable<MatchState>): { takeba
 
   // Count offers from current game
   if (match.gameInPlay?.offers) {
-    match.gameInPlay.offers.forEach(offer => {
+    match.gameInPlay.offers.forEach((offer) => {
       if (offer.type === 'takeback' && playerIds.includes(offer.byPlayer)) {
         takeback[offer.byPlayer] = (takeback[offer.byPlayer] || 0) + 1;
       }
@@ -59,7 +61,7 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
 
   if (action.type === 'play:sendOffer') {
     const { byPlayer, offerType } = action.payload;
-   
+
     if (offerType === 'rematch') {
       const newArray = prev.endedGames.slice(0, -1);
       const nextOffers: GameOffer[] = [
@@ -83,7 +85,7 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
         ],
       };
     }
-   
+
     const offerCounters = calculateOfferCounters(prevMatch);
 
     if (offerType === 'takeback') {
@@ -106,7 +108,11 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
     isOneOf(action.type, ['play:denyOffer', 'play:cancelOffer']) &&
     prevMatch.gameInPlay == null
   ) {
-    if (prev.endedGames.length === 0 || !prev.endedGames[0].offers || prev.endedGames[0].offers.length === 0) {
+    if (
+      prev.endedGames.length === 0 ||
+      !prev.endedGames[0].offers ||
+      prev.endedGames[0].offers.length === 0
+    ) {
       return prev;
     }
 
@@ -158,7 +164,6 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
       ...prev,
       endedGames: updatedEndedGames,
     };
-
   }
 
   if (action.type === 'play:sendMessage') {

@@ -32,8 +32,11 @@ export async function SendQuestionReview(
     'CONTEXT:\n' +
     'pgn:\n ' +
     currentChapterState.chessAiMode.fen +
-    '\n ' +
-    'REVIEW:\n ' +
+    '\n' +
+    'user color:\n ' +
+    (currentChapterState.orientation == 'b' ? 'white' : 'black') +
+    '\n' +
+    'REVIEW:\n' +
     ` 
 ${JSON.stringify(normalizedReview, null, 2)}
 `;
