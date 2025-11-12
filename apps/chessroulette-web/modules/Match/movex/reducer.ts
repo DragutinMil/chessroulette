@@ -108,29 +108,30 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
     isOneOf(action.type, ['play:denyOffer', 'play:cancelOffer']) &&
     prevMatch.gameInPlay == null
   ) {
-    if (
-      prev.endedGames.length === 0 ||
-      !prev.endedGames[0].offers ||
-      prev.endedGames[0].offers.length === 0
-    ) {
+    const lastGameIndex = prev.endedGames.length - 1;
+    const lastGame = prev.endedGames[lastGameIndex];
+    if (!lastGame || !lastGame.offers || lastGame.offers.length === 0) {
       return prev;
     }
 
     const lastOffer: GameOffer = {
-      ...prev.endedGames[0].offers[prev.endedGames[0].offers.length - 1],
+      ...prev.endedGames[lastGameIndex].offers[
+        prev.endedGames[lastGameIndex].offers.length - 1
+      ],
       status: action.type === 'play:denyOffer' ? 'denied' : 'cancelled',
     };
-
     const nextOffers = [...prev.endedGames[0].offers.slice(0, -1), lastOffer];
+
+    const updatedLastGame = {
+      ...prev.endedGames[lastGameIndex],
+      offers: nextOffers,
+    };
 
     return {
       ...prev,
       endedGames: [
-        {
-          ...prev.endedGames[0],
-          offers: nextOffers,
-        },
-        ...prev.endedGames.slice(1),
+        ...prev.endedGames.slice(0, lastGameIndex), // sve osim poslednjeg
+        updatedLastGame, // poslednji sa izmenjenim offers
       ],
     };
   }
@@ -142,7 +143,7 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
     const lastGame = prev.endedGames[lastIndex];
 
     const lastOffer: GameOffer = {
-      ...prev.endedGames[0].offers[prev.endedGames[0].offers.length - 1],
+      ...lastGame.offers[prev.endedGames[lastIndex].offers.length - 1],
       status: 'accepted',
       linkInitiator: initiator_url,
       linkTarget: target_url,
