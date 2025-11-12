@@ -8,6 +8,7 @@ export type Dimensions = ContainerDimensions & {
   verticalPadding: number;
 };
 export type EvaluationMove = {
+  moveNum:number,
   move: string;
   moveCalc: number;
   eval: number;

@@ -14,7 +14,8 @@ export async function SendQuestionReview(
   const normalizedReview = reviewData.map((m, index, arr) => {
     const previous = arr[index - 1];
     return {
-      moveCalc: m.moveCalc,
+      moveNum:m.moveNum,
+      color: m.moveCalc % 2 == 0 ? 'black': "white" ,
       move: m.move,
       eval: m.eval,
       diff: parseFloat(m.diff),
@@ -33,8 +34,8 @@ export async function SendQuestionReview(
     'pgn:\n ' +
     currentChapterState.chessAiMode.fen +
     '\n' +
-    'user color:\n ' +
-    (currentChapterState.orientation == 'b' ? 'white' : 'black') +
+    'played by:\n ' +
+    (currentChapterState.orientation == 'b' ? 'white player' : 'black player') +
     '\n' +
     'REVIEW:\n' +
     ` 

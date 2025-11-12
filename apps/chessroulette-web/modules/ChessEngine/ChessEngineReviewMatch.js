@@ -133,9 +133,9 @@ function getEvaluation(worker, fen, isMobile) {
             if (scoreMatch[1] === 'cp') {
               bestEval = parseInt(scoreMatch[2], 10) / 100;
             } else if (scoreMatch[1] === 'mate') {
-              console.log('scoreMatch', scoreMatch[2]);
+            //  console.log('scoreMatch', scoreMatch[2]);
               const mateIn = parseInt(scoreMatch[2], 10);
-              console.log('mateIn', mateIn);
+             // console.log('mateIn', mateIn);
               //  if (type == 'score mate 1' || type == 'score mate 3') {
               //   //  console.log('ide mat 1 ili 3');
               //   const parts = fen.split(' ');
