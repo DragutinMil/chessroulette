@@ -20,6 +20,7 @@ export type SmartCountdownProps = {
   onFinished?: () => void;
   warningSound?: string;
   warningThresholdMs?: number;
+  disableSound?: boolean; 
 } & Pick<
   SmartCountdownDisplayProps,
   'activeTextClassName' | 'inactiveTextClassName'
@@ -34,6 +35,7 @@ export const SmartCountdown = ({
   onFinished = noop,
   warningSound = '/warning.mp3', // ili dodajte novi zvuk
   warningThresholdMs = 30000,
+  disableSound = false,
   ...countDownDislplayProps
 }: SmartCountdownProps) => {
   const [finished, setFinished] = useState(false);
@@ -65,10 +67,12 @@ export const SmartCountdown = ({
   };
 
   useEffect(() => {
-    if (warningSound) {
+    if (!disableSound && warningSound) {
       warningAudioRef.current = new Audio(warningSound);
+    } else {
+      warningAudioRef.current = null;
     }
-  }, [warningSound]);
+  }, [warningSound, disableSound]);
 
   useEffect(() => {
     setTimeLeft(msLeft);
@@ -149,6 +153,7 @@ export const SmartCountdown = ({
 
       // Check if warning sound should play
       if (
+        !disableSound &&
         timeLeft <= warningThresholdMs &&
         !hasPlayedWarning.current &&
         warningAudioRef.current

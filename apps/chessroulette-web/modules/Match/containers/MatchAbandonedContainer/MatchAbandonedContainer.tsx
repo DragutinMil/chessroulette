@@ -23,39 +23,38 @@ export const MatchAbandonedContainer = ({
 }: Props) => {
   const dispatch = useMatchActionsDispatch();
   
-  // Čuvaj abandonedAt u ref-u da se ne resetuje kada se game objekat promeni iz drugih razloga
+  // Čuvaj abandonedAt u ref-u da se ne resetuje kada se game objekat promeni
   const abandonedAtRef = useRef<number>(game.abandonedAt);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   
+  // Inicijalizuj samo jednom - koristi game.abandonedAt kao jedinstveni identifikator
+  // Ako se abandonedAt promenio, znači da je igrač ponovo napustio igru
+  if (abandonedAtRef.current !== game.abandonedAt) {
+    // Očisti stari interval ako postoji
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+    // Ažuriraj ref
+    abandonedAtRef.current = game.abandonedAt;
+  }
+
   const [timeLeft, setTimeLeft] = useState(() => {
-    const elapsed = now() - game.abandonedAt;
+    const elapsed = now() - abandonedAtRef.current;
     return Math.max(0, ABANDON_TIMEOUT_MS - elapsed);
   });
 
   const abandonedPlayer = playersByColor[game.abandonedBy];
   const remainingPlayer = playersByColor[swapColor(game.abandonedBy)];
 
-  // Resetuj countdown samo kada se abandonedAt stvarno promeni (igrač ponovo napusti)
+  // Kreiraj interval samo jednom za ovu abandoned sesiju (bazirano na abandonedAt)
   useEffect(() => {
-    // Ako se abandonedAt promenio, resetuj countdown
-    if (abandonedAtRef.current !== game.abandonedAt) {
-      abandonedAtRef.current = game.abandonedAt;
-      
-      // Očisti postojeći interval
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
-      
-      // Resetuj state sa novim vremenom
-      const elapsed = now() - game.abandonedAt;
-      setTimeLeft(Math.max(0, ABANDON_TIMEOUT_MS - elapsed));
+    // Ako već postoji interval, ne kreiraj novi
+    if (intervalRef.current) {
+      return;
     }
-  }, [game.abandonedAt]);
-
-  // Kreiraj interval samo jednom, ali koristi ref za abandonedAt
-  useEffect(() => {
+    
     const interval = setInterval(() => {
-      // Koristi ref umesto game.abandonedAt da se ne resetuje kada se game promeni
       const elapsed = now() - abandonedAtRef.current;
       const remaining = Math.max(0, ABANDON_TIMEOUT_MS - elapsed);
       setTimeLeft(remaining);
@@ -79,12 +78,23 @@ export const MatchAbandonedContainer = ({
     intervalRef.current = interval;
 
     return () => {
+      // Cleanup: očisti interval kada se komponenta unmount-uje
+      // Ovo će se desiti kada se igrač vrati i igra se nastavi (status se promeni sa abandoned na ongoing)
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
         intervalRef.current = null;
       }
     };
   }, []); // Prazan dependency array - interval se kreira samo jednom
+
+  // Ažuriraj timeLeft kada se abandonedAt promeni (igrač ponovo napusti)
+  useEffect(() => {
+    if (abandonedAtRef.current !== game.abandonedAt) {
+      abandonedAtRef.current = game.abandonedAt;
+      const elapsed = now() - game.abandonedAt;
+      setTimeLeft(Math.max(0, ABANDON_TIMEOUT_MS - elapsed));
+    }
+  }, [game.abandonedAt]);
 
   return (
     <div className={`flex flex-col gap-2 ${className || ''}`}>
@@ -100,7 +110,7 @@ export const MatchAbandonedContainer = ({
             msLeft={timeLeft}
             className="text-sm md:text-md font-bold text-green-600"
             isActive={timeLeft > 0}
-            warningSound={undefined} // Isključi zvuk za ovaj countdown
+            disableSound={true}
           />
         </div>
       </div>

@@ -9,6 +9,7 @@ import {
 import { enqueueMovexUpdatePlay } from '../../utils';
 import { useCurrentOrPrevMatchPlay } from '../../Play/hooks';
 import { MatchAbandonedContainer } from '../MatchAbandonedContainer';
+import { AbandonedGame } from '@app/modules/Game';
 
 export const MatchStateDisplayContainer = () => {
   const { match, currentRound, drawsCount, endedGamesCount } =
@@ -67,8 +68,8 @@ export const MatchStateDisplayContainer = () => {
 
       {match && play.hasGame && play.game.status === 'abandoned' && (
         <MatchAbandonedContainer
-          key={play.game.startedAt}
-          game={play.game}
+          key={`abandoned-${(play.game as AbandonedGame).abandonedAt}`} // Stabilan key baziran na abandonedAt
+          game={play.game as AbandonedGame}
           playersByColor={play.playersByColor}
           className="md:bg-slate-700 rounded-md p-2 md:p-4"
         />

@@ -100,6 +100,62 @@ export const reducer = (
       };
     }
 
+    if (prev.status === 'abandoned') {
+      const abandonedGame = prev as AbandonedGame;
+      
+      const nextTimeLeft = calculateTimeLeftAt({
+        at: moveAt,
+        turn: nextLastMoveBy,
+        prevTimeLeft: prev.timeLeft,
+        timeClass: prev.timeClass,
+        isMove: true,
+      });
+
+      // Proveri da li je igra završena
+      const isGameOverResult = chessRouler.isGameOver(
+        prev.timeClass !== 'untimed' && nextTimeLeft[nextLastMoveBy] <= 0
+          ? nextLastMoveBy
+          : undefined
+      );
+
+      if (isGameOverResult.over) {
+        const nextWinner: GameStateWinner = invoke(() => {
+          if (isGameOverResult.isDraw) {
+            return '1/2';
+          }
+
+          return isGameOverResult.reason === GameOverReason['timeout']
+            ? prev.lastMoveBy
+            : nextLastMoveBy;
+        });
+
+        // Next > "Complete"
+        return {
+          ...commonPrevGameProps,
+          ...commonNextGameProps,
+          startedAt: prev.startedAt,
+          status: 'complete',
+          winner: nextWinner,
+          timeLeft: nextTimeLeft,
+          gameOverReason: isGameOverResult.reason,
+        };
+      }
+
+      // Next > "Abandoned" (zadrži abandoned status i abandonedAt)
+      return {
+        ...commonPrevGameProps,
+        ...commonNextGameProps,
+        status: 'abandoned',
+        startedAt: prev.startedAt,
+        winner: null,
+        timeLeft: nextTimeLeft,
+        gameOverReason: null,
+        // Zadrži abandonedAt i abandonedBy polja
+        abandonedAt: abandonedGame.abandonedAt, // Ne ažuriraj abandonedAt!
+        abandonedBy: abandonedGame.abandonedBy,
+      } as AbandonedGame;
+    }
+
     const nextTimeLeft = calculateTimeLeftAt({
       at: moveAt,
       turn: nextLastMoveBy,
