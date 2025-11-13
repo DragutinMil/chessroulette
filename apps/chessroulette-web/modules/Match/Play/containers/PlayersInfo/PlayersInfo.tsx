@@ -3,7 +3,7 @@ import { getMovesDetailsFromPGN } from '@app/modules/Match/utils';
 import { ChessColor, areColorsEqual } from '@xmatter/util-kit';
 import { PlayerBox } from './PlayerBox';
 import { PlayersBySideWithResults } from '../../types';
-import { Game } from '@app/modules/Game';
+import { AbandonedGame, Game } from '@app/modules/Game';
 
 type Props = {
   game: Game;
@@ -36,14 +36,19 @@ export const PlayersInfo = ({
     );
   }, [game]);
 
+  const isAbandoned = game.status === 'abandoned';
+  //const abandonedBy = isAbandoned ? (game as AbandonedGame).abandonedBy : null;
+
   return (
     <div className="flex flex-1 gap-0 md:gap-1 flex-col">
       <PlayerBox
         key="away"
         playerInfo={playersBySide.away}
         isActive={
-          isGameCountdownActive &&
-          areColorsEqual(turn, playersBySide.away.color)
+          isAbandoned
+            ? areColorsEqual(turn, playersBySide.away.color)
+            : isGameCountdownActive &&
+              areColorsEqual(turn, playersBySide.away.color)
         }
         gameTimeClass={game.timeClass}
         timeLeft={game.timeLeft[playersBySide.away.color]}
@@ -53,8 +58,10 @@ export const PlayersInfo = ({
         key="home"
         playerInfo={playersBySide.home}
         isActive={
-          isGameCountdownActive &&
-          areColorsEqual(turn, playersBySide.home.color)
+          isAbandoned
+            ? areColorsEqual(turn, playersBySide.home.color)
+            : isGameCountdownActive &&
+              areColorsEqual(turn, playersBySide.home.color)
         }
         gameTimeClass={game.timeClass}
         timeLeft={game.timeLeft[playersBySide.home.color]}

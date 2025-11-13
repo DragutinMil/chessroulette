@@ -34,7 +34,7 @@ export const reducer = (
   }
 
   if (action.type === 'play:move') {
-    if (!(prev.status === 'idling' || prev.status === 'ongoing')) {
+    if (!(prev.status === 'idling' || prev.status === 'ongoing' || prev.status === 'abandoned')) {
       // Cannot move otherwise
       return prev;
     }

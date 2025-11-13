@@ -33,6 +33,20 @@ export const usePlayerAbandonDetection = () => {
   }, [play.game?.startedAt]);
 
   useEffect(() => {
+    const game = play.game;
+    
+    // Ako je igra bila abandoned, a sada je ongoing ili idling, resetuj hasDispatchedRef
+    // Ovo znači da se igra nastavila iz abandoned statusa
+    if (game && (game.status === 'ongoing' || game.status === 'idling')) {
+      // Proveri da li je igra bila abandoned prethodno (proveri da li postoji abandonedAt u prethodnom stanju)
+      // Pošto nemamo direktan pristup prethodnom stanju, resetujemo hasDispatchedRef svaki put
+      // kada igra pređe u ongoing/idling status, jer to znači da je igra aktivna
+      hasDispatchedRef.current.clear();
+    }
+  }, [play.game?.status]);
+
+
+  useEffect(() => {
     // Proveri da li imamo sve potrebne podatke
     if (!rid || !movexResource?.subscribers || !play.hasGame || !match) {
       return;
@@ -66,7 +80,6 @@ export const usePlayerAbandonDetection = () => {
     // Može se abandonovati samo ongoing ili idling igra
     if (game.status !== 'ongoing' && game.status !== 'idling') {
         bothPlayersWerePresentRef.current = false;
-
       return;
     }
 
@@ -92,6 +105,7 @@ export const usePlayerAbandonDetection = () => {
     // Ako su oba igrača prisutna, označi to
     if (bothPlayersPresent) {
       bothPlayersWerePresentRef.current = true;
+      hasDispatchedRef.current.clear();
       console.log('[usePlayerAbandonDetection] Both players are present');
       return;
     }

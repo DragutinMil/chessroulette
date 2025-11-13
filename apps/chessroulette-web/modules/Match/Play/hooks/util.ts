@@ -27,6 +27,10 @@ export const canUserPlay = ({
     return true;
   }
 
+  if (game.status === 'abandoned') {
+    return true;
+  }
+
   // if Pending, can play only if both players are present
   const [playerA, playerB] = Object.keys(playersByColor);
 

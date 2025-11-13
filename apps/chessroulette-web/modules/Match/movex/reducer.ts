@@ -1,7 +1,7 @@
 import { MovexReducer } from 'movex-core-util';
-import { invoke, swapColor, isOneOf, GameOverReason } from '@xmatter/util-kit';
+import { invoke, swapColor, isOneOf, GameOverReason, ChessRouler } from '@xmatter/util-kit';
 import * as PlayStore from '@app/modules/Match/Play/store';
-import { AbandonedGame, Game, GameStateWinner, IdlingGame, OngoingGame } from '@app/modules/Game';
+import { AbandonedGame, AbortedGame, CompletedGame, Game, GameStateWinner, IdlingGame, OngoingGame } from '@app/modules/Game';
 import { MatchActions, MatchState } from './types';
 import { initialMatchState } from './state';
 import { getMatchPlayerRoleById } from './util';
@@ -262,42 +262,59 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
   }
 
   if (action.type === 'play:resumeAbandonedGame') {
-    if (prev.status !== 'abandoned') {
+    const abandonedGame = prev.gameInPlay as AbandonedGame;
+    
+    if (!abandonedGame || abandonedGame.status !== 'abandoned') {
       return prev;
     }
-
-    const abandonedGame = prev as AbandonedGame;
     
-    // Proveri da li igra ima poteze da bi se odredio prethodni status
+    // Proveri da li igra ima dovoljno poteza da bi bila ongoing
+    // Igra prelazi iz idling u ongoing kada oba igrača naprave prvi potez (moveNumber >= 2)
     const chessRouler = new ChessRouler({ pgn: abandonedGame.pgn });
     const moveNumber = chessRouler.moveNumber();
-    
-    // Ako ima 2 ili više poteza, igra je ongoing, inače je idling
-    const previousStatus = moveNumber >= 2 ? 'ongoing' : 'idling';
+    const wasOngoing = moveNumber >= 2;
     
     // Destructure da uklonimo abandoned polja
     const { abandonedAt, abandonedBy, ...gameWithoutAbandonedFields } = abandonedGame;
     
-    // Vrati igru u prethodni status
-    if (previousStatus === 'ongoing') {
-      return {
+    // Vrati igru u prethodni status sa ispravnim timeLeft.lastUpdatedAt
+    if (wasOngoing) {
+      const resumedGame: OngoingGame = {
         ...gameWithoutAbandonedFields,
         status: 'ongoing',
-      } as OngoingGame;
-    } else {
+        timeLeft: {
+          ...abandonedGame.timeLeft,
+          lastUpdatedAt: abandonedGame.lastMoveAt, // Ongoing igra ima lastUpdatedAt = lastMoveAt
+        },
+      };
+      
       return {
+        ...prev,
+        gameInPlay: resumedGame,
+      };
+    } else {
+      const resumedGame: IdlingGame = {
         ...gameWithoutAbandonedFields,
         status: 'idling',
-      } as IdlingGame;
+        timeLeft: {
+          ...abandonedGame.timeLeft,
+          lastUpdatedAt: null, // Idling igra ima lastUpdatedAt = null
+        },
+      };
+      
+      return {
+        ...prev,
+        gameInPlay: resumedGame,
+      };
     }
   }
 
-  if (!prevMatch.gameInPlay && prevMatch.endedGames !== undefined) {
-    if (prevMatch.endedGames !== undefined) {
-      var prevEndedGame = prevMatch.endedGames[prevMatch.endedGames.length - 1];
-      const nextEndedGame = PlayStore.reducer(prevEndedGame, action);
-    }
-  }
+  //if (!prevMatch.gameInPlay && prevMatch.endedGames !== undefined) {
+  //  if (prevMatch.endedGames !== undefined) {
+  //    var prevEndedGame = prevMatch.endedGames[prevMatch.endedGames.length - 1];
+  //    const nextEndedGame = PlayStore.reducer(prevEndedGame, action);
+  //  }
+  //}
 
   if (!prevMatch.gameInPlay) {
     return prev;
