@@ -26,16 +26,17 @@ export async function analyzePGN(pgn, { onProgress } = {}, isMobile) {
   let previousEval = 0;
 
   for (let i = 0; i < moves.length; i++) {
+    // console.log('moves[i]',moves[i])
     const move = moves[i];
     chess.move(move);
 
     const fen = chess.fen();
 
-    let { eval: evaluation, topMoves } = await getEvaluation(
-      stockfish,
-      fen,
-      isMobile
-    );
+    let {
+      eval: evaluation,
+      topMoves,
+      topMove,
+    } = await getEvaluation(stockfish, fen, isMobile);
 
     const turn = chess.turn(); // 'w' ili 'b' nakon poteza
     if (turn === 'b') {
@@ -46,6 +47,8 @@ export async function analyzePGN(pgn, { onProgress } = {}, isMobile) {
       moveNum: Math.floor(i / 2) + 1,
       moveCalc: i + 1,
       move: move.san,
+      moveLan: [move.from, move.to],
+      topMove: topMove,
       eval: evaluation,
       diff: (evaluation - previousEval).toFixed(2),
       bestMoves: topMoves,
@@ -94,6 +97,7 @@ function getEvaluation(worker, fen, isMobile) {
   return new Promise((resolve) => {
     let bestEval = 0;
     let topMoves = [];
+    let topMove = [];
 
     const listener = (event) => {
       const line = event.data;
@@ -126,6 +130,9 @@ function getEvaluation(worker, fen, isMobile) {
             });
 
             topMoves[index - 1] = move?.san ?? pvMoves[0];
+            if (index === 1) {
+              topMove = [from, to];
+            }
           }
 
           // ✅ evaluaciju uzimamo samo iz multipv 1
@@ -133,9 +140,9 @@ function getEvaluation(worker, fen, isMobile) {
             if (scoreMatch[1] === 'cp') {
               bestEval = parseInt(scoreMatch[2], 10) / 100;
             } else if (scoreMatch[1] === 'mate') {
-            //  console.log('scoreMatch', scoreMatch[2]);
+              //  console.log('scoreMatch', scoreMatch[2]);
               const mateIn = parseInt(scoreMatch[2], 10);
-             // console.log('mateIn', mateIn);
+              // console.log('mateIn', mateIn);
               //  if (type == 'score mate 1' || type == 'score mate 3') {
               //   //  console.log('ide mat 1 ili 3');
               //   const parts = fen.split(' ');
@@ -167,7 +174,7 @@ function getEvaluation(worker, fen, isMobile) {
 
       if (line.startsWith('bestmove')) {
         worker.removeEventListener('message', listener);
-        resolve({ eval: bestEval, topMoves });
+        resolve({ eval: bestEval, topMoves, topMove });
       }
     };
 

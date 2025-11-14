@@ -58,8 +58,10 @@ export type chessAiMode = {
 // };
 
 export type EvaluationMove = {
-  moveNum:number,
+  moveNum: number;
   move: string;
+  moveLan: Array<string>;
+  topMove: Array<string>;
   moveCalc: number;
   eval: number;
   diff: string;
