@@ -537,31 +537,7 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
         );
       }
     };
-    // const openings = async () => {
-    //   addChessAi({
-    //     moves: [],
-    //     movesCount: 0,
-    //     badMoves: 0,
-    //     goodMoves: 0,
-    //     orientationChange: false,
-    //     mode: 'openings',
-    //     ratingChange: 0,
-    //     puzzleRatting: 0,
-    //     userPuzzleRating: currentChapterState.chessAiMode.userPuzzleRating,
-    //     puzzleId: 0,
-    //     prevUserPuzzleRating: 0,
-    //   });
 
-    //   const data = await getOpenings();
-    //   const fullQuestion =
-    //     data.name +
-    //     ' ' +
-    //     data.pgn +
-    //     '. Analyze opening, give me short explanation of advantages';
-
-    //   onQuickImport({ type: 'PGN', val: data.pgn });
-    //   addQuestion(fullQuestion);
-    // };
     const hint = async () => {
       if (currentChapterState.chessAiMode.mode == 'puzzle') {
         const fieldFrom = currentChapterState.chessAiMode.moves[
@@ -610,21 +586,6 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
           }
         }
       }
-
-      // if (
-      //   !currentChapterState.messages[
-      //     currentChapterState.messages.length - 1
-      //   ].content.includes('Think about using')
-      // ) {
-      //   onMessage({
-      //     content: `Think about using your ${piece}`,
-      //     participantId: 'chatGPT123456',
-      //     idResponse:
-      //       currentChapterState.messages[
-      //         currentChapterState.messages.length - 1
-      //       ].idResponse,
-      //   });
-      // }
     };
     const ratingEngine = (rating: number) => {
       setCurrentRatingEngine(rating);
@@ -642,12 +603,50 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
         try {
           const chess = new Chess(currentChapterState.displayFen);
           const move = chess.move({ from: fromChess, to: toChess });
+
           if (move) {
             setMoveSan(move.san);
+            if (reviewData.length > 0) {
+              const index =
+                currentChapterState.notation.focusedIndex[0] * 2 +
+                currentChapterState.notation.focusedIndex[1] -
+                1;
+              const whiteMove = index % 2 !== 0 ? true : false;
+
+              if (
+                (Number(reviewData[index + 1].diff) > 0.7 && !whiteMove) ||
+                (Number(reviewData[index + 1].diff) < -0.7 && whiteMove)
+              ) {
+                console.log(
+                  'chapter',
+                  currentChapterState.notation.focusedIndex
+                );
+                console.log('reviewDatareviewData', reviewData);
+                const color = '#07da63';
+                const colorBlunder = '#f2358d';
+
+                console.log('index', index);
+                const from = reviewData[index].topMove[0];
+                const to = reviewData[index].topMove[1];
+                const fromBlunder = reviewData[index + 1].moveLan[0];
+                const toBlunder = reviewData[index + 1].moveLan[1];
+                const arrowId = `${from}${to}-${color}`;
+                const arrowIdBlunder = `${fromBlunder}${toBlunder}-${colorBlunder}`;
+                onArrowsChange({
+                  [arrowId]: [from as Square, to as Square],
+                  [arrowIdBlunder]: [
+                    fromBlunder as Square,
+                    toBlunder as Square,
+                  ],
+                });
+              } else if (currentChapterState.arrowsMap) {
+                onArrowsChange({});
+              }
+            }
           }
         } catch (e) {
           // Potez nije validan, ne radi ništa
-          console.warn('Invalid move, ignoring', { fromChess, toChess });
+          //  console.warn('Invalid move, ignoring', { fromChess, toChess });
         }
       }
 
@@ -864,7 +863,7 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
         },
         isMobile
       );
-     // console.log('dats', data);
+      console.log('dats', data);
 
       setReviewData(data);
       if (data) {

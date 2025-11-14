@@ -31,7 +31,7 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
   if (prev.activityType !== 'aichess') {
     return prev;
   }
-  //console.log('aichess', action);
+  // console.log('aichess', action);
   if (action.type === 'loadedChapter:takeBack') {
     const prevChapter = findLoadedChapter(prev.activityState);
     if (!prevChapter) {
@@ -632,6 +632,7 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
     };
   }
   if (action.type === 'loadedChapter:setArrows') {
+    console.log('action', action);
     const prevChapter = findLoadedChapter(prev.activityState);
 
     if (!prevChapter) {
@@ -1012,6 +1013,7 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
                 ...prev.activityState.chaptersMap,
                 [0]: {
                   ...prev.activityState.chaptersMap[0],
+                  arrowsMap: {},
                   displayFen: chessGame.fen(),
                   chessAiMode: chessAiMode,
                   orientation: toOrientation,
@@ -1036,6 +1038,7 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
                 ...prev.activityState.chaptersMap,
                 [0]: {
                   ...prev.activityState.chaptersMap[0],
+                  arrowsMap: {},
                   displayFen: chessGame.fen(),
                   chessAiMode: chessAiMode,
                   orientation: toOrientation,
@@ -1060,6 +1063,7 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
             ...prev.activityState.chaptersMap,
             [0]: {
               ...prev.activityState.chaptersMap[0],
+              arrowsMap: {},
               displayFen: chessGame.fen(),
               chessAiMode: chessAiMode,
               messages: message,

@@ -382,6 +382,7 @@ export const AichessActivity = ({
               );
             }}
             onArrowsChange={async (payload) => {
+              console.log('payload arr', payload);
               await enqueueMovexUpdate(() =>
                 dispatch({ type: 'loadedChapter:setArrows', payload })
               );

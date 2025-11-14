@@ -40,6 +40,8 @@ export const MatchStateDialogContainer: React.FC<Props> = (
   const [fromWeb, setFromWeb] = useState(false);
   const [fromApp, setFromApp] = useState(false);
   const [matchId, setMatchId] = useState('');
+  const [room, setRoom] = useState('');
+
   const [userId, setUserId] = useState('');
   const dispatch = useMatchActionsDispatch();
   const router = useRouter();
@@ -60,10 +62,18 @@ export const MatchStateDialogContainer: React.FC<Props> = (
     }
     const url = new URL(window.location.href);
     const pathParts = window.location.pathname.split('/');
-    const room = pathParts[pathParts.length - 1];
+    const matchId = pathParts[pathParts.length - 1];
     setUserId(url.searchParams.get('userId') ?? '');
-    setMatchId(room);
-    //
+    setMatchId(matchId);
+    let room = Array(7)
+      .fill(0)
+      .map(() =>
+        'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'.charAt(
+          Math.random() * 62
+        )
+      )
+      .join('');
+    setRoom(room);
     setFromWeb(true);
   }, []);
 
@@ -145,7 +155,7 @@ export const MatchStateDialogContainer: React.FC<Props> = (
                     Rematch
                   </Button>
                   <Link
-                    href={`https://chess.outpostchess.com/room/new/r${matchId}?activity=aichess&userId=${userId}&theme=op&pgn=${matchId}`}
+                    href={`https://chess.outpostchess.com/room/new/r${room}?activity=aichess&userId=${userId}&theme=op&pgn=${matchId}&instructor=1`}
                   >
                     <Button
                       icon="MagnifyingGlassIcon"
