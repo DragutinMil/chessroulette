@@ -31,7 +31,7 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
   if (prev.activityType !== 'aichess') {
     return prev;
   }
-  // console.log('aichess', action);
+  //console.log('aichess', action);
   if (action.type === 'loadedChapter:takeBack') {
     const prevChapter = findLoadedChapter(prev.activityState);
     if (!prevChapter) {
@@ -521,13 +521,41 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
       );
 
     // TODO: Here this can be abstracted
+    console.log(
+      'prevChapter.notation.startingFen',
+      prevChapter.notation.startingFen
+    );
     const fenBoard = new ChessFENBoard(prevChapter.notation.startingFen);
     historyAtFocusedIndex.forEach((m) => {
       if (!m.isNonMove) {
-        fenBoard.move(m);
+        let isPromotionWhite;
+        let isPromotionBlack;
+        const moveData = m as any; // ovde rešavaš TS problem
+        if (moveData.promotion) {
+          isPromotionWhite =
+            moveData.piece === 'p' &&
+            moveData.color === 'w' &&
+            moveData.to[1] === '8';
+          isPromotionBlack =
+            moveData.piece === 'p' &&
+            moveData.color === 'b' &&
+            moveData.to[1] === '1';
+        }
+
+        const move = {
+          from: moveData.from,
+          to: moveData.to,
+          ...(isPromotionWhite && {
+            promoteTo: moveData.promotion.toUpperCase() ?? 'Q',
+          }),
+          ...(isPromotionBlack && { promoteTo: moveData.promotion ?? 'q' }),
+        };
+
+        fenBoard.move(move);
       }
     });
-
+    console.log('fenBoard', fenBoard);
+    console.log('fenBoard-fen', fenBoard.fen);
     const nextChapterState: ChapterState = {
       ...prevChapter,
       displayFen: fenBoard.fen,

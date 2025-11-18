@@ -129,13 +129,12 @@ export const SmartCountdown = ({
     lastTickRef.current = Date.now();
   }, [msLeft]);
 
-  // Handle timer completion
+  //Handle timer completion
   useEffect(() => {
     if (timeLeft <= 0 && !finished) {
       setFinished(true);
-      onFinished();
     }
-  }, [timeLeft, finished]);
+  }, [timeLeft]);
 
   useEffect(() => {
     if (!isActive) {
@@ -143,7 +142,7 @@ export const SmartCountdown = ({
     }
 
     if (timeLeft <= 0) {
-      setFinished(true);
+      //  setFinished(true)
     } else {
       setInterval(timeLeftToIntervalMs(timeLeft));
 
@@ -163,8 +162,10 @@ export const SmartCountdown = ({
 
   useEffect(() => {
     if (finished) {
-      setTimeout(() => onFinished(), 1500);
-      setTimeout(() => onFinished(), 500);
+      const random = Math.floor(Math.random() * 1000) + 1;
+      setTimeout(() => onFinished(), random);
+      const random2 = Math.floor(Math.random() * 1000) + 1;
+      setTimeout(() => setTimeout(() => onFinished(), random2), 1000);
     }
   }, [finished]);
 

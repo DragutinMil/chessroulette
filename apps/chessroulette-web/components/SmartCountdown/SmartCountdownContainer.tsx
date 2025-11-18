@@ -17,7 +17,6 @@ export const SmartCountdownContainer = ({
     const handler = () => {
       if (!document.hidden) {
         onRefreshMsLeft();
-        console.log('provera onRefreshMsLeft');
       }
     };
 

@@ -4,35 +4,51 @@ import { decodeJwt } from 'jose';
 export function checkUser() {
   const url = new URL(window.location.href);
   const userId = url.searchParams.get('userId');
+
+  function safeDecode(standardToken: string | undefined) {
+    if (!standardToken) return null;
+    try {
+      return decodeJwt(standardToken);
+    } catch (err) {
+      console.warn('Invalid JWT:', err);
+      return null;
+    }
+  }
+
   //from mobile app check
   if (Cookies.get('token')) {
-    const data = decodeJwt(Cookies.get('token'));
-    if (data) {
-      if (data?.user_id !== userId) {
-        console.log('out App');
-        return 'outApp';
-      } else {
-        console.log('ulogovan kroz app');
-        return 'app';
+    const appToken = Cookies.get('token');
+    if (appToken) {
+      const data = safeDecode(appToken);
+      if (data) {
+        if (data?.user_id !== userId) {
+          console.log('out App');
+          return 'outApp';
+        } else {
+          console.log('ulogovan kroz app');
+          return 'app';
+        }
       }
     }
   }
   //from web check
   else if (Cookies.get('sessionToken')) {
-    const token: string | undefined = Cookies.get('sessionToken');
-    if (token) {
-      const data = decodeJwt(token);
-      if (data?.user_id !== userId) {
-        return 'outWeb';
-      } else {
-        console.log('throught web');
-        return 'web';
+    const webToken = Cookies.get('sessionToken');
+    if (webToken) {
+      const data = safeDecode(webToken);
+      if (data) {
+        if (data?.user_id !== userId) {
+          console.log('outWeb');
+          return 'outWeb';
+        } else {
+          console.log('throught web');
+          return 'web';
+        }
       }
     }
+  } else {
+    return null;
   }
-  // else{
-  //   return 'outWeb'
-  // }
 }
 
 export async function sendResult() {
