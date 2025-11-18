@@ -85,16 +85,16 @@ export const MatchStateDialogContainer: React.FC<Props> = (
           <>
             {/* { (document.referrer.includes('app.outpostchess.com') || document.referrer.includes('localhost:8080') || document.referrer.includes('test-app.outpostchess.com')) && */}
             {fromWeb && (
-              <Button
-                icon="ArrowLeftIcon"
-                bgColor="yellow"
-                style={{ marginTop: 12 }}
-                onClick={() => {
-                  router.push('https://app.outpostchess.com/online-list');
-                }}
-              >
-                Lobby &nbsp;&nbsp;&nbsp;&nbsp;
-              </Button>
+                    <Button
+                    icon="ArrowLeftIcon"
+                    bgColor="green"
+                    style={{ marginTop: 12, minWidth: '160px' }}
+                    onClick={() => {
+                      router.push('https://app.outpostchess.com/online-list');
+                    }}
+                  >
+                    Lobby&nbsp;&nbsp;&nbsp;
+                  </Button>
             )}
           </>
         } // should there be something?

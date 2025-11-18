@@ -1,12 +1,13 @@
 import { AuthOptions } from 'next-auth';
-import { PrismaClient } from '@prisma/client';
+//import { PrismaClient } from '@prisma/client';
 import { PrismaAdapter } from '@auth/prisma-adapter';
 import EmailProvider from 'next-auth/providers/email';
 import { config } from '@app/config';
 import { serverConfig } from '../../config/config.server';
 import { CustomSessionUser } from './types';
+import prisma from '../../services/prisma';
 
-const prisma = new PrismaClient();
+//const prisma = new PrismaClient();
 
 const emailConfig = {
   EMAIL_SERVER_HOST: serverConfig.auth.EMAIL_SERVER_HOST,

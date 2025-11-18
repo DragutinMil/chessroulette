@@ -5,7 +5,9 @@
 import { init } from '@sentry/nextjs';
 import { config } from './config';
 
-config.SENTRY_DSN &&
+const isValidDsn = config.SENTRY_DSN && config.SENTRY_DSN !== 'TBD' && config.SENTRY_DSN.trim() !== '';
+
+isValidDsn &&
   init({
     dsn: config.SENTRY_DSN,
 
@@ -13,7 +15,7 @@ config.SENTRY_DSN &&
     tracesSampleRate: 1,
 
     // Setting this option to true will print useful information to the console while you're setting up Sentry.
-    debug: config.DEBUG_MODE,
+    debug: isValidDsn && config.DEBUG_MODE,
 
     replaysOnErrorSampleRate: 1.0,
 
