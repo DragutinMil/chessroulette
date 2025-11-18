@@ -1,0 +1,5 @@
+{
+  "env": {
+    "CYPRESS_INSTALL_BINARY": "0"
+  }
+}
