@@ -38,7 +38,7 @@ import StockFishEngineAI from '@app/modules/ChessEngine/ChessEngineAI';
 import { analyzePGN } from '@app/modules/ChessEngine/ChessEngineReviewMatch';
 import { ChaptersTab, ChaptersTabProps } from '../../chapters/ChaptersTab';
 import { useWidgetPanelTabsNavAsSearchParams } from '../useWidgetPanelTabsNav';
-import { SendQuestion } from './SendQuestion';
+import { SendQuestionPuzzle } from './SendQuestionPuzzle';
 import { SendQuestionReview } from './GameReview/SendQuestionReview';
 import { CheckPiece } from './CheckPiece';
 import { EngineData } from '../../../../../ChessEngine/lib/io';
@@ -299,7 +299,7 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
           })
           .join(' ');
 
-        const data = await SendQuestion(
+        const data = await SendQuestionPuzzle(
           question,
           scoreCP,
           currentChapterState,
@@ -472,7 +472,7 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
         const limitQuestion = async () => {
           const question =
             'Daily limit reached. Explane what to do to continue play puzzle';
-          const data = await SendQuestion(
+          const data = await SendQuestionPuzzle(
             question,
             scoreCP,
             currentChapterState,
@@ -770,7 +770,7 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
           }, 500);
           const question =
             'Daily limit reached. Explane what to do to continue play puzzle';
-          const data = await SendQuestion(
+          const data = await SendQuestionPuzzle(
             question,
             scoreCP,
             currentChapterState,

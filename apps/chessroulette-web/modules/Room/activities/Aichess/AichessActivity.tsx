@@ -21,6 +21,7 @@ import { WidgetPanel } from './components/WidgetPanel';
 import { AichessBoard } from './components/AichessBoard';
 import { RIGHT_SIDE_SIZE_PX } from '../../constants';
 import inputReducer, { initialInputState } from './reducers/inputReducer';
+import socketUtil from '../../../../socketUtil';
 
 // import { InstructorBoard } from './components/InstructorBoard';
 import { Square } from 'chess.js';
@@ -68,7 +69,12 @@ export const AichessActivity = ({
     findLoadedChapter(remoteState) || initialDefaultChapter;
 
   const tabsRef = useRef<TabsRef>(null);
-
+    useEffect(() => {
+    socketUtil.connect('reviewing');
+    return () => {
+      socketUtil.disconnect();
+    };
+  }, []);
   useEffect(() => {
     const url = new URL(window.location.href);
     const rawPgn = url.searchParams.get('pgn');
