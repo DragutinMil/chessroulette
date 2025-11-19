@@ -206,18 +206,18 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
           const to = data.puzzle.solution[0].slice(2, 4);
           const m = data.puzzle.solution[0];
 
-          if (
-            (m.length == 5 &&
-              (m.slice(-1) == 'q' ||
-                m.slice(-1) == 'r' ||
-                m.slice(-1) == 'k')) ||
-            m.slice(-1) == 'b'
+          const chess = new Chess(data.puzzle.fen);
+          const piece = chess.get(from);
+          if (piece.type === 'p' && piece.color === 'w' && to[1] === '8') {
+            const first_move = { from: from, to: to, promoteTo: 'Q' };
+            setTimeout(() => onPuzzleMove(first_move as MovePiece), 1200);
+          } else if (
+            piece.type === 'p' &&
+            piece.color === 'b' &&
+            to[1] === '1'
           ) {
-            let n =
-              currentChapterState.orientation == 'w'
-                ? { from: from, to: to, promoteTo: 'q' }
-                : { from: from, to: to, promoteTo: 'Q' };
-            setTimeout(() => onPuzzleMove(n), 800);
+            const first_move = { from: from, to: to, promoteTo: 'q' };
+            setTimeout(() => onPuzzleMove(first_move as MovePiece), 1200);
           } else {
             const first_move = { from: from, to: to };
             setTimeout(() => onPuzzleMove(first_move), 800);
@@ -399,10 +399,20 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
             2,
             4
           );
-          const m = currentChapterState.chessAiMode.moves[2 * length];
-          if (m.length == 5 && (m.slice(-1) == 'q' || m.slice(-1) == 'r')) {
-            let n = { from: from as Square, to: to as Square, promoteTo: 'Q' };
-            setTimeout(() => onPuzzleMove(n), 800);
+          // const m = currentChapterState.chessAiMode.moves[2 * length];
+
+          const chess = new Chess(currentChapterState.displayFen);
+          const piece = chess.get(from as Square);
+          if (piece.type === 'p' && piece.color === 'w' && to[1] === '8') {
+            const n = { from: from, to: to, promoteTo: 'Q' };
+            setTimeout(() => onPuzzleMove(n as MovePiece), 1200);
+          } else if (
+            piece.type === 'p' &&
+            piece.color === 'b' &&
+            to[1] === '1'
+          ) {
+            const n = { from: from, to: to, promoteTo: 'q' };
+            setTimeout(() => onPuzzleMove(n as MovePiece), 1200);
           } else {
             const n = { from: from as Square, to: to as Square };
             setTimeout(() => onPuzzleMove(n), 800);
@@ -421,15 +431,19 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
           ].slice(2, 4);
           // const move = { from: from as Square, to: to as Square };
           if (!isMyTurn) {
-            const m = currentChapterState.chessAiMode.moves[2 * length - 2];
-            if (m.length == 5 && (m.slice(-1) == 'q' || m.slice(-1) == 'r')) {
-              let n = {
-                from: from as Square,
-                to: to as Square,
-                promoteTo: 'q',
-              };
-              // console.log('engine nk', n);
-              setTimeout(() => onPuzzleMove(n), 800);
+            //const m = currentChapterState.chessAiMode.moves[2 * length - 2];
+            const chess = new Chess(currentChapterState.displayFen);
+            const piece = chess.get(from as Square);
+            if (piece.type === 'p' && piece.color === 'w' && to[1] === '8') {
+              const n = { from: from, to: to, promoteTo: 'Q' };
+              setTimeout(() => onPuzzleMove(n as MovePiece), 1200);
+            } else if (
+              piece.type === 'p' &&
+              piece.color === 'b' &&
+              to[1] === '1'
+            ) {
+              const n = { from: from, to: to, promoteTo: 'q' };
+              setTimeout(() => onPuzzleMove(n as MovePiece), 1200);
             } else {
               const n = { from: from as Square, to: to as Square };
               setTimeout(() => onPuzzleMove(n), 800);
@@ -745,8 +759,7 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
       lastClick.current = now;
 
       const data = await getPuzzle(category);
-
-      if (data && !data.fen && data.message) {
+      if (data && !data.fen && data.message == 'puzzle_daily_limit_reached') {
         if (
           !currentChapterState.messages[
             currentChapterState.messages.length - 1
@@ -776,6 +789,9 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
         }
         setTimeout(() => setFreezeButton(false), 2000);
       }
+      ///OVDE SLUCAJ DA JE PRESAO IGRICU
+      if (data && !data.fen && data.message == 'puzzle_daily_limit_reached') {
+      }
 
       if (data.fen && ChessFENBoard.validateFenString(data.fen).ok) {
         // onQuickImport({ type: 'FEN', val: data.fen });
@@ -802,28 +818,43 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
           responseId: '',
           message: '',
         });
+        // addChessAi({
+        //   mode: 'puzzle',
+        //   moves: ["a7a8",
+        //           "a7a8",
+        //            "e2f2",
+        //            "d3f3"],
+        //   movesCount:  2,
+        //   badMoves: 0,
+        //   goodMoves: 0,
+        //   orientationChange: false,
+        //   puzzleRatting: data.rating,
+        //   userPuzzleRating: userRating,
+        //   ratingChange: 0,
+        //   puzzleId: data.puzzle_id,
+        //   prevUserPuzzleRating: userRating,
+        //   fen: "8/p7/8/1p6/1P1Q1p2/P6P/2kP2PK/4qq2 b - - 3 57",
+        //   responseId: '',
+        //   message: '',
+        // });
 
         setHintCircle(false);
         //FIRST MOVE
         const from = data.solution[0].slice(0, 2);
         const to = data.solution[0].slice(2, 4);
-        const m = data.solution[0];
+        // const m = data.solution[0];
         setTimeout(() => setFreezeButton(false), 2000);
-        if (
-          m.length == 5 &&
-          (m.slice(-1) == 'q' ||
-            m.slice(-1) == 'r' ||
-            m.slice(-1) == 'b' ||
-            m.slice(-1) == 'k')
-        ) {
-          const first_move =
-            currentChapterState.orientation == 'w'
-              ? { from: from, to: to, promoteTo: 'q' }
-              : { from: from, to: to, promoteTo: 'Q' };
-          setTimeout(() => onPuzzleMove(first_move), 800);
+        const chess = new Chess(currentChapterState.chessAiMode.fen);
+        const piece = chess.get(from);
+        if (piece.type === 'p' && piece.color === 'w' && to[1] === '8') {
+          const first_move = { from: from, to: to, promoteTo: 'Q' };
+          setTimeout(() => onPuzzleMove(first_move as MovePiece), 1200);
+        } else if (piece.type === 'p' && piece.color === 'b' && to[1] === '1') {
+          const first_move = { from: from, to: to, promoteTo: 'q' };
+          setTimeout(() => onPuzzleMove(first_move as MovePiece), 1200);
         } else {
           const first_move = { from: from, to: to };
-          setTimeout(() => onPuzzleMove(first_move), 1500);
+          setTimeout(() => onPuzzleMove(first_move as MovePiece), 1500);
         }
       }
     };

@@ -57,7 +57,7 @@ type Props = {
 export const useMoves = ({
   isMyTurn,
   playingColor,
-  premoveAnimationDelay = 151,
+  premoveAnimationDelay = 100,
   onMove,
   onPreMove,
   onValidateMove,

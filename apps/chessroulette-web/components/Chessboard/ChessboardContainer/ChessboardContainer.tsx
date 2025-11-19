@@ -73,8 +73,6 @@ export type ChessboardContainerProps = Omit<
       }
   );
 
-const BOARD_ANIMATION_DELAY = 350;
-
 export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
   fen,
   lastMove,
@@ -100,18 +98,16 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
 }) => {
   const isMyTurn = boardOrientation === turn;
   const { match, ...matchView } = useMatchViewState();
+  const BOARD_ANIMATION_DELAY = match === null ? 350 : 220;
   const [isBotPlay, setBots] = useState(false);
-  // Arrows
-  // ('8WCVE7ljCQJTW020,NaNuXa7Ew8Kac002,O8kiLgwcKJWy9005,KdydnDHbBU1JY008,vpHH6Jf7rYKwN010,ruuPkmgP0KBei015');
   const arrowAndCircleColor = useArrowAndCircleColor();
   const customArrows = useCustomArrows(onArrowsChange, props.arrowsMap);
-  //console.log('boardTheme',boardTheme)
+
   useEffect(() => {
     if (match) {
       if (match?.challengee?.id?.length == 16) {
         setBots(true);
       }
-      //  setBots( ['8WCVE7ljCQJTW020','NaNuXa7Ew8Kac002','O8kiLgwcKJWy9005','KdydnDHbBU1JY008','vpHH6Jf7rYKwN010','ruuPkmgP0KBei015'].indexOf(match?.challengee?.id)!==-1 )
     }
   }, []);
 
