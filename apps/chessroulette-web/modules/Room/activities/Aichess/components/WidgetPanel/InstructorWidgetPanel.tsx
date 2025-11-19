@@ -77,63 +77,9 @@ export const InstructorWidgetPanel = React.forwardRef<TabsRef, Props>(
       },
       [widgetPanelTabsNav.setTabIndex]
     );
-    const conversation = async () => {
-      try {
-        const userId = '8UWCweKl1Gvoi';
-        const response = await fetch(
-          // process.env.NEXT_PUBLIC_API_WEB + 'public_ai_conversation',
-          `${process.env.NEXT_PUBLIC_API_WEB}public_ai_conversation`,
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              user_id: userId,
-              js: { role: 'user', content: 'koliko ima sati' },
-            }),
-          }
-        );
-        if (!response.ok) {
-          throw new Error(`Error: ${response.status}`);
-        }
+   
 
-        const data = await response.json();
-        console.log('data get', data);
-      } catch (error) {
-        console.error('Fetch error', error);
-      }
-    };
-
-    const conversationGet = async () => {
-      try {
-        const userId = '8UWCweKl1Gvoi';
-        const response = await fetch(
-          // process.env.NEXT_PUBLIC_API_WEB + 'public_ai_conversation',
-          `${process.env.NEXT_PUBLIC_API_WEB}public_ai_conversation?user_id=8UWCweKl1Gvoi`,
-          {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          }
-        );
-        if (!response.ok) {
-          throw new Error(`Error: ${response.status}`);
-        }
-
-        const data = await response.json();
-        console.log('data get', data);
-      } catch (error) {
-        console.error('Fetch error', error);
-      }
-    };
-    //    const sendQuestion = async () => {
-    //           generateGptResponse()
-    // }
-    // useEffect(() => {
-    //   console.log('widgetPanelTabsNav changed');
-    // }, [widgetPanelTabsNav]);
+    
 
     // Instructor
     return (
@@ -220,7 +166,7 @@ export const InstructorWidgetPanel = React.forwardRef<TabsRef, Props>(
                   >
                     Go pgn
                   </Button>
-                  <Button
+                  {/* <Button
                     onClick={() => {
                       conversation();
                     }}
@@ -228,8 +174,8 @@ export const InstructorWidgetPanel = React.forwardRef<TabsRef, Props>(
                     className={`bg-slate-600 font-bold hover:bg-slate-800 `}
                   >
                     POST Conversation
-                  </Button>
-                  <Button
+                  </Button> */}
+                  {/* <Button
                     onClick={() => {
                       conversationGet();
                     }}
@@ -237,7 +183,7 @@ export const InstructorWidgetPanel = React.forwardRef<TabsRef, Props>(
                     className={`bg-slate-600 font-bold hover:bg-slate-800 `}
                   >
                     GET Conversation
-                  </Button>
+                  </Button> */}
                   {/* <Button
                 onClick={() => {
                    sendQuestion()

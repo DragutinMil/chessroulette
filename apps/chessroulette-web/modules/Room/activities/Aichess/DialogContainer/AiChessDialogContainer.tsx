@@ -8,7 +8,7 @@ import { ChessFENBoard } from '@xmatter/util-kit';
 import { chessAiMode, MovePiece, Message } from '../movex';
 import { PgnInputBoxProps } from '@app/components/PgnInputBox/PgnInputBox';
 import { ButtonGreen } from '@app/components/Button/ButtonGreen';
-import { SendQuestion } from '../components/WidgetPanel/SendQuestion';
+import { SendQuestionPuzzle } from '../components/WidgetPanel/SendQuestionPuzzle';
 
 type AiChessDialogContainerProps = {
   currentChapter: any; // možeš zameniti `any` konkretnijim tipom kasnije

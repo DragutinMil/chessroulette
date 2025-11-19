@@ -1,9 +1,10 @@
-import { getToken } from '../../util';
+
+import { ai_prompt } from '../../util';
 
 import type { ChapterState } from '../../movex/types';
 import { CheckPiece } from './CheckPiece';
 import { Square } from 'chess.js';
-export async function SendQuestion(
+export async function SendQuestionPuzzle(
   prompt: string,
   scoreCP: number,
   currentChapterState: ChapterState,
@@ -70,43 +71,12 @@ export async function SendQuestion(
     currentRatingEngine;
   '\n' + 'pgn: ' + pgn;
   '\n' + 'starting fen position: ' + currentChapterState.notation.startingFen;
-  //  JSON VARIANT
-  // {
-  //   question: promptQuestion,
-  //   context: {
-  //     bestMoves: stockfishMovesInfo,
-  //     fen: currentChapterState.displayFen,
-  //     stockfishBestLine: bestline,
-  //     userColorPieces: piecesUserColor,
-  //     lastMove: lastMoveSan
-  //   }
-  // };
+  
 
   console.log('send question', question);
-  try {
-    const token = await getToken();
 
-    const response = await fetch(
-      process.env.NEXT_PUBLIC_API_WEB + `ai_prompt_v2r`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          prompt: question,
-          previous_response_id: previusMessageId,
-          model: model,
-        }),
-      }
-    );
-    const data = await response.json();
-    if (!response.ok) {
-      return data?.message || `Error: ${response.status}`;
-    }
-    return data;
-  } catch (error) {
-    console.error('Fetch error', error);
-  }
+  const data = await ai_prompt(question, previusMessageId, model)
+
+  return data
+  
 }

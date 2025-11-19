@@ -86,9 +86,6 @@ const toSearchParams = ({
   if (theme) {
     searchParams.set('theme', theme);
   }
-  // if (sessionToken) {
-  //   searchParams.set('sessionToken', sessionToken);
-  // }
 
   return searchParams;
 };

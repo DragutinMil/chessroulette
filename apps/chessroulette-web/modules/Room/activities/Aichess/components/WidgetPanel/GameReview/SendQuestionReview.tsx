@@ -1,4 +1,5 @@
-import { getToken } from '../../../util';
+
+import { ai_prompt } from '../../../util';
 import type { ChapterState } from '../../../movex/types';
 import type { EvaluationMove } from '../../../movex/types';
 export async function SendQuestionReview(
@@ -43,31 +44,9 @@ ${JSON.stringify(normalizedReview, null, 2)}
 `;
 
   console.log('question review', question);
-  try {
-    const token = await getToken();
 
-    const response = await fetch(
-      process.env.NEXT_PUBLIC_API_WEB + `ai_prompt_v2r`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          prompt: question,
-          previous_response_id: previusMessageId,
-          model: model,
-        }),
-      }
-    );
-    const data = await response.json();
-    if (!response.ok) {
-      return data?.message || `Error: ${response.status}`;
-    }
-    return data;
-  } catch (error) {
-    console.error('Fetch error', error);
-    return;
-  }
+const data = await ai_prompt(question, previusMessageId, model)
+ 
+  return data
+ 
 }
