@@ -93,7 +93,7 @@ export const MatchStateDialogContainer: React.FC<Props> = (
                 bgColor="yellow"
                 style={{ marginTop: 12 }}
                 onClick={() => {
-                  router.push('https://app.outpostchess.com/online-list');
+                  window.location.href = "https://app.outpostchess.com/online-list";
                 }}
               >
                 Lobby &nbsp;&nbsp;&nbsp;&nbsp;
@@ -180,7 +180,7 @@ export const MatchStateDialogContainer: React.FC<Props> = (
                       bgColor="green"
                       style={{ marginTop: 12, minWidth: '160px' }}
                       onClick={() => {
-                        router.push('https://app.outpostchess.com/online-list');
+                        window.location.href = "https://app.outpostchess.com/online-list";
                       }}
                     >
                       Lobby&nbsp;&nbsp;&nbsp;
