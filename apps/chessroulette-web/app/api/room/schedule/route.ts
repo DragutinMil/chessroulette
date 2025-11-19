@@ -19,7 +19,6 @@ export function GET(request: NextRequest) {
   if (!result.success) {
     return NextResponse.json(result.error, { status: 400 });
   }
-  console.log('route file', result);
   const activityParams = result.data;
   const roomId = activityParams.client.slice(0, 3) + getRandomStr(7);
 
