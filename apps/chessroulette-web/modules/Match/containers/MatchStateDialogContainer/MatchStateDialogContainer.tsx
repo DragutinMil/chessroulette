@@ -54,11 +54,14 @@ export const MatchStateDialogContainer: React.FC<Props> = (
   }, [match?.winner]);
   useEffect(() => {
     const result = checkUser();
+
     if (result == 'web') {
       setFromWeb(true);
     }
     if (result == 'outWeb') {
-      // router.push('https://app.outpostchess.com/online-list');
+      if (window.location.hostname !== 'localhost') {
+        router.push('https://app.outpostchess.com/online-list');
+      }
     }
     const url = new URL(window.location.href);
     const pathParts = window.location.pathname.split('/');
@@ -103,7 +106,7 @@ export const MatchStateDialogContainer: React.FC<Props> = (
   }
 
   // TODO: Here we should just check the match.status
-  //console.log('kirk)
+
   if (
     match?.winner &&
     (lastOffer?.type !== 'rematch' || lastOffer?.status !== 'pending')
