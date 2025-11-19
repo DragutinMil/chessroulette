@@ -5,7 +5,7 @@ export const socketUtil = {
   socket: null as Socket | null,
   subscribers: {} as Record<string, Array<(data: any) => void>>,
 
-  connect: async () => {
+  connect: async (type : 'available'|'playing'|'watching'|'reviewing') => {
     try {
       // Prvo pokušaj da uzmeš token iz cookie (mobile app)
       let token = Cookies.get('token');
@@ -24,10 +24,12 @@ export const socketUtil = {
           socketUtil.socket.on('connect', () => {
             console.log('Socket connected to outpost');
             socketUtil.socket?.emit('client_token', token);
+            socketUtil.socket?.emit('player_status', type);
           });
 
           socketUtil.socket.on('disconnect', () => {
             console.log('Socket disconnected');
+            socketUtil.socket?.emit('player_status', 'available');
           });
 
           socketUtil.socket.on('connect_error', (error) => {

@@ -16,7 +16,7 @@ import { PeerToPeerCameraWidget } from '../PeerToPeer';
 import { ChatWidget } from './widgets/ChatWidget';
 import { useCurrentOrPrevMatchPlay } from './Play/hooks';
 import { ButtonGreen } from '@app/components/Button/ButtonGreen';
-import socketUtil from './socketUtil';
+import socketUtil from '../../socketUtil';
 
 type Props = DistributivePick<
   PlayerContainerProps,
@@ -61,7 +61,7 @@ export const MatchContainer = ({
 
   useEffect(() => {
     // Poveži se na socket kada se uđe u partiju
-    socketUtil.connect();
+    socketUtil.connect('playing');
 
     // Cleanup: diskonektuj se kada se izađe iz partije
     return () => {
