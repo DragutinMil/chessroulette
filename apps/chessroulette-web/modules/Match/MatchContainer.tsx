@@ -61,14 +61,17 @@ export const MatchContainer = ({
 
   useEffect(() => {
     // Poveži se na socket kada se uđe u partiju
-    socketUtil.connect('playing');
+    if (match.challengee.id.length !== 16) {
+      socketUtil.connect('playing');
+    } else {
+      socketUtil.connect('available');
+    }
 
     // Cleanup: diskonektuj se kada se izađe iz partije
     return () => {
       socketUtil.disconnect();
     };
   }, []);
-
 
   useEffect(() => {
     localStorage.setItem('chessroulette-active-widget', activeWidget);
