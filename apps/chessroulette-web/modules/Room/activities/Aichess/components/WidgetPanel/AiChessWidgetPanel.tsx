@@ -820,10 +820,7 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
         });
         // addChessAi({
         //   mode: 'puzzle',
-        //   moves: ["a7a8",
-        //           "a7a8",
-        //            "e2f2",
-        //            "d3f3"],
+        //   moves: ["d7d8q", "g7g6"],
         //   movesCount:  2,
         //   badMoves: 0,
         //   goodMoves: 0,
@@ -833,7 +830,7 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
         //   ratingChange: 0,
         //   puzzleId: data.puzzle_id,
         //   prevUserPuzzleRating: userRating,
-        //   fen: "8/p7/8/1p6/1P1Q1p2/P6P/2kP2PK/4qq2 b - - 3 57",
+        //   fen:  "8/p2P1kp1/1pB2p2/4pKp1/7r/5R1P/PP6/8 w - - 1 44",
         //   responseId: '',
         //   message: '',
         // });
@@ -844,7 +841,7 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
         const to = data.solution[0].slice(2, 4);
         // const m = data.solution[0];
         setTimeout(() => setFreezeButton(false), 2000);
-        const chess = new Chess(currentChapterState.chessAiMode.fen);
+        const chess = new Chess(data.fen);
         const piece = chess.get(from);
         if (piece.type === 'p' && piece.color === 'w' && to[1] === '8') {
           const first_move = { from: from, to: to, promoteTo: 'Q' };

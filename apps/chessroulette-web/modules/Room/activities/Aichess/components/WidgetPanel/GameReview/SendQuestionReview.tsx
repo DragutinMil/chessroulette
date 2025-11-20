@@ -1,4 +1,3 @@
-
 import { ai_prompt } from '../../../util';
 import type { ChapterState } from '../../../movex/types';
 import type { EvaluationMove } from '../../../movex/types';
@@ -45,8 +44,7 @@ ${JSON.stringify(normalizedReview, null, 2)}
 
   console.log('question review', question);
 
-const data = await ai_prompt(question, previusMessageId, model)
- 
-  return data
- 
+  const data = await ai_prompt(question, previusMessageId, model);
+
+  return data;
 }

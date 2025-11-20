@@ -28,17 +28,23 @@ export const PlayContainer = (playBoardProps: PlayerContainerProps) => {
 
     // Advance the game to "idling" if the game is still in pending AND the User is the one of the players
     if (play.game.status === 'pending' && play.canUserPlay) {
-      dispatch((masterContext) => ({
-        type: 'play:start',
-        payload: {
-          at: masterContext.requestAt(),
-          // TODO: here might need to use challenger|challengee but for now it's ok
-          players: {
-            w: play.playersByColor.w.id,
-            b: play.playersByColor.b.id,
-          },
-        },
-      }));
+      const random = Math.floor(Math.random() * 1000) + 1;
+      setTimeout(
+        () =>
+          dispatch((masterContext) => ({
+            type: 'play:start',
+            payload: {
+              at: masterContext.requestAt(),
+              // TODO: here might need to use challenger|challengee but for now it's ok
+              players: {
+                w: play.playersByColor.w.id,
+                b: play.playersByColor.b.id,
+              },
+            },
+          })),
+
+        random
+      );
     }
   }, [play.game?.status, play.canUserPlay, dispatch]);
 
