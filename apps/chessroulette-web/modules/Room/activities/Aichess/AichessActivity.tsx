@@ -69,7 +69,7 @@ export const AichessActivity = ({
     findLoadedChapter(remoteState) || initialDefaultChapter;
 
   const tabsRef = useRef<TabsRef>(null);
-    useEffect(() => {
+  useEffect(() => {
     socketUtil.connect('reviewing');
     return () => {
       socketUtil.disconnect();

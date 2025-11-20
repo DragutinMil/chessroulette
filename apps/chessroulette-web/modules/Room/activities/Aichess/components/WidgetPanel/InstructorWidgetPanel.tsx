@@ -77,9 +77,6 @@ export const InstructorWidgetPanel = React.forwardRef<TabsRef, Props>(
       },
       [widgetPanelTabsNav.setTabIndex]
     );
-   
-
-    
 
     // Instructor
     return (

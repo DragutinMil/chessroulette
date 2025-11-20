@@ -5,12 +5,11 @@ export const socketUtil = {
   socket: null as Socket | null,
   subscribers: {} as Record<string, Array<(data: any) => void>>,
 
-  connect: async (type : 'available'|'playing'|'watching'|'reviewing') => {
-    console.log('type',type)
+  connect: async (type: 'available' | 'playing' | 'watching' | 'reviewing') => {
     try {
       // Prvo pokušaj da uzmeš token iz cookie (mobile app)
       let token = Cookies.get('token');
-      
+
       // Ako nema token cookie, pokušaj sa sessionToken (web)
       if (!token) {
         token = Cookies.get('sessionToken');
@@ -23,13 +22,13 @@ export const socketUtil = {
           });
 
           socketUtil.socket.on('connect', () => {
-            console.log('Socket connected to outpost');
+            // console.log('Socket connected to outpost');
             socketUtil.socket?.emit('client_token', token);
             socketUtil.socket?.emit('users_online_status', type);
           });
 
           socketUtil.socket.on('disconnect', () => {
-            console.log('Socket disconnected');
+            // console.log('Socket disconnected');
             socketUtil.socket?.emit('users_online_status', 'available');
           });
 
@@ -63,7 +62,7 @@ export const socketUtil = {
   on: (event: string, callback: (data: any) => void) => {
     if (socketUtil.socket) {
       socketUtil.socket.on(event, callback);
-      
+
       // Čuvamo subscriber za cleanup
       if (!socketUtil.subscribers[event]) {
         socketUtil.subscribers[event] = [];
