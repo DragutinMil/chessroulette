@@ -53,10 +53,10 @@ export const PlayDialog: React.FC<GameStateDialogProps> = ({
     // console.log('offersLastMatch',offersLastMatch)
     if (
       offersLastMatch &&
-      offersLastMatch[0].status === 'accepted' &&
-      offersLastMatch[0].type === 'rematch' &&
-      offersLastMatch[0].linkInitiator &&
-      offersLastMatch[0].linkTarget
+      offersLastMatch[0]?.status === 'accepted' &&
+      offersLastMatch[0]?.type === 'rematch' &&
+      offersLastMatch[0]?.linkInitiator &&
+      offersLastMatch[0]?.linkTarget
     ) {
       const url = new URL(window.location.href);
       const user_id = url.searchParams.get('userId');

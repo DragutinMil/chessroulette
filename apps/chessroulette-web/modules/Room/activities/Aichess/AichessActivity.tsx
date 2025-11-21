@@ -45,7 +45,9 @@ export const AichessActivity = ({
   const [newReview, setNewReview] = useState(false);
   const [playerNames, setPlayerNames] = useState(Array<string>);
   const [canFreePlay, setCanFreePlay] = useState(false);
-
+  const [puzzleCounter, setPuzzleCounter] = useState(0);
+  
+  
   const [userData, setUserData] = useState({
     name_first: '',
     name_last: '',
@@ -60,6 +62,7 @@ export const AichessActivity = ({
     inputReducer,
     initialInputState
   );
+ 
   const gameReview = (payload: chessAiMode) => {
     dispatch({
       type: 'loadedChapter:setPuzzleMoves',
@@ -152,6 +155,9 @@ export const AichessActivity = ({
     
     setCanFreePlay(canPlay)
   };
+  const handlePuzzleRequest = () => {
+     setPuzzleCounter(puzzleCounter +1)
+  }
 
   return (
     <ResizableDesktopLayout
@@ -227,6 +233,7 @@ export const AichessActivity = ({
                     })
                   )
                 }
+                newPuzzleRequest={handlePuzzleRequest}
                 canFreePlay={canFreePlay}
                 currentChapter={currentChapter}
               />
@@ -404,6 +411,7 @@ export const AichessActivity = ({
                 dispatch({ type: 'loadedChapter:writeMessage', payload })
               )
             }
+            puzzleCounter={puzzleCounter}
             onCanPlayChange={(payload) => onCanPlayChange(payload)}
             historyBackToStart={historyBackToStart}
             userData={userData}

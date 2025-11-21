@@ -37,8 +37,8 @@ export const puzzleRatingLevels = [
     title: '⚔️ Attacker',
     range: [1650, 1799],
     sublevels: [
-      { label: '⚔️ Attacker 1', start: 1650, end: 1655 },
-      { label: '⚔️ Attacker 2', start: 1656, end: 1749 },
+      { label: '⚔️ Attacker 1', start: 1650, end: 1699 },
+      { label: '⚔️ Attacker 2', start: 1700, end: 1749 },
       { label: '⚔️ Attacker 3', start: 1750, end: 1799 },
     ],
   },

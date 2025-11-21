@@ -23,6 +23,7 @@ type Props = {
   chaptersMapIndex: number;
   currentChapterState: ChapterState;
   historyBackToStart: () => void;
+  puzzleCounter:number;
   // Board
   onImport: PgnInputBoxProps['onChange'];
   onQuickImport: PgnInputBoxProps['onChange'];
@@ -74,6 +75,7 @@ export const WidgetPanel = React.forwardRef<TabsRef, Props>(
       onHistoryNotationDelete,
       onCircleDraw,
       onPuzzleMove,
+      puzzleCounter,
       onArrowsChange,
       onTakeBack,
       addChessAi,
@@ -111,6 +113,7 @@ export const WidgetPanel = React.forwardRef<TabsRef, Props>(
         chaptersMap={chaptersMap}
         chaptersMapIndex={chaptersMapIndex}
         showEngine={showEngine}
+        puzzleCounter={puzzleCounter}
         ref={tabsRef}
         {...chaptersTabProps}
       />
