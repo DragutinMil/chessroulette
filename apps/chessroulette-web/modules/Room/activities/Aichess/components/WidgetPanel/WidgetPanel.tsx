@@ -37,6 +37,7 @@ type Props = {
   onHistoryNotationDelete: FreeBoardNotationProps['onDelete'];
   addGameEvaluation: (score: number) => void;
   userData: UserData;
+  onCanPlayChange:(canPlay:boolean) => void;
   playerNames: Array<string>;
   // Mode
   isInstructor: boolean;
@@ -78,6 +79,7 @@ export const WidgetPanel = React.forwardRef<TabsRef, Props>(
       addChessAi,
       onMessage,
       onMove,
+      onCanPlayChange,
       playerNames,
       addGameEvaluation,
       userData,
@@ -101,6 +103,7 @@ export const WidgetPanel = React.forwardRef<TabsRef, Props>(
         onCircleDraw={onCircleDraw}
         onArrowsChange={onArrowsChange}
         onPuzzleMove={onPuzzleMove}
+        onCanPlayChange={onCanPlayChange}
         onMove={onMove}
         onTakeBack={onTakeBack}
         historyBackToStart={historyBackToStart}

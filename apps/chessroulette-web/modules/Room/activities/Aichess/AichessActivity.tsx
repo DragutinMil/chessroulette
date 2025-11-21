@@ -44,6 +44,7 @@ export const AichessActivity = ({
   const [cameraOff, setCameraOff] = useState(false);
   const [newReview, setNewReview] = useState(false);
   const [playerNames, setPlayerNames] = useState(Array<string>);
+  const [canFreePlay, setCanFreePlay] = useState(false);
 
   const [userData, setUserData] = useState({
     name_first: '',
@@ -147,6 +148,10 @@ export const AichessActivity = ({
       user_id: data.user_id,
     });
   };
+  const onCanPlayChange = (canPlay:boolean) => {
+    
+    setCanFreePlay(canPlay)
+  };
 
   return (
     <ResizableDesktopLayout
@@ -222,6 +227,7 @@ export const AichessActivity = ({
                     })
                   )
                 }
+                canFreePlay={canFreePlay}
                 currentChapter={currentChapter}
               />
               <div>
@@ -388,7 +394,7 @@ export const AichessActivity = ({
               );
             }}
             onArrowsChange={async (payload) => {
-              console.log('payload arr', payload);
+             // console.log('payload arr', payload);
               await enqueueMovexUpdate(() =>
                 dispatch({ type: 'loadedChapter:setArrows', payload })
               );
@@ -398,6 +404,7 @@ export const AichessActivity = ({
                 dispatch({ type: 'loadedChapter:writeMessage', payload })
               )
             }
+            onCanPlayChange={(payload) => onCanPlayChange(payload)}
             historyBackToStart={historyBackToStart}
             userData={userData}
             playerNames={playerNames}

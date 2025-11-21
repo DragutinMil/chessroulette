@@ -14,6 +14,7 @@ type AiChessDialogContainerProps = {
   currentChapter: any; // možeš zameniti `any` konkretnijim tipom kasnije
   addChessAi: (moves: chessAiMode) => void;
   onPuzzleMove: (move: MovePiece) => void;
+  canFreePlay:boolean;
   onMessage: (message: Message) => void;
   //onQuickImport: PgnInputBoxProps['onChange'];
 };
@@ -23,7 +24,9 @@ export const AiChessDialogContainer: React.FC<AiChessDialogContainerProps> = ({
   addChessAi,
   //onQuickImport,
   onMessage,
+  canFreePlay,
   onPuzzleMove,
+  
 }) => {
   const [removePopup, setRemovePopup] = useState(false);
   const play = async () => {
@@ -111,7 +114,7 @@ export const AiChessDialogContainer: React.FC<AiChessDialogContainerProps> = ({
       );
     }
   }, [currentChapter.chessAiMode.mode, removePopup]);
-
+ 
   if (
     (currentChapter.chessAiMode.mode == 'popup' ||
       currentChapter.chessAiMode.mode == 'checkmate') &&
@@ -122,7 +125,7 @@ export const AiChessDialogContainer: React.FC<AiChessDialogContainerProps> = ({
         // title="You finished the puzzle!"
         title={
           currentChapter.chessAiMode.mode === 'checkmate' ? (
-            <span className="text-green-400 font-bold animate-pulse">
+            <span className="text-green-400  font-bold animate-pulse">
               Checkmate!
             </span>
           ) : (
@@ -130,7 +133,7 @@ export const AiChessDialogContainer: React.FC<AiChessDialogContainerProps> = ({
           )
         }
         content={
-          <div className="flex flex-col px-4 py-2 items-center">
+          <div className="flex flex-col px-4 py-2 items-center backgroung-[#272727]">
             <ButtonGreen
               size="lg"
               className=" w-full text-[16px] h-[44px] rounded-[22px] "
@@ -146,11 +149,12 @@ export const AiChessDialogContainer: React.FC<AiChessDialogContainerProps> = ({
               size="lg"
               className="w-full text-[16px] h-[44px] rounded-[22px] "
               style={{ marginTop: 20 }}
+              disabled={canFreePlay==false}
               onClick={() => {
                 play();
               }}
             >
-              ♟️ Free Play
+              ♟️ Free Play {canFreePlay}
             </ButtonGreen>
 
             <ButtonGreen

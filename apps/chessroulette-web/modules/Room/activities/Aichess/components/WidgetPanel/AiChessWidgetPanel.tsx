@@ -73,7 +73,10 @@ type Props = {
   onHistoryNotationDelete: FreeBoardNotationProps['onDelete'];
   addGameEvaluation: (score: number) => void;
   historyBackToStart: () => void;
+  onCanPlayChange:(canPlay:boolean) => void;
   userData: UserData;
+
+  
 
   // Engine
   showEngine?: boolean;
@@ -99,6 +102,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
       currentLoadedChapterId,
       currentChapterState,
       // engine,
+      onCanPlayChange,
       playerNames,
       showEngine,
       onImport,
@@ -133,6 +137,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
     const [freezeButton, setFreezeButton] = useState(false);
     const [scoreCP, setScoreCP] = useState(0);
     const [prevScoreCP, setprevScoreCP] = useState(0);
+    
     const smallMobile =
       typeof window !== 'undefined' && window.innerWidth < 400;
     const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
@@ -605,6 +610,14 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
       setCurrentRatingEngine(rating);
     };
     const engineMove = (m: any, n?: boolean) => {
+      //if engine dont have move, play mod is disabled
+      if(m==='(none)'){
+         onCanPlayChange(false)
+      }else{
+         onCanPlayChange(true)
+      }
+  
+      
       setStockfishMovesInfo(m);
       let fromChess = m.slice(0, 2);
       let toChess = m.slice(2, 4);
@@ -1151,7 +1164,7 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
                                   currentChapterState.notation.focusedIndex[1])
                             }
                             size="sm"
-                            className={`${
+                            className={`${ 
                               takeBakeShake ? 'animate-shake' : ''
                             } md:max-w-[92px] max-w-[80px]`}
                             style={{
