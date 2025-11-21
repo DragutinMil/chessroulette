@@ -13,12 +13,9 @@ type Props = {
   pulseDot: boolean;
   userData: UserData;
   progressReview: number;
-  reviewData: EvaluationMove[];
   analizeMatch: () => void;
   openViewSubscription: () => void;
   smallMobile: boolean;
-  hint: () => void;
-  onSelectPuzzle: (category: string) => void;
 };
 //console.log('currentChapterState',currentChapterState)
 
@@ -29,10 +26,7 @@ const ConversationReview = ({
   progressReview,
   analizeMatch,
   openViewSubscription,
-  reviewData,
   smallMobile,
-  hint,
-  onSelectPuzzle,
 }: Props) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [disableButton, setDisableButton] = useState(false);

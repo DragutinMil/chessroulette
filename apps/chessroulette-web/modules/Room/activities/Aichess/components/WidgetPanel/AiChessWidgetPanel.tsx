@@ -73,7 +73,10 @@ type Props = {
   onHistoryNotationDelete: FreeBoardNotationProps['onDelete'];
   addGameEvaluation: (score: number) => void;
   historyBackToStart: () => void;
+  onCanPlayChange:(canPlay:boolean) => void;
   userData: UserData;
+puzzleCounter:number;
+  
 
   // Engine
   showEngine?: boolean;
@@ -99,12 +102,14 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
       currentLoadedChapterId,
       currentChapterState,
       // engine,
+      onCanPlayChange,
       playerNames,
       showEngine,
       onImport,
       onTakeBack,
       onCircleDraw,
       onArrowsChange,
+      puzzleCounter,
       onPuzzleMove,
       onMove,
       addChessAi,
@@ -133,6 +138,9 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
     const [freezeButton, setFreezeButton] = useState(false);
     const [scoreCP, setScoreCP] = useState(0);
     const [prevScoreCP, setprevScoreCP] = useState(0);
+     const [categortyPrefered, setCategortyPrefered] = useState('');
+    
+    
     const smallMobile =
       typeof window !== 'undefined' && window.innerWidth < 400;
     const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
@@ -146,6 +154,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
     const lastClick = useRef(0);
     const [percentW, setPercentW] = useState(50);
     const [percentB, setPercentB] = useState(50);
+     const [preferedCategory, setPreferedCategory] = useState('');
 
     const [moveSan, setMoveSan] = useState('');
     const [stockfishMovesInfo, setStockfishMovesInfo] = useState('');
@@ -274,7 +283,7 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
         }
       }
     };
-
+    
     const addQuestion = async (question: string) => {
       const url = new URL(window.location.href);
       const userId = url.searchParams.get('userId');
@@ -337,6 +346,13 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
         // });
       }
     };
+
+ useEffect(() => {
+     if(puzzleCounter!==0){
+          puzzles()
+     }
+   }, [puzzleCounter]);
+
     useEffect(() => {
       if (prevScoreCP !== 0) {
         const probability = async () => {
@@ -605,6 +621,14 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
       setCurrentRatingEngine(rating);
     };
     const engineMove = (m: any, n?: boolean) => {
+      //if engine dont have move, play mod is disabled
+      if(m==='(none)'){
+         onCanPlayChange(false)
+      }else{
+         onCanPlayChange(true)
+      }
+  
+      
       setStockfishMovesInfo(m);
       let fromChess = m.slice(0, 2);
       let toChess = m.slice(2, 4);
@@ -752,9 +776,16 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
       });
     };
     const puzzles = async (category?: string) => {
+      
       setFreezeButton(true);
       const now = Date.now();
+      if(category){
+        setCategortyPrefered(category)
+      }else if( categortyPrefered!==''){
+        category = categortyPrefered
+      }
 
+      console.log('lkategorija',category)
       if (now - lastClick.current < 500) return; // ignoriši dvoklik unutar 0.5s
       lastClick.current = now;
 
@@ -1151,7 +1182,7 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
                                   currentChapterState.notation.focusedIndex[1])
                             }
                             size="sm"
-                            className={`${
+                            className={`${ 
                               takeBakeShake ? 'animate-shake' : ''
                             } md:max-w-[92px] max-w-[80px]`}
                             style={{
@@ -1184,12 +1215,9 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
                           analizeMatch={analizeMatch}
                           openViewSubscription={openViewSubscription}
                           smallMobile={smallMobile}
-                          reviewData={reviewData}
                           progressReview={progressReview}
                           currentChapterState={currentChapterState}
-                          onSelectPuzzle={puzzles}
                           pulseDot={pulseDot}
-                          hint={hint}
                           userData={userData}
                         />
 
