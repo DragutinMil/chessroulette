@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import type { chessAiMode } from '../../movex/types';
 import styles from './css/aichessStyle.module.css';
-
+import confetti from 'canvas-confetti';
 type Props = {
   chessAiMode: chessAiMode;
 };
@@ -126,13 +126,17 @@ export const puzzleRatingLevels = [
 ];
 
 //console.log('currentChapterState',currentChapterState)
+
 const PuzzleScore = ({ chessAiMode }: Props) => {
+   const componentRef = useRef<HTMLDivElement>(null);
   const [value, setValue] = useState(chessAiMode.userPuzzleRating ?? 0);
   const [flipping, setFlipping] = useState<boolean>(false);
   const [change, setChange] = useState<number>(0);
   const [previousValue, setPreviousValue] = useState<number>(value);
   const [showChange, setShowChange] = useState(false);
-  //const [percentage, setPercentage] = useState<number>(0);
+  const [animateLabel, setAnimateLabel] = useState(false);
+  const [prevLabel, setPrevLabel] = useState<string | null>(null);
+
   useEffect(() => {
     if (chessAiMode.userPuzzleRating) {
       setChange(chessAiMode.ratingChange);
@@ -152,6 +156,8 @@ const PuzzleScore = ({ chessAiMode }: Props) => {
       return () => clearTimeout(timeout);
     }
   }, [value, previousValue]);
+
+  
 
   //   const prevLavel = 1200
   //   const nextLavelGap = 150;
@@ -173,16 +179,113 @@ const PuzzleScore = ({ chessAiMode }: Props) => {
         (currentSublevel.end - currentSublevel.start)) *
       100
     : 0;
-  //console.log(value,'kik',currentSublevel, 'rik',percentage)
-  return (
-    <div>
+
+ 
+useEffect(() => {
+  
+  if (!componentRef.current) return;
+ 
+
+
+  
+  if (!currentSublevel?.label ) return;
+  if (prevLabel === null) {
+    setPrevLabel(currentSublevel.label);
+    return;
+  }
+  if (prevLabel === currentSublevel.label) return;
+
+  const prev = Number(prevLabel?.slice(-1));
+const curr = Number(currentSublevel?.label.slice(-1));
+
+const validTransitions: Record<number, number[]> = {
+  1: [2],   
+  2: [3],       
+  3: [1],      
+};
+if (validTransitions[prev]?.includes(curr)) {
+  
+  const rect = componentRef.current.getBoundingClientRect();
+    const x = (rect.left + rect.width / 2) / window.innerWidth;
+    const y = (rect.top + rect.height / 2) / window.innerHeight;
+    confetti({
+      startVelocity: 15,
+      particleCount: 30,
+      spread: 360,
+      origin: { x, y },
+    });
+ setAnimateLabel(true);
+  setPrevLabel(currentSublevel.label);
+  const t = setTimeout(() => {
+    setAnimateLabel(false);
+  }, 2000);
+  
+  return () => clearTimeout(t);
+}else{
+  setPrevLabel(currentSublevel.label);
+}
+}, [currentSublevel?.label]);
+
+
+return (
+    <div ref={componentRef} >
+      <style>
+{`
+  /* Label intense blink + scale */
+  @keyframes sublevelBlinkStrong {
+  0%   { transform: scale(1);    opacity: 1;   }
+  12%  { transform: scale(1.25); opacity: 0.75; }
+  28%  { transform: scale(1.14); opacity: 1;    }
+  44%  { transform: scale(1.30); opacity: 0.82; }
+  60%  { transform: scale(1.17); opacity: 1;    }
+  72%  { transform: scale(1.22); opacity: 0.9;  }
+  84%  { transform: scale(1.10); opacity: 1;    }
+  92%  { transform: scale(1.17); opacity: 0.85; }
+  100% { transform: scale(1);    opacity: 1;    }
+}
+
+  .animate-sublevel-blink-strong {
+    animation: sublevelBlinkStrong 2s ease-out;
+  }
+
+  /* Whole component "burn" pulse */
+  @keyframes firePulse {
+    0% {
+      box-shadow: 0 0 0px rgba(7, 218, 99, 0.0);
+      background-color: rgba(7, 218, 99, 0.1);
+    }
+    30% {
+      box-shadow: 0 0 22px rgba(7, 218, 99, 0.45);
+      background-color: rgba(7, 218, 99, 0.2);
+    }
+    60% {
+      box-shadow: 0 0 35px rgba(7, 218, 99, 0.55);
+      background-color: rgba(7, 218, 99, 0.3);
+    }
+    100% {
+      box-shadow: 0 0 0px rgba(7, 218, 99, 0.0);
+      background-color: rgba(7, 218, 99, 0.1);
+    }
+  }
+
+  .animate-fire-pulse {
+    animation: firePulse  1.2s ease-out;
+  }
+`}
+</style>
       {/* {value > 0 && ( */}
-      <div className="rounded-lg  mb-1 mt-1 md:px-4 md:pb-4 px-2 pb-2 pt-2 border border-conversation-100 bg-[#01210B]">
-        <div className="md:flex hidden justify-between ">
-          <div className="text-[10px] font-bold text-[#8F8F90] mb-1">
+      <div className={`rounded-lg mb-1 mt-1 md:px-4 md:pb-4 px-2 pb-2 pt-2 border border-conversation-100 bg-[#01210B]
+    ${animateLabel ? "animate-fire-pulse" : ""}
+  `}>
+        <div className="flex justify-between ">
+          <div className="text-[10px] font-bold text-[#8F8F90] mb-1 relative">
+                {animateLabel && (
+    <span className="text-red-400 text-[16px] animate-sublevel-blink-strong absolute bottom-[-3px] left-12">🔥</span>
+  )}
             RATING
           </div>
-          <div className=" text-[10px] font-bold text-[#8F8F90] mb-1">
+          <div className=" text-[10px] font-bold text-[#8F8F90] mb-1 ">
+        
             LEVEL
           </div>
         </div>
@@ -210,7 +313,10 @@ const PuzzleScore = ({ chessAiMode }: Props) => {
                   </span>
                 ))}
             </div>
-            <span className=" flex items-center justify-center font-bold text-green-400 md:text-lg  text-base ">
+            <span
+            
+             className={`flex items-center justify-center font-bold text-green-400 md:text-lg text-base  
+    ${animateLabel ? "animate-sublevel-blink-strong" : ""}`}>
               {currentSublevel?.label}
             </span>
           </div>
@@ -227,5 +333,5 @@ const PuzzleScore = ({ chessAiMode }: Props) => {
     </div>
   );
 };
-
+ 
 export default PuzzleScore;

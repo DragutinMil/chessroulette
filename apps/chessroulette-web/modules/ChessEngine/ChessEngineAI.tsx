@@ -270,7 +270,7 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
 
   useEffect(() => {
     let m = bestMove;
-    // console.log('rokni',m);
+    
     if (!isMyTurn && bestMove && !puzzleMode && playMode) {
       engineMove(m);
     } else {
