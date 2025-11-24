@@ -144,6 +144,21 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
     onSquareClickOrDrag: resetArrowsAndCircles,
   });
 
+  // Handle promotion submission - if it's from a premove, update the premove with promoteTo
+//  const handlePromoSubmit = useCallback((move: ShortChessMove) => {
+    // Check if this promotion is from a premove
+    // We need to check if there's a matching incomplete premove
+//    if (preMove && preMove.from === move.from && preMove.to === move.to && !preMove.promoteTo) {
+      // This is a premove promotion - we need to update the premove with promoteTo
+      // But we can't directly update it here, so we'll execute the move directly
+      // The premove will be cleared when executed
+//      onMove(move);
+//    } else {
+      // Regular promotion move
+//      onMove(move);
+//    }
+//  }, [preMove, onMove]);
+
   // Styles
   const customStyles = useCustomStyles({
     boardTheme,
@@ -195,7 +210,7 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
         // Promo Move
         promoMove={promoMove}
         onCancelPromoMove={moveActions.onClearPromoMove}
-        onSubmitPromoMove={onMove}
+        onSubmitPromoMove={moveActions.onPromoSubmit}
         // Overlay & Right Components
         rightSideClassName={rightSideClassName}
         rightSideComponent={rightSideComponent}
