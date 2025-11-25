@@ -47,6 +47,7 @@ export type ChessboardContainerProps = Omit<
   onArrowsChange?: (arrows: ArrowsMap) => void;
   onCircleDraw?: (circleTuple: CircleDrawTuple) => void;
   onClearCircles?: () => void;
+  onLastMoveWasPromotionChange?: (wasPromotion: boolean) => void;
 
   overlayComponent?: React.ReactNode;
 } & (
@@ -84,6 +85,7 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
   onPieceDrop,
   onMove,
   onValidateMove = () => true, // Defaults to always be able to move
+  onLastMoveWasPromotionChange, 
   boardOrientation = 'w',
   customSquareStyles,
   rightSideComponent,
@@ -132,7 +134,7 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
   };
 
   // Moves
-  const { preMove, promoMove, pendingMove, ...moveActions } = useMoves({
+  const { preMove, promoMove, pendingMove, lastMoveWasPromotion,...moveActions } = useMoves({
     playingColor: boardOrientation,
     isMyTurn,
     premoveAnimationDelay: BOARD_ANIMATION_DELAY + 1,
@@ -143,6 +145,10 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
     // Event to reset the circles and arrows when any square is clicked or dragged
     onSquareClickOrDrag: resetArrowsAndCircles,
   });
+
+  useEffect(() => {
+    onLastMoveWasPromotionChange?.(lastMoveWasPromotion);
+  }, [lastMoveWasPromotion, onLastMoveWasPromotionChange]);
 
   // Handle promotion submission - if it's from a premove, update the premove with promoteTo
 //  const handlePromoSubmit = useCallback((move: ShortChessMove) => {

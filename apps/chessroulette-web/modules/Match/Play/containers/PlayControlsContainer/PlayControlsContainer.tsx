@@ -2,11 +2,25 @@ import { PlayControls } from './PlayControls';
 import { useCurrentOrPrevMatchPlay, usePlayActionsDispatch } from '../../hooks';
 import { PENDING_UNTIMED_GAME } from '@app/modules/Game';
 import { cons } from 'fp-ts/lib/ReadonlyNonEmptyArray';
+import { useState, useRef, useEffect } from 'react';
+
+const lastMoveWasPromotionCallbacks = new Set<(value: boolean) => void>();
 
 export const PlayControlsContainer = () => {
   const dispatch = usePlayActionsDispatch();
   const { lastOffer, game, playersBySide, hasGame } =
     useCurrentOrPrevMatchPlay();
+  const [lastMoveWasPromotion, setLastMoveWasPromotion] = useState(false);
+ 
+  useEffect(() => {
+    // Dodajte callback u set
+    lastMoveWasPromotionCallbacks.add(setLastMoveWasPromotion);
+    
+    // Cleanup kada se komponenta unmount-uje
+    return () => {
+      lastMoveWasPromotionCallbacks.delete(setLastMoveWasPromotion);
+    };
+  }, []);
 
   if (!hasGame) {
     return <>WARN| Play Controls Container No Game</>;
@@ -16,6 +30,7 @@ export const PlayControlsContainer = () => {
     <PlayControls
       homeColor={playersBySide.home.color}
       playerId={playersBySide.home.id}
+      lastMoveWasPromotion={lastMoveWasPromotion}
       onDrawOffer={() => {
         dispatch({
           type: 'play:sendOffer',

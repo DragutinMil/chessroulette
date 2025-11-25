@@ -23,6 +23,7 @@ type MoveActions = {
   promoMove: ShortChessMove | undefined;
   preMove: ChessboardPreMove | undefined;
   pendingMove: ChessBoardPendingMove | undefined;
+  lastMoveWasPromotion: boolean;
 };
 
 type PlayerPendingMove = {
@@ -71,6 +72,8 @@ export const useMoves = ({
 
   const [promoMove, setPromoMove] = useState<ShortChessMove>();
   const [isPromoFromPreMove, setIsPromoFromPreMove] = useState(false);  // Dodaj ovu liniju
+
+  const [lastMoveWasPromotion, setLastMoveWasPromotion] = useState(false); // Dodajte ovo
 
   //const [premoveAnimationDelay] = useState(300);
   // pre move
@@ -384,7 +387,7 @@ export const useMoves = ({
   const onMoveIfValid = (m: ShortChessMove): Result<void, void> => {
     if (onValidateMove(m)) {
       onMove(m);
-
+      setLastMoveWasPromotion(false);
       return Ok.EMPTY;
     }
 
@@ -498,6 +501,7 @@ export const useMoves = ({
       setPromoMove(undefined);
       setIsPromoFromPreMove(false); 
     },
+    lastMoveWasPromotion,
     onClearPromoMove: () => 
     {setPromoMove(undefined),
     setIsPromoFromPreMove(false); 

@@ -11,6 +11,7 @@ type Props = {
   homeColor: ChessColor;
   playerId: string;
   lastOffer?: GameOffer;
+  lastMoveWasPromotion?: boolean;
   onDrawOffer: () => void;
   onTakebackOffer: () => void;
   onResign: () => void;
@@ -26,6 +27,7 @@ export const PlayControls: React.FC<Props> = ({
   playerId,
   game,
   lastOffer,
+  lastMoveWasPromotion = false,
 }) => {
   const { offers: offers = [] } = game;
   const { match, ...matchView } = useMatchViewState();
@@ -65,6 +67,7 @@ export const PlayControls: React.FC<Props> = ({
     if (lastOffer?.status === 'pending' || offerAlreadySent.current)
       return false;
 
+    if (lastMoveWasPromotion) return false;
     const hasAcceptedTakeback = offers.some(
       (offer) =>
         offer.byPlayer === playerId &&
