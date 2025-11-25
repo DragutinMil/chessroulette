@@ -61,13 +61,39 @@ export const PlayControls: React.FC<Props> = ({
   const takebackCount = offerCounters?.takeback?.[playerId] ?? 0;
   const drawCount = offerCounters?.draw?.[playerId] ?? 0;
 
+  // Helper function to check if the last move in PGN was a promotion
+  const isLastMovePromotion = (pgn: string): boolean => {
+    if (!pgn || pgn.length === 0) return false;
+    
+    // Split PGN into tokens and filter out move numbers and game results
+    const tokens = pgn
+      .split(/\s+/)
+      .filter(
+        (token) =>
+          !/^\d+\.$/.test(token) && !/^(1-0|0-1|1\/2-1\/2|\*)$/.test(token)
+      );
+    
+    if (tokens.length === 0) return false;
+    
+    // Get the last move token
+    const lastMove = tokens[tokens.length - 1];
+    
+    // Check if it contains "=" which indicates a promotion (e.g., "e8=Q", "h1=Q+")
+    return lastMove.includes('=');
+  };
+
   const calculateTakebackStatus = () => {
     if (isBullet) return false;
     if (game.lastMoveBy !== homeColor) return false;
     if (lastOffer?.status === 'pending' || offerAlreadySent.current)
       return false;
 
-    if (lastMoveWasPromotion) return false;
+    // Check if the last move was a promotion AND it was made by the current player
+    const lastMoveWasPromotionByCurrentPlayer = 
+      isLastMovePromotion(game.pgn) && game.lastMoveBy === homeColor;
+    
+    if (lastMoveWasPromotionByCurrentPlayer) return false;
+    
     const hasAcceptedTakeback = offers.some(
       (offer) =>
         offer.byPlayer === playerId &&
@@ -119,7 +145,7 @@ export const PlayControls: React.FC<Props> = ({
     //TODO - can optimize this function with useCallback and pass parameters the gameState
     refreshAllowTakeback(calculateTakebackStatus());
     refreshAllowDraw(calculateDrawStatus());
-  }, [game.status, offers, game.lastMoveBy]);
+  }, [game.status, offers, game.lastMoveBy, game.pgn]); // Add game.pgn to dependencies
 
   return (
     <div className="flex gap-2">
