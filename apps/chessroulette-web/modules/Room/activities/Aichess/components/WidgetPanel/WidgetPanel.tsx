@@ -23,7 +23,7 @@ type Props = {
   chaptersMapIndex: number;
   currentChapterState: ChapterState;
   historyBackToStart: () => void;
-  puzzleCounter:number;
+  puzzleCounter: number;
   // Board
   onImport: PgnInputBoxProps['onChange'];
   onQuickImport: PgnInputBoxProps['onChange'];
@@ -38,7 +38,7 @@ type Props = {
   onHistoryNotationDelete: FreeBoardNotationProps['onDelete'];
   addGameEvaluation: (score: number) => void;
   userData: UserData;
-  onCanPlayChange:(canPlay:boolean) => void;
+  onCanPlayChange: (canPlay: boolean) => void;
   playerNames: Array<string>;
   // Mode
   isInstructor: boolean;
