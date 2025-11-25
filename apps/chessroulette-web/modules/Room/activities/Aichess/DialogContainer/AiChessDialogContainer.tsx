@@ -8,14 +8,13 @@ import { ChessFENBoard } from '@xmatter/util-kit';
 import { chessAiMode, MovePiece, Message } from '../movex';
 import { PgnInputBoxProps } from '@app/components/PgnInputBox/PgnInputBox';
 import { ButtonGreen } from '@app/components/Button/ButtonGreen';
-import { SendQuestionPuzzle } from '../components/WidgetPanel/SendQuestionPuzzle';
 
 type AiChessDialogContainerProps = {
   currentChapter: any; // možeš zameniti `any` konkretnijim tipom kasnije
   addChessAi: (moves: chessAiMode) => void;
   onPuzzleMove: (move: MovePiece) => void;
-  canFreePlay:boolean;
-  newPuzzleRequest:() => void; 
+  canFreePlay: boolean;
+  newPuzzleRequest: () => void;
   onMessage: (message: Message) => void;
   //onQuickImport: PgnInputBoxProps['onChange'];
 };
@@ -28,7 +27,6 @@ export const AiChessDialogContainer: React.FC<AiChessDialogContainerProps> = ({
   onMessage,
   canFreePlay,
   onPuzzleMove,
-  
 }) => {
   const [removePopup, setRemovePopup] = useState(false);
   const play = async () => {
@@ -49,7 +47,7 @@ export const AiChessDialogContainer: React.FC<AiChessDialogContainerProps> = ({
       message: '',
     });
   };
- 
+
   useEffect(() => {
     if (currentChapter.chessAiMode.mode === 'popup' && !removePopup) {
       confetti({
@@ -65,7 +63,7 @@ export const AiChessDialogContainer: React.FC<AiChessDialogContainerProps> = ({
       );
     }
   }, [currentChapter.chessAiMode.mode, removePopup]);
- 
+
   if (
     (currentChapter.chessAiMode.mode == 'popup' ||
       currentChapter.chessAiMode.mode == 'checkmate') &&
@@ -100,7 +98,7 @@ export const AiChessDialogContainer: React.FC<AiChessDialogContainerProps> = ({
               size="lg"
               className="w-full text-[16px] h-[44px] rounded-[22px] "
               style={{ marginTop: 20 }}
-              disabled={canFreePlay==false}
+              disabled={canFreePlay == false}
               onClick={() => {
                 play();
               }}

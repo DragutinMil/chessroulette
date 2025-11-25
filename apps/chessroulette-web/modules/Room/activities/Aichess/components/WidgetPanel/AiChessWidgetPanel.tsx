@@ -73,10 +73,9 @@ type Props = {
   onHistoryNotationDelete: FreeBoardNotationProps['onDelete'];
   addGameEvaluation: (score: number) => void;
   historyBackToStart: () => void;
-  onCanPlayChange:(canPlay:boolean) => void;
+  onCanPlayChange: (canPlay: boolean) => void;
   userData: UserData;
-puzzleCounter:number;
-  
+  puzzleCounter: number;
 
   // Engine
   showEngine?: boolean;
@@ -138,9 +137,8 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
     const [freezeButton, setFreezeButton] = useState(false);
     const [scoreCP, setScoreCP] = useState(0);
     const [prevScoreCP, setprevScoreCP] = useState(0);
-     const [categortyPrefered, setCategortyPrefered] = useState('');
-    
-    
+    const [categortyPrefered, setCategortyPrefered] = useState('');
+
     const smallMobile =
       typeof window !== 'undefined' && window.innerWidth < 400;
     const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
@@ -154,7 +152,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
     const lastClick = useRef(0);
     const [percentW, setPercentW] = useState(50);
     const [percentB, setPercentB] = useState(50);
-     const [preferedCategory, setPreferedCategory] = useState('');
+    const [preferedCategory, setPreferedCategory] = useState('');
 
     const [moveSan, setMoveSan] = useState('');
     const [stockfishMovesInfo, setStockfishMovesInfo] = useState('');
@@ -283,7 +281,7 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
         }
       }
     };
-    
+
     const addQuestion = async (question: string) => {
       const url = new URL(window.location.href);
       const userId = url.searchParams.get('userId');
@@ -347,11 +345,11 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
       }
     };
 
- useEffect(() => {
-     if(puzzleCounter!==0){
-          puzzles()
-     }
-   }, [puzzleCounter]);
+    useEffect(() => {
+      if (puzzleCounter !== 0) {
+        puzzles();
+      }
+    }, [puzzleCounter]);
 
     useEffect(() => {
       if (prevScoreCP !== 0) {
@@ -476,38 +474,38 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
         setTimeoutEnginePlay(true);
       }
     }, [currentChapterState.chessAiMode.mode]);
-    useEffect(() => {
-      if (
-        currentChapterState.chessAiMode.puzzleId == -1 &&
-        !currentChapterState.messages[
-          currentChapterState.messages.length - 1
-        ].participantId.includes('sales')
-      ) {
-        setPulseDot(true);
+    // useEffect(() => {
+    //   if (
+    //     currentChapterState.chessAiMode.puzzleId == -1 &&
+    //     !currentChapterState.messages[
+    //       currentChapterState.messages.length - 1
+    //     ].participantId.includes('sales')
+    //   ) {
+    //     setPulseDot(true);
 
-        const limitQuestion = async () => {
-          const question =
-            'Daily limit reached. Explane what to do to continue play puzzle';
-          const data = await SendQuestionPuzzle(
-            question,
-            scoreCP,
-            currentChapterState,
-            stockfishMovesInfo,
-            lines[1],
-            currentRatingEngine
-          );
-          if (data) {
-            setPulseDot(false);
-          }
-          onMessage({
-            content: data.answer.text,
-            participantId: 'chatGPT123456sales',
-            idResponse: data.id,
-          });
-        };
-        limitQuestion();
-      }
-    }, [currentChapterState.chessAiMode.puzzleId]);
+    //     const limitQuestion = async () => {
+    //       const question =
+    //         'Daily limit reached. Explane what to do to continue play puzzle';
+    //       const data = await SendQuestionPuzzle(
+    //         question,
+    //         scoreCP,
+    //         currentChapterState,
+    //         stockfishMovesInfo,
+    //         lines[1],
+    //         currentRatingEngine
+    //       );
+    //       if (data) {
+    //         setPulseDot(false);
+    //       }
+    //       onMessage({
+    //         content: data.answer.text,
+    //         participantId: 'chatGPT123456sales',
+    //         idResponse: data.id,
+    //       });
+    //     };
+    //     limitQuestion();
+    //   }
+    // }, [currentChapterState.chessAiMode.puzzleId]);
 
     useEffect(() => {
       if (
@@ -622,13 +620,12 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
     };
     const engineMove = (m: any, n?: boolean) => {
       //if engine dont have move, play mod is disabled
-      if(m==='(none)'){
-         onCanPlayChange(false)
-      }else{
-         onCanPlayChange(true)
+      if (m === '(none)') {
+        onCanPlayChange(false);
+      } else {
+        onCanPlayChange(true);
       }
-  
-      
+
       setStockfishMovesInfo(m);
       let fromChess = m.slice(0, 2);
       let toChess = m.slice(2, 4);
@@ -776,16 +773,14 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
       });
     };
     const puzzles = async (category?: string) => {
-      
       setFreezeButton(true);
       const now = Date.now();
-      if(category){
-        setCategortyPrefered(category)
-      }else if( categortyPrefered!==''){
-        category = categortyPrefered
+      if (category) {
+        setCategortyPrefered(category);
+      } else if (categortyPrefered !== '') {
+        category = categortyPrefered;
       }
 
-      console.log('lkategorija',category)
       if (now - lastClick.current < 500) return; // ignoriši dvoklik unutar 0.5s
       lastClick.current = now;
 
@@ -796,6 +791,12 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
             currentChapterState.messages.length - 1
           ].participantId.includes('sales')
         ) {
+          addChessAi({
+            ...currentChapterState.chessAiMode,
+            mode: 'puzzle',
+            puzzleId: -1,
+          });
+
           setTimeout(() => {
             setPulseDot(true);
           }, 500);
@@ -812,11 +813,27 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
           if (data) {
             setPulseDot(false);
           }
-          onMessage({
-            content: data.answer.text,
-            participantId: 'chatGPT123456sales',
-            idResponse: data.id,
-          });
+
+          if (data == 'ai_daily_limit_reached') {
+            onMessage({
+              content: `You’ve reached today’s puzzle limit! ♟️
+But your next great move is just one click away — start your 7-day free trial today (cancel anytime).
+
+With Starter, you’ll unlock Game Review, unlimited AI puzzles, free play, and an interactive chat with your personal chess trainer.
+
+Exactly what you need to level up your strategy and sharpen your game every day.
+
+Your opening move to mastering chess begins now — make it count! 🚀`,
+              participantId: 'chatGPT123456sales',
+              idResponse: '',
+            });
+          } else if (data?.answer?.text) {
+            onMessage({
+              content: data.answer.text,
+              participantId: 'chatGPT123456sales',
+              idResponse: data.id,
+            });
+          }
         }
         setTimeout(() => setFreezeButton(false), 2000);
       }
@@ -1182,7 +1199,7 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
                                   currentChapterState.notation.focusedIndex[1])
                             }
                             size="sm"
-                            className={`${ 
+                            className={`${
                               takeBakeShake ? 'animate-shake' : ''
                             } md:max-w-[92px] max-w-[80px]`}
                             style={{
@@ -1239,55 +1256,56 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
                       </div>
                     )}
                     {(currentChapterState.chessAiMode.mode !== 'review' ||
-                      reviewData?.length !== 0) &&
-                      (!currentChapterState.messages[
-                        currentChapterState.messages.length - 1
-                      ]?.participantId.includes('sales') ||
-                        (currentChapterState.messages[
-                          currentChapterState.messages.length - 1
-                        ]?.participantId.includes('sales') &&
-                          currentChapterState.chessAiMode.mode ==
-                            'review')) && (
-                        <div className="flex mb-2 mt-2 md:mt-0">
-                          <input
-                            id="title"
-                            type="text"
-                            name="tags"
-                            placeholder="Start chessiness..."
-                            value={question}
-                            style={{
-                              boxShadow: '0px 0px 10px 0px #07DA6380',
-                            }}
-                            // className="w-full my-2 text-sm rounded-md border-slate-500 focus:border-slate-400 border border-transparent block bg-slate-600 text-white block py-1 px-2"
-                            className="w-full text-sm rounded-[20px] border  border-conversation-100 bg-[#111111]/40 text-white 
+                      reviewData?.length !== 0) && (
+                      //  &&
+                      // (!currentChapterState.messages[
+                      //   currentChapterState.messages.length - 1
+                      // ]?.participantId.includes('sales') ||
+                      //   (currentChapterState.messages[
+                      //     currentChapterState.messages.length - 1
+                      //   ]?.participantId.includes('sales') &&
+                      //     currentChapterState.chessAiMode.mode ==
+                      //       'review'))
+                      <div className="flex mb-2 mt-2 md:mt-0">
+                        <input
+                          id="title"
+                          type="text"
+                          name="tags"
+                          placeholder="Start chessiness..."
+                          value={question}
+                          style={{
+                            boxShadow: '0px 0px 10px 0px #07DA6380',
+                          }}
+                          // className="w-full my-2 text-sm rounded-md border-slate-500 focus:border-slate-400 border border-transparent block bg-slate-600 text-white block py-1 px-2"
+                          className="w-full text-sm rounded-[20px] border  border-conversation-100 bg-[#111111]/40 text-white 
                         placeholder-slate-400 px-4 py-2  transition-colors duration-200 focus:outline-none 
                         focus:ring-1 focus:ring-slate-400 focus:border-conversation-200 hover:border-conversation-300"
-                            onChange={(e) => {
-                              setQuestion(e.target.value);
-                            }}
-                            onFocus={() => setIsFocusedInput(true)}
-                            onBlur={() => setIsFocusedInput(false)}
-                            onKeyDown={(e) => {
-                              if (e.key === 'Enter' && !e.shiftKey) {
-                                //e.preventDefault(); // sprečava novi red ako koristiš textarea
-                                addQuestion(question);
-                              }
-                            }}
-                          />
-                          <ButtonGreen
-                            size="md"
-                            onClick={() => {
-                              if (question.trim() !== '') {
-                                addQuestion(question);
-                              }
-                            }}
-                            disabled={question.trim() == ''}
-                            icon="PaperAirplaneIcon"
-                            className="ml-2 px-4 py-2 
+                          onChange={(e) => {
+                            setQuestion(e.target.value);
+                          }}
+                          onFocus={() => setIsFocusedInput(true)}
+                          onBlur={() => setIsFocusedInput(false)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' && !e.shiftKey) {
+                              //e.preventDefault(); // sprečava novi red ako koristiš textarea
+                              addQuestion(question);
+                            }
+                          }}
+                        />
+                        <ButtonGreen
+                          size="md"
+                          onClick={() => {
+                            if (question.trim() !== '') {
+                              addQuestion(question);
+                            }
+                          }}
+                          disabled={question.trim() == ''}
+                          icon="PaperAirplaneIcon"
+                          className="ml-2 px-4 py-2 
                           duration-200"
-                          ></ButtonGreen>
-                        </div>
-                      )}
+                        ></ButtonGreen>
+                      </div>
+                    )}
 
                     {currentChapterState.chessAiMode.mode == 'review' && (
                       <div>

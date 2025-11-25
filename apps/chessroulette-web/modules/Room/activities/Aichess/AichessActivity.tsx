@@ -46,8 +46,7 @@ export const AichessActivity = ({
   const [playerNames, setPlayerNames] = useState(Array<string>);
   const [canFreePlay, setCanFreePlay] = useState(false);
   const [puzzleCounter, setPuzzleCounter] = useState(0);
-  
-  
+
   const [userData, setUserData] = useState({
     name_first: '',
     name_last: '',
@@ -62,7 +61,7 @@ export const AichessActivity = ({
     inputReducer,
     initialInputState
   );
- 
+
   const gameReview = (payload: chessAiMode) => {
     dispatch({
       type: 'loadedChapter:setPuzzleMoves',
@@ -151,13 +150,12 @@ export const AichessActivity = ({
       user_id: data.user_id,
     });
   };
-  const onCanPlayChange = (canPlay:boolean) => {
-    
-    setCanFreePlay(canPlay)
+  const onCanPlayChange = (canPlay: boolean) => {
+    setCanFreePlay(canPlay);
   };
   const handlePuzzleRequest = () => {
-     setPuzzleCounter(puzzleCounter +1)
-  }
+    setPuzzleCounter(puzzleCounter + 1);
+  };
 
   return (
     <ResizableDesktopLayout
@@ -401,7 +399,7 @@ export const AichessActivity = ({
               );
             }}
             onArrowsChange={async (payload) => {
-             // console.log('payload arr', payload);
+              // console.log('payload arr', payload);
               await enqueueMovexUpdate(() =>
                 dispatch({ type: 'loadedChapter:setArrows', payload })
               );
