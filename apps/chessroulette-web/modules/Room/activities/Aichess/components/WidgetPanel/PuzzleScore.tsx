@@ -128,7 +128,7 @@ export const puzzleRatingLevels = [
 //console.log('currentChapterState',currentChapterState)
 
 const PuzzleScore = ({ chessAiMode }: Props) => {
-   const componentRef = useRef<HTMLDivElement>(null);
+  const componentRef = useRef<HTMLDivElement>(null);
   const [value, setValue] = useState(chessAiMode.userPuzzleRating ?? 0);
   const [flipping, setFlipping] = useState<boolean>(false);
   const [change, setChange] = useState<number>(0);
@@ -157,8 +157,6 @@ const PuzzleScore = ({ chessAiMode }: Props) => {
     }
   }, [value, previousValue]);
 
-  
-
   //   const prevLavel = 1200
   //   const nextLavelGap = 150;
   // const  percentage  = ((value - prevLavel + chessAiMode.ratingChange+1) / nextLavelGap) * 100
@@ -180,57 +178,50 @@ const PuzzleScore = ({ chessAiMode }: Props) => {
       100
     : 0;
 
- 
-useEffect(() => {
-  
-  if (!componentRef.current) return;
- 
+  useEffect(() => {
+    if (!componentRef.current) return;
 
+    if (!currentSublevel?.label) return;
+    if (prevLabel === null) {
+      setPrevLabel(currentSublevel.label);
+      return;
+    }
+    if (prevLabel === currentSublevel.label) return;
 
-  
-  if (!currentSublevel?.label ) return;
-  if (prevLabel === null) {
-    setPrevLabel(currentSublevel.label);
-    return;
-  }
-  if (prevLabel === currentSublevel.label) return;
+    const prev = Number(prevLabel?.slice(-1));
+    const curr = Number(currentSublevel?.label.slice(-1));
 
-  const prev = Number(prevLabel?.slice(-1));
-const curr = Number(currentSublevel?.label.slice(-1));
+    const validTransitions: Record<number, number[]> = {
+      1: [2],
+      2: [3],
+      3: [1],
+    };
+    if (validTransitions[prev]?.includes(curr)) {
+      const rect = componentRef.current.getBoundingClientRect();
+      const x = (rect.left + rect.width / 2) / window.innerWidth;
+      const y = (rect.top + rect.height / 2) / window.innerHeight;
+      confetti({
+        startVelocity: 15,
+        particleCount: 30,
+        spread: 360,
+        origin: { x, y },
+      });
+      setAnimateLabel(true);
+      setPrevLabel(currentSublevel.label);
+      const t = setTimeout(() => {
+        setAnimateLabel(false);
+      }, 2000);
 
-const validTransitions: Record<number, number[]> = {
-  1: [2],   
-  2: [3],       
-  3: [1],      
-};
-if (validTransitions[prev]?.includes(curr)) {
-  
-  const rect = componentRef.current.getBoundingClientRect();
-    const x = (rect.left + rect.width / 2) / window.innerWidth;
-    const y = (rect.top + rect.height / 2) / window.innerHeight;
-    confetti({
-      startVelocity: 15,
-      particleCount: 30,
-      spread: 360,
-      origin: { x, y },
-    });
- setAnimateLabel(true);
-  setPrevLabel(currentSublevel.label);
-  const t = setTimeout(() => {
-    setAnimateLabel(false);
-  }, 2000);
-  
-  return () => clearTimeout(t);
-}else{
-  setPrevLabel(currentSublevel.label);
-}
-}, [currentSublevel?.label]);
+      return () => clearTimeout(t);
+    } else {
+      setPrevLabel(currentSublevel.label);
+    }
+  }, [currentSublevel?.label]);
 
-
-return (
-    <div ref={componentRef} >
+  return (
+    <div ref={componentRef}>
       <style>
-{`
+        {`
   /* Label intense blink + scale */
   @keyframes sublevelBlinkStrong {
   0%   { transform: scale(1);    opacity: 1;   }
@@ -272,20 +263,23 @@ return (
     animation: firePulse  1.2s ease-out;
   }
 `}
-</style>
+      </style>
       {/* {value > 0 && ( */}
-      <div className={`rounded-lg mb-1 mt-1 md:px-4 md:pb-4 px-2 pb-2 pt-2 border border-conversation-100 bg-[#01210B]
-    ${animateLabel ? "animate-fire-pulse" : ""}
-  `}>
+      <div
+        className={`rounded-lg mb-1 mt-1 md:px-4 md:pb-4 px-2 pb-2 pt-2 border border-conversation-100 bg-[#01210B]
+    ${animateLabel ? 'animate-fire-pulse' : ''}
+  `}
+      >
         <div className="flex justify-between ">
           <div className="text-[10px] font-bold text-[#8F8F90] mb-1 relative">
-                {animateLabel && (
-    <span className="text-red-400 text-[16px] animate-sublevel-blink-strong absolute bottom-[-3px] left-12">🔥</span>
-  )}
+            {animateLabel && (
+              <span className="text-red-400 text-[16px] animate-sublevel-blink-strong absolute bottom-[-3px] left-12">
+                🔥
+              </span>
+            )}
             RATING
           </div>
           <div className=" text-[10px] font-bold text-[#8F8F90] mb-1 ">
-        
             LEVEL
           </div>
         </div>
@@ -314,9 +308,9 @@ return (
                 ))}
             </div>
             <span
-            
-             className={`flex items-center justify-center font-bold text-green-400 md:text-lg text-base  
-    ${animateLabel ? "animate-sublevel-blink-strong" : ""}`}>
+              className={`flex items-center justify-center font-bold text-green-400 md:text-lg text-base  
+    ${animateLabel ? 'animate-sublevel-blink-strong' : ''}`}
+            >
               {currentSublevel?.label}
             </span>
           </div>
@@ -333,5 +327,5 @@ return (
     </div>
   );
 };
- 
+
 export default PuzzleScore;

@@ -50,7 +50,7 @@ export const PlayDialog: React.FC<GameStateDialogProps> = ({
   const offersLastMatch =
     match?.endedGames[match?.endedGames?.length - 1]?.offers;
   useEffect(() => {
-    // console.log('offersLastMatch',offersLastMatch)
+    console.log('offersLastMatch', offersLastMatch);
     if (
       offersLastMatch &&
       offersLastMatch[0]?.status === 'accepted' &&
