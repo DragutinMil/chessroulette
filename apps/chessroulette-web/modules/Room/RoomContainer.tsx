@@ -26,6 +26,11 @@ import { AichessActivity } from './activities/Aichess/AichessActivity';
 import { MeetupActivity } from './activities/Meetup/MeetupActivity';
 import { MatchActivity } from './activities/Match/MatchActivity';
 import { useSearchParams } from 'next/navigation';
+import { ChallengeNotification } from '@app/components/ChallengeNotification/ChallengeNotification';
+import socketUtil from '../../socketUtil';
+import { useState, useEffect } from 'react';
+
+
 type Props = {
   rid: ResourceIdentifier<'room'>;
   iceServers: IceServerRecord[];
@@ -40,6 +45,71 @@ export const RoomContainer = ({ iceServers, rid }: Props) => {
     () => movexSubcribersToUserMap(movexResource?.subscribers || {}),
     [movexResource?.subscribers]
   );
+
+  const [challengeNotification, setChallengeNotification] = useState<{
+    ch_uuid: string;
+    challenger_name?: string;
+    challenger_id?: string;
+    time_class?: string;
+    time_control?: string;
+    amount?: string;
+  } | null>(null);
+
+  // Dodajemo state za aktivnost
+  const activityType = movexResource?.state?.activity?.activityType;
+
+  useEffect(() => {
+    // Određujemo status na osnovu aktivnosti
+    let socketStatus: 'available' | 'playing' | 'watching' | 'reviewing' = 'reviewing';
+    
+    if (activityType === 'match') {
+      socketStatus = 'playing';
+    } else if (activityType === 'meetup') {
+      socketStatus = 'watching';
+    } else {
+      socketStatus = 'reviewing';
+    }
+
+    // Poveži se na socket sa odgovarajućim statusom
+    socketUtil.connect(socketStatus);
+
+  const handleChallengeNotification = (data: any) => {
+    console.log('Challenge notification received:', data);
+    
+    // Filtrirati samo challenge notifikacije (ne sve notifikacije)
+    // Proverite da li je ovo challenge notifikacija na osnovu strukture podataka
+    // Na primer, ako ima ch_uuid ili challenge_uuid, onda je challenge
+    if (!data.ch_uuid && !data.challenge_uuid) {
+      console.log('Not a challenge notification, ignoring...');
+      return;
+    }
+
+    // Proverite da li je notifikacija za ovog korisnika
+    // (ako challengee_id postoji i ne odgovara userId, ignorišite)
+    if (data.challengee_id && userId && data.challengee_id !== userId) {
+      console.log('Challenge notification not for this user, ignoring...');
+      return;
+    }
+
+    setChallengeNotification({
+      ch_uuid: data.ch_uuid || data.challenge_uuid,
+      challenger_name: data.challenger_name || data.challenger?.name,
+      challenger_id: data.challenger_id || data.challenger?.id,
+      time_class: data.time_class || data.timeClass,
+      time_control: data.time_control || data.timeControl, // Format kao "3+2"
+      amount: data.amount || data.prize, // Format kao "€1"
+    });
+  };
+
+    socketUtil.subscribe('tb_notification', handleChallengeNotification);
+
+    return () => {
+      socketUtil.unsubscribe('tb_notification', handleChallengeNotification);
+      // Ne disconnect-ujemo socket ovde jer možda se aktivnost menja
+      // Socket će se ažurirati sa novim statusom pri sledećoj promeni aktivnosti
+    };
+  }, [activityType]);
+
   // const params = useSearchParams();
   // const tokenParam = params.get('sessionToken');
   // console.log('tokenParam',tokenParam)
@@ -143,6 +213,16 @@ export const RoomContainer = ({ iceServers, rid }: Props) => {
       {movex.status === 'connectionError' && (
         <Modal>Cannot connect. Check your Internet Connection!</Modal>
       )}
+      
+      <ChallengeNotification
+        challenge={challengeNotification}
+        onAccept={(challengeUuid) => {
+          setChallengeNotification(null);
+        }}
+        onDecline={() => {
+          setChallengeNotification(null);
+        }}
+      />
     </PeerStreamingProvider>
   );
 };
