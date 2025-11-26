@@ -42,7 +42,7 @@ export type ChessboardContainerProps = Omit<
   lastMove?: ShortChessMove;
   boardOrientation?: ChessColor;
   containerClassName?: string;
-
+ onLastMoveWasPromotionChange?: (wasPromotion: boolean) => void;
   onPieceDrop?: (from: Square, to: Square, piece: PieceSan) => void;
   onArrowsChange?: (arrows: ArrowsMap) => void;
   onCircleDraw?: (circleTuple: CircleDrawTuple) => void;
@@ -85,6 +85,7 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
   onMove,
   onValidateMove = () => true, // Defaults to always be able to move
   boardOrientation = 'w',
+   onLastMoveWasPromotionChange, 
   customSquareStyles,
   rightSideComponent,
   rightSideSizePx = 0,
@@ -132,7 +133,7 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
   };
 
   // Moves
-  const { preMove, promoMove, pendingMove, ...moveActions } = useMoves({
+  const { preMove, promoMove, pendingMove,lastMoveWasPromotion,...moveActions } = useMoves({
     playingColor: boardOrientation,
     isMyTurn,
     premoveAnimationDelay: BOARD_ANIMATION_DELAY + 1,
@@ -156,7 +157,9 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
     customSquareStyles,
     ...props,
   });
-
+   useEffect(() => {
+    onLastMoveWasPromotionChange?.(lastMoveWasPromotion);
+  }, [lastMoveWasPromotion, onLastMoveWasPromotionChange]);
   if (sizePx === 0) {
     return null;
   }
@@ -195,7 +198,7 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
         // Promo Move
         promoMove={promoMove}
         onCancelPromoMove={moveActions.onClearPromoMove}
-        onSubmitPromoMove={onMove}
+        onSubmitPromoMove={moveActions.onPromoSubmit}
         // Overlay & Right Components
         rightSideClassName={rightSideClassName}
         rightSideComponent={rightSideComponent}

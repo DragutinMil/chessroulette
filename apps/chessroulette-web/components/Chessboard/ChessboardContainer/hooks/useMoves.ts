@@ -19,9 +19,11 @@ type MoveActions = {
   onPieceDrag: (pieceSan: PieceSan, square: Square) => void;
   onPieceDrop: (from: Square, to: Square, pieceSan: PieceSan) => boolean;
   onClearPromoMove: () => void;
+  onPromoSubmit: (move: ShortChessMove) => void;  // Add this line
   promoMove: ShortChessMove | undefined;
   preMove: ChessboardPreMove | undefined;
   pendingMove: ChessBoardPendingMove | undefined;
+  lastMoveWasPromotion: boolean;
 };
 
 type PlayerPendingMove = {
@@ -69,6 +71,10 @@ export const useMoves = ({
   });
 
   const [promoMove, setPromoMove] = useState<ShortChessMove>();
+  const [isPromoFromPreMove, setIsPromoFromPreMove] = useState(false);  // Dodaj ovu liniju
+
+  const [lastMoveWasPromotion, setLastMoveWasPromotion] = useState(false); // Dodajte ovo
+
   //const [premoveAnimationDelay] = useState(300);
   // pre move
   const allowsPremoves = !!onPreMove;
@@ -145,10 +151,27 @@ export const useMoves = ({
 
         // Case 2: Complete premove by clicking destination
         if (!piece || piece.color !== playingColor) {
-          setPreMove({
+          const completedPreMove = {
             ...currentMoves.preMove,
             to: square,
-          });
+          };
+          
+          // Proveri da li je promocija
+          const moveAttempt = {
+            from: completedPreMove.from,
+            to: square,
+            piece: completedPreMove.piece,
+          };
+          
+          if (isValidPromoMove(moveAttempt)) {
+            // Ne postavljaj premove sa to, već odmah postavi promoMove
+            // Dialog će se prikazati kada dođe na red
+            setPreMove(completedPreMove); // Sačuvaj premove za kasnije
+            logMove('Complete premove with promotion', moveAttempt);
+            return;
+          }
+          
+          setPreMove(completedPreMove);
           logMove('Complete premove by click', {
             from: currentMoves.preMove.from,
             to: square,
@@ -184,9 +207,14 @@ export const useMoves = ({
 
         // Check for promotion
         if (isValidPromoMove(moveAttempt)) {
-          setPromoMove(moveAttempt);
-          setPreMove(undefined);
-          logMove('Set promotion from premove', moveAttempt);
+          //setPromoMove(moveAttempt);
+          //setIsPromoFromPreMove(true);
+          //setPreMove(undefined);
+          //logMove('Set promotion from premove', moveAttempt);
+          
+          setPreMove({ ...currentMoves.preMove, to: square });
+          logMove('Complete premove with promotion - will execute on turn', moveAttempt);
+          
           return;
         }
 
@@ -217,9 +245,12 @@ export const useMoves = ({
 
       // Check for promotion
       if (isValidPromoMove(moveAttempt)) {
-        setPromoMove(moveAttempt);
-        setPreMove(undefined);
-        logMove('Set promotion from premove', moveAttempt);
+        //setPromoMove(moveAttempt);
+        //setIsPromoFromPreMove(true);
+        //setPreMove(undefined);
+        //logMove('Set promotion from premove', moveAttempt);
+                setPreMove({ ...currentMoves.preMove, to: square });
+        logMove('Complete premove with promotion - will execute on turn', moveAttempt);
         return;
       }
 
@@ -232,9 +263,9 @@ export const useMoves = ({
     }
 
     // Clear premove if it's my turn and premove is complete
-    if (isMyTurn && currentMoves.preMove?.to) {
-      setPreMove(undefined);
-    }
+ //   if (isMyTurn && currentMoves.preMove?.to) {
+ //     setPreMove(undefined);
+ //   }
 
     // Handle regular moves during my turn
     if (isMyTurn) {
@@ -276,6 +307,7 @@ export const useMoves = ({
           })
         ) {
           setPromoMove({ ...currentMoves.pendingMove, to: square });
+          setIsPromoFromPreMove(false); 
           logMove('Set promotion', {
             from: currentMoves.pendingMove.from,
             to: square,
@@ -294,30 +326,53 @@ export const useMoves = ({
       }
     }
   };
-
-  // Promo Move calling
-  // Add effect to preserve premove across turn changes
-  useEffect(() => {
-    const currentMoves = getCurrentMoves();
-
-    logMove('Turn changed', {
-      currentMoves,
-      isMyTurn,
-    });
-
     // If we have a complete premove and it's our turn, execute it
-    if (isMyTurn && currentMoves.preMove?.to) {
-      const moveToExecute = {
-        from: currentMoves.preMove.from,
-        to: currentMoves.preMove.to, // Now we know this exists because of the check above
-      };
+    useEffect(() => {
+      const currentMoves = getCurrentMoves();
+  
+      logMove('Turn changed', {
+        currentMoves,
+        isMyTurn,
+      });
 
-      setTimeout(() => {
-        onMove(moveToExecute);
-        setPreMove(undefined);
-      }, premoveAnimationDelay);
-    }
-  }, [isMyTurn]);
+      if (promoMove) {
+        logMove('Skipping premove execution promoMove is waiting for user selection',
+           promoMove);
+        return;
+      }
+
+      // If we have a complete premove and it's our turn, execute it
+      if (isMyTurn && currentMoves.preMove?.to) {
+        const moveToExecute = {
+          from: currentMoves.preMove.from,
+          to: currentMoves.preMove.to, 
+          piece: currentMoves.preMove.piece,
+        };
+  
+        const isPromotion = isPromotableMove(moveToExecute, moveToExecute.piece);
+      
+        if (isPromotion) {
+          // Postavi promoMove i čekaj korisnikov izbor figure
+          const promoMoveToSet = {
+            from: currentMoves.preMove.from,
+            to: currentMoves.preMove.to,
+          };
+          console.log('[useMoves] Setting promoMove from premove - waiting for user selection:', promoMoveToSet);
+          setPromoMove(promoMoveToSet);
+          setIsPromoFromPreMove(true);
+          setPreMove(undefined);
+          logMove('Set promotion from complete premove - waiting for user', moveToExecute);
+          // VAŽNO: Ne pozivaj onMove ovde - čekaj da korisnik izabere figuru
+          return;
+        }
+  
+        // Ako nije promocija, izvrši premove direktno
+        setTimeout(() => {
+          onMove(moveToExecute);
+          setPreMove(undefined);
+        }, premoveAnimationDelay);
+      }
+    }, [isMyTurn, playerMoves, premoveAnimationDelay, promoMove]);
 
   useEffect(() => {
     const currentMoves = getCurrentMoves();
@@ -332,7 +387,7 @@ export const useMoves = ({
   const onMoveIfValid = (m: ShortChessMove): Result<void, void> => {
     if (onValidateMove(m)) {
       onMove(m);
-
+      setLastMoveWasPromotion(false);
       return Ok.EMPTY;
     }
 
@@ -382,10 +437,9 @@ export const useMoves = ({
         setPreMove(undefined);
 
         if (isValidPromoMove({ from, to, piece })) {
-          setPromoMove({ from, to });
+          setPreMove({ from, piece, to });
           return true;
         }
-
         return onMoveIfValid({ from, to }).ok;
       }
       const moveAttempt = {
@@ -395,8 +449,7 @@ export const useMoves = ({
       };
 
       if (isValidPromoMove(moveAttempt)) {
-        setPromoMove(moveAttempt);
-        setPreMove(undefined);
+        setPreMove({ ...currentMoves.preMove, to });
         return true;
       }
 
@@ -417,14 +470,14 @@ export const useMoves = ({
       setPendingMove(undefined);
     }
 
-    // Handle regular moves
-    setPendingMove(undefined);
-
     if (isValidPromoMove({ from, to, piece })) {
       setPromoMove({ from, to });
+      setIsPromoFromPreMove(false); 
+      setPendingMove(undefined);  // PREMEŠTI OVDE
       return true;
     }
 
+    setPendingMove(undefined);  // PREMEŠTI OVDE
     return onMoveIfValid({ from, to }).ok;
   };
 
@@ -435,7 +488,24 @@ export const useMoves = ({
     onPieceDrag: (pieceSan: PieceSan, square: Square) =>
       onClickOrDrag({ square, pieceSan }),
     onPieceDrop,
-    onClearPromoMove: () => setPromoMove(undefined),
+    onPromoSubmit: (move: ShortChessMove) => {
+      console.log('[useMoves] onPromoSubmit called with move:', move, 'isPromoFromPreMove:', isPromoFromPreMove);
+      // Kada korisnik izabere figuru, prosleđujemo move sa promoteTo
+      if (isPromoFromPreMove && onPreMove) {
+        console.log('[useMoves] Calling onPreMove with promotion:', move);
+        onPreMove(move);
+      } else {
+        console.log('[useMoves] Calling onMove with promotion:', move);
+        onMove(move);
+      }
+      setPromoMove(undefined);
+      setIsPromoFromPreMove(false); 
+    },
+    lastMoveWasPromotion,
+    onClearPromoMove: () => 
+    {setPromoMove(undefined),
+    setIsPromoFromPreMove(false); 
+    },
     promoMove,
     preMove: getCurrentMoves().preMove,
     pendingMove: getCurrentMoves().pendingMove,
