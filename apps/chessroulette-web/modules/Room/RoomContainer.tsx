@@ -53,62 +53,87 @@ export const RoomContainer = ({ iceServers, rid }: Props) => {
     time_class?: string;
     time_control?: string;
     amount?: string;
+    initiator_name_first?: string;
+    initiator_name_last?: string;
   } | null>(null);
 
-  // Dodajemo state za aktivnost
-  const activityType = movexResource?.state?.activity?.activityType;
-
+  // Jednostavan useEffect samo za socket i notifikacije
   useEffect(() => {
-    // Određujemo status na osnovu aktivnosti
-    let socketStatus: 'available' | 'playing' | 'watching' | 'reviewing' = 'reviewing';
+    console.log('🔌 Connecting to socket...');
     
-    if (activityType === 'match') {
-      socketStatus = 'playing';
-    } else if (activityType === 'meetup') {
-      socketStatus = 'watching';
-    } else {
-      socketStatus = 'reviewing';
-    }
+    // Poveži se na socket sa statusom 'available'
+    socketUtil.connect('available');
 
-    // Poveži se na socket sa odgovarajućim statusom
-    socketUtil.connect(socketStatus);
+    const handleChallengeNotification = (data: any) => {
+      console.log('🔔 Notification received:', data);
+      console.log('🔔 from_user_object:', data.from_user_object);
+      console.log('🔔 data.data:', data.data);
+      
+      // Proveri da li je ovo challenge notifikacija
+      if (data.n_type === 'challenge_initiated' || data.ch_uuid || data.challenge_uuid || data.ch_target_uuid || data.data?.ch_uuid) {
+        console.log('✅ Challenge notification detected, showing...');
+        
+        // Izvuci ime i prezime iz from_user_object
+        const firstName = data.from_user_object?.name_first 
+          || data.initiator_name_first 
+          || data.initiator?.name_first 
+          || data.challenger?.name_first;
+          
+        const lastName = data.from_user_object?.name_last 
+          || data.initiator_name_last 
+          || data.initiator?.name_last 
+          || data.challenger?.name_last;
+        
+        console.log('✅ Extracted firstName:', firstName);
+        console.log('✅ Extracted lastName:', lastName);
+        
+        // Izvuci ch_uuid iz različitih izvora
+        const chUuid = data.data?.ch_uuid 
+          || data.ch_uuid 
+          || data.challenge_uuid;
+        
+        // Izvuci time_control iz data.data objekta
+        const timeControl = data.data?.ch_type 
+          || data.time_control 
+          || data.timeControl;
+        
+        // Izvuci amount iz data.data objekta
+        const amount = data.data?.amount 
+          || data.amount 
+          || data.prize;
+        
+        const challengeData = {
+          ch_uuid: chUuid,
+          challenger_name: data.from_user_object?.name_first && data.from_user_object?.name_last
+            ? `${data.from_user_object.name_first} ${data.from_user_object.name_last}`
+            : data.challenger_name || data.challenger?.name,
+          challenger_id: data.from_user_uuid || data.challenger_id || data.challenger?.id,
+          time_class: data.time_class || data.timeClass || data.data?.time_class,
+          time_control: timeControl,
+          amount: amount,
+          initiator_name_first: firstName,
+          initiator_name_last: lastName,
+        };
+        
+        console.log('✅ Setting challenge notification:', challengeData);
+        setChallengeNotification(challengeData);
+      }
+    };
 
-  const handleChallengeNotification = (data: any) => {
-    console.log('Challenge notification received:', data);
-    
-    // Filtrirati samo challenge notifikacije (ne sve notifikacije)
-    // Proverite da li je ovo challenge notifikacija na osnovu strukture podataka
-    // Na primer, ako ima ch_uuid ili challenge_uuid, onda je challenge
-    if (!data.ch_uuid && !data.challenge_uuid) {
-      console.log('Not a challenge notification, ignoring...');
-      return;
-    }
-
-    // Proverite da li je notifikacija za ovog korisnika
-    // (ako challengee_id postoji i ne odgovara userId, ignorišite)
-    if (data.challengee_id && userId && data.challengee_id !== userId) {
-      console.log('Challenge notification not for this user, ignoring...');
-      return;
-    }
-
-    setChallengeNotification({
-      ch_uuid: data.ch_uuid || data.challenge_uuid,
-      challenger_name: data.challenger_name || data.challenger?.name,
-      challenger_id: data.challenger_id || data.challenger?.id,
-      time_class: data.time_class || data.timeClass,
-      time_control: data.time_control || data.timeControl, // Format kao "3+2"
-      amount: data.amount || data.prize, // Format kao "€1"
-    });
-  };
-
+    // Pretplati se na notifikacije
     socketUtil.subscribe('tb_notification', handleChallengeNotification);
 
+    // Cleanup
     return () => {
+      console.log('🧹 Cleaning up socket subscription...');
       socketUtil.unsubscribe('tb_notification', handleChallengeNotification);
-      // Ne disconnect-ujemo socket ovde jer možda se aktivnost menja
-      // Socket će se ažurirati sa novim statusom pri sledećoj promeni aktivnosti
     };
-  }, [activityType]);
+  }, []);
+
+
+useEffect(() => {
+  console.log('📬 challengeNotification state changed:', challengeNotification);
+}, [challengeNotification]);
 
   // const params = useSearchParams();
   // const tokenParam = params.get('sessionToken');
