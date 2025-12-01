@@ -26,6 +26,11 @@ import { AichessActivity } from './activities/Aichess/AichessActivity';
 import { MeetupActivity } from './activities/Meetup/MeetupActivity';
 import { MatchActivity } from './activities/Match/MatchActivity';
 import { useSearchParams } from 'next/navigation';
+import { ChallengeNotification } from '@app/components/ChallengeNotification/ChallengeNotification';
+import socketUtil from '../../socketUtil';
+import { useState, useEffect } from 'react';
+
+
 type Props = {
   rid: ResourceIdentifier<'room'>;
   iceServers: IceServerRecord[];
@@ -40,6 +45,96 @@ export const RoomContainer = ({ iceServers, rid }: Props) => {
     () => movexSubcribersToUserMap(movexResource?.subscribers || {}),
     [movexResource?.subscribers]
   );
+
+  const [challengeNotification, setChallengeNotification] = useState<{
+    ch_uuid: string;
+    challenger_name?: string;
+    challenger_id?: string;
+    time_class?: string;
+    time_control?: string;
+    amount?: string;
+    initiator_name_first?: string;
+    initiator_name_last?: string;
+  } | null>(null);
+
+  // Jednostavan useEffect samo za socket i notifikacije
+  useEffect(() => {
+    console.log('🔌 Connecting to socket...');
+    
+    // Poveži se na socket sa statusom 'available'
+    socketUtil.connect('available');
+
+    const handleChallengeNotification = (data: any) => {
+      console.log('🔔 Notification received:', data);
+      console.log('🔔 from_user_object:', data.from_user_object);
+      console.log('🔔 data.data:', data.data);
+      
+      // Proveri da li je ovo challenge notifikacija
+      if (data.n_type === 'challenge_initiated' || data.ch_uuid || data.challenge_uuid || data.ch_target_uuid || data.data?.ch_uuid) {
+        console.log('✅ Challenge notification detected, showing...');
+        
+        // Izvuci ime i prezime iz from_user_object
+        const firstName = data.from_user_object?.name_first 
+          || data.initiator_name_first 
+          || data.initiator?.name_first 
+          || data.challenger?.name_first;
+          
+        const lastName = data.from_user_object?.name_last 
+          || data.initiator_name_last 
+          || data.initiator?.name_last 
+          || data.challenger?.name_last;
+        
+        console.log('✅ Extracted firstName:', firstName);
+        console.log('✅ Extracted lastName:', lastName);
+        
+        // Izvuci ch_uuid iz različitih izvora
+        const chUuid = data.data?.ch_uuid 
+          || data.ch_uuid 
+          || data.challenge_uuid;
+        
+        // Izvuci time_control iz data.data objekta
+        const timeControl = data.data?.ch_type 
+          || data.time_control 
+          || data.timeControl;
+        
+        // Izvuci amount iz data.data objekta
+        const amount = data.data?.amount 
+          || data.amount 
+          || data.prize;
+        
+        const challengeData = {
+          ch_uuid: chUuid,
+          challenger_name: data.from_user_object?.name_first && data.from_user_object?.name_last
+            ? `${data.from_user_object.name_first} ${data.from_user_object.name_last}`
+            : data.challenger_name || data.challenger?.name,
+          challenger_id: data.from_user_uuid || data.challenger_id || data.challenger?.id,
+          time_class: data.time_class || data.timeClass || data.data?.time_class,
+          time_control: timeControl,
+          amount: amount,
+          initiator_name_first: firstName,
+          initiator_name_last: lastName,
+        };
+        
+        console.log('✅ Setting challenge notification:', challengeData);
+        setChallengeNotification(challengeData);
+      }
+    };
+
+    // Pretplati se na notifikacije
+    socketUtil.subscribe('tb_notification', handleChallengeNotification);
+
+    // Cleanup
+    return () => {
+      console.log('🧹 Cleaning up socket subscription...');
+      socketUtil.unsubscribe('tb_notification', handleChallengeNotification);
+    };
+  }, []);
+
+
+useEffect(() => {
+  console.log('📬 challengeNotification state changed:', challengeNotification);
+}, [challengeNotification]);
+
   // const params = useSearchParams();
   // const tokenParam = params.get('sessionToken');
   // console.log('tokenParam',tokenParam)
@@ -143,6 +238,16 @@ export const RoomContainer = ({ iceServers, rid }: Props) => {
       {movex.status === 'connectionError' && (
         <Modal>Cannot connect. Check your Internet Connection!</Modal>
       )}
+      
+      <ChallengeNotification
+        challenge={challengeNotification}
+        onAccept={(challengeUuid) => {
+          setChallengeNotification(null);
+        }}
+        onDecline={() => {
+          setChallengeNotification(null);
+        }}
+      />
     </PeerStreamingProvider>
   );
 };

@@ -78,3 +78,36 @@ body,
   min-width: 0; 
   min-height: 0; */
 /* } */
+.initiate-banner {
+  /* Dodajte stilove za banner ako već ne postoje */
+}
+
+.banner-position {
+  /* Pozicija banner-a */
+}
+
+.banner-text {
+  /* Stilovi za tekst u banner-u */
+}
+
+.color-blue {
+  color: #3b82f6; /* ili vaša blue boja */
+}
+
+.color-blue.hover:hover {
+  color: #60a5fa; /* svetlija blue za hover */
+}
+
+.btn_roullete {
+  /* Stilovi za Play dugme */
+}
+
+.btn_roullete_cancel {
+  /* Stilovi za Ignore dugme */
+}
+
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

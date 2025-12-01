@@ -35,6 +35,9 @@ export const socketUtil = {
           socketUtil.socket.on('connect_error', (error) => {
             console.error('Socket connection error:', error);
           });
+        } else if (socketUtil.socket.connected) {
+          // Ako je socket već povezan, samo ažuriraj status
+          socketUtil.socket.emit('player_status', type);
         }
       } else {
         console.log('No token found. Socket not initialized.');
@@ -86,6 +89,28 @@ export const socketUtil = {
       }
     }
   },
+
+  subscribe: async (topic: string, callback: (data: any) => void) => {
+    if (!socketUtil.socket || !socketUtil.socket.connected) {
+      // Ako socket nije povezan, pokušaj da se povežeš
+      // Možete koristiti postojeći status ili dodati novi
+
+      console.log('povezivanje na socket server');
+
+      if (topic=='tb_notification'){
+          console.log('nova notifikacija');
+      }
+
+      await socketUtil.connect('watching'); // ili 'reviewing'
+    }
+    
+    socketUtil.on(topic, callback);
+  },
+
+  unsubscribe: (topic: string, callback?: (data: any) => void) => {
+    socketUtil.off(topic, callback);
+  },
+
 };
 
 export default socketUtil;
