@@ -30,14 +30,12 @@ export const getNewChessGame = (
     | { fen: ChessFEN; pgn?: undefined }
 ) => {
   const instance = new Chess();
-
+   
   try {
     if (props?.pgn) {
       instance.loadPgn(props.pgn);
-
       return instance;
     }
-
     return instance;
   } catch (e) {
     console.error('GetNewChessGame', e);

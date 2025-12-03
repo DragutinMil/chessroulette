@@ -6,7 +6,7 @@ import {
   promotionalPieceSanToFenBoardPromotionalPieceSymbol,
   toLongChessColor,
 } from '@xmatter/util-kit';
-import { getStockfishWorker, resetStockfish } from './stockfishWorker.js';
+import { getStockfishWorker, newStockfish } from './stockfishWorker.js';
 
 type StockfishEngineAIProps = {
   fen: ChessFEN;
@@ -100,17 +100,8 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
     if (typeof window === 'undefined') return; // Ensure it's client-side
 
     try {
-      let stockfish = null
-      if(error ){
-        console.log('errrorcina')
-          stockfish = resetStockfish();;
-      }else{
-        console.log('standard ucitavanje')
-
-       stockfish = getStockfishWorker()
-        
-      }
-      
+     
+      const stockfish = newStockfish()
       stockfishRef.current = stockfish;
       // stockfish.onmessage = (event:any) => {
       //    console.log('standard ucitavanje1')

@@ -6,7 +6,7 @@ export function getStockfishWorker() {
       return stockfishWorker;
 }
 
-export function resetStockfish(){
+export function newStockfish(){
   stockfishWorker = new Worker('/stockfish-17-single.js');
   return stockfishWorker;
 }
