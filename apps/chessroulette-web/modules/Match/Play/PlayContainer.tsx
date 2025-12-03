@@ -1,4 +1,4 @@
-import { useEffect, useRef,useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { DistributiveOmit } from 'movex-core-util';
 import { useCurrentOrPrevMatchPlay, usePlayActionsDispatch } from './hooks';
 import {
@@ -21,8 +21,8 @@ export const PlayContainer = (playBoardProps: PlayerContainerProps) => {
   useEffect(() => {
     moveAudioRef.current = new Audio('/chessmove.mp3');
   }, []);
-    useEffect(() => {
-      console.log('promotion playContainer')
+  useEffect(() => {
+    console.log('promotion playContainer');
     lastMoveWasPromotionCallbacks.forEach((callback) => {
       callback(lastMoveWasPromotion);
     });
@@ -90,11 +90,11 @@ export const PlayContainer = (playBoardProps: PlayerContainerProps) => {
             moveAt: masterContext.requestAt(),
           },
         }));
-        
+
         // TODO: This can be returned from a more internal component
         return true;
       }}
-       onLastMoveWasPromotionChange={setLastMoveWasPromotion}
+      onLastMoveWasPromotionChange={setLastMoveWasPromotion}
       {...playBoardProps}
     />
   );

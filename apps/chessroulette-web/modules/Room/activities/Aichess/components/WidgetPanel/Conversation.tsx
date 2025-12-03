@@ -123,6 +123,8 @@ const Conversation = ({
                               openViewSubscription();
                             }}
                             size="lg"
+                            className="bg-green-600  text-black font-bold "
+                        style={{color:'black'}}
                           >
                             Subscribe
                           </ButtonGreen>

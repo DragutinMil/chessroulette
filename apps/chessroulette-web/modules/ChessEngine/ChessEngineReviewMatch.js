@@ -1,10 +1,13 @@
 import { Chess } from 'chess.js';
+import {  resetStockfish } from './stockfishWorker.js';
 
 export async function analyzePGN(pgn, { onProgress } = {}, isMobile) {
   // ✅ 1. Kreiramo Stockfish Web Worker
-  const stockfish = new Worker('/stockfish-17-single.js');
+  
+  const stockfish = resetStockfish();
 
   // Pripremimo ga za rad
+
   await sendCommand(stockfish, 'uci');
   await waitFor(stockfish, 'uciok');
   await sendCommand(stockfish, 'setoption name Threads value 2');

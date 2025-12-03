@@ -38,12 +38,6 @@ export const getNewChessGame = (
       return instance;
     }
 
-    if (props?.fen) {
-      instance.load(props.fen);
-
-      return instance;
-    }
-
     return instance;
   } catch (e) {
     console.error('GetNewChessGame', e);

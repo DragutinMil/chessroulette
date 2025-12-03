@@ -79,6 +79,11 @@ export const AichessActivity = ({
     };
   }, []);
   useEffect(() => {
+   // console.log('currentChapter',currentChapter)
+    if(newReview===false && currentChapter.chessAiMode.mode=='review'){
+      return
+    }
+    //console.log('setNewReview2',newReview)
     const url = new URL(window.location.href);
     const rawPgn = url.searchParams.get('pgn');
     const userId = url.searchParams.get('userId');
@@ -86,23 +91,24 @@ export const AichessActivity = ({
     if (rawPgn) {
       const getMatchInfo = async () => {
         const data = await getMatch(rawPgn);
+        const lastGame = data.results.endedGames.length - 1
         if (data) {
           const pgn =
-            data.results.endedGames[data.results.endedGames.length - 1].pgn;
+            data.results.endedGames[lastGame].pgn;
           const white =
-            data.results.endedGames[data.results.endedGames.length - 1].players
+            data.results.endedGames[lastGame].players
               .w == userId;
           const black =
-            data.results.endedGames[data.results.endedGames.length - 1].players
+            data.results.endedGames[lastGame].players
               .b == userId;
 
           const whitePlayerName =
-            data.results.endedGames[data.results.endedGames.length - 1].players
+            data.results.endedGames[lastGame].players
               .w == data.initiator_id
               ? data.initiator_name_first
               : data.target_name_first;
           const blackPlayerName =
-            data.results.endedGames[data.results.endedGames.length - 1].players
+            data.results.endedGames[lastGame].players
               .b == data.initiator_id
               ? data.initiator_name_first
               : data.target_name_first;
@@ -291,10 +297,10 @@ export const AichessActivity = ({
                     // dispatch({ type: 'loadedChapter:setArrows', payload });
                   }}
                   onCircleDraw={(tuple) => {
-                    // dispatch({
-                    //   type: 'loadedChapter:drawCircle',
-                    //   payload: tuple,
-                    // });
+                    dispatch({
+                      type: 'loadedChapter:drawCircle',
+                      payload: tuple,
+                    });
                   }}
                   onClearCircles={() => {
                     dispatch({ type: 'loadedChapter:clearCircles' });

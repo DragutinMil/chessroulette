@@ -10,7 +10,7 @@ export const PlayControlsContainer = () => {
   const dispatch = usePlayActionsDispatch();
   const { lastOffer, game, playersBySide, hasGame } =
     useCurrentOrPrevMatchPlay();
-const [lastMoveWasPromotion, setLastMoveWasPromotion] = useState(false);
+  const [lastMoveWasPromotion, setLastMoveWasPromotion] = useState(false);
 
   useEffect(() => {
     // Dodajte callback u set
@@ -29,7 +29,7 @@ const [lastMoveWasPromotion, setLastMoveWasPromotion] = useState(false);
     <PlayControls
       homeColor={playersBySide.home.color}
       playerId={playersBySide.home.id}
-       lastMoveWasPromotion={lastMoveWasPromotion}
+      lastMoveWasPromotion={lastMoveWasPromotion}
       onDrawOffer={() => {
         dispatch({
           type: 'play:sendOffer',

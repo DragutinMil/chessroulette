@@ -4,7 +4,7 @@ import type { Chapter, ChapterState, AichessActivityState } from './types';
 
 export const initialChapterState: ChapterState = {
   name: 'New Chapter', // TODO: Should it have a name?
-  displayFen: ChessFENBoard.STARTING_FEN,
+  displayFen: ChessFENBoard.EMPTY_FEN,
   arrowsMap: {},
   circlesMap: {},
   messages: [
@@ -38,7 +38,7 @@ export const initialChapterState: ChapterState = {
   notation: {
     history: [],
     focusedIndex: FreeBoardHistory.getStartingIndex(),
-    startingFen: ChessFENBoard.STARTING_FEN,
+    startingFen: ChessFENBoard.EMPTY_FEN,
   },
   orientation: 'w',
 };

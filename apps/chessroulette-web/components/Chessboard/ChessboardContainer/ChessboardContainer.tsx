@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState,useMemo } from 'react';
 import {
   ChessFEN,
   PieceSan,
@@ -33,6 +33,8 @@ export type ChessboardContainerProps = Omit<
   boardTheme: BoardTheme;
 
   // Move
+  onValidatePreMove?: (m: ShortChessMove) => boolean;
+  isSquareEmpty?: (m: string) => boolean;
   onValidateMove?: (m: ShortChessMove) => boolean;
   onMove: (m: ShortChessMove) => void;
   // onChangePuzzleAnimation?: boolean;
@@ -42,7 +44,7 @@ export type ChessboardContainerProps = Omit<
   lastMove?: ShortChessMove;
   boardOrientation?: ChessColor;
   containerClassName?: string;
- onLastMoveWasPromotionChange?: (wasPromotion: boolean) => void;
+  onLastMoveWasPromotionChange?: (wasPromotion: boolean) => void;
   onPieceDrop?: (from: Square, to: Square, piece: PieceSan) => void;
   onArrowsChange?: (arrows: ArrowsMap) => void;
   onCircleDraw?: (circleTuple: CircleDrawTuple) => void;
@@ -83,9 +85,11 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
   onClearCircles = noop,
   onPieceDrop,
   onMove,
+  onValidatePreMove = () => true,
+  isSquareEmpty = () => true,
   onValidateMove = () => true, // Defaults to always be able to move
   boardOrientation = 'w',
-   onLastMoveWasPromotionChange, 
+  onLastMoveWasPromotionChange,
   customSquareStyles,
   rightSideComponent,
   rightSideSizePx = 0,
@@ -99,18 +103,22 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
 }) => {
   const isMyTurn = boardOrientation === turn;
   const { match, ...matchView } = useMatchViewState();
-  const BOARD_ANIMATION_DELAY = match === null ? 350 : 220;
+  const BOARD_ANIMATION_DELAY = useMemo(() => {
+  return match === null
+    ? (!lastMove)
+      ? 0
+      : 360
+    : 220;
+}, [match, lastMove]);
+  
   const [isBotPlay, setBots] = useState(false);
   const arrowAndCircleColor = useArrowAndCircleColor();
   const customArrows = useCustomArrows(onArrowsChange, props.arrowsMap);
 
-  useEffect(() => {
-    if (match) {
-      if (match?.challengee?.id?.length == 16) {
-        setBots(true);
-      }
-    }
-  }, []);
+ 
+ useEffect(() => {
+  setBots(match?.challengee?.id?.length === 16);
+}, [match?.challengee?.id]);
 
   // Circles
   const drawCircle = useCallback(
@@ -120,27 +128,28 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
     [onCircleDraw, arrowAndCircleColor]
   );
 
-  const resetArrowsAndCircles = () => {
-    // Reset the Arrows and Circles if present
-    if (Object.keys(circlesMap || {}).length > 0) {
-      onClearCircles();
-    }
+ 
 
-    if (Object.keys(props.arrowsMap || {}).length > 0) {
-      // Reset the arrows on square click
-      onArrowsChange({});
-    }
-  };
+ const resetArrowsAndCircles = useCallback(() => {
+  if (Object.keys(circlesMap || {}).length > 0) {
+    onClearCircles();
+  }
+  if (Object.keys(props.arrowsMap || {}).length > 0) {
+    onArrowsChange({});
+  }
+}, [circlesMap, props.arrowsMap, onClearCircles, onArrowsChange]);
 
   // Moves
-  const { preMove, promoMove, pendingMove,lastMoveWasPromotion,...moveActions } = useMoves({
+  const { preMove, promoMove, pendingMove, ...moveActions } = useMoves({
     playingColor: boardOrientation,
     isMyTurn,
-    premoveAnimationDelay: BOARD_ANIMATION_DELAY + 1,
+    premoveAnimationDelay: BOARD_ANIMATION_DELAY, //+1
     onValidateMove,
+    onValidatePreMove,
+    isSquareEmpty,
     onMove,
     onPreMove: onMove,
-
+    
     // Event to reset the circles and arrows when any square is clicked or dragged
     onSquareClickOrDrag: resetArrowsAndCircles,
   });
@@ -157,24 +166,21 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
     customSquareStyles,
     ...props,
   });
-   useEffect(() => {
-    onLastMoveWasPromotionChange?.(lastMoveWasPromotion);
-  }, [lastMoveWasPromotion, onLastMoveWasPromotionChange]);
+const engineMove = useCallback((m: any) => {
+  const from = m.slice(0, 2);
+  const to = m.slice(2, 4);
+  const promo = m[4];
+
+  if (promo === 'q') {
+    onMove({ from, to, promoteTo: promo });
+  } else {
+    onMove({ from, to });
+  }
+}, [onMove]);
   if (sizePx === 0) {
     return null;
   }
-  const engineMove = (m: any) => {
-    let fromChess = m.slice(0, 2);
-    let toChess = m.slice(2, 4);
-    if (m.length == 5 && m.slice(-1) == 'q') {
-      let promotionChess = m.slice(4, 5);
-      let n = { from: fromChess, to: toChess, promoteTo: promotionChess };
-      onMove(n);
-    } else {
-      let n = { from: fromChess, to: toChess };
-      onMove(n);
-    }
-  };
+  
   return (
     <div>
       {match?.challengee.id && isBotPlay && (

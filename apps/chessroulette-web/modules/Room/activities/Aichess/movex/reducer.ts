@@ -31,7 +31,7 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
   if (prev.activityType !== 'aichess') {
     return prev;
   }
-  //console.log('aichess', action);
+  console.log('aichess', action);
   if (action.type === 'loadedChapter:takeBack') {
     const prevChapter = findLoadedChapter(prev.activityState);
     if (!prevChapter) {
@@ -521,10 +521,10 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
       );
 
     // TODO: Here this can be abstracted
-    console.log(
-      'prevChapter.notation.startingFen',
-      prevChapter.notation.startingFen
-    );
+    // console.log(
+    //   'prevChapter.notation.startingFen',
+    //   prevChapter.notation.startingFen
+    // );
     const fenBoard = new ChessFENBoard(prevChapter.notation.startingFen);
     historyAtFocusedIndex.forEach((m) => {
       if (!m.isNonMove) {
@@ -554,8 +554,7 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
         fenBoard.move(move);
       }
     });
-    console.log('fenBoard', fenBoard);
-    console.log('fenBoard-fen', fenBoard.fen);
+   
     const nextChapterState: ChapterState = {
       ...prevChapter,
       displayFen: fenBoard.fen,
@@ -660,7 +659,7 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
     };
   }
   if (action.type === 'loadedChapter:setArrows') {
-    console.log('action', action);
+ 
     const prevChapter = findLoadedChapter(prev.activityState);
 
     if (!prevChapter) {
@@ -696,6 +695,7 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
     };
   }
   if (action.type === 'loadedChapter:drawCircle') {
+    
     const prevChapter = findLoadedChapter(prev.activityState);
 
     if (!prevChapter) {
@@ -716,23 +716,31 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
       prev.activityState.chaptersMap[0].messages[
         prev.activityState.chaptersMap[0].messages.length - 1
       ].idResponse;
-    const message = {
-      content: `Think about using your ${piece}`,
-      participantId: 'chatGPT123456',
-      idResponse: idResponse,
-    };
 
+    // const message = prev.activityState.chaptersMap[0].chessAiMode.mode=='puzzle' ?  {
+    //   content: `Think about using your ${piece}`,
+    //   participantId: 'chatGPT123456',
+    //   idResponse: idResponse,
+    // } : {}
+    
+    
     const nextChapter: Chapter = {
       ...prevChapter,
       circlesMap: {
         ...restOfCirlesMap,
         ...(!!existent
           ? undefined // Set it to undefined if same
-          : { [circleId]: action.payload }),
+          : { [circleId]: [at,hex] }),
       },
       messages: [
         ...(prev.activityState.chaptersMap[0].messages ?? []),
-        message,
+         ...(prev.activityState.chaptersMap[0].chessAiMode.mode === 'puzzle'
+    ? [{
+        content: `Think about using your ${piece}`,
+        participantId: 'chatGPT123456',
+        idResponse,
+      }]
+    : []),
       ],
       chessAiMode: {
         ...prev.activityState.chaptersMap[0].chessAiMode,
@@ -1029,9 +1037,14 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
               },
             ]
           : [...prev.activityState.chaptersMap[0].messages];
-
-      if (action.payload.orientationChange === true) {
+ 
+      const orient = action.payload.orientationChange  
+      console.log('orient',orient)
+      
+      if (orient) {
+       
         if (prev.activityState.chaptersMap[0].orientation == 'b') {
+           console.log('prvi')
           const toOrientation = 'w';
           return {
             ...prev,
@@ -1057,6 +1070,7 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
             },
           };
         } else if (prev.activityState.chaptersMap[0].orientation == 'w') {
+          console.log('drugi')
           const toOrientation = 'b';
           return {
             ...prev,
@@ -1083,6 +1097,7 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
           };
         }
       }
+       console.log('prvi drugi')
       return {
         ...prev,
         activityState: {

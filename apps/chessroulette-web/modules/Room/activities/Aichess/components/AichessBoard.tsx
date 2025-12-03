@@ -51,11 +51,12 @@ export const AichessBoard = ({
   const lastMove = lm?.isNonMove ? undefined : lm;
 
   const Board = settings.canMakeInvalidMoves ? Freeboard : Playboard;
-
+  const isEmpty = fen === '8/8/8/8/8/8/8/8 w - - 0 1';
   const turn = orientation;
   return (
+    <div className="relative">
     <Board
-      containerClassName="shadow-2xl"
+      containerClassName={`shadow-2xl ${isEmpty && "blur-[2px]"}`}
       boardOrientation={orientation}
       playingColor={orientation}
       sizePx={sizePx}
@@ -93,5 +94,11 @@ export const AichessBoard = ({
         </>
       }
     />
+     {isEmpty && (
+      <div className="absolute inset-0 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-transparent" />
+      </div>
+    )}
+  </div>
   );
 };

@@ -148,7 +148,8 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
     const [currentRatingEngine, setCurrentRatingEngine] = useState<
       number | null
     >(null);
-
+    const [stockfish, setStockfish] = useState(false);
+   
     const lastClick = useRef(0);
     const [percentW, setPercentW] = useState(50);
     const [percentB, setPercentB] = useState(50);
@@ -178,6 +179,7 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
       currentChapterState.orientation;
     const playMode = currentChapterState.chessAiMode.mode === 'play';
     const puzzleMode = currentChapterState.chessAiMode.mode === 'puzzle';
+   
 
     const checkAnswerGPT = async (data: any) => {
       if (
@@ -272,7 +274,15 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
             participantId: 'chatGPT123456sales',
             idResponse: '',
           });
-        } else {
+        } else if(currentChapterState.messages[
+            currentChapterState?.messages?.length - 1
+          ]?.participantId.includes('sales')) {
+          onMessage({
+            content: data.answer.text,
+            participantId: 'chatGPT123456sales',
+            idResponse: data.id,
+          });
+        } else  {
           onMessage({
             content: data.answer.text,
             participantId: 'chatGPT123456',
@@ -285,11 +295,15 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
     const addQuestion = async (question: string) => {
       const url = new URL(window.location.href);
       const userId = url.searchParams.get('userId');
+      const lastIdResponse =
+      currentChapterState.messages.length > 0
+      ? currentChapterState.messages[currentChapterState.messages.length - 1].idResponse || ''
+      : '';
       if (userId) {
         onMessage({
           content: question,
           participantId: userId,
-          idResponse: '',
+          idResponse: lastIdResponse,
         });
       }
       setQuestion('');
@@ -329,7 +343,8 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
         const data = await SendQuestionReview(
           question,
           currentChapterState,
-          reviewData
+          reviewData,
+          moveSan
         );
 
         if (data) {
@@ -466,7 +481,10 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
         }
       }
     }, [currentChapterState.chessAiMode.goodMoves]);
-
+useEffect(() => {
+       
+       setTimeout(() => setStockfish(true), 1500);
+    }, []);
     useEffect(() => {
       if (currentChapterState.chessAiMode.mode == 'review') {
       }
@@ -576,17 +594,20 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
         ].slice(2, 4);
         const color = '#11c6d1';
         if (hintCircle) {
+          
           const arrowId = `${fieldFrom}${fieldTo}-${color}`;
           onArrowsChange({
             [arrowId]: [fieldFrom as Square, fieldTo as Square, color],
           });
           setHintCircle(false);
         } else {
+      
           const piece = await CheckPiece(
             fieldFrom as Square,
             currentChapterState.displayFen
           );
           const circle = [fieldFrom, color, piece];
+        //  console.log('ide circle',circle)
           setHintCircle(true);
           onCircleDraw(circle as CircleDrawTuple);
         }
@@ -652,15 +673,12 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
                 (Number(reviewData[index + 1].diff) > 0.7 && !whiteMove) ||
                 (Number(reviewData[index + 1].diff) < -0.7 && whiteMove)
               ) {
-                console.log(
-                  'chapter',
-                  currentChapterState.notation.focusedIndex
-                );
-                console.log('reviewDatareviewData', reviewData);
+                
+                
                 const color = '#07da63';
                 const colorBlunder = '#f2358d';
 
-                console.log('index', index);
+               
                 const from = reviewData[index].topMove[0];
                 const to = reviewData[index].topMove[1];
                 const fromBlunder = reviewData[index + 1].moveLan[0];
@@ -939,7 +957,7 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
         },
         isMobile
       );
-      console.log('dats', data);
+     // console.log('dats', data);
 
       setReviewData(data);
       if (data) {
@@ -1037,7 +1055,8 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
     // Instructor
     return (
       <div className="  flex flex-col flex-1 min-h-0 rounded-lg shadow-2xl flex-1 flex min-h-0 ">
-        <StockFishEngineAI
+       {stockfish && currentChapterState.chessAiMode.mode !==''  && (
+         <StockFishEngineAI
           ratingEngine={ratingEngine}
           newRatingEngine={newRatingEngine}
           fen={currentChapterState.displayFen}
@@ -1050,8 +1069,9 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
           isMyTurn={isMyTurn}
           engineMove={engineMove}
           addGameEvaluation={handleGameEvaluation}
-          // moveReaction={moveReaction}
         />
+       )} 
+       
 
         <Tabs
           containerClassName=" flex flex-col flex-1 min-h-0 rounded-lg shadow-2xl "
@@ -1248,6 +1268,7 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
                                 disabled={pulseDot || progressReview > 0}
                                 size="sm"
                                 className="bg-green-600 text-black"
+                                 style={{color:'black'}}
                               >
                                 <p>Game Review</p>
                               </ButtonGreen>
