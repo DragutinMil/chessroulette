@@ -95,22 +95,21 @@ export const socketUtil = {
       // Ako socket nije povezan, pokušaj da se povežeš
       // Možete koristiti postojeći status ili dodati novi
 
-      console.log('povezivanje na socket server');
+      console.log('subscribe socket');
 
-      if (topic=='tb_notification'){
-          console.log('nova notifikacija');
+      if (topic == 'tb_notification') {
+        console.log('nova notifikacija');
       }
 
       await socketUtil.connect('watching'); // ili 'reviewing'
     }
-    
+
     socketUtil.on(topic, callback);
   },
 
   unsubscribe: (topic: string, callback?: (data: any) => void) => {
     socketUtil.off(topic, callback);
   },
-
 };
 
 export default socketUtil;

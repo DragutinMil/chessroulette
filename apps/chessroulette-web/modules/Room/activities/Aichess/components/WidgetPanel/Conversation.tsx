@@ -123,6 +123,8 @@ const Conversation = ({
                               openViewSubscription();
                             }}
                             size="lg"
+                            className="bg-green-600  text-black font-bold "
+                            style={{ color: 'black' }}
                           >
                             Subscribe
                           </ButtonGreen>
@@ -151,7 +153,7 @@ const Conversation = ({
                 {userData.picture ? (
                   <div className="w-9 h-9 min-w-8  flex items-center justify-center rounded-full">
                     <img
-                      className="w-9 h-9 min-w-8  flex items-center justify-center rounded-full"
+                      className="w-9 h-9 min-w-8  flex items-center justify-center rounded-full  object-cover"
                       src={userData.picture}
                       alt="user_picture"
                     />

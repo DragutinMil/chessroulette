@@ -11,7 +11,7 @@ type Props = {
   homeColor: ChessColor;
   playerId: string;
   lastOffer?: GameOffer;
-   lastMoveWasPromotion?: boolean;
+  lastMoveWasPromotion?: boolean;
   onDrawOffer: () => void;
   onTakebackOffer: () => void;
   onResign: () => void;
@@ -23,7 +23,7 @@ export const PlayControls: React.FC<Props> = ({
   onDrawOffer,
   onTakebackOffer,
   onRematchOffer,
-   lastMoveWasPromotion = false,
+  lastMoveWasPromotion = false,
   homeColor,
   playerId,
   game,
@@ -61,7 +61,7 @@ export const PlayControls: React.FC<Props> = ({
   const takebackCount = offerCounters?.takeback?.[playerId] ?? 0;
   const drawCount = offerCounters?.draw?.[playerId] ?? 0;
 
-   const isLastMovePromotion = (pgn: string): boolean => {
+  const isLastMovePromotion = (pgn: string): boolean => {
     if (!pgn || pgn.length === 0) return false;
 
     // Split PGN into tokens and filter out move numbers and game results
@@ -86,7 +86,7 @@ export const PlayControls: React.FC<Props> = ({
     if (lastOffer?.status === 'pending' || offerAlreadySent.current)
       return false;
 
-     const lastMoveWasPromotionByCurrentPlayer = 
+    const lastMoveWasPromotionByCurrentPlayer =
       isLastMovePromotion(game.pgn) && game.lastMoveBy === homeColor;
 
     if (lastMoveWasPromotionByCurrentPlayer) return false;
@@ -144,7 +144,7 @@ export const PlayControls: React.FC<Props> = ({
     refreshAllowDraw(calculateDrawStatus());
   }, [game.status, offers, game.lastMoveBy]);
   //nisam ubacio   game.pgn nema potrebe
- 
+
   return (
     <div className="flex gap-2">
       <QuickConfirmButton

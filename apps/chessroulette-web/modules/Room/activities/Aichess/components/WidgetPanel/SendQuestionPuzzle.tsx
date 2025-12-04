@@ -12,7 +12,7 @@ export async function SendQuestionPuzzle(
   currentRatingEngine: number | null,
   pgn?: string
 ) {
-  const model = 'gpt-4.1-mini';
+  const model = 'gpt-5.1';
   const previusMessageId =
     currentChapterState.messages[currentChapterState.messages.length - 1]
       .idResponse;

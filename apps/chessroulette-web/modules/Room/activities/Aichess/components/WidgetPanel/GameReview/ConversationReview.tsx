@@ -112,6 +112,7 @@ const ConversationReview = ({
                         disabled={disableButton}
                         size="md"
                         className="bg-green-600  text-black font-bold mt-2 px-1 mr-2 whitespace-nowrap px-4"
+                        style={{ color: 'black' }}
                       >
                         Game Review
                       </ButtonGreen>
@@ -124,6 +125,8 @@ const ConversationReview = ({
                           openViewSubscription();
                         }}
                         size="lg"
+                        className="bg-green-600  text-black font-bold "
+                        style={{ color: 'black' }}
                       >
                         Subscribe
                       </ButtonGreen>
