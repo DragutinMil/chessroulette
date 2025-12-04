@@ -10,8 +10,8 @@ type ChallengeData = {
   time_class?: string;
   time_control?: string; // Format kao "3+2"
   amount?: string;
-  initiator_name_first?:string;
-  initiator_name_last?:string;
+  initiator_name_first?: string;
+  initiator_name_last?: string;
   // Dodajte ostala polja koja dolaze sa socket notifikacijom
 };
 
@@ -26,11 +26,13 @@ export const ChallengeNotification: React.FC<Props> = ({
   onAccept,
   onDecline,
 }) => {
-  const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1920);
+  const [windowWidth, setWindowWidth] = useState(
+    typeof window !== 'undefined' ? window.innerWidth : 1920
+  );
 
   useEffect(() => {
     console.log('🎯 ChallengeNotification render - challenge:', challenge);
-    
+
     const handleResize = () => {
       setWindowWidth(window.innerWidth);
     };
@@ -51,10 +53,12 @@ export const ChallengeNotification: React.FC<Props> = ({
 
   const handleAccept = async () => {
     const token = Cookies.get('token') || Cookies.get('sessionToken');
-    
+
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_WEB || 'https://api.outpostchess.com/'}challenge_accept/${challenge.ch_uuid}`,
+        `${
+          process.env.NEXT_PUBLIC_API_WEB || 'https://api.outpostchess.com/'
+        }challenge_accept/${challenge.ch_uuid}`,
         {
           method: 'POST',
           headers: {
@@ -100,11 +104,13 @@ export const ChallengeNotification: React.FC<Props> = ({
   };
 
   // Proveri da li je friendly (amount je 0 ili nema amount)
-  const isFriendly = !challenge.amount || 
-    challenge.amount === '0' || 
-    challenge.amount === '€0' || 
+  const isFriendly =
+    !challenge.amount ||
+    challenge.amount === '0' ||
+    challenge.amount === '€0' ||
     challenge.amount === '$0' ||
-    (typeof challenge.amount === 'string' && parseFloat(challenge.amount.replace(/[€$]/g, '')) < 1);
+    (typeof challenge.amount === 'string' &&
+      parseFloat(challenge.amount.replace(/[€$]/g, '')) < 1);
 
   // Formatuj amount za prikaz
   const formatAmount = () => {
@@ -114,7 +120,7 @@ export const ChallengeNotification: React.FC<Props> = ({
       const numAmount = parseFloat(challenge.amount.replace(/[€$]/g, ''));
       if (!isNaN(numAmount)) {
         // Ako je veći od 0, prikaži sa €
-        return `€${Math.round((numAmount * 0.9090909) * 100) / 100}`;
+        return `€${Math.round(numAmount * 0.9090909 * 100) / 100}`;
       }
     }
     return challenge.amount;
@@ -154,8 +160,8 @@ export const ChallengeNotification: React.FC<Props> = ({
           }
         }
       `}</style>
-      <div 
-        id="checkClickChallenge3" 
+      <div
+        id="checkClickChallenge3"
         className="initiate-banner banner-position"
         style={{
           position: 'absolute',
@@ -175,42 +181,40 @@ export const ChallengeNotification: React.FC<Props> = ({
           marginBottom: '2.813rem',
         }}
       >
-        <div className="banner-text" style={{
-          color: 'white',
-          fontSize: textFontSize,
-          textAlign: 'center',
-          marginBottom: '14px',
-        }}>
-          <span 
-            className="color-blue hover" 
+        <div
+          className="banner-text"
+          style={{
+            color: 'white',
+            fontSize: textFontSize,
+            textAlign: 'center',
+            marginBottom: '14px',
+          }}
+        >
+          <span
+            className="color-blue hover"
             style={{
               cursor: 'pointer',
               color: 'inherit',
             }}
           >
             {getChallengerName()}
-          </span>
-          {' '}challenged you to a{' '}
-          <span>{formatTimeControl()},</span>
-          {' '}
-          {isFriendly ? (
-            <span>friendly </span>
-          ) : null}
+          </span>{' '}
+          challenged you to a <span>{formatTimeControl()},</span>{' '}
+          {isFriendly ? <span>friendly </span> : null}
           match
-          {!isFriendly && formatAmount() && (
-            <>
-              {' '}for {formatAmount()}.
-            </>
-          )}
+          {!isFriendly && formatAmount() && <> for {formatAmount()}.</>}
         </div>
-        <div className="flex-center" style={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          gap: '10px',
-          flexWrap: 'wrap',
-        }}>
-          <div 
+        <div
+          className="flex-center"
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            gap: '10px',
+            flexWrap: 'wrap',
+          }}
+        >
+          <div
             className="btn_roullete"
             onClick={handleAccept}
             style={{
@@ -241,7 +245,7 @@ export const ChallengeNotification: React.FC<Props> = ({
           >
             <b>Play</b>
           </div>
-          <div 
+          <div
             className="btn_roullete btn_roullete_cancel"
             onClick={onDecline}
             style={{

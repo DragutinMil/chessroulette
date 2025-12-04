@@ -11,7 +11,7 @@ import {
   useBoardTheme,
 } from '../../Chessboard';
 import { useCallback, useState } from 'react';
-import { validateMove } from './util';
+import { validateMove, validatePreMove, squareEmpty } from './util';
 
 export type PlayboardProps = DistributiveOmit<
   ChessboardContainerProps,
@@ -20,7 +20,7 @@ export type PlayboardProps = DistributiveOmit<
   playingColor: ChessColor;
   turn: ChessColor;
   onMove: (m: ShortChessMove) => void;
-   onLastMoveWasPromotionChange?: (wasPromotion: boolean) => void;
+  onLastMoveWasPromotionChange?: (wasPromotion: boolean) => void;
   canPlay?: boolean;
   overlayComponent?: React.ReactNode;
 };
@@ -42,14 +42,22 @@ export const Playboard = ({
   ...props
 }: PlayboardProps) => {
   const boardTheme = useBoardTheme();
-  const [circlesMap, setCirclesMap] = useState<CirclesMap>({});
+  //const [circlesMap, setCirclesMap] = useState<CirclesMap>({});
+  const onValidatePreMove = (move: ShortChessMove) => {
+    return validatePreMove(move, fen, playingColor).valid;
+  };
+
+  // const isSquareEmpty = (m: string) => {
+  //   return squareEmpty(m, fen);
+  // };
+  const isSquareEmpty = (m: string) => squareEmpty(m, fen);
 
   const onValidateMove = useCallback(
     (move: ShortChessMove) => {
+      console.log('onValidateMove');
       if (!canPlay) {
         return false;
       }
-
       if (turn !== playingColor) {
         return false;
       }
@@ -61,6 +69,7 @@ export const Playboard = ({
 
   return (
     <ChessboardContainer
+      {...props}
       strict
       turn={turn}
       // onChangePuzzleAnimation={onChangePuzzleAnimation}
@@ -68,19 +77,20 @@ export const Playboard = ({
       boardOrientation={boardOrientation}
       boardTheme={boardTheme}
       onValidateMove={onValidateMove}
+      onValidatePreMove={onValidatePreMove}
+      isSquareEmpty={isSquareEmpty}
       onMove={onMove}
-      circlesMap={circlesMap}
-      onCircleDraw={(c) => {
-        setCirclesMap((prev) => ({
-          ...prev,
-          [c[0]]: c,
-        }));
-      }}
-      onClearCircles={() => {
-        setCirclesMap({});
-      }}
-       onLastMoveWasPromotionChange={onLastMoveWasPromotionChange}
-      {...props}
+      circlesMap={props.circlesMap}
+      // onCircleDraw={(c) => {
+      //   setCirclesMap((prev) => ({
+      //     ...prev,
+      //     [c[0]]: c,
+      //   }));
+      // }}
+      // onClearCircles={() => {
+      //   setCirclesMap({});
+      // }}
+      onLastMoveWasPromotionChange={onLastMoveWasPromotionChange}
     />
   );
 };

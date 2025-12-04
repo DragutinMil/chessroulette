@@ -37,7 +37,9 @@ export const getNewChessGame = (
 
       return instance;
     }
-
+    if (props?.fen == '8/8/8/8/8/8/8/8 w - - 0 1') {
+      return instance;
+    }
     if (props?.fen) {
       instance.load(props.fen);
 
@@ -46,6 +48,10 @@ export const getNewChessGame = (
 
     return instance;
   } catch (e) {
+    if (props?.fen == '8/8/8/8/8/8/8/8 w - - 0 1') {
+      console.log('roketi');
+      return instance;
+    }
     console.error('GetNewChessGame', e);
     return instance;
   }

@@ -1,16 +1,23 @@
 import { ai_prompt } from '../../../util';
 import type { ChapterState } from '../../../movex/types';
 import type { EvaluationMove } from '../../../movex/types';
+import { slicePgn } from './slicePgn';
 export async function SendQuestionReview(
   prompt: string,
   currentChapterState: ChapterState,
-  reviewData: EvaluationMove[]
+  reviewData: EvaluationMove[],
+  moveSan: string
 ) {
-  const model = 'gpt-4.1-mini';
+  const model = 'gpt-5.1';
   const previusMessageId =
     currentChapterState.messages[currentChapterState.messages.length - 1]
       .idResponse;
   console.log('reviewData', reviewData);
+  const pgn = currentChapterState.chessAiMode.fen;
+  const fen = currentChapterState.displayFen;
+  const moveNum = currentChapterState.notation.focusedIndex[0];
+  const submoveNum = currentChapterState.notation.focusedIndex[1];
+  const actualPGN = slicePgn(pgn, moveNum, submoveNum);
   const normalizedReview = reviewData.map((m, index, arr) => {
     const previous = arr[index - 1];
     return {
@@ -26,16 +33,26 @@ export async function SendQuestionReview(
           : null,
     };
   });
+
   const question =
     'QUESTION:\n' +
     prompt +
     '\n\n' +
     'CONTEXT:\n' +
     'pgn:\n ' +
-    currentChapterState.chessAiMode.fen +
+    pgn +
     '\n' +
     'played by:\n ' +
     (currentChapterState.orientation == 'b' ? 'white player' : 'black player') +
+    '\n' +
+    'pgn actual:' +
+    actualPGN +
+    '\n' +
+    'fen  actual:' +
+    fen +
+    '\n' +
+    'best move:' +
+    moveSan +
     '\n' +
     'REVIEW:\n' +
     ` 

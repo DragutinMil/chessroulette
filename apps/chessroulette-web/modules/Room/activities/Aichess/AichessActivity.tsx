@@ -42,7 +42,7 @@ export const AichessActivity = ({
   const moveSound = new Audio('/chessmove.mp3');
   const dispatch = optionalDispatch || noop;
   const [cameraOff, setCameraOff] = useState(false);
-  const [newReview, setNewReview] = useState(false);
+  const [newReview, setNewReview] = useState(true);
   const [playerNames, setPlayerNames] = useState(Array<string>);
   const [canFreePlay, setCanFreePlay] = useState(false);
   const [puzzleCounter, setPuzzleCounter] = useState(0);
@@ -79,6 +79,26 @@ export const AichessActivity = ({
     };
   }, []);
   useEffect(() => {
+    console.log('currentChapter', currentChapter);
+
+    if (newReview === false && currentChapter.chessAiMode.mode == 'review') {
+      return;
+    }
+    const hasBranches = JSON.stringify(
+      currentChapter.notation.history
+    ).includes('branchedHistories');
+    const hasIlegalMoves = JSON.stringify(
+      currentChapter.notation.history
+    ).includes('isNonMove');
+    if (
+      !hasBranches &&
+      !hasIlegalMoves &&
+      currentChapter.displayFen !==
+        'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
+    ) {
+      return;
+    }
+    //console.log('setNewReview2',newReview)
     const url = new URL(window.location.href);
     const rawPgn = url.searchParams.get('pgn');
     const userId = url.searchParams.get('userId');
@@ -86,24 +106,18 @@ export const AichessActivity = ({
     if (rawPgn) {
       const getMatchInfo = async () => {
         const data = await getMatch(rawPgn);
+        const lastGame = data.results.endedGames.length - 1;
         if (data) {
-          const pgn =
-            data.results.endedGames[data.results.endedGames.length - 1].pgn;
-          const white =
-            data.results.endedGames[data.results.endedGames.length - 1].players
-              .w == userId;
-          const black =
-            data.results.endedGames[data.results.endedGames.length - 1].players
-              .b == userId;
+          const pgn = data.results.endedGames[lastGame].pgn;
+          const white = data.results.endedGames[lastGame].players.w == userId;
+          const black = data.results.endedGames[lastGame].players.b == userId;
 
           const whitePlayerName =
-            data.results.endedGames[data.results.endedGames.length - 1].players
-              .w == data.initiator_id
+            data.results.endedGames[lastGame].players.w == data.initiator_id
               ? data.initiator_name_first
               : data.target_name_first;
           const blackPlayerName =
-            data.results.endedGames[data.results.endedGames.length - 1].players
-              .b == data.initiator_id
+            data.results.endedGames[lastGame].players.b == data.initiator_id
               ? data.initiator_name_first
               : data.target_name_first;
 
@@ -291,10 +305,10 @@ export const AichessActivity = ({
                     // dispatch({ type: 'loadedChapter:setArrows', payload });
                   }}
                   onCircleDraw={(tuple) => {
-                    // dispatch({
-                    //   type: 'loadedChapter:drawCircle',
-                    //   payload: tuple,
-                    // });
+                    dispatch({
+                      type: 'loadedChapter:drawCircle',
+                      payload: tuple,
+                    });
                   }}
                   onClearCircles={() => {
                     dispatch({ type: 'loadedChapter:clearCircles' });
