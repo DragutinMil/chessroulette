@@ -20,7 +20,7 @@ export const SmartCountdownDisplay = ({
   //51 65 85
   if (timeLeft <= 0) {
     return (
-      <Text className="text-red-500 relative   py-1 px-3  rounded-md   w-full  backdrop-blur-lg shadow-lg ">
+      <Text className="text-red-500 relative   py-1 px-0  rounded-md   w-full  backdrop-blur-lg shadow-lg ">
         00:00
       </Text>
     );
@@ -29,7 +29,7 @@ export const SmartCountdownDisplay = ({
   const shouldAlert = Number(major) < 1 && Number(minor) < 30;
 
   return (
-    <Text className={active ? activeTextClassName : inactiveTextClassName}>
+    <Text className={active ? activeTextClassName : inactiveTextClassName} px-0>
       <Text className="font-bold">{major}</Text>
       <Text>:</Text>
       <Text

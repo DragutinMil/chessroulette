@@ -50,7 +50,7 @@ export const PlayerBox: React.FC<Props> = ({
   }, []);
 
   return (
-    <div className="flex flex-1 gap-3 items-center justify-between">
+    <div className="flex flex-1 gap-3 items-center justify-between mr-0 pr-0 w-full">
       {isBotPlay ? (
         <div
           className={`capitalize text-sm md:text-lg ${
@@ -78,7 +78,7 @@ export const PlayerBox: React.FC<Props> = ({
           msLeft={timeLeft}
           onFinished={onCheckTime}
           onRefreshMsLeft={onCheckTime}
-          className="text-xl md:text-2xl  w-[90px]"
+          className="text-xl md:text-2xl  ml-auto p-0"
         />
       )}
     </div>
