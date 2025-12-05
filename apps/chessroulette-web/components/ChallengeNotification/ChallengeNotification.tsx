@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Dialog } from '@app/components/Dialog';
 import { ButtonGreen } from '@app/components/Button/ButtonGreen';
 import Cookies from 'js-cookie';
+import socketUtil from '@app/socketUtil';
 
 type ChallengeData = {
   ch_uuid: string;
@@ -27,6 +28,9 @@ export const ChallengeNotification: React.FC<Props> = ({
   onDecline,
 }) => {
   const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1920);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const checkIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const [isRevoked, setIsRevoked] = useState(false);
 
   useEffect(() => {
     console.log('🎯 ChallengeNotification render - challenge:', challenge);
@@ -38,6 +42,103 @@ export const ChallengeNotification: React.FC<Props> = ({
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, [challenge]);
+
+  useEffect(() => {
+    if (!challenge || !challenge.ch_uuid) {
+      return;
+    }
+
+    setIsRevoked(false);
+
+    // Funkcija za proveru statusa challenge-a
+    const checkChallengeStatus = async () => {
+      const token = Cookies.get('token') || Cookies.get('sessionToken');
+      
+      try {
+        // Pokušaj da proveriš status challenge-a
+        // Ako API vraća 404 ili error, challenge je verovatno revoke-ovan
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_API_WEB || 'https://api.outpostchess.com/'}challenge_status/${challenge.ch_uuid}`,
+          {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (!response.ok) {
+          // Ako challenge ne postoji ili je revoke-ovan
+          console.log('⚠️ Challenge revoked or not found');
+          setIsRevoked(true);
+          onDecline();
+          return;
+        }
+
+        const data = await response.json();
+        // Proveri da li je challenge još uvek aktivan
+        if (data.status === 'revoked' || data.status === 'cancelled' || data.status === 'expired') {
+          console.log('⚠️ Challenge status:', data.status);
+          setIsRevoked(true);
+          onDecline();
+        }
+      } catch (error) {
+        // Ako API endpoint ne postoji, koristimo alternativni pristup
+        // Možemo samo osloniti se na socket event ili timeout
+        console.log('⚠️ Challenge status check failed, will rely on timeout');
+      }
+    };
+
+    // Proveri status challenge-a svakih 2 sekunde
+    checkIntervalRef.current = setInterval(checkChallengeStatus, 2000);
+
+    // Automatski decline nakon 10 sekundi
+    timeoutRef.current = setTimeout(() => {
+      console.log('⏰ Challenge auto-declined after 10 seconds');
+      onDecline();
+    }, 10000);
+
+    // Cleanup
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+      if (checkIntervalRef.current) {
+        clearInterval(checkIntervalRef.current);
+      }
+    };
+  }, [challenge, onDecline]);
+
+  // Slušaj socket event-e za challenge revocation
+  useEffect(() => {
+    if (!challenge || !challenge.ch_uuid) {
+      return;
+    }
+
+    const handleChallengeRevoked = (data: any) => {
+      // Proveri da li je ovo revocation event za naš challenge
+      if (
+        data.ch_uuid === challenge.ch_uuid ||
+        data.challenge_uuid === challenge.ch_uuid ||
+        (data.n_type === 'challenge_revoked' && data.data?.ch_uuid === challenge.ch_uuid)
+      ) {
+        console.log('🔔 Challenge revoked via socket event');
+        setIsRevoked(true);
+        onDecline();
+      }
+    };
+
+    // Pretplati se na socket event-e za challenge revocation
+    socketUtil.subscribe('tb_notification', handleChallengeRevoked);
+    socketUtil.subscribe('challenge_revoked', handleChallengeRevoked);
+
+    return () => {
+      socketUtil.unsubscribe('tb_notification', handleChallengeRevoked);
+      socketUtil.unsubscribe('challenge_revoked', handleChallengeRevoked);
+    };
+  }, [challenge, onDecline]);
+
 
   if (!challenge) {
     console.log('🎯 ChallengeNotification: No challenge, returning null');
