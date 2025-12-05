@@ -116,7 +116,7 @@ const MatchContainerInner = ({
     <>
       <ResizableDesktopLayout
         mainComponent={({ boardSize }) => (
-          <div className="w-max[full] md:w-max[3/4]">
+          <div className=" w-max[full] md:w-max[3/4] mr-0">
           <PlayContainer
             // This resets the PlayContainer on each new game
             key={match.endedGames.length}
