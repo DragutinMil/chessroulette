@@ -78,6 +78,7 @@ export const ChessboardDisplay = ({
         id="Chessboard" // TODO: should this be unique per instance?
         position={fen}
         boardWidth={sizePx}
+        //customPieces={}
         showBoardNotation
         boardOrientation={toLongChessColor(boardOrientation)}
         snapToCursor={false}
