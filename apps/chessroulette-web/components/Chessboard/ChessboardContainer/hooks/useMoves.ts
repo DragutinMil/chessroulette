@@ -53,7 +53,7 @@ type Props = {
 export const useMoves = ({
   isMyTurn,
   playingColor,
-  premoveAnimationDelay = 100,
+  premoveAnimationDelay = 50,
   onMove,
   onPreMove,
   onValidateMove,
@@ -270,14 +270,16 @@ export const useMoves = ({
   };
 
   useEffect(() => {
+    console.log('livada',isMyTurn)
     const currentMoves = getCurrentMoves();
     if (!isMyTurn) {
       return;
     }
+    console.log('livada2',currentMoves, currentMoves.preMove?.to)
     if (!onPreMove && !currentMoves.preMove?.to) {
       return;
     }
-    
+    console.log('livada3')
 
     if (promoMove) {
       if (isSquareEmpty(promoMove.to)) {
@@ -293,9 +295,10 @@ export const useMoves = ({
       }
       //Skipping premove execution promoMove is waiting for user selection
     }
-
+  console.log('livada4')
     // If we have a complete premove and it's our turn, execute it
     if (isMyTurn && currentMoves.preMove?.to) {
+      console.log('livada5')
       const moveToExecute = {
         from: currentMoves.preMove.from,
         to: currentMoves.preMove.to,
