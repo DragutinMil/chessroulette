@@ -16,7 +16,7 @@ import { Err, Ok, Result } from 'ts-results';
 
 type MoveActions = {
   onSquareClick: (square: Square, pieceSan?: PieceSan) => void;
-  onPieceDrag: (pieceSan: PieceSan, square: Square) => void;
+  onPieceDrag: (square: Square,pieceSan: PieceSan) => void;
   onPieceDrop: (from: Square, to: Square, pieceSan: PieceSan) => boolean;
   onClearPromoMove: () => void;
   onPromoSubmit: (move: ShortChessMove) => void; // Add this line
@@ -113,14 +113,14 @@ export const useMoves = ({
     square: Square;
     pieceSan?: PieceSan;
   }) => {
+    console.log('pocetak',square,pieceSan)
     const piece = pieceSan ? pieceSanToPiece(pieceSan) : undefined;
     const isMyPiece = piece?.color === playingColor;
     const currentMoves = getCurrentMoves();
     // Handle regular moves during my turn
-    console.log('provera poteza', square, pieceSan);
+   
     if (isMyTurn && !currentMoves.preMove) {
       // If no pending move exists
-
       // console.log('currentMoves',currentMoves)
       if (!currentMoves.pendingMove?.from) {
         if (!isMyPiece) {
@@ -168,6 +168,7 @@ export const useMoves = ({
     ///MOJ POTEZ I IMAM PREMOVE
 
     if (isMyTurn && currentMoves.preMove) {
+       console.log('provera poteza', square, pieceSan);
       console.log('MOJ POTEZ I IMAM PREMOVE');
       // Case 3 & 4: Complete premove that was started earlier
       if (!currentMoves.preMove.to) {
@@ -452,7 +453,7 @@ export const useMoves = ({
   return {
     onSquareClick: (square: Square, pieceSan?: PieceSan) =>
       onClickOrDrag({ square, pieceSan }),
-    onPieceDrag: (pieceSan: PieceSan, square: Square) =>
+    onPieceDrag: (square: Square,pieceSan: PieceSan) =>
       onClickOrDrag({ square, pieceSan }),
     onPieceDrop,
     onPromoSubmit: (move: ShortChessMove) => {

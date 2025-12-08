@@ -195,9 +195,9 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
         boardTheme={boardTheme}
         boardOrientation={boardOrientation}
         // Moves
-        onPieceDrag={(piece, square) => {
+        onPieceDrag={( square, piece) => {
           if (!piece || !square) return;
-          moveActions.onPieceDrag(piece as PieceSan, square as Square);
+          moveActions.onPieceDrag(  square as Square, piece as PieceSan);
         }}
         onPieceDrop={(sourceSquare, targetSquare, piece?) => {
           if (!piece || !sourceSquare || !targetSquare) return false;
@@ -228,7 +228,7 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
         // Board Props
         squareStyles={customStyles.squareStyles}
         highlightSquares={customStyles.squareStyles}
-        //highlightArrows={arrows.arrowsToRender}
+       // highlightArrows={arrows.arrowsToRender}
         // squareRenderer={ChessboardSquare}
         // onMouseOverSquare={setHoveredSquare}
         // Arrows

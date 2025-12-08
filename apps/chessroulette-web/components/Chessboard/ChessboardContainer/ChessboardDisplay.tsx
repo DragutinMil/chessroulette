@@ -32,11 +32,11 @@ export type ChessboardDisplayProps = Omit<
   squareStyles?: any;
   onSquareClick?: (square: string, piece?: string) => void;
   //onPieceClick?: (square: string, piece: string | null) => void;
-  onPieceDrag?: (piece: string, square: string | null) => void;
+  onPieceDrag?: (square: string | null, piece: string ) => void;
   onPieceDrop?: (from: string, to: string, piece?: string | null) => void;
   onArrowsChange: any;
   highlightSquares?: Record<string, any>;
-  highlightArrows?: Array<[string, string]>;
+  //highlightArrows?: Array<[string, string]>;
 
   containerClassName?: string;
   overlayComponent?: React.ReactNode;
@@ -78,7 +78,7 @@ export const ChessboardDisplay = ({
 
   ...boardProps
 }: ChessboardDisplayProps) => {
-  //console.log('boardTheme',boardTheme)
+  console.log('onArrowsChange',onArrowsChange)
 
   return (
     <div
@@ -111,6 +111,7 @@ export const ChessboardDisplay = ({
             },
             allowDragging: true,
             onPieceDrag: ({ square, piece }: PieceHandlerArgs) => {
+              console.log()
               const sq = square ?? '';
               const pc = piece?.pieceType;
               onPieceDrag?.(sq, pc);
@@ -134,14 +135,15 @@ export const ChessboardDisplay = ({
               border: `5px solid ${boardTheme.hoveredSquare}`,
               boxShadow: boardTheme.hoveredSquare,
             },
+            arrows:onArrowsChange,
             arrowOptions: {
-              color: 'rgb(74 222 128)',
-              secondaryColor: 'rgba(74, 222, 128, 0.5)',
-              tertiaryColor: 'rgba(74, 222, 128, 0.2)',
-              arrowLengthReducerDenominator: 2,
-              sameTargetArrowLengthReducerDenominator: 3,
-              arrowWidthDenominator: 10,
-              activeArrowWidthMultiplier: 1.5,
+              color: boardTheme.arrowColors[1],
+              secondaryColor: 'rgb(74 222 128)',
+              tertiaryColor: 'rgb(74 222 128)',
+              arrowLengthReducerDenominator: 4,
+              sameTargetArrowLengthReducerDenominator: 1,
+              arrowWidthDenominator: 5.2,
+              activeArrowWidthMultiplier: 1.2,
               opacity: 0.8,
               activeOpacity: 1,
             },
