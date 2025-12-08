@@ -21,7 +21,7 @@ export type BoardTheme = {
   preMoveFromSquare: string;
   hoveredSquare: string;
   clickedPieceSquare: string;
-  customPieces?: ChessBoardProps['customPieces'];
+  // customPieces?: ChessBoardProps['customPieces'];
   renderPiece: (p: {
     pieceSan: PieceSan;
     squareWidth: number;
@@ -75,24 +75,27 @@ const chessrouletteTheme: Theme = {
     preMoveToSquare: 'rgba(21, 183, 155, .5)',
     clickedPieceSquare: 'rgba(0, 163, 255, .7)',
     renderPiece: crPieceTheme.renderPiece,
-    customPieces: crPieceTheme.getCustomPieces(),
+    //customPieces: crPieceTheme.getCustomPieces(),
   },
 };
 
 const outpostTheme: Theme = {
   name: 'outpost',
   board: {
-    darkSquare: '#C8A07D',
-    lightSquare: 'white',
+    darkSquare: ' rgb(181, 136, 99)',
+    //'rgba(200, 160, 125, 1)',
+    
+    lightSquare: 'rgb(240, 217, 181)',
     arrowColors: ['#11c6d1', '#f2358d', '#6f7381'],
     lastMoveToSquare: 'rgba(95, 15, 15, .6)',
     lastMoveFromSquare: 'rgba(95, 15, 15, .6)',
     preMoveFromSquare: 'rgba(21, 183, 155, .5)',
     preMoveToSquare: 'rgba(21, 183, 155, .5)',
-    hoveredSquare: 'rgba(134, 583, 255, .5)',
+    hoveredSquare: 'rgb(216,181,143)',
+    // hoveredSquare: 'rgba(134, 583, 255, .5)', //malo tamnija rgba(225, 195, 170, 1)
     clickedPieceSquare: 'rgba(134, 583, 255, .5)',
     renderPiece: regularPieceTheme.renderPiece,
-    customPieces: regularPieceTheme.getCustomPieces(),
+    // customPieces: regularPieceTheme.getCustomPieces(),
   },
 };
 

@@ -195,6 +195,7 @@ export const BoardEditor = ({
             }
           >
             <ChessboardContainer
+              //// Should be refactored becouse of change from 4.5.0. to 5.6.0. chessboard react
               fen={fen}
               boardTheme={boardTheme}
               {...props}
@@ -212,39 +213,16 @@ export const BoardEditor = ({
                   return false;
                 }
               }}
-              onPieceDragBegin={(piece, from) => {
+              onPieceDrag={(piece: any, from: any) => {
                 setDraggedPieceState({ piece, dropped: false, from });
               }}
-              onPieceDrop={(from, to, piece) => {
-                setDraggedPieceState({ piece, dropped: true, from });
-                return true;
-              }}
-              onPieceDragEnd={(piece, from) => {
-                if (
-                  draggedPieceState?.piece === piece &&
-                  draggedPieceState.dropped === false
-                ) {
-                  try {
-                    fenBoard.clearSquare(from, { validate: true });
+              // onPieceDrop={(from, to, piece ) => {
+              //   setDraggedPieceState({ piece , dropped: true, from });
+              //   return true;
+              // }}
 
-                    setDraggedPieceState(undefined);
-                    onUpdateFen(fenBoard.fen);
-                  } catch {
-                    // TODO: Maybe show an error in the UI?
-                  }
-                }
-              }}
-              arePiecesDraggable
-              allowDragOutsideBoard
-              dropOffBoardAction="trash"
+              // dropOffBoardAction="trash"
               sizePx={boardSize}
-              customSquareStyles={{
-                ...(hoveredSquare && {
-                  [hoveredSquare]: {
-                    boxShadow: `inset 0 0 5px 5px ${boardTheme.hoveredSquare}`,
-                  },
-                }),
-              }}
             />
           </DropContainer>
 

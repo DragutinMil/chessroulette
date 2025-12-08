@@ -19,11 +19,8 @@ export const useCustomStyles = ({
   pendingMove,
   preMove,
   circlesMap,
-  customSquareStyles,
   isMyTurn,
-  isBotPlay,
   hoveredSquare,
-  ...props
 }: {
   boardTheme: BoardTheme;
   fen: ChessFEN;
@@ -32,36 +29,15 @@ export const useCustomStyles = ({
   preMove?: ChessboardPreMove;
   circlesMap?: CirclesMap;
   isMyTurn?: boolean;
-  isBotPlay?: boolean;
   hoveredSquare?: Square;
-} & Pick<
-  ReactChessBoardProps,
-  | 'customDarkSquareStyle'
-  | 'customLightSquareStyle'
-  | 'customBoardStyle'
-  | 'customSquareStyles'
->) => {
+}) => {
   const inCheckSquares = useMemo(() => getInCheckSquareMap(fen), [fen]);
 
-  const customStyles = useMemo(
-    () => ({
-      customDarkSquareStyle: props.customDarkSquareStyle || {
-        backgroundColor: boardTheme.darkSquare,
-      },
-      customLightSquareStyle: props.customLightSquareStyle || {
-        backgroundColor: boardTheme.lightSquare,
-      },
-      customBoardStyle: props.customBoardStyle || { backgroundColor: 'white' },
-    }),
-    [
-      props.customDarkSquareStyle,
-      props.customLightSquareStyle,
-      props.customBoardStyle,
-    ]
-  );
-
   const mergedCustomSquareStyles = useMemo(() => {
-    const lastMoveStyle = lastMove && {
+    //
+    // Last move highlight
+    //
+    const lastMoveStyles = lastMove && {
       [lastMove.from]: {
         background: boardTheme.lastMoveFromSquare,
       },
@@ -70,28 +46,35 @@ export const useCustomStyles = ({
       },
     };
 
-    const circledStyle =
-      circlesMap &&
-      toDictIndexedBy(
-        Object.values(circlesMap),
-        ([sq]) => sq,
-        ([_, hex]) => ({
-          position: 'relative',
-          '> .circleDiv': {
-            position: 'absolute',
-            left: '0',
-            top: '0',
-            right: '0',
-            bottom: '0',
-            background: `radial-gradient(ellipse at     center, 
-              rgba(255,113,12,0) 60%,
-              ${hex} 51.5%)`,
+    // const circledStyles =
+    //   circlesMap &&
+    //   toDictIndexedBy(
+    //     Object.values(circlesMap),
+    //     ([sq]) => sq,
+    //     ([_, hex]) => ({
+    //       position: 'relative',
+    //       '> .circleDiv': {
+    //         position: 'absolute',
+    //         inset: 0,
+    //         background: `radial-gradient(ellipse at center,
+    //             rgba(255,113,12,0) 60%,
+    //             ${hex} 51.5%)`,
+    //         borderRadius: '50%',
+    //       },
+    //     })
+    //   );
+    const circledStyles = circlesMap
+      ? toDictIndexedBy(
+          Object.values(circlesMap),
+          ([sq]) => sq,
+          ([_, hex]) => ({
             borderRadius: '50%',
-          },
-        })
-      );
+            background: `radial-gradient(circle at center, rgba(255,113,12,0) 60%, ${hex} 51.5%)`,
+          })
+        )
+      : {};
 
-    const checkedStyle =
+    const inCheckStyles =
       inCheckSquares &&
       toDictIndexedBy(
         objectKeys(inCheckSquares),
@@ -99,12 +82,8 @@ export const useCustomStyles = ({
         () => ({
           position: 'relative',
           '> .inCheckDiv': {
-            // content: `''`,
             position: 'absolute',
-            left: '0',
-            top: '0',
-            right: '0',
-            bottom: '0',
+            inset: 0,
             background: 'red',
             borderRadius: '50%',
             opacity: 0.7,
@@ -112,52 +91,45 @@ export const useCustomStyles = ({
         })
       );
 
-    const touchedSquareStyle = {
-      ...(pendingMove?.from && {
-        [pendingMove?.from]: {
+    const pendingStyles = pendingMove?.from && {
+      [pendingMove.from]: {
+        background: boardTheme.clickedPieceSquare,
+      },
+    };
+
+    const hoveredStyles = isMyTurn &&
+      pendingMove &&
+      hoveredSquare &&
+      hoveredSquare !== pendingMove.from && {
+        [hoveredSquare]: {
           background: boardTheme.clickedPieceSquare,
         },
-      }),
-    };
+      };
 
-    const hoveredSquareStyle = {
-      ...(isMyTurn &&
-        pendingMove &&
-        hoveredSquare &&
-        hoveredSquare !== pendingMove.from && {
-          [hoveredSquare]: {
-            background: boardTheme.clickedPieceSquare,
-          },
-        }),
-    };
-
-    const premoveSquaresStyle = {
-      ...(preMove && {
-        [preMove.from]: {
-          background: boardTheme.preMoveFromSquare,
+    const premoveStyles = preMove && {
+      [preMove.from]: {
+        background: boardTheme.preMoveFromSquare,
+      },
+      ...(preMove.to && {
+        [preMove.to]: {
+          background: boardTheme.preMoveToSquare,
         },
-        ...(preMove.to && {
-          [preMove.to]: {
-            background: boardTheme.preMoveToSquare,
-          },
-        }),
       }),
     };
 
     return deepmerge(
-      lastMoveStyle || {},
-      circledStyle || {},
-      checkedStyle || {},
-      customSquareStyles || {},
-      touchedSquareStyle,
-      hoveredSquareStyle,
-      premoveSquaresStyle
+      lastMoveStyles || {},
+      circledStyles || {},
+      inCheckStyles || {},
+
+      pendingStyles || {},
+      hoveredStyles || {},
+      premoveStyles || {}
     );
   }, [
     lastMove,
     circlesMap,
     inCheckSquares,
-    customSquareStyles,
     boardTheme,
     hoveredSquare,
     pendingMove?.from,
@@ -167,9 +139,8 @@ export const useCustomStyles = ({
 
   return useMemo(
     () => ({
-      customSquareStyles: mergedCustomSquareStyles,
-      ...customStyles,
+      squareStyles: mergedCustomSquareStyles,
     }),
-    [customStyles, mergedCustomSquareStyles]
+    [mergedCustomSquareStyles]
   );
 };

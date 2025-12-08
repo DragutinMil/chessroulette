@@ -8,7 +8,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { objectKeys } from 'movex-core-util';
 import useDeepCompareEffect from 'use-deep-compare-effect';
 import { shallowEqualObjects } from 'shallow-equal';
-import { Arrow } from 'react-chessboard/dist/chessboard/types';
+import { Arrow } from 'react-chessboard'; //ovde samo react-chessboard al posle javlja gresku dole
 import { ArrowsMap } from '../../types';
 
 export const useCustomArrows = (

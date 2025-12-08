@@ -61,26 +61,41 @@ export const useMoves = ({
   onValidatePreMove,
   onSquareClickOrDrag,
 }: Props): MoveActions => {
-  const playerMovesRef = useRef<PlayerMovesState>({
+  const [playerMoves, setPlayerMoves] = useState<PlayerMovesState>({
     white: { pendingMove: undefined, preMove: undefined },
     black: { pendingMove: undefined, preMove: undefined },
   });
 
   const [promoMove, setPromoMove] = useState<ShortChessMove>();
   const [isPromoFromPreMove, setIsPromoFromPreMove] = useState(false); // Dodaj ovu liniju
+
+  const [lastMoveWasPromotion, setLastMoveWasPromotion] = useState(false); // Dodajte ovo
+
   //const [premoveAnimationDelay] = useState(300);
   // pre move
   const allowsPremoves = !!onPreMove;
 
   const currentPlayer = playingColor === 'w' ? 'white' : 'black';
-  const getCurrentMoves = () => playerMovesRef.current[currentPlayer];
+  const getCurrentMoves = () => playerMoves[currentPlayer];
 
   const setPreMove = (move: ChessboardPreMove | undefined) => {
-    playerMovesRef.current[currentPlayer].preMove = move;
+    setPlayerMoves((prev) => ({
+      ...prev,
+      [currentPlayer]: {
+        ...prev[currentPlayer],
+        preMove: move,
+      },
+    }));
   };
 
   const setPendingMove = (move: ChessBoardPendingMove | undefined) => {
-    playerMovesRef.current[currentPlayer].pendingMove = move;
+    setPlayerMoves((prev) => ({
+      ...prev,
+      [currentPlayer]: {
+        ...prev[currentPlayer],
+        pendingMove: move,
+      },
+    }));
   };
   // Debug logging
   // const logMove = (action: string, data: any) => {
@@ -102,12 +117,16 @@ export const useMoves = ({
     const isMyPiece = piece?.color === playingColor;
     const currentMoves = getCurrentMoves();
     // Handle regular moves during my turn
+    console.log('provera poteza', square, pieceSan);
     if (isMyTurn && !currentMoves.preMove) {
       // If no pending move exists
+
+      // console.log('currentMoves',currentMoves)
       if (!currentMoves.pendingMove?.from) {
         if (!isMyPiece) {
           return;
         }
+
         setPendingMove({ from: square, piece });
         return;
       }
@@ -127,12 +146,14 @@ export const useMoves = ({
           return;
         }
         // Check for promotion
+        console.log('pre provere promotion', currentMoves.pendingMove, square);
         if (
           isValidPromoMove({
             ...currentMoves.pendingMove,
             to: square,
           })
         ) {
+          console.log('promotion', currentMoves.pendingMove, square);
           setPromoMove({ ...currentMoves.pendingMove, to: square });
           setIsPromoFromPreMove(false);
           return;
@@ -183,8 +204,10 @@ export const useMoves = ({
 
     ///PREMOVE
     // First handle premoves during opponent's turn
+
     if (allowsPremoves && !isMyTurn) {
       console.log('First handle premoves during opponents turn');
+      console.log('ide premoveeeell', square, piece);
       // Case 1: Click on my piece to start premove
       // Case 4: Drag my piece to start premove
       if (!currentMoves.preMove && piece && isMyPiece) {
@@ -319,14 +342,15 @@ export const useMoves = ({
     });
 
   const onPieceDrop = (from: Square, to: Square, pieceSan: PieceSan) => {
+    console.log('ide move', from, to, pieceSan);
     const currentMoves = getCurrentMoves();
+    console.log('current', currentMoves);
     const piece = pieceSanToPiece(pieceSan);
-
+    console.log('ide move3', from, to, pieceSan);
     // logMove('Piece drop', { from, to, pieceSan });
-
+    console.log(isMyTurn, allowsPremoves, currentMoves);
     // Case 1: Complete premove by dragging to destination
     if (!isMyTurn && allowsPremoves) {
-      console.log('provera');
       if (piece.color === playingColor) {
         if (currentMoves.preMove) {
           if (from !== currentMoves.preMove.from) {
@@ -357,11 +381,9 @@ export const useMoves = ({
             onValidatePreMove({ from: from, to: to }) === false &&
             isSquareEmpty(to)
           ) {
-            console.log('ne ide');
             setPreMove(undefined);
             return false;
           } else {
-            console.log('ide premove', !isSquareEmpty(to));
             setPreMove({ from, to, piece });
           }
           // Start new premove
@@ -410,8 +432,11 @@ export const useMoves = ({
     ) {
       setPendingMove(undefined);
     }
+    console.log(currentMoves);
 
+    console.log('dolazi do provere', from, to, piece);
     if (isValidPromoMove({ from, to, piece })) {
+      console.log('liki');
       setPromoMove({ from, to });
       setIsPromoFromPreMove(false);
       setPendingMove(undefined); // PREMEŠTI OVDE

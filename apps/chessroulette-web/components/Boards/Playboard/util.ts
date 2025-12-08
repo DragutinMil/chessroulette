@@ -18,7 +18,6 @@ export const validateMove = (
       valid: true;
       fen: ChessFEN;
     } => {
-  console.log('roket boket');
   const chess = getNewChessGame({ fen });
 
   // Validate Turn
