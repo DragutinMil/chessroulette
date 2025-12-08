@@ -19,19 +19,19 @@ export const useCustomArrows = (
 
   useDeepCompareEffect(() => {
     onArrowsChangeCb(localBoardArrowsMap);
-    console.log('arrows1')
+  
   }, [localBoardArrowsMap]);
 
   const onArrowsChangeCb = useCallback(
     
     (nextLocalBoardArrowsMap: ArrowsMap) => {
-      console.log('arrows2')
+     
       if (!onUpdate) {
         return;
       }
 
       if (!shallowEqualObjects(nextLocalBoardArrowsMap, arrowsMap)) {
-        console.log('arrows2')
+        
         // Send them all outside
         onUpdate({
           ...arrowsMap,

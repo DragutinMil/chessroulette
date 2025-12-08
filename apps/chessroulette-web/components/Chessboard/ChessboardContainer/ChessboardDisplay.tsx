@@ -30,6 +30,7 @@ export type ChessboardDisplayProps = Omit<
   onCancelPromoMove: () => void;
   onSubmitPromoMove: (move: ShortChessMove) => void;
   squareStyles?: any;
+  animationDurationInMs:number,
   onSquareClick?: (square: string, piece?: string) => void;
   //onPieceClick?: (square: string, piece: string | null) => void;
   onPieceDrag?: (square: string | null, piece: string ) => void;
@@ -74,11 +75,12 @@ export const ChessboardDisplay = ({
   onPieceDrag,
   onPieceDrop,
   onSquareClick,
+  animationDurationInMs,
   // onPieceClick,
 
   ...boardProps
 }: ChessboardDisplayProps) => {
-  console.log('onArrowsChange',onArrowsChange)
+  //console.log('onArrowsChange',onArrowsChange)
 
   return (
     <div
@@ -147,6 +149,7 @@ export const ChessboardDisplay = ({
               opacity: 0.8,
               activeOpacity: 1,
             },
+            animationDurationInMs:animationDurationInMs
           }}
           {...boardProps}
         />

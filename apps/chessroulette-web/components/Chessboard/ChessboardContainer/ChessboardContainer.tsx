@@ -102,14 +102,14 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
 }) => {
   const isMyTurn = boardOrientation === turn;
   const { match, ...matchView } = useMatchViewState();
-  // const BOARD_ANIMATION_DELAY = useMemo(() => {
-  //   return match === null ? (!lastMove ? 0 : 360) : 220;
-  // }, [match, lastMove]);
+  const BOARD_ANIMATION_DELAY = useMemo(() => {
+    return match === null ? (!lastMove ? 0 : 360) : 220;
+  }, [match, lastMove]);
 
   const [isBotPlay, setBots] = useState(false);
   const arrowAndCircleColor = useArrowAndCircleColor();
   const arrows = useCustomArrows(onArrowsChange, props.arrowsMap);
-  console.log('arrows', arrows);
+  //console.log('arrows', arrows);
 
   useEffect(() => {
     setBots(match?.challengee?.id?.length === 16);
@@ -136,7 +136,7 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
   const { preMove, promoMove, pendingMove, ...moveActions } = useMoves({
     playingColor: boardOrientation,
     isMyTurn,
-    //premoveAnimationDelay: BOARD_ANIMATION_DELAY, //+1
+    premoveAnimationDelay: BOARD_ANIMATION_DELAY, //+1
     onValidateMove,
     onValidatePreMove,
     isSquareEmpty,
@@ -146,8 +146,7 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
     // Event to reset the circles and arrows when any square is clicked or dragged
     onSquareClickOrDrag: resetArrowsAndCircles,
   });
-  console.log('wer', preMove);
-  console.log(lastMove);
+ 
   const customStyles = useCustomStyles({
     boardTheme,
     fen,
@@ -236,8 +235,9 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
         onArrowsChange={arrows.arrowsToRender}
         // circles
         // onSquareRightClick={drawCircle}
-        //  animationDurationInMs={BOARD_ANIMATION_DELAY}
+      
         {...props}
+        animationDurationInMs={BOARD_ANIMATION_DELAY}
       />
     </div>
   );
