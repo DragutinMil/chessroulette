@@ -213,6 +213,7 @@ export const BoardEditor = ({
                   return false;
                 }
               }}
+              animationDurationInMs={200}
               onPieceDrag={(piece: any, from: any) => {
                 setDraggedPieceState({ piece, dropped: false, from });
               }}
