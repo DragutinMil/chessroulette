@@ -19,15 +19,19 @@ export const useCustomArrows = (
 
   useDeepCompareEffect(() => {
     onArrowsChangeCb(localBoardArrowsMap);
+    console.log('arrows1')
   }, [localBoardArrowsMap]);
 
   const onArrowsChangeCb = useCallback(
+    
     (nextLocalBoardArrowsMap: ArrowsMap) => {
+      console.log('arrows2')
       if (!onUpdate) {
         return;
       }
 
       if (!shallowEqualObjects(nextLocalBoardArrowsMap, arrowsMap)) {
+        console.log('arrows2')
         // Send them all outside
         onUpdate({
           ...arrowsMap,
@@ -39,12 +43,15 @@ export const useCustomArrows = (
   );
 
   const arrowsToRender = useMemo(
+    
     () =>
+      
       objectKeys(arrowsMap || {})
         .filter((a) => !Object(localBoardArrowsMap).hasOwnProperty(a))
         .map(toChessArrowFromId),
     [localBoardArrowsMap, arrowsMap]
   );
+
 
   const [safelyMounted, setSafelyMounted] = useState(false);
   useEffect(() => {
@@ -53,23 +60,23 @@ export const useCustomArrows = (
     }, 250);
   }, []);
 
-  const updateArrowsMap = useCallbackIf(
-    safelyMounted,
-    (nextArrows: Arrow[]) => {
-      if (nextArrows.length === 0 && Object.keys(arrowsMap || {}).length > 0) {
-        // Reset when the arrows are set back to 0
-        onUpdate?.({});
-        return;
-      }
-        setLocalBoardArrowsMap(toDictIndexedBy(nextArrows, toChessArrowId) as ArrowsMap);
-
-    //  setLocalBoardArrowsMap(toDictIndexedBy(nextArrows, toChessArrowId));
-    },
-    []
-  );
+  // const updateArrowsMap = useCallbackIf(
+  //   safelyMounted,
+  //   (nextArrows: Arrow[]) => {
+  //     if (nextArrows.length === 0 && Object.keys(arrowsMap || {}).length > 0) {
+  //       // Reset when the arrows are set back to 0
+  //       onUpdate?.({});
+  //       return;
+  //     }
+  //     console.log('nextArrows',nextArrows)
+  //       console.log('toChessArrowId',toChessArrowId)
+  //     setLocalBoardArrowsMap(toDictIndexedBy(nextArrows, toChessArrowId));
+  //   },
+  //   []
+  // );
 
   return {
-    updateArrowsMap,
+    // updateArrowsMap,
     arrowsToRender,
   };
 };

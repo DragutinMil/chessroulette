@@ -228,12 +228,12 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
         // Board Props
         squareStyles={customStyles.squareStyles}
         highlightSquares={customStyles.squareStyles}
-     //   highlightArrows={arrows.arrowsToRender}
+        //highlightArrows={arrows.arrowsToRender}
         // squareRenderer={ChessboardSquare}
         // onMouseOverSquare={setHoveredSquare}
         // Arrows
         arrowColor={arrowAndCircleColor} //sklonjeno u deo arrowOptions
-        onArrowsChange={arrows.updateArrowsMap}
+        onArrowsChange={arrows.arrowsToRender}
         // circles
         // onSquareRightClick={drawCircle}
         //  animationDurationInMs={BOARD_ANIMATION_DELAY}
