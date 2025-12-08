@@ -270,10 +270,12 @@ export const useMoves = ({
   };
 
    useEffect(() => {
+      console.log('useEffect',isMyTurn)
       const currentMoves = getCurrentMoves();
       if (promoMove) {
         return;
       }
+      
       // If we have a complete premove and it's our turn, execute it
       if (isMyTurn && currentMoves.preMove?.to) {
         const moveToExecute = {
@@ -281,9 +283,9 @@ export const useMoves = ({
           to: currentMoves.preMove.to, 
           piece: currentMoves.preMove.piece,
         };
-  
+        
         const isPromotion = isPromotableMove(moveToExecute, moveToExecute.piece);
-      
+        
         if (isPromotion) {
           const promoMoveToSet = {
             from: currentMoves.preMove.from,
@@ -291,17 +293,16 @@ export const useMoves = ({
           };
           setPromoMove(promoMoveToSet);
           setIsPromoFromPreMove(true);
-          setPreMove(undefined);
+          
           return;
         }
-  
+       setPreMove(undefined);
         // Ako nije promocija, izvrši premove direktno
-        setTimeout(() => {
+        
           onMove(moveToExecute);
-          setPreMove(undefined);
-        }, premoveAnimationDelay);
+       
       }
-    }, [isMyTurn, playerMoves, premoveAnimationDelay, promoMove]);
+    }, [isMyTurn, promoMove]);
 
   const onMoveIfValid = (m: ShortChessMove): Result<void, void> => {
     if (onValidateMove(m)) {
