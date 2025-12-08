@@ -269,62 +269,39 @@ export const useMoves = ({
     //   }
   };
 
-  useEffect(() => {
-    console.log('livada',isMyTurn)
-    const currentMoves = getCurrentMoves();
-    if (!isMyTurn) {
-      return;
-    }
-    console.log('livada2',currentMoves, currentMoves.preMove?.to)
-    if (!onPreMove && !currentMoves.preMove?.to) {
-      return;
-    }
-    console.log('livada3')
-
-    if (promoMove) {
-      if (isSquareEmpty(promoMove.to)) {
-        if (promoMove.to[0] == promoMove.from[0]) {
-          return;
-        } else {
-          setPromoMove(undefined);
-        }
-      } else {
-        if (promoMove.to[0] == promoMove.from[0]) {
-          setPromoMove(undefined);
-        }
-      }
-      //Skipping premove execution promoMove is waiting for user selection
-    }
-  console.log('livada4')
-    // If we have a complete premove and it's our turn, execute it
-    if (isMyTurn && currentMoves.preMove?.to) {
-      console.log('livada5')
-      const moveToExecute = {
-        from: currentMoves.preMove.from,
-        to: currentMoves.preMove.to,
-        piece: currentMoves.preMove.piece,
-      };
-
-      const isPromotion = isPromotableMove(moveToExecute, moveToExecute.piece);
-
-      if (isPromotion) {
-        // Postavi promoMove i čekaj korisnikov izbor figure
-        const promoMoveToSet = {
-          from: currentMoves.preMove.from,
-          to: currentMoves.preMove.to,
-        };
-        setPromoMove(promoMoveToSet);
-        setIsPromoFromPreMove(true);
-        setPreMove(undefined);
+   useEffect(() => {
+      const currentMoves = getCurrentMoves();
+      if (promoMove) {
         return;
       }
-      // Ako nije promocija, izvrši premove direktno
-      setTimeout(() => {
-        onMove(moveToExecute);
-        setPreMove(undefined);
-      }, premoveAnimationDelay);
-    }
-  }, [isMyTurn, promoMove]);
+      // If we have a complete premove and it's our turn, execute it
+      if (isMyTurn && currentMoves.preMove?.to) {
+        const moveToExecute = {
+          from: currentMoves.preMove.from,
+          to: currentMoves.preMove.to, 
+          piece: currentMoves.preMove.piece,
+        };
+  
+        const isPromotion = isPromotableMove(moveToExecute, moveToExecute.piece);
+      
+        if (isPromotion) {
+          const promoMoveToSet = {
+            from: currentMoves.preMove.from,
+            to: currentMoves.preMove.to,
+          };
+          setPromoMove(promoMoveToSet);
+          setIsPromoFromPreMove(true);
+          setPreMove(undefined);
+          return;
+        }
+  
+        // Ako nije promocija, izvrši premove direktno
+        setTimeout(() => {
+          onMove(moveToExecute);
+          setPreMove(undefined);
+        }, premoveAnimationDelay);
+      }
+    }, [isMyTurn, playerMoves, premoveAnimationDelay, promoMove]);
 
   const onMoveIfValid = (m: ShortChessMove): Result<void, void> => {
     if (onValidateMove(m)) {
@@ -346,7 +323,7 @@ export const useMoves = ({
     const currentMoves = getCurrentMoves();
     const piece = pieceSanToPiece(pieceSan);
    
-    console.log('ide drop', from, to, pieceSan);
+   
     // Case 1: Complete premove by dragging to destination
 
      
@@ -447,7 +424,7 @@ export const useMoves = ({
     }
    
 
-    console.log('dolazi do provere', from, to, piece);
+   
     if (isValidPromoMove({ from, to, piece })) {
       console.log('liki',from, to, piece);
       setPromoMove({ from, to });
