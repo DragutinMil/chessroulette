@@ -1,5 +1,5 @@
 import { PieceSymbol, Square, Chess } from 'chess.js';
-import { Arrow } from 'react-chessboard/dist/chessboard/types';
+import { Arrow } from 'react-chessboard';
 import { ChessArrowId, ChessFEN, ChessMove, ChessPGN } from '../types';
 import { fenBoardPieceSymbolToPieceSymbol } from '../../ChessFENBoard';
 
@@ -12,15 +12,22 @@ export const isDarkSquare = (s: Square): boolean => {
 
 export const isLightSquare = (s: Square): boolean => !isDarkSquare(s);
 
-export const toChessArrowId = ([from, to, color]: Arrow): ChessArrowId =>
-  `${from}${to}-${color}`;
+export const toChessArrowId = ({startSquare, endSquare, color}: Arrow): ChessArrowId =>
+  `${startSquare}${endSquare}-${color}`;
 
+// export const toChessArrowFromId = (aid: ChessArrowId): Arrow => {
+//   const from = aid.slice(0, 2) as Square;
+//   const to = aid.slice(2, 4) as Square;
+//   const color = aid.slice(5) as string;
+
+//   return [from, to, color];
+// };
 export const toChessArrowFromId = (aid: ChessArrowId): Arrow => {
-  const from = aid.slice(0, 2) as Square;
-  const to = aid.slice(2, 4) as Square;
-  const color = aid.slice(5) as string;
+  const startSquare = aid.slice(0, 2) as Square;
+  const endSquare = aid.slice(2, 4) as Square;
+  const color = aid.slice(5); // assuming color is stored here
 
-  return [from, to, color];
+  return { startSquare, endSquare, color };
 };
 
 // @deprecate in favor of ChessRouler

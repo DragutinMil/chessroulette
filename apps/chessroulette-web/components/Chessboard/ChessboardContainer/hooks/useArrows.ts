@@ -61,8 +61,9 @@ export const useCustomArrows = (
         onUpdate?.({});
         return;
       }
+        setLocalBoardArrowsMap(toDictIndexedBy(nextArrows, toChessArrowId) as ArrowsMap);
 
-      setLocalBoardArrowsMap(toDictIndexedBy(nextArrows, toChessArrowId));
+    //  setLocalBoardArrowsMap(toDictIndexedBy(nextArrows, toChessArrowId));
     },
     []
   );

@@ -10,7 +10,7 @@ import { Square } from 'chess.js';
 import { useArrowAndCircleColor } from '../hooks/useArrowAndCircleColor';
 import { ArrowsMap, CircleDrawTuple, CirclesMap } from '../types';
 import { noop } from 'movex-core-util';
-import { ChessboardSquare } from './ChessboardSquare';
+//import { ChessboardSquare } from './ChessboardSquare';
 import { BoardTheme } from '@app/hooks/useTheme/defaultTheme';
 import { useCustomArrows } from './hooks/useArrows';
 import { useCustomStyles } from './hooks/useCustomStyles';
@@ -228,7 +228,7 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
         // Board Props
         squareStyles={customStyles.squareStyles}
         highlightSquares={customStyles.squareStyles}
-        highlightArrows={arrows.arrowsToRender}
+     //   highlightArrows={arrows.arrowsToRender}
         // squareRenderer={ChessboardSquare}
         // onMouseOverSquare={setHoveredSquare}
         // Arrows
