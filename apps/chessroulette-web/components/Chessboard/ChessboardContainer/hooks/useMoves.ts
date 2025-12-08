@@ -114,7 +114,7 @@ export const useMoves = ({
    
     if (isMyTurn && !currentMoves.preMove) {
       // If no pending move exists
-     
+      
       if (!currentMoves.pendingMove?.from) {
         if (!isMyPiece) {
           return;
@@ -164,12 +164,15 @@ export const useMoves = ({
       
       // Case 3 & 4: Complete premove that was started earlier
       if (!currentMoves.preMove.to) {
+        
         if (square === currentMoves.preMove.from) {
+           
           // Cancel premove if clicking same square
           setPreMove(undefined);
           return;
         }
         if (piece && isMyPiece) {
+          
           setPreMove({ from: square, piece });
           return;
         }
@@ -187,6 +190,7 @@ export const useMoves = ({
 
           return;
         }
+          
         // Try regular move
         onMoveIfValid(moveAttempt).map(() => {
           setPreMove(undefined);
@@ -204,13 +208,14 @@ export const useMoves = ({
       // Case 4: Drag my piece to start premove
       if (!currentMoves.preMove && piece && isMyPiece) {
         setPreMove({ from: square, piece });
-
+        console.log('1')
         return;
       }
 
       if (currentMoves.preMove) {
         // Cancel premove if clicking same square
         if (currentMoves.preMove.from === square) {
+            
           setPreMove(undefined);
           return;
         }
@@ -221,7 +226,7 @@ export const useMoves = ({
             ...currentMoves.preMove,
             to: square,
           };
-
+  
           // Proveri da li je promocija
           const moveAttempt = {
             from: completedPreMove.from,
@@ -265,14 +270,14 @@ export const useMoves = ({
   };
 
   useEffect(() => {
-    if (!onPreMove) {
-      return;
-    }
+    const currentMoves = getCurrentMoves();
     if (!isMyTurn) {
       return;
     }
-
-    const currentMoves = getCurrentMoves();
+    if (!onPreMove && !currentMoves.preMove?.to) {
+      return;
+    }
+    
 
     if (promoMove) {
       if (isSquareEmpty(promoMove.to)) {
@@ -340,6 +345,9 @@ export const useMoves = ({
    
     console.log('ide drop', from, to, pieceSan);
     // Case 1: Complete premove by dragging to destination
+
+     
+
     if (!isMyTurn && allowsPremoves) {
        console.log('Complete premove by dragging to destination',from, to, pieceSan);
       if (piece.color === playingColor) {
@@ -390,6 +398,7 @@ export const useMoves = ({
     }
 
     // Case 3 & 4: Complete premove that was started earlier
+    
     if (isMyTurn && currentMoves.preMove && !currentMoves.preMove.to) {
       console.log('Complete premove that was started earlier',from, to, pieceSan);
       if (from !== currentMoves.preMove.from) {
