@@ -30,7 +30,7 @@ export type ChessboardDisplayProps = Omit<
   onCancelPromoMove: () => void;
   onSubmitPromoMove: (move: ShortChessMove) => void;
   squareStyles?: any;
-  animationDurationInMs:number,
+  animationDurationInMs?:number,
   onSquareClick?: (square: string, piece?: string) => void;
   //onPieceClick?: (square: string, piece: string | null) => void;
   onPieceDrag?: (square: string | null, piece: string ) => void;
