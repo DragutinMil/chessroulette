@@ -10,7 +10,7 @@ type ChallengeData = {
   challenger_id?: string;
   time_class?: string;
   time_control?: string; // Format kao "3+2"
-  amount?: string;
+  ch_amount?: string;
   initiator_name_first?:string;
   initiator_name_last?:string;
   // Dodajte ostala polja koja dolaze sa socket notifikacijom
@@ -29,8 +29,6 @@ export const ChallengeNotification: React.FC<Props> = ({
 }) => {
   const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1920);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const checkIntervalRef = useRef<NodeJS.Timeout | null>(null);
-  const [isRevoked, setIsRevoked] = useState(false);
 
   useEffect(() => {
     console.log('🎯 ChallengeNotification render - challenge:', challenge);
@@ -43,55 +41,11 @@ export const ChallengeNotification: React.FC<Props> = ({
     return () => window.removeEventListener('resize', handleResize);
   }, [challenge]);
 
+  // Auto-decline nakon 10 sekundi i slušanje socket event-a za revocation
   useEffect(() => {
     if (!challenge || !challenge.ch_uuid) {
       return;
     }
-
-    setIsRevoked(false);
-
-    // Funkcija za proveru statusa challenge-a
-    const checkChallengeStatus = async () => {
-      const token = Cookies.get('token') || Cookies.get('sessionToken');
-      
-      try {
-        // Pokušaj da proveriš status challenge-a
-        // Ako API vraća 404 ili error, challenge je verovatno revoke-ovan
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_WEB || 'https://api.outpostchess.com/'}challenge_status/${challenge.ch_uuid}`,
-          {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        if (!response.ok) {
-          // Ako challenge ne postoji ili je revoke-ovan
-          console.log('⚠️ Challenge revoked or not found');
-          setIsRevoked(true);
-          onDecline();
-          return;
-        }
-
-        const data = await response.json();
-        // Proveri da li je challenge još uvek aktivan
-        if (data.status === 'revoked' || data.status === 'cancelled' || data.status === 'expired') {
-          console.log('⚠️ Challenge status:', data.status);
-          setIsRevoked(true);
-          onDecline();
-        }
-      } catch (error) {
-        // Ako API endpoint ne postoji, koristimo alternativni pristup
-        // Možemo samo osloniti se na socket event ili timeout
-        console.log('⚠️ Challenge status check failed, will rely on timeout');
-      }
-    };
-
-    // Proveri status challenge-a svakih 2 sekunde
-    checkIntervalRef.current = setInterval(checkChallengeStatus, 2000);
 
     // Automatski decline nakon 10 sekundi
     timeoutRef.current = setTimeout(() => {
@@ -99,45 +53,51 @@ export const ChallengeNotification: React.FC<Props> = ({
       onDecline();
     }, 10000);
 
+    // Handler za socket event-e koji mogu da označe challenge kao revoke-ovan
+    const handleSocketNotification = (data: any) => {
+      // Proveri da li je ovo revocation event za naš challenge
+
+      console.log("🔔 data:"+ JSON.stringify(data));
+
+      
+
+      const isOurChallenge = 
+        data.ch_uuid === challenge.ch_uuid ||
+        data.challenge_uuid === challenge.ch_uuid ||
+        data.data?.ch_uuid === challenge.ch_uuid;
+
+      if (isOurChallenge) {
+        // Proveri da li je challenge revoke-ovan, otkazan ili istekao
+        if (
+          data.n_type === 'challenge_revoked' ||
+          data.n_type === 'challenge_cancelled' ||
+          data.n_type === 'challenge_expired' ||
+          data.status === 'revoked' ||
+          data.status === 'cancelled' ||
+          data.status === 'expired'
+        ) {
+          console.log('🔔 Challenge revoked via socket event:', data.n_type || data.status);
+          if (timeoutRef.current) {
+            clearTimeout(timeoutRef.current);
+          }
+          onDecline();
+        }
+      }
+    };
+
+    // Pretplati se na socket event-e - koristi isti event kao za primanje challenge-a
+    socketUtil.subscribe('tb_notification', handleSocketNotification);
+
     // Cleanup
     return () => {
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
       }
-      if (checkIntervalRef.current) {
-        clearInterval(checkIntervalRef.current);
-      }
+      socketUtil.unsubscribe('tb_notification', handleSocketNotification);
     };
   }, [challenge, onDecline]);
 
-  // Slušaj socket event-e za challenge revocation
-  useEffect(() => {
-    if (!challenge || !challenge.ch_uuid) {
-      return;
-    }
 
-    const handleChallengeRevoked = (data: any) => {
-      // Proveri da li je ovo revocation event za naš challenge
-      if (
-        data.ch_uuid === challenge.ch_uuid ||
-        data.challenge_uuid === challenge.ch_uuid ||
-        (data.n_type === 'challenge_revoked' && data.data?.ch_uuid === challenge.ch_uuid)
-      ) {
-        console.log('🔔 Challenge revoked via socket event');
-        setIsRevoked(true);
-        onDecline();
-      }
-    };
-
-    // Pretplati se na socket event-e za challenge revocation
-    socketUtil.subscribe('tb_notification', handleChallengeRevoked);
-    socketUtil.subscribe('challenge_revoked', handleChallengeRevoked);
-
-    return () => {
-      socketUtil.unsubscribe('tb_notification', handleChallengeRevoked);
-      socketUtil.unsubscribe('challenge_revoked', handleChallengeRevoked);
-    };
-  }, [challenge, onDecline]);
 
 
   if (!challenge) {
@@ -201,24 +161,24 @@ export const ChallengeNotification: React.FC<Props> = ({
   };
 
   // Proveri da li je friendly (amount je 0 ili nema amount)
-  const isFriendly = !challenge.amount || 
-    challenge.amount === '0' || 
-    challenge.amount === '€0' || 
-    challenge.amount === '$0' ||
-    (typeof challenge.amount === 'string' && parseFloat(challenge.amount.replace(/[€$]/g, '')) < 1);
+  const isFriendly = !challenge.ch_amount || 
+    challenge.ch_amount === '0' || 
+    challenge.ch_amount === '€0' || 
+    challenge.ch_amount === '$0' ||
+    (typeof challenge.ch_amount === 'string' && parseFloat(challenge.ch_amount.replace(/[€$]/g, '')) < 1);
 
   // Formatuj amount za prikaz
   const formatAmount = () => {
     if (isFriendly) return null;
     // Ako je amount broj, konvertuj u format sa €
-    if (typeof challenge.amount === 'string') {
-      const numAmount = parseFloat(challenge.amount.replace(/[€$]/g, ''));
+    if (typeof challenge.ch_amount === 'string') {
+      const numAmount = parseFloat(challenge.ch_amount.replace(/[€$]/g, ''));
       if (!isNaN(numAmount)) {
         // Ako je veći od 0, prikaži sa €
         return `€${Math.round((numAmount * 0.9090909) * 100) / 100}`;
       }
     }
-    return challenge.amount;
+    return challenge.ch_amount;
   };
 
   // Responsive stilovi za dugmad
