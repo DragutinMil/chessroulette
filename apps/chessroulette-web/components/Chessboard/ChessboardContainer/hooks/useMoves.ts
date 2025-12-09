@@ -296,12 +296,12 @@ export const useMoves = ({
           
           return;
         }
-         onMove(moveToExecute);
-          setPreMove(undefined);
+        
         // Ako nije promocija, izvrši premove direktno
-        // setTimeout(() => {
-          
-        // }, premoveAnimationDelay);
+        setTimeout(() => {
+          setPreMove(undefined);
+           onMove(moveToExecute);
+        }, premoveAnimationDelay);
       }
     }, [isMyTurn, promoMove]);
 
