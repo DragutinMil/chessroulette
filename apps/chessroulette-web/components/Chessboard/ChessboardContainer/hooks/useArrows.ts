@@ -19,19 +19,15 @@ export const useCustomArrows = (
 
   useDeepCompareEffect(() => {
     onArrowsChangeCb(localBoardArrowsMap);
-  
   }, [localBoardArrowsMap]);
 
   const onArrowsChangeCb = useCallback(
-    
     (nextLocalBoardArrowsMap: ArrowsMap) => {
-     
       if (!onUpdate) {
         return;
       }
 
       if (!shallowEqualObjects(nextLocalBoardArrowsMap, arrowsMap)) {
-        
         // Send them all outside
         onUpdate({
           ...arrowsMap,
@@ -43,15 +39,12 @@ export const useCustomArrows = (
   );
 
   const arrowsToRender = useMemo(
-    
     () =>
-      
       objectKeys(arrowsMap || {})
         .filter((a) => !Object(localBoardArrowsMap).hasOwnProperty(a))
         .map(toChessArrowFromId),
     [localBoardArrowsMap, arrowsMap]
   );
-
 
   const [safelyMounted, setSafelyMounted] = useState(false);
   useEffect(() => {

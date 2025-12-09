@@ -12,8 +12,11 @@ export const isDarkSquare = (s: Square): boolean => {
 
 export const isLightSquare = (s: Square): boolean => !isDarkSquare(s);
 
-export const toChessArrowId = ({startSquare, endSquare, color}: Arrow): ChessArrowId =>
-  `${startSquare}${endSquare}-${color}`;
+export const toChessArrowId = ({
+  startSquare,
+  endSquare,
+  color,
+}: Arrow): ChessArrowId => `${startSquare}${endSquare}-${color}`;
 
 // export const toChessArrowFromId = (aid: ChessArrowId): Arrow => {
 //   const from = aid.slice(0, 2) as Square;

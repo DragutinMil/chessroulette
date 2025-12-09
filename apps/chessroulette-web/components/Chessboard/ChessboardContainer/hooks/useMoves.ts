@@ -16,7 +16,7 @@ import { Err, Ok, Result } from 'ts-results';
 
 type MoveActions = {
   onSquareClick: (square: Square, pieceSan?: PieceSan) => void;
-  onPieceDrag: (square: Square,pieceSan: PieceSan) => void;
+  onPieceDrag: (square: Square, pieceSan: PieceSan) => void;
   onPieceDrop: (from: Square, to: Square, pieceSan: PieceSan) => boolean;
   onClearPromoMove: () => void;
   onPromoSubmit: (move: ShortChessMove) => void; // Add this line
@@ -97,7 +97,6 @@ export const useMoves = ({
       },
     }));
   };
- 
 
   const onClickOrDrag = ({
     square,
@@ -106,15 +105,14 @@ export const useMoves = ({
     square: Square;
     pieceSan?: PieceSan;
   }) => {
-   
     const piece = pieceSan ? pieceSanToPiece(pieceSan) : undefined;
     const isMyPiece = piece?.color === playingColor;
     const currentMoves = getCurrentMoves();
     // Handle regular moves during my turn
-   
+
     if (isMyTurn && !currentMoves.preMove) {
       // If no pending move exists
-      
+
       if (!currentMoves.pendingMove?.from) {
         if (!isMyPiece) {
           return;
@@ -139,14 +137,13 @@ export const useMoves = ({
           return;
         }
         // Check for promotion
-       
+
         if (
           isValidPromoMove({
             ...currentMoves.pendingMove,
             to: square,
           })
         ) {
-         
           setPromoMove({ ...currentMoves.pendingMove, to: square });
           setIsPromoFromPreMove(false);
           return;
@@ -161,18 +158,14 @@ export const useMoves = ({
     ///MOJ POTEZ I IMAM PREMOVE
 
     if (isMyTurn && currentMoves.preMove) {
-      
       // Case 3 & 4: Complete premove that was started earlier
       if (!currentMoves.preMove.to) {
-        
         if (square === currentMoves.preMove.from) {
-           
           // Cancel premove if clicking same square
           setPreMove(undefined);
           return;
         }
         if (piece && isMyPiece) {
-          
           setPreMove({ from: square, piece });
           return;
         }
@@ -190,7 +183,7 @@ export const useMoves = ({
 
           return;
         }
-          
+
         // Try regular move
         onMoveIfValid(moveAttempt).map(() => {
           setPreMove(undefined);
@@ -203,19 +196,17 @@ export const useMoves = ({
     // First handle premoves during opponent's turn
 
     if (allowsPremoves && !isMyTurn) {
-     
       // Case 1: Click on my piece to start premove
       // Case 4: Drag my piece to start premove
       if (!currentMoves.preMove && piece && isMyPiece) {
         setPreMove({ from: square, piece });
-     
+
         return;
       }
 
       if (currentMoves.preMove) {
         // Cancel premove if clicking same square
         if (currentMoves.preMove.from === square) {
-            
           setPreMove(undefined);
           return;
         }
@@ -226,7 +217,7 @@ export const useMoves = ({
             ...currentMoves.preMove,
             to: square,
           };
-  
+
           // Proveri da li je promocija
           const moveAttempt = {
             from: completedPreMove.from,
@@ -235,7 +226,7 @@ export const useMoves = ({
           };
 
           // if (isValidPromoMove(moveAttempt)) {
-      
+
           //   setPreMove(completedPreMove);
           //   return;
           // }
@@ -269,41 +260,40 @@ export const useMoves = ({
     //   }
   };
 
-   useEffect(() => {
-     
-      const currentMoves = getCurrentMoves();
-      if (promoMove) {
+  useEffect(() => {
+    const currentMoves = getCurrentMoves();
+    if (promoMove) {
+      return;
+    }
+
+    // If we have a complete premove and it's our turn, execute it
+    if (isMyTurn && currentMoves.preMove?.to) {
+      const moveToExecute = {
+        from: currentMoves.preMove.from,
+        to: currentMoves.preMove.to,
+        piece: currentMoves.preMove.piece,
+      };
+
+      const isPromotion = isPromotableMove(moveToExecute, moveToExecute.piece);
+
+      if (isPromotion) {
+        const promoMoveToSet = {
+          from: currentMoves.preMove.from,
+          to: currentMoves.preMove.to,
+        };
+        setPromoMove(promoMoveToSet);
+        setIsPromoFromPreMove(true);
+
         return;
       }
-      
-      // If we have a complete premove and it's our turn, execute it
-      if (isMyTurn && currentMoves.preMove?.to) {
-        const moveToExecute = {
-          from: currentMoves.preMove.from,
-          to: currentMoves.preMove.to, 
-          piece: currentMoves.preMove.piece,
-        };
 
-        const isPromotion = isPromotableMove(moveToExecute, moveToExecute.piece);
-        
-        if (isPromotion) {
-          const promoMoveToSet = {
-            from: currentMoves.preMove.from,
-            to: currentMoves.preMove.to,
-          };
-          setPromoMove(promoMoveToSet);
-          setIsPromoFromPreMove(true);
-          
-          return;
-        }
-        
-        // Ako nije promocija, izvrši premove direktno
-        // setTimeout(() => {
-          setPreMove(undefined);
-           onMove(moveToExecute);
-        // }, premoveAnimationDelay);
-      }
-    }, [isMyTurn, promoMove, playerMoves]);
+      // Ako nije promocija, izvrši premove direktno
+      // setTimeout(() => {
+      setPreMove(undefined);
+      onMove(moveToExecute);
+      // }, premoveAnimationDelay);
+    }
+  }, [isMyTurn, promoMove, playerMoves]);
 
   const onMoveIfValid = (m: ShortChessMove): Result<void, void> => {
     if (onValidateMove(m)) {
@@ -321,18 +311,15 @@ export const useMoves = ({
     });
 
   const onPieceDrop = (from: Square, to: Square, pieceSan: PieceSan) => {
-   
     const currentMoves = getCurrentMoves();
     const piece = pieceSanToPiece(pieceSan);
-   
-   
+
     // Case 1: Complete premove by dragging to destination
     if (!isMyTurn && allowsPremoves) {
       //console.log('Complete premove by dragging to destination',from, to, pieceSan);
       if (piece.color === playingColor) {
         if (currentMoves.preMove) {
           if (from !== currentMoves.preMove.from) {
-    
             setPreMove({ from, piece });
             return false;
           }
@@ -353,7 +340,7 @@ export const useMoves = ({
             setPreMove(undefined);
             return false;
           }
-       
+
           // Complete existing premove
           setPreMove({ ...currentMoves.preMove, to });
         } else {
@@ -361,11 +348,9 @@ export const useMoves = ({
             onValidatePreMove({ from: from, to: to }) === false &&
             isSquareEmpty(to)
           ) {
-            
             setPreMove(undefined);
             return false;
           } else {
-           
             setPreMove({ from, to, piece });
           }
           // Start new premove
@@ -377,18 +362,17 @@ export const useMoves = ({
     }
 
     // Case 3 & 4: Complete premove that was started earlier
-    
+
     if (isMyTurn && currentMoves.preMove && !currentMoves.preMove.to) {
-   //   console.log('Complete premove that was started earlier',from, to, pieceSan);
+      //   console.log('Complete premove that was started earlier',from, to, pieceSan);
       if (from !== currentMoves.preMove.from) {
-      
         setPreMove(undefined);
 
         if (isValidPromoMove({ from, to, piece })) {
           setPreMove({ from, piece, to });
           return true;
         }
-       
+
         return onMoveIfValid({ from, to }).ok;
       }
       const moveAttempt = {
@@ -398,14 +382,12 @@ export const useMoves = ({
       };
 
       if (isValidPromoMove(moveAttempt)) {
-          
         setPreMove({ ...currentMoves.preMove, to });
         return true;
       }
 
       const result = onMoveIfValid(moveAttempt);
       if (result.ok) {
-         
         setPreMove(undefined);
       }
       return result.ok;
@@ -418,14 +400,10 @@ export const useMoves = ({
       currentMoves.pendingMove &&
       from !== currentMoves.pendingMove.from
     ) {
-      
       setPendingMove(undefined);
     }
-   
 
-   
     if (isValidPromoMove({ from, to, piece })) {
-      
       setPromoMove({ from, to });
       setIsPromoFromPreMove(false);
       setPendingMove(undefined); // PREMEŠTI OVDE
@@ -433,7 +411,7 @@ export const useMoves = ({
     }
 
     setPendingMove(undefined); // PREMEŠTI OVDE
-   
+
     return onMoveIfValid({ from, to }).ok;
   };
 
@@ -441,7 +419,7 @@ export const useMoves = ({
   return {
     onSquareClick: (square: Square, pieceSan?: PieceSan) =>
       onClickOrDrag({ square, pieceSan }),
-    onPieceDrag: (square: Square,pieceSan: PieceSan) =>
+    onPieceDrag: (square: Square, pieceSan: PieceSan) =>
       onClickOrDrag({ square, pieceSan }),
     onPieceDrop,
     onPromoSubmit: (move: ShortChessMove) => {

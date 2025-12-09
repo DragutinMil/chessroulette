@@ -84,7 +84,7 @@ const outpostTheme: Theme = {
   board: {
     darkSquare: ' rgb(181, 136, 99)',
     //'rgba(200, 160, 125, 1)',
-    
+
     lightSquare: 'rgb(240, 217, 181)',
     arrowColors: ['#11c6d1', '#f2358d', '#6f7381'],
     lastMoveToSquare: 'rgba(95, 15, 15, .6)',

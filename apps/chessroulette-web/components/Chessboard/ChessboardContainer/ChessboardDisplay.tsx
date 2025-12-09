@@ -30,10 +30,10 @@ export type ChessboardDisplayProps = Omit<
   onCancelPromoMove: () => void;
   onSubmitPromoMove: (move: ShortChessMove) => void;
   squareStyles?: any;
-  animationDurationInMs?:number,
+  animationDurationInMs?: number;
   onSquareClick?: (square: string, piece?: string) => void;
   //onPieceClick?: (square: string, piece: string | null) => void;
-  onPieceDrag?: (square: string | null, piece: string ) => void;
+  onPieceDrag?: (square: string | null, piece: string) => void;
   onPieceDrop?: (from: string, to: string, piece?: string | null) => void;
   onArrowsChange: any;
   highlightSquares?: Record<string, any>;
@@ -113,7 +113,7 @@ export const ChessboardDisplay = ({
             },
             allowDragging: true,
             onPieceDrag: ({ square, piece }: PieceHandlerArgs) => {
-              console.log()
+              console.log();
               const sq = square ?? '';
               const pc = piece?.pieceType;
               onPieceDrag?.(sq, pc);
@@ -137,7 +137,7 @@ export const ChessboardDisplay = ({
               border: `5px solid ${boardTheme.hoveredSquare}`,
               boxShadow: boardTheme.hoveredSquare,
             },
-            arrows:onArrowsChange,
+            arrows: onArrowsChange,
             arrowOptions: {
               color: boardTheme.arrowColors[1],
               secondaryColor: 'rgb(74 222 128)',
@@ -149,7 +149,7 @@ export const ChessboardDisplay = ({
               opacity: 0.8,
               activeOpacity: 1,
             },
-            animationDurationInMs:animationDurationInMs
+            animationDurationInMs: animationDurationInMs,
           }}
           {...boardProps}
         />

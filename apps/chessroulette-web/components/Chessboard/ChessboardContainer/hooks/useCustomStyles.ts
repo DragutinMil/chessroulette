@@ -75,18 +75,18 @@ export const useCustomStyles = ({
       : {};
 
     const inCheckStyles =
-  inCheckSquares &&
-  toDictIndexedBy(
-    objectKeys(inCheckSquares),
-    (sq) => sq,
-    () => ({
-      backgroundColor: 'rgb(242, 53, 141,0.8)',
-      boxShadow: '0 0 20px rgb(242, 53, 141,0.8) inset',
-      borderRadius:'50%',
-     
-     // height:'90%'
-    })
-  );
+      inCheckSquares &&
+      toDictIndexedBy(
+        objectKeys(inCheckSquares),
+        (sq) => sq,
+        () => ({
+          backgroundColor: 'rgb(242, 53, 141,0.8)',
+          boxShadow: '0 0 20px rgb(242, 53, 141,0.8) inset',
+          borderRadius: '50%',
+
+          // height:'90%'
+        })
+      );
 
     const pendingStyles = pendingMove?.from && {
       [pendingMove.from]: {

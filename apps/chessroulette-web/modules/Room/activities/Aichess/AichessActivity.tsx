@@ -79,7 +79,7 @@ export const AichessActivity = ({
     };
   }, []);
   useEffect(() => {
-   // console.log('currentChapter', currentChapter);
+    // console.log('currentChapter', currentChapter);
 
     if (newReview === false && currentChapter.chessAiMode.mode == 'review') {
       return;
