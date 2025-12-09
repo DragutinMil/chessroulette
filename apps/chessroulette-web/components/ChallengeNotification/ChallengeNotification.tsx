@@ -3,6 +3,7 @@ import { Dialog } from '@app/components/Dialog';
 import { ButtonGreen } from '@app/components/Button/ButtonGreen';
 import Cookies from 'js-cookie';
 import socketUtil from '@app/socketUtil';
+import { useRouter } from 'next/navigation';
 
 type ChallengeData = {
   ch_uuid: string;
@@ -27,8 +28,11 @@ export const ChallengeNotification: React.FC<Props> = ({
   onAccept,
   onDecline,
 }) => {
+  const router = useRouter();
   const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1920);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [hasInsufficientFunds, setHasInsufficientFunds] = useState(false);
+  const [isChecking, setIsChecking] = useState(false);
 
   useEffect(() => {
     console.log('🎯 ChallengeNotification render - challenge:', challenge);
@@ -47,6 +51,9 @@ export const ChallengeNotification: React.FC<Props> = ({
       return;
     }
 
+
+    setHasInsufficientFunds(false);
+    setIsChecking(false);
     // Automatski decline nakon 10 sekundi
     timeoutRef.current = setTimeout(() => {
       console.log('⏰ Challenge auto-declined after 10 seconds');
@@ -56,11 +63,7 @@ export const ChallengeNotification: React.FC<Props> = ({
     // Handler za socket event-e koji mogu da označe challenge kao revoke-ovan
     const handleSocketNotification = (data: any) => {
       // Proveri da li je ovo revocation event za naš challenge
-
       console.log("🔔 data:"+ JSON.stringify(data));
-
-      
-
       const isOurChallenge = 
         data.ch_uuid === challenge.ch_uuid ||
         data.challenge_uuid === challenge.ch_uuid ||
@@ -84,6 +87,63 @@ export const ChallengeNotification: React.FC<Props> = ({
         }
       }
     };
+
+    const handleAccept = async () => {
+      const token = Cookies.get('token') || Cookies.get('sessionToken');
+      
+      setIsChecking(true);
+      
+      try {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_API_WEB || 'https://api.outpostchess.com/'}challenge_accept/${challenge.ch_uuid}`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({}),
+          }
+        );
+  
+        if (response.ok) {
+          const data = await response.json();
+          if (data.target_url) {
+            window.open(data.target_url, '_self');
+          }
+          onAccept(challenge.ch_uuid);
+          setHasInsufficientFunds(false);
+        } else {
+          // Proveri da li je greška vezana za nedovoljno sredstava
+          const errorData = await response.json().catch(() => ({}));
+          const errorMessage = errorData.message || errorData.error || '';
+          const statusCode = response.status;
+          
+          // Proveri da li je greška vezana za nedovoljno sredstava
+          if (
+            statusCode === 402 || // Payment Required
+            statusCode === 400 || // Bad Request
+            errorMessage.toLowerCase().includes('insufficient') ||
+            errorMessage.toLowerCase().includes('balance') ||
+            errorMessage.toLowerCase().includes('funds') ||
+            errorMessage.toLowerCase().includes('wallet') ||
+            errorMessage.toLowerCase().includes('money') ||
+            errorMessage.toLowerCase().includes('para')
+          ) {
+            setHasInsufficientFunds(true);
+            // Preusmeri na wallet
+            return;
+          }
+          
+          console.error('Error accepting challenge:', errorMessage);
+        }
+      } catch (error) {
+        console.error('Error accepting challenge:', error);
+      } finally {
+        setIsChecking(false);
+      }
+    };
+  
 
     // Pretplati se na socket event-e - koristi isti event kao za primanje challenge-a
     socketUtil.subscribe('tb_notification', handleSocketNotification);
@@ -109,6 +169,11 @@ export const ChallengeNotification: React.FC<Props> = ({
     console.log('🎯 ChallengeNotification: No ch_uuid, returning null');
     return null;
   }
+
+  const handleGoToWallet = () => {
+    router.push('https://app.outpostchess.com/wallet');
+    onDecline(); // Zatvori notifikaciju nakon preusmeravanja
+  };
 
   const handleAccept = async () => {
     const token = Cookies.get('token') || Cookies.get('sessionToken');
@@ -260,48 +325,90 @@ export const ChallengeNotification: React.FC<Props> = ({
           match
           {!isFriendly && formatAmount() && (
             <>
-              {' '}for {formatAmount()}.
+              {' '}for {formatAmount()} {'€'}.
             </>
           )}
         </div>
-        <div className="flex-center" style={{
+       <div className="flex-center" style={{
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
           gap: '10px',
           flexWrap: 'wrap',
         }}>
-          <div 
-            className="btn_roullete"
-            onClick={handleAccept}
-            style={{
-              color: '#202122',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              border: '1px solid #07da63',
-              borderRadius: '6px',
-              marginTop: '14px',
-              fontSize: buttonFontSize,
-              cursor: 'pointer',
-              width: buttonWidth,
-              height: buttonHeight,
-              marginLeft: buttonMargin,
-              marginRight: buttonMargin,
-              backgroundColor: '#07da63',
-              transition: '0.3s',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.opacity = '0.7';
-              e.currentTarget.style.color = '#ffffff';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.opacity = '1';
-              e.currentTarget.style.color = '#202122';
-            }}
-          >
-            <b>Play</b>
-          </div>
+          {hasInsufficientFunds ? (
+            // Prikaži "Go to wallet" dugme ako nema dovoljno sredstava
+            <div 
+              className="btn_roullete"
+              onClick={handleGoToWallet}
+              style={{
+                color: '#202122',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                border: '1px solid #07da63',
+                borderRadius: '6px',
+                marginTop: '14px',
+                fontSize: buttonFontSize,
+                cursor: 'pointer',
+                width: buttonWidth,
+                height: buttonHeight,
+                marginLeft: buttonMargin,
+                marginRight: buttonMargin,
+                backgroundColor: '#07da63',
+                transition: '0.3s',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.opacity = '0.7';
+                e.currentTarget.style.color = '#ffffff';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.opacity = '1';
+                e.currentTarget.style.color = '#202122';
+              }}
+            >
+              <b>Go to wallet</b>
+            </div>
+          ) : (
+            // Prikaži "Play" dugme ako ima sredstva ili još nije provereno
+            <div 
+              className="btn_roullete"
+              onClick={handleAccept}
+              disabled={isChecking}
+              style={{
+                color: '#202122',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                border: '1px solid #07da63',
+                borderRadius: '6px',
+                marginTop: '14px',
+                fontSize: buttonFontSize,
+                cursor: isChecking ? 'wait' : 'pointer',
+                width: buttonWidth,
+                height: buttonHeight,
+                marginLeft: buttonMargin,
+                marginRight: buttonMargin,
+                backgroundColor: '#07da63',
+                transition: '0.3s',
+                opacity: isChecking ? 0.7 : 1,
+              }}
+              onMouseEnter={(e) => {
+                if (!isChecking) {
+                  e.currentTarget.style.opacity = '0.7';
+                  e.currentTarget.style.color = '#ffffff';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!isChecking) {
+                  e.currentTarget.style.opacity = '1';
+                  e.currentTarget.style.color = '#202122';
+                }
+              }}
+            >
+              <b>{isChecking ? 'Checking...' : 'Play'}</b>
+            </div>
+          )}
           <div 
             className="btn_roullete btn_roullete_cancel"
             onClick={onDecline}
