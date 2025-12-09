@@ -192,7 +192,7 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
     // console.log('stockfishRef.current',stockfishRef.current)
     if (stockfishRef.current) {
       stockfishRef.current.onmessage = (event) => {
-        console.log('feniranje');
+        // console.log('feniranje');
         if (event.data.startsWith('bestmove')) {
           setTimeout(() => {
             setBestMove(event.data.split(' ')[1]), 300;

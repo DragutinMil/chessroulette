@@ -1,5 +1,5 @@
 import { PieceSymbol, Square, Chess } from 'chess.js';
-import { Arrow } from 'react-chessboard/dist/chessboard/types';
+import { Arrow } from 'react-chessboard';
 import { ChessArrowId, ChessFEN, ChessMove, ChessPGN } from '../types';
 import { fenBoardPieceSymbolToPieceSymbol } from '../../ChessFENBoard';
 
@@ -12,15 +12,25 @@ export const isDarkSquare = (s: Square): boolean => {
 
 export const isLightSquare = (s: Square): boolean => !isDarkSquare(s);
 
-export const toChessArrowId = ([from, to, color]: Arrow): ChessArrowId =>
-  `${from}${to}-${color}`;
+export const toChessArrowId = ({
+  startSquare,
+  endSquare,
+  color,
+}: Arrow): ChessArrowId => `${startSquare}${endSquare}-${color}`;
 
+// export const toChessArrowFromId = (aid: ChessArrowId): Arrow => {
+//   const from = aid.slice(0, 2) as Square;
+//   const to = aid.slice(2, 4) as Square;
+//   const color = aid.slice(5) as string;
+
+//   return [from, to, color];
+// };
 export const toChessArrowFromId = (aid: ChessArrowId): Arrow => {
-  const from = aid.slice(0, 2) as Square;
-  const to = aid.slice(2, 4) as Square;
-  const color = aid.slice(5) as string;
+  const startSquare = aid.slice(0, 2) as Square;
+  const endSquare = aid.slice(2, 4) as Square;
+  const color = aid.slice(5); // assuming color is stored here
 
-  return [from, to, color];
+  return { startSquare, endSquare, color };
 };
 
 // @deprecate in favor of ChessRouler
@@ -30,34 +40,31 @@ export const getNewChessGame = (
     | { fen: ChessFEN; pgn?: undefined }
 ) => {
   const instance = new Chess();
-
+  //console.log('propsic',props)
   try {
     if (props?.pgn) {
       instance.loadPgn(props.pgn);
-
-      return instance;
-    }
-    if (props?.fen == '8/8/8/8/8/8/8/8 w - - 0 1') {
       return instance;
     }
     if (props?.fen) {
+      // console.log('provera fen',instance)
       instance.load(props.fen);
-
       return instance;
     }
 
     return instance;
   } catch (e) {
-    if (props?.fen == '8/8/8/8/8/8/8/8 w - - 0 1') {
-      console.log('roketi');
-      return instance;
-    }
+    // if (props?.fen == '8/8/8/8/8/8/8/8 w - - 0 1') {
+    //   console.log('roketi');
+    //   return instance;
+    // }
     console.error('GetNewChessGame', e);
     return instance;
   }
 };
 
 export const isValidPgn = (s: string): s is ChessPGN => {
+  console.log('provera isValidPgn');
   const instance = new Chess();
 
   try {
@@ -76,6 +83,7 @@ type ChessLibraryMove = {
 };
 
 export const isValidFen = (s: string): s is ChessFEN => {
+  console.log('provera isValidFEN');
   const instance = new Chess();
 
   try {

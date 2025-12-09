@@ -332,6 +332,7 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
           currentRatingEngine,
           pgn
         );
+
         if (data) {
           setPulseDot(false);
         }
@@ -486,10 +487,14 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
     }, [currentChapterState.chessAiMode.goodMoves]);
     useEffect(() => {
       if (currentChapterState.chessAiMode.mode == 'puzzle' && !stockfish) {
-        setTimeout(() => setStockfish(true), 1500);
-      } else if (currentChapterState.chessAiMode.mode == '' && !stockfish) {
-        setTimeout(() => setStockfish(true), 800);
-      } else if (currentChapterState.chessAiMode.mode == 'play') {
+        setTimeout(() => setStockfish(true), 3000);
+      } else if (
+        currentChapterState.chessAiMode.mode == 'review' &&
+        !stockfish
+      ) {
+        setTimeout(() => setStockfish(true), 1000);
+      } else if (currentChapterState.chessAiMode.mode == 'play' && !stockfish) {
+        setTimeout(() => setStockfish(true), 500);
         setTimeoutEnginePlay(true);
       }
     }, [currentChapterState.chessAiMode.mode]);
@@ -827,7 +832,7 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
           if (data) {
             setPulseDot(false);
           }
-
+          setStockfish(true);
           if (data == 'ai_daily_limit_reached') {
             onMessage({
               content: `You’ve reached today’s puzzle limit! ♟️

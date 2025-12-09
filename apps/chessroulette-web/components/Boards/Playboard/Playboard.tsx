@@ -54,7 +54,6 @@ export const Playboard = ({
 
   const onValidateMove = useCallback(
     (move: ShortChessMove) => {
-      console.log('onValidateMove');
       if (!canPlay) {
         return false;
       }

@@ -55,8 +55,9 @@ export const validatePreMove = (
   // change color to pass move
   parts[1] = parts[1] === 'w' ? 'b' : 'w';
   const newFen = parts.join(' ');
+  console.log('newGame premove');
   const chess = getNewChessGame({ fen: newFen });
-  // Validate move
+  // Validate moves
   try {
     chess.move(localChessMoveToChessLibraryMove(move));
 

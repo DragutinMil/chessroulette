@@ -26,7 +26,6 @@ export const FreeboardContainer = ({
         onMove ||
         ((m) => {
           const board = new ChessFENBoard(fen);
-
           board.move(m);
 
           setFen(board.fen);
