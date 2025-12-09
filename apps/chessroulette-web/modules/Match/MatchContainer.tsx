@@ -115,7 +115,7 @@ const MatchContainerInner = ({
   return (
     <>
 
-<div className="flex flex-col flex-1 min-h-0 gap-4 w-full md:w-1/2 md:hidden">
+<div className="flex flex-col flex-1 min-h-0 gap-4 w-full md:w-1/2 md:hidden mt-2">
             <div className="flex flex-row md:flex-col w-full md:w-1/2">
               {/*<div className="w-1/2  md:w-full h-full overflow-hidden rounded-lg shadow-2xl">
                 <PeerToPeerCameraWidget />

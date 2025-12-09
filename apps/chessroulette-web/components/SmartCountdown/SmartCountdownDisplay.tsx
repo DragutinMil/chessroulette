@@ -14,8 +14,8 @@ export const SmartCountdownDisplay = ({
   major,
   minor,
   active,
-  activeTextClassName = 'text-white    py-1 px-3 rounded-md   w-full    shadow-lg bg-slate-700 ',
-  inactiveTextClassName = 'relative text-slate-400  py-1 px-3  rounded-md  w-full  backdrop-blur-lg shadow-lg',
+  activeTextClassName = 'text-white    py-1 px-0 rounded-md   w-full    shadow-lg bg-slate-700 ',
+  inactiveTextClassName = 'relative text-slate-400  py-1 px-0  rounded-md  w-full  backdrop-blur-lg shadow-lg',
 }: SmartCountdownDisplayProps) => {
   //51 65 85
   if (timeLeft <= 0) {
