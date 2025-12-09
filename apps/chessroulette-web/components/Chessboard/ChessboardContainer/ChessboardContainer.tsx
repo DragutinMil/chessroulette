@@ -200,7 +200,7 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
         }}
         onPieceDrop={(sourceSquare, targetSquare, piece?) => {
           if (!piece || !sourceSquare || !targetSquare) return false;
-          console.log(piece, sourceSquare, targetSquare);
+         // console.log(piece, sourceSquare, targetSquare);
           moveActions.onPieceDrop(
             sourceSquare as Square,
             targetSquare as Square,

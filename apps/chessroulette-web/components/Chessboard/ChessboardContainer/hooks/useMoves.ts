@@ -208,7 +208,7 @@ export const useMoves = ({
       // Case 4: Drag my piece to start premove
       if (!currentMoves.preMove && piece && isMyPiece) {
         setPreMove({ from: square, piece });
-        console.log('1')
+     
         return;
       }
 
@@ -270,7 +270,7 @@ export const useMoves = ({
   };
 
    useEffect(() => {
-      console.log('useEffect1',playerMoves)
+     
       const currentMoves = getCurrentMoves();
       if (promoMove) {
         return;
@@ -283,7 +283,7 @@ export const useMoves = ({
           to: currentMoves.preMove.to, 
           piece: currentMoves.preMove.piece,
         };
-        console.log('useEffect')
+
         const isPromotion = isPromotableMove(moveToExecute, moveToExecute.piece);
         
         if (isPromotion) {
@@ -327,15 +327,12 @@ export const useMoves = ({
    
    
     // Case 1: Complete premove by dragging to destination
-
-     
-
     if (!isMyTurn && allowsPremoves) {
-       console.log('Complete premove by dragging to destination',from, to, pieceSan);
+      //console.log('Complete premove by dragging to destination',from, to, pieceSan);
       if (piece.color === playingColor) {
         if (currentMoves.preMove) {
           if (from !== currentMoves.preMove.from) {
-             console.log('Complete premove by dragging 1',from, to, pieceSan);
+    
             setPreMove({ from, piece });
             return false;
           }
@@ -356,7 +353,7 @@ export const useMoves = ({
             setPreMove(undefined);
             return false;
           }
-           console.log('Complete existing premove',from, to, pieceSan);
+       
           // Complete existing premove
           setPreMove({ ...currentMoves.preMove, to });
         } else {
@@ -364,11 +361,11 @@ export const useMoves = ({
             onValidatePreMove({ from: from, to: to }) === false &&
             isSquareEmpty(to)
           ) {
-            console.log('Complete premove by dragging else',from, to, pieceSan);
+            
             setPreMove(undefined);
             return false;
           } else {
-            console.log('Complete premove by dragging else 2',from, to, pieceSan);
+           
             setPreMove({ from, to, piece });
           }
           // Start new premove
@@ -382,16 +379,16 @@ export const useMoves = ({
     // Case 3 & 4: Complete premove that was started earlier
     
     if (isMyTurn && currentMoves.preMove && !currentMoves.preMove.to) {
-      console.log('Complete premove that was started earlier',from, to, pieceSan);
+   //   console.log('Complete premove that was started earlier',from, to, pieceSan);
       if (from !== currentMoves.preMove.from) {
-        console.log('Complete premove that was started earlier 2',from, to, pieceSan);
+      
         setPreMove(undefined);
 
         if (isValidPromoMove({ from, to, piece })) {
           setPreMove({ from, piece, to });
           return true;
         }
-        console.log('Complete premove that was started earlier 3',from, to, pieceSan);
+       
         return onMoveIfValid({ from, to }).ok;
       }
       const moveAttempt = {
@@ -401,14 +398,14 @@ export const useMoves = ({
       };
 
       if (isValidPromoMove(moveAttempt)) {
-          console.log('Complete premove that was started earlier 4',from, to, pieceSan);
+          
         setPreMove({ ...currentMoves.preMove, to });
         return true;
       }
 
       const result = onMoveIfValid(moveAttempt);
       if (result.ok) {
-          console.log('Complete premove that was started earlier 5',from, to, pieceSan);
+         
         setPreMove(undefined);
       }
       return result.ok;
@@ -421,14 +418,14 @@ export const useMoves = ({
       currentMoves.pendingMove &&
       from !== currentMoves.pendingMove.from
     ) {
-        console.log('Complete premove that was started earlier 6',from, to, pieceSan);
+      
       setPendingMove(undefined);
     }
    
 
    
     if (isValidPromoMove({ from, to, piece })) {
-      console.log('liki',from, to, piece);
+      
       setPromoMove({ from, to });
       setIsPromoFromPreMove(false);
       setPendingMove(undefined); // PREMEŠTI OVDE
@@ -436,7 +433,7 @@ export const useMoves = ({
     }
 
     setPendingMove(undefined); // PREMEŠTI OVDE
-      console.log('kraj',from, to, pieceSan);
+   
     return onMoveIfValid({ from, to }).ok;
   };
 
