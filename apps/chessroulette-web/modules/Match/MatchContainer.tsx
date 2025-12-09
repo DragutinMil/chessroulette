@@ -114,6 +114,17 @@ const MatchContainerInner = ({
 
   return (
     <>
+
+<div className="flex flex-col flex-1 min-h-0 gap-4 w-full md:w-1/2 md:hidden">
+            <div className="flex flex-row md:flex-col w-full md:w-1/2">
+              {/*<div className="w-1/2  md:w-full h-full overflow-hidden rounded-lg shadow-2xl">
+                <PeerToPeerCameraWidget />
+              </div>*/}
+              <div className="w-full md:w-1/2 mr-0 md:mr-0">
+                <MatchStateDisplayContainer />
+              </div>
+            </div>
+            </div>
       <ResizableDesktopLayout
         mainComponent={({ boardSize }) => (
           <div className=" w-max[full] md:w-max[3/4] mr-0">
@@ -135,7 +146,7 @@ const MatchContainerInner = ({
               {/*<div className="w-1/2  md:w-full h-full overflow-hidden rounded-lg shadow-2xl">
                 <PeerToPeerCameraWidget />
               </div>*/}
-              <div className="w-full md:w-full mr-0 md:ml-0">
+                <div className="hidden md:block md:w-full mr-0 md:ml-0">
                 <MatchStateDisplayContainer />
               </div>
             </div>
