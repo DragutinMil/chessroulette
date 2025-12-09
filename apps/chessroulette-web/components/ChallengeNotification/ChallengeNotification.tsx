@@ -33,6 +33,7 @@ export const ChallengeNotification: React.FC<Props> = ({
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [hasInsufficientFunds, setHasInsufficientFunds] = useState(false);
   const [isChecking, setIsChecking] = useState(false);
+  const [targetUrl, setTargetUrl] = useState<string | null>(null);
 
   useEffect(() => {
     console.log('🎯 ChallengeNotification render - challenge:', challenge);
@@ -51,9 +52,96 @@ export const ChallengeNotification: React.FC<Props> = ({
       return;
     }
 
-
     setHasInsufficientFunds(false);
-    setIsChecking(false);
+    setIsChecking(true);
+    setTargetUrl(null);
+
+    // Funkcija za proveru sredstava - pokušaj da prihvatiš challenge (bez redirect-a)
+    const checkFunds = async () => {
+      let token = Cookies.get('token') || Cookies.get('sessionToken');
+      
+      if (!token && typeof window !== 'undefined') {
+        token = localStorage.getItem('token') || localStorage.getItem('sessionToken');
+      }
+      
+      if (!token) {
+        console.error('❌ No token found!');
+        setIsChecking(false);
+        return;
+      }
+
+      try {
+        const apiBase = process.env.NEXT_PUBLIC_API_WEB || 'https://api.outpostchess.com/';
+        const cleanApiBase = apiBase.endsWith('/') ? apiBase.slice(0, -1) : apiBase;
+        
+        const endpoint = cleanApiBase.includes('/api/v2/') 
+          ? `${cleanApiBase}/challenge_accept/${challenge.ch_uuid}`
+          : cleanApiBase.includes('/api/')
+          ? `${cleanApiBase}/challenge_accept/${challenge.ch_uuid}`
+          : `${cleanApiBase}/api/v2/challenge_accept/${challenge.ch_uuid}`;
+        
+        console.log('💰 Checking funds for challenge:', challenge.ch_uuid);
+        
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({}),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setTargetUrl(data.target_url || null);
+          setHasInsufficientFunds(false);
+          console.log('✅ Funds check passed - user has enough credits');
+        } else {
+          // Proveri da li je greška vezana za nedovoljno sredstava
+          const errorData = await response.json().catch(() => ({}));
+          const errorMessage = errorData.message || errorData.error || '';
+          const statusCode = response.status;
+          
+          console.log('💰 Funds check result:', {
+            status: statusCode,
+            message: errorMessage
+          });
+          
+          // Proveri da li je greška vezana za nedovoljno sredstava
+          if (
+            statusCode === 402 || // Payment Required
+            statusCode === 400 || // Bad Request
+            statusCode === 403 || // Forbidden
+            statusCode === 500 || // Internal Server Error (može biti "Not enough credits!")
+            errorMessage.toLowerCase().includes('not enough') ||
+            errorMessage.toLowerCase().includes('insufficient') ||
+            errorMessage.toLowerCase().includes('balance') ||
+            errorMessage.toLowerCase().includes('funds') ||
+            errorMessage.toLowerCase().includes('wallet') ||
+            errorMessage.toLowerCase().includes('money') ||
+            errorMessage.toLowerCase().includes('para') ||
+            errorMessage.toLowerCase().includes('credits')
+          ) {
+            setHasInsufficientFunds(true);
+            console.log('❌ Insufficient funds detected');
+          } else {
+            // Ako je neka druga greška, možda ima sredstava ali je neki drugi problem
+            // U tom slučaju prikaži "Play" dugme pa neka korisnik proba
+            setHasInsufficientFunds(false);
+          }
+        }
+      } catch (error) {
+        console.error('Error checking funds:', error);
+        // U slučaju greške, prikaži "Play" dugme pa neka korisnik proba
+        setHasInsufficientFunds(false);
+      } finally {
+        setIsChecking(false);
+      }
+    };
+
+    // Proveri sredstva odmah
+    checkFunds();
+
     // Automatski decline nakon 10 sekundi
     timeoutRef.current = setTimeout(() => {
       console.log('⏰ Challenge auto-declined after 10 seconds');
@@ -88,64 +176,6 @@ export const ChallengeNotification: React.FC<Props> = ({
       }
     };
 
-    const handleAccept = async () => {
-      const token = Cookies.get('token') || Cookies.get('sessionToken');
-      
-      setIsChecking(true);
-      
-      try {
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_WEB || 'https://api.outpostchess.com/'}challenge_accept/${challenge.ch_uuid}`,
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify({}),
-          }
-        );
-  
-        if (response.ok) {
-          const data = await response.json();
-          if (data.target_url) {
-            window.open(data.target_url, '_self');
-          }
-          onAccept(challenge.ch_uuid);
-          setHasInsufficientFunds(false);
-        } else {
-          // Proveri da li je greška vezana za nedovoljno sredstava
-          const errorData = await response.json().catch(() => ({}));
-          const errorMessage = errorData.message || errorData.error || '';
-          const statusCode = response.status;
-          
-          // Proveri da li je greška vezana za nedovoljno sredstava
-          if (
-            statusCode === 402 || // Payment Required
-            statusCode === 400 || // Bad Request
-            errorMessage.toLowerCase().includes('insufficient') ||
-            errorMessage.toLowerCase().includes('balance') ||
-            errorMessage.toLowerCase().includes('funds') ||
-            errorMessage.toLowerCase().includes('wallet') ||
-            errorMessage.toLowerCase().includes('money') ||
-            errorMessage.toLowerCase().includes('para')
-          ) {
-            setHasInsufficientFunds(true);
-            // Preusmeri na wallet
-            return;
-          }
-          
-          console.error('Error accepting challenge:', errorMessage);
-        }
-      } catch (error) {
-        console.error('Error accepting challenge:', error);
-      } finally {
-        setIsChecking(false);
-      }
-    };
-  
-
-    // Pretplati se na socket event-e - koristi isti event kao za primanje challenge-a
     socketUtil.subscribe('tb_notification', handleSocketNotification);
 
     // Cleanup
@@ -156,9 +186,6 @@ export const ChallengeNotification: React.FC<Props> = ({
       socketUtil.unsubscribe('tb_notification', handleSocketNotification);
     };
   }, [challenge, onDecline]);
-
-
-
 
   if (!challenge) {
     console.log('🎯 ChallengeNotification: No challenge, returning null');
@@ -176,20 +203,43 @@ export const ChallengeNotification: React.FC<Props> = ({
   };
 
   const handleAccept = async () => {
-    const token = Cookies.get('token') || Cookies.get('sessionToken');
+    // Ako već imamo target_url iz provere sredstava, koristi ga
+    if (targetUrl) {
+      window.open(targetUrl, '_self');
+      onAccept(challenge.ch_uuid);
+      return;
+    }
+
+    // Ako nemamo target_url, pokušaj ponovo (fallback)
+    let token = Cookies.get('token') || Cookies.get('sessionToken');
+    
+    if (!token && typeof window !== 'undefined') {
+      token = localStorage.getItem('token') || localStorage.getItem('sessionToken');
+    }
+    
+    if (!token) {
+      console.error('❌ No token found!');
+      return;
+    }
     
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_WEB || 'https://api.outpostchess.com/'}challenge_accept/${challenge.ch_uuid}`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({}),
-        }
-      );
+      const apiBase = process.env.NEXT_PUBLIC_API_WEB || 'https://api.outpostchess.com/';
+      const cleanApiBase = apiBase.endsWith('/') ? apiBase.slice(0, -1) : apiBase;
+      
+      const endpoint = cleanApiBase.includes('/api/v2/') 
+        ? `${cleanApiBase}/challenge_accept/${challenge.ch_uuid}`
+        : cleanApiBase.includes('/api/')
+        ? `${cleanApiBase}/challenge_accept/${challenge.ch_uuid}`
+        : `${cleanApiBase}/api/v2/challenge_accept/${challenge.ch_uuid}`;
+      
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({}),
+      });
 
       if (response.ok) {
         const data = await response.json();
@@ -336,7 +386,32 @@ export const ChallengeNotification: React.FC<Props> = ({
           gap: '10px',
           flexWrap: 'wrap',
         }}>
-          {hasInsufficientFunds ? (
+          {isChecking ? (
+            // Prikaži "Checking..." dok se proveravaju sredstva
+            <div 
+              className="btn_roullete"
+              style={{
+                color: '#202122',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                border: '1px solid #07da63',
+                borderRadius: '6px',
+                marginTop: '14px',
+                fontSize: buttonFontSize,
+                cursor: 'wait',
+                width: buttonWidth,
+                height: buttonHeight,
+                marginLeft: buttonMargin,
+                marginRight: buttonMargin,
+                backgroundColor: '#07da63',
+                transition: '0.3s',
+                opacity: 0.7,
+              }}
+            >
+              <b>Checking...</b>
+            </div>
+          ) : hasInsufficientFunds ? (
             // Prikaži "Go to wallet" dugme ako nema dovoljno sredstava
             <div 
               className="btn_roullete"
@@ -370,11 +445,10 @@ export const ChallengeNotification: React.FC<Props> = ({
               <b>Go to wallet</b>
             </div>
           ) : (
-            // Prikaži "Play" dugme ako ima sredstva ili još nije provereno
+            // Prikaži "Play" dugme ako ima sredstva
             <div 
               className="btn_roullete"
               onClick={handleAccept}
-              disabled={isChecking}
               style={{
                 color: '#202122',
                 display: 'flex',
@@ -384,29 +458,24 @@ export const ChallengeNotification: React.FC<Props> = ({
                 borderRadius: '6px',
                 marginTop: '14px',
                 fontSize: buttonFontSize,
-                cursor: isChecking ? 'wait' : 'pointer',
+                cursor: 'pointer',
                 width: buttonWidth,
                 height: buttonHeight,
                 marginLeft: buttonMargin,
                 marginRight: buttonMargin,
                 backgroundColor: '#07da63',
                 transition: '0.3s',
-                opacity: isChecking ? 0.7 : 1,
               }}
               onMouseEnter={(e) => {
-                if (!isChecking) {
-                  e.currentTarget.style.opacity = '0.7';
-                  e.currentTarget.style.color = '#ffffff';
-                }
+                e.currentTarget.style.opacity = '0.7';
+                e.currentTarget.style.color = '#ffffff';
               }}
               onMouseLeave={(e) => {
-                if (!isChecking) {
-                  e.currentTarget.style.opacity = '1';
-                  e.currentTarget.style.color = '#202122';
-                }
+                e.currentTarget.style.opacity = '1';
+                e.currentTarget.style.color = '#202122';
               }}
             >
-              <b>{isChecking ? 'Checking...' : 'Play'}</b>
+              <b>Play</b>
             </div>
           )}
           <div 
