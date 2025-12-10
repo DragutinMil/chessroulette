@@ -164,7 +164,7 @@ export const ChatWidget: React.FC<Props> = ({
   };
 
   return (
-    <div className="w-full md:mx-3 flex flex-col h-full bg-op-widget rounded-lg shadow-2xl md:min-h-[250px] md:h-auto">
+    <div className="w-full flex flex-col h-full bg-op-widget rounded-lg shadow-2xl md:min-h-[250px] md:h-auto">
       {/* Mobile: Fullscreen header */}
       <div className="md:hidden flex items-center justify-between p-4 border-b border-slate-800">
         <Text className="text-lg font-semibold">Chat</Text>

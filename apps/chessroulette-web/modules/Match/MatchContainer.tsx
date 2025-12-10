@@ -115,7 +115,7 @@ const MatchContainerInner = ({
   return (
     <>
 
-<div className="flex flex-col flex-1 min-h-0 gap-4 w-full md:w-1/2 md:hidden mt-2">
+<div className="flex flex-col flex-1 min-h-0 gap-4 w-full md:w-1/2 md:hidden mt-6">
             <div className="flex flex-row md:flex-col w-full md:w-1/2">
               {/*<div className="w-1/2  md:w-full h-full overflow-hidden rounded-lg shadow-2xl">
                 <PeerToPeerCameraWidget />
@@ -165,14 +165,16 @@ const MatchContainerInner = ({
               )}
             </div>
             
-            <div className="w-full pl-2 pr-2 pt-2 pb-2 md:p-3 flex flex-col gap-2 md:flex-1 min-h-0 rounded-lg shadow-2xl md:overflow-y-scroll no-scrollbar fixed bottom-0 left-0 right-0 md:relative md:bottom-auto md:left-auto md:right-auto">            
+            <div className="w-full pl-2 pr-2 md:pl-0 md:pr-0  pt-2 pb-2 flex flex-col gap-2 md:flex-1 min-h-0 rounded-lg shadow-2xl md:overflow-y-scroll no-scrollbar fixed bottom-0 left-0 right-0 md:relative md:bottom-auto md:left-auto md:right-auto">            
               <div
                 style={{
                   backgroundImage: 'radial-gradient(61.84% 61.84% at 50% 131.62%, rgba(5, 135, 44, 0.2) 0%, rgb(1, 33, 11) 100%)',
                   height: isMobile ? '52px' : '290px',
                   minHeight: isMobile ? '52px' : '202px',
+                  width: '100%',
+
                 }}
-                className="overflow-x-auto md:overflow-x-hidden md:flex rounded-lg md:mb-0 mb-4 border border-conversation-100 md:p-4 p-2 overflow-scroll no-scrollbar"
+                className="overflow-x-auto md:overflow-x-hidden md:flex rounded-lg md:mb-0 mb-4 border border-conversation-100 md:p-4 p-2 overflow-scroll no-scrollbar w-full"
               >
                 <FreeBoardNotation
                   isMobile={isMobile}
