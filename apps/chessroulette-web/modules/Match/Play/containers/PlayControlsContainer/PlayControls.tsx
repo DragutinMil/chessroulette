@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ChessColor } from '@xmatter/util-kit';
 import { QuickConfirmButton } from '@app/components/Button/QuickConfirmButton';
 import { Game, GameOffer } from '@app/modules/Game';
@@ -22,19 +22,19 @@ type Props = {
 };
 
 const CameraOnIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#000000">
+  <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#ffffff">
     <path d="M160-160q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h480q33 0 56.5 23.5T720-720v180l160-160v440L720-420v180q0 33-23.5 56.5T640-160H160Zm0-80h480v-480H160v480Zm0 0v-480 480Z"/>
   </svg>
 );
 
 const CameraOffIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#000000">
+  <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#ffffff">
     <path d="M880-260 720-420v67l-80-80v-287H353l-80-80h367q33 0 56.5 23.5T720-720v180l160-160v440ZM822-26 26-822l56-56L878-82l-56 56ZM498-575ZM382-464ZM160-800l80 80h-80v480h480v-80l80 80q0 33-23.5 56.5T640-160H160q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800Z"/>
   </svg>
 );
 
 const MessageIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#000000" className="text-white">
+  <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#ffffff">
     <path d="M80-80v-720q0-33 23.5-56.5T160-880h640q33 0 56.5 23.5T880-800v480q0 33-23.5 56.5T800-240H240L80-80Zm126-240h594v-480H160v525l46-45Zm-46 0v-480 480Z"/>
   </svg>
 
@@ -42,17 +42,17 @@ const MessageIcon = () => (
 
 
 const DrawOfferIcon = () => (
-<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#000000" className="text-white"><path d="M200-120q-33 0-56.5-23.5T120-200v-160q0-33 23.5-56.5T200-440h560q33 0 56.5 23.5T840-360v160q0 33-23.5 56.5T760-120H200Zm0-400q-33 0-56.5-23.5T120-600v-160q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v160q0 33-23.5 56.5T760-520H200Zm560-240H200v160h560v-160Z"/>
+<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#ffffff" className="text-white"><path d="M200-120q-33 0-56.5-23.5T120-200v-160q0-33 23.5-56.5T200-440h560q33 0 56.5 23.5T840-360v160q0 33-23.5 56.5T760-120H200Zm0-400q-33 0-56.5-23.5T120-600v-160q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v160q0 33-23.5 56.5T760-520H200Zm560-240H200v160h560v-160Z"/>
 </svg>
 );
 
 const TakebackIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#000000" className="text-white"><path d="M680-160v-400H313l144 144-56 57-241-241 240-240 57 57-144 143h447v480h-80Z"/>
+  <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#ffffff" className="text-white"><path d="M680-160v-400H313l144 144-56 57-241-241 240-240 57 57-144 143h447v480h-80Z"/>
   </svg>
 );
 
 const ResignIcon = () => (
-  <svg className="text-white" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#000000"><path d="M200-80v-760h640l-80 200 80 200H280v360h-80Zm80-440h442l-48-120 48-120H280v240Zm0 0v-240 240Z"/>
+  <svg className="text-white" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#ffffff"><path d="M200-80v-760h640l-80 200 80 200H280v360h-80Zm80-440h442l-48-120 48-120H280v240Zm0 0v-240 240Z"/>
   </svg>
 );
 
@@ -71,10 +71,8 @@ export const PlayControls: React.FC<Props> = ({
 
 }) => {
   const { offers: offers = [] } = game;
-  const { match, ...matchView } = useMatchViewState();
+  const { match } = useMatchViewState();
   const [isBotPlay, setBots] = useState(false);
-  const [allowTakeback, refreshAllowTakeback] = useState(false);
-  const [allowDraw, refreshAllowDraw] = useState(true);
   const [drawOfferNum, coundDrawOfferNum] = useState(0);
   const router = useRouter();
   const offerAlreadySent = useRef(false);
@@ -90,7 +88,7 @@ export const PlayControls: React.FC<Props> = ({
     }
   }, []);
 
-  const calculateTakebackStatus = () => {
+  const calculateTakebackStatus = useCallback(() => {
     if (game.lastMoveBy !== homeColor) {
       return false;
     }
@@ -118,9 +116,9 @@ export const PlayControls: React.FC<Props> = ({
         return accum;
       }, 0) < 4
     );
-  };
+  }, [game.lastMoveBy, homeColor, lastOffer?.status, offers, playerId]);
 
-  const calculateDrawStatus = () => {
+  const calculateDrawStatus = useCallback(() => {
     if (game.status !== 'ongoing') {
       return false;
     }
@@ -140,7 +138,17 @@ export const PlayControls: React.FC<Props> = ({
         return accum;
       }, 0) < 4
     );
-  };
+  }, [game.status, lastOffer?.status, offers, playerId, drawOfferNum]);
+
+  // Use useMemo instead of useState + useEffect to prevent flickering
+  const allowTakeback = useMemo(() => {
+    return calculateTakebackStatus();
+  }, [calculateTakebackStatus]);
+
+  const allowDraw = useMemo(() => {
+    return calculateDrawStatus();
+  }, [calculateDrawStatus]);
+
   useEffect(() => {
     if (match) {
       setBots(
@@ -154,19 +162,19 @@ export const PlayControls: React.FC<Props> = ({
         ].indexOf(match?.challengee?.id) !== -1
       );
     }
-  }, []);
+  }, [match]);
 
   useEffect(() => {
     if (offerAlreadySent.current) {
       resetOfferSent();
     }
-  }, [game.lastMoveBy]);
+  }, [game.lastMoveBy, resetOfferSent]);
 
-  useEffect(() => {
+//  useEffect(() => {
     //TODO - can optimize this function with useCallback and pass parameters the gameState
-    refreshAllowTakeback(calculateTakebackStatus());
-    refreshAllowDraw(calculateDrawStatus());
-  }, [game.status, offers, game.lastMoveBy]);
+//    refreshAllowTakeback(calculateTakebackStatus());
+//    refreshAllowDraw(calculateDrawStatus());
+//  }, [game.status, offers, game.lastMoveBy]);
 
   return (
     <div className=" 
@@ -205,12 +213,8 @@ export const PlayControls: React.FC<Props> = ({
           type="custom"
           size="sm"
           confirmationBgcolor="green"
-          className={`flex-1 md:hidden !h-8 min-w-[50px] !rounded-3xl ${
-            !(activeWidget === 'chat') 
-              ? '!bg-[#D9D9D9] opacity- ' 
-              : '!bg-[#D9D9D9] !opacity-20'
-          }`}
-          confirmationMessage="chat?"
+          className={`flex-1 md:hidden !h-8 min-w-[50px] !rounded-3xl !text-white `}
+          confirmationMessage="Chat?"
           bgColor="green"
           onClick={() => setActiveWidget('chat')}
         >
@@ -231,12 +235,8 @@ export const PlayControls: React.FC<Props> = ({
         type="custom"
         size="sm"
         confirmationBgcolor="green"
-        className={`flex-1 !h-8 min-w-[50px] !rounded-3xl ${
-          !allowDraw || isBotPlay 
-            ? '!bg-[#D9D9D9] opacity- ' 
-            : '!bg-[#D9D9D9] !opacity-20'
-        }`} 
-        confirmationMessage="draw?"
+        className={`flex-1 !h-8 min-w-[50px] !rounded-3xl `} 
+        confirmationMessage="Draw?"
         bgColor="green"
         iconKind="solid"
         onClick={() => {
@@ -246,7 +246,7 @@ export const PlayControls: React.FC<Props> = ({
         }}
         disabled={!allowDraw || isBotPlay}
       >
-        <p className="text-black"> 1/2 </p>
+        <p className="text-white"> 1/2 </p>
       </QuickConfirmButton>
       <QuickConfirmButton
         type="custom"
@@ -254,7 +254,7 @@ export const PlayControls: React.FC<Props> = ({
         className="flex-1 !h-8 min-w-[50px] !rounded-3xl !text-white
         text-xs md:text-sm"
         confirmationBgcolor="green"
-        confirmationMessage="undo?"
+        confirmationMessage="Undo?"
         bgColor="green"
         iconKind="solid"
         onClick={() => {
@@ -271,7 +271,7 @@ export const PlayControls: React.FC<Props> = ({
         size="sm"
         className="flex-1 !h-8 min-w-[50px] !rounded-3xl !text-white"
         confirmationBgcolor="red"
-        confirmationMessage="resign?"
+        confirmationMessage="Resign?"
         bgColor="green"
         iconKind="solid"
         onClick={onResign}
