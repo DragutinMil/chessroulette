@@ -271,7 +271,7 @@ useEffect(() => {
       {movex.status === 'connectionError' && (
         <Modal>Cannot connect. Check your Internet Connection!</Modal>
       )}
-      
+      <div className= "flex-center">
       <ChallengeNotification
         challenge={challengeNotification}
         onAccept={(challengeUuid) => {
@@ -281,6 +281,7 @@ useEffect(() => {
           setChallengeNotification(null);
         }}
       />
+      </div>
     </PeerStreamingProvider>
   );
 };

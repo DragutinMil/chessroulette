@@ -35,9 +35,7 @@ export const ChallengeNotification: React.FC<Props> = ({
   const [isChecking, setIsChecking] = useState(false);
   const [targetUrl, setTargetUrl] = useState<string | null>(null);
 
-  useEffect(() => {
-    console.log('🎯 ChallengeNotification render - challenge:', challenge);
-    
+  useEffect(() => {    
     const handleResize = () => {
       setWindowWidth(window.innerWidth);
     };
@@ -74,61 +72,86 @@ export const ChallengeNotification: React.FC<Props> = ({
         const apiBase = process.env.NEXT_PUBLIC_API_WEB || 'https://api.outpostchess.com/';
         const cleanApiBase = apiBase.endsWith('/') ? apiBase.slice(0, -1) : apiBase;
         
-        const endpoint = cleanApiBase.includes('/api/v2/') 
-          ? `${cleanApiBase}/challenge_accept/${challenge.ch_uuid}`
+        const walletEndpoint = cleanApiBase.includes('/api/v2/') 
+          ? `${cleanApiBase}/wallet_sum`
           : cleanApiBase.includes('/api/')
-          ? `${cleanApiBase}/challenge_accept/${challenge.ch_uuid}`
-          : `${cleanApiBase}/api/v2/challenge_accept/${challenge.ch_uuid}`;
-        
-        console.log('💰 Checking funds for challenge:', challenge.ch_uuid);
-        
-        const response = await fetch(endpoint, {
-          method: 'POST',
+          ? `${cleanApiBase}/wallet_sum`
+          : `${cleanApiBase}/api/v2/wallet_sum`;
+                
+        const walletResponse = await fetch(walletEndpoint, {
+          method: 'GET',
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({}),
         });
 
-        if (response.ok) {
-          const data = await response.json();
-          setTargetUrl(data.target_url || null);
+        if (!walletResponse.ok) {
+          console.error('❌ Failed to fetch wallet balance:', walletResponse.status);
+          setIsChecking(false);
+          // U slučaju greške, prikaži "Play" dugme pa neka korisnik proba
           setHasInsufficientFunds(false);
-          console.log('✅ Funds check passed - user has enough credits');
-        } else {
-          // Proveri da li je greška vezana za nedovoljno sredstava
-          const errorData = await response.json().catch(() => ({}));
-          const errorMessage = errorData.message || errorData.error || '';
-          const statusCode = response.status;
-          
-          console.log('💰 Funds check result:', {
-            status: statusCode,
-            message: errorMessage
-          });
-          
-          // Proveri da li je greška vezana za nedovoljno sredstava
-          if (
-            statusCode === 402 || // Payment Required
-            statusCode === 400 || // Bad Request
-            statusCode === 403 || // Forbidden
-            statusCode === 500 || // Internal Server Error (može biti "Not enough credits!")
-            errorMessage.toLowerCase().includes('not enough') ||
-            errorMessage.toLowerCase().includes('insufficient') ||
-            errorMessage.toLowerCase().includes('balance') ||
-            errorMessage.toLowerCase().includes('funds') ||
-            errorMessage.toLowerCase().includes('wallet') ||
-            errorMessage.toLowerCase().includes('money') ||
-            errorMessage.toLowerCase().includes('para') ||
-            errorMessage.toLowerCase().includes('credits')
-          ) {
-            setHasInsufficientFunds(true);
-            console.log('❌ Insufficient funds detected');
-          } else {
-            // Ako je neka druga greška, možda ima sredstava ali je neki drugi problem
-            // U tom slučaju prikaži "Play" dugme pa neka korisnik proba
-            setHasInsufficientFunds(false);
+          return;
+        }
+
+        const walletData = await walletResponse.json();
+        const walletBalance = parseFloat(walletData.total || '0');
+        
+        // Parsiraj ch_amount iz challenge-a
+        let challengeAmount = 0;
+        if (challenge.ch_amount) {
+          if (typeof challenge.ch_amount === 'string') {
+            // Ukloni €, $ i ostale simbole
+            challengeAmount = parseFloat(challenge.ch_amount);
+          } else if (typeof challenge.ch_amount === 'number') {
+            challengeAmount = challenge.ch_amount;
           }
+        }
+        challengeAmount = Number(challengeAmount.toFixed(2));
+        // Proveri da li je friendly challenge (amount je 0 ili nema amount)
+        const isFriendlyChallenge = !challenge.ch_amount || 
+          challenge.ch_amount === '0' || 
+          challenge.ch_amount === '€0' || 
+          challenge.ch_amount === '$0' ||
+          challengeAmount < 1;
+
+        // Ako je friendly challenge, uvek prikaži "Play" dugme
+        if (isFriendlyChallenge) {
+          setHasInsufficientFunds(false);
+          setIsChecking(false);
+          return;
+        }
+
+        // Poredi wallet balance sa challenge amount-om
+        if (walletBalance >= challengeAmount) {
+          setHasInsufficientFunds(false);
+          
+          // Takođe pozovi challenge_accept da dobiješ target_url za kasnije
+          const acceptEndpoint = cleanApiBase.includes('/api/v2/') 
+            ? `${cleanApiBase}/challenge_accept/${challenge.ch_uuid}`
+            : cleanApiBase.includes('/api/')
+            ? `${cleanApiBase}/challenge_accept/${challenge.ch_uuid}`
+            : `${cleanApiBase}/api/v2/challenge_accept/${challenge.ch_uuid}`;
+          
+          try {
+            const acceptResponse = await fetch(acceptEndpoint, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify({}),
+            });
+
+            if (acceptResponse.ok) {
+              const acceptData = await acceptResponse.json();
+              setTargetUrl(acceptData.target_url || null);
+            }
+          } catch (error) {
+            console.error('Error fetching target_url (non-critical):', error);
+          }
+        } else {
+          setHasInsufficientFunds(true);
         }
       } catch (error) {
         console.error('Error checking funds:', error);
@@ -144,14 +167,12 @@ export const ChallengeNotification: React.FC<Props> = ({
 
     // Automatski decline nakon 10 sekundi
     timeoutRef.current = setTimeout(() => {
-      console.log('⏰ Challenge auto-declined after 10 seconds');
       onDecline();
     }, 10000);
 
     // Handler za socket event-e koji mogu da označe challenge kao revoke-ovan
     const handleSocketNotification = (data: any) => {
       // Proveri da li je ovo revocation event za naš challenge
-      console.log("🔔 data:"+ JSON.stringify(data));
       const isOurChallenge = 
         data.ch_uuid === challenge.ch_uuid ||
         data.challenge_uuid === challenge.ch_uuid ||
@@ -167,7 +188,6 @@ export const ChallengeNotification: React.FC<Props> = ({
           data.status === 'cancelled' ||
           data.status === 'expired'
         ) {
-          console.log('🔔 Challenge revoked via socket event:', data.n_type || data.status);
           if (timeoutRef.current) {
             clearTimeout(timeoutRef.current);
           }
@@ -188,12 +208,10 @@ export const ChallengeNotification: React.FC<Props> = ({
   }, [challenge, onDecline]);
 
   if (!challenge) {
-    console.log('🎯 ChallengeNotification: No challenge, returning null');
     return null;
   }
 
   if (!challenge.ch_uuid) {
-    console.log('🎯 ChallengeNotification: No ch_uuid, returning null');
     return null;
   }
 
@@ -218,7 +236,6 @@ export const ChallengeNotification: React.FC<Props> = ({
     }
     
     if (!token) {
-      console.error('❌ No token found!');
       return;
     }
     
@@ -284,17 +301,18 @@ export const ChallengeNotification: React.FC<Props> = ({
 
   // Formatuj amount za prikaz
   const formatAmount = () => {
-    if (isFriendly) return null;
-    // Ako je amount broj, konvertuj u format sa €
-    if (typeof challenge.ch_amount === 'string') {
-      const numAmount = parseFloat(challenge.ch_amount.replace(/[€$]/g, ''));
-      if (!isNaN(numAmount)) {
-        // Ako je veći od 0, prikaži sa €
-        return `€${Math.round((numAmount * 0.9090909) * 100) / 100}`;
+    let challengeAmount = 0;
+    if (challenge.ch_amount) {
+      if (typeof challenge.ch_amount === 'string') {
+        // Ukloni €, $ i ostale simbole
+        challengeAmount = parseFloat(challenge.ch_amount);
+      } else if (typeof challenge.ch_amount === 'number') {
+        challengeAmount = challenge.ch_amount;
       }
     }
-    return challenge.ch_amount;
-  };
+    challengeAmount = Number(challengeAmount.toFixed(2));
+    return challengeAmount;
+  }
 
   // Responsive stilovi za dugmad
   const isMobile = windowWidth <= 640;
@@ -303,7 +321,7 @@ export const ChallengeNotification: React.FC<Props> = ({
   const buttonFontSize = isMobile ? '14px' : '16px';
   const buttonMargin = isMobile ? '5px' : '10px';
   const bannerWidth = isMobile ? '90vw' : '50vw';
-  const bannerLeft = isMobile ? '5vw' : '25vw';
+  const bannerLeft = isMobile ? '50%' : '25vw'; 
   const bannerTop = isMobile ? '50px' : '20px';
   const bannerPadding = isMobile ? '10px 12px' : '12px 15px';
   const textFontSize = isMobile ? '14px' : '15px';
@@ -314,7 +332,8 @@ export const ChallengeNotification: React.FC<Props> = ({
         @media screen and (max-width: 640px) {
           #checkClickChallenge3 {
             width: 90vw !important;
-            left: 5vw !important;
+            left: 50% !important;
+            transform: translateX(-50%) !important;
             top: 50px !important;
             padding: 10px 12px !important;
           }
