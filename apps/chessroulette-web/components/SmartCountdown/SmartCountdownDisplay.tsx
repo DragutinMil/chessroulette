@@ -14,13 +14,13 @@ export const SmartCountdownDisplay = ({
   major,
   minor,
   active,
-  activeTextClassName = 'text-white    py-1 px-3 rounded-md   w-full    shadow-lg bg-slate-700 ',
-  inactiveTextClassName = 'relative text-slate-400  py-1 px-3  rounded-md  w-full  backdrop-blur-lg shadow-lg',
+  activeTextClassName = 'text-white    py-1 px-0 rounded-md   w-full    shadow-lg bg-slate-700 ',
+  inactiveTextClassName = 'relative text-slate-400  py-1 px-0  rounded-md  w-full  backdrop-blur-lg shadow-lg',
 }: SmartCountdownDisplayProps) => {
   //51 65 85
   if (timeLeft <= 0) {
     return (
-      <Text className="text-red-500 relative   py-1 px-3  rounded-md   w-full  backdrop-blur-lg shadow-lg ">
+      <Text className="text-red-500 relative   py-1 px-0  rounded-md   w-full  backdrop-blur-lg shadow-lg ">
         00:00
       </Text>
     );
@@ -39,7 +39,7 @@ export const SmartCountdownDisplay = ({
   }, [shouldRing]);
 
   return (
-    <Text className={active ? activeTextClassName : inactiveTextClassName}>
+    <Text className={active ? activeTextClassName : inactiveTextClassName} px-0>
       <Text className="font-bold">{major}</Text>
       <Text>:</Text>
       <Text

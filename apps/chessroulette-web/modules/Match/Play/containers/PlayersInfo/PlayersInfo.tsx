@@ -38,6 +38,7 @@ export const PlayersInfo = ({
 
   return (
     <div className="flex flex-1 gap-0 md:gap-1 flex-col">
+      <div className ="mb-1.5">
       <PlayerBox
         key="away"
         playerInfo={playersBySide.away}
@@ -49,6 +50,7 @@ export const PlayersInfo = ({
         timeLeft={game.timeLeft[playersBySide.away.color]}
         onCheckTime={onCheckTime}
       />
+      </div>
       <PlayerBox
         key="home"
         playerInfo={playersBySide.home}
