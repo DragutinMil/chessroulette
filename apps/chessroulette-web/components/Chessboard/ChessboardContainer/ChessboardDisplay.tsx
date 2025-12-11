@@ -69,6 +69,7 @@ export const ChessboardDisplay = ({
   lastMove,
   squareStyles,
   onArrowsChange,
+
   // onChangePuzzleAnimation,
   onCancelPromoMove,
   onSubmitPromoMove,
@@ -80,8 +81,6 @@ export const ChessboardDisplay = ({
 
   ...boardProps
 }: ChessboardDisplayProps) => {
-  //console.log('onArrowsChange',onArrowsChange)
-
   return (
     <div
       className="flex"
@@ -105,7 +104,7 @@ export const ChessboardDisplay = ({
           options={{
             boardOrientation: toLongChessColor(boardOrientation),
             position: fen,
-
+            //  pieces:{boardTheme.renderPiece},
             onSquareClick: ({ square, piece }: SquareHandlerArgs) => {
               const sq = square ?? '';
               const pc = piece?.pieceType;

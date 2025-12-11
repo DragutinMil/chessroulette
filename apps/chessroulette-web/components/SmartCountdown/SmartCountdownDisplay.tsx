@@ -1,5 +1,5 @@
 import { Text } from '@app/components/Text';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 export type SmartCountdownDisplayProps = {
   timeLeft: number;
   active: boolean;
@@ -25,11 +25,13 @@ export const SmartCountdownDisplay = ({
       </Text>
     );
   }
-  const audio =
-    typeof window !== 'undefined' ? new Audio('/warning.mp3') : null;
+
   const shouldAlert = Number(major) < 1 && Number(minor) < 30;
   const shouldRing = Number(major) < 1 && Number(minor) == 30;
+
   useEffect(() => {
+    const audio =
+      typeof window !== 'undefined' ? new Audio('/warning.mp3') : null;
     if (shouldRing && audio) {
       audio.currentTime = 0; // reset
       audio.play().catch(() => {});

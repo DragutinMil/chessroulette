@@ -46,8 +46,9 @@ type Props = {
   onMove: (m: ShortChessMove) => void;
   onPreMove?: (m: ShortChessMove) => void;
   onValidateMove: (m: ShortChessMove) => boolean;
-  onValidatePreMove: (m: ShortChessMove) => boolean;
-  onSquareClickOrDrag?: () => void;
+  // onValidatePromoMove: (m: ShortChessMove) => boolean;
+  // onValidatePreMove: (m: ShortChessMove) => boolean;
+  // onSquareClickOrDrag?: () => void;
 };
 
 export const useMoves = ({
@@ -58,9 +59,10 @@ export const useMoves = ({
   onPreMove,
   onValidateMove,
   isSquareEmpty,
-  onValidatePreMove,
-  onSquareClickOrDrag,
-}: Props): MoveActions => {
+}: // onValidatePromoMove,
+// onValidatePreMove,
+// onSquareClickOrDrag,
+Props): MoveActions => {
   const [playerMoves, setPlayerMoves] = useState<PlayerMovesState>({
     white: { pendingMove: undefined, preMove: undefined },
     black: { pendingMove: undefined, preMove: undefined },
@@ -231,16 +233,16 @@ export const useMoves = ({
           //   return;
           // }
 
-          if (
-            onValidatePreMove({
-              from: completedPreMove.from,
-              to: completedPreMove.to,
-            }) === false &&
-            !isPromotableMove(moveAttempt, moveAttempt.piece)
-          ) {
-            setPreMove(undefined);
-            return;
-          }
+          // if (
+          //   onValidatePreMove({
+          //     from: completedPreMove.from,
+          //     to: completedPreMove.to,
+          //   }) === false &&
+          //   !isPromotableMove(moveAttempt, moveAttempt.piece)
+          // ) {
+          //   setPreMove(undefined);
+          //   return;
+          // }
 
           setPreMove(completedPreMove);
           return;
@@ -262,11 +264,14 @@ export const useMoves = ({
 
   useEffect(() => {
     const currentMoves = getCurrentMoves();
+    //  console.log('provera useeffect u useMove ',isMyTurn, promoMove, playerMoves)
+
     if (promoMove) {
       return;
     }
 
     // If we have a complete premove and it's our turn, execute it
+
     if (isMyTurn && currentMoves.preMove?.to) {
       const moveToExecute = {
         from: currentMoves.preMove.from,
@@ -277,21 +282,19 @@ export const useMoves = ({
       const isPromotion = isPromotableMove(moveToExecute, moveToExecute.piece);
 
       if (isPromotion) {
+        // Postavi promoMove i čekaj korisnikov izbor figure
         const promoMoveToSet = {
           from: currentMoves.preMove.from,
           to: currentMoves.preMove.to,
         };
+
         setPromoMove(promoMoveToSet);
         setIsPromoFromPreMove(true);
-
+        setPreMove(undefined);
         return;
       }
-
-      // Ako nije promocija, izvrši premove direktno
-      // setTimeout(() => {
       setPreMove(undefined);
       onMove(moveToExecute);
-      // }, premoveAnimationDelay);
     }
   }, [isMyTurn, promoMove, playerMoves]);
 
@@ -324,35 +327,28 @@ export const useMoves = ({
             return false;
           }
 
-          const moveAttempt = {
-            from: currentMoves.preMove.from,
-            to,
-            piece: currentMoves.preMove.piece,
-          };
-          if (
-            onValidatePreMove({
-              from: currentMoves.preMove.from,
-              to: moveAttempt.to,
-            }) === false &&
-            !isPromotableMove(moveAttempt, moveAttempt.piece) &&
-            isSquareEmpty(to)
-          ) {
-            setPreMove(undefined);
-            return false;
-          }
+          // const moveAttempt = {
+          //   from: currentMoves.preMove.from,
+          //   to,
+          //   piece: currentMoves.preMove.piece,
+          // };
+          // if (
+          //   onValidatePreMove({
+          //     from: currentMoves.preMove.from,
+          //     to: moveAttempt.to,
+          //   }) === false &&
+          //   !isPromotableMove(moveAttempt, moveAttempt.piece) &&
+          //   isSquareEmpty(to)
+          // ) {
+          //   setPreMove(undefined);
+          //   return false;
+          // }
 
           // Complete existing premove
           setPreMove({ ...currentMoves.preMove, to });
         } else {
-          if (
-            onValidatePreMove({ from: from, to: to }) === false &&
-            isSquareEmpty(to)
-          ) {
-            setPreMove(undefined);
-            return false;
-          } else {
-            setPreMove({ from, to, piece });
-          }
+          setPreMove(undefined);
+
           // Start new premove
 
           //  logMove('Start premove by drag', { from, piece });
