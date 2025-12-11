@@ -87,7 +87,7 @@ const MatchContainerInner = ({
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
     window.addEventListener('resize', handleResize);
-
+     console.log('🔌 Connecting to socket... matchContainer');
     if (match.challengee.id.length !== 16) {
       socketUtil.connect('playing');
     } else {

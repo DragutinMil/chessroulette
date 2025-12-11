@@ -58,8 +58,8 @@ export const RoomContainer = ({ iceServers, rid }: Props) => {
 
   // Jednostavan useEffect samo za socket i notifikacije
   useEffect(() => {
-    console.log('🔌 Connecting to socket...');
-
+    console.log('🔌 Connecting to socket... room');
+     
     // Poveži se na socket sa statusom 'available'
     socketUtil.connect('available');
 
