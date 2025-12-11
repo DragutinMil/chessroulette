@@ -17,6 +17,7 @@ import { useMatchViewState } from './hooks/useMatch';
 import { useCurrentOrPrevMatchPlay } from './Play/hooks';
 import { usePlayActionsDispatch } from './Play/hooks';
 import { FreeBoardNotation } from '@app/components/FreeBoardNotation';
+import socketUtil from '../../socketUtil';
 
 import { noop } from '@xmatter/util-kit';
 import { useGame } from '../Game/hooks';
@@ -82,23 +83,22 @@ const MatchContainerInner = ({
   const { displayState, actions } = useGame();
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
+  // Resize i socket connection
   useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth <= 768);
-    // Poveži se na socket kada se uđe u partiju
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+
     if (match.challengee.id.length !== 16) {
       socketUtil.connect('playing');
     } else {
       socketUtil.connect('available');
     }
 
-    // Cleanup: diskonektuj se kada se izađe iz partije
     return () => {
+      window.removeEventListener('resize', handleResize);
       socketUtil.disconnect();
     };
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  }, [match.challengee.id]);
 
   const playerNames = playersBySide
     ? {
@@ -106,6 +106,13 @@ const MatchContainerInner = ({
         [playersBySide.away.id]: playersBySide.away.displayName || 'Player 2',
       }
     : {};
+
+  const [isChatEnabled, setIsChatEnabled] = useState(() => {
+    const savedState = localStorage.getItem(
+      `chessroulette-chat-enabled-${userId}`
+    );
+    return savedState === null ? true : savedState === 'true';
+  });
 
   const handleSendMessage = (content: string) => {
     dispatch({
@@ -116,11 +123,12 @@ const MatchContainerInner = ({
         timestamp: Date.now(),
       },
     });
+  };
+
   useEffect(() => {
     localStorage.setItem('chessroulette-active-widget', activeWidget);
   }, [activeWidget]);
 
-  // Save chat state to localStorage when it changes
   useEffect(() => {
     localStorage.setItem(
       `chessroulette-chat-enabled-${userId}`,
@@ -128,74 +136,47 @@ const MatchContainerInner = ({
     );
   }, [isChatEnabled]);
 
-  // Dispatch chat state changes to Movex
-  // useEffect(() => {
-  //   console.log(isChatEnabled)
-  //   console.log( userId)
-  //   console.log( dispatch)
-  //   const timeoutId = setTimeout(() => {
-  //     dispatch((masterContext) => ({
-  //       type: 'play:updateChatState',
-  //       payload: {
-  //         userId,
-  //         isChatEnabled,
-  //         timestamp: masterContext.requestAt(),
-  //       },
-  //     }));
-  //   }, 100);
-
-  //   return () => clearTimeout(timeoutId);
-  // }, [isChatEnabled, userId, dispatch]);
-
   const handleSetActiveWidget = (widget: 'chat' | 'camera') => {
-    if (!isMobile) {
-      setActiveWidget(widget);
-    }
+    if (!isMobile) setActiveWidget(widget);
   };
 
   const handleToggleChat = (enabled: boolean) => {
-    // Možeš dodati dodatnu logiku ovde ako treba
+    // dodatna logika po potrebi
   };
 
+  // ✅ GLAVNI RETURN na kraju funkcije
   return (
     <>
+      <div className="flex flex-col flex-1 min-h-0 gap-4 w-full md:w-1/2 md:hidden mt-6">
+        <div className="flex flex-row md:flex-col w-full md:w-1/2">
+          <div className="w-full md:w-1/2 mr-0 md:mr-0">
+            <MatchStateDisplayContainer />
+          </div>
+        </div>
+      </div>
 
-<div className="flex flex-col flex-1 min-h-0 gap-4 w-full md:w-1/2 md:hidden mt-6">
-            <div className="flex flex-row md:flex-col w-full md:w-1/2">
-              {/*<div className="w-1/2  md:w-full h-full overflow-hidden rounded-lg shadow-2xl">
-                <PeerToPeerCameraWidget />
-              </div>*/}
-              <div className="w-full md:w-1/2 mr-0 md:mr-0">
-                <MatchStateDisplayContainer />
-              </div>
-            </div>
-            </div>
       <ResizableDesktopLayout
         mainComponent={({ boardSize }) => (
           <div className=" w-max[full] md:w-max[3/4] mr-0">
-          <PlayContainer
-            // This resets the PlayContainer on each new game
-            key={match.endedGames.length}
-            sizePx={boardSize}
-            overlayComponent={
-              <MatchStateDialogContainer inviteLink={inviteLink} />
-            }
-            {...boardProps}
-          />
+            <PlayContainer
+              key={match.endedGames.length}
+              sizePx={boardSize}
+              overlayComponent={
+                <MatchStateDialogContainer inviteLink={inviteLink} />
+              }
+              {...boardProps}
+            />
           </div>
         )}
         rightSideSize={boardProps.rightSideSizePx}
         rightComponent={
           <div className="flex flex-col flex-1 min-h-0 gap-4 w-full">
             <div className="flex flex-row md:flex-col w-full">
-              {/*<div className="w-1/2  md:w-full h-full overflow-hidden rounded-lg shadow-2xl">
-                <PeerToPeerCameraWidget />
-              </div>*/}
-                <div className="hidden md:block md:w-full mr-0 md:ml-0">
+              <div className="hidden md:block md:w-full mr-0 md:ml-0">
                 <MatchStateDisplayContainer />
               </div>
             </div>
-            
+
             {/* Desktop Chat Widget */}
             <div className="hidden md:flex flex-1 min-h-0 w-full">
               {activeWidget === 'chat' && (
@@ -209,15 +190,15 @@ const MatchContainerInner = ({
                 />
               )}
             </div>
-            
-            <div className="w-full pl-2 pr-2 md:pl-0 md:pr-0  pt-2 pb-2 flex flex-col gap-2 md:flex-1 min-h-0 rounded-lg shadow-2xl md:overflow-y-scroll no-scrollbar fixed bottom-0 left-0 right-0 md:relative md:bottom-auto md:left-auto md:right-auto">            
+
+            <div className="w-full pl-2 pr-2 md:pl-0 md:pr-0 pt-2 pb-2 flex flex-col gap-2 md:flex-1 min-h-0 rounded-lg shadow-2xl md:overflow-y-scroll no-scrollbar fixed bottom-0 left-0 right-0 md:relative md:bottom-auto md:left-auto md:right-auto">
               <div
                 style={{
-                  backgroundImage: 'radial-gradient(61.84% 61.84% at 50% 131.62%, rgba(5, 135, 44, 0.2) 0%, rgb(1, 33, 11) 100%)',
+                  backgroundImage:
+                    'radial-gradient(61.84% 61.84% at 50% 131.62%, rgba(5, 135, 44, 0.2) 0%, rgb(1, 33, 11) 100%)',
                   height: isMobile ? '52px' : '290px',
                   minHeight: isMobile ? '52px' : '202px',
                   width: '100%',
-
                 }}
                 className="overflow-x-auto md:overflow-x-hidden md:flex rounded-lg md:mb-0 mb-4 border border-conversation-100 md:p-4 p-2 overflow-scroll no-scrollbar w-full"
               >
@@ -234,14 +215,12 @@ const MatchContainerInner = ({
                 />
               </div>
 
-              <PlayControlsContainer 
-                activeWidget={activeWidget} 
+              <PlayControlsContainer
+                activeWidget={activeWidget}
                 setActiveWidget={(widget) => {
                   setActiveWidget(widget);
-                  if (widget === 'chat') {
-                    setIsMobileChatOpen(true);
-                  }
-                }} 
+                  if (widget === 'chat') setIsMobileChatOpen(true);
+                }}
               />
             </div>
           </div>
