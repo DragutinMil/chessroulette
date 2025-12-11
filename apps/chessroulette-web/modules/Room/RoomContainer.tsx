@@ -51,7 +51,7 @@ export const RoomContainer = ({ iceServers, rid }: Props) => {
     challenger_id?: string;
     time_class?: string;
     time_control?: string;
-    amount?: string;
+    ch_amount?: string;
     initiator_name_first?: string;
     initiator_name_last?: string;
   } | null>(null);
@@ -65,17 +65,24 @@ export const RoomContainer = ({ iceServers, rid }: Props) => {
 
     const handleChallengeNotification = (data: any) => {
       console.log('🔔 Notification received:', data);
+      console.log('🔔 Full data object:', JSON.stringify(data, null, 2));
       console.log('🔔 from_user_object:', data.from_user_object);
       console.log('🔔 data.data:', data.data);
 
-      // Proveri da li je ovo challenge notifikacija
-      if (
-        data.n_type === 'challenge_initiated' ||
-        data.ch_uuid ||
-        data.challenge_uuid ||
-        data.ch_target_uuid ||
-        data.data?.ch_uuid
-      ) {
+     
+      
+    
+      const isChallengeNotification = 
+        data.n_type === 'challenge_initiated' || 
+        data.ch_uuid || 
+        data.challenge_uuid || 
+        data.ch_target_uuid || 
+        data.data?.ch_uuid;
+      
+      console.log('🔍 Is challenge notification?', isChallengeNotification);
+      
+      if (isChallengeNotification) {
+
         console.log('✅ Challenge notification detected, showing...');
 
         // Izvuci ime i prezime iz from_user_object
@@ -95,15 +102,35 @@ export const RoomContainer = ({ iceServers, rid }: Props) => {
         console.log('✅ Extracted lastName:', lastName);
 
         // Izvuci ch_uuid iz različitih izvora
-        const chUuid =
-          data.data?.ch_uuid || data.ch_uuid || data.challenge_uuid;
 
+        const chUuid = data.data?.ch_uuid 
+          || data.ch_uuid 
+          || data.challenge_uuid;
+        
+        console.log('🔍 Extracted chUuid:', chUuid);
+        
+        if (!chUuid) {
+          console.error('❌ ERROR: No ch_uuid found in notification data!');
+          console.error('❌ Available keys:', Object.keys(data));
+          if (data.data) {
+            console.error('❌ data.data keys:', Object.keys(data.data));
+          }
+          return; // Ne postavljaj notifikaciju ako nema ch_uuid
+        }
+        
         // Izvuci time_control iz data.data objekta
-        const timeControl =
-          data.data?.ch_type || data.time_control || data.timeControl;
-
-        // Izvuci amount iz data.data objekta
-        const amount = data.data?.amount || data.amount || data.prize;
+        const timeControl = data.data?.ch_type 
+          || data.time_control 
+          || data.timeControl;
+        
+        // Izvuci ch_amount iz data objekta
+        const chAmount = data.data?.ch_amount 
+          || data.data?.ch_amount 
+          || data.amount 
+          || data.data?.amount 
+          || data.prize;
+        
+        console.log('💰 Extracted ch_amount:', chAmount);
 
         const challengeData = {
           ch_uuid: chUuid,
@@ -117,17 +144,20 @@ export const RoomContainer = ({ iceServers, rid }: Props) => {
           time_class:
             data.time_class || data.timeClass || data.data?.time_class,
           time_control: timeControl,
-          amount: amount,
+          ch_amount: chAmount,
           initiator_name_first: firstName,
           initiator_name_last: lastName,
         };
 
         console.log('✅ Setting challenge notification:', challengeData);
         setChallengeNotification(challengeData);
+      } else {
+        console.log('⚠️ Not a challenge notification, ignoring...');
       }
     };
 
     // Pretplati se na notifikacije
+    console.log('📡 Subscribing to tb_notification...');
     socketUtil.subscribe('tb_notification', handleChallengeNotification);
 
     // Cleanup
@@ -247,6 +277,7 @@ export const RoomContainer = ({ iceServers, rid }: Props) => {
       {movex.status === 'connectionError' && (
         <Modal>Cannot connect. Check your Internet Connection!</Modal>
       )}
+      <div className= "flex-center">
 
       <ChallengeNotification
         challenge={challengeNotification}
@@ -257,6 +288,7 @@ export const RoomContainer = ({ iceServers, rid }: Props) => {
           setChallengeNotification(null);
         }}
       />
+      </div>
     </PeerStreamingProvider>
   );
 };
