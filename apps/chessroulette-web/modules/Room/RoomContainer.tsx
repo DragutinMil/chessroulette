@@ -30,7 +30,6 @@ import { ChallengeNotification } from '@app/components/ChallengeNotification/Cha
 import socketUtil from '../../socketUtil';
 import { useState, useEffect } from 'react';
 
-
 type Props = {
   rid: ResourceIdentifier<'room'>;
   iceServers: IceServerRecord[];
@@ -60,7 +59,7 @@ export const RoomContainer = ({ iceServers, rid }: Props) => {
   // Jednostavan useEffect samo za socket i notifikacije
   useEffect(() => {
     console.log('🔌 Connecting to socket...');
-    
+
     // Poveži se na socket sa statusom 'available'
     socketUtil.connect('available');
 
@@ -69,13 +68,10 @@ export const RoomContainer = ({ iceServers, rid }: Props) => {
       console.log('🔔 Full data object:', JSON.stringify(data, null, 2));
       console.log('🔔 from_user_object:', data.from_user_object);
       console.log('🔔 data.data:', data.data);
-      console.log('AMOUNT:',data.data?.ch_amount);
-      console.log('🔔 n_type:', data.n_type);
-      console.log('🔔 ch_uuid:', data.ch_uuid);
-      console.log('🔔 challenge_uuid:', data.challenge_uuid);
-      console.log('🔔 data.data?.ch_uuid:', data.data?.ch_uuid);
+
+     
       
-      // Proveri da li je ovo challenge notifikacija
+    
       const isChallengeNotification = 
         data.n_type === 'challenge_initiated' || 
         data.ch_uuid || 
@@ -86,23 +82,27 @@ export const RoomContainer = ({ iceServers, rid }: Props) => {
       console.log('🔍 Is challenge notification?', isChallengeNotification);
       
       if (isChallengeNotification) {
+
         console.log('✅ Challenge notification detected, showing...');
-        
+
         // Izvuci ime i prezime iz from_user_object
-        const firstName = data.from_user_object?.name_first 
-          || data.initiator_name_first 
-          || data.initiator?.name_first 
-          || data.challenger?.name_first;
-          
-        const lastName = data.from_user_object?.name_last 
-          || data.initiator_name_last 
-          || data.initiator?.name_last 
-          || data.challenger?.name_last;
-        
+        const firstName =
+          data.from_user_object?.name_first ||
+          data.initiator_name_first ||
+          data.initiator?.name_first ||
+          data.challenger?.name_first;
+
+        const lastName =
+          data.from_user_object?.name_last ||
+          data.initiator_name_last ||
+          data.initiator?.name_last ||
+          data.challenger?.name_last;
+
         console.log('✅ Extracted firstName:', firstName);
         console.log('✅ Extracted lastName:', lastName);
-        
+
         // Izvuci ch_uuid iz različitih izvora
+
         const chUuid = data.data?.ch_uuid 
           || data.ch_uuid 
           || data.challenge_uuid;
@@ -131,20 +131,24 @@ export const RoomContainer = ({ iceServers, rid }: Props) => {
           || data.prize;
         
         console.log('💰 Extracted ch_amount:', chAmount);
-        
+
         const challengeData = {
           ch_uuid: chUuid,
-          challenger_name: data.from_user_object?.name_first && data.from_user_object?.name_last
-            ? `${data.from_user_object.name_first} ${data.from_user_object.name_last}`
-            : data.challenger_name || data.challenger?.name,
-          challenger_id: data.from_user_uuid || data.challenger_id || data.challenger?.id,
-          time_class: data.time_class || data.timeClass || data.data?.time_class,
+          challenger_name:
+            data.from_user_object?.name_first &&
+            data.from_user_object?.name_last
+              ? `${data.from_user_object.name_first} ${data.from_user_object.name_last}`
+              : data.challenger_name || data.challenger?.name,
+          challenger_id:
+            data.from_user_uuid || data.challenger_id || data.challenger?.id,
+          time_class:
+            data.time_class || data.timeClass || data.data?.time_class,
           time_control: timeControl,
           ch_amount: chAmount,
           initiator_name_first: firstName,
           initiator_name_last: lastName,
         };
-        
+
         console.log('✅ Setting challenge notification:', challengeData);
         setChallengeNotification(challengeData);
       } else {
@@ -163,10 +167,12 @@ export const RoomContainer = ({ iceServers, rid }: Props) => {
     };
   }, []);
 
-
-useEffect(() => {
-  console.log('📬 challengeNotification state changed:', challengeNotification);
-}, [challengeNotification]);
+  useEffect(() => {
+    console.log(
+      '📬 challengeNotification state changed:',
+      challengeNotification
+    );
+  }, [challengeNotification]);
 
   // const params = useSearchParams();
   // const tokenParam = params.get('sessionToken');
@@ -272,6 +278,7 @@ useEffect(() => {
         <Modal>Cannot connect. Check your Internet Connection!</Modal>
       )}
       <div className= "flex-center">
+
       <ChallengeNotification
         challenge={challengeNotification}
         onAccept={(challengeUuid) => {

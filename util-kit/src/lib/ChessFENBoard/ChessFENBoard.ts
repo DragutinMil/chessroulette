@@ -42,7 +42,7 @@ export type FenStateAsString = string; // this could be branded
 export class ChessFENBoard {
   static STARTING_FEN: ChessFEN =
     'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
-
+  static EMPTY_FEN: ChessFEN = '8/8/8/8/8/8/8/8 w - - 0 1';
   static ONLY_KINGS_FEN: ChessFEN = '4k3/8/8/8/8/8/8/4K3 w - - 0 1';
   // '8/8/8/8/8/8/8/8 w - - 0 1'; // TODO: Add ability to have an empty baord
 
@@ -749,14 +749,14 @@ export class ChessFENBoard {
 
   static validateFenString(str: string) {
     const slots = str.split(' ');
-
     if (slots.length !== 6) {
       return new Err('InvalidFenState:InvalidNumberOfSlots');
     }
-
+    if (str.startsWith('8/8/8/8/8/8/8/8')) {
+      return new Ok(str as ChessFEN);
+    }
     try {
       getNewChessGame().load(str);
-
       return new Ok(str as ChessFEN);
     } catch (e) {
       return new Err(e);

@@ -41,7 +41,7 @@ export function checkUser() {
           console.log('outWeb');
           return 'outWeb';
         } else {
-          console.log('throught web');
+          //  console.log('throught web');
           return 'web';
         }
       }

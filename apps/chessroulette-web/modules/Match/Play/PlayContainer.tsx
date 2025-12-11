@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { DistributiveOmit } from 'movex-core-util';
 import { useCurrentOrPrevMatchPlay, usePlayActionsDispatch } from './hooks';
 import {
@@ -6,6 +6,7 @@ import {
   GameBoardContainerProps,
 } from '@app/modules/Game/GameBoardContainer';
 
+const lastMoveWasPromotionCallbacks = new Set<(value: boolean) => void>();
 export type PlayerContainerProps = DistributiveOmit<
   GameBoardContainerProps,
   'canPlay' | 'onMove' | 'playingColor' | 'turn'
@@ -16,10 +17,15 @@ export const PlayContainer = (playBoardProps: PlayerContainerProps) => {
   const dispatch = usePlayActionsDispatch();
 
   const moveAudioRef = useRef<HTMLAudioElement | null>(null);
-
+  const [lastMoveWasPromotion, setLastMoveWasPromotion] = useState(false);
   useEffect(() => {
     moveAudioRef.current = new Audio('/chessmove.mp3');
   }, []);
+  useEffect(() => {
+    lastMoveWasPromotionCallbacks.forEach((callback) => {
+      callback(lastMoveWasPromotion);
+    });
+  }, [lastMoveWasPromotion]);
 
   useEffect(() => {
     if (!play.hasGame) {
@@ -28,17 +34,23 @@ export const PlayContainer = (playBoardProps: PlayerContainerProps) => {
 
     // Advance the game to "idling" if the game is still in pending AND the User is the one of the players
     if (play.game.status === 'pending' && play.canUserPlay) {
-      dispatch((masterContext) => ({
-        type: 'play:start',
-        payload: {
-          at: masterContext.requestAt(),
-          // TODO: here might need to use challenger|challengee but for now it's ok
-          players: {
-            w: play.playersByColor.w.id,
-            b: play.playersByColor.b.id,
-          },
-        },
-      }));
+      const random = Math.floor(Math.random() * 1000) + 1;
+      setTimeout(
+        () =>
+          dispatch((masterContext) => ({
+            type: 'play:start',
+            payload: {
+              at: masterContext.requestAt(),
+              // TODO: here might need to use challenger|challengee but for now it's ok
+              players: {
+                w: play.playersByColor.w.id,
+                b: play.playersByColor.b.id,
+              },
+            },
+          })),
+
+        random
+      );
     }
   }, [play.game?.status, play.canUserPlay, dispatch]);
 
@@ -81,6 +93,7 @@ export const PlayContainer = (playBoardProps: PlayerContainerProps) => {
         // TODO: This can be returned from a more internal component
         return true;
       }}
+      onLastMoveWasPromotionChange={setLastMoveWasPromotion}
       {...playBoardProps}
     />
   );

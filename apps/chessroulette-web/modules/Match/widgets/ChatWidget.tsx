@@ -11,6 +11,7 @@ type Props = {
   disabled?: boolean;
   onToggleChat?: (enabled: boolean) => void;
   otherPlayerChatEnabled?: boolean;
+  onClose?:() => void;
 };
 
 type LastMessageState = {
@@ -27,6 +28,7 @@ export const ChatWidget: React.FC<Props> = ({
   disabled = false,
   onToggleChat,
   otherPlayerChatEnabled = true,
+  onClose,
 }) => {
   const CHAT_ENABLED_STORAGE_KEY = `chessroulette-chat-enabled-${currentUserId}`;
 
@@ -162,8 +164,46 @@ export const ChatWidget: React.FC<Props> = ({
   };
 
   return (
-    <div className="flex flex-col h-full bg-op-widget rounded-lg shadow-2xl md:min-h-[250px]">
-      <div className="p-3 border-b border-slate-800 flex justify-between items-center">
+    <div className="w-full flex flex-col h-full bg-op-widget rounded-lg shadow-2xl md:min-h-[250px] md:h-auto">
+      {/* Mobile: Fullscreen header */}
+      <div className="md:hidden flex items-center justify-between p-4 border-b border-slate-800">
+        <div className='flex items-center'>
+        <Text className="text-lg font-semibold">Chat</Text> 
+         {/* Mobile: Toggle switch in header */}
+      <div className="md:hidden px-4 py-2  border-slate-800 flex items-center justify-between ">
+        <div className="flex items-center gap-2">
+          {!isChatEnabled && newMessageCount > 0 && (
+            <span className="bg-[#07DA63] text-white rounded-full px-2 py-0.5 text-xs">
+              {lastMessageState.count} new
+            </span>
+          )}
+        </div>
+        <label
+          className="inline-flex items-center cursor-pointer gap-2 flex-row-reverse"
+          title="Enable/Disable Chat"
+        >
+          <input
+            type="checkbox"
+            checked={isChatEnabled}
+            onChange={handleToggleChat}
+            className="sr-only peer"
+          />
+          <div className="relative w-9 h-5 bg-slate-500 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[#07DA63] rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#07DA63]"></div>
+        </label>
+      </div>
+      </div>
+        {onClose && (
+          <button
+            onClick={onClose}
+            className="bg-[#07DA63] hover:bg-[#06c459] text-black font-semibold py-2 px-4 rounded-lg transition-colors"
+          >
+            ×
+          </button>
+        )}
+      </div>
+
+      {/* Desktop: Original header */}
+      <div className="hidden md:flex p-3 border-b border-slate-800 justify-between items-center w-full">
         <div className="flex items-center gap-2">
           <Text className="text-sm font-semibold">Chat</Text>
           {!isChatEnabled && newMessageCount > 0 && (
@@ -174,7 +214,7 @@ export const ChatWidget: React.FC<Props> = ({
             </div>
           )}
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 ">
           {!otherPlayerChatEnabled && (
             <span className="text-xs text-gray-400">
               Opponent disabled chat
@@ -195,7 +235,30 @@ export const ChatWidget: React.FC<Props> = ({
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-3 space-y-2 scrollbar-hide">
+      {/* Mobile: Toggle switch in header */}
+      {/* <div className="md:hidden px-4 py-2 border-b border-slate-800 flex items-center justify-between ">
+        <div className="flex items-center gap-2">
+          {!isChatEnabled && newMessageCount > 0 && (
+            <span className="bg-[#07DA63] text-white rounded-full px-2 py-0.5 text-xs">
+              {lastMessageState.count} new
+            </span>
+          )}
+        </div>
+        <label
+          className="inline-flex items-center cursor-pointer gap-2 flex-row-reverse"
+          title="Enable/Disable Chat"
+        >
+          <input
+            type="checkbox"
+            checked={isChatEnabled}
+            onChange={handleToggleChat}
+            className="sr-only peer"
+          />
+          <div className="relative w-9 h-5 bg-slate-500 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[#07DA63] rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#07DA63]"></div>
+        </label>
+      </div> */}
+
+      <div className="flex-1 overflow-y-auto p-3 md:p-3 space-y-2 scrollbar-hide">
         {(isChatEnabled ? messages : lastDisabledMessages).map((msg, index) => {
           const isOwnMessage = msg.senderId === currentUserId;
           const displayName = playerNames[msg.senderId] || 'Unknown';
@@ -241,7 +304,7 @@ export const ChatWidget: React.FC<Props> = ({
         <div ref={messagesEndRef} />
       </div>
 
-      <div className="p-3 border-t border-slate-800">
+      <div className="p-3 md:p-3 border-t border-slate-800">
         <div className="flex mb-2 mt-2 md:mt-0">
           <input
             type="text"

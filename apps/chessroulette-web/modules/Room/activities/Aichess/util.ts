@@ -259,10 +259,14 @@ export async function getToken() {
   return token;
 }
 
-export async function ai_prompt(question:string,previusMessageId:string,model:string) {
-    const token = Cookies.get('sessionToken');
-    try {
-       const response = await fetch(
+export async function ai_prompt(
+  question: string,
+  previusMessageId: string,
+  model: string
+) {
+  const token = Cookies.get('sessionToken');
+  try {
+    const response = await fetch(
       process.env.NEXT_PUBLIC_API_WEB + `ai_prompt_v2r`,
       {
         method: 'POST',
@@ -285,12 +289,7 @@ export async function ai_prompt(question:string,previusMessageId:string,model:st
   } catch (error) {
     console.error('Fetch error', error);
   }
-
-
 }
-
-
-
 
 export async function getUserInfo() {
   const token = Cookies.get('sessionToken');
@@ -352,5 +351,3 @@ export function enqueueMovexUpdate<T>(
 
   return movexUpdateQueue;
 }
-
-

@@ -349,8 +349,8 @@ export const ChallengeNotification: React.FC<Props> = ({
           }
         }
       `}</style>
-      <div 
-        id="checkClickChallenge3" 
+      <div
+        id="checkClickChallenge3"
         className="initiate-banner banner-position"
         style={{
           position: 'absolute',
@@ -370,27 +370,26 @@ export const ChallengeNotification: React.FC<Props> = ({
           marginBottom: '2.813rem',
         }}
       >
-        <div className="banner-text" style={{
-          color: 'white',
-          fontSize: textFontSize,
-          textAlign: 'center',
-          marginBottom: '14px',
-        }}>
-          <span 
-            className="color-blue hover" 
+        <div
+          className="banner-text"
+          style={{
+            color: 'white',
+            fontSize: textFontSize,
+            textAlign: 'center',
+            marginBottom: '14px',
+          }}
+        >
+          <span
+            className="color-blue hover"
             style={{
               cursor: 'pointer',
               color: 'inherit',
             }}
           >
             {getChallengerName()}
-          </span>
-          {' '}challenged you to a{' '}
-          <span>{formatTimeControl()},</span>
-          {' '}
-          {isFriendly ? (
-            <span>friendly </span>
-          ) : null}
+          </span>{' '}
+          challenged you to a <span>{formatTimeControl()},</span>{' '}
+          {isFriendly ? <span>friendly </span> : null}
           match
           {!isFriendly && formatAmount() && (
             <>

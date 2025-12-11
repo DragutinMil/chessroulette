@@ -5,11 +5,11 @@ export const socketUtil = {
   socket: null as Socket | null,
   subscribers: {} as Record<string, Array<(data: any) => void>>,
 
-  connect: async (type : 'available'|'playing'|'watching'|'reviewing') => {
+  connect: async (type: 'available' | 'playing' | 'watching' | 'reviewing') => {
     try {
       // Prvo pokušaj da uzmeš token iz cookie (mobile app)
       let token = Cookies.get('token');
-      
+
       // Ako nema token cookie, pokušaj sa sessionToken (web)
       if (!token) {
         token = Cookies.get('sessionToken');
@@ -30,14 +30,14 @@ export const socketUtil = {
           });
 
           socketUtil.socket.on('connect', () => {
-            console.log('Socket connected to outpost');
+            // console.log('Socket connected to outpost');
             socketUtil.socket?.emit('client_token', token);
-            socketUtil.socket?.emit('player_status', type);
+            socketUtil.socket?.emit('users_online_status', type);
           });
 
           socketUtil.socket.on('disconnect', () => {
-            console.log('Socket disconnected');
-            socketUtil.socket?.emit('player_status', 'available');
+            // console.log('Socket disconnected');
+            socketUtil.socket?.emit('users_online_status', 'available');
           });
 
           socketUtil.socket.on('connect_error', (error) => {
@@ -73,7 +73,7 @@ export const socketUtil = {
   on: (event: string, callback: (data: any) => void) => {
     if (socketUtil.socket) {
       socketUtil.socket.on(event, callback);
-      
+
       // Čuvamo subscriber za cleanup
       if (!socketUtil.subscribers[event]) {
         socketUtil.subscribers[event] = [];
@@ -103,22 +103,21 @@ export const socketUtil = {
       // Ako socket nije povezan, pokušaj da se povežeš
       // Možete koristiti postojeći status ili dodati novi
 
-      console.log('povezivanje na socket server');
+      // console.log('subscribe socket');
 
-      if (topic=='tb_notification'){
-          console.log('nova notifikacija');
+      if (topic == 'tb_notification') {
+        console.log('nova notifikacija');
       }
 
       await socketUtil.connect('watching'); // ili 'reviewing'
     }
-    
+
     socketUtil.on(topic, callback);
   },
 
   unsubscribe: (topic: string, callback?: (data: any) => void) => {
     socketUtil.off(topic, callback);
   },
-
 };
 
 export default socketUtil;
