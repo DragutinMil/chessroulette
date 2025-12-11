@@ -92,7 +92,7 @@ export const ChessboardDisplay = ({
       }}
     >
       <div
-        className={` relative overflow-hidden rounded-lg w-full h-full ${containerClassName} transition-all duration-300 ease-in-out 
+        className={` relative  overflow-hidden rounded-lg w-full h-full ${containerClassName} transition-all duration-300 ease-in-out 
        
        `}
         style={{
@@ -133,7 +133,8 @@ export const ChessboardDisplay = ({
               backgroundColor: boardTheme.lightSquare,
             },
             dropSquareStyle: {
-              border: `5px solid ${boardTheme.hoveredSquare}`,
+              outlineOffset: '-5px',
+              outline: `5px solid ${boardTheme.hoveredSquare}`,
               boxShadow: boardTheme.hoveredSquare,
             },
             arrows: onArrowsChange,

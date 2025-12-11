@@ -21,9 +21,9 @@ export const PlayControlsContainer = ({ activeWidget, setActiveWidget }: Props) 
     useCurrentOrPrevMatchPlay();
   const [lastMoveWasPromotion, setLastMoveWasPromotion] = useState(false);
 
-  useEffect(() => {
-    // Dodajte callback u set
-    lastMoveWasPromotionCallbacks.add(setLastMoveWasPromotion);
+  //  useEffect(() => {
+  //   // Dodajte callback u set
+  //   lastMoveWasPromotionCallbacks.add(setLastMoveWasPromotion);
 
 
     const { match } = useMatchViewState();
@@ -45,9 +45,9 @@ export const PlayControlsContainer = ({ activeWidget, setActiveWidget }: Props) 
       const lastSeen = parseInt(lastSeenTimestamp, 10);
       return match.messages.filter(msg => msg.timestamp > lastSeen).length;
     }, [match?.messages, activeWidget, playersBySide?.home.id]);
-  
+   
     // Ažuriraj last seen timestamp kada se aktivira chat
-    useEffect(() => {
+   useEffect(() => {
       if (activeWidget === 'chat' && match?.messages) {
         const lastMessage = match.messages[match.messages.length - 1];
         if (lastMessage) {

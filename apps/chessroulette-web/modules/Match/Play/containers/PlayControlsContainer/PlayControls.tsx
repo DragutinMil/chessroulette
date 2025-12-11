@@ -4,6 +4,7 @@ import { QuickConfirmButton } from '@app/components/Button/QuickConfirmButton';
 import { Game, GameOffer } from '@app/modules/Game';
 import { useMatchViewState } from '../../../../../modules/Match/hooks/useMatch';
 import { ButtonGreen } from '@app/components/Button/ButtonGreen';
+import { calculateOfferCounters } from '../../../../../modules/Match/movex/reducer'; // Add this import
 
 import { useRouter } from 'next/navigation';
 type Props = {
@@ -78,6 +79,14 @@ export const PlayControls: React.FC<Props> = ({
   const [drawOfferNum, coundDrawOfferNum] = useState(0);
   const router = useRouter();
   const offerAlreadySent = useRef(false);
+  const offerCounters = match ? calculateOfferCounters(match) : undefined;
+   const timeClass = match ? match.gameInPlay?.timeClass : undefined;
+  const isBullet =
+    timeClass === 'bullet' ||
+    timeClass === 'bulletplus1' ||
+    timeClass === 'bullet2plus1' ||
+    timeClass === 'bullet2';
+
   const setOfferSent = useCallback(() => {
     if (!offerAlreadySent.current) {
       offerAlreadySent.current = true;
@@ -90,12 +99,31 @@ export const PlayControls: React.FC<Props> = ({
     }
   }, []);
 
-  const calculateTakebackStatus = useCallback(() => {
-    if (game.lastMoveBy !== homeColor) {
-      return false;
-    }
 
+   const takebackCount = offerCounters?.takeback?.[playerId] ?? 0
+  const drawCount = offerCounters?.draw?.[playerId] ?? 0;
+ 
     if (lastOffer?.status === 'pending' || offerAlreadySent.current) {
+  const isLastMovePromotion = (pgn: string): boolean => {
+    if (!pgn || pgn.length === 0) return false;
+
+    // Split PGN into tokens and filter out move numbers and game results
+    const tokens = pgn
+      .split(/\s+/)
+      .filter(
+        (token) =>
+          !/^\d+\.$/.test(token) && !/^(1-0|0-1|1\/2-1\/2|\*)$/.test(token)
+      );
+
+    if (tokens.length === 0) return false;
+
+    // Get the last move token
+    const lastMove = tokens[tokens.length - 1];
+
+    // Check if it contains "=" which indicates a promotion (e.g., "e8=Q", "h1=Q+")
+    return lastMove.includes('=');
+  }
+  };
   const isLastMovePromotion = (pgn: string): boolean => {
     if (!pgn || pgn.length === 0) return false;
 
@@ -120,18 +148,7 @@ export const PlayControls: React.FC<Props> = ({
     if (game.lastMoveBy !== homeColor) return false;
     if (lastOffer?.status === 'pending' || offerAlreadySent.current)
       return false;
-    }
 
-    if (
-      offers.some(
-        (offer) =>
-          offer.byPlayer === playerId &&
-          offer.type === 'takeback' &&
-          offer.status === 'accepted'
-      )
-    ) {
-      return false;
-    }
     const lastMoveWasPromotionByCurrentPlayer =
       isLastMovePromotion(game.pgn) && game.lastMoveBy === homeColor;
 
@@ -145,15 +162,8 @@ export const PlayControls: React.FC<Props> = ({
     );
     if (hasAcceptedTakeback) return false;
 
-    return (
-      offers.reduce((accum, offer) => {
-        if (offer.type === 'takeback' && offer.byPlayer === playerId) {
-          return accum + 1;
-        }
-        return accum;
-      }, 0) < 4
-    );
-  }, [game.lastMoveBy, homeColor, lastOffer?.status, offers, playerId]);
+    return takebackCount < 1;
+  };
 
   const calculateDrawStatus = useCallback(() => {
     if (game.status !== 'ongoing') {
@@ -210,9 +220,9 @@ export const PlayControls: React.FC<Props> = ({
 //  useEffect(() => {
     //TODO - can optimize this function with useCallback and pass parameters the gameState
 
-    refreshAllowTakeback(calculateTakebackStatus());
-    refreshAllowDraw(calculateDrawStatus());
-  }, [game.status, offers, game.lastMoveBy]);
+  //   refreshAllowTakeback(calculateTakebackStatus());
+  //   refreshAllowDraw(calculateDrawStatus());
+  // }, [game.status, offers, game.lastMoveBy]);
 
 
   return (
