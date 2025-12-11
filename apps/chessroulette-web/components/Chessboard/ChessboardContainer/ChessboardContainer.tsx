@@ -33,9 +33,10 @@ export type ChessboardContainerProps = Omit<
   boardTheme: BoardTheme;
 
   // Move
-  onValidatePreMove?: (m: ShortChessMove) => boolean;
+  //onValidatePreMove?: (m: ShortChessMove) => boolean;
   isSquareEmpty?: (m: string) => boolean;
   onValidateMove?: (m: ShortChessMove) => boolean;
+  //onValidatePromoMove?: (m: ShortChessMove) => boolean;
   onMove: (m: ShortChessMove) => void;
   // onChangePuzzleAnimation?: boolean;
   arrowsMap?: ArrowsMap;
@@ -85,8 +86,9 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
   onClearCircles = noop,
   onPieceDrop,
   onMove,
-  onValidatePreMove = () => true,
+  // onValidatePreMove = () => true,
   isSquareEmpty = () => true,
+  // onValidatePromoMove= () => true,
   onValidateMove = () => true, // Defaults to always be able to move
   boardOrientation = 'w',
   onLastMoveWasPromotionChange,
@@ -136,15 +138,13 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
   const { preMove, promoMove, pendingMove, ...moveActions } = useMoves({
     playingColor: boardOrientation,
     isMyTurn,
-    premoveAnimationDelay: BOARD_ANIMATION_DELAY, //+1
+    premoveAnimationDelay: BOARD_ANIMATION_DELAY + 1,
     onValidateMove,
-    onValidatePreMove,
-    isSquareEmpty,
     onMove,
     onPreMove: onMove,
-
+    isSquareEmpty,
     // Event to reset the circles and arrows when any square is clicked or dragged
-    onSquareClickOrDrag: resetArrowsAndCircles,
+    // onSquareClickOrDrag: resetArrowsAndCircles,
   });
 
   const customStyles = useCustomStyles({
@@ -176,7 +176,7 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
   if (sizePx === 0) {
     return null;
   }
-
+  //console.log('boardTheme',boardTheme)
   return (
     <div>
       {match?.challengee.id && isBotPlay && (
@@ -235,7 +235,6 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
         onArrowsChange={arrows.arrowsToRender}
         // circles
         // onSquareRightClick={drawCircle}
-
         {...props}
         animationDurationInMs={BOARD_ANIMATION_DELAY}
       />

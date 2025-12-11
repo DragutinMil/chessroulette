@@ -30,7 +30,6 @@ export const validateMove = (
   // Validate move
   try {
     chess.move(localChessMoveToChessLibraryMove(move));
-
     return {
       valid: true,
       fen: chess.fen(),
@@ -39,7 +38,7 @@ export const validateMove = (
     return { valid: false };
   }
 };
-export const validatePreMove = (
+export const validatePromoMove = (
   move: ChessMove,
   fen: ChessFEN,
   playingColor: ShortChessColor
@@ -52,23 +51,54 @@ export const validatePreMove = (
       fen: ChessFEN;
     } => {
   const parts = fen.split(' ');
-  // change color to pass move
   parts[1] = parts[1] === 'w' ? 'b' : 'w';
   const newFen = parts.join(' ');
-  console.log('newGame premove');
   const chess = getNewChessGame({ fen: newFen });
-  // Validate moves
+  console.log('provera', chess);
+  // Validate move
   try {
     chess.move(localChessMoveToChessLibraryMove(move));
-
+    console.log('provera validacija', localChessMoveToChessLibraryMove(move));
     return {
       valid: true,
       fen: chess.fen(),
     };
   } catch (e) {
+    console.log('error', Error);
     return { valid: false };
   }
 };
+
+// export const validatePreMove = (
+//   move: ChessMove,
+//   fen: ChessFEN,
+//   playingColor: ShortChessColor
+// ):
+//   | {
+//       valid: false;
+//     }
+//   | {
+//       valid: true;
+//       fen: ChessFEN;
+//     } => {
+//   const parts = fen.split(' ');
+//   // change color to pass move
+//   parts[1] = parts[1] === 'w' ? 'b' : 'w';
+//   const newFen = parts.join(' ');
+//   console.log('newGame premove');
+//   const chess = getNewChessGame({ fen: newFen });
+//   // Validate moves
+//   try {
+//     chess.move(localChessMoveToChessLibraryMove(move));
+
+//     return {
+//       valid: true,
+//       fen: chess.fen(),
+//     };
+//   } catch (e) {
+//     return { valid: false };
+//   }
+// };
 export function squareEmpty(m: string, fen: string): boolean {
   const board = fen.split(' ')[0];
 

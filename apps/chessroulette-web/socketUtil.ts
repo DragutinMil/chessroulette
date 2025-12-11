@@ -95,7 +95,7 @@ export const socketUtil = {
       // Ako socket nije povezan, pokušaj da se povežeš
       // Možete koristiti postojeći status ili dodati novi
 
-      console.log('subscribe socket');
+      // console.log('subscribe socket');
 
       if (topic == 'tb_notification') {
         console.log('nova notifikacija');

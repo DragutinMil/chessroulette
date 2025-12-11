@@ -11,7 +11,7 @@ import {
   useBoardTheme,
 } from '../../Chessboard';
 import { useCallback, useState } from 'react';
-import { validateMove, validatePreMove, squareEmpty } from './util';
+import { validateMove, validatePromoMove, squareEmpty } from './util';
 
 export type PlayboardProps = DistributiveOmit<
   ChessboardContainerProps,
@@ -43,13 +43,10 @@ export const Playboard = ({
 }: PlayboardProps) => {
   const boardTheme = useBoardTheme();
   //const [circlesMap, setCirclesMap] = useState<CirclesMap>({});
-  const onValidatePreMove = (move: ShortChessMove) => {
-    return validatePreMove(move, fen, playingColor).valid;
-  };
-
-  // const isSquareEmpty = (m: string) => {
-  //   return squareEmpty(m, fen);
+  // const onValidatePreMove = (move: ShortChessMove) => {
+  //   return validatePreMove(move, fen, playingColor).valid;
   // };
+
   const isSquareEmpty = (m: string) => squareEmpty(m, fen);
 
   const onValidateMove = useCallback(
@@ -65,6 +62,19 @@ export const Playboard = ({
     },
     [canPlay, turn, fen, playingColor]
   );
+  const onValidatePromoMove = useCallback(
+    (move: ShortChessMove) => {
+      if (!canPlay) {
+        return false;
+      }
+      if (turn !== playingColor) {
+        return false;
+      }
+
+      return validatePromoMove(move, fen, playingColor).valid;
+    },
+    [canPlay, turn, fen, playingColor]
+  );
 
   return (
     <ChessboardContainer
@@ -76,8 +86,9 @@ export const Playboard = ({
       boardOrientation={boardOrientation}
       boardTheme={boardTheme}
       onValidateMove={onValidateMove}
-      onValidatePreMove={onValidatePreMove}
-      isSquareEmpty={isSquareEmpty}
+      // onValidatePromoMove={onValidatePromoMove}
+      //  onValidatePreMove={onValidatePreMove}
+      // isSquareEmpty={isSquareEmpty}
       onMove={onMove}
       circlesMap={props.circlesMap}
       // onCircleDraw={(c) => {
