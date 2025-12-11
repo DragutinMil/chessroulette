@@ -23,6 +23,7 @@ type Props = {
   chaptersMapIndex: number;
   currentChapterState: ChapterState;
   historyBackToStart: () => void;
+  puzzleCounter: number;
   // Board
   onImport: PgnInputBoxProps['onChange'];
   onQuickImport: PgnInputBoxProps['onChange'];
@@ -37,6 +38,7 @@ type Props = {
   onHistoryNotationDelete: FreeBoardNotationProps['onDelete'];
   addGameEvaluation: (score: number) => void;
   userData: UserData;
+  onCanPlayChange: (canPlay: boolean) => void;
   playerNames: Array<string>;
   // Mode
   isInstructor: boolean;
@@ -73,11 +75,13 @@ export const WidgetPanel = React.forwardRef<TabsRef, Props>(
       onHistoryNotationDelete,
       onCircleDraw,
       onPuzzleMove,
+      puzzleCounter,
       onArrowsChange,
       onTakeBack,
       addChessAi,
       onMessage,
       onMove,
+      onCanPlayChange,
       playerNames,
       addGameEvaluation,
       userData,
@@ -101,6 +105,7 @@ export const WidgetPanel = React.forwardRef<TabsRef, Props>(
         onCircleDraw={onCircleDraw}
         onArrowsChange={onArrowsChange}
         onPuzzleMove={onPuzzleMove}
+        onCanPlayChange={onCanPlayChange}
         onMove={onMove}
         onTakeBack={onTakeBack}
         historyBackToStart={historyBackToStart}
@@ -108,6 +113,7 @@ export const WidgetPanel = React.forwardRef<TabsRef, Props>(
         chaptersMap={chaptersMap}
         chaptersMapIndex={chaptersMapIndex}
         showEngine={showEngine}
+        puzzleCounter={puzzleCounter}
         ref={tabsRef}
         {...chaptersTabProps}
       />

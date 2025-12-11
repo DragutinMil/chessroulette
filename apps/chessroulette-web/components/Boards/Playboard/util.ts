@@ -30,7 +30,6 @@ export const validateMove = (
   // Validate move
   try {
     chess.move(localChessMoveToChessLibraryMove(move));
-
     return {
       valid: true,
       fen: chess.fen(),
@@ -39,3 +38,103 @@ export const validateMove = (
     return { valid: false };
   }
 };
+export const validatePromoMove = (
+  move: ChessMove,
+  fen: ChessFEN,
+  playingColor: ShortChessColor
+):
+  | {
+      valid: false;
+    }
+  | {
+      valid: true;
+      fen: ChessFEN;
+    } => {
+  const parts = fen.split(' ');
+  parts[1] = parts[1] === 'w' ? 'b' : 'w';
+  const newFen = parts.join(' ');
+  const chess = getNewChessGame({ fen: newFen });
+  console.log('provera', chess);
+  // Validate move
+  try {
+    chess.move(localChessMoveToChessLibraryMove(move));
+    console.log('provera validacija', localChessMoveToChessLibraryMove(move));
+    return {
+      valid: true,
+      fen: chess.fen(),
+    };
+  } catch (e) {
+    console.log('error', Error);
+    return { valid: false };
+  }
+};
+
+// export const validatePreMove = (
+//   move: ChessMove,
+//   fen: ChessFEN,
+//   playingColor: ShortChessColor
+// ):
+//   | {
+//       valid: false;
+//     }
+//   | {
+//       valid: true;
+//       fen: ChessFEN;
+//     } => {
+//   const parts = fen.split(' ');
+//   // change color to pass move
+//   parts[1] = parts[1] === 'w' ? 'b' : 'w';
+//   const newFen = parts.join(' ');
+//   console.log('newGame premove');
+//   const chess = getNewChessGame({ fen: newFen });
+//   // Validate moves
+//   try {
+//     chess.move(localChessMoveToChessLibraryMove(move));
+
+//     return {
+//       valid: true,
+//       fen: chess.fen(),
+//     };
+//   } catch (e) {
+//     return { valid: false };
+//   }
+// };
+export function squareEmpty(m: string, fen: string): boolean {
+  const board = fen.split(' ')[0];
+
+  // 2. Pretvoriti square u indeks
+  const file = m[0]; // 'b'
+  const rank = m[1]; // '1'
+
+  const fileIndex = file.charCodeAt(0) - 'a'.charCodeAt(0); // 0–7
+  const rankIndex = 8 - parseInt(rank); // FEN ima rank 8 na vrhu
+
+  // 3. Raspakuj rank
+  const ranks = board.split('/');
+
+  const row = ranks[rankIndex];
+  if (!row) return false; // ako je nešto čudno u FEN-u
+
+  let col = 0;
+
+  for (const ch of row) {
+    // broj → prazna polja
+    if (!isNaN(Number(ch))) {
+      const emptyCount = parseInt(ch);
+      if (fileIndex < col + emptyCount) {
+        return true; // square upada u prazni segment
+      }
+      col += emptyCount;
+      continue;
+    }
+
+    // figura → jedno polje
+    if (col === fileIndex) {
+      return false; // polje zauzeto
+    }
+
+    col += 1;
+  }
+
+  return true;
+}

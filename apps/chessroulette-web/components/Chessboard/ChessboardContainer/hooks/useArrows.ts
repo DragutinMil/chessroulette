@@ -8,7 +8,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { objectKeys } from 'movex-core-util';
 import useDeepCompareEffect from 'use-deep-compare-effect';
 import { shallowEqualObjects } from 'shallow-equal';
-import { Arrow } from 'react-chessboard/dist/chessboard/types';
+import { Arrow } from 'react-chessboard'; //ovde samo react-chessboard al posle javlja gresku dole
 import { ArrowsMap } from '../../types';
 
 export const useCustomArrows = (
@@ -53,22 +53,23 @@ export const useCustomArrows = (
     }, 250);
   }, []);
 
-  const updateArrowsMap = useCallbackIf(
-    safelyMounted,
-    (nextArrows: Arrow[]) => {
-      if (nextArrows.length === 0 && Object.keys(arrowsMap || {}).length > 0) {
-        // Reset when the arrows are set back to 0
-        onUpdate?.({});
-        return;
-      }
-
-      setLocalBoardArrowsMap(toDictIndexedBy(nextArrows, toChessArrowId));
-    },
-    []
-  );
+  // const updateArrowsMap = useCallbackIf(
+  //   safelyMounted,
+  //   (nextArrows: Arrow[]) => {
+  //     if (nextArrows.length === 0 && Object.keys(arrowsMap || {}).length > 0) {
+  //       // Reset when the arrows are set back to 0
+  //       onUpdate?.({});
+  //       return;
+  //     }
+  //     console.log('nextArrows',nextArrows)
+  //       console.log('toChessArrowId',toChessArrowId)
+  //     setLocalBoardArrowsMap(toDictIndexedBy(nextArrows, toChessArrowId));
+  //   },
+  //   []
+  // );
 
   return {
-    updateArrowsMap,
+    // updateArrowsMap,
     arrowsToRender,
   };
 };

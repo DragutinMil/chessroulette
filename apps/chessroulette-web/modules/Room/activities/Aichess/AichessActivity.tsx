@@ -21,6 +21,7 @@ import { WidgetPanel } from './components/WidgetPanel';
 import { AichessBoard } from './components/AichessBoard';
 import { RIGHT_SIDE_SIZE_PX } from '../../constants';
 import inputReducer, { initialInputState } from './reducers/inputReducer';
+import socketUtil from '../../../../socketUtil';
 
 // import { InstructorBoard } from './components/InstructorBoard';
 import { Square } from 'chess.js';
@@ -41,8 +42,10 @@ export const AichessActivity = ({
   const moveSound = new Audio('/chessmove.mp3');
   const dispatch = optionalDispatch || noop;
   const [cameraOff, setCameraOff] = useState(false);
-  const [newReview, setNewReview] = useState(false);
+  const [newReview, setNewReview] = useState(true);
   const [playerNames, setPlayerNames] = useState(Array<string>);
+  const [canFreePlay, setCanFreePlay] = useState(false);
+  const [puzzleCounter, setPuzzleCounter] = useState(0);
 
   const [userData, setUserData] = useState({
     name_first: '',
@@ -58,6 +61,7 @@ export const AichessActivity = ({
     inputReducer,
     initialInputState
   );
+
   const gameReview = (payload: chessAiMode) => {
     dispatch({
       type: 'loadedChapter:setPuzzleMoves',
@@ -68,8 +72,33 @@ export const AichessActivity = ({
     findLoadedChapter(remoteState) || initialDefaultChapter;
 
   const tabsRef = useRef<TabsRef>(null);
-
   useEffect(() => {
+    socketUtil.connect('reviewing');
+    return () => {
+      socketUtil.disconnect();
+    };
+  }, []);
+  useEffect(() => {
+    // console.log('currentChapter', currentChapter);
+
+    if (newReview === false && currentChapter.chessAiMode.mode == 'review') {
+      return;
+    }
+    const hasBranches = JSON.stringify(
+      currentChapter.notation.history
+    ).includes('branchedHistories');
+    const hasIlegalMoves = JSON.stringify(
+      currentChapter.notation.history
+    ).includes('isNonMove');
+    if (
+      !hasBranches &&
+      !hasIlegalMoves &&
+      currentChapter.displayFen !==
+        'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
+    ) {
+      return;
+    }
+    //console.log('setNewReview2',newReview)
     const url = new URL(window.location.href);
     const rawPgn = url.searchParams.get('pgn');
     const userId = url.searchParams.get('userId');
@@ -77,24 +106,18 @@ export const AichessActivity = ({
     if (rawPgn) {
       const getMatchInfo = async () => {
         const data = await getMatch(rawPgn);
+        const lastGame = data.results.endedGames.length - 1;
         if (data) {
-          const pgn =
-            data.results.endedGames[data.results.endedGames.length - 1].pgn;
-          const white =
-            data.results.endedGames[data.results.endedGames.length - 1].players
-              .w == userId;
-          const black =
-            data.results.endedGames[data.results.endedGames.length - 1].players
-              .b == userId;
+          const pgn = data.results.endedGames[lastGame].pgn;
+          const white = data.results.endedGames[lastGame].players.w == userId;
+          const black = data.results.endedGames[lastGame].players.b == userId;
 
           const whitePlayerName =
-            data.results.endedGames[data.results.endedGames.length - 1].players
-              .w == data.initiator_id
+            data.results.endedGames[lastGame].players.w == data.initiator_id
               ? data.initiator_name_first
               : data.target_name_first;
           const blackPlayerName =
-            data.results.endedGames[data.results.endedGames.length - 1].players
-              .b == data.initiator_id
+            data.results.endedGames[lastGame].players.b == data.initiator_id
               ? data.initiator_name_first
               : data.target_name_first;
 
@@ -140,6 +163,12 @@ export const AichessActivity = ({
       product_name: data.product_name,
       user_id: data.user_id,
     });
+  };
+  const onCanPlayChange = (canPlay: boolean) => {
+    setCanFreePlay(canPlay);
+  };
+  const handlePuzzleRequest = () => {
+    setPuzzleCounter(puzzleCounter + 1);
   };
 
   return (
@@ -216,6 +245,8 @@ export const AichessActivity = ({
                     })
                   )
                 }
+                newPuzzleRequest={handlePuzzleRequest}
+                canFreePlay={canFreePlay}
                 currentChapter={currentChapter}
               />
               <div>
@@ -274,10 +305,10 @@ export const AichessActivity = ({
                     // dispatch({ type: 'loadedChapter:setArrows', payload });
                   }}
                   onCircleDraw={(tuple) => {
-                    // dispatch({
-                    //   type: 'loadedChapter:drawCircle',
-                    //   payload: tuple,
-                    // });
+                    dispatch({
+                      type: 'loadedChapter:drawCircle',
+                      payload: tuple,
+                    });
                   }}
                   onClearCircles={() => {
                     dispatch({ type: 'loadedChapter:clearCircles' });
@@ -382,7 +413,7 @@ export const AichessActivity = ({
               );
             }}
             onArrowsChange={async (payload) => {
-              console.log('payload arr', payload);
+              // console.log('payload arr', payload);
               await enqueueMovexUpdate(() =>
                 dispatch({ type: 'loadedChapter:setArrows', payload })
               );
@@ -392,6 +423,8 @@ export const AichessActivity = ({
                 dispatch({ type: 'loadedChapter:writeMessage', payload })
               )
             }
+            puzzleCounter={puzzleCounter}
+            onCanPlayChange={(payload) => onCanPlayChange(payload)}
             historyBackToStart={historyBackToStart}
             userData={userData}
             playerNames={playerNames}
