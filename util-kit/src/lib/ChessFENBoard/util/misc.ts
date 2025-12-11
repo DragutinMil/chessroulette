@@ -9,8 +9,8 @@ import type {
 export const isPromotableMove = (m: ChessMove, piece: Piece) => {
   return (
     piece.type === 'p' && // is pawn
-    ((piece.color === 'w' && m.to[1] === '8') || // when white is on the 8th rank
-      (piece.color === 'b' && m.to[1] === '1')) // when black is on the 1st rank
+    ((piece.color === 'w' && m.to[1] === '8' && m.from[1] === '7') || // when white is on the 8th rank
+      (piece.color === 'b' && m.to[1] === '1' && m.from[1] === '2')) // when black is on the 1st rank
   );
 };
 

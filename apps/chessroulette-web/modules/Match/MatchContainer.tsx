@@ -85,10 +85,21 @@ const MatchContainerInner = ({
   useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth <= 768);
+    // Poveži se na socket kada se uđe u partiju
+    if (match.challengee.id.length !== 16) {
+      socketUtil.connect('playing');
+    } else {
+      socketUtil.connect('available');
+    }
+
+    // Cleanup: diskonektuj se kada se izađe iz partije
+    return () => {
+      socketUtil.disconnect();
     };
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
 
   const playerNames = playersBySide
     ? {
@@ -106,6 +117,25 @@ const MatchContainerInner = ({
         timestamp: Date.now(),
       },
     });
+
+  useEffect(() => {
+    localStorage.setItem('chessroulette-active-widget', activeWidget);
+  }, [activeWidget]);
+
+  // Save chat state to localStorage when it changes
+  useEffect(() => {
+    localStorage.setItem(
+      `chessroulette-chat-enabled-${userId}`,
+      isChatEnabled.toString()
+    );
+  }, [isChatEnabled]);
+
+
+  const handleSetActiveWidget = (widget: 'chat' | 'camera') => {
+    if (!isMobile) {
+      setActiveWidget(widget);
+    }
+
   };
 
   const handleToggleChat = (enabled: boolean) => {

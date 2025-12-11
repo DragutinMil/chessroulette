@@ -30,11 +30,7 @@ export const initialChapterState: ChapterState = {
     responseId: '',
     message: '',
   },
-  // evaluation: {
-  //   prevCp: 0,
-  //   newCp: 0,
-  //   diffCp: 0,
-  // },
+
   notation: {
     history: [],
     focusedIndex: FreeBoardHistory.getStartingIndex(),

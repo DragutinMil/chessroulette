@@ -15,11 +15,11 @@ export const Dialog: React.FC<Props> = ({ modalBG = 'dark', ...props }) => {
   return (
     <div
       className={`absolute w-full h-full top-0 left-0 z-50 flex justify-center content-center items-center bg-opacity-30 ${
-        modalBG === 'dark' ? 'bg-black' : 'bg-white'
+        modalBG === 'dark' ? 'bg-black-light' : 'bg-white'
       }`}
     >
       <div
-        className="flex bg-black rounded-lg md:px-12 px-4 py-8 shadow-2xl shadow-black w-[280px] md:w-[420px]"
+        className="flex bg-black-light rounded-lg md:px-12 px-4 py-8 shadow-2xl shadow-black w-[280px] md:w-[420px]"
         style={{ boxShadow: '0px 0px 30px 0px #07DA6366' }}
       >
         <div className="flex flex-col gap-4 w-full">

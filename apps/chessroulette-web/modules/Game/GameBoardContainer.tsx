@@ -4,6 +4,7 @@ import { useGame } from '@app/modules/Game/hooks';
 
 export type GameBoardContainerProps = DistributivePick<
   PlayboardProps,
+  | 'onLastMoveWasPromotionChange'
   | 'overlayComponent'
   | 'playingColor'
   | 'onMove'
@@ -23,6 +24,7 @@ export const GameBoardContainer = (boardProps: GameBoardContainerProps) => {
     <Playboard
       fen={displayState.fen}
       lastMove={displayState.lastMove}
+      onLastMoveWasPromotionChange={boardProps.onLastMoveWasPromotionChange}
       {...boardProps}
     />
   );

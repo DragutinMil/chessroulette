@@ -11,7 +11,7 @@ import {
   useBoardTheme,
 } from '../../Chessboard';
 import { useCallback, useState } from 'react';
-import { validateMove } from './util';
+import { validateMove, validatePromoMove, squareEmpty } from './util';
 
 export type PlayboardProps = DistributiveOmit<
   ChessboardContainerProps,
@@ -20,7 +20,7 @@ export type PlayboardProps = DistributiveOmit<
   playingColor: ChessColor;
   turn: ChessColor;
   onMove: (m: ShortChessMove) => void;
-  // onChangePuzzleAnimation?: boolean;
+  onLastMoveWasPromotionChange?: (wasPromotion: boolean) => void;
   canPlay?: boolean;
   overlayComponent?: React.ReactNode;
 };
@@ -36,20 +36,24 @@ export const Playboard = ({
   playingColor,
   boardOrientation = playingColor,
   onMove,
-  // onChangePuzzleAnimation,
+  onLastMoveWasPromotionChange,
   canPlay = false,
   turn,
   ...props
 }: PlayboardProps) => {
   const boardTheme = useBoardTheme();
-  const [circlesMap, setCirclesMap] = useState<CirclesMap>({});
+  //const [circlesMap, setCirclesMap] = useState<CirclesMap>({});
+  // const onValidatePreMove = (move: ShortChessMove) => {
+  //   return validatePreMove(move, fen, playingColor).valid;
+  // };
+
+  const isSquareEmpty = (m: string) => squareEmpty(m, fen);
 
   const onValidateMove = useCallback(
     (move: ShortChessMove) => {
       if (!canPlay) {
         return false;
       }
-
       if (turn !== playingColor) {
         return false;
       }
@@ -58,9 +62,23 @@ export const Playboard = ({
     },
     [canPlay, turn, fen, playingColor]
   );
+  const onValidatePromoMove = useCallback(
+    (move: ShortChessMove) => {
+      if (!canPlay) {
+        return false;
+      }
+      if (turn !== playingColor) {
+        return false;
+      }
+
+      return validatePromoMove(move, fen, playingColor).valid;
+    },
+    [canPlay, turn, fen, playingColor]
+  );
 
   return (
     <ChessboardContainer
+      {...props}
       strict
       turn={turn}
       // onChangePuzzleAnimation={onChangePuzzleAnimation}
@@ -68,18 +86,21 @@ export const Playboard = ({
       boardOrientation={boardOrientation}
       boardTheme={boardTheme}
       onValidateMove={onValidateMove}
+      // onValidatePromoMove={onValidatePromoMove}
+      //  onValidatePreMove={onValidatePreMove}
+      // isSquareEmpty={isSquareEmpty}
       onMove={onMove}
-      circlesMap={circlesMap}
-      onCircleDraw={(c) => {
-        setCirclesMap((prev) => ({
-          ...prev,
-          [c[0]]: c,
-        }));
-      }}
-      onClearCircles={() => {
-        setCirclesMap({});
-      }}
-      {...props}
+      circlesMap={props.circlesMap}
+      // onCircleDraw={(c) => {
+      //   setCirclesMap((prev) => ({
+      //     ...prev,
+      //     [c[0]]: c,
+      //   }));
+      // }}
+      // onClearCircles={() => {
+      //   setCirclesMap({});
+      // }}
+      onLastMoveWasPromotionChange={onLastMoveWasPromotionChange}
     />
   );
 };

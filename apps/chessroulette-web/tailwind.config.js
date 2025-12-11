@@ -28,6 +28,9 @@ module.exports = {
 
           600: '#11c6d1',
         },
+        black: {
+          light: '#272727',
+        },
         yellow: {
           ...colors.yellow,
           100: 'rgba(200, 160, 125,0.1)',
@@ -77,6 +80,12 @@ module.exports = {
           '60%': { transform: 'translateX(-5px)' },
           '80%': { transform: 'translateX(5px)' },
         },
+        //   sublevelBlink: {
+        //   '0%': { transform: 'scale(1)', opacity: '1' },
+        //   '30%': { transform: 'scale(1.15)', opacity: '0.6' },
+        //   '60%': { transform: 'scale(1.1)', opacity: '1' },
+        //   '100%': { transform: 'scale(1)', opacity: '1'}
+        // }
       },
       boxShadow: {
         'green-soft': '0px 2px 10px 0px rgba(7, 218, 99, 0.1)',
@@ -88,6 +97,7 @@ module.exports = {
       animation: {
         fadeUp: 'fadeUp 1s ease-out',
         shake: 'shake 0.5s ease-in-out 6',
+        // sublevelBlink: 'sublevelBlink 0.45s ease-out'
       },
     },
     // colors: {

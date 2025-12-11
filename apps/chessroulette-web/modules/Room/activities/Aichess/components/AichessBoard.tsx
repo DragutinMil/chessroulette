@@ -1,4 +1,4 @@
-import { ChapterBoardState, ChapterState } from '../movex';
+import { ChapterBoardState, ChapterState, chessAiMode } from '../movex';
 import { useAichessActivitySettings } from '../hooks/useAichessActivitySettings';
 import { Freeboard, Playboard } from '@app/components/Boards';
 import { FreeBoardHistory } from '@xmatter/util-kit';
@@ -22,6 +22,7 @@ type Props = Required<
   ChapterBoardState & {
     notation?: ChapterState['notation'];
     onFlip: () => void;
+    chessAiMode: chessAiMode;
     onClearBoard: () => void;
     onResetBoard: () => void;
     onBoardEditor: () => void;
@@ -41,6 +42,7 @@ export const AichessBoard = ({
   onResetBoard,
   onClearBoard,
   onBoardEditor,
+  chessAiMode,
   // onChangePuzzleAnimation,
   ...chessBoardProps
 }: Props) => {
@@ -51,11 +53,10 @@ export const AichessBoard = ({
   const lastMove = lm?.isNonMove ? undefined : lm;
 
   const Board = settings.canMakeInvalidMoves ? Freeboard : Playboard;
-
   const turn = orientation;
   return (
     <Board
-      containerClassName="shadow-2xl"
+      containerClassName={`shadow-2xl`}
       boardOrientation={orientation}
       playingColor={orientation}
       sizePx={sizePx}

@@ -1,4 +1,3 @@
-
 import { ai_prompt } from '../../util';
 
 import type { ChapterState } from '../../movex/types';
@@ -13,7 +12,7 @@ export async function SendQuestionPuzzle(
   currentRatingEngine: number | null,
   pgn?: string
 ) {
-  const model = 'gpt-4.1-mini';
+  const model = 'gpt-5.1';
   const previusMessageId =
     currentChapterState.messages[currentChapterState.messages.length - 1]
       .idResponse;
@@ -71,12 +70,10 @@ export async function SendQuestionPuzzle(
     currentRatingEngine;
   '\n' + 'pgn: ' + pgn;
   '\n' + 'starting fen position: ' + currentChapterState.notation.startingFen;
-  
 
   console.log('send question', question);
 
-  const data = await ai_prompt(question, previusMessageId, model)
+  const data = await ai_prompt(question, previusMessageId, model);
 
-  return data
-  
+  return data;
 }

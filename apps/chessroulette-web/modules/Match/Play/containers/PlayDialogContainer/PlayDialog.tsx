@@ -34,8 +34,6 @@ export const PlayDialog: React.FC<GameStateDialogProps> = ({
     playerId,
   } = useGame();
 
-  const gameUsed = useMatchViewState();
-
   const { match, userAsPlayer } = useMatchViewState();
   //console.log('MatchState stejterica',match)
   useEffect(() => {
@@ -43,76 +41,71 @@ export const PlayDialog: React.FC<GameStateDialogProps> = ({
     setGameResultSeen(false);
   }, [game.status]);
 
-  // useEffect(() => {
-  //  console.log('matchmatch',match)
-  // }, [match?.rematch]);
-  // console.log('lastOffer', lastOffer)
   const offersLastMatch =
     match?.endedGames[match?.endedGames?.length - 1]?.offers;
   useEffect(() => {
-    // console.log('offersLastMatch',offersLastMatch)
     if (
       offersLastMatch &&
-      offersLastMatch[0].status === 'accepted' &&
-      offersLastMatch[0].type === 'rematch' &&
-      offersLastMatch[0].linkInitiator &&
-      offersLastMatch[0].linkTarget
+      offersLastMatch[0]?.status === 'accepted' &&
+      offersLastMatch[0]?.type === 'rematch' &&
+      offersLastMatch[0]?.linkInitiator &&
+      offersLastMatch[0]?.linkTarget
     ) {
       const url = new URL(window.location.href);
       const user_id = url.searchParams.get('userId');
-      const initiator_url = new URL(offersLastMatch[0].linkInitiator);
-      const target_url = new URL(offersLastMatch[0].linkTarget);
+      const initiator_url = new URL(offersLastMatch[0]?.linkInitiator);
+      const target_url = new URL(offersLastMatch[0]?.linkTarget);
       const userIdInitiator = initiator_url.searchParams.get('userId');
       const userIdTarget = target_url.searchParams.get('userId');
 
       if (userIdInitiator == user_id) {
-        window.open(offersLastMatch[0].linkInitiator, '_self');
+        window.open(offersLastMatch[0]?.linkInitiator, '_self');
       } else if (userIdTarget == user_id) {
-        window.open(offersLastMatch[0].linkTarget, '_self');
+        window.open(offersLastMatch[0]?.linkTarget, '_self');
       }
     }
   }, [offersLastMatch]);
 
   return invoke(() => {
-    if (game.status === 'pending' && objectKeys(players || {}).length < 2) {
-      return (
-        <Dialog
-          title="Waiting for Opponent"
-          content={
-            <div className="w-full flex justify-center ">
-              {inviteLink && (
-                <ClipboardCopyButton
-                  buttonComponentType="Button"
-                  value={inviteLink}
-                  render={(copied) => (
-                    <>
-                      {copied ? (
-                        <Link
-                          href={inviteLink}
-                          target="_blank"
-                          className="bg-transparent"
-                          onClick={(e) => e.preventDefault()}
-                        >
-                          <div className="bg-green-400 text-black p-3 rounded-xl">
-                            Copied
-                          </div>
-                        </Link>
-                      ) : (
-                        <div className="bg-purple-400 p-3 text-black rounded-xl">
-                          Copy Invite URL
-                        </div>
-                      )}
-                    </>
-                  )}
-                  type="clear"
-                  size="sm"
-                />
-              )}
-            </div>
-          }
-        />
-      );
-    }
+    // if (game.status === 'pending' && objectKeys(players || {}).length < 2) {
+    //   return (
+    //     <Dialog
+    //       title="Waiting for Opponent"
+    //       content={
+    //         <div className="w-full flex justify-center ">
+    //           {inviteLink && (
+    //             <ClipboardCopyButton
+    //               buttonComponentType="Button"
+    //               value={inviteLink}
+    //               render={(copied) => (
+    //                 <>
+    //                   {copied ? (
+    //                     <Link
+    //                       href={inviteLink}
+    //                       target="_blank"
+    //                       className="bg-transparent"
+    //                       onClick={(e) => e.preventDefault()}
+    //                     >
+    //                       <div className="bg-green-400 text-black p-3 rounded-xl">
+    //                         Copied
+    //                       </div>
+    //                     </Link>
+    //                   ) : (
+    //                     <div className="bg-purple-400 p-3 text-black rounded-xl">
+    //                       Copy Invite URL
+    //                     </div>
+    //                   )}
+    //                 </>
+    //               )}
+    //               type="clear"
+    //               size="sm"
+    //             />
+    //           )}
+    //         </div>
+    //       }
+    //     />
+    //   );
+    // }
     //match?.status=='rematchOffer'
     if (lastOffer) {
       if (game.status === 'complete' && !gameResultSeen) {

@@ -13,12 +13,9 @@ type Props = {
   pulseDot: boolean;
   userData: UserData;
   progressReview: number;
-  reviewData: EvaluationMove[];
   analizeMatch: () => void;
   openViewSubscription: () => void;
   smallMobile: boolean;
-  hint: () => void;
-  onSelectPuzzle: (category: string) => void;
 };
 //console.log('currentChapterState',currentChapterState)
 
@@ -29,10 +26,7 @@ const ConversationReview = ({
   progressReview,
   analizeMatch,
   openViewSubscription,
-  reviewData,
   smallMobile,
-  hint,
-  onSelectPuzzle,
 }: Props) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [disableButton, setDisableButton] = useState(false);
@@ -118,6 +112,7 @@ const ConversationReview = ({
                         disabled={disableButton}
                         size="md"
                         className="bg-green-600  text-black font-bold mt-2 px-1 mr-2 whitespace-nowrap px-4"
+                        style={{ color: 'black' }}
                       >
                         Game Review
                       </ButtonGreen>
@@ -130,6 +125,8 @@ const ConversationReview = ({
                           openViewSubscription();
                         }}
                         size="lg"
+                        className="bg-green-600  text-black font-bold "
+                        style={{ color: 'black' }}
                       >
                         Subscribe
                       </ButtonGreen>

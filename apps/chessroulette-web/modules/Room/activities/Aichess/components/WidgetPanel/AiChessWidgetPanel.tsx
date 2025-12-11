@@ -73,7 +73,9 @@ type Props = {
   onHistoryNotationDelete: FreeBoardNotationProps['onDelete'];
   addGameEvaluation: (score: number) => void;
   historyBackToStart: () => void;
+  onCanPlayChange: (canPlay: boolean) => void;
   userData: UserData;
+  puzzleCounter: number;
 
   // Engine
   showEngine?: boolean;
@@ -99,12 +101,14 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
       currentLoadedChapterId,
       currentChapterState,
       // engine,
+      onCanPlayChange,
       playerNames,
       showEngine,
       onImport,
       onTakeBack,
       onCircleDraw,
       onArrowsChange,
+      puzzleCounter,
       onPuzzleMove,
       onMove,
       addChessAi,
@@ -133,6 +137,8 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
     const [freezeButton, setFreezeButton] = useState(false);
     const [scoreCP, setScoreCP] = useState(0);
     const [prevScoreCP, setprevScoreCP] = useState(0);
+    const [categortyPrefered, setCategortyPrefered] = useState('');
+
     const smallMobile =
       typeof window !== 'undefined' && window.innerWidth < 400;
     const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
@@ -142,10 +148,12 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
     const [currentRatingEngine, setCurrentRatingEngine] = useState<
       number | null
     >(null);
+    const [stockfish, setStockfish] = useState(false);
 
     const lastClick = useRef(0);
     const [percentW, setPercentW] = useState(50);
     const [percentB, setPercentB] = useState(50);
+    const [preferedCategory, setPreferedCategory] = useState('');
 
     const [moveSan, setMoveSan] = useState('');
     const [stockfishMovesInfo, setStockfishMovesInfo] = useState('');
@@ -265,6 +273,16 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
             participantId: 'chatGPT123456sales',
             idResponse: '',
           });
+        } else if (
+          currentChapterState.messages[
+            currentChapterState?.messages?.length - 1
+          ]?.participantId.includes('sales')
+        ) {
+          onMessage({
+            content: data.answer.text,
+            participantId: 'chatGPT123456sales',
+            idResponse: data.id,
+          });
         } else {
           onMessage({
             content: data.answer.text,
@@ -278,11 +296,17 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
     const addQuestion = async (question: string) => {
       const url = new URL(window.location.href);
       const userId = url.searchParams.get('userId');
+      const lastIdResponse =
+        currentChapterState.messages.length > 0
+          ? currentChapterState.messages[
+              currentChapterState.messages.length - 1
+            ].idResponse || ''
+          : '';
       if (userId) {
         onMessage({
           content: question,
           participantId: userId,
-          idResponse: '',
+          idResponse: lastIdResponse,
         });
       }
       setQuestion('');
@@ -308,6 +332,7 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
           currentRatingEngine,
           pgn
         );
+
         if (data) {
           setPulseDot(false);
         }
@@ -322,7 +347,8 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
         const data = await SendQuestionReview(
           question,
           currentChapterState,
-          reviewData
+          reviewData,
+          moveSan
         );
 
         if (data) {
@@ -337,6 +363,13 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
         // });
       }
     };
+
+    useEffect(() => {
+      if (puzzleCounter !== 0) {
+        puzzles();
+      }
+    }, [puzzleCounter]);
+
     useEffect(() => {
       if (prevScoreCP !== 0) {
         const probability = async () => {
@@ -452,46 +485,51 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
         }
       }
     }, [currentChapterState.chessAiMode.goodMoves]);
-
     useEffect(() => {
-      if (currentChapterState.chessAiMode.mode == 'review') {
-      }
-      if (currentChapterState.chessAiMode.mode == 'play') {
+      if (currentChapterState.chessAiMode.mode == 'puzzle' && !stockfish) {
+        setTimeout(() => setStockfish(true), 3000);
+      } else if (
+        currentChapterState.chessAiMode.mode == 'review' &&
+        !stockfish
+      ) {
+        setTimeout(() => setStockfish(true), 1000);
+      } else if (currentChapterState.chessAiMode.mode == 'play' && !stockfish) {
+        setTimeout(() => setStockfish(true), 500);
         setTimeoutEnginePlay(true);
       }
     }, [currentChapterState.chessAiMode.mode]);
-    useEffect(() => {
-      if (
-        currentChapterState.chessAiMode.puzzleId == -1 &&
-        !currentChapterState.messages[
-          currentChapterState.messages.length - 1
-        ].participantId.includes('sales')
-      ) {
-        setPulseDot(true);
+    // useEffect(() => {
+    //   if (
+    //     currentChapterState.chessAiMode.puzzleId == -1 &&
+    //     !currentChapterState.messages[
+    //       currentChapterState.messages.length - 1
+    //     ].participantId.includes('sales')
+    //   ) {
+    //     setPulseDot(true);
 
-        const limitQuestion = async () => {
-          const question =
-            'Daily limit reached. Explane what to do to continue play puzzle';
-          const data = await SendQuestionPuzzle(
-            question,
-            scoreCP,
-            currentChapterState,
-            stockfishMovesInfo,
-            lines[1],
-            currentRatingEngine
-          );
-          if (data) {
-            setPulseDot(false);
-          }
-          onMessage({
-            content: data.answer.text,
-            participantId: 'chatGPT123456sales',
-            idResponse: data.id,
-          });
-        };
-        limitQuestion();
-      }
-    }, [currentChapterState.chessAiMode.puzzleId]);
+    //     const limitQuestion = async () => {
+    //       const question =
+    //         'Daily limit reached. Explane what to do to continue play puzzle';
+    //       const data = await SendQuestionPuzzle(
+    //         question,
+    //         scoreCP,
+    //         currentChapterState,
+    //         stockfishMovesInfo,
+    //         lines[1],
+    //         currentRatingEngine
+    //       );
+    //       if (data) {
+    //         setPulseDot(false);
+    //       }
+    //       onMessage({
+    //         content: data.answer.text,
+    //         participantId: 'chatGPT123456sales',
+    //         idResponse: data.id,
+    //       });
+    //     };
+    //     limitQuestion();
+    //   }
+    // }, [currentChapterState.chessAiMode.puzzleId]);
 
     useEffect(() => {
       if (
@@ -573,6 +611,7 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
             currentChapterState.displayFen
           );
           const circle = [fieldFrom, color, piece];
+          //  console.log('ide circle',circle)
           setHintCircle(true);
           onCircleDraw(circle as CircleDrawTuple);
         }
@@ -605,6 +644,13 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
       setCurrentRatingEngine(rating);
     };
     const engineMove = (m: any, n?: boolean) => {
+      //if engine dont have move, play mod is disabled
+      if (m === '(none)') {
+        onCanPlayChange(false);
+      } else {
+        onCanPlayChange(true);
+      }
+
       setStockfishMovesInfo(m);
       let fromChess = m.slice(0, 2);
       let toChess = m.slice(2, 4);
@@ -631,15 +677,9 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
                 (Number(reviewData[index + 1].diff) > 0.7 && !whiteMove) ||
                 (Number(reviewData[index + 1].diff) < -0.7 && whiteMove)
               ) {
-                console.log(
-                  'chapter',
-                  currentChapterState.notation.focusedIndex
-                );
-                console.log('reviewDatareviewData', reviewData);
                 const color = '#07da63';
                 const colorBlunder = '#f2358d';
 
-                console.log('index', index);
                 const from = reviewData[index].topMove[0];
                 const to = reviewData[index].topMove[1];
                 const fromBlunder = reviewData[index + 1].moveLan[0];
@@ -754,6 +794,11 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
     const puzzles = async (category?: string) => {
       setFreezeButton(true);
       const now = Date.now();
+      if (category) {
+        setCategortyPrefered(category);
+      } else if (categortyPrefered !== '') {
+        category = categortyPrefered;
+      }
 
       if (now - lastClick.current < 500) return; // ignoriši dvoklik unutar 0.5s
       lastClick.current = now;
@@ -765,6 +810,12 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
             currentChapterState.messages.length - 1
           ].participantId.includes('sales')
         ) {
+          addChessAi({
+            ...currentChapterState.chessAiMode,
+            mode: 'puzzle',
+            puzzleId: -1,
+          });
+
           setTimeout(() => {
             setPulseDot(true);
           }, 500);
@@ -781,11 +832,27 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
           if (data) {
             setPulseDot(false);
           }
-          onMessage({
-            content: data.answer.text,
-            participantId: 'chatGPT123456sales',
-            idResponse: data.id,
-          });
+          setStockfish(true);
+          if (data == 'ai_daily_limit_reached') {
+            onMessage({
+              content: `You’ve reached today’s puzzle limit! ♟️
+But your next great move is just one click away — start your 7-day free trial today (cancel anytime).
+
+With Starter, you’ll unlock Game Review, unlimited AI puzzles, free play, and an interactive chat with your personal chess trainer.
+
+Exactly what you need to level up your strategy and sharpen your game every day.
+
+Your opening move to mastering chess begins now — make it count! 🚀`,
+              participantId: 'chatGPT123456sales',
+              idResponse: '',
+            });
+          } else if (data?.answer?.text) {
+            onMessage({
+              content: data.answer.text,
+              participantId: 'chatGPT123456sales',
+              idResponse: data.id,
+            });
+          }
         }
         setTimeout(() => setFreezeButton(false), 2000);
       }
@@ -820,10 +887,7 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
         });
         // addChessAi({
         //   mode: 'puzzle',
-        //   moves: ["a7a8",
-        //           "a7a8",
-        //            "e2f2",
-        //            "d3f3"],
+        //   moves: ["d7d8q", "g7g6"],
         //   movesCount:  2,
         //   badMoves: 0,
         //   goodMoves: 0,
@@ -833,7 +897,7 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
         //   ratingChange: 0,
         //   puzzleId: data.puzzle_id,
         //   prevUserPuzzleRating: userRating,
-        //   fen: "8/p7/8/1p6/1P1Q1p2/P6P/2kP2PK/4qq2 b - - 3 57",
+        //   fen:  "8/p2P1kp1/1pB2p2/4pKp1/7r/5R1P/PP6/8 w - - 1 44",
         //   responseId: '',
         //   message: '',
         // });
@@ -844,7 +908,7 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
         const to = data.solution[0].slice(2, 4);
         // const m = data.solution[0];
         setTimeout(() => setFreezeButton(false), 2000);
-        const chess = new Chess(currentChapterState.chessAiMode.fen);
+        const chess = new Chess(data.fen);
         const piece = chess.get(from);
         if (piece.type === 'p' && piece.color === 'w' && to[1] === '8') {
           const first_move = { from: from, to: to, promoteTo: 'Q' };
@@ -894,7 +958,7 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
         },
         isMobile
       );
-      console.log('dats', data);
+      // console.log('dats', data);
 
       setReviewData(data);
       if (data) {
@@ -992,21 +1056,22 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
     // Instructor
     return (
       <div className="  flex flex-col flex-1 min-h-0 rounded-lg shadow-2xl flex-1 flex min-h-0 ">
-        <StockFishEngineAI
-          ratingEngine={ratingEngine}
-          newRatingEngine={newRatingEngine}
-          fen={currentChapterState.displayFen}
-          orientation={currentChapterState.orientation}
-          puzzleMode={puzzleMode}
-          playMode={playMode}
-          engineLines={engineLines}
-          IsMate={isMate}
-          isMobile={isMobile}
-          isMyTurn={isMyTurn}
-          engineMove={engineMove}
-          addGameEvaluation={handleGameEvaluation}
-          // moveReaction={moveReaction}
-        />
+        {stockfish && (
+          <StockFishEngineAI
+            ratingEngine={ratingEngine}
+            newRatingEngine={newRatingEngine}
+            fen={currentChapterState.displayFen}
+            orientation={currentChapterState.orientation}
+            puzzleMode={puzzleMode}
+            playMode={playMode}
+            engineLines={engineLines}
+            IsMate={isMate}
+            isMobile={isMobile}
+            isMyTurn={isMyTurn}
+            engineMove={engineMove}
+            addGameEvaluation={handleGameEvaluation}
+          />
+        )}
 
         <Tabs
           containerClassName=" flex flex-col flex-1 min-h-0 rounded-lg shadow-2xl "
@@ -1076,6 +1141,8 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
                             }}
                             disabled={
                               freezeButton ||
+                              currentChapterState.notation.history.length ==
+                                0 ||
                               currentChapterState.messages[
                                 currentChapterState.messages.length - 1
                               ]?.participantId.includes('sales') ||
@@ -1187,12 +1254,9 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
                           analizeMatch={analizeMatch}
                           openViewSubscription={openViewSubscription}
                           smallMobile={smallMobile}
-                          reviewData={reviewData}
                           progressReview={progressReview}
                           currentChapterState={currentChapterState}
-                          onSelectPuzzle={puzzles}
                           pulseDot={pulseDot}
-                          hint={hint}
                           userData={userData}
                         />
 
@@ -1206,6 +1270,7 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
                                 disabled={pulseDot || progressReview > 0}
                                 size="sm"
                                 className="bg-green-600 text-black"
+                                style={{ color: 'black' }}
                               >
                                 <p>Game Review</p>
                               </ButtonGreen>
@@ -1214,55 +1279,56 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
                       </div>
                     )}
                     {(currentChapterState.chessAiMode.mode !== 'review' ||
-                      reviewData?.length !== 0) &&
-                      (!currentChapterState.messages[
-                        currentChapterState.messages.length - 1
-                      ]?.participantId.includes('sales') ||
-                        (currentChapterState.messages[
-                          currentChapterState.messages.length - 1
-                        ]?.participantId.includes('sales') &&
-                          currentChapterState.chessAiMode.mode ==
-                            'review')) && (
-                        <div className="flex mb-2 mt-2 md:mt-0">
-                          <input
-                            id="title"
-                            type="text"
-                            name="tags"
-                            placeholder="Start chessiness..."
-                            value={question}
-                            style={{
-                              boxShadow: '0px 0px 10px 0px #07DA6380',
-                            }}
-                            // className="w-full my-2 text-sm rounded-md border-slate-500 focus:border-slate-400 border border-transparent block bg-slate-600 text-white block py-1 px-2"
-                            className="w-full text-sm rounded-[20px] border  border-conversation-100 bg-[#111111]/40 text-white 
+                      reviewData?.length !== 0) && (
+                      //  &&
+                      // (!currentChapterState.messages[
+                      //   currentChapterState.messages.length - 1
+                      // ]?.participantId.includes('sales') ||
+                      //   (currentChapterState.messages[
+                      //     currentChapterState.messages.length - 1
+                      //   ]?.participantId.includes('sales') &&
+                      //     currentChapterState.chessAiMode.mode ==
+                      //       'review'))
+                      <div className="flex mb-2 mt-2 md:mt-0">
+                        <input
+                          id="title"
+                          type="text"
+                          name="tags"
+                          placeholder="Start chessiness..."
+                          value={question}
+                          style={{
+                            boxShadow: '0px 0px 10px 0px #07DA6380',
+                          }}
+                          // className="w-full my-2 text-sm rounded-md border-slate-500 focus:border-slate-400 border border-transparent block bg-slate-600 text-white block py-1 px-2"
+                          className="w-full text-sm rounded-[20px] border  border-conversation-100 bg-[#111111]/40 text-white 
                         placeholder-slate-400 px-4 py-2  transition-colors duration-200 focus:outline-none 
                         focus:ring-1 focus:ring-slate-400 focus:border-conversation-200 hover:border-conversation-300"
-                            onChange={(e) => {
-                              setQuestion(e.target.value);
-                            }}
-                            onFocus={() => setIsFocusedInput(true)}
-                            onBlur={() => setIsFocusedInput(false)}
-                            onKeyDown={(e) => {
-                              if (e.key === 'Enter' && !e.shiftKey) {
-                                //e.preventDefault(); // sprečava novi red ako koristiš textarea
-                                addQuestion(question);
-                              }
-                            }}
-                          />
-                          <ButtonGreen
-                            size="md"
-                            onClick={() => {
-                              if (question.trim() !== '') {
-                                addQuestion(question);
-                              }
-                            }}
-                            disabled={question.trim() == ''}
-                            icon="PaperAirplaneIcon"
-                            className="ml-2 px-4 py-2 
+                          onChange={(e) => {
+                            setQuestion(e.target.value);
+                          }}
+                          onFocus={() => setIsFocusedInput(true)}
+                          onBlur={() => setIsFocusedInput(false)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' && !e.shiftKey) {
+                              //e.preventDefault(); // sprečava novi red ako koristiš textarea
+                              addQuestion(question);
+                            }
+                          }}
+                        />
+                        <ButtonGreen
+                          size="md"
+                          onClick={() => {
+                            if (question.trim() !== '') {
+                              addQuestion(question);
+                            }
+                          }}
+                          disabled={question.trim() == ''}
+                          icon="PaperAirplaneIcon"
+                          className="ml-2 px-4 py-2 
                           duration-200"
-                          ></ButtonGreen>
-                        </div>
-                      )}
+                        ></ButtonGreen>
+                      </div>
+                    )}
 
                     {currentChapterState.chessAiMode.mode == 'review' && (
                       <div>
