@@ -5,16 +5,20 @@ import Cookies from 'js-cookie';
 import socketUtil from '@app/socketUtil';
 import { useRouter } from 'next/navigation';
 
+import { challengeAccept, checkMoney } from './util';
+
+
 type ChallengeData = {
   ch_uuid: string;
   challenger_name?: string;
   challenger_id?: string;
   time_class?: string;
-  time_control?: string; // Format kao "3+2"
+
+  time_control?: string;
   ch_amount?: string;
-  initiator_name_first?:string;
-  initiator_name_last?:string;
-  // Dodajte ostala polja koja dolaze sa socket notifikacijom
+  initiator_name_first?: string;
+  initiator_name_last?: string;
+
 };
 
 type Props = {
@@ -29,127 +33,86 @@ export const ChallengeNotification: React.FC<Props> = ({
   onDecline,
 }) => {
   const router = useRouter();
-  const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1920);
+
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [hasInsufficientFunds, setHasInsufficientFunds] = useState(false);
   const [isChecking, setIsChecking] = useState(false);
   const [targetUrl, setTargetUrl] = useState<string | null>(null);
-
-  useEffect(() => {    
-    const handleResize = () => {
-      setWindowWidth(window.innerWidth);
-    };
-
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, [challenge]);
-
-  // Auto-decline nakon 10 sekundi i slušanje socket event-a za revocation
-  useEffect(() => {
+  const [visible, setVisible] = useState(false);
+useEffect(() => {
     if (!challenge || !challenge.ch_uuid) {
       return;
     }
-
+    setVisible(false);
+    setTimeout(() => setVisible(true), 30);
     setHasInsufficientFunds(false);
     setIsChecking(true);
     setTargetUrl(null);
 
     // Funkcija za proveru sredstava - pokušaj da prihvatiš challenge (bez redirect-a)
-    const checkFunds = async () => {
+    const checkChallenge = async () => {
       let token = Cookies.get('token') || Cookies.get('sessionToken');
-      
+
       if (!token && typeof window !== 'undefined') {
-        token = localStorage.getItem('token') || localStorage.getItem('sessionToken');
+        token =
+          localStorage.getItem('token') || localStorage.getItem('sessionToken');
       }
-      
+
       if (!token) {
-        console.error('❌ No token found!');
         setIsChecking(false);
         return;
       }
 
       try {
-        const apiBase = process.env.NEXT_PUBLIC_API_WEB || 'https://api.outpostchess.com/';
-        const cleanApiBase = apiBase.endsWith('/') ? apiBase.slice(0, -1) : apiBase;
-        
-        const walletEndpoint = cleanApiBase.includes('/api/v2/') 
-          ? `${cleanApiBase}/wallet_sum`
-          : cleanApiBase.includes('/api/')
-          ? `${cleanApiBase}/wallet_sum`
-          : `${cleanApiBase}/api/v2/wallet_sum`;
-                
-        const walletResponse = await fetch(walletEndpoint, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (!walletResponse.ok) {
-          console.error('❌ Failed to fetch wallet balance:', walletResponse.status);
-          setIsChecking(false);
-          // U slučaju greške, prikaži "Play" dugme pa neka korisnik proba
-          setHasInsufficientFunds(false);
-          return;
-        }
-
-        const walletData = await walletResponse.json();
-        const walletBalance = parseFloat(walletData.total || '0');
-        
-        // Parsiraj ch_amount iz challenge-a
         let challengeAmount = 0;
-        if (challenge.ch_amount) {
-          if (typeof challenge.ch_amount === 'string') {
-            // Ukloni €, $ i ostale simbole
-            challengeAmount = parseFloat(challenge.ch_amount);
-          } else if (typeof challenge.ch_amount === 'number') {
-            challengeAmount = challenge.ch_amount;
+        let walletBalance = 0;
+        if (
+          challenge.ch_amount !== undefined &&
+          challenge.ch_amount !== '0' &&
+          challenge.ch_amount !== '€0' &&
+          challenge.ch_amount !== '' &&
+          challenge.ch_amount !== '$0'
+        ) {
+          const walletResponse = await checkMoney();
+          console.log(walletResponse);
+
+          const walletData = await walletResponse.total;
+          walletBalance = parseFloat(walletData || '0');
+
+          // Parsiraj ch_amount iz challenge-a
+
+          if (challenge.ch_amount) {
+            if (typeof challenge.ch_amount === 'string') {
+              // Ukloni €, $ i ostale simbole
+              challengeAmount = parseFloat(challenge.ch_amount);
+            } else if (typeof challenge.ch_amount === 'number') {
+              challengeAmount = challenge.ch_amount;
+            }
           }
+          challengeAmount = Number(challengeAmount.toFixed(2));
+          // Proveri da li je friendly challenge (amount je 0 ili nema amount)
         }
-        challengeAmount = Number(challengeAmount.toFixed(2));
-        // Proveri da li je friendly challenge (amount je 0 ili nema amount)
-        const isFriendlyChallenge = !challenge.ch_amount || 
-          challenge.ch_amount === '0' || 
-          challenge.ch_amount === '€0' || 
+        const isFriendlyChallenge =
+          !challenge.ch_amount ||
+          challenge.ch_amount === '0' ||
+          challenge.ch_amount === '€0' ||
           challenge.ch_amount === '$0' ||
           challengeAmount < 1;
-
         // Ako je friendly challenge, uvek prikaži "Play" dugme
         if (isFriendlyChallenge) {
           setHasInsufficientFunds(false);
           setIsChecking(false);
           return;
         }
-
+        console.log(
+          'walletBalance & challengeAmount',
+          walletBalance,
+          challengeAmount
+        );
         // Poredi wallet balance sa challenge amount-om
         if (walletBalance >= challengeAmount) {
+          console.log('ide prihvatanje');
           setHasInsufficientFunds(false);
-          
-          // Takođe pozovi challenge_accept da dobiješ target_url za kasnije
-          const acceptEndpoint = cleanApiBase.includes('/api/v2/') 
-            ? `${cleanApiBase}/challenge_accept/${challenge.ch_uuid}`
-            : cleanApiBase.includes('/api/')
-            ? `${cleanApiBase}/challenge_accept/${challenge.ch_uuid}`
-            : `${cleanApiBase}/api/v2/challenge_accept/${challenge.ch_uuid}`;
-          
-          try {
-            const acceptResponse = await fetch(acceptEndpoint, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${token}`,
-              },
-              body: JSON.stringify({}),
-            });
-
-            if (acceptResponse.ok) {
-              const acceptData = await acceptResponse.json();
-              setTargetUrl(acceptData.target_url || null);
-            }
-          } catch (error) {
-            console.error('Error fetching target_url (non-critical):', error);
-          }
         } else {
           setHasInsufficientFunds(true);
         }
@@ -163,17 +126,17 @@ export const ChallengeNotification: React.FC<Props> = ({
     };
 
     // Proveri sredstva odmah
-    checkFunds();
+    checkChallenge();
 
     // Automatski decline nakon 10 sekundi
-    timeoutRef.current = setTimeout(() => {
-      onDecline();
-    }, 10000);
+    // timeoutRef.current = setTimeout(() => {
+    //   onDecline();
+    // }, 10000);
 
     // Handler za socket event-e koji mogu da označe challenge kao revoke-ovan
     const handleSocketNotification = (data: any) => {
       // Proveri da li je ovo revocation event za naš challenge
-      const isOurChallenge = 
+      const isOurChallenge =
         data.ch_uuid === challenge.ch_uuid ||
         data.challenge_uuid === challenge.ch_uuid ||
         data.data?.ch_uuid === challenge.ch_uuid;
@@ -216,8 +179,9 @@ export const ChallengeNotification: React.FC<Props> = ({
   }
 
   const handleGoToWallet = () => {
-    router.push('https://app.outpostchess.com/wallet');
-    onDecline(); // Zatvori notifikaciju nakon preusmeravanja
+
+    window.location.href = 'https://app.outpostchess.com/wallet';
+    onDecline();
   };
 
   const handleAccept = async () => {
@@ -227,47 +191,14 @@ export const ChallengeNotification: React.FC<Props> = ({
       onAccept(challenge.ch_uuid);
       return;
     }
+    const response = await challengeAccept(challenge.ch_uuid);
 
-    // Ako nemamo target_url, pokušaj ponovo (fallback)
-    let token = Cookies.get('token') || Cookies.get('sessionToken');
-    
-    if (!token && typeof window !== 'undefined') {
-      token = localStorage.getItem('token') || localStorage.getItem('sessionToken');
-    }
-    
-    if (!token) {
-      return;
-    }
-    
-    try {
-      const apiBase = process.env.NEXT_PUBLIC_API_WEB || 'https://api.outpostchess.com/';
-      const cleanApiBase = apiBase.endsWith('/') ? apiBase.slice(0, -1) : apiBase;
-      
-      const endpoint = cleanApiBase.includes('/api/v2/') 
-        ? `${cleanApiBase}/challenge_accept/${challenge.ch_uuid}`
-        : cleanApiBase.includes('/api/')
-        ? `${cleanApiBase}/challenge_accept/${challenge.ch_uuid}`
-        : `${cleanApiBase}/api/v2/challenge_accept/${challenge.ch_uuid}`;
-      
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({}),
-      });
 
-      if (response.ok) {
-        const data = await response.json();
-        if (data.target_url) {
-          window.open(data.target_url, '_self');
-        }
-        onAccept(challenge.ch_uuid);
-      }
-    } catch (error) {
-      console.error('Error accepting challenge:', error);
+    const data = await response;
+    if (data.target_url) {
+      window.open(data.target_url, '_self');
     }
+    onAccept(challenge.ch_uuid);
   };
 
   // Formatuj time control (npr. "rapid" -> "3+2" ili koristi time_control ako postoji)
@@ -293,11 +224,15 @@ export const ChallengeNotification: React.FC<Props> = ({
   };
 
   // Proveri da li je friendly (amount je 0 ili nema amount)
-  const isFriendly = !challenge.ch_amount || 
-    challenge.ch_amount === '0' || 
-    challenge.ch_amount === '€0' || 
+
+  const isFriendly =
+    !challenge.ch_amount ||
+    challenge.ch_amount === '0' ||
+    challenge.ch_amount === '€0' ||
     challenge.ch_amount === '$0' ||
-    (typeof challenge.ch_amount === 'string' && parseFloat(challenge.ch_amount.replace(/[€$]/g, '')) < 1);
+    (typeof challenge.ch_amount === 'string' &&
+      parseFloat(challenge.ch_amount.replace(/[€$]/g, '')) < 1);
+
 
   // Formatuj amount za prikaz
   const formatAmount = () => {
@@ -310,30 +245,46 @@ export const ChallengeNotification: React.FC<Props> = ({
         challengeAmount = challenge.ch_amount;
       }
     }
-    challengeAmount = Number(challengeAmount.toFixed(2));
+
+    challengeAmount = Number((challengeAmount / 1.1).toFixed(2));
     return challengeAmount;
-  }
+  };
+
 
   // Responsive stilovi za dugmad
-  const isMobile = windowWidth <= 640;
+  const isMobile = window.innerWidth <= 640;
   const buttonWidth = isMobile ? '100px' : '130px';
   const buttonHeight = isMobile ? '30px' : '34px';
   const buttonFontSize = isMobile ? '14px' : '16px';
   const buttonMargin = isMobile ? '5px' : '10px';
-  const bannerWidth = isMobile ? '90vw' : '50vw';
-  const bannerLeft = isMobile ? '50%' : '25vw'; 
+
+  const bannerWidth = isMobile ? '90vw' : '500px';
+  const bannerLeft = isMobile ? '50%' : '25vw';
+
   const bannerTop = isMobile ? '50px' : '20px';
-  const bannerPadding = isMobile ? '10px 12px' : '12px 15px';
+  const bannerPadding = isMobile ? '10px 12px' : '20px 15px';
   const textFontSize = isMobile ? '14px' : '15px';
 
   return (
     <>
       <style jsx>{`
+        .banner-base {
+          transform: translateY(-100px);
+          opacity: 0.3;
+          transition: all 0.5s ease;
+        }
+        .banner-visible {
+          transform: translateY(0px);
+          opacity: 1;
+          transition: all 0.5s ease;
+        }
         @media screen and (max-width: 640px) {
           #checkClickChallenge3 {
             width: 90vw !important;
             left: 50% !important;
-            transform: translateX(-50%) !important;
+
+            margin-left: -45vw !important;
+
             top: 50px !important;
             padding: 10px 12px !important;
           }
@@ -351,8 +302,11 @@ export const ChallengeNotification: React.FC<Props> = ({
       `}</style>
       <div
         id="checkClickChallenge3"
-        className="initiate-banner banner-position"
+        className={`initiate-banner banner-position banner-base ${
+          visible ? 'banner-visible' : ''
+        }`}
         style={{
+          boxShadow: '0px 0px 10px 0px #07DA6380',
           position: 'absolute',
           width: bannerWidth,
           left: bannerLeft,
@@ -393,20 +347,26 @@ export const ChallengeNotification: React.FC<Props> = ({
           match
           {!isFriendly && formatAmount() && (
             <>
-              {' '}for {formatAmount()} {'€'}.
+
+              {' '}
+              for {formatAmount()} {'€'}.
             </>
           )}
         </div>
-       <div className="flex-center" style={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          gap: '10px',
-          flexWrap: 'wrap',
-        }}>
+        <div
+          className="flex-center"
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            gap: '10px',
+            flexWrap: 'wrap',
+          }}
+        >
           {isChecking ? (
             // Prikaži "Checking..." dok se proveravaju sredstva
-            <div 
+            <div
+
               className="btn_roullete"
               style={{
                 color: '#202122',
@@ -431,8 +391,10 @@ export const ChallengeNotification: React.FC<Props> = ({
             </div>
           ) : hasInsufficientFunds ? (
             // Prikaži "Go to wallet" dugme ako nema dovoljno sredstava
-            <div 
-              className="btn_roullete"
+
+            <div
+              className="btn_roullete hover:opacity-70"
+
               onClick={handleGoToWallet}
               style={{
                 color: '#202122',
@@ -451,21 +413,16 @@ export const ChallengeNotification: React.FC<Props> = ({
                 backgroundColor: '#07da63',
                 transition: '0.3s',
               }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.opacity = '0.7';
-                e.currentTarget.style.color = '#ffffff';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.opacity = '1';
-                e.currentTarget.style.color = '#202122';
-              }}
+
             >
               <b>Go to wallet</b>
             </div>
           ) : (
             // Prikaži "Play" dugme ako ima sredstva
-            <div 
-              className="btn_roullete"
+
+            <div
+              className="btn_roullete hover:opacity-70"
+
               onClick={handleAccept}
               style={{
                 color: '#202122',
@@ -484,20 +441,15 @@ export const ChallengeNotification: React.FC<Props> = ({
                 backgroundColor: '#07da63',
                 transition: '0.3s',
               }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.opacity = '0.7';
-                e.currentTarget.style.color = '#ffffff';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.opacity = '1';
-                e.currentTarget.style.color = '#202122';
-              }}
+
             >
               <b>Play</b>
             </div>
           )}
-          <div 
-            className="btn_roullete btn_roullete_cancel"
+
+          <div
+            className="btn_roullete btn_roullete_cancel hover:opacity-70"
+
             onClick={onDecline}
             style={{
               color: '#ceceda',
@@ -515,12 +467,6 @@ export const ChallengeNotification: React.FC<Props> = ({
               alignItems: 'center',
               justifyContent: 'center',
               transition: '0.3s',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.opacity = '0.5';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.opacity = '1';
             }}
           >
             Ignore

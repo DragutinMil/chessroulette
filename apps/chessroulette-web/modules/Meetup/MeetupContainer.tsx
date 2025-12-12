@@ -92,9 +92,12 @@ export const MeetupContainer = ({
             <MatchStateDisplayContainer />
             <div className="bg-slate-700 p-3 flex flex-col gap-2 flex-1 min-h-0 rounded-lg shadow-2xl overflow-y-scroll">
               <GameNotationWidget />
-              <PlayControlsContainer activeWidget={'chat'} setActiveWidget={function (widget: 'chat' | 'camera'): void {
-                throw new Error('Function not implemented.');
-              } } />
+              <PlayControlsContainer
+                activeWidget={'chat'}
+                setActiveWidget={function (widget: 'chat' | 'camera'): void {
+                  throw new Error('Function not implemented.');
+                }}
+              />
             </div>
           </div>
         }
