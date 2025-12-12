@@ -4,17 +4,21 @@ import { ButtonGreen } from '@app/components/Button/ButtonGreen';
 import Cookies from 'js-cookie';
 import socketUtil from '@app/socketUtil';
 import { useRouter } from 'next/navigation';
+
 import { challengeAccept, checkMoney } from './util';
+
 
 type ChallengeData = {
   ch_uuid: string;
   challenger_name?: string;
   challenger_id?: string;
   time_class?: string;
+
   time_control?: string;
   ch_amount?: string;
   initiator_name_first?: string;
   initiator_name_last?: string;
+
 };
 
 type Props = {
@@ -29,23 +33,13 @@ export const ChallengeNotification: React.FC<Props> = ({
   onDecline,
 }) => {
   const router = useRouter();
-  //const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1920);
+
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [hasInsufficientFunds, setHasInsufficientFunds] = useState(false);
   const [isChecking, setIsChecking] = useState(false);
   const [targetUrl, setTargetUrl] = useState<string | null>(null);
   const [visible, setVisible] = useState(false);
-  // useEffect(() => {
-  //   const handleResize = () => {
-  //     setWindowWidth(window.innerWidth);
-  //   };
-
-  //   window.addEventListener('resize', handleResize);
-  //   return () => window.removeEventListener('resize', handleResize);
-  // }, [challenge]);
-
-  // Auto-decline nakon 10 sekundi i slušanje socket event-a za revocation
-  useEffect(() => {
+useEffect(() => {
     if (!challenge || !challenge.ch_uuid) {
       return;
     }
@@ -185,6 +179,7 @@ export const ChallengeNotification: React.FC<Props> = ({
   }
 
   const handleGoToWallet = () => {
+
     window.location.href = 'https://app.outpostchess.com/wallet';
     onDecline();
   };
@@ -197,6 +192,7 @@ export const ChallengeNotification: React.FC<Props> = ({
       return;
     }
     const response = await challengeAccept(challenge.ch_uuid);
+
 
     const data = await response;
     if (data.target_url) {
@@ -228,6 +224,7 @@ export const ChallengeNotification: React.FC<Props> = ({
   };
 
   // Proveri da li je friendly (amount je 0 ili nema amount)
+
   const isFriendly =
     !challenge.ch_amount ||
     challenge.ch_amount === '0' ||
@@ -235,6 +232,7 @@ export const ChallengeNotification: React.FC<Props> = ({
     challenge.ch_amount === '$0' ||
     (typeof challenge.ch_amount === 'string' &&
       parseFloat(challenge.ch_amount.replace(/[€$]/g, '')) < 1);
+
 
   // Formatuj amount za prikaz
   const formatAmount = () => {
@@ -247,9 +245,11 @@ export const ChallengeNotification: React.FC<Props> = ({
         challengeAmount = challenge.ch_amount;
       }
     }
+
     challengeAmount = Number((challengeAmount / 1.1).toFixed(2));
     return challengeAmount;
   };
+
 
   // Responsive stilovi za dugmad
   const isMobile = window.innerWidth <= 640;
@@ -257,8 +257,10 @@ export const ChallengeNotification: React.FC<Props> = ({
   const buttonHeight = isMobile ? '30px' : '34px';
   const buttonFontSize = isMobile ? '14px' : '16px';
   const buttonMargin = isMobile ? '5px' : '10px';
+
   const bannerWidth = isMobile ? '90vw' : '500px';
   const bannerLeft = isMobile ? '50%' : '25vw';
+
   const bannerTop = isMobile ? '50px' : '20px';
   const bannerPadding = isMobile ? '10px 12px' : '20px 15px';
   const textFontSize = isMobile ? '14px' : '15px';
@@ -280,7 +282,9 @@ export const ChallengeNotification: React.FC<Props> = ({
           #checkClickChallenge3 {
             width: 90vw !important;
             left: 50% !important;
+
             margin-left: -45vw !important;
+
             top: 50px !important;
             padding: 10px 12px !important;
           }
@@ -343,6 +347,7 @@ export const ChallengeNotification: React.FC<Props> = ({
           match
           {!isFriendly && formatAmount() && (
             <>
+
               {' '}
               for {formatAmount()} {'€'}.
             </>
@@ -361,6 +366,7 @@ export const ChallengeNotification: React.FC<Props> = ({
           {isChecking ? (
             // Prikaži "Checking..." dok se proveravaju sredstva
             <div
+
               className="btn_roullete"
               style={{
                 color: '#202122',
@@ -385,8 +391,10 @@ export const ChallengeNotification: React.FC<Props> = ({
             </div>
           ) : hasInsufficientFunds ? (
             // Prikaži "Go to wallet" dugme ako nema dovoljno sredstava
+
             <div
               className="btn_roullete hover:opacity-70"
+
               onClick={handleGoToWallet}
               style={{
                 color: '#202122',
@@ -405,13 +413,16 @@ export const ChallengeNotification: React.FC<Props> = ({
                 backgroundColor: '#07da63',
                 transition: '0.3s',
               }}
+
             >
               <b>Go to wallet</b>
             </div>
           ) : (
             // Prikaži "Play" dugme ako ima sredstva
+
             <div
               className="btn_roullete hover:opacity-70"
+
               onClick={handleAccept}
               style={{
                 color: '#202122',
@@ -430,12 +441,15 @@ export const ChallengeNotification: React.FC<Props> = ({
                 backgroundColor: '#07da63',
                 transition: '0.3s',
               }}
+
             >
               <b>Play</b>
             </div>
           )}
+
           <div
             className="btn_roullete btn_roullete_cancel hover:opacity-70"
+
             onClick={onDecline}
             style={{
               color: '#ceceda',

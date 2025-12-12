@@ -15,6 +15,14 @@ export const socketUtil = {
         token = Cookies.get('sessionToken');
       }
 
+      if(!token){
+        token = localStorage.getItem('token');
+      }
+
+      if(!token){
+        token = localStorage.getItem('sessionToken'); 
+      }
+
       if (token) {
         if (!socketUtil.socket) {
           socketUtil.socket = io('https://api.outpostchess.com', {
