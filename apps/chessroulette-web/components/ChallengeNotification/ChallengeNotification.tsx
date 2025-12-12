@@ -11,10 +11,10 @@ type ChallengeData = {
   challenger_name?: string;
   challenger_id?: string;
   time_class?: string;
-  time_control?: string; 
+  time_control?: string;
   ch_amount?: string;
-  initiator_name_first?:string;
-  initiator_name_last?:string;
+  initiator_name_first?: string;
+  initiator_name_last?: string;
 };
 
 type Props = {
@@ -35,7 +35,7 @@ export const ChallengeNotification: React.FC<Props> = ({
   const [isChecking, setIsChecking] = useState(false);
   const [targetUrl, setTargetUrl] = useState<string | null>(null);
   const [visible, setVisible] = useState(false);
-  // useEffect(() => {    
+  // useEffect(() => {
   //   const handleResize = () => {
   //     setWindowWidth(window.innerWidth);
   //   };
@@ -58,58 +58,66 @@ export const ChallengeNotification: React.FC<Props> = ({
     // Funkcija za proveru sredstava - pokušaj da prihvatiš challenge (bez redirect-a)
     const checkChallenge = async () => {
       let token = Cookies.get('token') || Cookies.get('sessionToken');
-      
+
       if (!token && typeof window !== 'undefined') {
-        token = localStorage.getItem('token') || localStorage.getItem('sessionToken');
+        token =
+          localStorage.getItem('token') || localStorage.getItem('sessionToken');
       }
-      
+
       if (!token) {
-       
         setIsChecking(false);
         return;
       }
-      console.log('chalanerica',challenge)
-      try {
-         let challengeAmount = 0;
-         let walletBalance = 0;
-          if(challenge.ch_amount!==undefined && challenge.ch_amount!=='0' && 
-            challenge.ch_amount !== '€0'&& challenge.ch_amount!=='' && challenge.ch_amount !== '$0'){
-                  const walletResponse = await checkMoney()
-                    console.log(walletResponse)
 
-                    const walletData = await walletResponse.total;
-                    walletBalance = parseFloat(walletData || '0');
-                    
-                    // Parsiraj ch_amount iz challenge-a
-                    
-                    if (challenge.ch_amount) {
-                      if (typeof challenge.ch_amount === 'string') {
-                        // Ukloni €, $ i ostale simbole
-                        challengeAmount = parseFloat(challenge.ch_amount);
-                      } else if (typeof challenge.ch_amount === 'number') {
-                        challengeAmount = challenge.ch_amount;
-                      }
-                    }
-                    challengeAmount = Number(challengeAmount.toFixed(2));
-                    // Proveri da li je friendly challenge (amount je 0 ili nema amount)
-      
+      try {
+        let challengeAmount = 0;
+        let walletBalance = 0;
+        if (
+          challenge.ch_amount !== undefined &&
+          challenge.ch_amount !== '0' &&
+          challenge.ch_amount !== '€0' &&
+          challenge.ch_amount !== '' &&
+          challenge.ch_amount !== '$0'
+        ) {
+          const walletResponse = await checkMoney();
+          console.log(walletResponse);
+
+          const walletData = await walletResponse.total;
+          walletBalance = parseFloat(walletData || '0');
+
+          // Parsiraj ch_amount iz challenge-a
+
+          if (challenge.ch_amount) {
+            if (typeof challenge.ch_amount === 'string') {
+              // Ukloni €, $ i ostale simbole
+              challengeAmount = parseFloat(challenge.ch_amount);
+            } else if (typeof challenge.ch_amount === 'number') {
+              challengeAmount = challenge.ch_amount;
+            }
           }
-         const isFriendlyChallenge = !challenge.ch_amount || 
-          challenge.ch_amount === '0' || 
-          challenge.ch_amount === '€0' || 
-          challenge.ch_amount === '$0' || 
-           challengeAmount < 1;
+          challengeAmount = Number(challengeAmount.toFixed(2));
+          // Proveri da li je friendly challenge (amount je 0 ili nema amount)
+        }
+        const isFriendlyChallenge =
+          !challenge.ch_amount ||
+          challenge.ch_amount === '0' ||
+          challenge.ch_amount === '€0' ||
+          challenge.ch_amount === '$0' ||
+          challengeAmount < 1;
         // Ako je friendly challenge, uvek prikaži "Play" dugme
         if (isFriendlyChallenge) {
           setHasInsufficientFunds(false);
           setIsChecking(false);
           return;
         }
-console.log('walletBalance & challengeAmount',walletBalance, challengeAmount)
+        console.log(
+          'walletBalance & challengeAmount',
+          walletBalance,
+          challengeAmount
+        );
         // Poredi wallet balance sa challenge amount-om
         if (walletBalance >= challengeAmount) {
-          
-          console.log('ide prihvatanje')
+          console.log('ide prihvatanje');
           setHasInsufficientFunds(false);
         } else {
           setHasInsufficientFunds(true);
@@ -134,7 +142,7 @@ console.log('walletBalance & challengeAmount',walletBalance, challengeAmount)
     // Handler za socket event-e koji mogu da označe challenge kao revoke-ovan
     const handleSocketNotification = (data: any) => {
       // Proveri da li je ovo revocation event za naš challenge
-      const isOurChallenge = 
+      const isOurChallenge =
         data.ch_uuid === challenge.ch_uuid ||
         data.challenge_uuid === challenge.ch_uuid ||
         data.data?.ch_uuid === challenge.ch_uuid;
@@ -177,7 +185,7 @@ console.log('walletBalance & challengeAmount',walletBalance, challengeAmount)
   }
 
   const handleGoToWallet = () => {
-    window.location.href = "https://app.outpostchess.com/wallet";
+    window.location.href = 'https://app.outpostchess.com/wallet';
     onDecline();
   };
 
@@ -188,15 +196,13 @@ console.log('walletBalance & challengeAmount',walletBalance, challengeAmount)
       onAccept(challenge.ch_uuid);
       return;
     }
-      const response = await challengeAccept(challenge.ch_uuid)
-      
-        const data = await response;
-        if (data.target_url) {
-          window.open(data.target_url, '_self');
-        }
-        onAccept(challenge.ch_uuid);
-      
-     
+    const response = await challengeAccept(challenge.ch_uuid);
+
+    const data = await response;
+    if (data.target_url) {
+      window.open(data.target_url, '_self');
+    }
+    onAccept(challenge.ch_uuid);
   };
 
   // Formatuj time control (npr. "rapid" -> "3+2" ili koristi time_control ako postoji)
@@ -222,11 +228,13 @@ console.log('walletBalance & challengeAmount',walletBalance, challengeAmount)
   };
 
   // Proveri da li je friendly (amount je 0 ili nema amount)
-  const isFriendly = !challenge.ch_amount || 
-    challenge.ch_amount === '0' || 
-    challenge.ch_amount === '€0' || 
+  const isFriendly =
+    !challenge.ch_amount ||
+    challenge.ch_amount === '0' ||
+    challenge.ch_amount === '€0' ||
     challenge.ch_amount === '$0' ||
-    (typeof challenge.ch_amount === 'string' && parseFloat(challenge.ch_amount.replace(/[€$]/g, '')) < 1);
+    (typeof challenge.ch_amount === 'string' &&
+      parseFloat(challenge.ch_amount.replace(/[€$]/g, '')) < 1);
 
   // Formatuj amount za prikaz
   const formatAmount = () => {
@@ -239,9 +247,9 @@ console.log('walletBalance & challengeAmount',walletBalance, challengeAmount)
         challengeAmount = challenge.ch_amount;
       }
     }
-    challengeAmount = Number((challengeAmount/1.1).toFixed(2));
+    challengeAmount = Number((challengeAmount / 1.1).toFixed(2));
     return challengeAmount;
-  }
+  };
 
   // Responsive stilovi za dugmad
   const isMobile = window.innerWidth <= 640;
@@ -249,16 +257,16 @@ console.log('walletBalance & challengeAmount',walletBalance, challengeAmount)
   const buttonHeight = isMobile ? '30px' : '34px';
   const buttonFontSize = isMobile ? '14px' : '16px';
   const buttonMargin = isMobile ? '5px' : '10px';
-  const bannerWidth = isMobile ? '90vw' : '50vw';
-  const bannerLeft = isMobile ? '50%' : '25vw'; 
+  const bannerWidth = isMobile ? '90vw' : '500px';
+  const bannerLeft = isMobile ? '50%' : '25vw';
   const bannerTop = isMobile ? '50px' : '20px';
-  const bannerPadding = isMobile ? '10px 12px' : '12px 15px';
+  const bannerPadding = isMobile ? '10px 12px' : '20px 15px';
   const textFontSize = isMobile ? '14px' : '15px';
 
   return (
     <>
       <style jsx>{`
-            .banner-base {
+        .banner-base {
           transform: translateY(-100px);
           opacity: 0.3;
           transition: all 0.5s ease;
@@ -287,11 +295,12 @@ console.log('walletBalance & challengeAmount',walletBalance, challengeAmount)
             margin-right: 5px !important;
           }
         }
-        
       `}</style>
       <div
         id="checkClickChallenge3"
-        className={`initiate-banner banner-position banner-base ${visible ? "banner-visible" : ""}`}
+        className={`initiate-banner banner-position banner-base ${
+          visible ? 'banner-visible' : ''
+        }`}
         style={{
           boxShadow: '0px 0px 10px 0px #07DA6380',
           position: 'absolute',
@@ -334,20 +343,24 @@ console.log('walletBalance & challengeAmount',walletBalance, challengeAmount)
           match
           {!isFriendly && formatAmount() && (
             <>
-              {' '}for {formatAmount()} {'€'}.
+              {' '}
+              for {formatAmount()} {'€'}.
             </>
           )}
         </div>
-       <div className="flex-center" style={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          gap: '10px',
-          flexWrap: 'wrap',
-        }}>
+        <div
+          className="flex-center"
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            gap: '10px',
+            flexWrap: 'wrap',
+          }}
+        >
           {isChecking ? (
             // Prikaži "Checking..." dok se proveravaju sredstva
-            <div 
+            <div
               className="btn_roullete"
               style={{
                 color: '#202122',
@@ -372,7 +385,7 @@ console.log('walletBalance & challengeAmount',walletBalance, challengeAmount)
             </div>
           ) : hasInsufficientFunds ? (
             // Prikaži "Go to wallet" dugme ako nema dovoljno sredstava
-            <div 
+            <div
               className="btn_roullete hover:opacity-70"
               onClick={handleGoToWallet}
               style={{
@@ -392,13 +405,12 @@ console.log('walletBalance & challengeAmount',walletBalance, challengeAmount)
                 backgroundColor: '#07da63',
                 transition: '0.3s',
               }}
-            
             >
               <b>Go to wallet</b>
             </div>
           ) : (
             // Prikaži "Play" dugme ako ima sredstva
-            <div 
+            <div
               className="btn_roullete hover:opacity-70"
               onClick={handleAccept}
               style={{
@@ -418,12 +430,11 @@ console.log('walletBalance & challengeAmount',walletBalance, challengeAmount)
                 backgroundColor: '#07da63',
                 transition: '0.3s',
               }}
-             
             >
               <b>Play</b>
             </div>
           )}
-          <div 
+          <div
             className="btn_roullete btn_roullete_cancel hover:opacity-70"
             onClick={onDecline}
             style={{
@@ -443,7 +454,6 @@ console.log('walletBalance & challengeAmount',walletBalance, challengeAmount)
               justifyContent: 'center',
               transition: '0.3s',
             }}
-          
           >
             Ignore
           </div>
@@ -452,4 +462,3 @@ console.log('walletBalance & challengeAmount',walletBalance, challengeAmount)
     </>
   );
 };
-

@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { ChessColor } from '@xmatter/util-kit';
 import { QuickConfirmButton } from '@app/components/Button/QuickConfirmButton';
 import { Game, GameOffer } from '@app/modules/Game';
@@ -17,44 +23,83 @@ type Props = {
   onTakebackOffer: () => void;
   onResign: () => void;
   onRematchOffer: () => void;
-  activeWidget: 'chat' | 'camera';  // Novi prop
-  setActiveWidget: (widget: 'chat' | 'camera') => void;  // Novi prop
+  activeWidget: 'chat' | 'camera'; // Novi prop
+  setActiveWidget: (widget: 'chat' | 'camera') => void; // Novi prop
   unreadMessagesCount?: number; // Dodajte ovaj prop
-
 };
 
 const CameraOnIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#ffffff">
-    <path d="M160-160q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h480q33 0 56.5 23.5T720-720v180l160-160v440L720-420v180q0 33-23.5 56.5T640-160H160Zm0-80h480v-480H160v480Zm0 0v-480 480Z"/>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    height="24px"
+    viewBox="0 -960 960 960"
+    width="24px"
+    fill="#ffffff"
+  >
+    <path d="M160-160q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h480q33 0 56.5 23.5T720-720v180l160-160v440L720-420v180q0 33-23.5 56.5T640-160H160Zm0-80h480v-480H160v480Zm0 0v-480 480Z" />
   </svg>
 );
 
 const CameraOffIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#ffffff">
-    <path d="M880-260 720-420v67l-80-80v-287H353l-80-80h367q33 0 56.5 23.5T720-720v180l160-160v440ZM822-26 26-822l56-56L878-82l-56 56ZM498-575ZM382-464ZM160-800l80 80h-80v480h480v-80l80 80q0 33-23.5 56.5T640-160H160q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800Z"/>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    height="24px"
+    viewBox="0 -960 960 960"
+    width="24px"
+    fill="#ffffff"
+  >
+    <path d="M880-260 720-420v67l-80-80v-287H353l-80-80h367q33 0 56.5 23.5T720-720v180l160-160v440ZM822-26 26-822l56-56L878-82l-56 56ZM498-575ZM382-464ZM160-800l80 80h-80v480h480v-80l80 80q0 33-23.5 56.5T640-160H160q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800Z" />
   </svg>
 );
 
 const MessageIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#ffffff">
-    <path d="M80-80v-720q0-33 23.5-56.5T160-880h640q33 0 56.5 23.5T880-800v480q0 33-23.5 56.5T800-240H240L80-80Zm126-240h594v-480H160v525l46-45Zm-46 0v-480 480Z"/>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    height="24px"
+    viewBox="0 -960 960 960"
+    width="24px"
+    fill="#ffffff"
+  >
+    <path d="M80-80v-720q0-33 23.5-56.5T160-880h640q33 0 56.5 23.5T880-800v480q0 33-23.5 56.5T800-240H240L80-80Zm126-240h594v-480H160v525l46-45Zm-46 0v-480 480Z" />
   </svg>
-
 );
 
-
 const DrawOfferIcon = () => (
-<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#ffffff" className="text-white"><path d="M200-120q-33 0-56.5-23.5T120-200v-160q0-33 23.5-56.5T200-440h560q33 0 56.5 23.5T840-360v160q0 33-23.5 56.5T760-120H200Zm0-400q-33 0-56.5-23.5T120-600v-160q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v160q0 33-23.5 56.5T760-520H200Zm560-240H200v160h560v-160Z"/>
-</svg>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    height="24px"
+    viewBox="0 -960 960 960"
+    width="24px"
+    fill="#ffffff"
+    className="text-white"
+  >
+    <path d="M200-120q-33 0-56.5-23.5T120-200v-160q0-33 23.5-56.5T200-440h560q33 0 56.5 23.5T840-360v160q0 33-23.5 56.5T760-120H200Zm0-400q-33 0-56.5-23.5T120-600v-160q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v160q0 33-23.5 56.5T760-520H200Zm560-240H200v160h560v-160Z" />
+  </svg>
 );
 
 const TakebackIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#ffffff" className="text-white"><path d="M680-160v-400H313l144 144-56 57-241-241 240-240 57 57-144 143h447v480h-80Z"/>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    height="24px"
+    viewBox="0 -960 960 960"
+    width="24px"
+    fill="#ffffff"
+    className="text-white"
+  >
+    <path d="M680-160v-400H313l144 144-56 57-241-241 240-240 57 57-144 143h447v480h-80Z" />
   </svg>
 );
 
 const ResignIcon = () => (
-  <svg className="text-white" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#ffffff"><path d="M200-80v-760h640l-80 200 80 200H280v360h-80Zm80-440h442l-48-120 48-120H280v240Zm0 0v-240 240Z"/>
+  <svg
+    className="text-white"
+    xmlns="http://www.w3.org/2000/svg"
+    height="24px"
+    viewBox="0 -960 960 960"
+    width="24px"
+    fill="#ffffff"
+  >
+    <path d="M200-80v-760h640l-80 200 80 200H280v360h-80Zm80-440h442l-48-120 48-120H280v240Zm0 0v-240 240Z" />
   </svg>
 );
 
@@ -68,10 +113,9 @@ export const PlayControls: React.FC<Props> = ({
   playerId,
   game,
   lastOffer,
-  activeWidget,  
-  setActiveWidget,  
-  unreadMessagesCount = 0, 
-
+  activeWidget,
+  setActiveWidget,
+  unreadMessagesCount = 0,
 }) => {
   const { offers: offers = [] } = game;
   const { match } = useMatchViewState();
@@ -80,7 +124,7 @@ export const PlayControls: React.FC<Props> = ({
   const router = useRouter();
   const offerAlreadySent = useRef(false);
   const offerCounters = match ? calculateOfferCounters(match) : undefined;
-   const timeClass = match ? match.gameInPlay?.timeClass : undefined;
+  const timeClass = match ? match.gameInPlay?.timeClass : undefined;
   const isBullet =
     timeClass === 'bullet' ||
     timeClass === 'bulletplus1' ||
@@ -99,31 +143,30 @@ export const PlayControls: React.FC<Props> = ({
     }
   }, []);
 
-
-   const takebackCount = offerCounters?.takeback?.[playerId] ?? 0
+  const takebackCount = offerCounters?.takeback?.[playerId] ?? 0;
   const drawCount = offerCounters?.draw?.[playerId] ?? 0;
- 
-    if (lastOffer?.status === 'pending' || offerAlreadySent.current) {
-  const isLastMovePromotion = (pgn: string): boolean => {
-    if (!pgn || pgn.length === 0) return false;
 
-    // Split PGN into tokens and filter out move numbers and game results
-    const tokens = pgn
-      .split(/\s+/)
-      .filter(
-        (token) =>
-          !/^\d+\.$/.test(token) && !/^(1-0|0-1|1\/2-1\/2|\*)$/.test(token)
-      );
+  if (lastOffer?.status === 'pending' || offerAlreadySent.current) {
+    const isLastMovePromotion = (pgn: string): boolean => {
+      if (!pgn || pgn.length === 0) return false;
 
-    if (tokens.length === 0) return false;
+      // Split PGN into tokens and filter out move numbers and game results
+      const tokens = pgn
+        .split(/\s+/)
+        .filter(
+          (token) =>
+            !/^\d+\.$/.test(token) && !/^(1-0|0-1|1\/2-1\/2|\*)$/.test(token)
+        );
 
-    // Get the last move token
-    const lastMove = tokens[tokens.length - 1];
+      if (tokens.length === 0) return false;
 
-    // Check if it contains "=" which indicates a promotion (e.g., "e8=Q", "h1=Q+")
-    return lastMove.includes('=');
+      // Get the last move token
+      const lastMove = tokens[tokens.length - 1];
+
+      // Check if it contains "=" which indicates a promotion (e.g., "e8=Q", "h1=Q+")
+      return lastMove.includes('=');
+    };
   }
-  };
   const isLastMovePromotion = (pgn: string): boolean => {
     if (!pgn || pgn.length === 0) return false;
 
@@ -217,74 +260,73 @@ export const PlayControls: React.FC<Props> = ({
     }
   }, [game.lastMoveBy, resetOfferSent]);
 
-//  useEffect(() => {
-    //TODO - can optimize this function with useCallback and pass parameters the gameState
+  //  useEffect(() => {
+  //TODO - can optimize this function with useCallback and pass parameters the gameState
 
   //   refreshAllowTakeback(calculateTakebackStatus());
   //   refreshAllowDraw(calculateDrawStatus());
   // }, [game.status, offers, game.lastMoveBy]);
 
-
   return (
-    <div className=" 
+    <div
+      className=" 
     rounded-3xl  
     pl-2 pr-2 pt-2 pb-2 md:px-4 md:pb-5 md:pt-5  flex flex-row items-center justify-between
        text-xs md:text-sm
        gap-1 md:flex-1 min-h-0 rounded-lg shadow-2xl -mt-2 md:mt-0"
-          
-       style={{
-        backgroundImage: 'radial-gradient(61.84% 61.84% at 50% 131.62%, rgba(5, 135, 44, 0.2) 0%, rgb(1, 33, 11) 100%)',
+      style={{
+        backgroundImage:
+          'radial-gradient(61.84% 61.84% at 50% 131.62%, rgba(5, 135, 44, 0.2) 0%, rgb(1, 33, 11) 100%)',
         borderRadius: '8px',
         //border: '1px solid #FFFFFF0D',
         display: 'flex',
-        alignItems: 'center'
+        alignItems: 'center',
       }}
-       >
-
-{/* Sakrij dugmice za kameru i chat na mobilnim uređajima */}
-<div className="md:flex gap-1">
-        <QuickConfirmButton 
+    >
+      {/* Sakrij dugmice za kameru i chat na mobilnim uređajima */}
+      <div className="md:flex gap-1">
+        <QuickConfirmButton
           type="custom"
           size="sm"
           className="hidden md:flex-1 !h-10 min-w-[40px] !rounded-3xl !text-white"
           confirmationBgcolor="green"
           confirmationMessage="camera"
-          bgColor='green'
+          bgColor="green"
           onClick={() => setActiveWidget('camera')}
         >
           {activeWidget === 'camera' ? <CameraOnIcon /> : <CameraOffIcon />}
         </QuickConfirmButton>
-        
-
       </div>
-
-      <QuickConfirmButton 
-          type="custom"
-          size="sm"
-          confirmationBgcolor="green"
-          className={`flex-1 md:hidden !h-8 min-w-[50px] !rounded-3xl !text-white `}
-          confirmationMessage="Chat?"
-          bgColor="green"
-          onClick={() => setActiveWidget('chat')}
-        >
-          <div className="relative">
-            <MessageIcon />
-            {/* Indikator za nepročitane poruke kada je chat enabled ali kamera aktivna */}
-            {unreadMessagesCount > 0 && activeWidget === 'camera' && (
-              <span className="absolute -top-2 -right-2 bg-[#07DA63] 
-              text-black text-xs font-bold rounded-full w-5 h-5 flex 
-              items-center justify-center">
-                {unreadMessagesCount > 9 ? '9+' : unreadMessagesCount}
-              </span>
-            )}
-          </div>
-        </QuickConfirmButton>
 
       <QuickConfirmButton
         type="custom"
         size="sm"
         confirmationBgcolor="green"
-        className={`flex-1 !h-8 min-w-[50px] !rounded-3xl `} 
+        className={`flex-1 md:hidden !h-8 min-w-[50px] !rounded-3xl !text-white `}
+        confirmationMessage="Chat?"
+        bgColor="green"
+        onClick={() => setActiveWidget('chat')}
+      >
+        <div className="relative">
+          <MessageIcon />
+          {/* Indikator za nepročitane poruke kada je chat enabled ali kamera aktivna */}
+          {unreadMessagesCount > 0 && activeWidget === 'camera' && (
+            <span
+              className="absolute -top-2 -right-2 bg-[#07DA63] 
+              text-black text-xs font-bold rounded-full w-5 h-5 flex 
+              items-center justify-center"
+            >
+              {unreadMessagesCount > 9 ? '9+' : unreadMessagesCount}
+            </span>
+          )}
+        </div>
+      </QuickConfirmButton>
+
+      <QuickConfirmButton
+        type="custom"
+        size="sm"
+        confirmationBgcolor="green"
+        className={`flex-1 !h-8 min-w-[50px] !rounded-3xl `}
         confirmationMessage="Draw?"
         bgColor="green"
         iconKind="solid"

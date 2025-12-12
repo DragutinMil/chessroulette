@@ -59,13 +59,11 @@ export const RoomContainer = ({ iceServers, rid }: Props) => {
   // Jednostavan useEffect samo za socket i notifikacije
   useEffect(() => {
     console.log('🔌 Connecting to socket... room');
-     
+
     // Poveži se na socket sa statusom 'available'
     socketUtil.connect('available');
 
     const handleChallengeNotification = (data: any) => {
-     
-
       // Proveri da li je ovo challenge notifikacija
       if (
         data.n_type === 'challenge_initiated' ||
@@ -74,8 +72,6 @@ export const RoomContainer = ({ iceServers, rid }: Props) => {
         data.ch_target_uuid ||
         data.data?.ch_uuid
       ) {
-
-
         // Izvuci ime i prezime iz from_user_object
         const firstName =
           data.from_user_object?.name_first ||
@@ -89,8 +85,6 @@ export const RoomContainer = ({ iceServers, rid }: Props) => {
           data.initiator?.name_last ||
           data.challenger?.name_last;
 
-       
-
         // Izvuci ch_uuid iz različitih izvora
         const chUuid =
           data.data?.ch_uuid || data.ch_uuid || data.challenge_uuid;
@@ -100,7 +94,7 @@ export const RoomContainer = ({ iceServers, rid }: Props) => {
           data.data?.ch_type || data.time_control || data.timeControl;
 
         // Izvuci amount iz data.data objekta
-        const amount = data.data?.amount || data.amount || data.prize;
+        const amount = data.data?.ch_amount || data.ch_amount;
 
         const challengeData = {
           ch_uuid: chUuid,
@@ -114,12 +108,11 @@ export const RoomContainer = ({ iceServers, rid }: Props) => {
           time_class:
             data.time_class || data.timeClass || data.data?.time_class,
           time_control: timeControl,
-          amount: amount,
+          ch_amount: amount,
           initiator_name_first: firstName,
           initiator_name_last: lastName,
         };
 
-       
         setChallengeNotification(challengeData);
       }
     };

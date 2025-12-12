@@ -57,7 +57,7 @@ export const PlayerBox: React.FC<Props> = ({
             isActive ? 'text-white font-bold' : 'text-slate-400'
           }`}
         >
-          {playerInfo.points} 
+          {playerInfo.points}
           {playerInfo.points !== undefined ? ' ' : ''}
           {playerInfo.displayName || botName}&nbsp;({playerInfo.color})
         </div>
@@ -67,7 +67,7 @@ export const PlayerBox: React.FC<Props> = ({
             isActive ? 'text-white font-bold' : 'text-slate-400'
           }`}
         >
-        <span className="inline-block w-3">{playerInfo.points}</span>
+          <span className="inline-block w-3">{playerInfo.points}</span>
           {playerInfo.points !== undefined ? ' ' : ''}
           {playerInfo.displayName || 'guest'}&nbsp;({playerInfo.color})
         </div>
