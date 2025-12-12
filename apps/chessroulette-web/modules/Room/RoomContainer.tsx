@@ -64,9 +64,7 @@ export const RoomContainer = ({ iceServers, rid }: Props) => {
     socketUtil.connect('available');
 
     const handleChallengeNotification = (data: any) => {
-      console.log('🔔 Notification received:', data);
-      console.log('🔔 from_user_object:', data.from_user_object);
-      console.log('🔔 data.data:', data.data);
+     
 
       // Proveri da li je ovo challenge notifikacija
       if (
@@ -76,7 +74,7 @@ export const RoomContainer = ({ iceServers, rid }: Props) => {
         data.ch_target_uuid ||
         data.data?.ch_uuid
       ) {
-        console.log('✅ Challenge notification detected, showing...');
+
 
         // Izvuci ime i prezime iz from_user_object
         const firstName =
@@ -91,8 +89,7 @@ export const RoomContainer = ({ iceServers, rid }: Props) => {
           data.initiator?.name_last ||
           data.challenger?.name_last;
 
-        console.log('✅ Extracted firstName:', firstName);
-        console.log('✅ Extracted lastName:', lastName);
+       
 
         // Izvuci ch_uuid iz različitih izvora
         const chUuid =
@@ -122,7 +119,7 @@ export const RoomContainer = ({ iceServers, rid }: Props) => {
           initiator_name_last: lastName,
         };
 
-        console.log('✅ Setting challenge notification:', challengeData);
+       
         setChallengeNotification(challengeData);
       }
     };
