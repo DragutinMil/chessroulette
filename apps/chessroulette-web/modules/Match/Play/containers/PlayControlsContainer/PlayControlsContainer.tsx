@@ -11,11 +11,13 @@ const lastMoveWasPromotionCallbacks = new Set<(value: boolean) => void>();
 type Props = {
   activeWidget: 'chat' | 'camera';
   setActiveWidget: (widget: 'chat' | 'camera') => void;
+  isMobile?: boolean;
 };
 
 export const PlayControlsContainer = ({
   activeWidget,
   setActiveWidget,
+  isMobile,
 }: Props) => {
   const dispatch = usePlayActionsDispatch();
   const { lastOffer, game, playersBySide, hasGame } =
@@ -30,35 +32,47 @@ export const PlayControlsContainer = ({
 
   // Izračunaj nepročitane poruke kada je chat enabled ali kamera aktivna
   const unreadMessagesCount = useMemo(() => {
-    if (!match?.messages || activeWidget === 'chat') {
+    console.log('match?.messages', match?.messages);
+    if (!match?.messages) {
+      return 0;
+    }
+    console.log('id', playersBySide?.home.id);
+    console.log('activeWidget', activeWidget);
+    if (activeWidget === 'chat') {
       return 0;
     }
 
     // Pronađi poslednju poruku koju je korisnik video
-    const lastSeenMessageKey = `chessroulette-last-seen-message-${playersBySide?.home.id}`;
-    const lastSeenTimestamp = localStorage.getItem(lastSeenMessageKey);
+
+    const lastSeenTimestamp = localStorage.getItem(
+      `chessroulette-last-seen-message`
+    );
 
     if (!lastSeenTimestamp) {
       return match.messages.length;
     }
 
     const lastSeen = parseInt(lastSeenTimestamp, 10);
+
     return match.messages.filter((msg) => msg.timestamp > lastSeen).length;
   }, [match?.messages, activeWidget, playersBySide?.home.id]);
 
+  useEffect(() => {
+    console.log('unreadMessagesCount', unreadMessagesCount);
+  }, [unreadMessagesCount]);
   // Ažuriraj last seen timestamp kada se aktivira chat
   useEffect(() => {
-    if (activeWidget === 'chat' && match?.messages) {
+    console.log('activeWidget pre promene', activeWidget);
+    if (activeWidget == 'chat' && match?.messages) {
       const lastMessage = match.messages[match.messages.length - 1];
       if (lastMessage) {
-        const lastSeenMessageKey = `chessroulette-last-seen-message-${playersBySide?.home.id}`;
         localStorage.setItem(
-          lastSeenMessageKey,
+          `chessroulette-last-seen-message`,
           lastMessage.timestamp.toString()
         );
       }
     }
-  }, [activeWidget, match?.messages, playersBySide?.home.id]);
+  }, [activeWidget, match?.messages]);
 
   if (!hasGame) {
     return <>WARN| Play Controls Container No Game</>;
@@ -68,6 +82,7 @@ export const PlayControlsContainer = ({
     <PlayControls
       activeWidget={activeWidget}
       setActiveWidget={setActiveWidget}
+      isMobile={isMobile}
       homeColor={playersBySide.home.color}
       playerId={playersBySide.home.id}
       unreadMessagesCount={unreadMessagesCount}

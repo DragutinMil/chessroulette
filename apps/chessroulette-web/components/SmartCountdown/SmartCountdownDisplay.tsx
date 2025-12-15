@@ -39,7 +39,7 @@ export const SmartCountdownDisplay = ({
   }, [shouldRing]);
 
   return (
-    <Text className={active ? activeTextClassName : inactiveTextClassName} px-0>
+    <Text className={active ? activeTextClassName : inactiveTextClassName}>
       <Text className="font-bold w-[24px] md:w-[30px] ">{major}</Text>
       <Text>:</Text>
       <Text

@@ -89,7 +89,7 @@ Props): MoveActions => {
       },
     }));
   };
-
+  const dragHappenedRef = useRef(false); ///return click square action direct after drop
   const setPendingMove = (move: ChessBoardPendingMove | undefined) => {
     setPlayerMoves((prev) => ({
       ...prev,
@@ -111,7 +111,6 @@ Props): MoveActions => {
     const isMyPiece = piece?.color === playingColor;
     const currentMoves = getCurrentMoves();
     // Handle regular moves during my turn
-
     if (isMyTurn && !currentMoves.preMove) {
       // If no pending move exists
 
@@ -164,6 +163,7 @@ Props): MoveActions => {
       if (!currentMoves.preMove.to) {
         if (square === currentMoves.preMove.from) {
           // Cancel premove if clicking same square
+
           setPreMove(undefined);
           return;
         }
@@ -208,6 +208,7 @@ Props): MoveActions => {
 
       if (currentMoves.preMove) {
         // Cancel premove if clicking same square
+
         if (currentMoves.preMove.from === square) {
           setPreMove(undefined);
           return;
@@ -262,9 +263,10 @@ Props): MoveActions => {
     //   }
   };
 
+  useEffect(() => {}, [playerMoves]);
+
   useEffect(() => {
     const currentMoves = getCurrentMoves();
-    //  console.log('provera useeffect u useMove ',isMyTurn, promoMove, playerMoves)
 
     if (promoMove) {
       return;
@@ -278,7 +280,6 @@ Props): MoveActions => {
         to: currentMoves.preMove.to,
         piece: currentMoves.preMove.piece,
       };
-
       const isPromotion = isPromotableMove(moveToExecute, moveToExecute.piece);
 
       if (isPromotion) {
@@ -319,7 +320,6 @@ Props): MoveActions => {
 
     // Case 1: Complete premove by dragging to destination
     if (!isMyTurn && allowsPremoves) {
-      //console.log('Complete premove by dragging to destination',from, to, pieceSan);
       if (piece.color === playingColor) {
         if (currentMoves.preMove) {
           if (from !== currentMoves.preMove.from) {
@@ -344,6 +344,10 @@ Props): MoveActions => {
           //   return false;
           // }
 
+          dragHappenedRef.current = true;
+          setTimeout(() => {
+            dragHappenedRef.current = false;
+          }, 200);
           // Complete existing premove
           setPreMove({ ...currentMoves.preMove, to });
         } else {
@@ -360,7 +364,6 @@ Props): MoveActions => {
     // Case 3 & 4: Complete premove that was started earlier
 
     if (isMyTurn && currentMoves.preMove && !currentMoves.preMove.to) {
-      //   console.log('Complete premove that was started earlier',from, to, pieceSan);
       if (from !== currentMoves.preMove.from) {
         setPreMove(undefined);
 
@@ -413,8 +416,13 @@ Props): MoveActions => {
 
   // Fix the return object (remove ...moveActions since it doesn't exist)
   return {
-    onSquareClick: (square: Square, pieceSan?: PieceSan) =>
-      onClickOrDrag({ square, pieceSan }),
+    onSquareClick: (square: Square, pieceSan?: PieceSan) => {
+      if (dragHappenedRef.current) {
+        return;
+      }
+      onClickOrDrag({ square, pieceSan });
+    },
+
     onPieceDrag: (square: Square, pieceSan: PieceSan) =>
       onClickOrDrag({ square, pieceSan }),
     onPieceDrop,

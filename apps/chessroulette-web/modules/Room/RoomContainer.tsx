@@ -64,17 +64,13 @@ export const RoomContainer = ({ iceServers, rid }: Props) => {
     socketUtil.connect('available');
 
     const handleChallengeNotification = (data: any) => {
-
-   
-
-      const isChallengeNotification = 
-        data.n_type === 'challenge_initiated' || 
-        data.ch_uuid || 
-        data.challenge_uuid || 
-        data.ch_target_uuid || 
+      const isChallengeNotification =
+        data.n_type === 'challenge_initiated' ||
+        data.ch_uuid ||
+        data.challenge_uuid ||
+        data.ch_target_uuid ||
         data.data?.ch_uuid;
-      
-      
+
       if (isChallengeNotification) {
         const firstName =
           data.from_user_object?.name_first ||
@@ -90,12 +86,11 @@ export const RoomContainer = ({ iceServers, rid }: Props) => {
 
         // Izvuci ch_uuid iz različitih izvora
 
-        const chUuid = data.data?.ch_uuid 
-          || data.ch_uuid 
-          || data.challenge_uuid;
-        
+        const chUuid =
+          data.data?.ch_uuid || data.ch_uuid || data.challenge_uuid;
+
         console.log('🔍 Extracted chUuid:', chUuid);
-        
+
         if (!chUuid) {
           console.error('❌ ERROR: No ch_uuid found in notification data!');
           console.error('❌ Available keys:', Object.keys(data));
@@ -104,7 +99,7 @@ export const RoomContainer = ({ iceServers, rid }: Props) => {
           }
           return; // Ne postavljaj notifikaciju ako nema ch_uuid
         }
-        
+
         // Izvuci time_control iz data.data objekta
 
         const timeControl =
@@ -112,7 +107,6 @@ export const RoomContainer = ({ iceServers, rid }: Props) => {
 
         // Izvuci amount iz data.data objekta
         const amount = data.data?.ch_amount || data.ch_amount;
-
 
         const challengeData = {
           ch_uuid: chUuid,
@@ -260,17 +254,16 @@ export const RoomContainer = ({ iceServers, rid }: Props) => {
       {movex.status === 'connectionError' && (
         <Modal>Cannot connect. Check your Internet Connection!</Modal>
       )}
-      <div className= "flex-center">
-
-      <ChallengeNotification
-        challenge={challengeNotification}
-        onAccept={(challengeUuid) => {
-          setChallengeNotification(null);
-        }}
-        onDecline={() => {
-          setChallengeNotification(null);
-        }}
-      />
+      <div className="flex-center">
+        <ChallengeNotification
+          challenge={challengeNotification}
+          onAccept={(challengeUuid) => {
+            setChallengeNotification(null);
+          }}
+          onDecline={() => {
+            setChallengeNotification(null);
+          }}
+        />
       </div>
     </PeerStreamingProvider>
   );

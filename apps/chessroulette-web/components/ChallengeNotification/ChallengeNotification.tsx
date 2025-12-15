@@ -7,7 +7,6 @@ import { useRouter } from 'next/navigation';
 
 import { challengeAccept, checkMoney } from './util';
 
-
 type ChallengeData = {
   ch_uuid: string;
   challenger_name?: string;
@@ -18,7 +17,6 @@ type ChallengeData = {
   ch_amount?: string;
   initiator_name_first?: string;
   initiator_name_last?: string;
-
 };
 
 type Props = {
@@ -39,7 +37,7 @@ export const ChallengeNotification: React.FC<Props> = ({
   const [isChecking, setIsChecking] = useState(false);
   const [targetUrl, setTargetUrl] = useState<string | null>(null);
   const [visible, setVisible] = useState(false);
-useEffect(() => {
+  useEffect(() => {
     if (!challenge || !challenge.ch_uuid) {
       return;
     }
@@ -179,7 +177,6 @@ useEffect(() => {
   }
 
   const handleGoToWallet = () => {
-
     window.location.href = 'https://app.outpostchess.com/wallet';
     onDecline();
   };
@@ -192,7 +189,6 @@ useEffect(() => {
       return;
     }
     const response = await challengeAccept(challenge.ch_uuid);
-
 
     const data = await response;
     if (data.target_url) {
@@ -233,7 +229,6 @@ useEffect(() => {
     (typeof challenge.ch_amount === 'string' &&
       parseFloat(challenge.ch_amount.replace(/[€$]/g, '')) < 1);
 
-
   // Formatuj amount za prikaz
   const formatAmount = () => {
     let challengeAmount = 0;
@@ -249,7 +244,6 @@ useEffect(() => {
     challengeAmount = Number((challengeAmount / 1.1).toFixed(2));
     return challengeAmount;
   };
-
 
   // Responsive stilovi za dugmad
   const isMobile = window.innerWidth <= 640;
@@ -347,7 +341,6 @@ useEffect(() => {
           match
           {!isFriendly && formatAmount() && (
             <>
-
               {' '}
               for {formatAmount()} {'€'}.
             </>
@@ -366,7 +359,6 @@ useEffect(() => {
           {isChecking ? (
             // Prikaži "Checking..." dok se proveravaju sredstva
             <div
-
               className="btn_roullete"
               style={{
                 color: '#202122',
@@ -394,7 +386,6 @@ useEffect(() => {
 
             <div
               className="btn_roullete hover:opacity-70"
-
               onClick={handleGoToWallet}
               style={{
                 color: '#202122',
@@ -413,7 +404,6 @@ useEffect(() => {
                 backgroundColor: '#07da63',
                 transition: '0.3s',
               }}
-
             >
               <b>Go to wallet</b>
             </div>
@@ -422,7 +412,6 @@ useEffect(() => {
 
             <div
               className="btn_roullete hover:opacity-70"
-
               onClick={handleAccept}
               style={{
                 color: '#202122',
@@ -441,7 +430,6 @@ useEffect(() => {
                 backgroundColor: '#07da63',
                 transition: '0.3s',
               }}
-
             >
               <b>Play</b>
             </div>
@@ -449,7 +437,6 @@ useEffect(() => {
 
           <div
             className="btn_roullete btn_roullete_cancel hover:opacity-70"
-
             onClick={onDecline}
             style={{
               color: '#ceceda',
