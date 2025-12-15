@@ -240,7 +240,7 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
     if (prevMatch.gameInPlay !== null) {
       return prev; // već se startuje nova igra → odbij duplikat
     }
-    console.log('action startNewGame', prevMatch);
+   // console.log('action startNewGame', prevMatch);
     const prevPlay = prevMatch.gameInPlay;
 
     if (!prevPlay && prevMatch.endedGames.length === 0) {

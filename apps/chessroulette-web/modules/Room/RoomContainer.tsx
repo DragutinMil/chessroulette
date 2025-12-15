@@ -58,7 +58,7 @@ export const RoomContainer = ({ iceServers, rid }: Props) => {
 
   // Jednostavan useEffect samo za socket i notifikacije
   useEffect(() => {
-    console.log('🔌 Connecting to socket... room');
+   // console.log('🔌 Connecting to socket... room');
 
     // Poveži se na socket sa statusom 'available'
     socketUtil.connect('available');
@@ -128,28 +128,29 @@ export const RoomContainer = ({ iceServers, rid }: Props) => {
         };
 
         setChallengeNotification(challengeData);
-      } else {
-        console.log('⚠️ Not a challenge notification, ignoring...');
       }
+      //  else {
+        //console.log('⚠️ Not a challenge notification, ignoring...');
+      // }
     };
 
     // Pretplati se na notifikacije
-    console.log('📡 Subscribing to tb_notification...');
+   // console.log('📡 Subscribing to tb_notification...');
     socketUtil.subscribe('tb_notification', handleChallengeNotification);
 
     // Cleanup
     return () => {
-      console.log('🧹 Cleaning up socket subscription...');
+     // console.log('🧹 Cleaning up socket subscription...');
       socketUtil.unsubscribe('tb_notification', handleChallengeNotification);
     };
   }, []);
 
-  useEffect(() => {
-    console.log(
-      '📬 challengeNotification state changed:',
-      challengeNotification
-    );
-  }, [challengeNotification]);
+  // useEffect(() => {
+  //   console.log(
+  //     '📬 challengeNotification state changed:',
+  //     challengeNotification
+  //   );
+  // }, [challengeNotification]);
 
   // const params = useSearchParams();
   // const tokenParam = params.get('sessionToken');

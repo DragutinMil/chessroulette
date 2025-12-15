@@ -41,14 +41,14 @@ export const socketUtil = {
           });
 
           socketUtil.socket.on('connect_error', (error) => {
-            console.error('Socket connection error:', error);
+          //  console.error('Socket connection error:', error);
           });
         } else if (socketUtil.socket.connected) {
           // Ako je socket već povezan, samo ažuriraj status
           socketUtil.socket.emit('player_status', type);
         }
       } else {
-        console.log('No token found. Socket not initialized.');
+        //console.log('No token found. Socket not initialized.');
       }
     } catch (error) {
       console.error('Error retrieving token:', error);

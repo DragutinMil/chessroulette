@@ -32,12 +32,12 @@ export const PlayControlsContainer = ({
 
   // Izračunaj nepročitane poruke kada je chat enabled ali kamera aktivna
   const unreadMessagesCount = useMemo(() => {
-    console.log('match?.messages', match?.messages);
+    // console.log('match?.messages', match?.messages);
     if (!match?.messages) {
       return 0;
     }
-    console.log('id', playersBySide?.home.id);
-    console.log('activeWidget', activeWidget);
+    // console.log('id', playersBySide?.home.id);
+    // console.log('activeWidget', activeWidget);
     if (activeWidget === 'chat') {
       return 0;
     }
@@ -57,12 +57,12 @@ export const PlayControlsContainer = ({
     return match.messages.filter((msg) => msg.timestamp > lastSeen).length;
   }, [match?.messages, activeWidget, playersBySide?.home.id]);
 
-  useEffect(() => {
-    console.log('unreadMessagesCount', unreadMessagesCount);
-  }, [unreadMessagesCount]);
+  // useEffect(() => {
+  //   console.log('unreadMessagesCount', unreadMessagesCount);
+  // }, [unreadMessagesCount]);
   // Ažuriraj last seen timestamp kada se aktivira chat
   useEffect(() => {
-    console.log('activeWidget pre promene', activeWidget);
+  //  console.log('activeWidget pre promene', activeWidget);
     if (activeWidget == 'chat' && match?.messages) {
       const lastMessage = match.messages[match.messages.length - 1];
       if (lastMessage) {
