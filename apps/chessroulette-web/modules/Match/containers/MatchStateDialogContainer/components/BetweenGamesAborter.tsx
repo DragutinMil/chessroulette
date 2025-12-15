@@ -23,7 +23,7 @@ export const BetweenGamesAborter = ({
   );
 
   return (
-    <div className={`flex gap-1 ${className}`}>
+    <div className={`flex gap-1 ${className} whitespace-nowrap `}>
       <span>Next game starting in</span>
       <SmartCountdown
         msLeft={timeLeft}
