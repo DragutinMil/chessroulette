@@ -23,6 +23,7 @@ type Props = {
   onTakebackOffer: () => void;
   onResign: () => void;
   onRematchOffer: () => void;
+  isMobile?: boolean;
   activeWidget: 'chat' | 'camera'; // Novi prop
   setActiveWidget: (widget: 'chat' | 'camera') => void; // Novi prop
   unreadMessagesCount?: number; // Dodajte ovaj prop
@@ -115,6 +116,7 @@ export const PlayControls: React.FC<Props> = ({
   lastOffer,
   activeWidget,
   setActiveWidget,
+  isMobile,
   unreadMessagesCount = 0,
 }) => {
   const { offers: offers = [] } = game;
@@ -240,6 +242,12 @@ export const PlayControls: React.FC<Props> = ({
   }, [calculateDrawStatus]);
 
   useEffect(() => {
+    if (isMobile) {
+      setActiveWidget('camera');
+    }
+  }, []);
+
+  useEffect(() => {
     if (match) {
       setBots(
         [
@@ -308,9 +316,13 @@ export const PlayControls: React.FC<Props> = ({
         onClick={() => setActiveWidget('chat')}
       >
         <div className="relative">
+          {/* <div className="absolute -top -right-5  flex h-5 w-5 items-center justify-center rounded-full bg-green-600 text-xs font-semibold text-white">
+  {unreadMessagesCount}
+</div> */}
           <MessageIcon />
           {/* Indikator za nepročitane poruke kada je chat enabled ali kamera aktivna */}
-          {unreadMessagesCount > 0 && activeWidget === 'camera' && (
+          {unreadMessagesCount > 0 && (
+            //  && activeWidget === 'camera'
             <span
               className="absolute -top-2 -right-2 bg-[#07DA63] 
               text-black text-xs font-bold rounded-full w-5 h-5 flex 

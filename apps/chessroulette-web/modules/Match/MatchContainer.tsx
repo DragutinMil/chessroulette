@@ -107,9 +107,7 @@ const MatchContainerInner = ({
     : {};
 
   const [isChatEnabled, setIsChatEnabled] = useState(() => {
-    const savedState = localStorage.getItem(
-      `chessroulette-chat-enabled-${userId}`
-    );
+    const savedState = localStorage.getItem(`chessroulette-chat-enabled`);
     return savedState === null ? true : savedState === 'true';
   });
 
@@ -125,12 +123,17 @@ const MatchContainerInner = ({
   };
 
   useEffect(() => {
+    if (isMobileChatOpen === false && isMobile) {
+      setActiveWidget('camera');
+      localStorage.setItem('chessroulette-active-widget', 'camera');
+      return;
+    }
     localStorage.setItem('chessroulette-active-widget', activeWidget);
-  }, [activeWidget]);
+  }, [activeWidget, isMobileChatOpen]);
 
   useEffect(() => {
     localStorage.setItem(
-      `chessroulette-chat-enabled-${userId}`,
+      `chessroulette-chat-enabled`,
       isChatEnabled.toString()
     );
   }, [isChatEnabled]);
@@ -216,6 +219,7 @@ const MatchContainerInner = ({
 
               <PlayControlsContainer
                 activeWidget={activeWidget}
+                isMobile={isMobile}
                 setActiveWidget={(widget) => {
                   setActiveWidget(widget);
                   if (widget === 'chat') setIsMobileChatOpen(true);

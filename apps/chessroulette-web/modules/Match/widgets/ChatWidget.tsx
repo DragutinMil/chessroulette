@@ -59,7 +59,13 @@ export const ChatWidget: React.FC<Props> = ({
   });
 
   const scrollToBottom = (): void => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (messageLength < 15) {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      messagesEndRef.current?.scrollIntoView();
+    }
+
+    //
   };
 
   useEffect(() => {
@@ -87,7 +93,6 @@ export const ChatWidget: React.FC<Props> = ({
   }, [isChatEnabled]);
 
   useEffect(() => {
-    // console.log('messages, isChatEnabled, lastDisabledMessages');
     if (!isChatEnabled && messages.length > lastDisabledMessages.length) {
       setUnreadCount(messages.length - lastDisabledMessages.length);
     }
@@ -95,7 +100,6 @@ export const ChatWidget: React.FC<Props> = ({
 
   useEffect(() => {
     if (!isChatEnabled && messages.length > 0) {
-      console.log('messages, isChatEnabled, lastDisabledMessages 2');
       const newState: LastMessageState = {
         count: messages.length - lastDisabledMessages.length,
         lastMessage: messages[messages.length - 1],
@@ -195,7 +199,7 @@ export const ChatWidget: React.FC<Props> = ({
         {onClose && (
           <button
             onClick={onClose}
-            className="bg-[#07DA63] hover:bg-[#06c459] text-black font-semibold py-2 px-4 rounded-lg transition-colors"
+            className="bg-[#07DA63] hover:bg-[#06c459] text-black font-semibold  px-2 rounded-lg transition-colors"
           >
             ×
           </button>
