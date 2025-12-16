@@ -73,8 +73,9 @@ export const AichessActivity = ({
 
   const tabsRef = useRef<TabsRef>(null);
   useEffect(() => {
-    console.log('prijava sa aichess');
-    socketUtil.connect('reviewing');
+  socketUtil.connect('reviewing');
+  localStorage.setItem('socket', 'reviewing');
+   
     return () => {
       socketUtil.disconnect();
     };

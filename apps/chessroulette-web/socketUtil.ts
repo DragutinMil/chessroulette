@@ -12,43 +12,32 @@ export const socketUtil = {
 
       // Ako nema token cookie, pokušaj sa sessionToken (web)
       if (!token) {
+       
         token = Cookies.get('sessionToken');
       }
 
-      if (!token) {
-        token = localStorage.getItem('token');
-      }
-
-      if (!token) {
-        token = localStorage.getItem('sessionToken');
-      }
-
       if (token) {
+        
         if (!socketUtil.socket) {
-          socketUtil.socket = io('https://api.outpostchess.com', {
+            socketUtil.socket = io('https://api.outpostchess.com', {
             transports: ['websocket', 'polling', 'webtransport'],
           });
-
-          socketUtil.socket.on('connect', () => {
-            // console.log('Socket connected to outpost');
+          
+           socketUtil.socket.on('connect', () => {
             socketUtil.socket?.emit('client_token', token);
             socketUtil.socket?.emit('users_online_status', type);
           });
 
-          socketUtil.socket.on('disconnect', () => {
-            // console.log('Socket disconnected');
-            socketUtil.socket?.emit('users_online_status', 'available');
-          });
-
-          socketUtil.socket.on('connect_error', (error) => {
-          //  console.error('Socket connection error:', error);
+           socketUtil.socket.on('connect_error', (error) => {
+            console.error('Socket connection error:', error);
           });
         } else if (socketUtil.socket.connected) {
           // Ako je socket već povezan, samo ažuriraj status
-          socketUtil.socket.emit('player_status', type);
+          
+          socketUtil.socket.emit('users_online_status', type);
         }
       } else {
-        //console.log('No token found. Socket not initialized.');
+        console.log('No token found. Socket not initialized.');
       }
     } catch (error) {
       console.error('Error retrieving token:', error);
@@ -64,6 +53,7 @@ export const socketUtil = {
 
   emit: (event: string, data?: any) => {
     if (socketUtil.socket && socketUtil.socket.connected) {
+      
       socketUtil.socket.emit(event, data);
     } else {
       console.warn('Socket is not connected. Cannot emit:', event);
@@ -99,17 +89,18 @@ export const socketUtil = {
   },
 
   subscribe: async (topic: string, callback: (data: any) => void) => {
+    
     if (!socketUtil.socket || !socketUtil.socket.connected) {
       // Ako socket nije povezan, pokušaj da se povežeš
       // Možete koristiti postojeći status ili dodati novi
 
-      // console.log('subscribe socket');
-
-      if (topic == 'tb_notification') {
-        console.log('nova notifikacija');
-      }
-
-      await socketUtil.connect('watching'); // ili 'reviewing'
+    const socketType = (localStorage.getItem('socket') as
+  | 'available'
+  | 'playing'
+  | 'watching'
+  | 'reviewing') ;
+     await socketUtil.connect(socketType);
+      
     }
 
     socketUtil.on(topic, callback);
