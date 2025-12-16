@@ -61,7 +61,7 @@ export const RoomContainer = ({ iceServers, rid }: Props) => {
    // console.log('🔌 Connecting to socket... room');
 
     // Poveži se na socket sa statusom 'available'
-    socketUtil.connect('available');
+    
 
     const handleChallengeNotification = (data: any) => {
       const isChallengeNotification =
