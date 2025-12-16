@@ -50,7 +50,7 @@ export const PlayerBox: React.FC<Props> = ({
   }, []);
 
   return (
-    <div className="flex flex-1 gap-3 items-center justify-between">
+    <div className="flex flex-1 gap-3 items-center justify-between mr-0 pr-0 w-full">
       {isBotPlay ? (
         <div
           className={`capitalize text-sm md:text-lg ${
@@ -59,7 +59,7 @@ export const PlayerBox: React.FC<Props> = ({
         >
           {playerInfo.points}
           {playerInfo.points !== undefined ? ' ' : ''}
-          {playerInfo.displayName || botName}({playerInfo.color})
+          {playerInfo.displayName || botName}&nbsp;({playerInfo.color})
         </div>
       ) : (
         <div
@@ -67,9 +67,9 @@ export const PlayerBox: React.FC<Props> = ({
             isActive ? 'text-white font-bold' : 'text-slate-400'
           }`}
         >
-          {playerInfo.points}
+          <span className="inline-block w-3">{playerInfo.points}</span>
           {playerInfo.points !== undefined ? ' ' : ''}
-          {playerInfo.displayName || 'guest'}({playerInfo.color})
+          {playerInfo.displayName || 'guest'}&nbsp;({playerInfo.color})
         </div>
       )}
       {gameTimeClass !== 'untimed' && (
@@ -78,7 +78,7 @@ export const PlayerBox: React.FC<Props> = ({
           msLeft={timeLeft}
           onFinished={onCheckTime}
           onRefreshMsLeft={onCheckTime}
-          className="text-xl md:text-2xl  w-[90px]"
+          className="text-xl md:text-2xl  ml-auto p-0  w-20 md:w-44 text-right"
         />
       )}
     </div>

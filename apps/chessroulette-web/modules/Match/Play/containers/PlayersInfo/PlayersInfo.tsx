@@ -37,18 +37,20 @@ export const PlayersInfo = ({
   }, [game]);
 
   return (
-    <div className="flex flex-1 gap-0 md:gap-1 flex-col">
-      <PlayerBox
-        key="away"
-        playerInfo={playersBySide.away}
-        isActive={
-          isGameCountdownActive &&
-          areColorsEqual(turn, playersBySide.away.color)
-        }
-        gameTimeClass={game.timeClass}
-        timeLeft={game.timeLeft[playersBySide.away.color]}
-        onCheckTime={onCheckTime}
-      />
+    <div className="flex flex-1 gap-0 md:gap-1 flex-col mb-4 md:mb-0">
+      <div className="mb-1">
+        <PlayerBox
+          key="away"
+          playerInfo={playersBySide.away}
+          isActive={
+            isGameCountdownActive &&
+            areColorsEqual(turn, playersBySide.away.color)
+          }
+          gameTimeClass={game.timeClass}
+          timeLeft={game.timeLeft[playersBySide.away.color]}
+          onCheckTime={onCheckTime}
+        />
+      </div>
       <PlayerBox
         key="home"
         playerInfo={playersBySide.home}

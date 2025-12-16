@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState, useMemo } from 'react';
 import {
   ChessFEN,
   PieceSan,
@@ -10,7 +10,7 @@ import { Square } from 'chess.js';
 import { useArrowAndCircleColor } from '../hooks/useArrowAndCircleColor';
 import { ArrowsMap, CircleDrawTuple, CirclesMap } from '../types';
 import { noop } from 'movex-core-util';
-import { ChessboardSquare } from './ChessboardSquare';
+//import { ChessboardSquare } from './ChessboardSquare';
 import { BoardTheme } from '@app/hooks/useTheme/defaultTheme';
 import { useCustomArrows } from './hooks/useArrows';
 import { useCustomStyles } from './hooks/useCustomStyles';
@@ -33,7 +33,10 @@ export type ChessboardContainerProps = Omit<
   boardTheme: BoardTheme;
 
   // Move
+  //onValidatePreMove?: (m: ShortChessMove) => boolean;
+  isSquareEmpty?: (m: string) => boolean;
   onValidateMove?: (m: ShortChessMove) => boolean;
+  //onValidatePromoMove?: (m: ShortChessMove) => boolean;
   onMove: (m: ShortChessMove) => void;
   // onChangePuzzleAnimation?: boolean;
   arrowsMap?: ArrowsMap;
@@ -42,8 +45,8 @@ export type ChessboardContainerProps = Omit<
   lastMove?: ShortChessMove;
   boardOrientation?: ChessColor;
   containerClassName?: string;
-
-  onPieceDrop?: (from: Square, to: Square, piece: PieceSan) => void;
+  onLastMoveWasPromotionChange?: (wasPromotion: boolean) => void;
+  onPieceDrop?: (from: Square, to: Square, piece?: string) => void;
   onArrowsChange?: (arrows: ArrowsMap) => void;
   onCircleDraw?: (circleTuple: CircleDrawTuple) => void;
   onClearCircles?: () => void;
@@ -83,9 +86,12 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
   onClearCircles = noop,
   onPieceDrop,
   onMove,
+  // onValidatePreMove = () => true,
+  isSquareEmpty = () => true,
+  // onValidatePromoMove= () => true,
   onValidateMove = () => true, // Defaults to always be able to move
   boardOrientation = 'w',
-  customSquareStyles,
+  onLastMoveWasPromotionChange,
   rightSideComponent,
   rightSideSizePx = 0,
   rightSideClassName,
@@ -98,18 +104,18 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
 }) => {
   const isMyTurn = boardOrientation === turn;
   const { match, ...matchView } = useMatchViewState();
-  const BOARD_ANIMATION_DELAY = match === null ? 350 : 220;
+  const BOARD_ANIMATION_DELAY = useMemo(() => {
+    return match === null ? (!lastMove ? 0 : 360) : 220;
+  }, [match, lastMove]);
+
   const [isBotPlay, setBots] = useState(false);
   const arrowAndCircleColor = useArrowAndCircleColor();
-  const customArrows = useCustomArrows(onArrowsChange, props.arrowsMap);
+  const arrows = useCustomArrows(onArrowsChange, props.arrowsMap);
+  //console.log('arrows', arrows);
 
   useEffect(() => {
-    if (match) {
-      if (match?.challengee?.id?.length == 16) {
-        setBots(true);
-      }
-    }
-  }, []);
+    setBots(match?.challengee?.id?.length === 16);
+  }, [match?.challengee?.id]);
 
   // Circles
   const drawCircle = useCallback(
@@ -119,17 +125,14 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
     [onCircleDraw, arrowAndCircleColor]
   );
 
-  const resetArrowsAndCircles = () => {
-    // Reset the Arrows and Circles if present
+  const resetArrowsAndCircles = useCallback(() => {
     if (Object.keys(circlesMap || {}).length > 0) {
       onClearCircles();
     }
-
     if (Object.keys(props.arrowsMap || {}).length > 0) {
-      // Reset the arrows on square click
       onArrowsChange({});
     }
-  };
+  }, [circlesMap, props.arrowsMap, onClearCircles, onArrowsChange]);
 
   // Moves
   const { preMove, promoMove, pendingMove, ...moveActions } = useMoves({
@@ -139,12 +142,11 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
     onValidateMove,
     onMove,
     onPreMove: onMove,
-
+    isSquareEmpty,
     // Event to reset the circles and arrows when any square is clicked or dragged
-    onSquareClickOrDrag: resetArrowsAndCircles,
+    // onSquareClickOrDrag: resetArrowsAndCircles,
   });
 
-  // Styles
   const customStyles = useCustomStyles({
     boardTheme,
     fen,
@@ -153,25 +155,28 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
     preMove,
     circlesMap,
     isMyTurn,
-    customSquareStyles,
     ...props,
   });
+
+  const engineMove = useCallback(
+    (m: any) => {
+      const from = m.slice(0, 2);
+      const to = m.slice(2, 4);
+      const promo = m[4];
+
+      if (promo === 'q') {
+        onMove({ from, to, promoteTo: promo });
+      } else {
+        onMove({ from, to });
+      }
+    },
+    [onMove]
+  );
 
   if (sizePx === 0) {
     return null;
   }
-  const engineMove = (m: any) => {
-    let fromChess = m.slice(0, 2);
-    let toChess = m.slice(2, 4);
-    if (m.length == 5 && m.slice(-1) == 'q') {
-      let promotionChess = m.slice(4, 5);
-      let n = { from: fromChess, to: toChess, promoteTo: promotionChess };
-      onMove(n);
-    } else {
-      let n = { from: fromChess, to: toChess };
-      onMove(n);
-    }
-  };
+  //console.log('boardTheme',boardTheme)
   return (
     <div>
       {match?.challengee.id && isBotPlay && (
@@ -189,35 +194,49 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
         boardTheme={boardTheme}
         boardOrientation={boardOrientation}
         // Moves
-        onPieceDragBegin={moveActions.onPieceDrag}
-        onSquareClick={moveActions.onSquareClick}
-        onPieceDrop={moveActions.onPieceDrop}
+        onPieceDrag={(square, piece) => {
+          if (!piece || !square) return;
+          moveActions.onPieceDrag(square as Square, piece as PieceSan);
+        }}
+        onPieceDrop={(sourceSquare, targetSquare, piece?) => {
+          if (!piece || !sourceSquare || !targetSquare) return false;
+          // console.log(piece, sourceSquare, targetSquare);
+          moveActions.onPieceDrop(
+            sourceSquare as Square,
+            targetSquare as Square,
+            piece as PieceSan
+          );
+          return true;
+        }}
+        onSquareClick={(square, piece) => {
+          moveActions.onSquareClick(
+            square as Square,
+            piece ? (piece as PieceSan) : undefined
+          );
+        }}
         // Promo Move
+        lastMove={lastMove}
         promoMove={promoMove}
         onCancelPromoMove={moveActions.onClearPromoMove}
-        onSubmitPromoMove={onMove}
+        onSubmitPromoMove={moveActions.onPromoSubmit}
         // Overlay & Right Components
         rightSideClassName={rightSideClassName}
         rightSideComponent={rightSideComponent}
         rightSideSizePx={rightSideSizePx}
         overlayComponent={overlayComponent}
         // Board Props
-        customBoardStyle={customStyles.customBoardStyle}
-        customLightSquareStyle={customStyles.customLightSquareStyle}
-        customDarkSquareStyle={customStyles.customDarkSquareStyle}
-        customSquareStyles={customStyles.customSquareStyles}
-        customSquare={ChessboardSquare}
+        squareStyles={customStyles.squareStyles}
+        highlightSquares={customStyles.squareStyles}
+        // highlightArrows={arrows.arrowsToRender}
+        // squareRenderer={ChessboardSquare}
         // onMouseOverSquare={setHoveredSquare}
         // Arrows
-        customArrowColor={arrowAndCircleColor}
-        customArrows={customArrows.arrowsToRender}
-        onArrowsChange={customArrows.updateArrowsMap}
+        arrowColor={arrowAndCircleColor} //sklonjeno u deo arrowOptions
+        onArrowsChange={arrows.arrowsToRender}
         // circles
-        onSquareRightClick={drawCircle}
-        customPieces={boardTheme.customPieces}
-        animationDuration={BOARD_ANIMATION_DELAY}
-        // onChangePuzzleAnimation={onChangePuzzleAnimation}
+        // onSquareRightClick={drawCircle}
         {...props}
+        animationDurationInMs={BOARD_ANIMATION_DELAY}
       />
     </div>
   );

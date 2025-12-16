@@ -15,6 +15,14 @@ export const socketUtil = {
         token = Cookies.get('sessionToken');
       }
 
+      if (!token) {
+        token = localStorage.getItem('token');
+      }
+
+      if (!token) {
+        token = localStorage.getItem('sessionToken');
+      }
+
       if (token) {
         if (!socketUtil.socket) {
           socketUtil.socket = io('https://api.outpostchess.com', {
@@ -33,11 +41,14 @@ export const socketUtil = {
           });
 
           socketUtil.socket.on('connect_error', (error) => {
-            console.error('Socket connection error:', error);
+          //  console.error('Socket connection error:', error);
           });
+        } else if (socketUtil.socket.connected) {
+          // Ako je socket već povezan, samo ažuriraj status
+          socketUtil.socket.emit('player_status', type);
         }
       } else {
-        console.log('No token found. Socket not initialized.');
+        //console.log('No token found. Socket not initialized.');
       }
     } catch (error) {
       console.error('Error retrieving token:', error);
@@ -85,6 +96,27 @@ export const socketUtil = {
         delete socketUtil.subscribers[event];
       }
     }
+  },
+
+  subscribe: async (topic: string, callback: (data: any) => void) => {
+    if (!socketUtil.socket || !socketUtil.socket.connected) {
+      // Ako socket nije povezan, pokušaj da se povežeš
+      // Možete koristiti postojeći status ili dodati novi
+
+      // console.log('subscribe socket');
+
+      if (topic == 'tb_notification') {
+        console.log('nova notifikacija');
+      }
+
+      await socketUtil.connect('watching'); // ili 'reviewing'
+    }
+
+    socketUtil.on(topic, callback);
+  },
+
+  unsubscribe: (topic: string, callback?: (data: any) => void) => {
+    socketUtil.off(topic, callback);
   },
 };
 

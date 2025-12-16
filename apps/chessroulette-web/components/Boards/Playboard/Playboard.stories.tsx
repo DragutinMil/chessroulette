@@ -53,6 +53,7 @@ export const Main: Story = {
           playingColor={state.turn}
           onMove={(move) => {
             const instance = getNewChessGame({ fen: state.fen });
+           
             instance.move(move);
 
             const nextFen = instance.fen();
@@ -91,7 +92,7 @@ export const PlaySideBySide: Story = {
 
     const onMove = (move: ShortChessMove) => {
       const instance = getNewChessGame({ fen: state.fen });
-
+    
       try {
         instance.move(move);
 
@@ -165,6 +166,7 @@ export const CheckPromotion: Story = {
           fen={state.fen}
           playingColor={state.turn}
           onMove={(move) => {
+           
             const instance = getNewChessGame({ fen: state.fen });
             instance.move(move);
 
