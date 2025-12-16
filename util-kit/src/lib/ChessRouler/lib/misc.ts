@@ -40,7 +40,7 @@ export const getNewChessGame = (
     | { fen: ChessFEN; pgn?: undefined }
 ) => {
   const instance = new Chess();
-  console.log('propsic',props)
+  //console.log('propsic',props)
   try {
     if (props?.pgn) {
       instance.loadPgn(props.pgn);
