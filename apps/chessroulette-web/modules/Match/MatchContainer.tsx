@@ -84,13 +84,19 @@ const MatchContainerInner = ({
 
   // Resize i socket connection
   useEffect(() => {
+    
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
     window.addEventListener('resize', handleResize);
+    
    // console.log('🔌 Connecting to socket... matchContainer');
     if (match.challengee.id.length !== 16) {
-      socketUtil.connect('playing');
+     localStorage.setItem('socket', 'playing');
+        socketUtil.connect('playing');
+     
     } else {
-      socketUtil.connect('available');
+       localStorage.setItem('socket', 'available');
+       
+        socketUtil.connect('available');
     }
 
     return () => {
@@ -99,6 +105,7 @@ const MatchContainerInner = ({
     };
   }, [match.challengee.id]);
 
+  
   const playerNames = playersBySide
     ? {
         [playersBySide.home.id]: playersBySide.home.displayName || 'Player 1',
