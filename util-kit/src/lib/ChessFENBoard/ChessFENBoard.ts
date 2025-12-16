@@ -266,7 +266,6 @@ export class ChessFENBoard {
     const san = invoke(() => {
       const getSuffix = () => {
         const chessGame = getNewChessGame({ fen: this.fen });
-
         if (chessGame.isGameOver()) {
           return '#';
         }

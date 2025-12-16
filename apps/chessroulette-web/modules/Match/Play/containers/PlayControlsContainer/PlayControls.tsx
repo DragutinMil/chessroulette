@@ -279,7 +279,7 @@ export const PlayControls: React.FC<Props> = ({
     <div
       className=" 
     rounded-3xl  
-    pl-2 pr-2 pt-2 pb-2 md:px-4 md:pb-5 md:pt-5  flex flex-row items-center justify-between
+    pl-2 pr-2 pt-2 pb-2 md:px-2 md:pb-5 md:pt-5  flex flex-row items-center justify-between
        text-xs md:text-sm
        gap-1 md:flex-1 min-h-0 rounded-lg shadow-2xl -mt-2 md:mt-0"
       style={{

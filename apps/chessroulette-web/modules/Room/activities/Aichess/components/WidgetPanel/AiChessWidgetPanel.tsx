@@ -1338,7 +1338,7 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
                             style={{ width: `${percentW}%` }}
                           ></div>
                           <div
-                            className={`bg-black transition-all duration-500`}
+                            className={`bg-[#000000] transition-all duration-500`}
                             style={{ width: `${percentB}%` }}
                           ></div>
                         </div>
