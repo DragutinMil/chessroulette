@@ -103,20 +103,22 @@ const ConversationReview = ({
                   )}
 
                   <div className="flex flex-wrap mt-2">
-                    {index == 0 && currentChapterState.messages.length == 1 && (
-                      <ButtonGreen
-                        onClick={() => {
-                          setDisableButton(true);
-                          analizeMatch();
-                        }}
-                        disabled={disableButton}
-                        size="md"
-                        className="bg-green-600  text-black font-bold mt-2 px-1 mr-2 whitespace-nowrap px-4"
-                        style={{ color: 'black' }}
-                      >
-                        Game Review
-                      </ButtonGreen>
-                    )}
+                    {index == 0 &&
+                      currentChapterState.messages.length == 1 &&
+                      currentChapterState.chessAiMode.fen !== '' && (
+                        <ButtonGreen
+                          onClick={() => {
+                            setDisableButton(true);
+                            analizeMatch();
+                          }}
+                          disabled={disableButton}
+                          size="md"
+                          className="bg-green-600  text-black font-bold mt-2 px-1 mr-2 whitespace-nowrap px-4"
+                          style={{ color: 'black' }}
+                        >
+                          Game Review
+                        </ButtonGreen>
+                      )}
                   </div>
                   {isSales && isLastMessage && (
                     <div className="flex  items-center gap-3 md:flex mt-2">

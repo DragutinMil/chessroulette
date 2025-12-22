@@ -80,6 +80,7 @@ export type UserData = {
   is_trial: boolean;
   product_name: string;
   user_id: string;
+  puz_rating: any;
 };
 export type ChapterState = {
   name: string;

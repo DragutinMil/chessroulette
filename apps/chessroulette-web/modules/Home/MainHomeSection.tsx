@@ -72,12 +72,12 @@ export const MainHomeSection: React.FC<Props> = ({ className }) => {
             </Link>
             <Link
               href={links.getOnDemandRoomCreationLink({
-                activity: 'aichess',
+                activity: 'ailearn',
                 // instructor: true,
               })}
             >
               <Button type="primary" className="font-bold w-full">
-                AI
+                  AI
               </Button>
             </Link>
           </div>

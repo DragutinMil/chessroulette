@@ -58,7 +58,7 @@ const StockfishEngine: React.FC<StockfishEngineProps> = ({
       }
     }
     try {
-      const stockfish = new Worker('/stockfish-17-single.js');
+      const stockfish = new Worker('/stockfish.js');
       stockfish.onmessage = (event) => {
         if (event.data.startsWith('bestmove')) {
           setBestMove(event.data.split(' ')[1]);

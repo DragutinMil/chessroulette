@@ -8,6 +8,7 @@ import {
 } from '../../hooks/useMatch';
 import { enqueueMovexUpdatePlay } from '../../utils';
 import { useCurrentOrPrevMatchPlay } from '../../Play/hooks';
+import { isMobile } from '@app/modules/Room/activities/Aichess/util';
 
 export const MatchStateDisplayContainer = () => {
   const { match, currentRound, drawsCount, endedGamesCount } =
@@ -60,7 +61,7 @@ export const MatchStateDisplayContainer = () => {
           timeToAbortMs={match.timeToAbortMs}
           playerId={play.userAsPlayerId}
           completedPlaysCount={endedGamesCount}
-          className="md:bg-slate-700 rounded-md p-0 md:p-2 "
+          className="md:bg-slate-700 rounded-md p-0 md:p-2 absolute bottom-12 md:relative md:bottom-0  w-full h-8"
         />
       )}
     </div>

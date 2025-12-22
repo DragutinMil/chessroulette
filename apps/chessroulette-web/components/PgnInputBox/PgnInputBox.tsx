@@ -57,7 +57,7 @@ export const PgnInputBox: React.FC<PgnInputBoxProps> = ({
     return (
       <DragAndDrop
         fileTypes={['PGN', 'FEN', 'TXT']}
-        className={`border-dashed border rounded-md border-slate-400 text-gray-300 ${props.containerClassName}`}
+        className={`border-dashed border rounded-md border-green-500 text-gray-300 ${props.containerClassName}`}
         onUpload={(f: any) => {
           // TODO: Validate PGN
 
@@ -73,7 +73,6 @@ export const PgnInputBox: React.FC<PgnInputBoxProps> = ({
                 return;
               }
 
-              console.log('pgn', input);
               if (ChessFENBoard.validateFenString(input).ok) {
                 props.onChange({ type: 'FEN', val: input });
               } else if (isValidPgn(input)) {
@@ -84,7 +83,7 @@ export const PgnInputBox: React.FC<PgnInputBoxProps> = ({
           fileData.readAsText(f);
         }}
       >
-        <div className="sborder p-2 sborder-dashed rounded-md cursor-pointer">
+        <div className="sborder p-2 sborder-dashed rounded-md cursor-pointer text-sm">
           Upload or Drop a PGN or FEN File
         </div>
       </DragAndDrop>
@@ -92,7 +91,7 @@ export const PgnInputBox: React.FC<PgnInputBoxProps> = ({
   }
 
   return (
-    <div className={`flex flex-col flex-1 gap-3 ${props.containerClassName}`}>
+    <div className={`flex flex-col  flex-1 gap-3  ${props.containerClassName}`}>
       <div className={`mb-0 flex-1 flex flex-col ${props.contentClassName}`}>
         <TextArea
           value={input}
