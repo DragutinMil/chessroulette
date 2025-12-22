@@ -77,7 +77,7 @@ export const MainHomeSection: React.FC<Props> = ({ className }) => {
               })}
             >
               <Button type="primary" className="font-bold w-full">
-                AI
+                  AI
               </Button>
             </Link>
           </div>
