@@ -9,6 +9,7 @@ import { useAichessActivitySettings } from './hooks/useAichessActivitySettings';
 import { getSubscribeInfo } from './util';
 import { AiChessDialogContainer } from './DialogContainer/AiChessDialogContainer';
 import { enqueueMovexUpdate } from './util';
+import PuzzleScore from './components/WidgetPanel/PuzzleScore';
 import {
   AichessActivityState,
   findLoadedChapter,
@@ -16,6 +17,7 @@ import {
   chessAiMode,
   MovePiece,
 } from './movex';
+
 import { getMatch } from './util';
 import { WidgetPanel } from './components/WidgetPanel';
 import { AichessBoard } from './components/AichessBoard';
@@ -23,9 +25,9 @@ import { RIGHT_SIDE_SIZE_PX } from '../../constants';
 import inputReducer, { initialInputState } from './reducers/inputReducer';
 import socketUtil from '../../../../socketUtil';
 
-// import { InstructorBoard } from './components/InstructorBoard';
+import { InstructorBoard } from './components/InstructorBoard';
 import { Square } from 'chess.js';
-import { boolean } from 'zod';
+import { boolean, number } from 'zod';
 
 type Props = {
   remoteState: AichessActivityState['activityState'];
@@ -54,6 +56,7 @@ export const AichessActivity = ({
     is_trial: false,
     product_name: '',
     user_id: '',
+    puz_rating: '',
   });
   // const [onChangePuzzleAnimation, setChangePuzzleAnimation] = useState(false);
   const settings = useAichessActivitySettings();
@@ -73,9 +76,9 @@ export const AichessActivity = ({
 
   const tabsRef = useRef<TabsRef>(null);
   useEffect(() => {
-  socketUtil.connect('reviewing');
-  localStorage.setItem('socket', 'reviewing');
-   
+    socketUtil.connect('reviewing');
+    localStorage.setItem('socket', 'reviewing');
+
     return () => {
       socketUtil.disconnect();
     };
@@ -164,6 +167,7 @@ export const AichessActivity = ({
       is_trial: data.is_trial,
       product_name: data.product_name,
       user_id: data.user_id,
+      puz_rating: data.puz_rating,
     });
   };
   const onCanPlayChange = (canPlay: boolean) => {
@@ -223,6 +227,7 @@ export const AichessActivity = ({
             //   onMove={noop}
             // />
             //  Learn Mode */}
+
             <div>
               <AiChessDialogContainer
                 onMessage={async (payload) =>
@@ -252,6 +257,14 @@ export const AichessActivity = ({
                 currentChapter={currentChapter}
               />
               <div>
+                {currentChapter.chessAiMode.mode !== 'review' && (
+                  <div className="block md:hidden mb-2 -mt-2">
+                    <PuzzleScore
+                      chessAiMode={currentChapter.chessAiMode}
+                      puzzle_rating={userData.puz_rating}
+                    />
+                  </div>
+                )}
                 <AichessBoard
                   sizePx={boardSize}
                   // onChangePuzzleAnimation={onChangePuzzleAnimation}

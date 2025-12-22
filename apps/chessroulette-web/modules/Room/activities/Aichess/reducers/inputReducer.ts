@@ -208,6 +208,7 @@ export default (
     }
 
     if (action.payload.type === 'FEN') {
+      console.log('idee FEN');
       if (!ChessFENBoard.validateFenString(action.payload.val).ok) {
         return prev;
       }
@@ -233,6 +234,7 @@ export default (
     }
 
     if (action.payload.type === 'PGN') {
+      console.log('idee PGN');
       if (!isValidPgn(action.payload.val)) {
         return prev;
       }

@@ -64,7 +64,7 @@ export const getNewChessGame = (
 };
 
 export const isValidPgn = (s: string): s is ChessPGN => {
-  console.log('provera isValidPgn');
+  // console.log('provera isValidPgn');
   const instance = new Chess();
 
   try {
@@ -83,7 +83,6 @@ type ChessLibraryMove = {
 };
 
 export const isValidFen = (s: string): s is ChessFEN => {
-  console.log('provera isValidFEN');
   const instance = new Chess();
 
   try {

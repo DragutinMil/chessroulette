@@ -7,7 +7,8 @@ import Image from 'next/image';
 import GithubLogo from './assets/github-mark-white.svg';
 import DiscordLogo from './assets/discord-icon-svgrepo-com.svg';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+// import { useEffect } from 'react';
+// import Cookies from 'js-cookie';
 type Props = {
   themeName?: string;
   showConnectionStatus?: boolean;
@@ -27,16 +28,23 @@ export default (props: Props) => {
       flex justify-between "
     >
       <div
+        className="flex justify-center items-center"
         onClick={() => {
-          if (
-            document.referrer.includes('app.outpostchess.com') ||
-            document.referrer.includes('test-app.outpostchess.com') ||
-            document.referrer.includes('localhost:8080')
-          ) {
-            router.push('https://app.outpostchess.com/online-list');
-          }
+          // if (Cookies.get('sessionToken')) {
+          router.push('https://app.outpostchess.com/online-list');
+          // }
         }}
       >
+        <svg
+          className="md:hidden flex relative -left-3"
+          xmlns="http://www.w3.org/2000/svg"
+          height="24px"
+          viewBox="0 -960 960 960"
+          width="24px"
+          fill="#FFFFFF"
+        >
+          <path d="m313-440 224 224-57 56-320-320 320-320 57 56-224 224h487v80H313Z" />
+        </svg>
         <Logo themeName={props.themeName} />
       </div>
 

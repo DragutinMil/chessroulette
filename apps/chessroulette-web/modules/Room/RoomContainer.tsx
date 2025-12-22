@@ -22,7 +22,10 @@ import { movexSubcribersToUserMap } from '@app/providers/MovexProvider';
 import { PeerStreamingProvider } from '@app/modules/PeerToPeer';
 import { ActivityState } from './activities/movex';
 import { LearnActivity } from './activities/Learn';
+import { LearnAiActivity } from './activities/LearnAi/LearnAiActivity';
+
 import { AichessActivity } from './activities/Aichess/AichessActivity';
+
 import { MeetupActivity } from './activities/Meetup/MeetupActivity';
 import { MatchActivity } from './activities/Match/MatchActivity';
 import { useSearchParams } from 'next/navigation';
@@ -58,10 +61,9 @@ export const RoomContainer = ({ iceServers, rid }: Props) => {
 
   // Jednostavan useEffect samo za socket i notifikacije
   useEffect(() => {
-   // console.log('🔌 Connecting to socket... room');
+    // console.log('🔌 Connecting to socket... room');
 
     // Poveži se na socket sa statusom 'available'
-    
 
     const handleChallengeNotification = (data: any) => {
       const isChallengeNotification =
@@ -130,17 +132,17 @@ export const RoomContainer = ({ iceServers, rid }: Props) => {
         setChallengeNotification(challengeData);
       }
       //  else {
-        //console.log('⚠️ Not a challenge notification, ignoring...');
+      //console.log('⚠️ Not a challenge notification, ignoring...');
       // }
     };
 
     // Pretplati se na notifikacije
-   // console.log('📡 Subscribing to tb_notification...');
+    // console.log('📡 Subscribing to tb_notification...');
     socketUtil.subscribe('tb_notification', handleChallengeNotification);
 
     // Cleanup
     return () => {
-     // console.log('🧹 Cleaning up socket subscription...');
+      // console.log('🧹 Cleaning up socket subscription...');
       socketUtil.unsubscribe('tb_notification', handleChallengeNotification);
     };
   }, []);
@@ -199,6 +201,15 @@ export const RoomContainer = ({ iceServers, rid }: Props) => {
     if (activity.activityType === 'learn') {
       return (
         <LearnActivity
+          {...commonActivityProps}
+          remoteState={activity.activityState}
+          dispatch={movexResource?.dispatch}
+        />
+      );
+    }
+    if (activity.activityType === 'ailearn') {
+      return (
+        <LearnAiActivity
           {...commonActivityProps}
           remoteState={activity.activityState}
           dispatch={movexResource?.dispatch}

@@ -447,6 +447,10 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
       };
       const nextChapterState: ChapterState = {
         ...prevChapter,
+        chessAiMode: {
+          ...prevChapter.chessAiMode,
+          fen: '',
+        },
         displayFen: nextFen,
         // When importing PGNs set the notation from this fen
         notation: notation,
@@ -482,7 +486,10 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
       const nextChapterState: ChapterState = {
         ...prevChapter,
         displayFen: chessGame.fen(),
-
+        chessAiMode: {
+          ...prevChapter.chessAiMode,
+          fen: action.payload.input.val,
+        },
         // When importing PGNs set the notation history as well
         notation: {
           startingFen: ChessFENBoard.STARTING_FEN,
@@ -1066,7 +1073,6 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
             },
           };
         } else if (prev.activityState.chaptersMap[0].orientation == 'w') {
-          console.log('drugi');
           const toOrientation = 'b';
           return {
             ...prev,
@@ -1093,7 +1099,7 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
           };
         }
       }
-      console.log('prvi drugi');
+
       return {
         ...prev,
         activityState: {
@@ -1250,7 +1256,6 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
     //   ].participantId !== action.payload.participantId
     // ) {
 
-    // console.log(action)
     return {
       ...prev,
       activityState: {

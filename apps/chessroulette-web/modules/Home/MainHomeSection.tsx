@@ -72,7 +72,7 @@ export const MainHomeSection: React.FC<Props> = ({ className }) => {
             </Link>
             <Link
               href={links.getOnDemandRoomCreationLink({
-                activity: 'aichess',
+                activity: 'ailearn',
                 // instructor: true,
               })}
             >
