@@ -61,7 +61,7 @@ export const MatchStateDisplayContainer = () => {
           timeToAbortMs={match.timeToAbortMs}
           playerId={play.userAsPlayerId}
           completedPlaysCount={endedGamesCount}
-          className="md:bg-slate-700 rounded-md p-0 md:p-2 absolute bottom-12 md:relative md:bottom-0  w-full h-8"
+          className="md:bg-slate-700 rounded-md p-0 md:p-2 absolute bottom-16 md:relative md:bottom-0  w-full h-8"
         />
       )}
     </div>
