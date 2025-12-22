@@ -12,28 +12,26 @@ export const socketUtil = {
 
       // Ako nema token cookie, pokušaj sa sessionToken (web)
       if (!token) {
-       
         token = Cookies.get('sessionToken');
       }
 
       if (token) {
-        
         if (!socketUtil.socket) {
-            socketUtil.socket = io('https://api.outpostchess.com', {
+          socketUtil.socket = io('https://api.outpostchess.com', {
             transports: ['websocket', 'polling', 'webtransport'],
           });
-          
-           socketUtil.socket.on('connect', () => {
+
+          socketUtil.socket.on('connect', () => {
             socketUtil.socket?.emit('client_token', token);
             socketUtil.socket?.emit('users_online_status', type);
           });
 
-           socketUtil.socket.on('connect_error', (error) => {
+          socketUtil.socket.on('connect_error', (error) => {
             console.error('Socket connection error:', error);
           });
         } else if (socketUtil.socket.connected) {
           // Ako je socket već povezan, samo ažuriraj status
-          
+
           socketUtil.socket.emit('users_online_status', type);
         }
       } else {
@@ -53,7 +51,6 @@ export const socketUtil = {
 
   emit: (event: string, data?: any) => {
     if (socketUtil.socket && socketUtil.socket.connected) {
-      
       socketUtil.socket.emit(event, data);
     } else {
       console.warn('Socket is not connected. Cannot emit:', event);
@@ -89,18 +86,16 @@ export const socketUtil = {
   },
 
   subscribe: async (topic: string, callback: (data: any) => void) => {
-    
     if (!socketUtil.socket || !socketUtil.socket.connected) {
       // Ako socket nije povezan, pokušaj da se povežeš
       // Možete koristiti postojeći status ili dodati novi
 
-    const socketType = (localStorage.getItem('socket') as
-  | 'available'
-  | 'playing'
-  | 'watching'
-  | 'reviewing') ;
-     await socketUtil.connect(socketType);
-      
+      const socketType = localStorage.getItem('socket') as
+        | 'available'
+        | 'playing'
+        | 'watching'
+        | 'reviewing';
+      await socketUtil.connect(socketType);
     }
 
     socketUtil.on(topic, callback);

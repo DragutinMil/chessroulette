@@ -371,6 +371,10 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
     }, [puzzleCounter]);
 
     useEffect(() => {
+      setReviewData([]);
+    }, [currentChapterState.chessAiMode.fen]);
+
+    useEffect(() => {
       if (prevScoreCP !== 0) {
         const probability = async () => {
           const ProbabilityChange = await ChessEngineProbabilityCalc(
@@ -1098,14 +1102,6 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
               ),
               renderContent: () => (
                 <div className="flex flex-col flex-1 gap-2 min-h-0 overflow-scroll no-scrollbar">
-                  {(currentChapterState.chessAiMode.mode === 'puzzle' ||
-                    currentChapterState.chessAiMode.mode == 'popup') && (
-                    <div className="block md:hidden">
-                      <PuzzleScore
-                        chessAiMode={currentChapterState.chessAiMode}
-                      />
-                    </div>
-                  )}
                   <div className="flex-1 justify-between flex flex-col border bg-op-widget border-conversation-100 pb-2 px-2 md:px-4 md:pb-4 rounded-lg  ">
                     {currentChapterState.chessAiMode.mode !== 'review' ? (
                       <div className="mt-4 flex flex-col justify-between  h-full max-h-[340px] md:max-h-[380px] md:min-h-[300px] min-h-[200px] ">
@@ -1261,7 +1257,8 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
                         />
 
                         <div className="mt-auto flex md:my-[20px]  items-center gap-3 mt-3 my-[14px]">
-                          {reviewData.length == 0 &&
+                          {currentChapterState.chessAiMode.fen !== '' &&
+                            reviewData.length == 0 &&
                             currentChapterState.messages.length > 1 && (
                               <ButtonGreen
                                 onClick={() => {
@@ -1279,7 +1276,8 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
                       </div>
                     )}
                     {(currentChapterState.chessAiMode.mode !== 'review' ||
-                      reviewData?.length !== 0) && (
+                      reviewData?.length !== 0 ||
+                      currentChapterState.chessAiMode.fen == '') && (
                       //  &&
                       // (!currentChapterState.messages[
                       //   currentChapterState.messages.length - 1
@@ -1331,7 +1329,7 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
                     )}
 
                     {currentChapterState.chessAiMode.mode == 'review' && (
-                      <div>
+                      <div className="md:h-16 h-8">
                         <div className="w-full mt-1 h-4 md:flex hidden overflow-hidden rounded mt-4 ">
                           <div
                             className={`bg-white transition-all duration-500`}
@@ -1344,7 +1342,7 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
                         </div>
 
                         {scoreCP !== 0 && (
-                          <div className={` flex  items-center mt-2`}>
+                          <div className={` flex  items-center mt-2 `}>
                             {scoreCP < 49999 &&
                               scoreCP > -49999 &&
                               (currentChapterState.orientation == 'b' ? (
@@ -1366,11 +1364,11 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
                     )}
                   </div>
 
-                  {(currentChapterState.chessAiMode.mode === 'puzzle' ||
-                    currentChapterState.chessAiMode.mode === 'popup') && (
+                  {currentChapterState.chessAiMode.mode !== 'review' && (
                     <div className="hidden md:block">
                       <PuzzleScore
                         chessAiMode={currentChapterState.chessAiMode}
+                        puzzle_rating={userData.puz_rating}
                       />
                     </div>
                   )}
@@ -1419,6 +1417,19 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
                       isFocusedInput={isFocusedInput}
                     />
                   </div>
+                  {currentChapterState.chessAiMode.mode == 'review' && (
+                    <div className="md:flex hidden items-center overflow-x-hidden gap-3 h-[55px] ">
+                      <label className="font-bold text-sm  text-gray-400">
+                        Import
+                      </label>
+                      <PgnInputBox
+                        compact
+                        containerClassName="flex-1"
+                        onChange={onImport}
+                      />
+                    </div>
+                  )}
+
                   {/* <FenPreview fen={currentChapterState.displayFen} /> */}
                 </div>
               ),

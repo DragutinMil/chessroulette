@@ -12,10 +12,10 @@ type StockfishEngineAIProps = {
   fen: ChessFEN;
   orientation: string;
   isMyTurn: boolean;
-  engineMove: any;
+  engineMove?: any;
   engineLines: any;
-  puzzleMode: boolean;
-  playMode: boolean;
+  puzzleMode?: boolean;
+  playMode?: boolean;
   newRatingEngine: number;
   isMobile: boolean;
   ratingEngine: any;

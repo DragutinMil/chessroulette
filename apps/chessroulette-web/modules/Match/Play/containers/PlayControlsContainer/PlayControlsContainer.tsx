@@ -62,7 +62,7 @@ export const PlayControlsContainer = ({
   // }, [unreadMessagesCount]);
   // Ažuriraj last seen timestamp kada se aktivira chat
   useEffect(() => {
-  //  console.log('activeWidget pre promene', activeWidget);
+    //  console.log('activeWidget pre promene', activeWidget);
     if (activeWidget == 'chat' && match?.messages) {
       const lastMessage = match.messages[match.messages.length - 1];
       if (lastMessage) {

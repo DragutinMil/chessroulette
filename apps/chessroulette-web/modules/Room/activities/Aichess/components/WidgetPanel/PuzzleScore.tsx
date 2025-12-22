@@ -4,6 +4,7 @@ import styles from './css/aichessStyle.module.css';
 import confetti from 'canvas-confetti';
 type Props = {
   chessAiMode: chessAiMode;
+  puzzle_rating: any;
 };
 export const puzzleRatingLevels = [
   {
@@ -125,11 +126,9 @@ export const puzzleRatingLevels = [
   },
 ];
 
-//console.log('currentChapterState',currentChapterState)
-
-const PuzzleScore = ({ chessAiMode }: Props) => {
+const PuzzleScore = ({ chessAiMode, puzzle_rating }: Props) => {
   const componentRef = useRef<HTMLDivElement>(null);
-  const [value, setValue] = useState(chessAiMode.userPuzzleRating ?? 0);
+  const [value, setValue] = useState(puzzle_rating);
   const [flipping, setFlipping] = useState<boolean>(false);
   const [change, setChange] = useState<number>(0);
   const [previousValue, setPreviousValue] = useState<number>(value);
@@ -145,6 +144,15 @@ const PuzzleScore = ({ chessAiMode }: Props) => {
       setTimeout(() => setShowChange(false), 1000);
     }
   }, [chessAiMode.userPuzzleRating]);
+  useEffect(() => {
+    console.log('1', value);
+    console.log('2', typeof value);
+  }, [value]);
+  useEffect(() => {
+    if (value == '') {
+      setValue(puzzle_rating);
+    }
+  }, [puzzle_rating]);
 
   useEffect(() => {
     if (value !== previousValue) {

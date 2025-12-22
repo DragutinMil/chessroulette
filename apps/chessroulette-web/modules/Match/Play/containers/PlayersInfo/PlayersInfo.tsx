@@ -37,7 +37,7 @@ export const PlayersInfo = ({
   }, [game]);
 
   return (
-    <div className="flex flex-1 gap-0 md:gap-1 flex-col mb-4 md:mb-0">
+    <div className="flex flex-1 gap-0 md:gap-1 flex-col mb-2 md:mb-0">
       <div className="mb-1">
         <PlayerBox
           key="away"
