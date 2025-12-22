@@ -3,7 +3,6 @@ import confetti from 'canvas-confetti';
 // import { BetweenGamesAborter } from './components/BetweenGamesAborter'
 import { Button } from '../../../../../components/Button/Button';
 import { Dialog } from '@app/components/Dialog';
-import { getPuzzle, sendPuzzleUserRating } from '../util';
 import { ChessFENBoard } from '@xmatter/util-kit';
 import { aiLearn, MovePiece, Message } from '../movex';
 import { PgnInputBoxProps } from '@app/components/PgnInputBox/PgnInputBox';
