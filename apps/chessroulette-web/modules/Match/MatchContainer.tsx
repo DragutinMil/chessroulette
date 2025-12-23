@@ -150,7 +150,7 @@ const MatchContainerInner = ({
     // dodatna logika po potrebi
   };
 
-  // ✅ GLAVNI RETURN na kraju funkcije
+  
   return (
     <>
       <div className="flex flex-col flex-1 min-h-0 gap-4 w-full md:w-1/2 md:hidden  mt-4 ">
