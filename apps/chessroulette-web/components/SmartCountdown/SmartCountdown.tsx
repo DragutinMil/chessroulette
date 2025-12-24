@@ -47,8 +47,14 @@ export const SmartCountdown = ({
   const startTimeRef = useRef<number>(Date.now());
   const initialMsLeft = useRef<number>(msLeft);
 
-  const updateTime = () => {
-    if (!isActive) return;
+  const updateTime = useCallback(() => {
+    if (!isActive || finished) {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+        animationFrameRef.current = undefined;
+      }
+      return;
+    }
 
     const now = Date.now();
     const elapsed = now - startTimeRef.current;
@@ -60,9 +66,28 @@ export const SmartCountdown = ({
       setInterval(timeLeftToIntervalMs(newTimeLeft));
     }
 
-    // Schedule next update
-    animationFrameRef.current = requestAnimationFrame(updateTime);
-  };
+    if (newTimeLeft <= 0 && !finished) {
+      setFinished(true);
+      // Zaustavi loop pre pozivanja onFinished
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+        animationFrameRef.current = undefined;
+      }
+      onFinished(); // Call immediately when time expires
+      return; // Stop the loop
+    }
+
+    if (newTimeLeft > 0 && !finished) {
+      animationFrameRef.current = requestAnimationFrame(updateTime);
+    } else {
+      // Zaustavi loop ako je vreme isteklo
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+        animationFrameRef.current = undefined;
+      }
+    }
+  }, [isActive, finished, timeLeft, onFinished]);
+
 
   useEffect(() => {
     if (warningSound) {
@@ -129,12 +154,27 @@ export const SmartCountdown = ({
     lastTickRef.current = Date.now();
   }, [msLeft]);
 
-  //Handle timer completion
   useEffect(() => {
-    if (timeLeft <= 0 && !finished) {
-      setFinished(true);
+    if (isActive && !finished) {
+      startTimeRef.current = Date.now() - (initialMsLeft.current - timeLeft);
+      lastTickRef.current = Date.now();
+      // Zaustavi prethodni loop pre pokretanja novog
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+      animationFrameRef.current = requestAnimationFrame(updateTime);
+    } else if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current);
+      animationFrameRef.current = undefined;
     }
-  }, [timeLeft]);
+
+    return () => {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+        animationFrameRef.current = undefined;
+      }
+    };
+  }, [isActive, finished, updateTime]);
 
   useEffect(() => {
     if (!isActive) {
@@ -142,11 +182,8 @@ export const SmartCountdown = ({
     }
 
     if (timeLeft <= 0) {
-      //  setFinished(true)
     } else {
       setInterval(timeLeftToIntervalMs(timeLeft));
-
-      // Check if warning sound should play
       if (
         timeLeft <= warningThresholdMs &&
         !hasPlayedWarning.current &&
@@ -159,15 +196,6 @@ export const SmartCountdown = ({
       }
     }
   }, [timeLeft, isActive, warningThresholdMs]);
-
-  useEffect(() => {
-    if (finished) {
-      const random = Math.floor(Math.random() * 1000) + 1;
-      setTimeout(() => onFinished(), random);
-      const random2 = Math.floor(Math.random() * 1000) + 1;
-      setTimeout(() => setTimeout(() => onFinished(), random2), 1000);
-    }
-  }, [finished]);
 
   const intervalPlay = isActive && !finished ? interval : undefined;
 

@@ -164,6 +164,7 @@ export const reducer = (
 
   if (action.type === 'play:checkTime') {
     if (prev.status !== 'ongoing') {
+      console.log(prev.status);
       return prev;
     }
 
