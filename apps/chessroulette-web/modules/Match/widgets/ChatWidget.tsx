@@ -89,34 +89,34 @@ export const ChatWidget: React.FC<Props> = ({
     }
   }, [lastDisabledMessages, isChatEnabled]);
 
-  // useEffect(() => {
-  //     ///CHAT BOT TALK
-  //     // console.log('klik3',chatBot.length>0 , messages.at(-1)?.senderId, chatBot , messages.at(-1)?.content  )
-  //     if(chatBot.length>0 && messages.at(-1)?.senderId!==chatBot ){
-  //     if( messages.at(-1)?.senderId !== currentUserId ){ return }
-  //     const sendMessage = async () => {
-  //     const lastMessage = messages.at(-1)?.content ?? '';
-  //     try {
-  //       const answer = await ChatBotWidget(lastMessage, messages);
-  //       const randomSeconds = Math.floor(Math.random() * (10 - 5 + 1)) + 5;
-  //       setTimeout(() => {
-  //         onSendMessage(answer.answer.trim() , answer.id, chatBot );
-  //       }, randomSeconds * 1000);
+  useEffect(() => {
+      ///CHAT BOT TALK
+      // console.log('klik3',chatBot.length>0 , messages.at(-1)?.senderId, chatBot , messages.at(-1)?.content  )
+      // if(chatBot.length>0 && messages.at(-1)?.senderId!==chatBot ){
+      // if( messages.at(-1)?.senderId !== currentUserId ){ return }
+      // const sendMessage = async () => {
+      // const lastMessage = messages.at(-1)?.content ?? '';
+      // try {
+      //   const answer = await ChatBotWidget(lastMessage, messages);
+      //   const randomSeconds = Math.floor(Math.random() * (10 - 5 + 1)) + 5;
+      //   setTimeout(() => {
+      //     onSendMessage(answer.answer.trim() , answer.id, chatBot );
+      //   }, randomSeconds * 1000);
 
-  //       // ovde možeš update-ovati state ako treba
-  //     } catch (err) {
-  //       console.error('ChatBot error:', err);
-  //       }
-  //     };
-  //      sendMessage();
+      //   // ovde možeš update-ovati state ako treba
+      // } catch (err) {
+      //   console.error('ChatBot error:', err);
+      //   }
+      // };
+      //  sendMessage();
 
-  //     }
-  //     if (messages.length !== messageLength) {
-  //       setMessageLength(messages.length);
-  //       scrollToBottom();
-  //     }
+      // }
+      if (messages.length !== messageLength) {
+        setMessageLength(messages.length);
+        scrollToBottom();
+      }
 
-  // }, [messages]);
+  }, [messages]);
 
   useEffect(() => {
     // console.log('isChatEnabled');
