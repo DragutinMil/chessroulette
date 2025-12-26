@@ -1,10 +1,10 @@
-import { useEffect, useState,useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import {
-  ChessColor,
+  // ChessColor,
   ChessFEN,
-  ShortChessMove,
-  promotionalPieceSanToFenBoardPromotionalPieceSymbol,
-  toLongChessColor,
+  // ShortChessMove,
+  // promotionalPieceSanToFenBoardPromotionalPieceSymbol,
+  // toLongChessColor,
 } from '@xmatter/util-kit';
 
 type StockfishEngineProps = {
@@ -58,53 +58,54 @@ const StockfishEngine: React.FC<StockfishEngineProps> = ({
       }
     }
 
+    try {
+      const stockfish = new Worker('/stockfish.js');
+      stockfishRef.current = stockfish;
 
-  try {
-    const stockfish = new Worker('/stockfish.js');
-    stockfishRef.current = stockfish;
+      stockfish.onmessage = (event) => {
+        if (
+          typeof event.data === 'string' &&
+          event.data.startsWith('bestmove')
+        ) {
+          setBestMove(event.data.split(' ')[1]);
+        }
+        setStockfishOutput(event.data);
+      };
 
-    stockfish.onmessage = (event) => {
-      if (typeof event.data === 'string' && event.data.startsWith('bestmove')) {
-        setBestMove(event.data.split(' ')[1]);
-      }
-      setStockfishOutput(event.data);
-    };
+      stockfish.onerror = () => {
+        setStockfishOutput('Stockfish error! Check console.');
+      };
 
-    stockfish.onerror = () => {
-      setStockfishOutput('Stockfish error! Check console.');
-    };
+      stockfish.postMessage('uci');
 
-    stockfish.postMessage('uci');
+      return () => {
+        stockfish.terminate();
+        stockfishRef.current = null;
+      };
+    } catch (error) {
+      setStockfishOutput('Failed to load Stockfish.');
+    }
+  }, []);
 
-    return () => {
-      stockfish.terminate();
-      stockfishRef.current = null;
-    };
-  } catch (error) {
-    setStockfishOutput('Failed to load Stockfish.');
-  }
-}, []);
- 
-useEffect(() => {
-  if (!stockfishRef.current) return;
+  useEffect(() => {
+    if (!stockfishRef.current) return;
 
-  stockfishRef.current.postMessage(
-    `setoption name Skill Level value ${skill}`
-  );
-  stockfishRef.current.postMessage(
-    `setoption name Contempt value ${contempt}`
-  );
-}, [skill, contempt]);
-useEffect(() => {
-  if (!stockfishRef.current) return;
+    stockfishRef.current.postMessage(
+      `setoption name Skill Level value ${skill}`
+    );
+    stockfishRef.current.postMessage(
+      `setoption name Contempt value ${contempt}`
+    );
+  }, [skill, contempt]);
+  useEffect(() => {
+    if (!stockfishRef.current) return;
 
-  // prekini prethodnu analizu
-  stockfishRef.current.postMessage('stop');
+    // prekini prethodnu analizu
+    stockfishRef.current.postMessage('stop');
 
-  stockfishRef.current.postMessage(`position fen ${fen}`);
-  stockfishRef.current.postMessage(`go depth ${depth}`);
-}, [fen, depth]);
-
+    stockfishRef.current.postMessage(`position fen ${fen}`);
+    stockfishRef.current.postMessage(`go depth ${depth}`);
+  }, [fen, depth]);
 
   // useEffect(() => {
   // if (typeof window === 'undefined') return;
@@ -139,8 +140,7 @@ useEffect(() => {
   useEffect(() => {
     let m = bestMove;
     if (!isMyTurn && bestMove) {
-       setTimeout(() =>   engineMove(m), 700);
-    
+      setTimeout(() => engineMove(m), 700);
     }
   }, [bestMove]);
 

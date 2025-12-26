@@ -54,7 +54,7 @@ type Props = {
 export const useMoves = ({
   isMyTurn,
   playingColor,
-  premoveAnimationDelay = 50,
+  //premoveAnimationDelay = 5000,
   onMove,
   onPreMove,
   onValidateMove,
@@ -73,7 +73,7 @@ Props): MoveActions => {
 
   const [lastMoveWasPromotion, setLastMoveWasPromotion] = useState(false); // Dodajte ovo
 
-  //const [premoveAnimationDelay] = useState(300);
+  const [premoveAnimationDelay] = useState(150);
   // pre move
   const allowsPremoves = !!onPreMove;
 
@@ -263,8 +263,6 @@ Props): MoveActions => {
     //   }
   };
 
-  useEffect(() => {}, [playerMoves]);
-
   useEffect(() => {
     const currentMoves = getCurrentMoves();
 
@@ -295,7 +293,9 @@ Props): MoveActions => {
         return;
       }
       setPreMove(undefined);
-      onMove(moveToExecute);
+      setTimeout(() => {
+        onMove(moveToExecute);
+      }, premoveAnimationDelay);
     }
   }, [isMyTurn, promoMove, playerMoves]);
 
