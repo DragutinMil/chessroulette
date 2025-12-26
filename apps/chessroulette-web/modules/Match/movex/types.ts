@@ -80,4 +80,5 @@ export type ChatMessage = {
   senderId: User['id'];
   content: string;
   timestamp: number;
+  responseId?: string;
 };

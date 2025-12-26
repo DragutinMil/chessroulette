@@ -115,13 +115,18 @@ const MatchContainerInner = ({
     return savedState === null ? true : savedState === 'true';
   });
 
-  const handleSendMessage = (content: string) => {
+  const handleSendMessage = (
+    content: string,
+    responseId?: string,
+    senderId?: string
+  ) => {
     dispatch({
       type: 'play:sendMessage',
       payload: {
-        senderId: userId,
+        senderId: senderId || userId,
         content,
         timestamp: Date.now(),
+        responseId: responseId,
       },
     });
   };
@@ -150,7 +155,6 @@ const MatchContainerInner = ({
     // dodatna logika po potrebi
   };
 
-  // ✅ GLAVNI RETURN na kraju funkcije
   return (
     <>
       <div className="flex flex-col flex-1 min-h-0 gap-4 w-full md:w-1/2 md:hidden  mt-4 ">

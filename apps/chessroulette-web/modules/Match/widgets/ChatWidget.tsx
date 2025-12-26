@@ -2,12 +2,14 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { ChatMessage } from '@app/modules/Match/movex/types';
 import { Text } from '@app/components/Text';
 import { User } from '@app/modules/User';
+// import { ChatBotWidget } from './ChatBotWidget';
+import { chatBotList } from '../utils';
 
 type Props = {
   messages: ChatMessage[];
   currentUserId: User['id'];
   playerNames: { [playerId: string]: string };
-  onSendMessage: (content: string) => void;
+  onSendMessage: (content: string, id?: string, senderId?: string) => void;
   disabled?: boolean;
   onToggleChat?: (enabled: boolean) => void;
   otherPlayerChatEnabled?: boolean;
@@ -30,20 +32,23 @@ export const ChatWidget: React.FC<Props> = ({
   otherPlayerChatEnabled = true,
   onClose,
 }) => {
+  // console.log('playerNames',playerNames)
+  //  console.log('currentUserId',currentUserId)
   const CHAT_ENABLED_STORAGE_KEY = `chessroulette-chat-enabled-${currentUserId}`;
 
   const LAST_MESSAGE_STATE_KEY = `chessroulette-last-message-state-${currentUserId}`;
   const LAST_DISABLED_MESSAGES_KEY = `chessroulette-last-disabled-messages-${currentUserId}`;
 
+  const [chatBot, setChatBot] = useState('');
   const [inputValue, setInputValue] = useState('');
   const [unreadCount, setUnreadCount] = useState(0);
   const [messageLength, setMessageLength] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
   const [isChatEnabled, setIsChatEnabled] = useState(() => {
     const savedState = localStorage.getItem(CHAT_ENABLED_STORAGE_KEY);
     return savedState === null ? true : savedState === 'true';
   });
-
   const [lastMessageState, setLastMessageState] = useState<LastMessageState>(
     () => {
       const saved = localStorage.getItem(LAST_MESSAGE_STATE_KEY);
@@ -69,6 +74,13 @@ export const ChatWidget: React.FC<Props> = ({
   };
 
   useEffect(() => {
+    const foundBotId = chatBotList.find((id) => id in playerNames) ?? null;
+    if (foundBotId) {
+      setChatBot(foundBotId);
+    }
+  }, []);
+
+  useEffect(() => {
     if (!isChatEnabled) {
       localStorage.setItem(
         LAST_DISABLED_MESSAGES_KEY,
@@ -78,11 +90,32 @@ export const ChatWidget: React.FC<Props> = ({
   }, [lastDisabledMessages, isChatEnabled]);
 
   useEffect(() => {
-    //isChatEnabled console.log('messagges');
-    if (messages.length !== messageLength) {
-      setMessageLength(messages.length);
-      scrollToBottom();
-    }
+      ///CHAT BOT TALK
+      // console.log('klik3',chatBot.length>0 , messages.at(-1)?.senderId, chatBot , messages.at(-1)?.content  )
+      // if(chatBot.length>0 && messages.at(-1)?.senderId!==chatBot ){
+      // if( messages.at(-1)?.senderId !== currentUserId ){ return }
+      // const sendMessage = async () => {
+      // const lastMessage = messages.at(-1)?.content ?? '';
+      // try {
+      //   const answer = await ChatBotWidget(lastMessage, messages);
+      //   const randomSeconds = Math.floor(Math.random() * (10 - 5 + 1)) + 5;
+      //   setTimeout(() => {
+      //     onSendMessage(answer.answer.trim() , answer.id, chatBot );
+      //   }, randomSeconds * 1000);
+
+      //   // ovde možeš update-ovati state ako treba
+      // } catch (err) {
+      //   console.error('ChatBot error:', err);
+      //   }
+      // };
+      //  sendMessage();
+
+      // }
+      if (messages.length !== messageLength) {
+        setMessageLength(messages.length);
+        scrollToBottom();
+      }
+
   }, [messages]);
 
   useEffect(() => {
@@ -146,8 +179,10 @@ export const ChatWidget: React.FC<Props> = ({
   };
 
   const handleSendMessage = () => {
+    console.log(inputValue);
     if (inputValue.trim() && !disabled && isChatEnabled) {
-      onSendMessage(inputValue.trim());
+      const responseId = chatBot ? messages.at(-1)?.responseId : undefined;
+      onSendMessage(inputValue.trim(), responseId);
       setInputValue('');
     }
   };

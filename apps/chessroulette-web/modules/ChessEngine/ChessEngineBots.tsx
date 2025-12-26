@@ -1,10 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import {
-  ChessColor,
+  // ChessColor,
   ChessFEN,
-  ShortChessMove,
-  promotionalPieceSanToFenBoardPromotionalPieceSymbol,
-  toLongChessColor,
+  // ShortChessMove,
+  // promotionalPieceSanToFenBoardPromotionalPieceSymbol,
+  // toLongChessColor,
 } from '@xmatter/util-kit';
 
 type StockfishEngineProps = {
@@ -26,7 +26,7 @@ const StockfishEngine: React.FC<StockfishEngineProps> = ({
   const [depth, setDepth] = useState('1');
   const [skill, setSkill] = useState('');
   const [contempt, setContempt] = useState('');
-
+  const stockfishRef = useRef<Worker | null>(null);
   useEffect(() => {
     if (typeof window === 'undefined') return; // Ensure it's client-side
     // console.log('botic',bot.slice(-2),depth,skill,contempt)
@@ -57,38 +57,90 @@ const StockfishEngine: React.FC<StockfishEngineProps> = ({
         setContempt('20');
       }
     }
+
     try {
       const stockfish = new Worker('/stockfish.js');
+      stockfishRef.current = stockfish;
+
       stockfish.onmessage = (event) => {
-        if (event.data.startsWith('bestmove')) {
+        if (
+          typeof event.data === 'string' &&
+          event.data.startsWith('bestmove')
+        ) {
           setBestMove(event.data.split(' ')[1]);
         }
         setStockfishOutput(event.data);
       };
-      stockfish.onerror = (error) => {
-        // console.error("Stockfish error:", error);
+
+      stockfish.onerror = () => {
         setStockfishOutput('Stockfish error! Check console.');
       };
-      stockfish.postMessage('uci'); // Send UCI command to initialize Stockfish
-      stockfish.postMessage(`setoption name Skill Level value ${skill}`);
-      stockfish.postMessage(`setoption name Contempt value ${contempt}`);
 
-      setTimeout(() => {
-        stockfish.postMessage(`position fen ${fen}`);
-        stockfish.postMessage(`go depth ${depth}`);
-      }, 1000);
+      stockfish.postMessage('uci');
 
-      return () => stockfish.terminate(); // Cleanup on unmount
+      return () => {
+        stockfish.terminate();
+        stockfishRef.current = null;
+      };
     } catch (error) {
-      // console.error("Failed to load Stockfish:", error);
       setStockfishOutput('Failed to load Stockfish.');
     }
-  }, [fen]);
+  }, []);
+
+  useEffect(() => {
+    if (!stockfishRef.current) return;
+
+    stockfishRef.current.postMessage(
+      `setoption name Skill Level value ${skill}`
+    );
+    stockfishRef.current.postMessage(
+      `setoption name Contempt value ${contempt}`
+    );
+  }, [skill, contempt]);
+  useEffect(() => {
+    if (!stockfishRef.current) return;
+
+    // prekini prethodnu analizu
+    stockfishRef.current.postMessage('stop');
+
+    stockfishRef.current.postMessage(`position fen ${fen}`);
+    stockfishRef.current.postMessage(`go depth ${depth}`);
+  }, [fen, depth]);
+
+  // useEffect(() => {
+  // if (typeof window === 'undefined') return;
+  //   try {
+  //     const stockfish = new Worker('/stockfish.js');
+  //     stockfish.onmessage = (event) => {
+  //       if (event.data.startsWith('bestmove')) {
+  //         setBestMove(event.data.split(' ')[1]);
+  //       }
+  //       setStockfishOutput(event.data);
+  //     };
+  //     stockfish.onerror = (error) => {
+  //       // console.error("Stockfish error:", error);
+  //       setStockfishOutput('Stockfish error! Check console.');
+  //     };
+  //     stockfish.postMessage('uci'); // Send UCI command to initialize Stockfish
+  //     stockfish.postMessage(`setoption name Skill Level value ${skill}`);
+  //     stockfish.postMessage(`setoption name Contempt value ${contempt}`);
+
+  //     setTimeout(() => {
+  //       stockfish.postMessage(`position fen ${fen}`);
+  //       stockfish.postMessage(`go depth ${depth}`);
+  //     }, 1000);
+
+  //     return () => stockfish.terminate(); // Cleanup on unmount
+  //   } catch (error) {
+  //     // console.error("Failed to load Stockfish:", error);
+  //     setStockfishOutput('Failed to load Stockfish.');
+  //   }
+  // }, [fen]);
 
   useEffect(() => {
     let m = bestMove;
     if (!isMyTurn && bestMove) {
-      engineMove(m);
+      setTimeout(() => engineMove(m), 700);
     }
   }, [bestMove]);
 

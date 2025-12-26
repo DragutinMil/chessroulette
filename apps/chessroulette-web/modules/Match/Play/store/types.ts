@@ -51,5 +51,6 @@ export type PlayActions =
         senderId: User['id'];
         content: string;
         timestamp: number;
+        responseId?: string;
       }
     >;
