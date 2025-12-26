@@ -32,7 +32,6 @@ import {
 import { QuickConfirmButton } from '@app/components/Button/QuickConfirmButton';
 import Conversation from './Conversation';
 
-
 import { Square, Chess } from 'chess.js';
 import StockFishEngineAI from '@app/modules/ChessEngine/ChessEngineAI';
 import { ChaptersTab, ChaptersTabProps } from '../../chapters/ChaptersTab';

@@ -172,6 +172,7 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
       senderId: action.payload.senderId,
       content: action.payload.content,
       timestamp: action.payload.timestamp,
+      responseId: action.payload?.responseId,
     };
 
     return {
