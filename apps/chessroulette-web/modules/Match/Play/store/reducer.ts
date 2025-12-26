@@ -210,6 +210,8 @@ export const reducer = (
               GameOverReason['drawAwardedForInsufficientMaterial'],
           } as const;
         }
+        console.log('reduser timeout');
+        console.log('winner:'+ prev.lastMoveBy);
 
         return {
           winner: prev.lastMoveBy,
