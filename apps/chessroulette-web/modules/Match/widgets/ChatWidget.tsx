@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { ChatMessage } from '@app/modules/Match/movex/types';
+import { ChatMessage, activeBot } from '@app/modules/Match/movex/types';
 import { Text } from '@app/components/Text';
 import { User } from '@app/modules/User';
-// import { ChatBotWidget } from './ChatBotWidget';
-import { chatBotList } from '../utils';
+import { ChatBotWidget } from './ChatBotWidget';
 
 type Props = {
   messages: ChatMessage[];
@@ -11,6 +10,7 @@ type Props = {
   playerNames: { [playerId: string]: string };
   onSendMessage: (content: string, id?: string, senderId?: string) => void;
   disabled?: boolean;
+  activeBot?: activeBot;
   onToggleChat?: (enabled: boolean) => void;
   otherPlayerChatEnabled?: boolean;
   onClose?: () => void;
@@ -27,6 +27,7 @@ export const ChatWidget: React.FC<Props> = ({
   currentUserId,
   playerNames,
   onSendMessage,
+  activeBot,
   disabled = false,
   onToggleChat,
   otherPlayerChatEnabled = true,
@@ -39,7 +40,6 @@ export const ChatWidget: React.FC<Props> = ({
   const LAST_MESSAGE_STATE_KEY = `chessroulette-last-message-state-${currentUserId}`;
   const LAST_DISABLED_MESSAGES_KEY = `chessroulette-last-disabled-messages-${currentUserId}`;
 
-  const [chatBot, setChatBot] = useState('');
   const [inputValue, setInputValue] = useState('');
   const [unreadCount, setUnreadCount] = useState(0);
   const [messageLength, setMessageLength] = useState(0);
@@ -69,16 +69,7 @@ export const ChatWidget: React.FC<Props> = ({
     } else {
       messagesEndRef.current?.scrollIntoView();
     }
-
-    //
   };
-
-  useEffect(() => {
-    const foundBotId = chatBotList.find((id) => id in playerNames) ?? null;
-    if (foundBotId) {
-      setChatBot(foundBotId);
-    }
-  }, []);
 
   useEffect(() => {
     if (!isChatEnabled) {
@@ -90,32 +81,37 @@ export const ChatWidget: React.FC<Props> = ({
   }, [lastDisabledMessages, isChatEnabled]);
 
   useEffect(() => {
-      ///CHAT BOT TALK
-      // console.log('klik3',chatBot.length>0 , messages.at(-1)?.senderId, chatBot , messages.at(-1)?.content  )
-      // if(chatBot.length>0 && messages.at(-1)?.senderId!==chatBot ){
-      // if( messages.at(-1)?.senderId !== currentUserId ){ return }
-      // const sendMessage = async () => {
-      // const lastMessage = messages.at(-1)?.content ?? '';
-      // try {
-      //   const answer = await ChatBotWidget(lastMessage, messages);
-      //   const randomSeconds = Math.floor(Math.random() * (10 - 5 + 1)) + 5;
-      //   setTimeout(() => {
-      //     onSendMessage(answer.answer.trim() , answer.id, chatBot );
-      //   }, randomSeconds * 1000);
-
-      //   // ovde možeš update-ovati state ako treba
-      // } catch (err) {
-      //   console.error('ChatBot error:', err);
-      //   }
-      // };
-      //  sendMessage();
-
-      // }
-      if (messages.length !== messageLength) {
-        setMessageLength(messages.length);
-        scrollToBottom();
+    ///CHAT BOT TALK
+    //activeBot
+    //  console.log('klik3',activeBot.length>0 , messages.at(-1)?.senderId, chatBot , messages.at(-1)?.content  )
+    if (
+      activeBot &&
+      activeBot.name.length > 0 &&
+      messages.at(-1)?.senderId !== activeBot.id
+    ) {
+      if (messages.at(-1)?.senderId !== currentUserId) {
+        return;
       }
+      const sendMessage = async () => {
+        const lastMessage = messages.at(-1)?.content ?? '';
+        try {
+          const answer = await ChatBotWidget(lastMessage, messages);
+          const randomSeconds = Math.floor(Math.random() * (10 - 5 + 1)) + 5;
+          setTimeout(() => {
+            onSendMessage(answer.answer.trim(), answer.id, activeBot.id);
+          }, randomSeconds * 1000);
 
+          // ovde možeš update-ovati state ako treba
+        } catch (err) {
+          console.error('ChatBot error:', err);
+        }
+      };
+      sendMessage();
+    }
+    if (messages.length !== messageLength) {
+      setMessageLength(messages.length);
+      scrollToBottom();
+    }
   }, [messages]);
 
   useEffect(() => {
@@ -179,9 +175,10 @@ export const ChatWidget: React.FC<Props> = ({
   };
 
   const handleSendMessage = () => {
-    console.log(inputValue);
     if (inputValue.trim() && !disabled && isChatEnabled) {
-      const responseId = chatBot ? messages.at(-1)?.responseId : undefined;
+      const responseId = activeBot?.id
+        ? messages.at(-1)?.responseId
+        : undefined;
       onSendMessage(inputValue.trim(), responseId);
       setInputValue('');
     }
@@ -242,18 +239,18 @@ export const ChatWidget: React.FC<Props> = ({
       </div>
 
       {/* Desktop: Original header */}
-      <div className="hidden md:flex p-3 border-b border-slate-800 justify-between items-center w-full">
+      <div className="hidden md:flex p-3 border-b border-[rgb(217_217_217/0.1)] justify-start items-center w-full">
         <div className="flex items-center gap-2">
           <Text className="text-sm font-semibold">Chat</Text>
           {!isChatEnabled && newMessageCount > 0 && (
-            <div className="flex flex-col items-start">
-              <span className="bg-[#07DA63] text-white rounded-full px-2 py-0.5 text-xs">
-                {lastMessageState.count} new
+            <div className="flex flex-col items-start absolute left-12">
+              <span className="bg-[#07DA63] text-[#000000] rounded-full px-1.5 py-0 text-xs relative bottom-2 ">
+                {lastMessageState.count}
               </span>
             </div>
           )}
         </div>
-        <div className="flex items-center gap-2 ">
+        <div className="flex items-center gap-2 relative left-6 ">
           {!otherPlayerChatEnabled && (
             <span className="text-xs text-gray-400">
               Opponent disabled chat
@@ -269,7 +266,7 @@ export const ChatWidget: React.FC<Props> = ({
               onChange={handleToggleChat}
               className="sr-only peer"
             />
-            <div className="relative w-9 h-5 bg-slate-500 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[#07DA63] rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#07DA63]"></div>
+            <div className="scale-90 relative w-9 h-5 bg-slate-500 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[#07DA63] rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#07DA63]"></div>
           </label>
         </div>
       </div>
@@ -342,8 +339,8 @@ export const ChatWidget: React.FC<Props> = ({
         })}
         <div ref={messagesEndRef} />
       </div>
-
-      <div className="p-3 md:p-3 border-t border-slate-800">
+      {/* border-t border-[rgb(217_217_217/0.1)] */}
+      <div className="p-3 md:p-3 ">
         <div className="flex mb-2 mt-2 md:mt-0">
           <input
             type="text"

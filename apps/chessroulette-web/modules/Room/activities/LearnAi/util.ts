@@ -138,8 +138,9 @@ export async function ai_prompt(
 ) {
   const token = Cookies.get('sessionToken');
   try {
+    //ai_prompt_v2r
     const response = await fetch(
-      process.env.NEXT_PUBLIC_API_WEB + `ai_prompt_v2r`,
+      process.env.NEXT_PUBLIC_API_WEB + `ai_prompt_agent_v2`,
       {
         method: 'POST',
         headers: {

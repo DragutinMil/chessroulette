@@ -52,7 +52,10 @@ export const FaceTime: React.FC<FaceTimeProps> = ({
   );
 
   return (
-    <div className={`relative ${containerClassName}`}>
+    <div
+      className={`relative ${containerClassName}`}
+      style={{ height: '100%' }}
+    >
       <AspectRatio aspectRatio={aspectRatio}>
         {streamConfig.on ? (
           <>
