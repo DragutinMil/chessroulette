@@ -6,6 +6,9 @@ import { ResizableDesktopLayout } from '@app/templates/ResizableDesktopLayout';
 import { PlayContainer, PlayerContainerProps } from './Play/PlayContainer';
 import { MatchActions, MatchState } from './movex';
 import { MatchProvider } from './providers';
+import { findIfBots } from './utils';
+import { VideoCameraIcon } from '@heroicons/react/24/solid';
+
 import {
   MatchStateDialogContainer,
   MatchStateDisplayContainer,
@@ -80,14 +83,23 @@ const MatchContainerInner = ({
   const { playersBySide } = useCurrentOrPrevMatchPlay();
   const dispatchPlay = usePlayActionsDispatch();
   const { displayState, actions } = useGame();
+  const [cameraExpanded, setCameraExpanded] = useState(false);
+  const [cameraVisible, setCameraVisible] = useState(true);
+  const [camera, setCamera] = useState(true);
+  
+
+  const [activeBot, setBotActive] = useState({
+    id: '',
+    lastName: '',
+    name: '',
+    picture: '',
+  });
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
   // Resize i socket connection
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
     window.addEventListener('resize', handleResize);
-
-    // console.log('🔌 Connecting to socket... matchContainer');
     if (match.challengee.id.length !== 16) {
       localStorage.setItem('socket', 'playing');
       socketUtil.connect('playing');
@@ -105,8 +117,10 @@ const MatchContainerInner = ({
 
   const playerNames = playersBySide
     ? {
-        [playersBySide.home.id]: playersBySide.home.displayName || 'Player 1',
-        [playersBySide.away.id]: playersBySide.away.displayName || 'Player 2',
+        [playersBySide.home.id]:
+          playersBySide.home.displayName || activeBot.name || 'Player 1',
+        [playersBySide.away.id]:
+          playersBySide.away.displayName || activeBot.name || 'Player 2',
       }
     : {};
 
@@ -154,13 +168,29 @@ const MatchContainerInner = ({
   const handleToggleChat = (enabled: boolean) => {
     // dodatna logika po potrebi
   };
+   const cameraOnOff = () => {
+     setCameraVisible(!cameraVisible)
+     setCameraExpanded(false)
+      setTimeout(() => {
+      setCamera(false);
+    }, 200);
+  };
+  
+  useEffect(() => {
+    if (match) {
+      const bot = findIfBots(match?.challengee.id, match?.challenger.id);
+      if (bot) {
+        setBotActive(bot);
+      }
+    }
+  }, []);
 
   return (
     <>
       <div className="flex flex-col flex-1 min-h-0 gap-4 w-full md:w-1/2 md:hidden  mt-4 ">
         <div className="flex flex-row md:flex-col w-full md:w-1/2">
           <div className="w-full md:w-1/2 mr-0 md:mr-0">
-            <MatchStateDisplayContainer />
+            <MatchStateDisplayContainer activeBot={activeBot?.name} />
           </div>
         </div>
       </div>
@@ -183,25 +213,63 @@ const MatchContainerInner = ({
           <div className="flex flex-col flex-1 min-h-0 gap-4 w-full">
             <div className="flex flex-row md:flex-col w-full">
               <div className="hidden md:block md:w-full mr-0 md:ml-0">
-                <MatchStateDisplayContainer />
+                <MatchStateDisplayContainer activeBot={activeBot?.name} />
               </div>
             </div>
 
             {/* Desktop Chat Widget */}
-            <div className="hidden md:flex flex-1 min-h-0 w-full">
-              {activeWidget === 'chat' && (
-                <ChatWidget
-                  messages={matchState?.messages || []}
-                  currentUserId={userId}
-                  playerNames={playerNames}
-                  onSendMessage={handleSendMessage}
-                  onToggleChat={handleToggleChat}
-                  otherPlayerChatEnabled={true}
-                />
+            <div className="w-full hidden md:flex flex-1 min-h-0 w-full relative">
+              {(activeWidget === 'chat' && activeBot.id.length < 1) ||
+              activeBot?.id.slice(-3) == '000' ? (
+                <div className="w-full hidden md:flex flex-1 min-h-0 w-full relative">
+                  <ChatWidget
+                    messages={matchState?.messages || []}
+                    currentUserId={userId}
+                    activeBot={activeBot}
+                    playerNames={playerNames}
+                    onSendMessage={handleSendMessage}
+                    onToggleChat={handleToggleChat}
+                    otherPlayerChatEnabled={true}
+                  />
+                  <div
+                    className={`
+      absolute z-20  cursor-pointer transition-all duration-300 ease-in-out
+      rounded-lg shadow-2xl overflow-hidden 
+      ${cameraExpanded ? 'inset-0 w-full h-full' : 'top-4 right-4 w-48 h-32'}
+    `}
+                  >
+                    
+                    {camera ? (
+                      <PeerToPeerCameraWidget
+                        cameraVisible={cameraVisible}
+                        activeBot={activeBot}
+                        onDisableCamera={() => cameraOnOff()}
+                        onToggleExpand={() => setCameraExpanded((p) => !p)}
+                        isExpanded={cameraExpanded}
+                      />
+                     ):(
+                           <button
+                                                      onClick={() => setCamera(true)}
+                                                      className={`
+                                                        absolute right-2 h-8 z-50 bg-black/50 text-white rounded-md p-1 hover:bg-black/70
+                                                        -top-2 
+                                                      `}
+                                                    >
+                                                     
+                                                        <VideoCameraIcon className="h-5 w-5" />
+                                                     
+                                                    </button>
+                     )} 
+                  </div>
+                </div>
+              ) : (
+                <div className="w-1/2  md:w-full h-full overflow-hidden rounded-lg shadow-2xl">
+                  <PeerToPeerCameraWidget activeBot={activeBot} />
+                </div>
               )}
             </div>
 
-            <div className="w-full pl-2 pr-2 md:pl-0 md:pr-0 pt-2 pb-2 flex flex-col gap-2 md:flex-1 min-h-0 rounded-lg shadow-2xl md:overflow-y-scroll no-scrollbar fixed bottom-0 left-0 right-0 md:relative md:bottom-auto md:left-auto md:right-auto">
+            <div className="w-full pl-2 pr-2 md:pl-0 md:pr-0 pt-0 pb-0 flex flex-col gap-2 md:flex-1 min-h-0 rounded-lg shadow-2xl md:overflow-y-scroll no-scrollbar fixed bottom-0 left-0 right-0 md:relative md:bottom-auto md:left-auto md:right-auto">
               {(match.gameInPlay?.status !== 'idling' || !isMobile) && (
                 <div
                   style={{
@@ -217,8 +285,12 @@ const MatchContainerInner = ({
                     isMobile={isMobile}
                     history={displayState.history}
                     playerNames={[
-                      playersBySide?.home.displayName || 'Player 1',
-                      playersBySide?.away.displayName || 'Player 2',
+                      playersBySide?.home.displayName ||
+                        activeBot?.name ||
+                        'Player 1',
+                      playersBySide?.away.displayName ||
+                        activeBot?.name ||
+                        'Player 2',
                     ]}
                     focusedIndex={displayState.focusedIndex}
                     onDelete={noop}
@@ -246,6 +318,7 @@ const MatchContainerInner = ({
             <ChatWidget
               messages={matchState?.messages || []}
               currentUserId={userId}
+              activeBot={activeBot}
               playerNames={playerNames}
               onSendMessage={handleSendMessage}
               onToggleChat={handleToggleChat}

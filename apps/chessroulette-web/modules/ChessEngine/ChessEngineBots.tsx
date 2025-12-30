@@ -29,7 +29,7 @@ const StockfishEngine: React.FC<StockfishEngineProps> = ({
   const stockfishRef = useRef<Worker | null>(null);
   useEffect(() => {
     if (typeof window === 'undefined') return; // Ensure it's client-side
-    // console.log('botic',bot.slice(-2),depth,skill,contempt)
+
     if (skill == '' && bot) {
       if (bot.slice(-2) == '10') {
         setDepth('5');
@@ -50,6 +50,26 @@ const StockfishEngine: React.FC<StockfishEngineProps> = ({
       } else if (bot.slice(-2) == '20') {
         setDepth('4');
         setSkill('0');
+        setContempt('12');
+      } else if (bot == '9yzBb59_POb9L000') {
+        setDepth('3');
+        setSkill('3');
+        setContempt('10');
+      } else if (bot == '9aEXYS0xwZS21000') {
+        setDepth('6');
+        setSkill('9');
+        setContempt('6');
+      } else if (bot == 'fH0667J9nJ1Ez000') {
+        setDepth('8');
+        setSkill('2');
+        setContempt('5');
+      } else if (bot == '-BihTlRZ-SKTL000') {
+        setDepth('10');
+        setSkill('8');
+        setContempt('10');
+      } else if (bot == 'Pjdw8gu5kpiRk000') {
+        setDepth('9');
+        setSkill('12');
         setContempt('12');
       } else {
         setDepth('1');

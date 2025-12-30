@@ -39,7 +39,7 @@ type Props = {
   activity: ActivityState['activityType'];
 };
 
-export const RoomContainer = ({ iceServers, rid , activity }: Props) => {
+export const RoomContainer = ({ iceServers, rid, activity }: Props) => {
   const movex = useMovex(movexConfig);
   const movexResource = useMovexBoundResourceFromRid(movexConfig, rid);
   const userId = useMovexClient(movexConfig)?.id;
@@ -267,20 +267,17 @@ export const RoomContainer = ({ iceServers, rid , activity }: Props) => {
         <Modal>Cannot connect. Check your Internet Connection!</Modal>
       )}
       <div className="flex-center">
-          {activity !== 'match' && (
- <ChallengeNotification
-          challenge={challengeNotification}
-          onAccept={(challengeUuid) => {
-            setChallengeNotification(null);
-          }}
-          onDecline={() => {
-            setChallengeNotification(null);
-          }}
-        />
-          ) }
-         
-        
-       
+        {activity !== 'match' && (
+          <ChallengeNotification
+            challenge={challengeNotification}
+            onAccept={(challengeUuid) => {
+              setChallengeNotification(null);
+            }}
+            onDecline={() => {
+              setChallengeNotification(null);
+            }}
+          />
+        )}
       </div>
     </PeerStreamingProvider>
   );

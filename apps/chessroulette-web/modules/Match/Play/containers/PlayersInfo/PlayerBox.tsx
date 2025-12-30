@@ -3,11 +3,13 @@ import { SmartCountdown } from '@app/components/SmartCountdown';
 import { PlayerInfoWithResults } from '@app/modules/Match/Play';
 import { GameTimeClass } from '@app/modules/Game';
 import { useMatchViewState } from '../../../../../modules/Match/hooks/useMatch';
+import { findIfBots } from '../../../utils';
 type Props = {
   playerInfo: PlayerInfoWithResults;
   isActive: boolean;
   gameTimeClass: GameTimeClass;
   timeLeft: number;
+  activeBot?: string;
   onCheckTime: () => void;
 };
 
@@ -16,42 +18,25 @@ export const PlayerBox: React.FC<Props> = ({
   isActive,
   gameTimeClass,
   timeLeft,
+  activeBot,
   onCheckTime,
 }) => {
-  const { match } = useMatchViewState();
-  const [isBotPlay, setBots] = useState(false);
-  const [botName, setBotName] = useState('Bot');
-  useEffect(() => {
-    if (match) {
-      setBots(
-        [
-          '8WCVE7ljCQJTW020',
-          'NaNuXa7Ew8Kac002',
-          'O8kiLgwcKJWy9005',
-          'KdydnDHbBU1JY008',
-          'vpHH6Jf7rYKwN010',
-          'ruuPkmgP0KBei015',
-        ].indexOf(match?.challengee?.id) !== -1
-      );
-      if (match?.challengee?.id == '8WCVE7ljCQJTW020') {
-        setBotName('Botsworth');
-      } else if (match?.challengee?.id == 'NaNuXa7Ew8Kac002') {
-        setBotName('Botvik');
-      } else if (match?.challengee?.id == 'O8kiLgwcKJWy9005') {
-        setBotName('Botelia');
-      } else if (match?.challengee?.id == 'KdydnDHbBU1JY008') {
-        setBotName('Botaraj');
-      } else if (match?.challengee?.id == 'vpHH6Jf7rYKwN010') {
-        setBotName('Botxiang');
-      } else if (match?.challengee?.id == 'ruuPkmgP0KBei015') {
-        setBotName('Botko');
-      }
-    }
-  }, []);
+  // const { match } = useMatchViewState();
+
+  // const [botName, setBotName] = useState('Bot');
+  // useEffect(() => {
+  //   if(match){
+  //    const bot = findIfBots(match?.challengee.id, match?.challenger.id)
+  //    if(bot){
+  //      setBotName(bot.name)
+  //      setBots(true)
+  //    }
+  //   }
+  // }, []);
 
   return (
     <div className="flex flex-1 gap-3 items-center justify-between mr-0 pr-0 w-full">
-      {isBotPlay ? (
+      {activeBot && activeBot?.length > 0 ? (
         <div
           className={`capitalize text-sm md:text-lg ${
             isActive ? 'text-white font-bold' : 'text-slate-400'
@@ -59,7 +44,7 @@ export const PlayerBox: React.FC<Props> = ({
         >
           {playerInfo.points}
           {playerInfo.points !== undefined ? ' ' : ''}
-          {playerInfo.displayName || botName}&nbsp;({playerInfo.color})
+          {playerInfo.displayName || activeBot}&nbsp;({playerInfo.color})
         </div>
       ) : (
         <div

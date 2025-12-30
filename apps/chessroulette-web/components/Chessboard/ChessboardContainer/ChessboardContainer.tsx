@@ -114,7 +114,10 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
   //console.log('arrows', arrows);
 
   useEffect(() => {
-    setBots(match?.challengee?.id?.length === 16);
+    setBots(
+      match?.challengee?.id?.length === 16 ||
+        match?.challenger?.id?.length === 16
+    );
   }, [match?.challengee?.id]);
 
   // Circles
@@ -165,9 +168,22 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
       const promo = m[4];
 
       if (promo === 'q') {
-        onMove({ from, to, promoteTo: promo });
+        setTimeout(() => {
+          onMove({ from, to, promoteTo: promo });
+        }, 2000);
       } else {
-        onMove({ from, to });
+        if (
+          match?.challengee.id.slice(-3) === '000' ||
+          match?.challenger.id.slice(-3) === '000'
+        ) {
+          const randomDelay = (min = 0, max = 5000) =>
+            Math.floor(Math.random() * (max - min + 1)) + min;
+          const timeout = setTimeout(() => {
+            onMove({ from, to });
+          }, randomDelay());
+        } else {
+          onMove({ from, to });
+        }
       }
     },
     [onMove]
@@ -176,7 +192,7 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
   if (sizePx === 0) {
     return null;
   }
-  //console.log('boardTheme',boardTheme)
+
   return (
     <div>
       {match?.challengee.id && isBotPlay && (
