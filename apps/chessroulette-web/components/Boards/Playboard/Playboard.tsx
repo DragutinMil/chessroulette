@@ -21,6 +21,7 @@ export type PlayboardProps = DistributiveOmit<
   turn: ChessColor;
   onMove: (m: ShortChessMove) => void;
   onLastMoveWasPromotionChange?: (wasPromotion: boolean) => void;
+  stopEngineMove?: boolean;
   canPlay?: boolean;
   overlayComponent?: React.ReactNode;
 };
@@ -36,6 +37,7 @@ export const Playboard = ({
   playingColor,
   boardOrientation = playingColor,
   onMove,
+  stopEngineMove,
   onLastMoveWasPromotionChange,
   canPlay = false,
   turn,
@@ -100,6 +102,7 @@ export const Playboard = ({
       // onClearCircles={() => {
       //   setCirclesMap({});
       // }}
+      stopEngineMove={stopEngineMove}
       onLastMoveWasPromotionChange={onLastMoveWasPromotionChange}
     />
   );

@@ -10,9 +10,14 @@ const lastMoveWasPromotionCallbacks = new Set<(value: boolean) => void>();
 export type PlayerContainerProps = DistributiveOmit<
   GameBoardContainerProps,
   'canPlay' | 'onMove' | 'playingColor' | 'turn'
->;
+> & {
+  stopEngineMove?: boolean; // 👈 DODAJEŠ OVDE
+};
 
-export const PlayContainer = (playBoardProps: PlayerContainerProps) => {
+export const PlayContainer = (
+  playBoardProps: PlayerContainerProps,
+  stopEngineMove: boolean
+) => {
   const play = useCurrentOrPrevMatchPlay();
   const dispatch = usePlayActionsDispatch();
 
@@ -93,6 +98,7 @@ export const PlayContainer = (playBoardProps: PlayerContainerProps) => {
         // TODO: This can be returned from a more internal component
         return true;
       }}
+      stopEngineMove={stopEngineMove}
       onLastMoveWasPromotionChange={setLastMoveWasPromotion}
       {...playBoardProps}
     />

@@ -46,9 +46,6 @@ export const GameProvider = ({
   //console.log('MatchState',match)
   //const lockRef = useRef(false);
   useEffect(() => {
-    //console.log('🟡 FULL GAME STATE:', game);
-    // if(lockRef.current !== true ){
-    // console.log('ide realna promena')
     setState((prev) => ({
       ...prev,
       lastOffer: game.offers?.slice(-1)[0],

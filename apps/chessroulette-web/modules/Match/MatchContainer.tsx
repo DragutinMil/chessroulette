@@ -1,5 +1,5 @@
 import { DispatchOf, DistributivePick } from '@xmatter/util-kit';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { GameNotationWidget } from '@app/modules/Game/widgets';
 import { UserId } from '@app/modules/User';
 import { ResizableDesktopLayout } from '@app/templates/ResizableDesktopLayout';
@@ -21,7 +21,13 @@ import { useCurrentOrPrevMatchPlay } from './Play/hooks';
 import { usePlayActionsDispatch } from './Play/hooks';
 import { FreeBoardNotation } from '@app/components/FreeBoardNotation';
 import socketUtil from '../../socketUtil';
-
+import { ActiveBot } from '@app/modules/Match/movex/types';
+import {
+  botSendRematchOffer,
+  botRejectDrawOffer,
+  onTakeBackOfferBot,
+  botTalkInitiation,
+} from './bots/botActions';
 import { noop } from '@xmatter/util-kit';
 import { useGame } from '../Game/hooks';
 
@@ -86,16 +92,15 @@ const MatchContainerInner = ({
   const [cameraExpanded, setCameraExpanded] = useState(false);
   const [cameraVisible, setCameraVisible] = useState(true);
   const [camera, setCamera] = useState(true);
-  
+  const [stopEngineMove, setStopEngineMove] = useState(false);
+  const lastTakebackHandledAtRef = useRef<number>(0);
 
-  const [activeBot, setBotActive] = useState({
-    id: '',
-    lastName: '',
-    name: '',
-    picture: '',
-  });
+  //const [offersWithChatBot, setOffersWithChatBot] = useState('');
+
+  const [activeBot, setActiveBot] = useState<ActiveBot>();
+  const [oponentColor, setOponentColor] = useState<string>();
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
-
+  const showCamera = !isMobile && activeBot?.id?.slice(-3) !== '000' && camera;
   // Resize i socket connection
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
@@ -118,9 +123,9 @@ const MatchContainerInner = ({
   const playerNames = playersBySide
     ? {
         [playersBySide.home.id]:
-          playersBySide.home.displayName || activeBot.name || 'Player 1',
+          playersBySide.home.displayName || activeBot?.name || 'Player 1',
         [playersBySide.away.id]:
-          playersBySide.away.displayName || activeBot.name || 'Player 2',
+          playersBySide.away.displayName || activeBot?.name || 'Player 2',
       }
     : {};
 
@@ -168,22 +173,82 @@ const MatchContainerInner = ({
   const handleToggleChat = (enabled: boolean) => {
     // dodatna logika po potrebi
   };
-   const cameraOnOff = () => {
-     setCameraVisible(!cameraVisible)
-     setCameraExpanded(false)
-      setTimeout(() => {
+  const cameraOnOff = () => {
+    setCameraVisible(!cameraVisible);
+    setCameraExpanded(false);
+    setTimeout(() => {
       setCamera(false);
     }, 200);
   };
-  
+
   useEffect(() => {
     if (match) {
       const bot = findIfBots(match?.challengee.id, match?.challenger.id);
       if (bot) {
-        setBotActive(bot);
+        setActiveBot(bot);
+        if (match.gameInPlay?.players.w === bot.id) {
+          setOponentColor('black');
+        } else {
+          setOponentColor('white');
+        }
       }
     }
   }, []);
+
+  useEffect(() => {
+    if (!activeBot) {
+      return;
+    }
+    if (activeBot?.id?.slice(-3) !== '000') {
+      return;
+    }
+    if (match.gameInPlay) {
+      botTalkInitiation(
+        dispatch,
+        activeBot,
+        match.messages,
+        match.gameInPlay.pgn,
+        oponentColor
+      );
+    }
+  }, [match.gameInPlay?.pgn]);
+
+  useEffect(() => {
+    if (!activeBot) {
+      return;
+    }
+    if (activeBot?.id?.slice(-3) !== '000') {
+      return;
+    }
+    const offer = match?.gameInPlay?.offers.at(-1);
+    if (
+      offer?.type === 'draw' &&
+      match.gameInPlay &&
+      offer.status === 'pending'
+    ) {
+      botRejectDrawOffer(
+        dispatch,
+        activeBot,
+        match.messages,
+        match.gameInPlay.pgn,
+        1000
+      );
+    } else if (offer?.type === 'takeback' && offer.status === 'pending') {
+      const now = Date.now();
+      if (now - lastTakebackHandledAtRef.current < 1000) {
+        return;
+      }
+      lastTakebackHandledAtRef.current = now;
+      onTakeBackOfferBot(dispatch, 1500);
+      setStopEngineMove(true);
+      setTimeout(() => {
+        setStopEngineMove(false);
+      }, 2000);
+    }
+    if (match.status === 'complete') {
+      botSendRematchOffer(dispatch, activeBot.name, 1000);
+    }
+  }, [match.gameInPlay?.offers, match.status]);
 
   return (
     <>
@@ -201,8 +266,12 @@ const MatchContainerInner = ({
             <PlayContainer
               key={match.endedGames.length}
               sizePx={boardSize}
+              stopEngineMove={stopEngineMove}
               overlayComponent={
-                <MatchStateDialogContainer inviteLink={inviteLink} />
+                <MatchStateDialogContainer
+                  activeBot={activeBot}
+                  inviteLink={inviteLink}
+                />
               }
               {...boardProps}
             />
@@ -219,10 +288,11 @@ const MatchContainerInner = ({
 
             {/* Desktop Chat Widget */}
             <div className="w-full hidden md:flex flex-1 min-h-0 w-full relative">
-              {(activeWidget === 'chat' && activeBot.id.length < 1) ||
-              activeBot?.id.slice(-3) == '000' ? (
+              {(activeWidget === 'chat' && activeBot) ||
+              activeBot?.id?.slice(-3) == '000' || !activeBot ? (
                 <div className="w-full hidden md:flex flex-1 min-h-0 w-full relative">
                   <ChatWidget
+                    pgn={matchState?.gameInPlay?.pgn || ''}
                     messages={matchState?.messages || []}
                     currentUserId={userId}
                     activeBot={activeBot}
@@ -233,13 +303,16 @@ const MatchContainerInner = ({
                   />
                   <div
                     className={`
-      absolute z-20  cursor-pointer transition-all duration-300 ease-in-out
-      rounded-lg shadow-2xl overflow-hidden 
-      ${cameraExpanded ? 'inset-0 w-full h-full' : 'top-4 right-4 w-48 h-32'}
-    `}
+                      hidden md:block absolute z-20  cursor-pointer transition-all duration-300 ease-in-out
+                      rounded-lg shadow-2xl overflow-hidden 
+                      ${
+                        cameraExpanded
+                          ? 'inset-0 w-full h-full'
+                          : 'top-4 right-4 w-48 h-32'
+                      }
+                    `}
                   >
-                    
-                    {camera ? (
+                    {showCamera ? (
                       <PeerToPeerCameraWidget
                         cameraVisible={cameraVisible}
                         activeBot={activeBot}
@@ -247,25 +320,28 @@ const MatchContainerInner = ({
                         onToggleExpand={() => setCameraExpanded((p) => !p)}
                         isExpanded={cameraExpanded}
                       />
-                     ):(
-                           <button
-                                                      onClick={() => setCamera(true)}
-                                                      className={`
+                    ) : (
+                      activeBot?.id?.slice(-3) !== '000' &&  !isMobile &&  (
+                        <button
+                          onClick={() => setCamera(true)}
+                          className={`
                                                         absolute right-2 h-8 z-50 bg-black/50 text-white rounded-md p-1 hover:bg-black/70
                                                         -top-2 
                                                       `}
-                                                    >
-                                                     
-                                                        <VideoCameraIcon className="h-5 w-5" />
-                                                     
-                                                    </button>
-                     )} 
+                        >
+                          <VideoCameraIcon className="h-5 w-5" />
+                        </button>
+                      )
+                    )}
                   </div>
                 </div>
               ) : (
-                <div className="w-1/2  md:w-full h-full overflow-hidden rounded-lg shadow-2xl">
+                // classic bot players
+                  showCamera &&  (
+                <div className="w-1/2  md:w-full h-full overflow-hidden  rounded-lg shadow-2xl  ">
                   <PeerToPeerCameraWidget activeBot={activeBot} />
                 </div>
+                  )
               )}
             </div>
 
@@ -316,6 +392,7 @@ const MatchContainerInner = ({
         <div className="md:hidden fixed inset-0 z-50 bg-[#01210b] flex flex-col">
           <div className="flex-1 overflow-hidden">
             <ChatWidget
+              pgn={matchState?.gameInPlay?.pgn || ''}
               messages={matchState?.messages || []}
               currentUserId={userId}
               activeBot={activeBot}
