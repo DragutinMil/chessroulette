@@ -22,10 +22,13 @@ import { getMatchPlayerRoleById } from '../../movex/util';
 import { gameOverReasonsToDisplay } from './util';
 import { useGame } from '@app/modules/Game/hooks';
 import { CounterActions } from '@app/modules/Room/activities/Match/counter';
-
+import { ActiveBot } from '@app/modules/Match/movex/types';
 export type ActivityActions = CounterActions;
 
-type Props = PlayDialogContainerContainerProps;
+type Props = PlayDialogContainerContainerProps & {
+  activeBot?: ActiveBot;
+};
+
 // export default async function Page({
 //   params,
 //   searchParams,
@@ -33,9 +36,10 @@ type Props = PlayDialogContainerContainerProps;
 //   params: { roomId: string };
 //   searchParams: Partial<{ theme: string }>;
 // }) {
-export const MatchStateDialogContainer: React.FC<Props> = (
-  gameStateDialogProps
-) => {
+export const MatchStateDialogContainer: React.FC<Props> = ({
+  activeBot,
+  ...gameStateDialogProps
+}) => {
   const { match, ...matchView } = useMatchViewState();
   const [fromWeb, setFromWeb] = useState(false);
   const [fromApp, setFromApp] = useState(false);
@@ -123,7 +127,7 @@ export const MatchStateDialogContainer: React.FC<Props> = (
               <Text>
                 {match[match.winner].id.length == 16 ? (
                   <span className="capitalize">
-                    Bot
+                    {activeBot?.name}
                     {` `}Won{` `}
                     <span>🏆</span>
                   </span>
@@ -136,7 +140,8 @@ export const MatchStateDialogContainer: React.FC<Props> = (
                   </span>
                 )}
               </Text>
-              {match[match.winner].id.length !== 16 && (
+              {(match[match.winner].id.length !== 16 ||
+                match[match.winner].id.slice(-3) === '000') && (
                 <div className="justify-center items-center flex flex-col">
                   <Button
                     icon="ArrowPathRoundedSquareIcon"
@@ -147,6 +152,7 @@ export const MatchStateDialogContainer: React.FC<Props> = (
                     }}
                     onClick={() => {
                       if (playerId) {
+                        console.log('playerId', playerId);
                         dispatch((masterContext) => ({
                           type: 'play:sendOffer',
                           payload: {

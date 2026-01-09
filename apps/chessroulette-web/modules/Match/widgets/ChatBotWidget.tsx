@@ -5,23 +5,27 @@ import { ChatMessage } from '@app/modules/Match/movex/types';
 //import { Square } from 'chess.js';
 export async function ChatBotWidget(
   prompt: string,
-  //   scoreCP: number,
-  messages: ChatMessage[]
-  //   stockfishMovesInfo: string,
-  //   bestline: string,
-  //   currentRatingEngine: number | null,
-  //   pgn?: string
+  pgn: string,
+  messages: ChatMessage[],
+  activeBotName: string,
+  UciFormat?: string[],
+  botColor?: string
 ) {
   const previusMessageId = messages[messages.length - 1]?.responseId;
 
   const question = 'QUESTION:\n' + prompt;
-  // +'\n' +
-  // 'FEN: ' +
-  // currentChapterState.displayFen +
+  +'\n' +
+    'pgn: ' +
+    pgn +
+    '\n' +
+    'UCI moves: ' +
+    UciFormat +
+    '\n' +
+    'color oponent: ' +
+    botColor;
 
   console.log('send question', question);
-
-  const data = await ai_prompt(question, previusMessageId);
+  const data = await ai_prompt(question, previusMessageId, activeBotName);
 
   return data;
 }

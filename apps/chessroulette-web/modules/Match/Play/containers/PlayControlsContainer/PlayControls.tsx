@@ -305,24 +305,15 @@ export const PlayControls: React.FC<Props> = ({
           {activeWidget === 'camera' ? <CameraOnIcon /> : <CameraOffIcon />}
         </QuickConfirmButton>
       </div>
-
-      <QuickConfirmButton
-        type="custom"
-        size="sm"
-        confirmationBgcolor="green"
+      <ButtonGreen
+        size="xs"
         className={`flex-1 md:hidden !h-8 min-w-[50px] !rounded-3xl !text-white `}
-        confirmationMessage="Chat?"
-        bgColor="green"
         onClick={() => setActiveWidget('chat')}
       >
         <div className="relative">
-          {/* <div className="absolute -top -right-5  flex h-5 w-5 items-center justify-center rounded-full bg-green-600 text-xs font-semibold text-white">
-  {unreadMessagesCount}
-</div> */}
           <MessageIcon />
-          {/* Indikator za nepročitane poruke kada je chat enabled ali kamera aktivna */}
+
           {unreadMessagesCount > 0 && (
-            //  && activeWidget === 'camera'
             <span
               className="absolute -top-2 -right-2 bg-[#07DA63] 
               text-black text-xs font-bold rounded-full w-5 h-5 flex 
@@ -332,7 +323,32 @@ export const PlayControls: React.FC<Props> = ({
             </span>
           )}
         </div>
-      </QuickConfirmButton>
+      </ButtonGreen>
+      {/* <QuickConfirmButton
+        type="custom"
+        size="sm"
+        confirmationBgcolor="green"
+        className={`flex-1 md:hidden !h-8 min-w-[50px] !rounded-3xl !text-white `}
+        confirmationMessage="Chat?"
+        bgColor="green"
+        onClick={() => setActiveWidget('chat')}
+      >
+        <div className="relative">
+        
+          <MessageIcon />
+          
+          {unreadMessagesCount > 0 && (
+          
+            <span
+              className="absolute -top-2 -right-2 bg-[#07DA63] 
+              text-black text-xs font-bold rounded-full w-5 h-5 flex 
+              items-center justify-center"
+            >
+              {unreadMessagesCount > 9 ? '9+' : unreadMessagesCount}
+            </span>
+          )}
+        </div>
+      </QuickConfirmButton> */}
 
       <QuickConfirmButton
         type="custom"

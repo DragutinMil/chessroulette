@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useState, useMemo } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useState,
+  useMemo,
+  useRef,
+} from 'react';
 import {
   ChessFEN,
   PieceSan,
@@ -45,6 +51,7 @@ export type ChessboardContainerProps = Omit<
   lastMove?: ShortChessMove;
   boardOrientation?: ChessColor;
   containerClassName?: string;
+  stopEngineMove?: boolean;
   onLastMoveWasPromotionChange?: (wasPromotion: boolean) => void;
   onPieceDrop?: (from: Square, to: Square, piece?: string) => void;
   onArrowsChange?: (arrows: ArrowsMap) => void;
@@ -91,6 +98,7 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
   // onValidatePromoMove= () => true,
   onValidateMove = () => true, // Defaults to always be able to move
   boardOrientation = 'w',
+  stopEngineMove,
   onLastMoveWasPromotionChange,
   rightSideComponent,
   rightSideSizePx = 0,
@@ -107,6 +115,9 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
   const BOARD_ANIMATION_DELAY = useMemo(() => {
     return match === null ? (!lastMove ? 0 : 360) : 220;
   }, [match, lastMove]);
+  const engineMoveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null
+  );
 
   const [isBotPlay, setBots] = useState(false);
   const arrowAndCircleColor = useArrowAndCircleColor();
@@ -160,7 +171,14 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
     isMyTurn,
     ...props,
   });
-
+  useEffect(() => {
+    if (stopEngineMove) {
+      if (engineMoveTimeoutRef.current) {
+        clearTimeout(engineMoveTimeoutRef.current);
+        engineMoveTimeoutRef.current = null;
+      }
+    }
+  }, [stopEngineMove]);
   const engineMove = useCallback(
     (m: any) => {
       const from = m.slice(0, 2);
@@ -168,7 +186,7 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
       const promo = m[4];
 
       if (promo === 'q') {
-        setTimeout(() => {
+        engineMoveTimeoutRef.current = setTimeout(() => {
           onMove({ from, to, promoteTo: promo });
         }, 2000);
       } else {
@@ -178,7 +196,7 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
         ) {
           const randomDelay = (min = 0, max = 5000) =>
             Math.floor(Math.random() * (max - min + 1)) + min;
-          const timeout = setTimeout(() => {
+          engineMoveTimeoutRef.current = setTimeout(() => {
             onMove({ from, to });
           }, randomDelay());
         } else {

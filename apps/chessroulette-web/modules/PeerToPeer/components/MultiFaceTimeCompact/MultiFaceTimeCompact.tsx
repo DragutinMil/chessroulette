@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState,useRef } from 'react';
+import React, { useEffect, useMemo, useState, useRef } from 'react';
 import useInstance from '@use-it/instance';
 import {
   SpeakerWaveIcon,
@@ -25,11 +25,11 @@ export type MultiFaceTimeCompactProps = {
   mainOverlay?: OverlayedNodeRender;
   reel?: ReelState;
   cameraDisable?: () => void;
- 
+
   width?: number;
   containerClassName?: string;
   isExpanded?: boolean;
-   cameraVisible?:boolean;
+  cameraVisible?: boolean;
   onToggleExpand?: () => void;
 } & Omit<
   FaceTimeProps,
@@ -45,7 +45,7 @@ export type MultiFaceTimeCompactProps = {
 export const MultiFaceTimeCompact: React.FC<MultiFaceTimeCompactProps> = ({
   reel,
   onFocus,
-   cameraVisible,
+  cameraVisible,
   cameraDisable,
   containerClassName,
   width,
@@ -68,7 +68,7 @@ export const MultiFaceTimeCompact: React.FC<MultiFaceTimeCompactProps> = ({
 
     return reel.focusedStreamingPeer.userDisplayName || '';
   }, [reel]);
-const isFirstRender = useRef(true);
+  const isFirstRender = useRef(true);
   const inFocusUserOverlay = useMemo(() => ({ inFocus: undefined }), [reel]);
 
   const avStreaminginstance = useInstance<AVStreaming>(getAVStreamingInstance);
@@ -85,11 +85,11 @@ const isFirstRender = useRef(true);
     );
   }, [avStreaminginstance]);
 
- useEffect(() => {
-  if (isFirstRender.current) {
-    isFirstRender.current = false; 
-    return; 
-  }
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
     if (isExpanded && onToggleExpand) {
       onToggleExpand();
     }
@@ -97,7 +97,7 @@ const isFirstRender = useRef(true);
       ...myFaceTimeConstraints,
       video: false,
     });
-}, [cameraVisible]);
+  }, [cameraVisible]);
 
   const MicIcon =
     myFaceTimeConstraints.audio === false ? SpeakerXMarkIcon : SpeakerWaveIcon;
@@ -105,7 +105,7 @@ const isFirstRender = useRef(true);
     myFaceTimeConstraints.video === false
       ? VideoCameraSlashIcon
       : VideoCameraIcon;
- 
+
   return (
     <div className={`relative ${containerClassName}`} style={containerStyles}>
       {reel ? (
@@ -128,17 +128,15 @@ const isFirstRender = useRef(true);
         <div>{headerOverlay ? headerOverlay(inFocusUserOverlay) : null}</div>
         <div className="flex flex-1 min-h-0">
           <div className="flex-1">
-             <button
-                                  onClick={() => cameraDisable?.()}
-                                  className={`
+            <button
+              onClick={() => cameraDisable?.()}
+              className={`
                                     absolute right-2 h-8 z-50 bg-black/50 text-white rounded-md p-1 hover:bg-black/70
                                     top-2
                                   `}
-                                >
-                                 
-                                    ✕
-                               
-                                </button>
+            >
+              ✕
+            </button>
             {onToggleExpand && (
               <button
                 onClick={(e) => {
@@ -170,7 +168,7 @@ const isFirstRender = useRef(true);
                   onClick={() => {
                     avStreaminginstance.updateConstraints({
                       ...myFaceTimeConstraints,
-                      video: !myFaceTimeConstraints.video ,
+                      video: !myFaceTimeConstraints.video,
                     });
                   }}
                 />

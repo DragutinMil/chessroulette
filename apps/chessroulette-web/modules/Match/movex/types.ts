@@ -82,9 +82,9 @@ export type ChatMessage = {
   timestamp: number;
   responseId?: string;
 };
-export type activeBot = {
+export type ActiveBot = {
   id: string;
   lastName: string;
   name: string;
   picture: string;
-};
+} | null;

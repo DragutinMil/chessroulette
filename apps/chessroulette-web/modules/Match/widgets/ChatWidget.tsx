@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { ChatMessage, activeBot } from '@app/modules/Match/movex/types';
+import { ChatMessage, ActiveBot } from '@app/modules/Match/movex/types';
 import { Text } from '@app/components/Text';
 import { User } from '@app/modules/User';
 import { ChatBotWidget } from './ChatBotWidget';
@@ -10,7 +10,8 @@ type Props = {
   playerNames: { [playerId: string]: string };
   onSendMessage: (content: string, id?: string, senderId?: string) => void;
   disabled?: boolean;
-  activeBot?: activeBot;
+  pgn: string;
+  activeBot?: ActiveBot;
   onToggleChat?: (enabled: boolean) => void;
   otherPlayerChatEnabled?: boolean;
   onClose?: () => void;
@@ -25,6 +26,7 @@ type LastMessageState = {
 export const ChatWidget: React.FC<Props> = ({
   messages,
   currentUserId,
+  pgn,
   playerNames,
   onSendMessage,
   activeBot,
@@ -84,21 +86,23 @@ export const ChatWidget: React.FC<Props> = ({
     ///CHAT BOT TALK
     //activeBot
     //  console.log('klik3',activeBot.length>0 , messages.at(-1)?.senderId, chatBot , messages.at(-1)?.content  )
-    if (
-      activeBot &&
-      activeBot.name.length > 0 &&
-      messages.at(-1)?.senderId !== activeBot.id
-    ) {
+    if (activeBot && messages.at(-1)?.senderId !== activeBot.id) {
       if (messages.at(-1)?.senderId !== currentUserId) {
         return;
       }
       const sendMessage = async () => {
         const lastMessage = messages.at(-1)?.content ?? '';
         try {
-          const answer = await ChatBotWidget(lastMessage, messages);
+          const answer = await ChatBotWidget(
+            lastMessage,
+            pgn,
+            messages,
+            activeBot?.name
+          );
+          console.log('answer', answer);
           const randomSeconds = Math.floor(Math.random() * (10 - 5 + 1)) + 5;
           setTimeout(() => {
-            onSendMessage(answer.answer.trim(), answer.id, activeBot.id);
+            onSendMessage(answer.answer.text.trim(), answer.id, activeBot.id);
           }, randomSeconds * 1000);
 
           // ovde možeš update-ovati state ako treba

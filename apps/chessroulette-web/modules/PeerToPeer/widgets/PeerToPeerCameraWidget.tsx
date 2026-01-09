@@ -3,14 +3,14 @@ import { AspectRatio } from '@app/components/AspectRatio';
 import { FaceTimeProps, MultiFaceTimeCompact } from '../components';
 import { DEV_CameraView } from '../components/DEV_CameraView';
 import { usePeerStreaming } from '../PeerStreaming/hooks/usePeerStreaming';
-import { activeBot } from '@app/modules/Match/movex/types';
+import { ActiveBot } from '@app/modules/Match/movex/types';
 import { useState, useEffect } from 'react';
 import { useMatchViewState } from '../../../modules/Match/hooks/useMatch';
 type Props = {
   aspectRatio?: FaceTimeProps['aspectRatio'];
-  activeBot?: activeBot;
+  activeBot?: ActiveBot;
   isExpanded?: boolean;
-  cameraVisible?:boolean;
+  cameraVisible?: boolean;
   onDisableCamera?: () => void;
   onToggleExpand?: () => void;
 };

@@ -41,7 +41,7 @@ export function enqueueMovexUpdatePlay<T>(
 export async function ai_prompt(
   question: string,
   previusMessageId?: string,
-  agent?: string
+  activeBotName?: string
 ) {
   const token = Cookies.get('sessionToken');
   try {
@@ -54,7 +54,7 @@ export async function ai_prompt(
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          agent_name: agent,
+          agent_name: activeBotName,
           prompt: question,
           previous_response_id: previusMessageId || '',
         }),
