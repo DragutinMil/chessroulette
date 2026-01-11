@@ -90,7 +90,7 @@ const MatchContainerInner = ({
   const dispatchPlay = usePlayActionsDispatch();
   const { displayState, actions } = useGame();
   const [cameraExpanded, setCameraExpanded] = useState(false);
-  const [cameraVisible, setCameraVisible] = useState(true);
+  //const [cameraVisible, setCameraVisible] = useState(true);
   const [camera, setCamera] = useState(true);
   const [stopEngineMove, setStopEngineMove] = useState(false);
   const lastTakebackHandledAtRef = useRef<number>(0);
@@ -100,7 +100,7 @@ const MatchContainerInner = ({
   const [activeBot, setActiveBot] = useState<ActiveBot>();
   const [oponentColor, setOponentColor] = useState<string>();
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
-  const showCamera = !isMobile && activeBot?.id?.slice(-3) !== '000' && camera;
+
   // Resize i socket connection
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
@@ -166,15 +166,10 @@ const MatchContainerInner = ({
     );
   }, [isChatEnabled]);
 
-  const handleSetActiveWidget = (widget: 'chat' | 'camera') => {
-    if (!isMobile) setActiveWidget(widget);
-  };
-
   const handleToggleChat = (enabled: boolean) => {
     // dodatna logika po potrebi
   };
-  const cameraOnOff = () => {
-    setCameraVisible(!cameraVisible);
+  const cameraOff = () => {
     setCameraExpanded(false);
     setTimeout(() => {
       setCamera(false);
@@ -182,6 +177,9 @@ const MatchContainerInner = ({
   };
 
   useEffect(() => {
+    if (isMobile) {
+      setCamera(false);
+    }
     if (match) {
       const bot = findIfBots(match?.challengee.id, match?.challenger.id);
       if (bot) {
@@ -214,10 +212,7 @@ const MatchContainerInner = ({
   }, [match.gameInPlay?.pgn]);
 
   useEffect(() => {
-    if (!activeBot) {
-      return;
-    }
-    if (activeBot?.id?.slice(-3) !== '000') {
+    if (!activeBot || activeBot?.id?.slice(-3) !== '000') {
       return;
     }
     const offer = match?.gameInPlay?.offers.at(-1);
@@ -289,7 +284,8 @@ const MatchContainerInner = ({
             {/* Desktop Chat Widget */}
             <div className="w-full hidden md:flex flex-1 min-h-0 w-full relative">
               {(activeWidget === 'chat' && activeBot) ||
-              activeBot?.id?.slice(-3) == '000' || !activeBot ? (
+              activeBot?.id?.slice(-3) == '000' ||
+              !activeBot ? (
                 <div className="w-full hidden md:flex flex-1 min-h-0 w-full relative">
                   <ChatWidget
                     pgn={matchState?.gameInPlay?.pgn || ''}
@@ -298,13 +294,12 @@ const MatchContainerInner = ({
                     activeBot={activeBot}
                     playerNames={playerNames}
                     onSendMessage={handleSendMessage}
-                    onToggleChat={handleToggleChat}
                     otherPlayerChatEnabled={true}
                   />
                   <div
                     className={`
                       hidden md:block absolute z-20  cursor-pointer transition-all duration-300 ease-in-out
-                      rounded-lg shadow-2xl overflow-hidden 
+                      rounded-lg  overflow-hidden 
                       ${
                         cameraExpanded
                           ? 'inset-0 w-full h-full'
@@ -312,21 +307,21 @@ const MatchContainerInner = ({
                       }
                     `}
                   >
-                    {showCamera ? (
+                    {camera && activeBot?.id?.slice(-3) !== '000' ? (
                       <PeerToPeerCameraWidget
-                        cameraVisible={cameraVisible}
                         activeBot={activeBot}
-                        onDisableCamera={() => cameraOnOff()}
+                        onDisableCamera={() => cameraOff()}
                         onToggleExpand={() => setCameraExpanded((p) => !p)}
                         isExpanded={cameraExpanded}
                       />
                     ) : (
-                      activeBot?.id?.slice(-3) !== '000' &&  !isMobile &&  (
+                      activeBot?.id?.slice(-3) !== '000' &&
+                      !isMobile && (
                         <button
                           onClick={() => setCamera(true)}
                           className={`
-                                                        absolute right-2 h-8 z-50 bg-black/50 text-white rounded-md p-1 hover:bg-black/70
-                                                        -top-2 
+                                                        absolute right-2 h-8 z-50 bg-black/50 text-white rounded-md p-1 hover:opacity-70
+                                                        -top-2   hover:rounded-xl
                                                       `}
                         >
                           <VideoCameraIcon className="h-5 w-5" />
@@ -337,11 +332,11 @@ const MatchContainerInner = ({
                 </div>
               ) : (
                 // classic bot players
-                  showCamera &&  (
-                <div className="w-1/2  md:w-full h-full overflow-hidden  rounded-lg shadow-2xl  ">
-                  <PeerToPeerCameraWidget activeBot={activeBot} />
-                </div>
-                  )
+                !isMobile && (
+                  <div className="w-1/2  md:w-full h-full overflow-hidden  rounded-lg shadow-2xl  ">
+                    <PeerToPeerCameraWidget activeBot={activeBot} />
+                  </div>
+                )
               )}
             </div>
 
@@ -398,7 +393,6 @@ const MatchContainerInner = ({
               activeBot={activeBot}
               playerNames={playerNames}
               onSendMessage={handleSendMessage}
-              onToggleChat={handleToggleChat}
               otherPlayerChatEnabled={true}
               onClose={() => setIsMobileChatOpen(false)}
             />

@@ -10,7 +10,6 @@ type Props = {
   aspectRatio?: FaceTimeProps['aspectRatio'];
   activeBot?: ActiveBot;
   isExpanded?: boolean;
-  cameraVisible?: boolean;
   onDisableCamera?: () => void;
   onToggleExpand?: () => void;
 };
@@ -21,7 +20,6 @@ export const PeerToPeerCameraWidget = ({
   onToggleExpand,
   isExpanded,
   onDisableCamera,
-  cameraVisible,
 }: Props) => {
   const peerStreaming = usePeerStreaming();
 
@@ -46,7 +44,6 @@ export const PeerToPeerCameraWidget = ({
       onToggleExpand={() => onToggleExpand?.()}
       cameraDisable={onDisableCamera}
       isExpanded={isExpanded}
-      cameraVisible={cameraVisible}
       reel={peerStreaming.reel}
       aspectRatio={aspectRatio}
       onFocus={() => {

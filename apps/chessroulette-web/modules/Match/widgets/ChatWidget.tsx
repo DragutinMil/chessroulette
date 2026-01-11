@@ -12,7 +12,6 @@ type Props = {
   disabled?: boolean;
   pgn: string;
   activeBot?: ActiveBot;
-  onToggleChat?: (enabled: boolean) => void;
   otherPlayerChatEnabled?: boolean;
   onClose?: () => void;
 };
@@ -31,7 +30,6 @@ export const ChatWidget: React.FC<Props> = ({
   onSendMessage,
   activeBot,
   disabled = false,
-  onToggleChat,
   otherPlayerChatEnabled = true,
   onClose,
 }) => {
@@ -175,7 +173,7 @@ export const ChatWidget: React.FC<Props> = ({
       setUnreadCount(0);
       localStorage.removeItem(LAST_DISABLED_MESSAGES_KEY);
     }
-    onToggleChat?.(newState);
+    // onToggleChat?.(newState);
   };
 
   const handleSendMessage = () => {
