@@ -61,8 +61,8 @@ export const MultiFaceTimeCompact: React.FC<MultiFaceTimeCompactProps> = ({
     [width]
   );
   const isMobile = useMemo(() => {
-  if (typeof navigator === 'undefined') return false;
-  return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    if (typeof navigator === 'undefined') return false;
+    return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
   }, []);
   const label = useMemo(() => {
     if (!reel) {
@@ -83,17 +83,17 @@ export const MultiFaceTimeCompact: React.FC<MultiFaceTimeCompactProps> = ({
 
   useEffect(() => {
     const initial = {
-    ...avStreaminginstance.activeConstraints,
-    video: isMobile ? false : avStreaminginstance.activeConstraints.video,
-    audio: isMobile ? false : avStreaminginstance.activeConstraints.audio,
-  };
+      ...avStreaminginstance.activeConstraints,
+      video: isMobile ? false : avStreaminginstance.activeConstraints.video,
+      audio: isMobile ? false : avStreaminginstance.activeConstraints.audio,
+    };
     setMyFaceTimeConstraints(initial);
-  avStreaminginstance.updateConstraints(initial);
+    avStreaminginstance.updateConstraints(initial);
 
-  return avStreaminginstance.pubsy.subscribe(
-    'onUpdateConstraints',
-    setMyFaceTimeConstraints
-  );
+    return avStreaminginstance.pubsy.subscribe(
+      'onUpdateConstraints',
+      setMyFaceTimeConstraints
+    );
   }, [avStreaminginstance]);
 
   // useEffect(() => {
