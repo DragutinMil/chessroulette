@@ -129,7 +129,7 @@ export const MultiFaceTimeCompact: React.FC<MultiFaceTimeCompactProps> = ({
 
   return (
     <div className={`relative ${containerClassName}`} style={containerStyles}>
-      {reel ? (
+      {reel && myFaceTimeConstraints ? (
         <FaceTime
           streamConfig={reel.focusedStreamingPeer.connection.channels.streaming}
           label={label}
