@@ -247,7 +247,7 @@ const MatchContainerInner = ({
 
   return (
     <>
-      <div className="flex flex-col flex-1 min-h-0 gap-4 w-full md:w-1/2 md:hidden  mt-4 ">
+      <div className="flex flex-col flex-1 min-h-0 gap-4 w-full md:w-1/2 md:hidden  mt-4 relative z-[100] ">
         <div className="flex flex-row md:flex-col w-full md:w-1/2">
           <div className="w-full md:w-1/2 mr-0 md:mr-0">
             <MatchStateDisplayContainer activeBot={activeBot?.name} />
@@ -257,7 +257,7 @@ const MatchContainerInner = ({
 
       <ResizableDesktopLayout
         mainComponent={({ boardSize }) => (
-          <div className=" w-max[full] md:w-max[3/4] mr-0">
+          <div className=" w-max[full] md:w-max[3/4] mr-0 ">
             <PlayContainer
               key={match.endedGames.length}
               sizePx={boardSize}
@@ -274,7 +274,7 @@ const MatchContainerInner = ({
         )}
         rightSideSize={boardProps.rightSideSizePx}
         rightComponent={
-          <div className="flex flex-col flex-1 min-h-0 gap-4 w-full">
+          <div className="flex flex-col flex-1 min-h-0 gap-4 w-full ">
             <div className="flex flex-row md:flex-col w-full">
               <div className="hidden md:block md:w-full mr-0 md:ml-0">
                 <MatchStateDisplayContainer activeBot={activeBot?.name} />
@@ -340,7 +340,7 @@ const MatchContainerInner = ({
               )}
             </div>
 
-            <div className="w-full pl-2 pr-2 md:pl-0 md:pr-0 pt-0 pb-0 flex flex-col gap-2 md:flex-1 min-h-0 rounded-lg shadow-2xl md:overflow-y-scroll no-scrollbar fixed bottom-0 left-0 right-0 md:relative md:bottom-auto md:left-auto md:right-auto">
+            <div className="w-full pl-2 pr-2 md:pl-0 md:pr-0 pt-0 pb-0 flex flex-col gap-2 md:flex-1 min-h-0 rounded-lg shadow-2xl md:overflow-y-scroll no-scrollbar fixed bottom-0 left-0 right-0 md:relative md:bottom-auto md:left-auto md:right-auto z-2">
               {(match.gameInPlay?.status !== 'idling' || !isMobile) && (
                 <div
                   style={{
@@ -350,7 +350,7 @@ const MatchContainerInner = ({
                     minHeight: isMobile ? '52px' : '202px',
                     width: '100%',
                   }}
-                  className="overflow-x-auto md:overflow-x-hidden md:flex rounded-lg md:mb-0 mb-4 border border-conversation-100 md:p-4 p-2 overflow-scroll no-scrollbar w-full"
+                  className="overflow-x-auto pointer-events-none  md:overflow-x-hidden md:flex rounded-lg md:mb-0 mb-4 border border-conversation-100 md:p-4 p-2 overflow-scroll no-scrollbar w-full"
                 >
                   <FreeBoardNotation
                     isMobile={isMobile}
