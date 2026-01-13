@@ -22,9 +22,9 @@ export const PeerToPeerCameraWidget = ({
   onDisableCamera,
 }: Props) => {
   const peerStreaming = usePeerStreaming();
-
+  
   const { match, ...matchView } = useMatchViewState();
-
+  
   if (!config.CAMERA_ON || !!activeBot?.name) {
     const hashDemoImgId = (id: string) => Number(id.match(/\d/)?.[0] || 0);
     return (
@@ -38,7 +38,7 @@ export const PeerToPeerCameraWidget = ({
       </AspectRatio>
     );
   }
-
+  console.log('peerStreaming',peerStreaming)
   return (
     <MultiFaceTimeCompact
       onToggleExpand={() => onToggleExpand?.()}
