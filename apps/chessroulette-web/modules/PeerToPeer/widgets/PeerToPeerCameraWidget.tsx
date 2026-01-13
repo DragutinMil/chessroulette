@@ -4,7 +4,6 @@ import { FaceTimeProps, MultiFaceTimeCompact } from '../components';
 import { DEV_CameraView } from '../components/DEV_CameraView';
 import { usePeerStreaming } from '../PeerStreaming/hooks/usePeerStreaming';
 import { ActiveBot } from '@app/modules/Match/movex/types';
-import { useState, useEffect } from 'react';
 import { useMatchViewState } from '../../../modules/Match/hooks/useMatch';
 type Props = {
   aspectRatio?: FaceTimeProps['aspectRatio'];

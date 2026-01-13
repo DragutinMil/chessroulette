@@ -1,6 +1,6 @@
 'use client';
 
-import { CSSProperties, useEffect, useMemo, useState } from 'react';
+import { CSSProperties, useMemo } from 'react';
 import { getRandomInt } from '@app/util';
 import demo1 from './assets/1.jpg';
 import demo2 from './assets/2.jpg';
@@ -48,8 +48,7 @@ export const DEV_CameraView = ({
       demoImgId === undefined ? getRandomInt(0, DemoImgs.length - 1) : demoImgId
     ];
   }, [demoImgId]);
-  const [botImg, setBotImg] = useState(activeBotPic);
-
+ 
   return (
     <div className="w-full h-full">
       {activeBotPic && activeBotPic?.length > 0 ? (
