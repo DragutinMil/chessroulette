@@ -84,8 +84,10 @@ export const MultiFaceTimeCompact: React.FC<MultiFaceTimeCompactProps> = ({
   useEffect(() => {
     const initial = {
       ...avStreaminginstance.activeConstraints,
-      video: isMobile ? false : avStreaminginstance.activeConstraints.video,
-      audio: isMobile ? false : avStreaminginstance.activeConstraints.audio,
+      // video: isMobile ? false : avStreaminginstance.activeConstraints.video,
+      // audio: isMobile ? false : avStreaminginstance.activeConstraints.audio,
+      video:  avStreaminginstance.activeConstraints.video,
+       audio:  avStreaminginstance.activeConstraints.audio,
     };
     setMyFaceTimeConstraints(initial);
     avStreaminginstance.updateConstraints(initial);

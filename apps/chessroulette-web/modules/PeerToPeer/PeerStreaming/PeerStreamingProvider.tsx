@@ -71,7 +71,7 @@ export const PeerStreamingProvider: React.FC<Props> = ({
       }),
     }));
   }, [state.peers, clientUserId]);
-
+  console.log('kkk',props.iceServers)
   return (
     <PeerStreamingContext.Provider value={contextState}>
       {config.CAMERA_ON ? (

@@ -7,7 +7,7 @@ const twilioClient: any = new Twilio(
   serverConfig.twilio.TWILIO_ACCOUNT_SID,
   serverConfig.twilio.TWILIO_AUTH_TOKEN
 );
-
+console.log('twilioClient',twilioClient)
 const DEFAULT_ICE_SERVERS = [
   {
     url: 'stun:stun.ideasip.com',
@@ -22,10 +22,8 @@ export const twilio = {
   getIceServers: async (): Promise<IceServerRecord[]> => {
     try {
       if (!config.CAMERA_ON) {
-        console.warn("CAMERA_OFF → no TURN");
         throw 'Camera off - meant to catch!';
       }
-      console.warn("CAMERA_on valjda");
       return (await twilioClient.tokens.create()).iceServers;
     } catch {
       // Return the defaults if no connection or other error
