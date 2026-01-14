@@ -52,12 +52,13 @@ export type ChessboardContainerProps = Omit<
   boardOrientation?: ChessColor;
   containerClassName?: string;
   stopEngineMove?: boolean;
+  botId?:string,
   onLastMoveWasPromotionChange?: (wasPromotion: boolean) => void;
   onPieceDrop?: (from: Square, to: Square, piece?: string) => void;
   onArrowsChange?: (arrows: ArrowsMap) => void;
   onCircleDraw?: (circleTuple: CircleDrawTuple) => void;
   onClearCircles?: () => void;
-
+  
   overlayComponent?: React.ReactNode;
 } & (
     | {
@@ -99,6 +100,7 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
   onValidateMove = () => true, // Defaults to always be able to move
   boardOrientation = 'w',
   stopEngineMove,
+  botId,
   onLastMoveWasPromotionChange,
   rightSideComponent,
   rightSideSizePx = 0,
@@ -119,17 +121,16 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
     null
   );
 
-  const [isBotPlay, setBots] = useState(false);
   const arrowAndCircleColor = useArrowAndCircleColor();
   const arrows = useCustomArrows(onArrowsChange, props.arrowsMap);
   //console.log('arrows', arrows);
 
-  useEffect(() => {
-    setBots(
-      match?.challengee?.id?.length === 16 ||
-        match?.challenger?.id?.length === 16
-    );
-  }, [match?.challengee?.id]);
+  // useEffect(() => {
+  //   setBots(
+  //     match?.challengee?.id?.length === 16 ||
+  //       match?.challenger?.id?.length === 16
+  //   );
+  // }, [match?.challengee?.id]);
 
   // Circles
   const drawCircle = useCallback(
@@ -213,9 +214,9 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
 
   return (
     <div>
-      {match?.challengee.id && isBotPlay && (
+      {botId  && (
         <StockFishEngine
-          bot={match?.challengee.id}
+          bot={botId}
           fen={fen}
           isMyTurn={isMyTurn}
           engineMove={engineMove}

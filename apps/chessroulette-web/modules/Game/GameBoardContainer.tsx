@@ -19,7 +19,8 @@ export type GameBoardContainerProps = DistributivePick<
 
 export const GameBoardContainer = (
   boardProps: GameBoardContainerProps,
-  stopEngineMove: boolean
+  stopEngineMove?: boolean,
+  botId?:string
 ) => {
   const { displayState } = useGame();
 
@@ -27,6 +28,7 @@ export const GameBoardContainer = (
     <Playboard
       fen={displayState.fen}
       stopEngineMove={stopEngineMove}
+      botId={botId}
       lastMove={displayState.lastMove}
       onLastMoveWasPromotionChange={boardProps.onLastMoveWasPromotionChange}
       {...boardProps}

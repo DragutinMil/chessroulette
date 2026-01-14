@@ -11,12 +11,14 @@ export type PlayerContainerProps = DistributiveOmit<
   GameBoardContainerProps,
   'canPlay' | 'onMove' | 'playingColor' | 'turn'
 > & {
-  stopEngineMove?: boolean; // 👈 DODAJEŠ OVDE
+  stopEngineMove?: boolean;
+   botId?:string
 };
 
 export const PlayContainer = (
   playBoardProps: PlayerContainerProps,
-  stopEngineMove: boolean
+  stopEngineMove: boolean,
+  botId?:string
 ) => {
   const play = useCurrentOrPrevMatchPlay();
   const dispatch = usePlayActionsDispatch();
@@ -99,6 +101,7 @@ export const PlayContainer = (
         return true;
       }}
       stopEngineMove={stopEngineMove}
+      botId={botId}
       onLastMoveWasPromotionChange={setLastMoveWasPromotion}
       {...playBoardProps}
     />
