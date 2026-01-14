@@ -260,6 +260,7 @@ const MatchContainerInner = ({
           <div className=" w-max[full] md:w-max[3/4] mr-0 ">
             <PlayContainer
               key={match.endedGames.length}
+              botId={activeBot?.id}
               sizePx={boardSize}
               stopEngineMove={stopEngineMove}
               overlayComponent={

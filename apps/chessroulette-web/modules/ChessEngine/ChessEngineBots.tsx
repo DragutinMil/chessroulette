@@ -31,51 +31,67 @@ const StockfishEngine: React.FC<StockfishEngineProps> = ({
     if (typeof window === 'undefined') return; // Ensure it's client-side
 
     if (skill == '' && bot) {
-      if (bot.slice(-2) == '10') {
-        setDepth('5');
-        setSkill('12');
-        setContempt('22');
-      } else if (bot.slice(-2) == '08') {
-        setDepth('8');
-        setSkill('8');
-        setContempt('18');
-      } else if (bot.slice(-2) == '05') {
-        setDepth('9');
-        setSkill('5');
-        setContempt('15');
-      } else if (bot.slice(-2) == '02') {
-        setDepth('5');
-        setSkill('3');
-        setContempt('15');
-      } else if (bot.slice(-2) == '20') {
-        setDepth('4');
-        setSkill('0');
-        setContempt('12');
-      } else if (bot == '9yzBb59_POb9L000') {
-        setDepth('3');
-        setSkill('3');
-        setContempt('10');
-      } else if (bot == '9aEXYS0xwZS21000') {
-        setDepth('6');
-        setSkill('9');
-        setContempt('6');
-      } else if (bot == 'fH0667J9nJ1Ez000') {
-        setDepth('8');
-        setSkill('2');
-        setContempt('5');
-      } else if (bot == '-BihTlRZ-SKTL000') {
-        setDepth('10');
-        setSkill('8');
-        setContempt('10');
-      } else if (bot == 'Pjdw8gu5kpiRk000') {
-        setDepth('9');
-        setSkill('12');
-        setContempt('12');
-      } else {
-        setDepth('1');
-        setSkill('0');
-        setContempt('20');
-      }
+      let baseDepth = 1;
+let baseSkill = 0;
+let baseContempt = 20;
+console.log(bot)
+if (skill === '' && bot) {
+  if (bot.slice(-2) == '10') {
+    baseDepth = 5;
+    baseSkill = 12;
+    baseContempt = 22;
+  } else if (bot.slice(-2) == '08') {
+    baseDepth = 8;
+    baseSkill = 8;
+    baseContempt = 18;
+  } else if (bot.slice(-2) == '05') {
+    baseDepth = 9;
+    baseSkill = 5;
+    baseContempt = 15;
+  } else if (bot.slice(-2) == '02') {
+    baseDepth = 5;
+    baseSkill = 3;
+    baseContempt = 15;
+  } else if (bot.slice(-2) == '20') {
+    baseDepth = 4;
+    baseSkill = 0;
+    baseContempt = 12;
+  } else if (bot == '9yzBb59_POb9L000') {
+    baseDepth = 3;
+    baseSkill = 3;
+    baseContempt = 10;
+  } else if (bot == '9aEXYS0xwZS21000') {
+    baseDepth = 6;
+    baseSkill = 9;
+    baseContempt = 6;
+  } else if (bot == 'fH0667J9nJ1Ez000') {
+    baseDepth = 8;
+    baseSkill = 2;
+    baseContempt = 5;
+  } else if (bot == '-BihTlRZ-SKTL000') {
+    baseDepth = 10;
+    baseSkill = 8;
+    baseContempt = 10;
+  } else if (bot == 'Pjdw8gu5kpiRk000') {
+    baseDepth = 9;
+    baseSkill = 12;
+    baseContempt = 12;
+  }
+  console.log('base',baseDepth,baseSkill,baseContempt)
+  const randomize = (value: number, delta = 2, min = 0, max = 20) => {
+  const rnd = Math.floor(Math.random() * (delta * 2 + 1)) - delta; // -delta .. +delta
+  const v = value + rnd;
+  return Math.max(min, Math.min(max, v));
+};
+  const finalDepth = randomize(baseDepth, 2, 1, 15);
+  const finalSkill = randomize(baseSkill, 2, 0, 20);
+  const finalContempt = randomize(baseContempt, 2, 0, 30);
+
+setDepth(String(finalDepth));
+setSkill(String(finalSkill));
+setContempt(String(finalContempt)); 
+console.log(finalDepth,finalSkill,finalContempt)
+}
     }
 
     try {
