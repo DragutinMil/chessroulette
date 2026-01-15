@@ -173,7 +173,7 @@ export const RoomContainer = ({ iceServers, rid , activity }: Props) => {
         // Proveri da li je korisnik u match, aichess, ili ailearn aktivnosti
         const currentActivity = movexResource?.state?.activity?.activityType;
         const shouldShowNotification = 
-          currentActivity === 'match' || 
+         // currentActivity === 'match' || 
           currentActivity === 'aichess' || 
           currentActivity === 'ailearn';
 
