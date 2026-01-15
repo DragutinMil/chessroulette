@@ -40,7 +40,7 @@ type Props = {
   activity: ActivityState['activityType'];
 };
 
-export const RoomContainer = ({ iceServers, rid , activity }: Props) => {
+export const RoomContainer = ({ iceServers, rid, activity }: Props) => {
   const movex = useMovex(movexConfig);
   const movexResource = useMovexBoundResourceFromRid(movexConfig, rid);
   const userId = useMovexClient(movexConfig)?.id;
@@ -60,6 +60,7 @@ export const RoomContainer = ({ iceServers, rid , activity }: Props) => {
     initiator_name_last?: string;
   } | null>(null);
 
+
   const [challengeAcceptedNotification, setChallengeAcceptedNotification] = useState<{
     ch_uuid?: string;
     url?: string;
@@ -68,6 +69,7 @@ export const RoomContainer = ({ iceServers, rid , activity }: Props) => {
       name_last?: string;
     };
   } | null>(null);
+
 
   // Jednostavan useEffect samo za socket i notifikacije
   useEffect(() => {
@@ -310,6 +312,7 @@ export const RoomContainer = ({ iceServers, rid , activity }: Props) => {
         <Modal>Cannot connect. Check your Internet Connection!</Modal>
       )}
       <div className="flex-center">
+
           {activity !== 'match' && (
  <ChallengeNotification
           challenge={challengeNotification}
@@ -333,6 +336,7 @@ export const RoomContainer = ({ iceServers, rid , activity }: Props) => {
             }}
           />
         )}  
+
       </div>
     </PeerStreamingProvider>
   );

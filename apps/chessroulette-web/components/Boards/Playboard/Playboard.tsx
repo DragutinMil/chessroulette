@@ -21,6 +21,8 @@ export type PlayboardProps = DistributiveOmit<
   turn: ChessColor;
   onMove: (m: ShortChessMove) => void;
   onLastMoveWasPromotionChange?: (wasPromotion: boolean) => void;
+  stopEngineMove?: boolean;
+  botId?:string,
   canPlay?: boolean;
   overlayComponent?: React.ReactNode;
 };
@@ -36,6 +38,8 @@ export const Playboard = ({
   playingColor,
   boardOrientation = playingColor,
   onMove,
+  stopEngineMove,
+  botId,
   onLastMoveWasPromotionChange,
   canPlay = false,
   turn,
@@ -47,7 +51,7 @@ export const Playboard = ({
   //   return validatePreMove(move, fen, playingColor).valid;
   // };
 
-  const isSquareEmpty = (m: string) => squareEmpty(m, fen);
+  //const isSquareEmpty = (m: string) => squareEmpty(m, fen);
 
   const onValidateMove = useCallback(
     (move: ShortChessMove) => {
@@ -100,6 +104,8 @@ export const Playboard = ({
       // onClearCircles={() => {
       //   setCirclesMap({});
       // }}
+      botId={botId}
+      stopEngineMove={stopEngineMove}
       onLastMoveWasPromotionChange={onLastMoveWasPromotionChange}
     />
   );

@@ -9,12 +9,14 @@ type Props = {
   game: Game;
   playersBySide: PlayersBySideWithResults;
   turn: ChessColor;
+  activeBot?: string;
   onCheckTime: () => void;
 };
 
 export const PlayersInfo = ({
   game,
   playersBySide,
+  activeBot,
   turn,
   onCheckTime,
 }: Props) => {
@@ -46,6 +48,7 @@ export const PlayersInfo = ({
             isGameCountdownActive &&
             areColorsEqual(turn, playersBySide.away.color)
           }
+          activeBot={activeBot}
           gameTimeClass={game.timeClass}
           timeLeft={game.timeLeft[playersBySide.away.color]}
           onCheckTime={onCheckTime}
@@ -58,6 +61,7 @@ export const PlayersInfo = ({
           isGameCountdownActive &&
           areColorsEqual(turn, playersBySide.home.color)
         }
+        activeBot={activeBot}
         gameTimeClass={game.timeClass}
         timeLeft={game.timeLeft[playersBySide.home.color]}
         onCheckTime={onCheckTime}

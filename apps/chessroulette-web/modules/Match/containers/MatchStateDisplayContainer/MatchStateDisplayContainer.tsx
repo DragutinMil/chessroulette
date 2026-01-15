@@ -9,8 +9,12 @@ import {
 import { enqueueMovexUpdatePlay } from '../../utils';
 import { useCurrentOrPrevMatchPlay } from '../../Play/hooks';
 import { isMobile } from '@app/modules/Room/activities/Aichess/util';
-
-export const MatchStateDisplayContainer = () => {
+type MatchStateDisplayContainerProps = {
+  activeBot?: string;
+};
+export const MatchStateDisplayContainer = ({
+  activeBot,
+}: MatchStateDisplayContainerProps) => {
   const { match, currentRound, drawsCount, endedGamesCount } =
     useMatchViewState();
   const play = useCurrentOrPrevMatchPlay();
@@ -37,6 +41,7 @@ export const MatchStateDisplayContainer = () => {
           <PlayersInfo
             key={play.game.startedAt} // refresh it on each new game
             playersBySide={play.playersBySide}
+            activeBot={activeBot}
             game={play.game}
             turn={play.turn}
             onCheckTime={async () => {
@@ -61,7 +66,7 @@ export const MatchStateDisplayContainer = () => {
           timeToAbortMs={match.timeToAbortMs}
           playerId={play.userAsPlayerId}
           completedPlaysCount={endedGamesCount}
-          className="md:bg-slate-700 rounded-md p-0 md:p-2 absolute bottom-16 md:relative md:bottom-0  w-full h-8"
+          className="md:bg-slate-700 rounded-md p-0 md:p-2 fixed bottom-16 md:relative md:bottom-0 w-[94%]  md:w-full h-8"
         />
       )}
     </div>

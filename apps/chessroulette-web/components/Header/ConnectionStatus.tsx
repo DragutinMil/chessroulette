@@ -41,8 +41,7 @@ export default () => {
                       return (
                         <button onClick={(event) => show({ event })}>
                           ({participantsCount}{' '}
-                          {pluralize(!(participantsCount === 1), 'participant')}
-                          )
+                          {pluralize(!(participantsCount === 1), 'user')})
                           <Menu id={MENU_ID}>
                             {participants.map((p) => (
                               <Item key={p.id}>
