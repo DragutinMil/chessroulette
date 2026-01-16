@@ -351,7 +351,7 @@ const MatchContainerInner = ({
                     minHeight: isMobile ? '52px' : '202px',
                     width: '100%',
                   }}
-                  className="overflow-x-auto  md:overflow-x-hidden md:flex rounded-lg md:mb-0 mb-4 border border-conversation-100 md:p-4 p-2 overflow-scroll no-scrollbar w-full"
+                  className="overflow-x-auto  md:overflow-x-hidden md:flex rounded-lg md:mb-0 mb-1 border border-conversation-100 md:p-4 p-2 overflow-scroll no-scrollbar w-full"
                 >
                   <FreeBoardNotation
                     isMobile={isMobile}
