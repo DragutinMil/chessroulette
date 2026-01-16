@@ -88,7 +88,18 @@ export const ChatWidget: React.FC<Props> = ({
       if (messages.at(-1)?.senderId !== currentUserId) {
         return;
       }
+
       const sendMessage = async () => {
+         if (
+          activeBot?.name !== 'Damian' &&
+          activeBot?.name !== 'Stella' &&
+          activeBot?.name !== 'Laura' &&
+          activeBot?.name !== 'Margareta' &&
+          activeBot?.name !== 'Viola'
+        ) {
+          return;
+        }
+
         const lastMessage = messages.at(-1)?.content ?? '';
         try {
           const answer = await ChatBotWidget(
