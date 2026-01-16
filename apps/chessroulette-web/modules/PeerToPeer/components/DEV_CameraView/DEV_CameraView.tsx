@@ -48,7 +48,7 @@ export const DEV_CameraView = ({
       demoImgId === undefined ? getRandomInt(0, DemoImgs.length - 1) : demoImgId
     ];
   }, [demoImgId]);
- 
+
   return (
     <div className="w-full h-full">
       {activeBotPic && activeBotPic?.length > 0 ? (

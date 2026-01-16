@@ -22,7 +22,7 @@ export type PlayboardProps = DistributiveOmit<
   onMove: (m: ShortChessMove) => void;
   onLastMoveWasPromotionChange?: (wasPromotion: boolean) => void;
   stopEngineMove?: boolean;
-  botId?:string,
+  botId?: string;
   canPlay?: boolean;
   overlayComponent?: React.ReactNode;
 };

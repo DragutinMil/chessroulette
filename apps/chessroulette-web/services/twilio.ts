@@ -21,13 +21,12 @@ export const twilio = {
   DEFAULT_ICE_SERVERS,
   getIceServers: async (): Promise<IceServerRecord[]> => {
     try {
-   console.log("TWILIO IN");
       if (!config.CAMERA_ON) {
         throw 'Camera off - meant to catch!';
       }
       return (await twilioClient.tokens.create()).iceServers;
-    } catch(e) {
-      console.error("TWILIO ERROR", e);
+    } catch (e) {
+      console.error('TWILIO ERROR', e);
       // Return the defaults if no connection or other error
       return DEFAULT_ICE_SERVERS;
     }

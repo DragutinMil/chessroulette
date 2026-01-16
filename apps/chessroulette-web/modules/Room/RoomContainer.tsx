@@ -58,7 +58,7 @@ export const RoomContainer = ({ iceServers, rid, activity }: Props) => {
     initiator_name_first?: string;
     initiator_name_last?: string;
   } | null>(null);
-  console.log('iceServers',iceServers)
+
   // Jednostavan useEffect samo za socket i notifikacije
   useEffect(() => {
     // console.log('🔌 Connecting to socket... room');

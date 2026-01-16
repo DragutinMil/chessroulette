@@ -21,19 +21,45 @@ export const MatchStateDisplayContainer = ({
 
   const dispatch = useMatchActionsDispatch();
 
+  type TimeClass =
+    | 'bullet'
+    | 'blitz'
+    | 'rapid'
+    | 'blitz3'
+    | 'blitz3plus2'
+    | 'blitzplus2'
+    | 'bulletplus1'
+    | 'bullet2plus1'
+    | 'untimed'
+    | 'bullet2';
+
+  const timeClassMap: Record<TimeClass, string> = {
+    bullet: 'Bullet 1+0',
+    blitz: 'Blitz 3+0',
+    rapid: 'Rapid 10+0',
+    blitz3: 'Blitz 3+0',
+    blitz3plus2: 'Blitz 3+2',
+    blitzplus2: 'Blitz 5+2',
+    bulletplus1: 'Bullet 1+1',
+    bullet2plus1: 'Bullet 2+1',
+    untimed: '∞',
+    bullet2: 'Bullet 2+0',
+  };
+  const timeClass = match?.gameInPlay?.timeClass;
+  const displayTime = timeClassMap[timeClass as TimeClass];
   return (
     <div className="flex flex-col gap-1 md:gap-1 w-full">
       {match?.type === 'bestOf' && (
         <div className="flex flex-col md:flex-row gap-2 md:mt-0 mt-0 w-full text-sm md:text-md">
           <div>
             <Text>Round &nbsp;</Text>
-            <Text>{`${currentRound}/${match.rounds}`}</Text>
+            <Text>{`${currentRound}/${match.rounds}`},</Text>
+
+            <Text> {displayTime}</Text>
+            {drawsCount > 0 && (
+              <Text> {`(${drawsCount} games ended in draw)`}</Text>
+            )}
           </div>
-          {drawsCount > 0 && (
-            <div>
-              <Text>{`(${drawsCount} games ended in draw)`}</Text>
-            </div>
-          )}
         </div>
       )}
       <div className="flex flex-row w-full mr-0 p-0">
