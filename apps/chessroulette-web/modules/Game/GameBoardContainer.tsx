@@ -20,7 +20,7 @@ export type GameBoardContainerProps = DistributivePick<
 export const GameBoardContainer = (
   boardProps: GameBoardContainerProps,
   stopEngineMove?: boolean,
-  botId?:string
+  botId?: string
 ) => {
   const { displayState } = useGame();
 

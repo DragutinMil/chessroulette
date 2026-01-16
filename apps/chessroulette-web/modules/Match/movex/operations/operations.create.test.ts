@@ -37,6 +37,7 @@ describe('Best Of', () => {
     };
 
     const expected: MatchState = {
+      messages: [],
       status: 'pending',
       type: 'bestOf',
       rounds: 3,
@@ -89,6 +90,7 @@ describe('Open Ended', () => {
     };
 
     const expected: MatchState = {
+      messages: [],
       status: 'pending',
       type: 'openEnded',
       winner: null,

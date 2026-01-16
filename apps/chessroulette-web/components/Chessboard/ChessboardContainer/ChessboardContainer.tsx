@@ -52,13 +52,13 @@ export type ChessboardContainerProps = Omit<
   boardOrientation?: ChessColor;
   containerClassName?: string;
   stopEngineMove?: boolean;
-  botId?:string,
+  botId?: string;
   onLastMoveWasPromotionChange?: (wasPromotion: boolean) => void;
   onPieceDrop?: (from: Square, to: Square, piece?: string) => void;
   onArrowsChange?: (arrows: ArrowsMap) => void;
   onCircleDraw?: (circleTuple: CircleDrawTuple) => void;
   onClearCircles?: () => void;
-  
+
   overlayComponent?: React.ReactNode;
 } & (
     | {
@@ -214,7 +214,7 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
 
   return (
     <div>
-      {botId  && (
+      {botId && (
         <StockFishEngine
           bot={botId}
           fen={fen}

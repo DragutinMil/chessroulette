@@ -71,7 +71,6 @@ export const MultiFaceTimeCompact: React.FC<MultiFaceTimeCompactProps> = ({
 
     return reel.focusedStreamingPeer.userDisplayName || '';
   }, [reel]);
-  const isFirstRender = useRef(true);
   const inFocusUserOverlay = useMemo(() => ({ inFocus: undefined }), [reel]);
 
   const avStreaminginstance = useInstance<AVStreaming>(getAVStreamingInstance);
@@ -84,10 +83,8 @@ export const MultiFaceTimeCompact: React.FC<MultiFaceTimeCompactProps> = ({
   useEffect(() => {
     const initial = {
       ...avStreaminginstance.activeConstraints,
-      // video: isMobile ? false : avStreaminginstance.activeConstraints.video,
-      // audio: isMobile ? false : avStreaminginstance.activeConstraints.audio,
-      video:  avStreaminginstance.activeConstraints.video,
-       audio:  avStreaminginstance.activeConstraints.audio,
+      video: isMobile ? false : avStreaminginstance.activeConstraints.video,
+      audio: isMobile ? false : avStreaminginstance.activeConstraints.audio,
     };
     setMyFaceTimeConstraints(initial);
     avStreaminginstance.updateConstraints(initial);
@@ -98,19 +95,6 @@ export const MultiFaceTimeCompact: React.FC<MultiFaceTimeCompactProps> = ({
     );
   }, [avStreaminginstance]);
 
-  // useEffect(() => {
-  //   if (isFirstRender.current) {
-  //     isFirstRender.current = false;
-  //     return;
-  //   }
-  //   if (isExpanded && onToggleExpand) {
-  //     onToggleExpand();
-  //   }
-  //   avStreaminginstance.updateConstraints({
-  //     ...myFaceTimeConstraints,
-  //     video: false,
-  //   });
-  // }, [cameraVisible]);
   const cameraDisableComponent = () => {
     if (!myFaceTimeConstraints) return;
     avStreaminginstance.updateConstraints({
@@ -170,21 +154,6 @@ export const MultiFaceTimeCompact: React.FC<MultiFaceTimeCompactProps> = ({
                   onToggleExpand();
                 }}
               />
-
-              //             <button
-              //               onClick={(e) => {
-              //                 e.stopPropagation();
-              //                 onToggleExpand();
-              //               }}
-              //               className="absolute top-11 hover:bg-slate-400 right-2 z-40 bg-black/50 text-white hover:rounded-xl
-              //              rounded-md px-1  hover:bg-black/70 scale-[2]"
-              //             >
-              //              {isExpanded ? (
-              //   <ArrowsPointingInIcon className="h-2 w-2" />
-              // ) : (
-              //   <ArrowsPointingOutIcon className="h-2 w-2" />
-              // )}
-              //             </button>
             )}
             {mainOverlay ? mainOverlay(inFocusUserOverlay) : null}
 

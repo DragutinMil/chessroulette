@@ -50,12 +50,18 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
   const dispatch = useMatchActionsDispatch();
   const router = useRouter();
   const { lastOffer, playerId } = useGame();
+  // useEffect(() => {
+  //   if (match?.status === 'complete') {
+  //     // Send to grab result from chessroullette
+  //     sendResult();
+  //   }
+  // }, [match?.winner]);
   useEffect(() => {
-    if (match?.status === 'complete') {
+    if (match?.status === 'ongoing' || match?.status === 'complete') {
       // Send to grab result from chessroullette
       sendResult();
     }
-  }, [match?.winner]);
+  }, [match?.status]);
   useEffect(() => {
     const result = checkUser();
 
