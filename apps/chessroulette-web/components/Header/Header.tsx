@@ -20,7 +20,7 @@ export default (props: Props) => {
   const router = useRouter();
   return (
     <header
-      className="
+      className=" 
       pl-[max(env(safe-area-inset-left),1.5rem)]
       pr-[max(env(safe-area-inset-right),1.5rem)]
       pt-2 md:pt-[max(env(safe-area-inset-top),1rem)]

@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useState, useMemo } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useState,
+  useMemo,
+  useRef,
+} from 'react';
 import {
   ChessFEN,
   PieceSan,
@@ -45,6 +51,8 @@ export type ChessboardContainerProps = Omit<
   lastMove?: ShortChessMove;
   boardOrientation?: ChessColor;
   containerClassName?: string;
+  stopEngineMove?: boolean;
+  botId?: string;
   onLastMoveWasPromotionChange?: (wasPromotion: boolean) => void;
   onPieceDrop?: (from: Square, to: Square, piece?: string) => void;
   onArrowsChange?: (arrows: ArrowsMap) => void;
@@ -91,6 +99,8 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
   // onValidatePromoMove= () => true,
   onValidateMove = () => true, // Defaults to always be able to move
   boardOrientation = 'w',
+  stopEngineMove,
+  botId,
   onLastMoveWasPromotionChange,
   rightSideComponent,
   rightSideSizePx = 0,
@@ -107,15 +117,20 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
   const BOARD_ANIMATION_DELAY = useMemo(() => {
     return match === null ? (!lastMove ? 0 : 360) : 220;
   }, [match, lastMove]);
+  const engineMoveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null
+  );
 
-  const [isBotPlay, setBots] = useState(false);
   const arrowAndCircleColor = useArrowAndCircleColor();
   const arrows = useCustomArrows(onArrowsChange, props.arrowsMap);
   //console.log('arrows', arrows);
 
-  useEffect(() => {
-    setBots(match?.challengee?.id?.length === 16);
-  }, [match?.challengee?.id]);
+  // useEffect(() => {
+  //   setBots(
+  //     match?.challengee?.id?.length === 16 ||
+  //       match?.challenger?.id?.length === 16
+  //   );
+  // }, [match?.challengee?.id]);
 
   // Circles
   const drawCircle = useCallback(
@@ -157,7 +172,14 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
     isMyTurn,
     ...props,
   });
-
+  useEffect(() => {
+    if (stopEngineMove) {
+      if (engineMoveTimeoutRef.current) {
+        clearTimeout(engineMoveTimeoutRef.current);
+        engineMoveTimeoutRef.current = null;
+      }
+    }
+  }, [stopEngineMove]);
   const engineMove = useCallback(
     (m: any) => {
       const from = m.slice(0, 2);
@@ -165,9 +187,22 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
       const promo = m[4];
 
       if (promo === 'q') {
-        onMove({ from, to, promoteTo: promo });
+        engineMoveTimeoutRef.current = setTimeout(() => {
+          onMove({ from, to, promoteTo: promo });
+        }, 2000);
       } else {
-        onMove({ from, to });
+        if (
+          match?.challengee.id.slice(-3) === '000' ||
+          match?.challenger.id.slice(-3) === '000'
+        ) {
+          const randomDelay = (min = 0, max = 5000) =>
+            Math.floor(Math.random() * (max - min + 1)) + min;
+          engineMoveTimeoutRef.current = setTimeout(() => {
+            onMove({ from, to });
+          }, randomDelay());
+        } else {
+          onMove({ from, to });
+        }
       }
     },
     [onMove]
@@ -176,12 +211,12 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
   if (sizePx === 0) {
     return null;
   }
-  //console.log('boardTheme',boardTheme)
+
   return (
     <div>
-      {match?.challengee.id && isBotPlay && (
+      {botId && (
         <StockFishEngine
-          bot={match?.challengee.id}
+          bot={botId}
           fen={fen}
           isMyTurn={isMyTurn}
           engineMove={engineMove}

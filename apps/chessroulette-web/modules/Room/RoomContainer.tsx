@@ -32,6 +32,7 @@ import { useSearchParams } from 'next/navigation';
 import { ChallengeNotification } from '@app/components/ChallengeNotification/ChallengeNotification';
 import socketUtil from '../../socketUtil';
 import { useState, useEffect } from 'react';
+import { ChallengeAcceptedNotification } from '@app/components/ChallengeAcceptedNotification/ChallengeAcceptedNotification';
 
 type Props = {
   rid: ResourceIdentifier<'room'>;
@@ -39,7 +40,7 @@ type Props = {
   activity: ActivityState['activityType'];
 };
 
-export const RoomContainer = ({ iceServers, rid , activity }: Props) => {
+export const RoomContainer = ({ iceServers, rid, activity }: Props) => {
   const movex = useMovex(movexConfig);
   const movexResource = useMovexBoundResourceFromRid(movexConfig, rid);
   const userId = useMovexClient(movexConfig)?.id;
@@ -58,6 +59,18 @@ export const RoomContainer = ({ iceServers, rid , activity }: Props) => {
     initiator_name_first?: string;
     initiator_name_last?: string;
   } | null>(null);
+
+
+  const [challengeAcceptedNotification, setChallengeAcceptedNotification] = useState<{
+    ch_uuid?: string;
+    url?: string;
+    from_user_object?: {
+      name_first?: string;
+      name_last?: string;
+    };
+  } | null>(null);
+
+
 
   // Jednostavan useEffect samo za socket i notifikacije
   useEffect(() => {
@@ -146,6 +159,39 @@ export const RoomContainer = ({ iceServers, rid , activity }: Props) => {
       socketUtil.unsubscribe('tb_notification', handleChallengeNotification);
     };
   }, []);
+
+  useEffect(() => {
+    const handleChallengeAccepted = (data: any) => {
+      // Proveri da li je ovo challenge_accepted notifikacija
+      if (data.type === 'NOTIFICATION' && data.n_type === 'challenge_accepted') {
+        const challengeAcceptedData = {
+          ch_uuid: data.data?.ch_uuid || data.ch_uuid,
+          url: data.data?.url || data.url,
+          from_user_object: data.from_user_object || {
+            name_first: data.data?.from_user_object?.name_first,
+            name_last: data.data?.from_user_object?.name_last,
+          },
+        };
+
+        // Proveri da li je korisnik u match, aichess, ili ailearn aktivnosti
+        const currentActivity = movexResource?.state?.activity?.activityType;
+        const shouldShowNotification = 
+         // currentActivity === 'match' || 
+          currentActivity === 'aichess' || 
+          currentActivity === 'ailearn';
+
+        if (shouldShowNotification && challengeAcceptedData.from_user_object) {
+          setChallengeAcceptedNotification(challengeAcceptedData);
+        }
+      }
+    };
+
+    socketUtil.subscribe('tb_notification', handleChallengeAccepted);
+
+    return () => {
+      socketUtil.unsubscribe('tb_notification', handleChallengeAccepted);
+    };
+  }, [movexResource?.state?.activity?.activityType]);
 
   // useEffect(() => {
   //   console.log(
@@ -267,6 +313,7 @@ export const RoomContainer = ({ iceServers, rid , activity }: Props) => {
         <Modal>Cannot connect. Check your Internet Connection!</Modal>
       )}
       <div className="flex-center">
+
           {activity !== 'match' && (
  <ChallengeNotification
           challenge={challengeNotification}
@@ -277,10 +324,20 @@ export const RoomContainer = ({ iceServers, rid , activity }: Props) => {
             setChallengeNotification(null);
           }}
         />
-          ) }
-         
-        
-       
+        )}
+        {/* Dodajte ChallengeAcceptedNotification za match, aichess, i ailearn */}
+        {(activity === 'match' || activity === 'aichess' || activity === 'ailearn') && (
+          <ChallengeAcceptedNotification
+            challenge={challengeAcceptedNotification}
+            onAccept={() => {
+              setChallengeAcceptedNotification(null);
+            }}
+            onDecline={() => {
+              setChallengeAcceptedNotification(null);
+            }}
+          />
+        )}  
+
       </div>
     </PeerStreamingProvider>
   );

@@ -100,6 +100,7 @@ describe('Match Status: Pending > Ongoing', () => {
     });
 
     const expected: MatchState = {
+      messages: [],
       status: 'pending',
       type: 'bestOf',
       rounds: 3,
@@ -135,6 +136,7 @@ describe('Match Status: Pending > Ongoing', () => {
     });
 
     const expectedUpdate: MatchState = {
+      messages: [],
       status: 'ongoing',
       type: 'bestOf',
       rounds: 3,
@@ -189,6 +191,7 @@ describe('Match Status: Ongoing > Completed', () => {
     });
 
     const expected: MatchState = {
+      messages: [],
       status: 'pending',
       type: 'bestOf',
       rounds: 1,
@@ -233,6 +236,7 @@ describe('Match Status: Ongoing > Completed', () => {
     ]);
 
     const expectedUpdated: MatchState = {
+      messages: [],
       status: 'complete',
       type: 'bestOf',
       rounds: 1,
@@ -293,6 +297,7 @@ describe('Start New Match', () => {
     });
 
     const expectedAfterFirstMove: MatchState = {
+      messages: [],
       status: 'pending',
       type: 'bestOf',
       rounds: 3,
@@ -337,6 +342,7 @@ describe('Start New Match', () => {
     ]);
 
     const expected: MatchState = {
+      messages: [],
       status: 'ongoing',
       type: 'bestOf',
       rounds: 3,
@@ -409,6 +415,7 @@ describe('End Match when rounds number reached', () => {
     ]);
 
     const expected: MatchState = {
+      messages: [],
       status: 'complete',
       type: 'bestOf',
       rounds: 1,
@@ -462,6 +469,7 @@ describe('End Match when rounds number reached', () => {
     ]);
 
     const expected: MatchState = {
+      messages: [],
       status: 'ongoing',
       type: 'bestOf',
       rounds: 1,
@@ -524,6 +532,7 @@ describe('Timer only starts after black moves', () => {
     });
 
     const expectedAfterWhiteMove: MatchState = {
+      messages: [],
       status: 'pending',
       type: 'openEnded',
       endedGames: [],
@@ -563,6 +572,7 @@ describe('Timer only starts after black moves', () => {
     });
 
     const expectedAfterBlackMove: MatchState = {
+      messages: [],
       status: 'ongoing',
       type: 'openEnded',
       endedGames: [],
@@ -629,6 +639,7 @@ describe('Abort', () => {
     });
 
     const expected: MatchState = {
+      messages: [],
       status: 'aborted',
       type: 'bestOf',
       rounds: 3,
@@ -682,6 +693,7 @@ describe('Abort', () => {
     ]);
 
     const expectedNew: MatchState = {
+      messages: [],
       status: 'ongoing',
       type: 'bestOf',
       rounds: 3,
@@ -732,6 +744,7 @@ describe('Abort', () => {
     ]);
 
     const expected: MatchState = {
+      messages: [],
       status: 'complete',
       type: 'bestOf',
       rounds: 3,
@@ -798,6 +811,7 @@ describe('Abort', () => {
     ]);
 
     const expectedNewMatch: MatchState = {
+      messages: [],
       status: 'ongoing',
       type: 'bestOf',
       rounds: 3,
@@ -854,6 +868,7 @@ describe('Abort', () => {
     ]);
 
     const expected: MatchState = {
+      messages: [],
       status: 'complete',
       type: 'bestOf',
       rounds: 3,

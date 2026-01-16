@@ -17,12 +17,18 @@ export type GameBoardContainerProps = DistributivePick<
   | 'boardOrientation'
 >;
 
-export const GameBoardContainer = (boardProps: GameBoardContainerProps) => {
+export const GameBoardContainer = (
+  boardProps: GameBoardContainerProps,
+  stopEngineMove?: boolean,
+  botId?: string
+) => {
   const { displayState } = useGame();
 
   return (
     <Playboard
       fen={displayState.fen}
+      stopEngineMove={stopEngineMove}
+      botId={botId}
       lastMove={displayState.lastMove}
       onLastMoveWasPromotionChange={boardProps.onLastMoveWasPromotionChange}
       {...boardProps}
