@@ -60,17 +60,15 @@ export const RoomContainer = ({ iceServers, rid, activity }: Props) => {
     initiator_name_last?: string;
   } | null>(null);
 
-
-  const [challengeAcceptedNotification, setChallengeAcceptedNotification] = useState<{
-    ch_uuid?: string;
-    url?: string;
-    from_user_object?: {
-      name_first?: string;
-      name_last?: string;
-    };
-  } | null>(null);
-
-
+  const [challengeAcceptedNotification, setChallengeAcceptedNotification] =
+    useState<{
+      ch_uuid?: string;
+      url?: string;
+      from_user_object?: {
+        name_first?: string;
+        name_last?: string;
+      };
+    } | null>(null);
 
   // Jednostavan useEffect samo za socket i notifikacije
   useEffect(() => {
@@ -163,7 +161,10 @@ export const RoomContainer = ({ iceServers, rid, activity }: Props) => {
   useEffect(() => {
     const handleChallengeAccepted = (data: any) => {
       // Proveri da li je ovo challenge_accepted notifikacija
-      if (data.type === 'NOTIFICATION' && data.n_type === 'challenge_accepted') {
+      if (
+        data.type === 'NOTIFICATION' &&
+        data.n_type === 'challenge_accepted'
+      ) {
         const challengeAcceptedData = {
           ch_uuid: data.data?.ch_uuid || data.ch_uuid,
           url: data.data?.url || data.url,
@@ -175,10 +176,9 @@ export const RoomContainer = ({ iceServers, rid, activity }: Props) => {
 
         // Proveri da li je korisnik u match, aichess, ili ailearn aktivnosti
         const currentActivity = movexResource?.state?.activity?.activityType;
-        const shouldShowNotification = 
-         // currentActivity === 'match' || 
-          currentActivity === 'aichess' || 
-          currentActivity === 'ailearn';
+        const shouldShowNotification =
+          // currentActivity === 'match' ||
+          currentActivity === 'aichess' || currentActivity === 'ailearn';
 
         if (shouldShowNotification && challengeAcceptedData.from_user_object) {
           setChallengeAcceptedNotification(challengeAcceptedData);
@@ -313,20 +313,21 @@ export const RoomContainer = ({ iceServers, rid, activity }: Props) => {
         <Modal>Cannot connect. Check your Internet Connection!</Modal>
       )}
       <div className="flex-center">
-
-          {activity !== 'match' && (
- <ChallengeNotification
-          challenge={challengeNotification}
-          onAccept={(challengeUuid) => {
-            setChallengeNotification(null);
-          }}
-          onDecline={() => {
-            setChallengeNotification(null);
-          }}
-        />
+        {activity !== 'match' && (
+          <ChallengeNotification
+            challenge={challengeNotification}
+            onAccept={(challengeUuid) => {
+              setChallengeNotification(null);
+            }}
+            onDecline={() => {
+              setChallengeNotification(null);
+            }}
+          />
         )}
         {/* Dodajte ChallengeAcceptedNotification za match, aichess, i ailearn */}
-        {(activity === 'match' || activity === 'aichess' || activity === 'ailearn') && (
+        {(activity === 'match' ||
+          activity === 'aichess' ||
+          activity === 'ailearn') && (
           <ChallengeAcceptedNotification
             challenge={challengeAcceptedNotification}
             onAccept={() => {
@@ -336,8 +337,7 @@ export const RoomContainer = ({ iceServers, rid, activity }: Props) => {
               setChallengeAcceptedNotification(null);
             }}
           />
-        )}  
-
+        )}
       </div>
     </PeerStreamingProvider>
   );

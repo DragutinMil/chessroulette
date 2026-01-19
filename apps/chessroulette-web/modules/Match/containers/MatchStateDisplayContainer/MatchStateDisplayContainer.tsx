@@ -35,7 +35,7 @@ export const MatchStateDisplayContainer = ({
 
   const timeClassMap: Record<TimeClass, string> = {
     bullet: 'Bullet 1+0',
-    blitz: 'Blitz 3+0',
+    blitz: 'Blitz 5+0',
     rapid: 'Rapid 10+0',
     blitz3: 'Blitz 3+0',
     blitz3plus2: 'Blitz 3+2',
