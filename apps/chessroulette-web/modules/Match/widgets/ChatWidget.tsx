@@ -90,7 +90,7 @@ export const ChatWidget: React.FC<Props> = ({
       }
 
       const sendMessage = async () => {
-         if (
+        if (
           activeBot?.name !== 'Damian' &&
           activeBot?.name !== 'Stella' &&
           activeBot?.name !== 'Laura' &&
