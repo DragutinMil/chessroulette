@@ -92,6 +92,8 @@ const MatchContainerInner = ({
   const [cameraExpanded, setCameraExpanded] = useState(false);
   //const [cameraVisible, setCameraVisible] = useState(true);
   const [camera, setCamera] = useState(true);
+  const [cameraOnAgain, setCameraOnAgain] = useState(false);
+
   const [stopEngineMove, setStopEngineMove] = useState(false);
   const lastTakebackHandledAtRef = useRef<number>(0);
 
@@ -173,6 +175,7 @@ const MatchContainerInner = ({
     setCameraExpanded(false);
     setTimeout(() => {
       setCamera(false);
+      setCameraOnAgain(false);
     }, 200);
   };
 
@@ -303,32 +306,44 @@ const MatchContainerInner = ({
                       rounded-lg  overflow-hidden 
                       ${
                         cameraExpanded
-                          ? 'inset-0 w-full h-full'
-                          : 'top-4 right-4 w-48 h-32'
+                          ? 'inset-0 w-full h-full z-[51]'
+                          : 'top-1 right-1  w-2/5'
                       }
                     `}
                   >
-                    {camera && activeBot?.id?.slice(-3) !== '000' ? (
+                    { activeBot?.id?.slice(-3) !== '000' && !isMobile && (
+                      <div>
+                      <div className={`
+                       ${camera ? 'opacity-100 z-10' : 'opacity-0 pointer-events-none -z-10'}
+                      }
+                    `}>
                       <PeerToPeerCameraWidget
+                        cameraOnAgain={cameraOnAgain}
                         activeBot={activeBot}
                         onDisableCamera={() => cameraOff()}
+                        camera={camera}
                         onToggleExpand={() => setCameraExpanded((p) => !p)}
                         isExpanded={cameraExpanded}
                       />
-                    ) : (
-                      activeBot?.id?.slice(-3) !== '000' &&
-                      !isMobile && (
-                        <button
-                          onClick={() => setCamera(true)}
-                          className={`
-                                                        absolute right-2 h-8 z-50 bg-black/50 text-white rounded-md p-1 hover:opacity-70
-                                                        -top-2   hover:rounded-xl
+                      </div>
+
+                      <button
+                          onClick={() => {
+                            setCamera(true);
+                            setCameraOnAgain(true);
+                          }}
+                          className={` ${camera ?   'opacity-0 pointer-events-none -z-10' : 'opacity-100 z-10'}
+                                                        absolute  left-[82%] h-8  bg-black/50 text-white rounded-md p-1 hover:opacity-70
+                                                        top-1   hover:rounded-xl
                                                       `}
                         >
                           <VideoCameraIcon className="h-5 w-5" />
                         </button>
-                      )
-                    )}
+
+                      </div>
+
+  ) 
+                    }
                   </div>
                 </div>
               ) : (
