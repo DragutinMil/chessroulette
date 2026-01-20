@@ -46,7 +46,7 @@ export const ConfirmButton: React.FC<ConfirmButtonProps> = ({
       {showModal && (
         <>
           <div
-            className="justify-center items-center flex overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none"
+            className="justify-center items-center flex overflow-x-hidden overflow-y-auto fixed inset-0 z-[70] outline-none focus:outline-none"
             tabIndex={-1}
             aria-hidden="true"
           >
@@ -67,7 +67,7 @@ export const ConfirmButton: React.FC<ConfirmButtonProps> = ({
                 )}
 
                 {/*footer*/}
-                <div className="flex items-center justify-end p-4 rounded-b">
+                <div className="flex items-center justify-end p-4 rounded-b ">
                   <Button type="clear" onClick={() => setShowModal(false)}>
                     Close
                   </Button>
