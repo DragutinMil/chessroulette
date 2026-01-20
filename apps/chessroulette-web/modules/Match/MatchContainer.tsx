@@ -306,12 +306,17 @@ const MatchContainerInner = ({
                       rounded-lg  overflow-hidden 
                       ${
                         cameraExpanded
-                          ? 'inset-0 w-full h-full'
-                          : 'top-1 right-1  w-1/2'
+                          ? 'inset-0 w-full h-full z-[51]'
+                          : 'top-1 right-1  w-2/5'
                       }
                     `}
                   >
-                    {camera && activeBot?.id?.slice(-3) !== '000' ? (
+                    { activeBot?.id?.slice(-3) !== '000' && !isMobile && (
+                      <div>
+                      <div className={`
+                       ${camera ? 'opacity-100 z-10' : 'opacity-0 pointer-events-none -z-10'}
+                      }
+                    `}>
                       <PeerToPeerCameraWidget
                         cameraOnAgain={cameraOnAgain}
                         activeBot={activeBot}
@@ -320,23 +325,25 @@ const MatchContainerInner = ({
                         onToggleExpand={() => setCameraExpanded((p) => !p)}
                         isExpanded={cameraExpanded}
                       />
-                    ) : (
-                      activeBot?.id?.slice(-3) !== '000' &&
-                      !isMobile && (
-                        <button
+                      </div>
+
+                      <button
                           onClick={() => {
                             setCamera(true);
                             setCameraOnAgain(true);
                           }}
-                          className={`
-                                                        relative left-[84%] h-8 z-50 bg-black/50 text-white rounded-md p-1 hover:opacity-70
+                          className={` ${camera ?   'opacity-0 pointer-events-none -z-10' : 'opacity-100 z-10'}
+                                                        absolute  left-[82%] h-8  bg-black/50 text-white rounded-md p-1 hover:opacity-70
                                                         top-1   hover:rounded-xl
                                                       `}
                         >
                           <VideoCameraIcon className="h-5 w-5" />
                         </button>
-                      )
-                    )}
+
+                      </div>
+
+  ) 
+                    }
                   </div>
                 </div>
               ) : (

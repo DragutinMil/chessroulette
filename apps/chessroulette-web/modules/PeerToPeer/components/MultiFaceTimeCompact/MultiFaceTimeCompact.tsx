@@ -84,7 +84,7 @@ export const MultiFaceTimeCompact: React.FC<MultiFaceTimeCompactProps> = ({
   const [videoPermission, setVideoPermission] = useState(false);
 
   const [isReady, setIsReady] = useState(false);
-
+ 
   useEffect(() => {
     const initial = {
       ...avStreaminginstance.activeConstraints,
@@ -103,12 +103,22 @@ export const MultiFaceTimeCompact: React.FC<MultiFaceTimeCompactProps> = ({
   const onStreamConfigChange = (value: boolean) => {
     setVideoPermission(value);
   };
-
+  useEffect(() => {
+   if(cameraOnAgain){
+    avStreaminginstance.updateConstraints({
+      ...myFaceTimeConstraints,
+      video: true,
+      audio:true
+    });
+   }
+  }, [cameraOnAgain]);
+  
   const cameraDisableComponent = () => {
     if (!myFaceTimeConstraints) return;
     avStreaminginstance.updateConstraints({
       ...myFaceTimeConstraints,
       video: false,
+      audio:false
     });
     cameraDisable?.();
   };

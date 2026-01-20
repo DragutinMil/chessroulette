@@ -307,7 +307,9 @@ export const ChatWidget: React.FC<Props> = ({
         </label>
       </div> */}
 
-      <div className="flex-1  overflow-y-auto p-3 md:p-3 space-y-2 scrollbar-hide">
+      <div className={`flex-1  overflow-y-auto p-3 md:p-3 space-y-2 scrollbar-hide
+      ${messages.length<2 ? 'relative top-12' : '' }
+       `}>
         {(isChatEnabled ? messages : lastDisabledMessages).map((msg, index) => {
           const isOwnMessage = msg.senderId === currentUserId;
           const displayName = playerNames[msg.senderId] || 'Unknown';
@@ -353,7 +355,7 @@ export const ChatWidget: React.FC<Props> = ({
         <div ref={messagesEndRef} />
       </div>
       {/* border-t border-[rgb(217_217_217/0.1)] */}
-      <div className="p-3 md:p-3 ">
+      <div className="p-3 md:p-3 z-[50]">
         <div className="flex mb-2 mt-2 md:mt-0">
           <input
             type="text"
