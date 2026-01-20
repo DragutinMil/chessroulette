@@ -9,6 +9,8 @@ type Props = {
   aspectRatio?: FaceTimeProps['aspectRatio'];
   activeBot?: ActiveBot;
   isExpanded?: boolean;
+  cameraOnAgain?: boolean;
+  camera?: boolean;
   onDisableCamera?: () => void;
   onToggleExpand?: () => void;
 };
@@ -17,13 +19,14 @@ export const PeerToPeerCameraWidget = ({
   aspectRatio = 16 / 9,
   activeBot,
   onToggleExpand,
+  cameraOnAgain,
+  camera,
   isExpanded,
   onDisableCamera,
 }: Props) => {
   const peerStreaming = usePeerStreaming();
 
   const { match, ...matchView } = useMatchViewState();
-
   if (!config.CAMERA_ON || !!activeBot?.name) {
     const hashDemoImgId = (id: string) => Number(id.match(/\d/)?.[0] || 0);
     return (
@@ -40,8 +43,10 @@ export const PeerToPeerCameraWidget = ({
   return (
     <MultiFaceTimeCompact
       onToggleExpand={() => onToggleExpand?.()}
+      cameraOnAgain={cameraOnAgain}
       cameraDisable={onDisableCamera}
       isExpanded={isExpanded}
+      camera={camera}
       reel={peerStreaming.reel}
       aspectRatio={aspectRatio}
       onFocus={() => {

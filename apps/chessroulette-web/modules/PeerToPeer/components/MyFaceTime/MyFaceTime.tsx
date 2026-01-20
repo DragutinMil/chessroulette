@@ -14,18 +14,24 @@ import { PeerStreamingConfig } from '../../providers/PeerToPeerProvider';
 
 type Props = Omit<FaceTimeProps, 'streamConfig'> & {
   constraints?: AVStreamingConstraints;
+  streamConfigChange?: (value: boolean) => void;
 };
 
 // Automatically opens a local stream
 export const MyFaceTime: React.FC<Props> = ({
   mirrorImage = true, // by default it's mirrored
   constraints,
+  streamConfigChange,
   ...props
 }) => {
   const avStreamingInstance = useInstance<AVStreaming>(getAVStreamingInstance);
   const [myStreamConfig, setMyStreamConfig] = useState<PeerStreamingConfig>({
     on: false,
   });
+
+  useEffect(() => {
+    streamConfigChange?.(myStreamConfig.on);
+  }, [myStreamConfig.on, streamConfigChange]);
 
   useEffect(() => {
     if (myStreamConfig.on) {
