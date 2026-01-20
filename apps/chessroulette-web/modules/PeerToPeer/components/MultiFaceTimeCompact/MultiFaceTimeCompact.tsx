@@ -27,6 +27,8 @@ export type MultiFaceTimeCompactProps = {
   footerOverlay?: OverlayedNodeRender;
   mainOverlay?: OverlayedNodeRender;
   reel?: ReelState;
+  cameraOnAgain?: boolean;
+  camera?: boolean;
   cameraDisable?: () => void;
   width?: number;
   containerClassName?: string;
@@ -47,9 +49,11 @@ export const MultiFaceTimeCompact: React.FC<MultiFaceTimeCompactProps> = ({
   reel,
   onFocus,
   cameraDisable,
+  cameraOnAgain,
   containerClassName,
   width,
   headerOverlay,
+  camera,
   footerOverlay,
   mainOverlay,
   isExpanded,
@@ -72,11 +76,12 @@ export const MultiFaceTimeCompact: React.FC<MultiFaceTimeCompactProps> = ({
     return reel.focusedStreamingPeer.userDisplayName || '';
   }, [reel]);
   const inFocusUserOverlay = useMemo(() => ({ inFocus: undefined }), [reel]);
-
+  const [visible, setVisible] = useState(false);
   const avStreaminginstance = useInstance<AVStreaming>(getAVStreamingInstance);
   const [myFaceTimeConstraints, setMyFaceTimeConstraints] = useState<
     AVStreaming['activeConstraints'] | null
   >(null);
+  const [videoPermission, setVideoPermission] = useState(false);
 
   const [isReady, setIsReady] = useState(false);
 
@@ -94,6 +99,10 @@ export const MultiFaceTimeCompact: React.FC<MultiFaceTimeCompactProps> = ({
       setMyFaceTimeConstraints
     );
   }, [avStreaminginstance]);
+  //console.log('myFaceTimeConstraints',myFaceTimeConstraints)
+  const onStreamConfigChange = (value: boolean) => {
+    setVideoPermission(value);
+  };
 
   const cameraDisableComponent = () => {
     if (!myFaceTimeConstraints) return;
@@ -103,6 +112,14 @@ export const MultiFaceTimeCompact: React.FC<MultiFaceTimeCompactProps> = ({
     });
     cameraDisable?.();
   };
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setVisible(true);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, []);
+
   const MicIcon =
     myFaceTimeConstraints?.audio === false ? SpeakerXMarkIcon : SpeakerWaveIcon;
   const CameraIcon =
@@ -125,6 +142,7 @@ export const MultiFaceTimeCompact: React.FC<MultiFaceTimeCompactProps> = ({
       ) : (
         myFaceTimeConstraints && (
           <MyFaceTime
+            streamConfigChange={onStreamConfigChange}
             {...faceTimeProps}
             constraints={myFaceTimeConstraints}
             label={label}
@@ -137,52 +155,63 @@ export const MultiFaceTimeCompact: React.FC<MultiFaceTimeCompactProps> = ({
         <div>{headerOverlay ? headerOverlay(inFocusUserOverlay) : null}</div>
         <div className="flex flex-1 min-h-0">
           <div className="flex-1">
-            <XMarkIcon
-              className={` 
-                                    absolute hover:bg-green-400 hover:rounded-xl right-2 h-8 z-50 bg-black/50 text-white rounded-md p-1 hover:bg-black/70
-                                    top-2
-                                  `}
-              onClick={() => cameraDisableComponent()}
-            />
-
-            {onToggleExpand && (
-              <ExpandIcon
-                className="absolute h-7 w-7 top-10 hover:bg-green-400 right-2.5 z-40 bg-black/50 text-white hover:rounded-xl
-               rounded-md px-1  hover:bg-black/70 "
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onToggleExpand();
-                }}
+            {/* isReady */}
+            {((camera && videoPermission) || cameraOnAgain) && (
+              <XMarkIcon
+                className={`
+  absolute right-2 top-2 h-8 z-50
+  bg-black/50 text-white rounded-md p-1
+  hover:bg-green-400 hover:rounded-xl hover:bg-black/70
+  transition-opacity duration-300
+  ${visible ? 'opacity-100' : 'opacity-0'}
+`}
+                onClick={() => cameraDisableComponent()}
               />
             )}
+            {onToggleExpand &&
+              ((camera && videoPermission) || cameraOnAgain) && (
+                <ExpandIcon
+                  className={`absolute h-7 w-7 top-10 hover:bg-green-400 right-2.5 z-40 bg-black/50 text-white hover:rounded-xl
+               rounded-md px-1  hover:bg-black/70 duration-300
+  ${visible ? 'opacity-100' : 'opacity-0'} `}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onToggleExpand();
+                  }}
+                />
+              )}
+
             {mainOverlay ? mainOverlay(inFocusUserOverlay) : null}
 
-            {/* {isReady && ( */}
-            <div className="flex-1 nbg-red-100 w-full h-full items-start">
-              <div className="p-2 flex flex-col">
-                <MicIcon
-                  className="p-1 h-8 w-8  hover:bg-green-400  hover:cursor-pointer hover:text-black hover:rounded-xl"
-                  onClick={() => {
-                    if (!myFaceTimeConstraints) return;
-                    avStreaminginstance.updateConstraints({
-                      ...myFaceTimeConstraints,
-                      audio: !myFaceTimeConstraints.audio,
-                    });
-                  }}
-                />
-                <CameraIcon
-                  className="p-1 h-8 w-8 hover:bg-green-400 hover:cursor-pointer hover:text-black hover:rounded-xl"
-                  onClick={() => {
-                    if (!myFaceTimeConstraints) return;
-                    avStreaminginstance.updateConstraints({
-                      ...myFaceTimeConstraints,
-                      video: !myFaceTimeConstraints.video,
-                    });
-                  }}
-                />
+            {((camera && videoPermission) || cameraOnAgain) && (
+              <div
+                className={`flex-1 nbg-red-100 w-full h-full items-start duration-300
+  ${visible ? 'opacity-100' : 'opacity-0'} `}
+              >
+                <div className="p-2 flex flex-col">
+                  <MicIcon
+                    className="p-1 h-8 w-8  hover:bg-green-400  hover:cursor-pointer hover:text-black hover:rounded-xl"
+                    onClick={() => {
+                      if (!myFaceTimeConstraints) return;
+                      avStreaminginstance.updateConstraints({
+                        ...myFaceTimeConstraints,
+                        audio: !myFaceTimeConstraints.audio,
+                      });
+                    }}
+                  />
+                  <CameraIcon
+                    className="p-1 h-8 w-8 hover:bg-green-400 hover:cursor-pointer hover:text-black hover:rounded-xl"
+                    onClick={() => {
+                      if (!myFaceTimeConstraints) return;
+                      avStreaminginstance.updateConstraints({
+                        ...myFaceTimeConstraints,
+                        video: !myFaceTimeConstraints.video,
+                      });
+                    }}
+                  />
+                </div>
               </div>
-            </div>
-            {/* )} */}
+            )}
           </div>
 
           {reel && myFaceTimeConstraints && (

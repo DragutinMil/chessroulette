@@ -92,6 +92,8 @@ const MatchContainerInner = ({
   const [cameraExpanded, setCameraExpanded] = useState(false);
   //const [cameraVisible, setCameraVisible] = useState(true);
   const [camera, setCamera] = useState(true);
+  const [cameraOnAgain, setCameraOnAgain] = useState(false);
+
   const [stopEngineMove, setStopEngineMove] = useState(false);
   const lastTakebackHandledAtRef = useRef<number>(0);
 
@@ -173,6 +175,7 @@ const MatchContainerInner = ({
     setCameraExpanded(false);
     setTimeout(() => {
       setCamera(false);
+      setCameraOnAgain(false);
     }, 200);
   };
 
@@ -304,14 +307,16 @@ const MatchContainerInner = ({
                       ${
                         cameraExpanded
                           ? 'inset-0 w-full h-full'
-                          : 'top-4 right-4 w-48 h-32'
+                          : 'top-1 right-1  w-1/2'
                       }
                     `}
                   >
                     {camera && activeBot?.id?.slice(-3) !== '000' ? (
                       <PeerToPeerCameraWidget
+                        cameraOnAgain={cameraOnAgain}
                         activeBot={activeBot}
                         onDisableCamera={() => cameraOff()}
+                        camera={camera}
                         onToggleExpand={() => setCameraExpanded((p) => !p)}
                         isExpanded={cameraExpanded}
                       />
@@ -319,10 +324,13 @@ const MatchContainerInner = ({
                       activeBot?.id?.slice(-3) !== '000' &&
                       !isMobile && (
                         <button
-                          onClick={() => setCamera(true)}
+                          onClick={() => {
+                            setCamera(true);
+                            setCameraOnAgain(true);
+                          }}
                           className={`
-                                                        absolute right-2 h-8 z-50 bg-black/50 text-white rounded-md p-1 hover:opacity-70
-                                                        -top-2   hover:rounded-xl
+                                                        relative left-[84%] h-8 z-50 bg-black/50 text-white rounded-md p-1 hover:opacity-70
+                                                        top-1   hover:rounded-xl
                                                       `}
                         >
                           <VideoCameraIcon className="h-5 w-5" />
