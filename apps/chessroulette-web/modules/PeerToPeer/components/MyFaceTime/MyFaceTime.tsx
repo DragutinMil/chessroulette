@@ -34,7 +34,7 @@ export const MyFaceTime: React.FC<Props> = ({
   }, [myStreamConfig.on, streamConfigChange]);
 
   useEffect(() => {
-    if (myStreamConfig.on) {
+    if (myStreamConfig.on ) {
       return;
     }
 
@@ -54,6 +54,7 @@ export const MyFaceTime: React.FC<Props> = ({
       });
     };
   }, []);
+  
 
   useEffect(() => {
     if (constraints) {

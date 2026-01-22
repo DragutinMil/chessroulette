@@ -80,7 +80,7 @@ export const useCustomStyles = ({
         objectKeys(inCheckSquares),
         (sq) => sq,
         () => ({
-          backgroundColor: 'rgb(242, 53, 141,0.8)',
+          background: 'rgb(242, 53, 141,0.8)',
           boxShadow: '0 0 20px rgb(242, 53, 141,0.8) inset',
           borderRadius: '50%',
 

@@ -35,7 +35,7 @@ export const socketUtil = {
           socketUtil.socket.emit('users_online_status', type);
         }
       } else {
-        console.log('No token found. Socket not initialized.');
+      //  console.log('No token found. Socket not initialized.');
       }
     } catch (error) {
       console.error('Error retrieving token:', error);

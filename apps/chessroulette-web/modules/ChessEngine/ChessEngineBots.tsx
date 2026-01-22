@@ -34,7 +34,7 @@ const StockfishEngine: React.FC<StockfishEngineProps> = ({
       let baseDepth = 1;
       let baseSkill = 0;
       let baseContempt = 20;
-      console.log(bot);
+     
       if (skill === '' && bot) {
         if (bot.slice(-2) == '10') {
           baseDepth = 5;
@@ -77,7 +77,7 @@ const StockfishEngine: React.FC<StockfishEngineProps> = ({
           baseSkill = 12;
           baseContempt = 12;
         }
-        console.log('base', baseDepth, baseSkill, baseContempt);
+        // console.log('base', baseDepth, baseSkill, baseContempt);
         const randomize = (value: number, delta = 2, min = 0, max = 20) => {
           const rnd = Math.floor(Math.random() * (delta * 2 + 1)) - delta; // -delta .. +delta
           const v = value + rnd;
@@ -90,7 +90,7 @@ const StockfishEngine: React.FC<StockfishEngineProps> = ({
         setDepth(String(finalDepth));
         setSkill(String(finalSkill));
         setContempt(String(finalContempt));
-        console.log(finalDepth, finalSkill, finalContempt);
+        // console.log(finalDepth, finalSkill, finalContempt);
       }
     }
 

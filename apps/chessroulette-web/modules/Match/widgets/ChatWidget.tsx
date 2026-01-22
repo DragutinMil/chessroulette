@@ -3,6 +3,7 @@ import { ChatMessage, ActiveBot } from '@app/modules/Match/movex/types';
 import { Text } from '@app/components/Text';
 import { User } from '@app/modules/User';
 import { ChatBotWidget } from './ChatBotWidget';
+import { botVoiceSpeak } from './chatBotSpeak';
 
 type Props = {
   messages: ChatMessage[];
@@ -108,9 +109,12 @@ export const ChatWidget: React.FC<Props> = ({
             messages,
             activeBot?.name
           );
-          console.log('answer', answer);
+          
           const randomSeconds = Math.floor(Math.random() * (10 - 5 + 1)) + 5;
           setTimeout(() => {
+            botVoiceSpeak(answer.answer.text.trim(), activeBot.name)
+            
+
             onSendMessage(answer.answer.text.trim(), answer.id, activeBot.id);
           }, randomSeconds * 1000);
 
