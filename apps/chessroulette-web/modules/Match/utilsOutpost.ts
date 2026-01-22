@@ -1,7 +1,7 @@
 import Cookies from 'js-cookie';
 import { decodeJwt } from 'jose';
 
-export function checkUser() {
+export async function  checkUser() {
   const url = new URL(window.location.href);
   const userId = url.searchParams.get('userId');
 
@@ -16,23 +16,24 @@ export function checkUser() {
   }
 
   //from mobile app check
-  if (Cookies.get('token')) {
-    const appToken = Cookies.get('token');
-    if (appToken) {
-      const data = safeDecode(appToken);
-      if (data) {
-        if (data?.user_id !== userId) {
-          console.log('out App');
-          return 'outApp';
-        } else {
-          console.log('ulogovan kroz app');
-          return 'app';
-        }
-      }
-    }
-  }
+  // if (Cookies.get('token')) {
+  //   const appToken = Cookies.get('token');
+  //   if (appToken) {
+  //     const data = safeDecode(appToken);
+  //     if (data) {
+       
+  //       if (data?.user_id !== userId) {
+  //         console.log('out App');
+  //         return 'outApp';
+  //       } else {
+  //         console.log('ulogovan kroz app');
+  //         return 'app';
+  //       }
+  //     }
+  //   }
+  // }
   //from web check
-  else if (Cookies.get('sessionToken')) {
+  if (Cookies.get('sessionToken')) {
     const webToken = Cookies.get('sessionToken');
     if (webToken) {
       const data = safeDecode(webToken);

@@ -66,14 +66,16 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
     }
   }, [match?.status]);
   useEffect(() => {
-    const result = checkUser();
-
+  async function runCheck() {
+    const result = await checkUser();
+    
     if (result == 'web') {
       setFromWeb(true);
     }
     if (result == 'outWeb') {
+
       if (window.location.hostname !== 'localhost') {
-        router.push('https://app.outpostchess.com/online-list');
+      // router.push('https://app.outpostchess.com/online-list');
       }
     }
     const url = new URL(window.location.href);
@@ -91,6 +93,8 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
       .join('');
     setRoom(room);
     setFromWeb(true);
+}
+    runCheck()
   }, []);
 
   if (match?.status === 'aborted') {
