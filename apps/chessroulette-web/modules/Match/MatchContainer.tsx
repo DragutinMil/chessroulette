@@ -51,7 +51,7 @@ export const MatchContainer = ({
 }: Props) => {
   const [activeWidget, setActiveWidget] = useState<'chat' | 'camera'>('chat');
   const [isMobileChatOpen, setIsMobileChatOpen] = useState(false);
-
+ 
   return (
     <MatchProvider match={match} userId={userId} dispatch={dispatch}>
       <MatchContainerInner
@@ -93,20 +93,22 @@ const MatchContainerInner = ({
   //const [cameraVisible, setCameraVisible] = useState(true);
   const [camera, setCamera] = useState(true);
   const [cameraOnAgain, setCameraOnAgain] = useState(false);
+  const [botTalkInitiated, setBotTalkInitiated] = useState(false);
 
   const [stopEngineMove, setStopEngineMove] = useState(false);
   const lastTakebackHandledAtRef = useRef<number>(0);
 
   //const [offersWithChatBot, setOffersWithChatBot] = useState('');
-
+  const [isMobile, setIsMobile] = useState<boolean | null>(null);
   const [activeBot, setActiveBot] = useState<ActiveBot>();
   const [oponentColor, setOponentColor] = useState<string>();
-  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+   
+  // const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
   // Resize i socket connection
   useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth <= 768);
-    window.addEventListener('resize', handleResize);
+   // const handleResize = () => setIsMobile(window.innerWidth <= 768);
+  //  window.addEventListener('resize', handleResize);
     if (match.challengee.id.length !== 16) {
       localStorage.setItem('socket', 'playing');
       socketUtil.connect('playing');
@@ -117,7 +119,7 @@ const MatchContainerInner = ({
     }
 
     return () => {
-      window.removeEventListener('resize', handleResize);
+     // window.removeEventListener('resize', handleResize);
       socketUtil.disconnect();
     };
   }, [match.challengee.id]);
@@ -180,6 +182,7 @@ const MatchContainerInner = ({
   };
 
   useEffect(() => {
+    setIsMobile(window.innerWidth < 700);
     if (isMobile) {
       setCamera(false);
     }
@@ -203,7 +206,10 @@ const MatchContainerInner = ({
     if (activeBot?.id?.slice(-3) !== '000') {
       return;
     }
-    if (match.gameInPlay) {
+
+    if (match.gameInPlay && match.messages.length == 0 && match.gameInPlay.pgn.length > 15 
+      && match.gameInPlay.pgn.length > 19 && !botTalkInitiated) {
+      setBotTalkInitiated(true)
       botTalkInitiation(
         dispatch,
         activeBot,
@@ -368,7 +374,8 @@ const MatchContainerInner = ({
                   }}
                   className="overflow-x-auto  md:overflow-x-hidden md:flex rounded-lg md:mb-0 mb-1 border border-conversation-100 md:p-4 p-2 overflow-scroll no-scrollbar w-full"
                 >
-                  <FreeBoardNotation
+                  {isMobile !==null && (
+                   <FreeBoardNotation
                     isMobile={isMobile}
                     history={displayState.history}
                     playerNames={[
@@ -383,9 +390,11 @@ const MatchContainerInner = ({
                     onDelete={noop}
                     onRefocus={actions.onRefocus}
                   />
+                  ) }
+                 
                 </div>
               )}
-
+              {isMobile !==null && (
               <PlayControlsContainer
                 activeWidget={activeWidget}
                 isMobile={isMobile}
@@ -394,6 +403,7 @@ const MatchContainerInner = ({
                   if (widget === 'chat') setIsMobileChatOpen(true);
                 }}
               />
+              )}
             </div>
           </div>
         }

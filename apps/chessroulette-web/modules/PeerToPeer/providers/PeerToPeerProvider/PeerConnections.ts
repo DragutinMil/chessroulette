@@ -178,6 +178,7 @@ export class PeerConnections {
       let onStreamUnsubscriber = () => {};
       const onOpenUnsubscriber = apc.onOpen(() => {
         apc.getMyStream().then((stream) => {
+          
           const call = this.sdk.call(namespacedPeerId, stream);
 
           const onStreamHandler = (stream: MediaStream) => {

@@ -3,6 +3,7 @@ import { MatchActions } from '../movex';
 import { ChatBotWidget } from '../widgets/ChatBotWidget';
 import { ChatMessage, ActiveBot } from '@app/modules/Match/movex/types';
 import { Chess } from 'chess.js';
+import { botVoiceSpeak } from '../widgets/chatBotSpeak';
 export const botSendRematchOffer = (
   dispatch: DispatchOf<MatchActions>,
   byPlayerId: string,
@@ -72,7 +73,6 @@ export const botTalkInitiation = (
   if (!activeBot) {
     return;
   }
-  console.log(' pgn.length', pgn.length);
 
   if (messages.length == 0 && pgn.length > 15 && pgn.length > 19) {
     const pgnToUciMoves = (pgn: string) => {
@@ -100,6 +100,9 @@ export const botTalkInitiation = (
         botColor
       );
 
+     botVoiceSpeak( content.answer.text,activeBot.name)
+        
+
       dispatch({
         type: 'play:sendMessage',
         payload: {
@@ -110,7 +113,7 @@ export const botTalkInitiation = (
         },
       });
     };
-
+    
     sendMessage();
   }
 };
