@@ -23,6 +23,14 @@ import { gameOverReasonsToDisplay } from './util';
 import { useGame } from '@app/modules/Game/hooks';
 import { CounterActions } from '@app/modules/Room/activities/Match/counter';
 
+import { newRematchRequestInitiate } from '../../utilsOutpost';
+import { useMovexBoundResourceFromRid } from 'movex-react';
+import movexConfig from '@app/movex.config';
+import { useMovexClient } from 'movex-react';
+import { movexSubcribersToUserMap } from '@app/providers/MovexProvider';
+import { useMemo } from 'react';
+import { useParams } from 'next/navigation';
+
 export type ActivityActions = CounterActions;
 
 type Props = PlayDialogContainerContainerProps;
@@ -42,10 +50,48 @@ export const MatchStateDialogContainer: React.FC<Props> = (
   const [matchId, setMatchId] = useState('');
   const [room, setRoom] = useState('');
 
-  const [userId, setUserId] = useState('');
   const dispatch = useMatchActionsDispatch();
   const router = useRouter();
   const { lastOffer, playerId } = useGame();
+  const userId = useMovexClient(movexConfig)?.id;
+
+  const params = useParams<{ roomId?: string }>();
+  const pathParts = window.location.pathname.split('/');
+  const matchIdFromPath = pathParts[pathParts.length - 1];
+  
+  // Proveri da li je protivnik u sobi (slično kao u PlayDialogContainer)
+  const roomId = params.roomId || matchIdFromPath || match?.challengee?.id;
+  
+  const roomRid = roomId ? `room:${roomId}` : null;
+  const movexResource = useMovexBoundResourceFromRid(
+    movexConfig, 
+    roomRid as any
+  );
+  
+  const participants = useMemo(
+    () => movexSubcribersToUserMap(movexResource?.subscribers || {}),
+    [movexResource?.subscribers]
+  );
+
+const isOpponentInRoom = useMemo(() => {
+  // Rana provera - ako nemamo osnovne podatke, oba igrača nisu u sobi
+
+  // Proveri da li imamo validne challenger i challengee podatke
+  const challengerId = match?.challenger?.id;
+  const challengeeId = match?.challengee?.id;
+
+  if (!challengerId || !challengeeId) {
+    return false;
+  }
+  
+  // Proveri da li su OBA igrača u participants listi
+  const challengerConnected = challengerId in participants;
+  const challengeeConnected = challengeeId in participants;
+
+  return challengerConnected && challengeeConnected;
+}, [match, participants]);
+
+
   useEffect(() => {
     if (match?.status === 'complete') {
       // Send to grab result from chessroullette
@@ -66,7 +112,6 @@ export const MatchStateDialogContainer: React.FC<Props> = (
     const url = new URL(window.location.href);
     const pathParts = window.location.pathname.split('/');
     const matchId = pathParts[pathParts.length - 1];
-    setUserId(url.searchParams.get('userId') ?? '');
     setMatchId(matchId);
     let room = Array(7)
       .fill(0)
@@ -138,28 +183,40 @@ export const MatchStateDialogContainer: React.FC<Props> = (
               </Text>
               {match[match.winner].id.length !== 16 && (
                 <div className="justify-center items-center flex flex-col">
-                  <Button
-                    icon="ArrowPathRoundedSquareIcon"
-                    bgColor="green"
-                    style={{
-                      marginTop: 18,
-                      minWidth: '160px',
-                    }}
-                    onClick={() => {
-                      if (playerId) {
-                        dispatch((masterContext) => ({
-                          type: 'play:sendOffer',
-                          payload: {
-                            byPlayer: playerId,
-                            offerType: 'rematch',
-                            timestamp: masterContext.requestAt(),
-                          },
-                        }));
+                <Button
+                  icon="ArrowPathRoundedSquareIcon"
+                  bgColor="green"
+                  style={{
+                    marginTop: 18,
+                    minWidth: '160px',
+                  }}
+                  onClick={async () => {
+                    if (playerId) {
+                      // Ako protivnik nije u sobi, odmah pošalji zahtev na platformu
+                      if (!isOpponentInRoom) {
+                        console.log('📤 Opponent not in room - sending rematch request immediately');
+                        try {
+                          await newRematchRequestInitiate(matchId);
+                          console.log('✅ Rematch request sent to platform');
+                        } catch (error) {
+                          console.error('❌ Error sending rematch request:', error);
+                        }
                       }
-                    }}
-                  >
-                    Rematch
-                  </Button>
+                      
+                      // U svakom slučaju, dodaj offer u match state
+                      dispatch((masterContext) => ({
+                        type: 'play:sendOffer',
+                        payload: {
+                          byPlayer: playerId,
+                          offerType: 'rematch',
+                          timestamp: masterContext.requestAt(),
+                        },
+                      }));
+                    }
+                  }}
+                >
+                  Rematch
+                </Button>
                   <Link
                     href={`https://chess.outpostchess.com/room/new/r${room}?activity=aichess&userId=${userId}&theme=op&pgn=${matchId}&instructor=1`}
                   >
