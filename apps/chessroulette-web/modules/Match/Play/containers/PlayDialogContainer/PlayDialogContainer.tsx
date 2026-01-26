@@ -81,14 +81,16 @@ const onAcceptOffer = useCallback(
             // Ne treba dispatch jer se šalje preko socket notifikacije
             // Protivnik će dobiti notifikaciju i moći će da je prihvati
           } else {
-            // Ako su oba igrača u sobi, samo prihvati rematch direktno
-            // Nema potrebe da se šalje zahtev na platformu
-            console.log('Both players in room - accepting rematch directly (no platform request)');
+            // Ako su oba igrača u sobi, pozovi newRematchRequest da dobiješ URL-ove
+            console.log('Both players in room - getting rematch URLs from platform');
+            const data = await newRematchRequest(matchId);
+            
+            // Sada imamo URL-ove, dispatch-uj akciju sa njima
             dispatch({
               type: 'play:acceptOfferRematch',
               payload: {
-                target_url: '',
-                initiator_url: '',
+                target_url: data.target_url,
+                initiator_url: data.initiator_url,
               },
             });
           }
