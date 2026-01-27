@@ -112,7 +112,7 @@ export const ChatWidget: React.FC<Props> = ({
           
           const randomSeconds = Math.floor(Math.random() * (10 - 5 + 1)) + 5;
           setTimeout(() => {
-            botVoiceSpeak(answer.answer.text.trim(), activeBot.name)
+           // botVoiceSpeak(answer.answer.text.trim(), activeBot.name)
             
 
             onSendMessage(answer.answer.text.trim(), answer.id, activeBot.id);
@@ -312,7 +312,7 @@ export const ChatWidget: React.FC<Props> = ({
       </div> */}
 
       <div className={`flex-1  overflow-y-auto p-3 md:p-3 space-y-2 scrollbar-hide
-      ${messages.length<2 ? 'relative top-12' : '' }
+      ${messages.length<2 && !activeBot ? 'relative top-10' : '' }
        `}>
         {(isChatEnabled ? messages : lastDisabledMessages).map((msg, index) => {
           const isOwnMessage = msg.senderId === currentUserId;
@@ -346,6 +346,7 @@ export const ChatWidget: React.FC<Props> = ({
                 </div>
                 {isOwnMessage && renderAvatar()}
               </div>
+             { messages.length>1 &&(
               <div
                 className={`text-xs text-gray-400 mt-1 ${
                   isOwnMessage ? 'text-right mr-[52px]' : 'text-left ml-[52px]'
@@ -353,6 +354,7 @@ export const ChatWidget: React.FC<Props> = ({
               >
                 {displayName} · {formatTime(msg.timestamp)}
               </div>
+             )}
             </div>
           );
         })}
