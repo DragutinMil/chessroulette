@@ -100,7 +100,7 @@ export const botTalkInitiation = (
         botColor
       );
 
-     botVoiceSpeak( content.answer.text,activeBot.name)
+   //  botVoiceSpeak( content.answer.text,activeBot.name)
         
 
       dispatch({
