@@ -100,8 +100,7 @@ export const botTalkInitiation = (
         botColor
       );
 
-   //  botVoiceSpeak( content.answer.text,activeBot.name)
-        
+      //  botVoiceSpeak( content.answer.text,activeBot.name)
 
       dispatch({
         type: 'play:sendMessage',
@@ -113,7 +112,7 @@ export const botTalkInitiation = (
         },
       });
     };
-    
+
     sendMessage();
   }
 };

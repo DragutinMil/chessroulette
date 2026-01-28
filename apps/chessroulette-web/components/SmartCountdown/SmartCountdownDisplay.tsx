@@ -20,7 +20,7 @@ export const SmartCountdownDisplay = ({
 }: SmartCountdownDisplayProps) => {
   const hasPlayedSoundInThisCycleRef = useRef(false);
   const maxTimeLeftRef = useRef(timeLeft);
-  const componentIdRef = useRef(Math.random().toString(36).substring(7));
+  //const componentIdRef = useRef(Math.random().toString(36).substring(7));
 
   useEffect(() => {
     if (timeLeft > maxTimeLeftRef.current) {
@@ -40,8 +40,8 @@ export const SmartCountdownDisplay = ({
       if (audio) {
         audio.currentTime = 0; // reset
         hasPlayedSoundInThisCycleRef.current = true; // Označi da je zvuk reprodukovan u ovom ciklusu
-      } 
-    } 
+      }
+    }
   }, [shouldRing]);
 
   if (timeLeft <= 0) {
@@ -51,8 +51,6 @@ export const SmartCountdownDisplay = ({
       </Text>
     );
   }
-
-  
 
   return (
     <Text className={active ? activeTextClassName : inactiveTextClassName}>

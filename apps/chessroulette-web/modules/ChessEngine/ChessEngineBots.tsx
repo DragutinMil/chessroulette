@@ -34,7 +34,7 @@ const StockfishEngine: React.FC<StockfishEngineProps> = ({
       let baseDepth = 1;
       let baseSkill = 0;
       let baseContempt = 20;
-     
+
       if (skill === '' && bot) {
         if (bot.slice(-2) == '10') {
           baseDepth = 5;

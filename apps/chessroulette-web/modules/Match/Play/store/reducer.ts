@@ -211,7 +211,7 @@ export const reducer = (
               GameOverReason['drawAwardedForInsufficientMaterial'],
           } as const;
         }
-       // console.log('returnovace timeout');
+        // console.log('returnovace timeout');
         return {
           winner: prev.lastMoveBy,
           gameOverReason: GameOverReason['timeout'],
