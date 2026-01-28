@@ -188,17 +188,31 @@ export const PlayControls: React.FC<Props> = ({
     // Check if it contains "=" which indicates a promotion (e.g., "e8=Q", "h1=Q+")
     return lastMove.includes('=');
   };
+
   const calculateTakebackStatus = () => {
     if (isBullet) return false;
     if (game.lastMoveBy !== homeColor) return false;
-    if (lastOffer?.status === 'pending' || offerAlreadySent.current)
+  
+    // Proveri samo takeback pending offers, ne sve pending offers
+    const hasPendingTakebackOffer = offers.some(
+      (offer) =>
+        offer.status === 'pending' &&
+        offer.type === 'takeback' &&
+        offer.byPlayer === playerId
+    );
+    
+    // Proveri samo da li je takeback offer poslat, ne draw offer
+    // offerAlreadySent.current se koristi za sve offere, ali treba da proverimo samo takeback
+    if (hasPendingTakebackOffer) {
       return false;
-
+    }
+  
     const lastMoveWasPromotionByCurrentPlayer =
       isLastMovePromotion(game.pgn) && game.lastMoveBy === homeColor;
-
+  
     if (lastMoveWasPromotionByCurrentPlayer) return false;
-
+  
+    // Proveri da li je već prihvaćen takeback u ovoj partiji - samo jednom po partiji
     const hasAcceptedTakeback = offers.some(
       (offer) =>
         offer.byPlayer === playerId &&
@@ -206,31 +220,49 @@ export const PlayControls: React.FC<Props> = ({
         offer.status === 'accepted'
     );
     if (hasAcceptedTakeback) return false;
-
+  
     return takebackCount < 1;
   };
-
+  
   const calculateDrawStatus = useCallback(() => {
     if (game.status !== 'ongoing') {
       return false;
     }
 
-    if (
-      lastOffer?.status === 'pending' ||
-      offerAlreadySent.current ||
-      drawOfferNum > 2
-    ) {
+    const hasPendingDrawOffer = offers.some(
+      (offer) =>
+        offer.status === 'pending' &&
+        offer.type === 'draw' &&
+        offer.byPlayer === playerId
+    );
+
+    if (hasPendingDrawOffer) {
       return false;
     }
-    return (
-      offers.reduce((accum, offer) => {
-        if (offer.type === 'draw' && offer.byPlayer === playerId) {
-          return accum + 1;
-        }
-        return accum;
-      }, 0) < 4
-    );
-  }, [game.status, lastOffer?.status, offers, playerId, drawOfferNum]);
+  
+    // Proveri broj draw offera - maksimalno 3 po igraču
+    // drawCount broji sve draw offere (pending, accepted, denied, cancelled)
+    // Reducer proverava >= 3, tako da ovde proveravamo < 3
+    return drawCount < 3;
+  }, [game.status, offers, playerId, drawCount]);
+
+    //if (
+    //  lastOffer?.status === 'pending' ||
+    //  offerAlreadySent.current ||
+    //  drawOfferNum > 2
+    //) {
+    //  return false;
+    //}
+
+   // return (
+   //   offers.reduce((accum, offer) => {
+   //     if (offer.type === 'draw' && offer.byPlayer === playerId) {
+   //       return accum + 1;
+   //     }
+   //     return accum;
+   //   }, 0) < 4
+  //  );
+  //}, [game.status, lastOffer?.status, offers, playerId, drawOfferNum]);
 
   // Use useMemo instead of useState + useEffect to prevent flickering
   const allowTakeback = useMemo(() => {

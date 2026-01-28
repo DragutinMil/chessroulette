@@ -298,31 +298,7 @@ export const PlayDialog: React.FC<GameStateDialogProps> = ({
               ]}
             />
           );
-        }
-
-        if (lastOffer.status === 'denied' && !gameResultSeen) {
-          if (lastOffer.byPlayer === playerId) {
-            return (
-              <Dialog
-                title="Offer Denied"
-                content={
-                  <div className="flex justify-center content-center text-center">
-                    Takeback offer has been denied.
-                  </div>
-                }
-                buttons={[
-                  {
-                    children: 'Ok',
-                    bgColor: 'blue',
-                    onClick: () => {
-                      setGameResultSeen(true);
-                    },
-                  },
-                ]}
-              />
-            );
-          }
-        }
+        } 
       }
     }
 
