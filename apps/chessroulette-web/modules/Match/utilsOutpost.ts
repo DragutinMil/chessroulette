@@ -112,7 +112,7 @@ export async function newRematchRequestInitiate(matchId: string) {
       Authorization: `Bearer ${token}`,
     },
   });
-
+  console.log('response',response);
   // Proveri response headers
   const responseHeaders: Record<string, string> = {};
   response.headers.forEach((value, key) => {

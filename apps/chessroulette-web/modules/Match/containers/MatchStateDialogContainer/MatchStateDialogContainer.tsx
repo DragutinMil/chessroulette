@@ -200,9 +200,9 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
                       if (playerId) {
                         if (!isOpponentInRoom) {
                           try {
-                            if (!alreadyRematch) {
+                             if (!alreadyRematch) {
                               await newRematchRequestInitiate(roomId);
-                            }
+                             }
                             setAlreadyRematch(true);
                           } catch (error) {
                             console.error(
@@ -210,9 +210,7 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
                               error
                             );
                           }
-                        } else {
-                          console.log('both in the room');
-                        }
+                        } 
                         dispatch((masterContext) => ({
                           type: 'play:sendOffer',
                           payload: {
