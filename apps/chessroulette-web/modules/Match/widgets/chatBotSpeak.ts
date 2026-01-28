@@ -1,4 +1,3 @@
-
 export type CoachPersonality =
   | 'Viola'
   | 'Stella'
@@ -6,12 +5,10 @@ export type CoachPersonality =
   | 'Laura'
   | 'Damian';
 
-
-export function botVoiceSpeak(text: string , name: string ): void {
-
-    console.log('name bot answer voice',name)
-   if (!text) return;
-     if (!isCoachPersonality(name)) {
+export function botVoiceSpeak(text: string, name: string): void {
+  console.log('name bot answer voice', name);
+  if (!text) return;
+  if (!isCoachPersonality(name)) {
     console.warn('Unknown coach personality:', name);
     return;
   }
@@ -19,8 +16,6 @@ export function botVoiceSpeak(text: string , name: string ): void {
   if (!profile) return;
 
   const utterance = new SpeechSynthesisUtterance(text);
-
-
 
   const voice = findVoice(profile.voiceHints);
   if (voice) {
@@ -37,20 +32,17 @@ export function botVoiceSpeak(text: string , name: string ): void {
   speechSynthesis.speak(utterance);
 }
 
-function isCoachPersonality(
-  value: string
-): value is CoachPersonality {
+function isCoachPersonality(value: string): value is CoachPersonality {
   return value in BotPersonalities;
 }
 
-
-function findVoice(voiceHints: readonly string[]): SpeechSynthesisVoice | undefined {
+function findVoice(
+  voiceHints: readonly string[]
+): SpeechSynthesisVoice | undefined {
   const voices = speechSynthesis.getVoices();
 
-  return voices.find(v =>
-    voiceHints.some(hint =>
-      v.name.toLowerCase().includes(hint.toLowerCase())
-    )
+  return voices.find((v) =>
+    voiceHints.some((hint) => v.name.toLowerCase().includes(hint.toLowerCase()))
   );
 }
 
@@ -60,7 +52,7 @@ export const BotPersonalities = {
     voiceHints: ['UK', 'Female', 'Victoria', 'Moira'],
     rate: 0.95,
     pitch: 1.05,
-    description: 'Elegant, strategic mentor'
+    description: 'Elegant, strategic mentor',
   },
 
   Stella: {
@@ -68,7 +60,7 @@ export const BotPersonalities = {
     voiceHints: ['Samantha', 'Karen'],
     rate: 0.9,
     pitch: 1.1,
-    description: 'Explains concepts step by step'
+    description: 'Explains concepts step by step',
   },
 
   Margareta: {
@@ -76,7 +68,7 @@ export const BotPersonalities = {
     voiceHints: ['Female'],
     rate: 0.85,
     pitch: 1.0,
-    description: 'Very calm, reassuring voice'
+    description: 'Very calm, reassuring voice',
   },
 
   Laura: {
@@ -84,7 +76,7 @@ export const BotPersonalities = {
     voiceHints: ['Zira', 'Hazel'],
     rate: 1.05,
     pitch: 1.2,
-    description: 'Positive and encouraging'
+    description: 'Positive and encouraging',
   },
 
   Damian: {
@@ -92,6 +84,6 @@ export const BotPersonalities = {
     voiceHints: ['David', 'Male'],
     rate: 0.95,
     pitch: 0.9,
-    description: 'Direct, no-nonsense coach'
-  }
+    description: 'Direct, no-nonsense coach',
+  },
 } as const;

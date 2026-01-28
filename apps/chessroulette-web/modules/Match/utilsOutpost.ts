@@ -1,12 +1,14 @@
 import Cookies from 'js-cookie';
 import { decodeJwt } from 'jose';
 
-export async function  checkUser() {
-  const url = new URL(window.location.href);
-  const userId = url.searchParams.get('userId');
+export async function checkUser(userId: string | undefined) {
+  console.log('userId', userId);
+  if (!userId) {
+    return;
+  }
 
-  function safeDecode(standardToken: string | undefined) {
-    if (!standardToken) return null;
+  function safeDecode(standardToken: string) {
+    // if (!standardToken) return null;
     try {
       return decodeJwt(standardToken);
     } catch (err) {
@@ -14,24 +16,6 @@ export async function  checkUser() {
       return null;
     }
   }
-
-  //from mobile app check
-  // if (Cookies.get('token')) {
-  //   const appToken = Cookies.get('token');
-  //   if (appToken) {
-  //     const data = safeDecode(appToken);
-  //     if (data) {
-       
-  //       if (data?.user_id !== userId) {
-  //         console.log('out App');
-  //         return 'outApp';
-  //       } else {
-  //         console.log('ulogovan kroz app');
-  //         return 'app';
-  //       }
-  //     }
-  //   }
-  // }
   //from web check
   if (Cookies.get('sessionToken')) {
     const webToken = Cookies.get('sessionToken');
@@ -40,15 +24,16 @@ export async function  checkUser() {
       if (data) {
         if (data?.user_id !== userId) {
           console.log('outWeb');
-          return 'outWeb';
+          return false;
         } else {
-          //  console.log('throught web');
-          return 'web';
+          return true;
         }
+      } else {
+        return false;
       }
     }
   } else {
-    return null;
+    return false;
   }
 }
 
@@ -102,4 +87,70 @@ export async function newRematchRequest(matchId: string) {
     target_url: data.target_url,
     initiator_url: data.initiator_url,
   };
+}
+
+export async function newRematchRequestInitiate(matchId: string) {
+  const token = Cookies.get('sessionToken');
+
+  if (!token) {
+    throw new Error('No authentication token found');
+  }
+
+  const trimmedMatchId = matchId.trim();
+
+  // Dodaj match_id kao query parametar u URL
+  const baseUrl = process.env.NEXT_PUBLIC_API_WEB;
+  const endpoint = 'challenge_inivite_rematch';
+  const fullUrl = `${baseUrl}${endpoint}?match_id=${encodeURIComponent(
+    trimmedMatchId
+  )}`;
+
+  const response = await fetch(fullUrl, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  // Proveri response headers
+  const responseHeaders: Record<string, string> = {};
+  response.headers.forEach((value, key) => {
+    responseHeaders[key] = value;
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+
+    // Pokušaj da parsiraš error response kao JSON
+    try {
+      const errorJson = JSON.parse(errorText);
+      console.error('❌ Parsed error:', errorJson);
+      if (errorJson.message) {
+        console.error('❌ Error message:', errorJson.message);
+      }
+      if (errorJson.errorCode) {
+        console.error('❌ Error code:', errorJson.errorCode);
+      }
+    } catch (e) {
+      console.error('❌ Could not parse error as JSON');
+    }
+
+    console.error('❌ Sent match_id:', trimmedMatchId);
+    console.error('❌ Sent URL:', fullUrl);
+    console.error('❌ ===== END ERROR =====');
+
+    if (response.status === 403) {
+      throw new Error(
+        `Forbidden: ${
+          errorText || 'Token may be invalid or endpoint does not exist'
+        }`
+      );
+    }
+
+    throw new Error(`Error: ${response.status} - ${errorText}`);
+  }
+
+  // Proveri da li response ima body
+  const text = await response.text();
 }

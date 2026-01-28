@@ -195,16 +195,16 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
           match?.challengee.id.slice(-3) === '000' ||
           match?.challenger.id.slice(-3) === '000'
         ) {
-          let randomDelay
-          if(match.gameInPlay?.timeClass.includes('blitz') ){
+          let randomDelay;
+          if (match.gameInPlay?.timeClass.includes('blitz')) {
             randomDelay = (min = 0, max = 4000) =>
-            Math.floor(Math.random() * (max - min + 1)) + min;
-          }else if(match.gameInPlay?.timeClass.includes('bullet') ){
+              Math.floor(Math.random() * (max - min + 1)) + min;
+          } else if (match.gameInPlay?.timeClass.includes('bullet')) {
             randomDelay = (min = 0, max = 2000) =>
-            Math.floor(Math.random() * (max - min + 1)) + min;
-          }else
-         randomDelay = (min = 0, max = 5000) =>
-            Math.floor(Math.random() * (max - min + 1)) + min;
+              Math.floor(Math.random() * (max - min + 1)) + min;
+          } else
+            randomDelay = (min = 0, max = 5000) =>
+              Math.floor(Math.random() * (max - min + 1)) + min;
           engineMoveTimeoutRef.current = setTimeout(() => {
             onMove({ from, to });
           }, randomDelay());

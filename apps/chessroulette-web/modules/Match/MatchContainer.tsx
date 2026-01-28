@@ -51,7 +51,7 @@ export const MatchContainer = ({
 }: Props) => {
   const [activeWidget, setActiveWidget] = useState<'chat' | 'camera'>('chat');
   const [isMobileChatOpen, setIsMobileChatOpen] = useState(false);
- 
+
   return (
     <MatchProvider match={match} userId={userId} dispatch={dispatch}>
       <MatchContainerInner
@@ -102,13 +102,13 @@ const MatchContainerInner = ({
   const [isMobile, setIsMobile] = useState<boolean | null>(null);
   const [activeBot, setActiveBot] = useState<ActiveBot>();
   const [oponentColor, setOponentColor] = useState<string>();
-   
+
   // const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
   // Resize i socket connection
   useEffect(() => {
-   // const handleResize = () => setIsMobile(window.innerWidth <= 768);
-  //  window.addEventListener('resize', handleResize);
+    // const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    //  window.addEventListener('resize', handleResize);
     if (match.challengee.id.length !== 16) {
       localStorage.setItem('socket', 'playing');
       socketUtil.connect('playing');
@@ -119,7 +119,7 @@ const MatchContainerInner = ({
     }
 
     return () => {
-     // window.removeEventListener('resize', handleResize);
+      // window.removeEventListener('resize', handleResize);
       socketUtil.disconnect();
     };
   }, [match.challengee.id]);
@@ -207,9 +207,14 @@ const MatchContainerInner = ({
       return;
     }
 
-    if (match.gameInPlay && match.messages.length == 0 && match.gameInPlay.pgn.length > 15 
-      && match.gameInPlay.pgn.length > 19 && !botTalkInitiated) {
-      setBotTalkInitiated(true)
+    if (
+      match.gameInPlay &&
+      match.messages.length == 0 &&
+      match.gameInPlay.pgn.length > 15 &&
+      match.gameInPlay.pgn.length > 19 &&
+      !botTalkInitiated
+    ) {
+      setBotTalkInitiated(true);
       botTalkInitiation(
         dispatch,
         activeBot,
@@ -317,39 +322,46 @@ const MatchContainerInner = ({
                       }
                     `}
                   >
-                    { activeBot?.id?.slice(-3) !== '000' && !isMobile && (
+                    {activeBot?.id?.slice(-3) !== '000' && !isMobile && (
                       <div>
-                      <div className={`
-                       ${camera ? 'opacity-100 z-10' : 'opacity-0 pointer-events-none -z-10'}
+                        <div
+                          className={`
+                       ${
+                         camera
+                           ? 'opacity-100 z-10'
+                           : 'opacity-0 pointer-events-none -z-10'
+                       }
                       }
-                    `}>
-                      <PeerToPeerCameraWidget
-                        cameraOnAgain={cameraOnAgain}
-                        activeBot={activeBot}
-                        onDisableCamera={() => cameraOff()}
-                        camera={camera}
-                        onToggleExpand={() => setCameraExpanded((p) => !p)}
-                        isExpanded={cameraExpanded}
-                      />
-                      </div>
+                    `}
+                        >
+                          <PeerToPeerCameraWidget
+                            cameraOnAgain={cameraOnAgain}
+                            activeBot={activeBot}
+                            onDisableCamera={() => cameraOff()}
+                            camera={camera}
+                            onToggleExpand={() => setCameraExpanded((p) => !p)}
+                            isExpanded={cameraExpanded}
+                          />
+                        </div>
 
-                      <button
+                        <button
                           onClick={() => {
                             setCamera(true);
                             setCameraOnAgain(true);
                           }}
-                          className={` ${camera ?   'opacity-0 pointer-events-none -z-10' : 'opacity-100 z-10'}
+                          className={` ${
+                            camera
+                              ? 'opacity-0 pointer-events-none -z-10'
+                              : 'opacity-100 z-10'
+                          }
                                                         absolute  left-[82%] h-8  bg-black/50 text-white rounded-md p-1 hover:opacity-70
                                                         top-1   hover:rounded-xl
                                                       `}
                         >
                           <VideoCameraIcon className="h-5 w-5" />
                         </button>
-
                       </div>
-
-  ) 
-                    }
+                    )}
                   </div>
                 </div>
               ) : (
@@ -374,35 +386,34 @@ const MatchContainerInner = ({
                   }}
                   className="overflow-x-auto  md:overflow-x-hidden md:flex rounded-lg md:mb-0 mb-1 border border-conversation-100 md:p-4 p-2 overflow-scroll no-scrollbar w-full"
                 >
-                  {isMobile !==null && (
-                   <FreeBoardNotation
-                    isMobile={isMobile}
-                    history={displayState.history}
-                    playerNames={[
-                      playersBySide?.home.displayName ||
-                        activeBot?.name ||
-                        'Player 1',
-                      playersBySide?.away.displayName ||
-                        activeBot?.name ||
-                        'Player 2',
-                    ]}
-                    focusedIndex={displayState.focusedIndex}
-                    onDelete={noop}
-                    onRefocus={actions.onRefocus}
-                  />
-                  ) }
-                 
+                  {isMobile !== null && (
+                    <FreeBoardNotation
+                      isMobile={isMobile}
+                      history={displayState.history}
+                      playerNames={[
+                        playersBySide?.home.displayName ||
+                          activeBot?.name ||
+                          'Player 1',
+                        playersBySide?.away.displayName ||
+                          activeBot?.name ||
+                          'Player 2',
+                      ]}
+                      focusedIndex={displayState.focusedIndex}
+                      onDelete={noop}
+                      onRefocus={actions.onRefocus}
+                    />
+                  )}
                 </div>
               )}
-              {isMobile !==null && (
-              <PlayControlsContainer
-                activeWidget={activeWidget}
-                isMobile={isMobile}
-                setActiveWidget={(widget) => {
-                  setActiveWidget(widget);
-                  if (widget === 'chat') setIsMobileChatOpen(true);
-                }}
-              />
+              {isMobile !== null && (
+                <PlayControlsContainer
+                  activeWidget={activeWidget}
+                  isMobile={isMobile}
+                  setActiveWidget={(widget) => {
+                    setActiveWidget(widget);
+                    if (widget === 'chat') setIsMobileChatOpen(true);
+                  }}
+                />
               )}
             </div>
           </div>

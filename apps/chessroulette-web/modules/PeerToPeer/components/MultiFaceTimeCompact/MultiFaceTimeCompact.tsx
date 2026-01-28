@@ -64,7 +64,7 @@ export const MultiFaceTimeCompact: React.FC<MultiFaceTimeCompactProps> = ({
     () => ({ width: width || '100%', height: '100%' }),
     [width]
   );
- 
+
   const label = useMemo(() => {
     if (!reel) {
       return '';
@@ -81,7 +81,7 @@ export const MultiFaceTimeCompact: React.FC<MultiFaceTimeCompactProps> = ({
   const [videoPermission, setVideoPermission] = useState(false);
 
   const [isReady, setIsReady] = useState(false);
-  const isMobile=window.innerWidth < 1000
+  const isMobile = window.innerWidth < 1000;
   useEffect(() => {
     const initial = {
       ...avStreaminginstance.activeConstraints,
@@ -90,7 +90,7 @@ export const MultiFaceTimeCompact: React.FC<MultiFaceTimeCompactProps> = ({
     };
     setMyFaceTimeConstraints(initial);
     avStreaminginstance.updateConstraints(initial);
-       
+
     return avStreaminginstance.pubsy.subscribe(
       'onUpdateConstraints',
       setMyFaceTimeConstraints
@@ -101,21 +101,21 @@ export const MultiFaceTimeCompact: React.FC<MultiFaceTimeCompactProps> = ({
     setVideoPermission(value);
   };
   useEffect(() => {
-   if(cameraOnAgain){
-    avStreaminginstance.updateConstraints({
-      ...myFaceTimeConstraints,
-      video: true,
-      audio:true
-    });
-   }
+    if (cameraOnAgain) {
+      avStreaminginstance.updateConstraints({
+        ...myFaceTimeConstraints,
+        video: true,
+        audio: true,
+      });
+    }
   }, [cameraOnAgain]);
-  
+
   const cameraDisableComponent = () => {
     if (!myFaceTimeConstraints) return;
     avStreaminginstance.updateConstraints({
       ...myFaceTimeConstraints,
       video: false,
-      audio:false
+      audio: false,
     });
     cameraDisable?.();
   };
