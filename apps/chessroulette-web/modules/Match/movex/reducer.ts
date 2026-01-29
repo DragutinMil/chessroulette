@@ -94,13 +94,6 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
         return prev;
       }
     }
-
-    if (offerType === 'draw') {
-      const current = offerCounters.draw[byPlayer] ?? 0;
-      if (current >= 3) {
-        return prev;
-      }
-    }
   }
 
   // answer to offers on completed games

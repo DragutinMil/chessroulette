@@ -13,6 +13,8 @@ import { ButtonGreen } from '@app/components/Button/ButtonGreen';
 import { calculateOfferCounters } from '../../../../../modules/Match/movex/reducer'; // Add this import
 
 import { useRouter } from 'next/navigation';
+const { getMovesDetailsFromPGN } = require('../../../../../modules/Match/utils');
+
 type Props = {
   game: Game;
   homeColor: ChessColor;
@@ -122,11 +124,13 @@ export const PlayControls: React.FC<Props> = ({
   const { offers: offers = [] } = game;
   const { match } = useMatchViewState();
   const [isBotPlay, setBots] = useState(false);
-  const [drawOfferNum, coundDrawOfferNum] = useState(0);
+  const [drawOfferNum, setDrawOfferNum] = useState(0);
+  const lastMoveCountRef = useRef(0);
   const router = useRouter();
   const offerAlreadySent = useRef(false);
   const offerCounters = match ? calculateOfferCounters(match) : undefined;
   const timeClass = match ? match.gameInPlay?.timeClass : undefined;
+  const { getMovesDetailsFromPGN } = require('../../../../../modules/Match/utils');
   const isBullet =
     timeClass === 'bullet' ||
     timeClass === 'bulletplus1' ||
@@ -228,23 +232,49 @@ export const PlayControls: React.FC<Props> = ({
     if (game.status !== 'ongoing') {
       return false;
     }
-
+    const hasSentDrawOfferBefore = offers.some(
+      (offer) => offer.type === 'draw' && offer.byPlayer === playerId
+    );
+    
+    // Ograničenje od 10 poteza važi samo NAKON što je već poslao ponudu
+    if (hasSentDrawOfferBefore && drawOfferNum < 10) {
+      return false;
+    }
+    // Ne dozvoli ako već ima pending draw offer od ovog igrača
     const hasPendingDrawOffer = offers.some(
       (offer) =>
         offer.status === 'pending' &&
         offer.type === 'draw' &&
         offer.byPlayer === playerId
     );
-
+  
     if (hasPendingDrawOffer) {
       return false;
     }
   
-    // Proveri broj draw offera - maksimalno 3 po igraču
-    // drawCount broji sve draw offere (pending, accepted, denied, cancelled)
-    // Reducer proverava >= 3, tako da ovde proveravamo < 3
-    return drawCount < 3;
-  }, [game.status, offers, playerId, drawCount]);
+    // Svi draw offeri ovog igrača (pending + završeni), sortirani po vremenu (najnoviji prvi)
+    const drawOffersByPlayer = offers
+      .filter((offer) => offer.type === 'draw' && offer.byPlayer === playerId && offer.status === 'denied')
+      .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+  
+    if (drawOffersByPlayer.length === 0) {
+      return true;
+    }
+  
+    // Poslednji (najnoviji) draw offer – bilo da je još pending ili već završen
+    const lastDrawOffer = drawOffersByPlayer[0];
+    const currentMoves = getMovesDetailsFromPGN(game.pgn).totalMoves;
+  
+    // Od tog poteza mora da prođe 10 poteza pre sledećeg offera
+    if (lastDrawOffer.moveNumber !== undefined) {
+      const movesSinceLastOffer = currentMoves - lastDrawOffer.moveNumber;
+      console.log('movesSinceLastOffer:', movesSinceLastOffer)
+      return movesSinceLastOffer >= 10;
+    }
+  
+    // Stari offeri bez moveNumber – dozvoli
+    return true;
+  }, [game.status, offers, playerId, game.pgn]);
 
     //if (
     //  lastOffer?.status === 'pending' ||
@@ -293,6 +323,15 @@ export const PlayControls: React.FC<Props> = ({
       );
     }
   }, [match]);
+
+  useEffect(() => {
+    const currentMoves = getMovesDetailsFromPGN(game.pgn).totalMoves;
+    if (currentMoves > lastMoveCountRef.current) {
+      const diff = currentMoves - lastMoveCountRef.current;
+      setDrawOfferNum((prev) => prev + diff);
+      lastMoveCountRef.current = currentMoves;
+    }
+  }, [game.pgn]);
 
   useEffect(() => {
     if (offerAlreadySent.current) {
@@ -393,7 +432,7 @@ export const PlayControls: React.FC<Props> = ({
         onClick={() => {
           setOfferSent();
           onDrawOffer();
-          coundDrawOfferNum(drawOfferNum + 1);
+          setDrawOfferNum(0);
         }}
         disabled={!allowDraw || isBotPlay}
       >

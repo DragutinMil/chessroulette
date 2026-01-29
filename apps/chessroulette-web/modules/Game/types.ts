@@ -40,8 +40,8 @@ export type GameOffer = {
   status: 'pending' | 'accepted' | 'denied' | 'cancelled';
   linkInitiator?: string;
   linkTarget?: string;
-  // Nededed? If so change to Date or smtg
   timestamp?: number;
+  moveNumber?: number;
 };
 
 /**

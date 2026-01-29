@@ -247,6 +247,9 @@ export const reducer = (
   if (action.type === 'play:sendOffer') {
     const { byPlayer, offerType } = action.payload;
     if (offerType !== 'rematch') {
+      const { getMovesDetailsFromPGN } = require('../../utils');
+      const currentMoves = getMovesDetailsFromPGN(prev.pgn).totalMoves;  
+
       const nextOffers: GameOffer[] = [
         ...prev.offers,
         {
@@ -256,14 +259,18 @@ export const reducer = (
           ...(action.payload.timestamp && {
             timestamp: action.payload.timestamp,
           }),
+          // Dodaj moveNumber samo za draw offere
+          ...(offerType === 'draw' && {
+            moveNumber: currentMoves,
+          }),
         },
       ];
-      //  console.log('nije rematch',nextOffers)
       return {
         ...prev,
         offers: nextOffers,
       };
     }
+  
     // REMATCH
     // else {
     //    console.log('jeste rematch',prev)
