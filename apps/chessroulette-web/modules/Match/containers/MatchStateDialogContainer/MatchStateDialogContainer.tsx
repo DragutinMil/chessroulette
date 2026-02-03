@@ -56,6 +56,12 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
   //     sendResult();
   //   }
   // }, [match?.winner]);
+  const isPlayer =
+    !!userId &&
+    !!match &&
+    (userId === match.challenger.id || userId === match.challengee.id);
+
+
   useEffect(() => {
     if (
       (match?.status === 'ongoing' && !activeBot) ||
@@ -156,29 +162,30 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
               {(match[match.winner].id.length !== 16 ||
                 match[match.winner].id.slice(-3) === '000') && (
                 <div className="justify-center items-center flex flex-col">
-                  <Button
-                    icon="ArrowPathRoundedSquareIcon"
-                    bgColor="green"
-                    style={{
-                      marginTop: 18,
-                      minWidth: '160px',
-                    }}
-                    onClick={() => {
-                      if (playerId) {
-                        console.log('playerId', playerId);
-                        dispatch((masterContext) => ({
-                          type: 'play:sendOffer',
-                          payload: {
-                            byPlayer: playerId,
-                            offerType: 'rematch',
-                            timestamp: masterContext.requestAt(),
-                          },
-                        }));
-                      }
-                    }}
-                  >
-                    Rematch
-                  </Button>
+    {isPlayer && (
+      <Button
+        icon="ArrowPathRoundedSquareIcon"
+        bgColor="green"
+        style={{
+          marginTop: 18,
+          minWidth: '160px',
+        }}
+        onClick={() => {
+          if (playerId) {
+            dispatch((masterContext) => ({
+              type: 'play:sendOffer',
+              payload: {
+                byPlayer: playerId,
+                offerType: 'rematch',
+                timestamp: masterContext.requestAt(),
+              },
+            }));
+          }
+        }}
+      >
+        Rematch
+      </Button>
+    )}
                   <Link
                     href={`https://chess.outpostchess.com/room/new/r${room}?activity=aichess&userId=${userId}&theme=op&pgn=${matchId}&instructor=1`}
                   >
