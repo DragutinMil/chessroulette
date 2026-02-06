@@ -1102,10 +1102,57 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
               ),
               renderContent: () => (
                 <div className="flex flex-col flex-1 gap-2 min-h-0 overflow-scroll no-scrollbar">
-                  <div className="flex-1 justify-between flex flex-col border bg-op-widget border-conversation-100 pb-2 px-2 md:px-4 md:pb-4 rounded-lg  ">
+                   { isMobile && (
+
+                  <div
+                    style={{
+                      backgroundImage:
+                        'radial-gradient(61.84% 61.84% at 50% 131.62%, rgba(5, 135, 44, 0.2) 0%, #01210B 100%)',
+                      height: isMobile
+                        ? currentChapterState.chessAiMode.mode == 'puzzle'
+                          ? 'calc(100% - 600px)'
+                          : '52px'
+                        : currentChapterState.chessAiMode.mode === 'puzzle'
+                        ? 'calc(100% - 600px)'
+                        : '290px',
+                      minHeight: isMobile ? '52px' : '202px',
+                    }}
+                    className={`
+                      ${
+                        currentChapterState.chessAiMode.mode === 'review'
+                          ? 'block'
+                          : 'hidden'
+                      }  
+                      
+                     overflow-x-auto md:overflow-x-hidden  md:flex rounded-lg md:mb-0  border border-conversation-100 md:p-4 p-2 overflow-scroll no-scrollbar 
+                    `}
+                  >
+                    <FreeBoardNotation
+                      reviewData={reviewData}
+                      isMobile={isMobile}
+                      history={currentChapterState.notation?.history}
+                      playerNames={playerNames}
+                      focusedIndex={currentChapterState.notation?.focusedIndex}
+                      onDelete={onHistoryNotationDelete}
+                      onRefocus={onHistoryNotationRefocus}
+                      isFocusedInput={isFocusedInput}
+                    />
+                  </div>
+                     ) }
+                  <div className={`flex-1 justify-between flex flex-col border bg-op-widget border-conversation-100 pb-2 px-2 md:px-4 md:pb-4 rounded-lg 
+                  ${
+                        isMobile
+                          ? 'mb-2'
+                          : ''
+                      }  
+                  `}>
+                        
+                  
                     {currentChapterState.chessAiMode.mode !== 'review' ? (
                       <div className="mt-4 flex flex-col justify-between  h-full max-h-[340px] md:max-h-[380px] md:min-h-[300px] min-h-[200px] ">
-                        <Conversation
+
+                        {!isMobile && 
+                         <Conversation
                           currentChapterState={currentChapterState}
                           openViewSubscription={openViewSubscription}
                           onSelectPuzzle={puzzles}
@@ -1114,16 +1161,25 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
                           takeBack={takeBack}
                           playNext={playNext}
                           hint={hint}
+                          isMobile={isMobile}
                           userData={userData}
                           smallMobile={smallMobile}
                         />
+                        }
+                       
 
                         <div
-                          className={` relative  flex md:my-[20px] justify-around items-center gap-3 mt-3 my-[14px] ${
+                          className={` relative  flex md:my-[20px] justify-around items-center gap-3 mt-3 my-[14px]
+                             ${
                             currentChapterState.chessAiMode.mode === 'top'
                               ? '10px'
                               : ''
-                          }`}
+                          }
+                          `}
+                           style={{
+                              top: isMobile ? '-10px' : '',
+                                marginBottom: isMobile ? '-10px' : '',
+                            }}
                         >
                           {/* hidden md:flex  */}
                           <ButtonGreen
@@ -1219,7 +1275,7 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
                             size="sm"
                             className={`${
                               takeBakeShake ? 'animate-shake' : ''
-                            } md:max-w-[92px] max-w-[80px]`}
+                            } md:max-w-[92px] max-w-[81px]`}
                             style={{
                               maxWidth: smallMobile ? '75px' : '',
                             }}
@@ -1232,7 +1288,7 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
                               puzzles();
                             }}
                             size="sm"
-                            className=" md:max-w-[92px] max-w-[80px]"
+                            className=" md:max-w-[92px] max-w-[84px] px-8"
                             disabled={
                               freezeButton ||
                               currentChapterState.messages[
@@ -1243,6 +1299,21 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
                             New Puzzle
                           </ButtonGreen>
                         </div>
+                         {isMobile && 
+                         <Conversation
+                          currentChapterState={currentChapterState}
+                          openViewSubscription={openViewSubscription}
+                          onSelectPuzzle={puzzles}
+                          onSelectRating={setRatingEngine}
+                          pulseDot={pulseDot}
+                          takeBack={takeBack}
+                          playNext={playNext}
+                           isMobile={isMobile}
+                          hint={hint}
+                          userData={userData}
+                          smallMobile={smallMobile}
+                        />
+                        }
                       </div>
                     ) : (
                       <div>
@@ -1383,6 +1454,8 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
                       }
                     />
                   )} */}
+                  { !isMobile && (
+
                   <div
                     style={{
                       backgroundImage:
@@ -1417,6 +1490,7 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
                       isFocusedInput={isFocusedInput}
                     />
                   </div>
+                     ) }
                   {currentChapterState.chessAiMode.mode == 'review' && (
                     <div className="md:flex hidden items-center overflow-x-hidden gap-3 h-[55px] ">
                       <label className="font-bold text-sm  text-gray-400">

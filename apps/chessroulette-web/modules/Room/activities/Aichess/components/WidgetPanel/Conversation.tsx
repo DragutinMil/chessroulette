@@ -5,11 +5,13 @@ import greenLogo from '../../../../../../components/Logo/assets/Logo_green_small
 import Image from 'next/image';
 import { ButtonGreen } from '@app/components/Button/ButtonGreen';
 
+
 type Props = {
   currentChapterState: ChapterState;
   pulseDot: boolean;
   userData: UserData;
   smallMobile: boolean;
+   isMobile: boolean;
   takeBack: () => void;
   playNext: () => void;
   hint: () => void;
@@ -26,13 +28,14 @@ const Conversation = ({
   takeBack,
   playNext,
   smallMobile,
+  isMobile,
   openViewSubscription,
   hint,
   onSelectPuzzle,
   onSelectRating,
 }: Props) => {
   const scrollRef = useRef<HTMLDivElement>(null);
-
+ 
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
@@ -45,20 +48,25 @@ const Conversation = ({
     }
   };
   return (
+    <div className="flex-1" 
+   
+ >
     <div
       ref={scrollRef}
       className={`
-  flex-1 overflow-y-auto rounded-lg no-scrollbar scroll-smooth
+  overflow-y-auto rounded-lg no-scrollbar scroll-smooth
   min-h-[150px]
   ${
     currentChapterState.chessAiMode.mode === 'puzzle'
-      ? 'md:max-h-[500px] max-h-[190px]'
+      ? 'h-full'
       : 'max-h-[350px]'
+   
   }
   md:h-[316px]
 `}
       style={{
-        maxHeight: smallMobile ? '150px' : '',
+        maxHeight: smallMobile ? '160px' : '',
+        marginTop: isMobile? '15px':''
       }}
     >
       {currentChapterState.messages.map((msg, index) => {
@@ -80,24 +88,24 @@ const Conversation = ({
             {/* CHAT GPT TEXT */}
             {participant.includes('chatGPT123456') ? (
               <div className="flex">
-                <div>
+                <div style={{top:10}}>
                   {isLastFromThisParticipant ? (
                     <Image
                       src={greenLogo}
                       alt="outpost"
-                      className=" max-w-[28px] md:max-w-[36px]"
+                      className=" max-w-[28px] md:max-w-[36px] relative top-0.5"
                     />
                   ) : (
                     <Image
                       src={greenLogo}
-                      className="opacity-0  max-w-[28px] md:max-w-[36px]"
+                      className="opacity-0  max-w-[28px] md:max-w-[36px] relative top-0.5"
                       alt="outpost"
                     />
                   )}
                 </div>
 
                 <div
-                  className={`text-white text-sm px-4 ${
+                  className={`text-white text-sm px-4  ${
                     currentChapterState.chessAiMode.mode === 'review'
                       ? 'w-full'
                       : 'max-w-xs max-w-[80%]'
@@ -185,6 +193,7 @@ const Conversation = ({
           </div>
         );
       })}
+    </div>
     </div>
   );
 };
