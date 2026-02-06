@@ -79,9 +79,9 @@ export const AichessActivity = ({
     socketUtil.connect('reviewing');
     localStorage.setItem('socket', 'reviewing');
 
-    return () => {
-      socketUtil.disconnect();
-    };
+    // return () => {
+    //   socketUtil.disconnect();
+    // };
   }, []);
   useEffect(() => {
     // console.log('currentChapter', currentChapter);

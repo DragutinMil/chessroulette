@@ -105,6 +105,7 @@ export async function getOpenings() {
 }
 //ANALYZE MOVES AND GET FREQUENTLY USED
 export async function analyzeMovesPGN(uciMoves: string) {
+   const token = Cookies.get('sessionToken');
   try {
     const response = await fetch(
       process.env.NEXT_PUBLIC_API_WEB + `chess_next_moves?moves=${uciMoves}`,
@@ -112,6 +113,7 @@ export async function analyzeMovesPGN(uciMoves: string) {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
+           Authorization: `Bearer ${token}`,
         },
       }
     );
