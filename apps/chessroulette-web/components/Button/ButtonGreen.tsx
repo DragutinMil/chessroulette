@@ -66,17 +66,18 @@ export const ButtonGreen = React.forwardRef<
       buttonType = 'button', // This by default doesn't submit forms, unless "submit" type is specified
       ...props
     },
+   
     ref
   ) => {
     return (
       <button
         ref={ref}
-        className={`group  relative bg-[#D9D9D9]/20   duration-200
+        className={`group  relative bg-[#D9D9D9]/20   duration-200 
  } ${classes[size]} ${
           disabled
             ? 'bg-[#D9D9D9]/20 opacity-30   hover:cursor-default '
             : 'bg-[#D9D9D9]/20  hover:cursor-pointer hover:bg-[#07DA63] hover:text-indigo-1300'
-        } flex items-center justify-center gap-1 ${className}`}
+        } flex items-center justify-center gap-1  ${className}`}
         onClick={onClick}
         disabled={disabled === true}
         {...props}
