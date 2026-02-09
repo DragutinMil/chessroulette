@@ -6,9 +6,9 @@ import React, {
   useRef,
 } from 'react';
 
+import { ChessFENBoard, FreeBoardHistory, isValidPgn } from '@xmatter/util-kit';
 import { Button } from '@app/components/Button';
 import { ButtonGreen } from '@app/components/Button/ButtonGreen';
-import { ChessFENBoard, isValidPgn } from '@xmatter/util-kit';
 import {
   FreeBoardNotation,
   FreeBoardNotationProps,
@@ -43,7 +43,7 @@ import { EngineData } from '../../../../../ChessEngine/lib/io';
 import { useUpdateableSearchParams } from '@app/hooks/useSearchParams';
 import { ChessEngineProbabilityCalc } from '@app/modules/ChessEngine/components/ChessEngineCalculator';
 import { Switch } from '@app/components/Switch';
-import { getOpenings, analyzeMovesPGN } from '../../util';
+import { getOpenings, analyzeMovesPGN, getWikibooksContent } from '../../util';
 
 // import { generateGptResponse } from '../../../../../../server.js';
 type StockfishLines = {
@@ -72,6 +72,7 @@ type Props = {
   onCanPlayChange: (canPlay: boolean) => void;
   userData: UserData;
   addLearnAi: (data: aiLearn) => void;
+  onFlipBoard?: () => void;
 
   // Engine
   showEngine?: boolean;
@@ -111,6 +112,7 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
       onHistoryNotationDelete,
       onHistoryNotationRefocus,
       historyBackToStart,
+      onFlipBoard, // Destrakturisanje propa
       userData,
       ...chaptersTabProps
     },
@@ -158,6 +160,77 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
       3: '',
     });
 
+    const [wikiContent, setWikiContent] = useState<string>('');
+    const [isWikiLoading, setIsWikiLoading] = useState(false);
+
+    // Debounced function to fetch wiki content
+    const fetchWikiContent = useCallback(async (history: any[]) => {
+      let title = "Chess_Opening_Theory";
+      // Construct title from history
+      history.forEach((pair, index) => {
+        const moveNum = index + 1;
+        // White move
+        if (pair[0]) {
+          title += `/${moveNum}._${pair[0].san}`;
+        }
+        // Black move
+        if (pair[1]) {
+          title += `/${moveNum}...${pair[1].san}`;
+        }
+      });
+
+      console.log("Auto-Fetching Wiki Title:", title);
+      try {
+        const data = await getWikibooksContent(title);
+
+        if (data && data.query && data.query.pages) {
+          const pages = data.query.pages;
+          const pageId = Object.keys(pages)[0];
+          if (pages[pageId].missing) {
+            setWikiContent("No Wikibooks article found for this exact variation.");
+          } else {
+            setWikiContent(pages[pageId].extract);
+          }
+        } else {
+          setWikiContent("No content available.");
+        }
+      } catch (e) {
+        console.error("Wiki fetch error", e);
+      }
+    }, []);
+
+    const debouncedFetchWiki = useMemo(
+      () => debounce(fetchWikiContent, 500),
+      [fetchWikiContent]
+    );
+
+    // Effect to follow the board (PGN/History)
+    useEffect(() => {
+      if (currentChapterState?.notation?.history) {
+        const { history, focusedIndex } = currentChapterState.notation;
+        let activeHistory: any[] = history;
+
+        if (focusedIndex && focusedIndex.length === 2) {
+          const [moveIdx, colorIdx] = focusedIndex;
+          if (moveIdx === -1) {
+            activeHistory = [];
+          } else {
+            // Slice up to the current move pair
+            activeHistory = history.slice(0, moveIdx + 1).map((pair, idx) => {
+              // If it's the last pair we are looking at, check if we should exclude black's move
+              if (idx === moveIdx && colorIdx === 0) {
+                return [pair[0], null];
+              }
+              return pair;
+            });
+          }
+        }
+
+        debouncedFetchWiki(activeHistory);
+      }
+    }, [currentChapterState.notation.history, currentChapterState.notation.focusedIndex, debouncedFetchWiki]);
+
+
     const currentTabIndex = useMemo(
       () => widgetPanelTabsNav.getCurrentTabIndex(),
       [widgetPanelTabsNav.getCurrentTabIndex]
@@ -199,8 +272,8 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
       const lastIdResponse =
         currentChapterState.messages.length > 0
           ? currentChapterState.messages[
-              currentChapterState.messages.length - 1
-            ].idResponse || ''
+            currentChapterState.messages.length - 1
+          ].idResponse || ''
           : '';
       if (userId) {
         onMessage({
@@ -214,13 +287,6 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
         setPulseDot(true);
       }, 500);
 
-      // const pgn = currentChapterState.notation.history
-      //   .map((pair, i) => {
-      //     const white = pair[0]?.san || '';
-      //     const black = pair[1]?.san || '';
-      //     return `${i + 1}. ${white} ${black}`.trim();
-      //   })
-      //   .join(' ');
       const uciMoves = currentChapterState.notation.history
         .flat()
         .map((move) => `${move.from}${move.to}`)
@@ -229,9 +295,6 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
       const data = await SendQuestionCoach(
         question,
         currentChapterState,
-        // stockfishMovesInfo,
-        // lines[1],
-        // currentRatingEngine,
         uciMoves
       );
 
@@ -266,30 +329,16 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
     };
 
     const openViewSubscription = async () => {
-      // setPopupSubscribe(true);
       (window.location.href = 'https://app.outpostchess.com/subscribe'),
         '_self';
     };
 
     const setRatingEngine = async (category: number) => {
-      // setRatingBotEngine(category);
-      // onMessage({
-      //   content: `The rating is now set to ${category}`,
-      //   participantId: 'chatGPT123456',
-      //   idResponse:
-      //     currentChapterState.messages[currentChapterState.messages.length - 1]
-      //       .idResponse,
-      // });
+      // Placeholder logic
     };
 
     const openings = async () => {
       const data = await getOpenings();
-
-      // onQuickImport({ type: 'PGN', val: data.pgn });
-      // const uciMoves = currentChapterState.notation.history
-      // .flat()
-      // .map(move => `${move.from}${move.to}`)
-      // .join(' ');
 
       const pgn = data.pgn;
       const chess = new Chess();
@@ -303,27 +352,14 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
         name: data.name,
         moves: uciMoves,
       });
-
-      // const question = `introduce user about ${data.name} opening? Tell user to start with first move from ${data.pgn}`
-      // const answer = await SendQuestionCoach(
-      //     question,
-      //     currentChapterState,
-      //    // stockfishMovesInfo,
-      //    // lines[1],
-      //     //currentRatingEngine,
-      //     uciMoves
-      //   );
-      //  checkAnswerGPT(answer);
     };
 
     const analyzeMoves = async () => {
-      //kreiraj pgn UCI
       const uciMoves = currentChapterState.notation.history
         .flat()
         .map((move) => `${move.from}${move.to}`)
         .join(' ');
 
-      //posalji na proveru
       const openingMoves = await analyzeMovesPGN(uciMoves);
       setAnalyzedPGN(openingMoves);
       console.log('data moves', openingMoves);
@@ -331,15 +367,15 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
       const answer = await SendQuestionCoach(
         question,
         currentChapterState,
-        // stockfishMovesInfo,
-        // lines[1],
-        // currentRatingEngine,
         uciMoves
       );
     };
 
+    const manualFetchWiki = () => {
+      onTabChange({ tabIndex: 1 });
+    };
+
     const takeBack = async () => {
-      // setTimeoutEnginePlay(true);
       if (currentChapterState.notation.focusedIndex[0] !== -1) {
         if (currentChapterState.notation.focusedIndex[0] == 0) {
           onTakeBack([0, 0]);
@@ -350,9 +386,9 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
         }
       }
     };
-    const playNext = async () => {};
-    const engineMove = async () => {};
-    const hint = async () => {};
+    const playNext = async () => { };
+    const engineMove = async () => { };
+    const hint = async () => { };
 
     const handleGameEvaluation = (newScore: number) => {
       setprevScoreCP(scoreCP);
@@ -362,35 +398,8 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
       setFreezeButton(true);
     };
 
-    // const importPgn = async () => {
-    //   const fen = '7R/2r3P1/8/8/2b4p/P4k2/8/4K3 b - - 10 55';
-    //   if (ChessFENBoard.validateFenString(fen).ok) {
-    //     onQuickImport({ type: 'FEN', val: fen });
-    //   } else if (isValidPgn(fen)) {
-    //     onQuickImport({ type: 'PGN', val: fen });
-    //   }
-    // };
-
-    // Instructor
     return (
       <div className="  flex flex-col flex-1 min-h-0 rounded-lg shadow-2xl flex-1 flex min-h-0 ">
-        {/* {stockfish && (
-          <StockFishEngineAI
-            ratingEngine={ratingEngine}
-            newRatingEngine={newRatingEngine}
-            fen={currentChapterState.displayFen}
-            orientation={currentChapterState.orientation}
-        
-            
-            engineLines={engineLines}
-            IsMate={isMate}
-            isMobile={isMobile}
-            isMyTurn={isMyTurn}
-            engineMove={engineMove}
-            addGameEvaluation={handleGameEvaluation}
-          />
-        )} */}
-
         <Tabs
           containerClassName=" flex flex-col flex-1 min-h-0 rounded-lg shadow-2xl "
           headerContainerClassName="flex gap-3"
@@ -402,17 +411,14 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
             {
               id: 'notation',
               renderHeader: (p) => (
-                <div></div>
-                // <Button
-                //   onClick={() => {
-                //     p.focus();
-                //     chaptersTabProps.onDeactivateInputMode();
-                //   }}
-                //   size="sm"
-                //   className={` font-bold bg-slate-900`}
-                // >
-                //   {/* Notation */}
-                // </Button>
+                <div
+                  className={`cursor-pointer px-4 py-2 text-sm font-bold rounded-lg ${currentTabIndex === 0 ? 'bg-slate-700 text-white' : 'text-slate-400 hover:text-slate-200'
+                    }`}
+                  onClick={() => onTabChange({ tabIndex: 0 })}
+                >
+                  Assistant
+                </div>
+
               ),
               renderContent: () => (
                 <div className="flex flex-col flex-1 gap-2 min-h-0 overflow-scroll no-scrollbar">
@@ -433,7 +439,6 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
                       <div
                         className={` relative  flex md:my-[20px] justify-around items-center gap-3 mt-3 my-[14px] `}
                       >
-                        {/* hidden md:flex  */}
                         <ButtonGreen
                           onClick={() => {
                             play();
@@ -456,7 +461,7 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
                             maxWidth: smallMobile ? '68px' : '',
                           }}
                         >
-                          Openings
+                          <p>Openings</p>
                         </ButtonGreen>
                         <ButtonGreen
                           onClick={() => {
@@ -468,48 +473,70 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
                             maxWidth: smallMobile ? '68px' : '',
                           }}
                         >
-                          Analyze Moves
+                          <p>Analyze</p>
+                        </ButtonGreen>
+                        <ButtonGreen
+                          onClick={() => {
+                            manualFetchWiki();
+                          }}
+                          size="sm"
+                          className=" md:max-w-[100px] max-w-[100px]"
+                          style={{
+                            maxWidth: smallMobile ? '68px' : '',
+                          }}
+                        >
+                          <p>Wiki</p>
                         </ButtonGreen>
 
-                        {/* <Button
-                      onClick={() => {
-                        importPgn();
-                      }}
-                      size="sm"
-                      className={`bg-slate-600 font-bold hover:bg-slate-800 `}
-                    >
-                      Import PGN
-                    </Button> */}
-                        {/* <ButtonGreen
-                            onClick={() => {
-                              takeBack();
-                            }}
-                            disabled={
-                              freezeButton ||
-                              currentChapterState.notation.history.length < 1  ||
-                              currentChapterState.notation.history.length -
-                                1 !==
-                                currentChapterState.notation.focusedIndex[0] ||
-                              (currentChapterState.notation.history.length -
-                                1 ==
-                                currentChapterState.notation.focusedIndex[0] &&
-                                currentChapterState.notation.history[
-                                  currentChapterState.notation.history.length -
-                                    1
-                                ].length -
-                                  1 !==
-                                  currentChapterState.notation.focusedIndex[1])
-                            }
-                            size="sm"
-                            className={`${
-                              takeBakeShake ? 'animate-shake' : ''
-                            } md:max-w-[100px] max-w-[100px]`}
-                            style={{
-                              maxWidth: smallMobile ? '75px' : '',
-                            }}
-                          >
-                            Take Back
-                          </ButtonGreen> */}
+                        {/* Flip Board Button - Poziva funkciju koju si definisao */}
+                        <ButtonGreen
+                          onClick={() => {
+                            if (onFlipBoard) onFlipBoard();
+                          }}
+                          size="sm"
+                          className="md:max-w-[100px] max-w-[100px]"
+                          style={{
+                            maxWidth: smallMobile ? '68px' : '',
+                          }}
+                        >
+                          <p>Flip</p>
+                        </ButtonGreen>
+
+                        <ButtonGreen
+                        onClick={() => {
+                        const history = currentChapterState.notation?.history ?? [];
+                        if (history.length > 0) {
+                           const lastIndex = FreeBoardHistory.getLastIndexInHistory(history);
+                           onHistoryNotationDelete(lastIndex);
+                          }
+                        }}
+                        size="sm"
+                        className="md:max-w-[100px] max-w-[100px]"
+                        style={{
+                        maxWidth: smallMobile ? '68px' : '',
+                        }}
+                        disabled={
+                          !currentChapterState.notation?.history?.length
+                        }
+                        >
+                       <p>Undo</p>
+                       </ButtonGreen>
+
+                        {/* Reset Button - Anulira PGN i resetuje tablu */}
+                        <ButtonGreen
+                          onClick={() => {
+                            onQuickImport({ type: 'FEN', val: ChessFENBoard.STARTING_FEN });
+                            onArrowsChange({});
+                          }}
+                          size="sm"
+                          className="md:max-w-[100px] max-w-[100px]"
+                          style={{
+                            maxWidth: smallMobile ? '68px' : '',
+                          }}
+                        >
+                          <p>Reset</p>
+                        </ButtonGreen>
+
                       </div>
                     </div>
 
@@ -523,7 +550,6 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
                         style={{
                           boxShadow: '0px 0px 10px 0px #07DA6380',
                         }}
-                        // className="w-full my-2 text-sm rounded-md border-slate-500 focus:border-slate-400 border border-transparent block bg-slate-600 text-white block py-1 px-2"
                         className="w-full text-sm rounded-[20px] border  border-conversation-100 bg-[#111111]/40 text-white 
                         placeholder-slate-400 px-4 py-2  transition-colors duration-200 focus:outline-none 
                         focus:ring-1 focus:ring-slate-400 focus:border-conversation-200 hover:border-conversation-300"
@@ -534,7 +560,6 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
                         onBlur={() => setIsFocusedInput(false)}
                         onKeyDown={(e) => {
                           if (e.key === 'Enter' && !e.shiftKey) {
-                            //e.preventDefault(); // sprečava novi red ako koristiš textarea
                             addQuestion(question);
                           }
                         }}
@@ -552,41 +577,6 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
                           duration-200"
                       ></ButtonGreen>
                     </div>
-
-                    {/* {currentChapterState.aiLearn.mode == 'opening' && (
-                      <div>
-                        <div className="w-full mt-1 h-4 md:flex hidden overflow-hidden rounded mt-4 ">
-                          <div
-                            className={`bg-white transition-all duration-500`}
-                            style={{ width: `${percentW}%` }}
-                          ></div>
-                          <div
-                            className={`bg-[#000000] transition-all duration-500`}
-                            style={{ width: `${percentB}%` }}
-                          ></div>
-                        </div>
-
-                        {scoreCP !== 0 && (
-                          <div className={` flex  items-center mt-2`}>
-                            {scoreCP < 49999 &&
-                              scoreCP > -49999 &&
-                              (currentChapterState.orientation == 'b' ? (
-                                <p className={'font-bold '}>
-                                  {' '}
-                                  {(scoreCP / 100) * -1}
-                                </p>
-                              ) : (
-                                <p className={'font-bold '}> {scoreCP / 100}</p>
-                              ))}
-                            &nbsp;&nbsp;{' '}
-                            <p className={'text-sm  '}>
-                              {' '}
-                              Best Move: {moveSan}{' '}
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                    )} */}
                   </div>
 
                   <div
@@ -598,17 +588,16 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
                           ? 'calc(100% - 600px)'
                           : '52px'
                         : currentChapterState.aiLearn.mode === 'midgame'
-                        ? 'calc(100% - 600px)'
-                        : '290px',
+                          ? 'calc(100% - 600px)'
+                          : '290px',
                       minHeight: isMobile ? '52px' : '202px',
                     }}
                     className={`
-                      ${
-                        currentChapterState.aiLearn.mode === 'midgame'
-                          ? 'block'
-                          : 'hidden'
+                      ${currentChapterState.aiLearn.mode === 'midgame'
+                        ? 'block'
+                        : 'hidden'
                       }  
-                      
+                     
                      overflow-x-auto md:overflow-x-hidden  md:flex rounded-lg md:mb-0 mb-4 border border-conversation-100 md:p-4 p-2 overflow-scroll no-scrollbar 
                     `}
                   >
@@ -623,10 +612,34 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
                       isFocusedInput={isFocusedInput}
                     />
                   </div>
-                  {/* <FenPreview fen={currentChapterState.displayFen} /> */}
                 </div>
               ),
             },
+            {
+              id: 'wiki',
+              renderHeader: (p) => (
+                <div
+                  className={`cursor-pointer px-4 py-2 text-sm font-bold rounded-lg ${currentTabIndex === 1 ? 'bg-slate-700 text-white' : 'text-slate-400 hover:text-slate-200'
+                    }`}
+                  onClick={() => onTabChange({ tabIndex: 1 })}
+                >
+                  Wiki
+                </div>
+              ),
+              renderContent: () => (
+                <div className="flex flex-col flex-1 gap-2 min-h-0 overflow-scroll no-scrollbar p-4 bg-slate-900 rounded-lg text-white">
+                  <h3 className="text-xl font-bold mb-2">Wikibooks Opening Theory</h3>
+                  {isWikiLoading ? (
+                    <div>Loading...</div>
+                  ) : (
+                    <div
+                      className="prose prose-invert max-w-none text-sm"
+                      dangerouslySetInnerHTML={{ __html: wikiContent || "Select a move and click 'Wiki Info' to see opening theory." }}
+                    />
+                  )}
+                </div>
+              )
+            }
           ]}
         />
       </div>

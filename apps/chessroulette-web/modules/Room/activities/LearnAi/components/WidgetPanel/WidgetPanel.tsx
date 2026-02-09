@@ -38,11 +38,11 @@ type Props = {
   onCanPlayChange: (canPlay: boolean) => void;
   playerNames: Array<string>;
   // Mode
-  isInstructor: boolean;
-
+  isInstructor: boolean;  
   // Engine
   showEngine?: boolean;
   engine?: EngineData;
+  onFlipBoard?: () => void;
 } & Pick<
   ChaptersTabProps,
   | 'onLoadChapter'
@@ -77,6 +77,7 @@ export const WidgetPanel = React.forwardRef<TabsRef, Props>(
       onMessage,
       onMove,
       onCanPlayChange,
+      onFlipBoard,
       playerNames,
 
       userData,
@@ -99,6 +100,7 @@ export const WidgetPanel = React.forwardRef<TabsRef, Props>(
         onCircleDraw={onCircleDraw}
         onArrowsChange={onArrowsChange}
         onCanPlayChange={onCanPlayChange}
+        onFlipBoard={onFlipBoard}
         onMove={onMove}
         onTakeBack={onTakeBack}
         historyBackToStart={historyBackToStart}

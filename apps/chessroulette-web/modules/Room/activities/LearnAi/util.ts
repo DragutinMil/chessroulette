@@ -224,3 +224,20 @@ export function enqueueMovexUpdate<T>(
 
   return movexUpdateQueue;
 }
+
+export async function getWikibooksContent(title: string) {
+  try {
+    const url = `https://en.wikibooks.org/w/api.php?titles=${encodeURIComponent(
+      title
+    )}&action=query&prop=extracts&formatversion=1&format=json&origin=*`;
+    const response = await fetch(url);
+    if (!response.ok) {
+      console.error("Wikibooks request failed", response.status);
+      return null;
+    }
+    return response.json();
+  } catch (error) {
+    console.error('Fetch error', error);
+    return null;
+  }
+}

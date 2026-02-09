@@ -340,6 +340,12 @@ export const LearnAiActivity = ({
               )
             }
             onCanPlayChange={(payload) => onCanPlayChange(payload)}
+            onFlipBoard={() => {
+              dispatch({
+                type: 'loadedChapter:setOrientation',
+                payload: { color: swapColor(currentChapter.orientation) },
+              });
+            }}
             historyBackToStart={historyBackToStart}
             userData={userData}
             playerNames={playerNames}
