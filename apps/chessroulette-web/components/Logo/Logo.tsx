@@ -32,7 +32,7 @@ export const Logo: React.FC<Props> = ({ themeName, style }) => {
     return {
       src: logoLightFull,
       width: 220,
-      title: 'Chessroulette'
+      title: 'Chessroulette',
     };
   })();
 
