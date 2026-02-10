@@ -59,7 +59,11 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
   const router = useRouter();
   const { lastOffer, playerId } = useGame();
 
-  ////
+  const isPlayer =
+    !!userId &&
+    !!match &&
+    (userId === match.challenger.id || userId === match.challengee.id);
+
   const userId = useMovexClient(movexConfig)?.id;
   const params = useParams<{ roomId: string }>();
 
@@ -75,6 +79,7 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
     () => movexSubcribersToUserMap(movexResource?.subscribers || {}),
     [movexResource?.subscribers]
   );
+
   useEffect(() => {
     if (
       (match?.status === 'ongoing' && !activeBot) ||
@@ -189,7 +194,9 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
               {(match[match.winner].id.length !== 16 ||
                 match[match.winner].id.slice(-3) === '000') && (
                 <div className="justify-center items-center flex flex-col">
-                  <Button
+
+    {isPlayer && (
+     <Button
                     icon="ArrowPathRoundedSquareIcon"
                     bgColor="green"
                     style={{
@@ -224,6 +231,8 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
                   >
                     Rematch
                   </Button>
+    )}
+
                   <Link
                     href={`https://chess.outpostchess.com/room/new/r${room}?activity=aichess&userId=${userId}&theme=op&pgn=${roomId}&instructor=1`}
                   >

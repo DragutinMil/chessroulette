@@ -86,7 +86,7 @@ const MatchContainerInner = ({
   setIsMobileChatOpen: (open: boolean) => void;
 }) => {
   const { match: matchState } = useMatchViewState();
-  const { playersBySide } = useCurrentOrPrevMatchPlay();
+  const { playersBySide, canUserPlay } = useCurrentOrPrevMatchPlay();
   const dispatchPlay = usePlayActionsDispatch();
   const { displayState, actions } = useGame();
   const [cameraExpanded, setCameraExpanded] = useState(false);
@@ -261,6 +261,8 @@ const MatchContainerInner = ({
     }
   }, [match.gameInPlay?.offers, match.status]);
 
+  const isPlayer = canUserPlay && playersBySide?.home.id;
+
   return (
     <>
       <div className="flex flex-col flex-1 min-h-0 gap-4 w-full md:w-1/2 md:hidden  mt-4 relative  z-[40]">
@@ -299,10 +301,12 @@ const MatchContainerInner = ({
             </div>
 
             {/* Desktop Chat Widget */}
+            {isPlayer && (
             <div className="w-full hidden md:flex flex-1 min-h-0 w-full relative">
               {(activeWidget === 'chat' && activeBot) ||
               activeBot?.id?.slice(-3) == '000' ||
-              !activeBot ? (
+              !activeBot && isPlayer? (
+                
                 <div className="w-full hidden md:flex flex-1 min-h-0 w-full relative">
                   <ChatWidget
                     pgn={
@@ -329,7 +333,9 @@ const MatchContainerInner = ({
                       }
                     `}
                   >
-                    {activeBot?.id?.slice(-3) !== '000' && !isMobile && (
+
+                    { activeBot?.id?.slice(-3) !== '000' && !isMobile &&(
+
                       <div>
                         <div
                           className={`
@@ -373,14 +379,14 @@ const MatchContainerInner = ({
                 </div>
               ) : (
                 // classic bot players
-                !isMobile && (
+                !isMobile && canUserPlay &&(
                   <div className="w-1/2  md:w-full h-full overflow-hidden  rounded-lg shadow-2xl  ">
                     <PeerToPeerCameraWidget activeBot={activeBot} />
                   </div>
                 )
               )}
             </div>
-
+            )}
             <div className="w-full pl-2 pr-2 md:pl-0 md:pr-0 pt-0 pb-0 flex flex-col md:gap-2 gap-2 md:flex-1 min-h-0 rounded-lg shadow-2xl  overflow-y-scroll no-scrollbar fixed bottom-1 left-0 right-0 md:relative md:bottom-auto md:left-auto md:right-auto ">
               {(match.gameInPlay?.status !== 'idling' || !isMobile) && (
                 <div
@@ -427,7 +433,7 @@ const MatchContainerInner = ({
         }
       />
 
-      {isMobileChatOpen && (
+      {isPlayer && isMobileChatOpen && (
         <div className="md:hidden fixed inset-0 z-50 bg-[#01210b] flex flex-col">
           <div className="flex-1 overflow-hidden">
             <ChatWidget
