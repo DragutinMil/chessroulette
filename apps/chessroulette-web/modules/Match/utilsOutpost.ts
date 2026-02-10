@@ -2,7 +2,7 @@ import Cookies from 'js-cookie';
 import { decodeJwt } from 'jose';
 
 export async function checkUser(userId: string | undefined) {
-  console.log('userId', userId);
+  // console.log('userId', userId);
   if (!userId) {
     return;
   }
@@ -112,7 +112,7 @@ export async function newRematchRequestInitiate(matchId: string) {
       Authorization: `Bearer ${token}`,
     },
   });
-  console.log('response',response);
+  console.log('response', response);
   // Proveri response headers
   const responseHeaders: Record<string, string> = {};
   response.headers.forEach((value, key) => {

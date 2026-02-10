@@ -8,13 +8,15 @@ export async function ChatBotWidget(
   pgn: string,
   messages: ChatMessage[],
   activeBotName: string,
-  UciFormat?: string[],
-  botColor?: string
+  oponentColor?: string,
+  UciFormat?: string[]
 ) {
   const previusMessageId = messages[messages.length - 1]?.responseId;
 
-  const question = 'QUESTION:\n' + prompt;
-  +'\n' +
+  const question =
+    'QUESTION:\n' +
+    prompt +
+    '\n' +
     'pgn: ' +
     pgn +
     '\n' +
@@ -22,10 +24,18 @@ export async function ChatBotWidget(
     UciFormat +
     '\n' +
     'color oponent: ' +
-    botColor;
+    oponentColor;
 
   console.log('send question', question);
-  const data = await ai_prompt(question, previusMessageId, activeBotName);
+  let data;
+
+  if (messages.length > 1) {
+    data = await ai_prompt(question, activeBotName, previusMessageId);
+  } else {
+    {
+      data = await ai_prompt(question, activeBotName);
+    }
+  }
 
   return data;
 }

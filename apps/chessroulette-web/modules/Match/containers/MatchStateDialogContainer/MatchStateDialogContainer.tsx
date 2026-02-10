@@ -88,7 +88,7 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
   useEffect(() => {
     async function runCheck() {
       const result = await checkUser(userId);
-      console.log('Tok', result);
+      // console.log('Tok', result);
 
       if (result == false) {
         console.log('token error');
@@ -200,9 +200,9 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
                       if (playerId) {
                         if (!isOpponentInRoom) {
                           try {
-                             if (!alreadyRematch) {
+                            if (!alreadyRematch) {
                               await newRematchRequestInitiate(roomId);
-                             }
+                            }
                             setAlreadyRematch(true);
                           } catch (error) {
                             console.error(
@@ -210,7 +210,7 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
                               error
                             );
                           }
-                        } 
+                        }
                         dispatch((masterContext) => ({
                           type: 'play:sendOffer',
                           payload: {
