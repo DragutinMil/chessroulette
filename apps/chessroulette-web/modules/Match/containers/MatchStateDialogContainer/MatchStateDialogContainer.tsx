@@ -58,13 +58,13 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
   const dispatch = useMatchActionsDispatch();
   const router = useRouter();
   const { lastOffer, playerId } = useGame();
-
+ const userId = useMovexClient(movexConfig)?.id;
   const isPlayer =
     !!userId &&
     !!match &&
     (userId === match.challenger.id || userId === match.challengee.id);
 
-  const userId = useMovexClient(movexConfig)?.id;
+ 
   const params = useParams<{ roomId: string }>();
 
   const roomId = params.roomId;
