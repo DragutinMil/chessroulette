@@ -66,7 +66,7 @@ export const ButtonGreen = React.forwardRef<
       buttonType = 'button', // This by default doesn't submit forms, unless "submit" type is specified
       ...props
     },
-   
+
     ref
   ) => {
     return (

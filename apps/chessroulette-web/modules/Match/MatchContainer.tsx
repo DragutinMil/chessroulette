@@ -143,6 +143,8 @@ const MatchContainerInner = ({
     responseId?: string,
     senderId?: string
   ) => {
+    // da povuce istoriju neophodno je da ide bez id prva poruka
+
     dispatch({
       type: 'play:sendMessage',
       payload: {
@@ -303,11 +305,16 @@ const MatchContainerInner = ({
               !activeBot ? (
                 <div className="w-full hidden md:flex flex-1 min-h-0 w-full relative">
                   <ChatWidget
-                    pgn={matchState?.gameInPlay?.pgn || ''}
+                    pgn={
+                      matchState?.gameInPlay?.pgn ||
+                      matchState?.endedGames[0]?.pgn ||
+                      ''
+                    }
                     messages={matchState?.messages || []}
                     currentUserId={userId}
                     activeBot={activeBot}
                     playerNames={playerNames}
+                    oponentColor={oponentColor}
                     onSendMessage={handleSendMessage}
                     otherPlayerChatEnabled={true}
                   />
@@ -424,9 +431,14 @@ const MatchContainerInner = ({
         <div className="md:hidden fixed inset-0 z-50 bg-[#01210b] flex flex-col">
           <div className="flex-1 overflow-hidden">
             <ChatWidget
-              pgn={matchState?.gameInPlay?.pgn || ''}
+              pgn={
+                matchState?.gameInPlay?.pgn ||
+                matchState?.endedGames[0]?.pgn ||
+                ''
+              }
               messages={matchState?.messages || []}
               currentUserId={userId}
+              oponentColor={oponentColor}
               activeBot={activeBot}
               playerNames={playerNames}
               onSendMessage={handleSendMessage}

@@ -102,7 +102,7 @@ export const RoomContainer = ({ iceServers, rid, activity }: Props) => {
         const chUuid =
           data.data?.ch_uuid || data.ch_uuid || data.challenge_uuid;
 
-        console.log('🔍 Extracted chUuid:', chUuid);
+        // console.log('🔍 Extracted chUuid:', chUuid);
 
         if (!chUuid) {
           console.error('❌ ERROR: No ch_uuid found in notification data!');

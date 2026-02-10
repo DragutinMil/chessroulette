@@ -96,8 +96,8 @@ export const botTalkInitiation = (
         pgn,
         messages,
         activeBot.name,
-        UciFormat,
-        botColor
+        botColor,
+        UciFormat
       );
 
       //  botVoiceSpeak( content.answer.text,activeBot.name)
