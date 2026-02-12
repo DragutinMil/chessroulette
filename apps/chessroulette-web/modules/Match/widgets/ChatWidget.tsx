@@ -40,7 +40,7 @@ export const ChatWidget: React.FC<Props> = ({
   // console.log('playerNames',playerNames)
   //  console.log('currentUserId',currentUserId)
   const CHAT_ENABLED_STORAGE_KEY = `chessroulette-chat-enabled-${currentUserId}`;
-
+console.log('bot',activeBot)
   const LAST_MESSAGE_STATE_KEY = `chessroulette-last-message-state-${currentUserId}`;
   const LAST_DISABLED_MESSAGES_KEY = `chessroulette-last-disabled-messages-${currentUserId}`;
 
@@ -350,7 +350,16 @@ for just **€4** — and improve faster with **AI-powered analysis and training
               className="w-9 h-9 min-w-8 flex items-center justify-center rounded-full bg-[#111111]/40 border border-conversation-100 text-[#07DA63] font-semibold text-sm"
               style={{ boxShadow: 'rgba(7, 218, 99, 0.1) 0px 0px 10px 0px' }}
             >
-              {getInitials(displayName)}
+              {activeBot?.picture && !isOwnMessage ? (
+                 <img
+                  src={activeBot.picture}
+                  alt="avatar"
+                  className="w-full h-full object-cover rounded-full"
+                />
+              ):(
+                 getInitials(displayName)
+              )}
+             
             </div>
           );
 
