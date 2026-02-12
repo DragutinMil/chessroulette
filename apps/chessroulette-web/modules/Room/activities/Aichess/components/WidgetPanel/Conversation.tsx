@@ -52,16 +52,16 @@ const Conversation = ({
         ref={scrollRef}
         className={`
   overflow-y-auto rounded-lg no-scrollbar scroll-smooth
-  min-h-[150px]
+  min-h-[150px]  overflow-scroll no-scrollbar 
   ${
     currentChapterState.chessAiMode.mode === 'puzzle'
       ? 'h-full'
-      : 'max-h-[350px]'
+      : 'max-h-[300px]'
   }
   md:h-[316px]
 `}
         style={{
-          maxHeight: smallMobile ? '160px' : '',
+          maxHeight: smallMobile ? '160px' : isMobile? '220px' : '',
           marginTop: isMobile ? '15px' : '',
         }}
       >

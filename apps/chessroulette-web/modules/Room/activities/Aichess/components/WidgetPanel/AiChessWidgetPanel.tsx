@@ -1103,7 +1103,7 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
                 // </Button>
               ),
               renderContent: () => (
-                <div className="flex flex-col flex-1 gap-2 min-h-0 overflow-scroll no-scrollbar">
+                <div className="flex flex-col flex-1 gap-2 min-h-0 overflow-scroll no-scrollbar ">
                   {isMobile && (
                     <div
                       style={{
@@ -1125,7 +1125,7 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
                           : 'hidden'
                       }  
                       
-                     overflow-x-auto md:overflow-x-hidden  md:flex rounded-lg md:mb-0  border border-conversation-100 md:p-4 p-2 overflow-scroll no-scrollbar 
+                     overflow-x-auto md:overflow-x-hidden  md:flex rounded-lg md:mb-0  border border-conversation-100 md:p-4 p-2 
                     `}
                     >
                       <FreeBoardNotation
@@ -1144,11 +1144,12 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
                   )}
                   <div
                     className={`flex-1 justify-between flex flex-col border bg-op-widget border-conversation-100 pb-2 px-2 md:px-4 md:pb-4 rounded-lg 
+                     
                   ${isMobile ? 'mb-2' : ''}  
                   `}
                   >
                     {currentChapterState.chessAiMode.mode !== 'review' ? (
-                      <div className="mt-4 flex flex-col justify-between  h-full max-h-[340px] md:max-h-[380px] md:min-h-[300px] min-h-[200px] ">
+                      <div className="mt-4 flex flex-col justify-between  h-full max-h-[320px] md:max-h-[380px] md:min-h-[300px] min-h-[200px] ">
                         {!isMobile && (
                           <Conversation
                             currentChapterState={currentChapterState}
@@ -1174,7 +1175,7 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
                              }
                           `}
                           style={{
-                            top: isMobile ? '-10px' : '',
+                            top: isMobile ? '-14px' : '',
                             marginBottom: isMobile ? '-10px' : '',
                           }}
                         >
@@ -1296,7 +1297,10 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
                             New Puzzle
                           </ButtonGreen>
                         </div>
+
+
                         {isMobile && (
+                            // <div className="max-h-[230px] overflow-scroll no-scrollbar">
                           <Conversation
                             currentChapterState={currentChapterState}
                             openViewSubscription={openViewSubscription}
@@ -1310,6 +1314,7 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
                             userData={userData}
                             smallMobile={smallMobile}
                           />
+                          // </div>
                         )}
                       </div>
                     ) : (

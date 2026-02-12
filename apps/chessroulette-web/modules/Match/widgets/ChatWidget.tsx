@@ -363,11 +363,20 @@ for just **€4** — and improve faster with **AI-powered analysis and training
               >
                 {!isOwnMessage && <div className="mr-4">{renderAvatar()}</div>}
                 <div
-                  className={`max-w-xs max-w-[80%] bg-[#111111]/40 text-white border border-conversation-100 shadow-green-soft rounded-[20px] text-sm break-words ${
+                  className={`max-w-xs max-w-[80%] bg-[#111111]/40 text-white border border-conversation-100 p-2 shadow-green-soft rounded-[20px] text-sm break-words ${
                     isOwnMessage ? 'mr-4' : ''
                   }`}
                 >
-                  <Markdown className="p-[14px] text-left whitespace-pre-line break-words">
+                  <Markdown  options={{
+    overrides: {
+      p: {
+        props: {
+          className:
+            "p-[14px] text-left whitespace-pre-wrap break-words ",
+        },
+      },
+    },
+  }}>
                     {msg.content}
                   </Markdown>
                   {msg.content.includes('You’ve hit your daily limit.') && (
