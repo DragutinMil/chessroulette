@@ -137,7 +137,7 @@ const MatchContainerInner = ({
     const savedState = localStorage.getItem(`chessroulette-chat-enabled`);
     return savedState === null ? true : savedState === 'true';
   });
-
+  //  console.log('activeBot',activeBot)
   const handleSendMessage = (
     content: string,
     responseId?: string,
@@ -202,20 +202,23 @@ const MatchContainerInner = ({
   }, []);
 
   useEffect(() => {
+    
     if (!activeBot) {
       return;
     }
     if (activeBot?.id?.slice(-3) !== '000') {
       return;
     }
-
+   
     if (
-      match.gameInPlay &&
+      (match.gameInPlay && 
       match.messages.length == 0 &&
       match.gameInPlay.pgn.length > 15 &&
-      match.gameInPlay.pgn.length > 19 &&
-      !botTalkInitiated
+      match.gameInPlay.pgn.length < 19 && !botTalkInitiated)
+      //  || (match.gameInPlay && 
+      // match.messages.length == 0)
     ) {
+      console.log('botTalkInitiated',botTalkInitiated)
       setBotTalkInitiated(true);
       botTalkInitiation(
         dispatch,
@@ -225,6 +228,7 @@ const MatchContainerInner = ({
         oponentColor
       );
     }
+   
   }, [match.gameInPlay?.pgn]);
 
   useEffect(() => {
@@ -257,7 +261,7 @@ const MatchContainerInner = ({
       }, 2000);
     }
     if (match.status === 'complete') {
-      botSendRematchOffer(dispatch, activeBot.name, 1000);
+      botSendRematchOffer(dispatch, activeBot.name ,1000, match?.messages[match.messages.length-1]?.responseId);
     }
   }, [match.gameInPlay?.offers, match.status]);
 
@@ -301,13 +305,14 @@ const MatchContainerInner = ({
             </div>
 
             {/* Desktop Chat Widget */}
-            {isPlayer && (
+            {isPlayer  && (
             <div className="w-full hidden md:flex flex-1 min-h-0 w-full relative">
               {(activeWidget === 'chat' && activeBot) ||
               activeBot?.id?.slice(-3) == '000' ||
               !activeBot && isPlayer? (
-                
+               
                 <div className="w-full hidden md:flex flex-1 min-h-0 w-full relative">
+                  {(activeBot?.id?.slice(-3) == '000' || !activeBot  ) && (
                   <ChatWidget
                     pgn={
                       matchState?.gameInPlay?.pgn ||
@@ -322,12 +327,13 @@ const MatchContainerInner = ({
                     onSendMessage={handleSendMessage}
                     otherPlayerChatEnabled={true}
                   />
+                  )}
                   <div
                     className={`
                       hidden md:block absolute z-20  cursor-pointer transition-all duration-300 ease-in-out
                       rounded-lg  overflow-hidden 
                       ${
-                        cameraExpanded
+                        (cameraExpanded || ( activeBot && activeBot?.id?.slice(-3) !== '000' ))
                           ? 'inset-0 w-full h-full z-[51]'
                           : 'top-1 right-1  w-2/5'
                       }

@@ -46,28 +46,31 @@ export const ConfirmButton: React.FC<ConfirmButtonProps> = ({
       {showModal && (
         <>
           <div
-            className="justify-center items-center flex overflow-x-hidden overflow-y-auto fixed inset-0 z-[70] outline-none focus:outline-none"
+         
+            className="justify-center  items-center flex overflow-x-hidden overflow-y-auto fixed inset-0 z-[70] outline-none focus:outline-none"
             tabIndex={-1}
             aria-hidden="true"
           >
-            <div className="relative w-auto my-6 mx-auto max-w-3xl">
-              <div className="sborder-0 rounded-lg shadow-lg relative flex flex-col w-full bg-slate-600 outline-none focus:outline-none">
+            <div  style={{
+                          boxShadow: '0px 0px 10px 0px #07DA6380',
+                        }} className="relative w-auto my-6 mx-auto max-w-3xl">
+              <div className="sborder-0 rounded-lg shadow-lg relative flex flex-col w-full bg-green-900 outline-none focus:outline-none">
                 {/*header*/}
-                <div className="flex flex-1  bg-slate-500 sitems-start justify-between p-3 rounded-t-lg text-center justify-center content-center items-center">
-                  <h3 className="text-xl font-semibold text-center text-slate-300 sbg-red-100">
+                <div className="flex flex-1   sitems-start justify-between p-3 rounded-t-lg text-center justify-center content-center items-center">
+                  <h3 className="text-xl font-semibold text-center text-white sbg-red-100">
                     {confirmModalTitle}
                   </h3>
                 </div>
 
                 {/*body*/}
                 {confirmModalContent && (
-                  <div className="relative p-4 flex-auto text-slate-300">
+                  <div className="relative p-4  bg-green-300 flex-auto text-slate-300">
                     {confirmModalContent}
                   </div>
                 )}
 
                 {/*footer*/}
-                <div className="flex items-center justify-end p-4 rounded-b ">
+                <div className="flex items-center bg-green-300  justify-end p-4 rounded-b ">
                   <Button type="clear" onClick={() => setShowModal(false)}>
                     Close
                   </Button>
