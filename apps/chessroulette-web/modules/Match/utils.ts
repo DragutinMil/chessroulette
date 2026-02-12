@@ -85,35 +85,35 @@ export const chatBotList = [
     name: 'Viola',
     lastName: 'Boticelli',
     picture:
-      'https://outpostchess.fra1.digitaloceanspaces.com/3747491a-eb44-4f1e-b046-4676f55c9792.png',
+      'https://api.outpostchess.com/upload/w_64,ao_1/https://outpostchess.fra1.digitaloceanspaces.com/2153132f-0e18-4778-b619-12e3e058da68.png',
   },
   {
     id: '9aEXYS0xwZS21000',
     name: 'Stella',
     lastName: 'Frustain',
     picture:
-      'https://outpostchess.fra1.digitaloceanspaces.com/8c06180a-6fa8-49e8-a20c-c4077965d3d4.png',
+      'https://api.outpostchess.com/upload/w_64,ao_1/https://outpostchess.fra1.digitaloceanspaces.com/2f2d0621-f741-4ee3-83a7-b75db533c4b6.png',
   },
   {
     id: 'fH0667J9nJ1Ez000',
     name: 'Margareta',
     lastName: 'Boncwik',
     picture:
-      'https://outpostchess.fra1.digitaloceanspaces.com/2f3a365a-9380-41dd-895d-baf773fe3320.png',
+      'https://api.outpostchess.com/upload/w_64,ao_1/https://outpostchess.fra1.digitaloceanspaces.com/66922ae6-fd30-42d4-8137-a03713b34563.png',
   },
   {
     id: '-BihTlRZ-SKTL000',
     name: 'Laura',
     lastName: 'Stein',
     picture:
-      'https://outpostchess.fra1.digitaloceanspaces.com/a72abf21-7402-4803-be8d-dceae77287b1.png',
+      'https://api.outpostchess.com/upload/w_64,ao_1/https://outpostchess.fra1.digitaloceanspaces.com/bb7350ac-c63b-44a8-b68e-700a8bab9e48.png',
   },
   {
     id: 'Pjdw8gu5kpiRk000',
     name: 'Damian',
     lastName: 'Petersson',
     picture:
-      'https://outpostchess.fra1.digitaloceanspaces.com/b0cd13dc-1388-4c15-8243-a55d14b7e915.png',
+      'https://api.outpostchess.com/upload/w_64,ao_1/https://outpostchess.fra1.digitaloceanspaces.com/9b54c468-1718-45a2-b6a3-7b2909c35a20.png',
   },
   {
     id: '8WCVE7ljCQJTW020',

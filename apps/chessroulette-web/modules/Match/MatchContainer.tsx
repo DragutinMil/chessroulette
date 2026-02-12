@@ -261,7 +261,7 @@ const MatchContainerInner = ({
       }, 2000);
     }
     if (match.status === 'complete') {
-      botSendRematchOffer(dispatch, activeBot.name ,1000, match?.messages[match.messages.length-1]?.responseId);
+      botSendRematchOffer(dispatch, activeBot.id ,1000, match?.messages[match.messages.length-1]?.responseId);
     }
   }, [match.gameInPlay?.offers, match.status]);
 
