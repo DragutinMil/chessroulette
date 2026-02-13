@@ -73,11 +73,11 @@ const StockfishEngine: React.FC<StockfishEngineProps> = ({
           baseSkill = 6;
           baseContempt = 8;
         } else if (bot == 'Pjdw8gu5kpiRk000') {
-          baseDepth = 7;
+          baseDepth = 6;
           baseSkill = 10;
           baseContempt = 9;
         }
-         console.log('base', baseDepth, baseSkill, baseContempt);
+        //  console.log('base', baseDepth, baseSkill, baseContempt);
         const randomize = (value: number, delta = 2, min = 0, max = 20) => {
           const rnd = Math.floor(Math.random() * (delta * 2 + 1)) - delta; // -delta .. +delta
           const v = value + rnd;
