@@ -40,7 +40,7 @@ export const ChatWidget: React.FC<Props> = ({
   // console.log('playerNames',playerNames)
   //  console.log('currentUserId',currentUserId)
   const CHAT_ENABLED_STORAGE_KEY = `chessroulette-chat-enabled-${currentUserId}`;
-console.log('bot',activeBot)
+
   const LAST_MESSAGE_STATE_KEY = `chessroulette-last-message-state-${currentUserId}`;
   const LAST_DISABLED_MESSAGES_KEY = `chessroulette-last-disabled-messages-${currentUserId}`;
 

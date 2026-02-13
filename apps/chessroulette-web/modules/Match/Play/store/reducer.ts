@@ -189,10 +189,12 @@ export const reducer = (
     });
 
     // The Game timed out
-
-    if (nextTimeLeft[turn] <= 900) {
+   
+    if (nextTimeLeft[turn] <= 990) {
+      console.log(nextTimeLeft[turn])
       const gameOverResult = new ChessRouler({
         pgn: prev.pgn,
+
       }).isGameOver(turn);
 
       const nextWinnerAndGameOverReason = invoke(() => {
