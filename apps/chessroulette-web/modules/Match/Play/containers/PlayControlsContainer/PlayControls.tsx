@@ -341,6 +341,7 @@ export const PlayControls: React.FC<Props> = ({
         size="xs"
         className={`flex-1 md:hidden !h-8 min-w-[50px] !rounded-3xl !text-white `}
         onClick={() => setActiveWidget('chat')}
+        disabled={ isBotPlay}
       >
         <div className="relative">
           <MessageIcon />

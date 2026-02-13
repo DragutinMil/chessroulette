@@ -393,7 +393,7 @@ const MatchContainerInner = ({
               )}
             </div>
             )}
-            <div className="w-full pl-2 pr-2 md:pl-0 md:pr-0 pt-0 pb-0 flex flex-col md:gap-2 gap-2 md:flex-1 min-h-0 rounded-lg shadow-2xl  overflow-y-scroll no-scrollbar fixed bottom-1 left-0 right-0 md:relative md:bottom-auto md:left-auto md:right-auto ">
+            <div className="w-full pl-2 pr-2 md:pl-0 md:pr-0 pt-0 pb-0 flex flex-col md:gap-2 gap-2 md:flex-1 min-h-[48px] rounded-lg shadow-2xl  overflow-y-scroll no-scrollbar fixed bottom-1 left-0 right-0 md:relative md:bottom-auto md:left-auto md:right-auto ">
               {(match.gameInPlay?.status !== 'idling' || !isMobile) && (
                 <div
                   style={{
