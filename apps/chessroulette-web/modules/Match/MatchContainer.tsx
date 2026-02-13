@@ -86,7 +86,7 @@ const MatchContainerInner = ({
   setIsMobileChatOpen: (open: boolean) => void;
 }) => {
   const { match: matchState } = useMatchViewState();
-  const { playersBySide } = useCurrentOrPrevMatchPlay();
+  const { playersBySide, canUserPlay } = useCurrentOrPrevMatchPlay();
   const dispatchPlay = usePlayActionsDispatch();
   const { displayState, actions } = useGame();
   const [cameraExpanded, setCameraExpanded] = useState(false);
@@ -137,12 +137,14 @@ const MatchContainerInner = ({
     const savedState = localStorage.getItem(`chessroulette-chat-enabled`);
     return savedState === null ? true : savedState === 'true';
   });
-
+  //  console.log('activeBot',activeBot)
   const handleSendMessage = (
     content: string,
     responseId?: string,
     senderId?: string
   ) => {
+    // da povuce istoriju neophodno je da ide bez id prva poruka
+
     dispatch({
       type: 'play:sendMessage',
       payload: {
@@ -200,20 +202,23 @@ const MatchContainerInner = ({
   }, []);
 
   useEffect(() => {
+    
     if (!activeBot) {
       return;
     }
     if (activeBot?.id?.slice(-3) !== '000') {
       return;
     }
-
+   
     if (
-      match.gameInPlay &&
+      (match.gameInPlay && 
       match.messages.length == 0 &&
       match.gameInPlay.pgn.length > 15 &&
-      match.gameInPlay.pgn.length > 19 &&
-      !botTalkInitiated
+      match.gameInPlay.pgn.length < 19 && !botTalkInitiated)
+      //  || (match.gameInPlay && 
+      // match.messages.length == 0)
     ) {
+      console.log('botTalkInitiated',botTalkInitiated)
       setBotTalkInitiated(true);
       botTalkInitiation(
         dispatch,
@@ -223,6 +228,7 @@ const MatchContainerInner = ({
         oponentColor
       );
     }
+   
   }, [match.gameInPlay?.pgn]);
 
   useEffect(() => {
@@ -255,9 +261,11 @@ const MatchContainerInner = ({
       }, 2000);
     }
     if (match.status === 'complete') {
-      botSendRematchOffer(dispatch, activeBot.name, 1000);
+      botSendRematchOffer(dispatch, activeBot.id ,1000, match?.messages[match.messages.length-1]?.responseId);
     }
   }, [match.gameInPlay?.offers, match.status]);
+
+  const isPlayer = canUserPlay && playersBySide?.home.id;
 
   return (
     <>
@@ -297,32 +305,43 @@ const MatchContainerInner = ({
             </div>
 
             {/* Desktop Chat Widget */}
+            {isPlayer  && (
             <div className="w-full hidden md:flex flex-1 min-h-0 w-full relative">
               {(activeWidget === 'chat' && activeBot) ||
               activeBot?.id?.slice(-3) == '000' ||
-              !activeBot ? (
+              !activeBot && isPlayer? (
+               
                 <div className="w-full hidden md:flex flex-1 min-h-0 w-full relative">
+                  {(activeBot?.id?.slice(-3) == '000' || !activeBot  ) && (
                   <ChatWidget
-                    pgn={matchState?.gameInPlay?.pgn || ''}
+                    pgn={
+                      matchState?.gameInPlay?.pgn ||
+                      matchState?.endedGames[0]?.pgn ||
+                      ''
+                    }
                     messages={matchState?.messages || []}
                     currentUserId={userId}
                     activeBot={activeBot}
                     playerNames={playerNames}
+                    oponentColor={oponentColor}
                     onSendMessage={handleSendMessage}
                     otherPlayerChatEnabled={true}
                   />
+                  )}
                   <div
                     className={`
                       hidden md:block absolute z-20  cursor-pointer transition-all duration-300 ease-in-out
                       rounded-lg  overflow-hidden 
                       ${
-                        cameraExpanded
+                        (cameraExpanded || ( activeBot && activeBot?.id?.slice(-3) !== '000' ))
                           ? 'inset-0 w-full h-full z-[51]'
                           : 'top-1 right-1  w-2/5'
                       }
                     `}
                   >
-                    {activeBot?.id?.slice(-3) !== '000' && !isMobile && (
+
+                    { activeBot?.id?.slice(-3) !== '000' && !isMobile &&(
+
                       <div>
                         <div
                           className={`
@@ -366,14 +385,14 @@ const MatchContainerInner = ({
                 </div>
               ) : (
                 // classic bot players
-                !isMobile && (
+                !isMobile && canUserPlay &&(
                   <div className="w-1/2  md:w-full h-full overflow-hidden  rounded-lg shadow-2xl  ">
                     <PeerToPeerCameraWidget activeBot={activeBot} />
                   </div>
                 )
               )}
             </div>
-
+            )}
             <div className="w-full pl-2 pr-2 md:pl-0 md:pr-0 pt-0 pb-0 flex flex-col md:gap-2 gap-2 md:flex-1 min-h-0 rounded-lg shadow-2xl  overflow-y-scroll no-scrollbar fixed bottom-1 left-0 right-0 md:relative md:bottom-auto md:left-auto md:right-auto ">
               {(match.gameInPlay?.status !== 'idling' || !isMobile) && (
                 <div
@@ -420,13 +439,18 @@ const MatchContainerInner = ({
         }
       />
 
-      {isMobileChatOpen && (
+      {isPlayer && isMobileChatOpen && (
         <div className="md:hidden fixed inset-0 z-50 bg-[#01210b] flex flex-col">
           <div className="flex-1 overflow-hidden">
             <ChatWidget
-              pgn={matchState?.gameInPlay?.pgn || ''}
+              pgn={
+                matchState?.gameInPlay?.pgn ||
+                matchState?.endedGames[0]?.pgn ||
+                ''
+              }
               messages={matchState?.messages || []}
               currentUserId={userId}
+              oponentColor={oponentColor}
               activeBot={activeBot}
               playerNames={playerNames}
               onSendMessage={handleSendMessage}

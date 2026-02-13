@@ -4,12 +4,16 @@ import { ChatBotWidget } from '../widgets/ChatBotWidget';
 import { ChatMessage, ActiveBot } from '@app/modules/Match/movex/types';
 import { Chess } from 'chess.js';
 import { botVoiceSpeak } from '../widgets/chatBotSpeak';
+
 export const botSendRematchOffer = (
   dispatch: DispatchOf<MatchActions>,
   byPlayerId: string,
-  delay = 1000
+  delay = 600,
+  responseId?:string
 ) => {
   setTimeout(() => {
+    
+setTimeout(() => {
     dispatch((masterContext) => ({
       type: 'play:sendOffer',
       payload: {
@@ -18,6 +22,24 @@ export const botSendRematchOffer = (
         timestamp: masterContext.requestAt(),
       },
     }));
+}, 600);
+     const contentList = [
+        'One more round?',
+        'Double or nothing? 😄',
+        'Let’s play again!',
+      ];
+      const content = contentList[Math.floor(Math.random() * contentList.length)];
+
+     dispatch({
+      type: 'play:sendMessage',
+      payload: {
+        senderId: byPlayerId,
+        content,
+        timestamp: Date.now(),
+        responseId: responseId,
+      },
+    });
+
   }, delay);
 };
 
@@ -63,6 +85,8 @@ export const onTakeBackOfferBot = (
   }, delay);
 };
 
+
+
 export const botTalkInitiation = (
   dispatch: DispatchOf<MatchActions>,
   activeBot: ActiveBot,
@@ -73,8 +97,29 @@ export const botTalkInitiation = (
   if (!activeBot) {
     return;
   }
+  
+//   if(messages.length == 0){
+// const prompts = [
+//   `Hi! I’m your human chess bot ${activeBot.name}. Feel free to chat with me anytime.`,
+//   `Hey, I’m your human chess bot ${activeBot.name}. Let’s play and talk chess.`,
+//   `Hi there! I’m your human chess bot ${activeBot.name}... you can talk to me here anytime.`,
+//   `Welcome! I’m your human chess bot ${activeBot.name}. Ask me anything or just play.`,
+//   `Hey! I’m your human chess bot ${activeBot.name}. Let’s enjoy some chess together.`
+// ];
 
-  if (messages.length == 0 && pgn.length > 15 && pgn.length > 19) {
+// const prompt = prompts[Math.floor(Math.random() * prompts.length)];
+
+//      dispatch({
+//         type: 'play:sendMessage',
+//         payload: {
+//           senderId: activeBot.id,
+//           content: prompt,
+//           timestamp: Date.now(),
+//         },
+
+//   })
+// }
+  if (messages.length == 0 && pgn.length > 15 && pgn.length < 19) {
     const pgnToUciMoves = (pgn: string) => {
       const chess = new Chess();
       chess.loadPgn(pgn);
@@ -87,7 +132,7 @@ export const botTalkInitiation = (
     };
     const UciFormat = pgnToUciMoves(pgn);
     const prompt =
-      'give me an interesting opinion about the opening based on the move we played ' +
+      'say hello and give me an interesting opinion about the opening based on the move we played ' +
       UciFormat;
 
     const sendMessage = async () => {
@@ -96,10 +141,13 @@ export const botTalkInitiation = (
         pgn,
         messages,
         activeBot.name,
-        UciFormat,
-        botColor
+        botColor,
+        UciFormat
       );
-
+      if (content == 'ai_daily_limit_reached') {
+              return
+            }
+      
       //  botVoiceSpeak( content.answer.text,activeBot.name)
 
       dispatch({

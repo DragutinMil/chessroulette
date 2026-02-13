@@ -58,9 +58,13 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
   const dispatch = useMatchActionsDispatch();
   const router = useRouter();
   const { lastOffer, playerId } = useGame();
+ const userId = useMovexClient(movexConfig)?.id;
+  const isPlayer =
+    !!userId &&
+    !!match &&
+    (userId === match.challenger.id || userId === match.challengee.id);
 
-  ////
-  const userId = useMovexClient(movexConfig)?.id;
+ 
   const params = useParams<{ roomId: string }>();
 
   const roomId = params.roomId;
@@ -75,6 +79,7 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
     () => movexSubcribersToUserMap(movexResource?.subscribers || {}),
     [movexResource?.subscribers]
   );
+
   useEffect(() => {
     if (
       (match?.status === 'ongoing' && !activeBot) ||
@@ -88,7 +93,7 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
   useEffect(() => {
     async function runCheck() {
       const result = await checkUser(userId);
-      console.log('Tok', result);
+      // console.log('Tok', result);
 
       if (result == false) {
         console.log('token error');
@@ -189,7 +194,9 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
               {(match[match.winner].id.length !== 16 ||
                 match[match.winner].id.slice(-3) === '000') && (
                 <div className="justify-center items-center flex flex-col">
-                  <Button
+
+    {isPlayer && (
+     <Button
                     icon="ArrowPathRoundedSquareIcon"
                     bgColor="green"
                     style={{
@@ -200,9 +207,9 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
                       if (playerId) {
                         if (!isOpponentInRoom) {
                           try {
-                             if (!alreadyRematch) {
+                            if (!alreadyRematch) {
                               await newRematchRequestInitiate(roomId);
-                             }
+                            }
                             setAlreadyRematch(true);
                           } catch (error) {
                             console.error(
@@ -210,7 +217,7 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
                               error
                             );
                           }
-                        } 
+                        }
                         dispatch((masterContext) => ({
                           type: 'play:sendOffer',
                           payload: {
@@ -224,6 +231,8 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
                   >
                     Rematch
                   </Button>
+    )}
+
                   <Link
                     href={`https://chess.outpostchess.com/room/new/r${room}?activity=aichess&userId=${userId}&theme=op&pgn=${roomId}&instructor=1`}
                   >

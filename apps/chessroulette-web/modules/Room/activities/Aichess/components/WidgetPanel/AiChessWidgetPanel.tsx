@@ -262,14 +262,16 @@ export const AiChessWidgetPanel = React.forwardRef<TabsRef, Props>(
         } else if (data == 'ai_daily_limit_reached') {
           setPulseDot(false);
           onMessage({
-            content: `You’ve reached today’s puzzle limit! ♟️
-But your next great move is just one click away — start your 7-day free trial today (cancel anytime).
+            content: `You’ve hit your daily limit.
+Unlock Unlimited Puzzles, Unlimited Game Reviews, and Unlimited AI Chat for just €4,  and improve faster with AI-powered analysis and training.`,
+            //             `You’ve reached today’s puzzle limit! ♟️
+            // But your next great move is just one click away — start your 7-day free trial today (cancel anytime).
 
-With Starter, you’ll unlock Game Review, unlimited AI puzzles, free play, and an interactive chat with your personal chess trainer.
+            // With Starter, you’ll unlock Game Review, unlimited AI puzzles, free play, and an interactive chat with your personal chess trainer.
 
-Exactly what you need to level up your strategy and sharpen your game every day.
+            // Exactly what you need to level up your strategy and sharpen your game every day.
 
-Your opening move to mastering chess begins now — make it count! 🚀`,
+            // Your opening move to mastering chess begins now — make it count! 🚀`,
             participantId: 'chatGPT123456sales',
             idResponse: '',
           });
@@ -1101,85 +1103,81 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
                 // </Button>
               ),
               renderContent: () => (
-                <div className="flex flex-col flex-1 gap-2 min-h-0 overflow-scroll no-scrollbar">
-                   { isMobile && (
-
-                  <div
-                    style={{
-                      backgroundImage:
-                        'radial-gradient(61.84% 61.84% at 50% 131.62%, rgba(5, 135, 44, 0.2) 0%, #01210B 100%)',
-                      height: isMobile
-                        ? currentChapterState.chessAiMode.mode == 'puzzle'
+                <div className="flex flex-col flex-1 gap-2 min-h-0 overflow-scroll no-scrollbar ">
+                  {isMobile && (
+                    <div
+                      style={{
+                        backgroundImage:
+                          'radial-gradient(61.84% 61.84% at 50% 131.62%, rgba(5, 135, 44, 0.2) 0%, #01210B 100%)',
+                        height: isMobile
+                          ? currentChapterState.chessAiMode.mode == 'puzzle'
+                            ? 'calc(100% - 600px)'
+                            : '52px'
+                          : currentChapterState.chessAiMode.mode === 'puzzle'
                           ? 'calc(100% - 600px)'
-                          : '52px'
-                        : currentChapterState.chessAiMode.mode === 'puzzle'
-                        ? 'calc(100% - 600px)'
-                        : '290px',
-                      minHeight: isMobile ? '52px' : '202px',
-                    }}
-                    className={`
+                          : '290px',
+                        minHeight: isMobile ? '52px' : '202px',
+                      }}
+                      className={`
                       ${
                         currentChapterState.chessAiMode.mode === 'review'
                           ? 'block'
                           : 'hidden'
                       }  
                       
-                     overflow-x-auto md:overflow-x-hidden  md:flex rounded-lg md:mb-0  border border-conversation-100 md:p-4 p-2 overflow-scroll no-scrollbar 
+                     overflow-x-auto md:overflow-x-hidden  md:flex rounded-lg md:mb-0  border border-conversation-100 md:p-4 p-2 
                     `}
-                  >
-                    <FreeBoardNotation
-                      reviewData={reviewData}
-                      isMobile={isMobile}
-                      history={currentChapterState.notation?.history}
-                      playerNames={playerNames}
-                      focusedIndex={currentChapterState.notation?.focusedIndex}
-                      onDelete={onHistoryNotationDelete}
-                      onRefocus={onHistoryNotationRefocus}
-                      isFocusedInput={isFocusedInput}
-                    />
-                  </div>
-                     ) }
-                  <div className={`flex-1 justify-between flex flex-col border bg-op-widget border-conversation-100 pb-2 px-2 md:px-4 md:pb-4 rounded-lg 
-                  ${
-                        isMobile
-                          ? 'mb-2'
-                          : ''
-                      }  
-                  `}>
-                        
-                  
-                    {currentChapterState.chessAiMode.mode !== 'review' ? (
-                      <div className="mt-4 flex flex-col justify-between  h-full max-h-[340px] md:max-h-[380px] md:min-h-[300px] min-h-[200px] ">
-
-                        {!isMobile && 
-                         <Conversation
-                          currentChapterState={currentChapterState}
-                          openViewSubscription={openViewSubscription}
-                          onSelectPuzzle={puzzles}
-                          onSelectRating={setRatingEngine}
-                          pulseDot={pulseDot}
-                          takeBack={takeBack}
-                          playNext={playNext}
-                          hint={hint}
-                          isMobile={isMobile}
-                          userData={userData}
-                          smallMobile={smallMobile}
-                        />
+                    >
+                      <FreeBoardNotation
+                        reviewData={reviewData}
+                        isMobile={isMobile}
+                        history={currentChapterState.notation?.history}
+                        playerNames={playerNames}
+                        focusedIndex={
+                          currentChapterState.notation?.focusedIndex
                         }
-                       
+                        onDelete={onHistoryNotationDelete}
+                        onRefocus={onHistoryNotationRefocus}
+                        isFocusedInput={isFocusedInput}
+                      />
+                    </div>
+                  )}
+                  <div
+                    className={`flex-1 justify-between flex flex-col border bg-op-widget border-conversation-100 pb-2 px-2 md:px-4 md:pb-4 rounded-lg 
+                     
+                  ${isMobile ? 'mb-2' : ''}  
+                  `}
+                  >
+                    {currentChapterState.chessAiMode.mode !== 'review' ? (
+                      <div className="mt-4 flex flex-col justify-between  h-full max-h-[320px] md:max-h-[380px] md:min-h-[300px] min-h-[200px] ">
+                        {!isMobile && (
+                          <Conversation
+                            currentChapterState={currentChapterState}
+                            openViewSubscription={openViewSubscription}
+                            onSelectPuzzle={puzzles}
+                            onSelectRating={setRatingEngine}
+                            pulseDot={pulseDot}
+                            takeBack={takeBack}
+                            playNext={playNext}
+                            hint={hint}
+                            isMobile={isMobile}
+                            userData={userData}
+                            smallMobile={smallMobile}
+                          />
+                        )}
 
                         <div
                           className={` relative  flex md:my-[20px] justify-around items-center gap-3 mt-3 my-[14px]
                              ${
-                            currentChapterState.chessAiMode.mode === 'top'
-                              ? '10px'
-                              : ''
-                          }
+                               currentChapterState.chessAiMode.mode === 'top'
+                                 ? '10px'
+                                 : ''
+                             }
                           `}
-                           style={{
-                              top: isMobile ? '-10px' : '',
-                                marginBottom: isMobile ? '-10px' : '',
-                            }}
+                          style={{
+                            top: isMobile ? '-14px' : '',
+                            marginBottom: isMobile ? '-10px' : '',
+                          }}
                         >
                           {/* hidden md:flex  */}
                           <ButtonGreen
@@ -1299,21 +1297,25 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
                             New Puzzle
                           </ButtonGreen>
                         </div>
-                         {isMobile && 
-                         <Conversation
-                          currentChapterState={currentChapterState}
-                          openViewSubscription={openViewSubscription}
-                          onSelectPuzzle={puzzles}
-                          onSelectRating={setRatingEngine}
-                          pulseDot={pulseDot}
-                          takeBack={takeBack}
-                          playNext={playNext}
-                           isMobile={isMobile}
-                          hint={hint}
-                          userData={userData}
-                          smallMobile={smallMobile}
-                        />
-                        }
+
+
+                        {isMobile && (
+                            // <div className="max-h-[230px] overflow-scroll no-scrollbar">
+                          <Conversation
+                            currentChapterState={currentChapterState}
+                            openViewSubscription={openViewSubscription}
+                            onSelectPuzzle={puzzles}
+                            onSelectRating={setRatingEngine}
+                            pulseDot={pulseDot}
+                            takeBack={takeBack}
+                            playNext={playNext}
+                            isMobile={isMobile}
+                            hint={hint}
+                            userData={userData}
+                            smallMobile={smallMobile}
+                          />
+                          // </div>
+                        )}
                       </div>
                     ) : (
                       <div>
@@ -1454,22 +1456,21 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
                       }
                     />
                   )} */}
-                  { !isMobile && (
-
-                  <div
-                    style={{
-                      backgroundImage:
-                        'radial-gradient(61.84% 61.84% at 50% 131.62%, rgba(5, 135, 44, 0.2) 0%, #01210B 100%)',
-                      height: isMobile
-                        ? currentChapterState.chessAiMode.mode == 'puzzle'
+                  {!isMobile && (
+                    <div
+                      style={{
+                        backgroundImage:
+                          'radial-gradient(61.84% 61.84% at 50% 131.62%, rgba(5, 135, 44, 0.2) 0%, #01210B 100%)',
+                        height: isMobile
+                          ? currentChapterState.chessAiMode.mode == 'puzzle'
+                            ? 'calc(100% - 600px)'
+                            : '52px'
+                          : currentChapterState.chessAiMode.mode === 'puzzle'
                           ? 'calc(100% - 600px)'
-                          : '52px'
-                        : currentChapterState.chessAiMode.mode === 'puzzle'
-                        ? 'calc(100% - 600px)'
-                        : '290px',
-                      minHeight: isMobile ? '52px' : '202px',
-                    }}
-                    className={`
+                          : '290px',
+                        minHeight: isMobile ? '52px' : '202px',
+                      }}
+                      className={`
                       ${
                         currentChapterState.chessAiMode.mode === 'review'
                           ? 'block'
@@ -1478,19 +1479,21 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
                       
                      overflow-x-auto md:overflow-x-hidden  md:flex rounded-lg md:mb-0 mb-4 border border-conversation-100 md:p-4 p-2 overflow-scroll no-scrollbar 
                     `}
-                  >
-                    <FreeBoardNotation
-                      reviewData={reviewData}
-                      isMobile={isMobile}
-                      history={currentChapterState.notation?.history}
-                      playerNames={playerNames}
-                      focusedIndex={currentChapterState.notation?.focusedIndex}
-                      onDelete={onHistoryNotationDelete}
-                      onRefocus={onHistoryNotationRefocus}
-                      isFocusedInput={isFocusedInput}
-                    />
-                  </div>
-                     ) }
+                    >
+                      <FreeBoardNotation
+                        reviewData={reviewData}
+                        isMobile={isMobile}
+                        history={currentChapterState.notation?.history}
+                        playerNames={playerNames}
+                        focusedIndex={
+                          currentChapterState.notation?.focusedIndex
+                        }
+                        onDelete={onHistoryNotationDelete}
+                        onRefocus={onHistoryNotationRefocus}
+                        isFocusedInput={isFocusedInput}
+                      />
+                    </div>
+                  )}
                   {currentChapterState.chessAiMode.mode == 'review' && (
                     <div className="md:flex hidden items-center overflow-x-hidden gap-3 h-[55px] ">
                       <label className="font-bold text-sm  text-gray-400">

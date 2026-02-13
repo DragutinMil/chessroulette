@@ -33,7 +33,7 @@ export const GameAbort: React.FC<GameAbortViewProps> = ({
         activeTextClassName="text-red-600 font-bold "
       />
     </div>
-    {canAbortOnDemand && (
+    {/* {canAbortOnDemand && ( */}
       <ConfirmButton
         bgColor="red"
         size="sm"
@@ -46,6 +46,6 @@ export const GameAbort: React.FC<GameAbortViewProps> = ({
       >
         Abort Now
       </ConfirmButton>
-    )}
+    {/* )} */}
   </div>
 );

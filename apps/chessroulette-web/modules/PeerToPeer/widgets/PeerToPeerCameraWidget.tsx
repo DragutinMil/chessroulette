@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { config } from '@app/config';
 import { AspectRatio } from '@app/components/AspectRatio';
 import { FaceTimeProps, MultiFaceTimeCompact } from '../components';
@@ -5,6 +6,9 @@ import { DEV_CameraView } from '../components/DEV_CameraView';
 import { usePeerStreaming } from '../PeerStreaming/hooks/usePeerStreaming';
 import { ActiveBot } from '@app/modules/Match/movex/types';
 import { useMatchViewState } from '../../../modules/Match/hooks/useMatch';
+
+const CAMERA_ENABLED_STORAGE_KEY = 'chessroulette-camera-enabled';
+
 type Props = {
   aspectRatio?: FaceTimeProps['aspectRatio'];
   activeBot?: ActiveBot;
@@ -25,8 +29,12 @@ export const PeerToPeerCameraWidget = ({
   onDisableCamera,
 }: Props) => {
   const peerStreaming = usePeerStreaming();
+  const { match, userAsPlayer } = useMatchViewState();
 
-  const { match, ...matchView } = useMatchViewState();
+  if (!userAsPlayer) {
+    return null;
+  }
+
   if (!config.CAMERA_ON || !!activeBot?.name) {
     const hashDemoImgId = (id: string) => Number(id.match(/\d/)?.[0] || 0);
     return (

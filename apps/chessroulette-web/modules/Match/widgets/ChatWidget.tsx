@@ -4,7 +4,8 @@ import { Text } from '@app/components/Text';
 import { User } from '@app/modules/User';
 import { ChatBotWidget } from './ChatBotWidget';
 import { botVoiceSpeak } from './chatBotSpeak';
-
+import { ButtonGreen } from '@app/components/Button/ButtonGreen';
+import Markdown from 'markdown-to-jsx';
 type Props = {
   messages: ChatMessage[];
   currentUserId: User['id'];
@@ -15,6 +16,7 @@ type Props = {
   activeBot?: ActiveBot;
   otherPlayerChatEnabled?: boolean;
   onClose?: () => void;
+  oponentColor: any;
 };
 
 type LastMessageState = {
@@ -33,6 +35,7 @@ export const ChatWidget: React.FC<Props> = ({
   disabled = false,
   otherPlayerChatEnabled = true,
   onClose,
+  oponentColor,
 }) => {
   // console.log('playerNames',playerNames)
   //  console.log('currentUserId',currentUserId)
@@ -102,20 +105,37 @@ export const ChatWidget: React.FC<Props> = ({
         }
 
         const lastMessage = messages.at(-1)?.content ?? '';
+
         try {
           const answer = await ChatBotWidget(
             lastMessage,
             pgn,
             messages,
-            activeBot?.name
+            activeBot?.name,
+            oponentColor
           );
 
           const randomSeconds = Math.floor(Math.random() * (10 - 5 + 1)) + 5;
+          console.log('answer', answer);
           setTimeout(() => {
             // botVoiceSpeak(answer.answer.text.trim(), activeBot.name)
+            if (answer?.answer?.text) {
+              onSendMessage(
+                answer?.answer?.text.trim(),
+                answer?.id,
+                activeBot?.id
+              );
+            } else if (answer == 'ai_daily_limit_reached') {
+              const content = `### 🚫 Daily limit reached
 
-            onSendMessage(answer.answer.text.trim(), answer.id, activeBot.id);
-          }, randomSeconds * 1000);
+You’ve hit your daily limit.
+
+Unlock **Unlimited Puzzles**, **Unlimited Game Reviews**, and **Unlimited AI Chat**  
+for just **€4** — and improve faster with **AI-powered analysis and training**.`;
+              const responseId = '';
+              onSendMessage(content, responseId, activeBot?.id);
+            }
+          }, randomSeconds * 500);
 
           // ovde možeš update-ovati state ako treba
         } catch (err) {
@@ -167,7 +187,10 @@ export const ChatWidget: React.FC<Props> = ({
       .toUpperCase()
       .slice(0, 2);
   };
-
+  const openViewSubscription = async () => {
+    // setPopupSubscribe(true);
+    (window.location.href = 'https://app.outpostchess.com/subscribe'), '_self';
+  };
   const handleToggleChat = () => {
     const newState = !isChatEnabled;
     setIsChatEnabled(newState);
@@ -192,9 +215,12 @@ export const ChatWidget: React.FC<Props> = ({
 
   const handleSendMessage = () => {
     if (inputValue.trim() && !disabled && isChatEnabled) {
-      const responseId = activeBot?.id
-        ? messages.at(-1)?.responseId
-        : undefined;
+      const responseId =
+        activeBot?.id && messages.length > 1
+          ? messages.at(-1)?.responseId
+          : undefined;
+
+      console.log('responseId', responseId);
       onSendMessage(inputValue.trim(), responseId);
       setInputValue('');
     }
@@ -324,7 +350,16 @@ export const ChatWidget: React.FC<Props> = ({
               className="w-9 h-9 min-w-8 flex items-center justify-center rounded-full bg-[#111111]/40 border border-conversation-100 text-[#07DA63] font-semibold text-sm"
               style={{ boxShadow: 'rgba(7, 218, 99, 0.1) 0px 0px 10px 0px' }}
             >
-              {getInitials(displayName)}
+              {activeBot?.picture && !isOwnMessage ? (
+                 <img
+                  src={activeBot.picture}
+                  alt="avatar"
+                  className="w-full h-full object-cover rounded-full"
+                />
+              ):(
+                 getInitials(displayName)
+              )}
+             
             </div>
           );
 
@@ -337,13 +372,38 @@ export const ChatWidget: React.FC<Props> = ({
               >
                 {!isOwnMessage && <div className="mr-4">{renderAvatar()}</div>}
                 <div
-                  className={`max-w-xs max-w-[80%] bg-[#111111]/40 text-white border border-conversation-100 shadow-green-soft rounded-[20px] text-sm break-words ${
+                  className={`max-w-xs max-w-[80%] bg-[#111111]/40 text-white border border-conversation-100 p-2 shadow-green-soft rounded-[20px] text-sm break-words ${
                     isOwnMessage ? 'mr-4' : ''
                   }`}
                 >
-                  <p className="flex p-[14px] justify-start text-left whitespace-pre-line">
-                    {msg.content.match(/.{1,34}/g)?.join('\n') || msg.content}
-                  </p>
+                  <Markdown  options={{
+    overrides: {
+      p: {
+        props: {
+          className:
+            "p-[14px] text-left whitespace-pre-wrap break-words ",
+        },
+      },
+    },
+  }}>
+                    {msg.content}
+                  </Markdown>
+                  {msg.content.includes('You’ve hit your daily limit.') && (
+                    <ButtonGreen
+                      onClick={() => {
+                        openViewSubscription();
+                      }}
+                      size="lg"
+                      className="bg-green-600  text-black font-bold "
+                      style={{
+                        color: 'black',
+                        marginInline: 14,
+                        marginBottom: 12,
+                      }}
+                    >
+                      Subscribe
+                    </ButtonGreen>
+                  )}
                 </div>
                 {isOwnMessage && renderAvatar()}
               </div>
