@@ -34,18 +34,18 @@ export const GameAbort: React.FC<GameAbortViewProps> = ({
       />
     </div>
     {/* {canAbortOnDemand && ( */}
-      <ConfirmButton
-        bgColor="red"
-        size="sm"
-        onClick={onAbort}
-        icon="StopCircleIcon"
-        iconKind="solid"
-        confirmModalContent={confirmContent}
-        confirmModalTitle="Are you sure?"
-        confirmModalAgreeButtonBgColor="red"
-      >
-        Abort Now
-      </ConfirmButton>
+    <ConfirmButton
+      bgColor="red"
+      size="sm"
+      onClick={onAbort}
+      icon="StopCircleIcon"
+      iconKind="solid"
+      confirmModalContent={confirmContent}
+      confirmModalTitle="Are you sure?"
+      confirmModalAgreeButtonBgColor="red"
+    >
+      Abort Now
+    </ConfirmButton>
     {/* )} */}
   </div>
 );

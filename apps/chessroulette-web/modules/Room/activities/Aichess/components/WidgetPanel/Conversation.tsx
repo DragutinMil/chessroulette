@@ -61,7 +61,7 @@ const Conversation = ({
   md:h-[316px]
 `}
         style={{
-          maxHeight: smallMobile ? '160px' : isMobile? '220px' : '',
+          maxHeight: smallMobile ? '160px' : isMobile ? '220px' : '',
           marginTop: isMobile ? '15px' : '',
         }}
       >

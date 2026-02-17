@@ -1298,9 +1298,8 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
                           </ButtonGreen>
                         </div>
 
-
                         {isMobile && (
-                            // <div className="max-h-[230px] overflow-scroll no-scrollbar">
+                          // <div className="max-h-[230px] overflow-scroll no-scrollbar">
                           <Conversation
                             currentChapterState={currentChapterState}
                             openViewSubscription={openViewSubscription}

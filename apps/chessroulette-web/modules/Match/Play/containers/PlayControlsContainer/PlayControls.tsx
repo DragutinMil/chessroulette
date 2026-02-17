@@ -192,7 +192,7 @@ export const PlayControls: React.FC<Props> = ({
   const calculateTakebackStatus = () => {
     if (isBullet) return false;
     if (game.lastMoveBy !== homeColor) return false;
-  
+
     // Proveri samo takeback pending offers, ne sve pending offers
     const hasPendingTakebackOffer = offers.some(
       (offer) =>
@@ -200,18 +200,18 @@ export const PlayControls: React.FC<Props> = ({
         offer.type === 'takeback' &&
         offer.byPlayer === playerId
     );
-    
+
     // Proveri samo da li je takeback offer poslat, ne draw offer
     // offerAlreadySent.current se koristi za sve offere, ali treba da proverimo samo takeback
     if (hasPendingTakebackOffer) {
       return false;
     }
-  
+
     const lastMoveWasPromotionByCurrentPlayer =
       isLastMovePromotion(game.pgn) && game.lastMoveBy === homeColor;
-  
+
     if (lastMoveWasPromotionByCurrentPlayer) return false;
-  
+
     // Proveri da li je već prihvaćen takeback u ovoj partiji - samo jednom po partiji
     const hasAcceptedTakeback = offers.some(
       (offer) =>
@@ -220,10 +220,10 @@ export const PlayControls: React.FC<Props> = ({
         offer.status === 'accepted'
     );
     if (hasAcceptedTakeback) return false;
-  
+
     return takebackCount < 1;
   };
-  
+
   const calculateDrawStatus = useCallback(() => {
     if (game.status !== 'ongoing') {
       return false;
@@ -239,28 +239,28 @@ export const PlayControls: React.FC<Props> = ({
     if (hasPendingDrawOffer) {
       return false;
     }
-  
+
     // Proveri broj draw offera - maksimalno 3 po igraču
     // drawCount broji sve draw offere (pending, accepted, denied, cancelled)
     // Reducer proverava >= 3, tako da ovde proveravamo < 3
     return drawCount < 3;
   }, [game.status, offers, playerId, drawCount]);
 
-    //if (
-    //  lastOffer?.status === 'pending' ||
-    //  offerAlreadySent.current ||
-    //  drawOfferNum > 2
-    //) {
-    //  return false;
-    //}
+  //if (
+  //  lastOffer?.status === 'pending' ||
+  //  offerAlreadySent.current ||
+  //  drawOfferNum > 2
+  //) {
+  //  return false;
+  //}
 
-   // return (
-   //   offers.reduce((accum, offer) => {
-   //     if (offer.type === 'draw' && offer.byPlayer === playerId) {
-   //       return accum + 1;
-   //     }
-   //     return accum;
-   //   }, 0) < 4
+  // return (
+  //   offers.reduce((accum, offer) => {
+  //     if (offer.type === 'draw' && offer.byPlayer === playerId) {
+  //       return accum + 1;
+  //     }
+  //     return accum;
+  //   }, 0) < 4
   //  );
   //}, [game.status, lastOffer?.status, offers, playerId, drawOfferNum]);
 
@@ -341,7 +341,7 @@ export const PlayControls: React.FC<Props> = ({
         size="xs"
         className={`flex-1 md:hidden !h-8 min-w-[50px] !rounded-3xl !text-white `}
         onClick={() => setActiveWidget('chat')}
-        disabled={ isBotPlay}
+        disabled={isBotPlay}
       >
         <div className="relative">
           <MessageIcon />
@@ -434,10 +434,6 @@ export const PlayControls: React.FC<Props> = ({
     </div>
   );
 };
-
-
-
-
 
 // import React, {
 //   useCallback,
@@ -718,8 +714,8 @@ export const PlayControls: React.FC<Props> = ({
 
 //   return (
 //     <div
-//       className=" 
-//     rounded-3xl  
+//       className="
+//     rounded-3xl
 //     pl-2 pr-2 pt-2 pb-2 md:px-2 md:pb-5 md:pt-5  flex flex-row items-center justify-between
 //        text-xs md:text-sm
 //        gap-1 md:flex-1 min-h-0 rounded-lg shadow-2xl -mt-2 md:mt-0"
@@ -756,8 +752,8 @@ export const PlayControls: React.FC<Props> = ({
 
 //           {unreadMessagesCount > 0 && (
 //             <span
-//               className="absolute -top-2 -right-2 bg-[#07DA63] 
-//               text-black text-xs font-bold rounded-full w-5 h-5 flex 
+//               className="absolute -top-2 -right-2 bg-[#07DA63]
+//               text-black text-xs font-bold rounded-full w-5 h-5 flex
 //               items-center justify-center"
 //             >
 //               {unreadMessagesCount > 9 ? '9+' : unreadMessagesCount}
@@ -775,14 +771,14 @@ export const PlayControls: React.FC<Props> = ({
 //         onClick={() => setActiveWidget('chat')}
 //       >
 //         <div className="relative">
-        
+
 //           <MessageIcon />
-          
+
 //           {unreadMessagesCount > 0 && (
-          
+
 //             <span
-//               className="absolute -top-2 -right-2 bg-[#07DA63] 
-//               text-black text-xs font-bold rounded-full w-5 h-5 flex 
+//               className="absolute -top-2 -right-2 bg-[#07DA63]
+//               text-black text-xs font-bold rounded-full w-5 h-5 flex
 //               items-center justify-center"
 //             >
 //               {unreadMessagesCount > 9 ? '9+' : unreadMessagesCount}

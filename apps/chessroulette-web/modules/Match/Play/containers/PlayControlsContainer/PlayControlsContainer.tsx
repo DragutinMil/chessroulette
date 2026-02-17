@@ -80,7 +80,7 @@ export const PlayControlsContainer = ({
   if (!canUserPlay || !playersBySide?.home.id) {
     return null;
   }
-  
+
   return (
     <PlayControls
       activeWidget={activeWidget}

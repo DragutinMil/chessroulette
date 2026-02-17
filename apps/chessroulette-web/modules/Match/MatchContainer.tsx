@@ -27,6 +27,7 @@ import {
   botRejectDrawOffer,
   onTakeBackOfferBot,
   botTalkInitiation,
+  botAcceptRematchOffer,
 } from './bots/botActions';
 import { noop } from '@xmatter/util-kit';
 import { useGame } from '../Game/hooks';
@@ -97,7 +98,7 @@ const MatchContainerInner = ({
 
   const [stopEngineMove, setStopEngineMove] = useState(false);
   const lastTakebackHandledAtRef = useRef<number>(0);
-
+  const lastProcessedTimestamp = useRef<number | null>(null);
   //const [offersWithChatBot, setOffersWithChatBot] = useState('');
   const [isMobile, setIsMobile] = useState<boolean | null>(null);
   const [activeBot, setActiveBot] = useState<ActiveBot>();
@@ -202,23 +203,23 @@ const MatchContainerInner = ({
   }, []);
 
   useEffect(() => {
-    
     if (!activeBot) {
       return;
     }
     if (activeBot?.id?.slice(-3) !== '000') {
       return;
     }
-   
+
     if (
-      (match.gameInPlay && 
+      match.gameInPlay &&
       match.messages.length == 0 &&
       match.gameInPlay.pgn.length > 15 &&
-      match.gameInPlay.pgn.length < 19 && !botTalkInitiated)
-      //  || (match.gameInPlay && 
+      match.gameInPlay.pgn.length < 19 &&
+      !botTalkInitiated
+      //  || (match.gameInPlay &&
       // match.messages.length == 0)
     ) {
-      console.log('botTalkInitiated',botTalkInitiated)
+      console.log('botTalkInitiated', botTalkInitiated);
       setBotTalkInitiated(true);
       botTalkInitiation(
         dispatch,
@@ -228,7 +229,6 @@ const MatchContainerInner = ({
         oponentColor
       );
     }
-   
   }, [match.gameInPlay?.pgn]);
 
   useEffect(() => {
@@ -261,9 +261,45 @@ const MatchContainerInner = ({
       }, 2000);
     }
     if (match.status === 'complete') {
-      botSendRematchOffer(dispatch, activeBot.id ,1000, match?.messages[match.messages.length-1]?.responseId);
+      botSendRematchOffer(
+        dispatch,
+        activeBot.id,
+        1000,
+        match?.messages[match.messages.length - 1]?.responseId
+      );
     }
   }, [match.gameInPlay?.offers, match.status]);
+
+  useEffect(() => {
+    if (!activeBot || activeBot?.id?.slice(-3) !== '000') {
+      return;
+    }
+    const offer = match?.endedGames[0]?.offers[0];
+    if (offer) {
+      if (!offer?.timestamp) return;
+      const currentSecond = Math.floor(offer.timestamp / 1000);
+
+      const lastSecond = lastProcessedTimestamp.current
+        ? Math.floor(lastProcessedTimestamp.current / 1000)
+        : null;
+
+      if (lastSecond === currentSecond) {
+        return;
+      }
+      lastProcessedTimestamp.current = offer.timestamp;
+      if (
+        (offer && activeBot?.id == offer?.byPlayer) ||
+        offer?.byPlayer.length == 16
+      ) {
+        return;
+      }
+
+      if (offer.status === 'pending' && offer.type === 'rematch') {
+        console.log('prihvata rematch');
+        botAcceptRematchOffer(dispatch, 1000);
+      }
+    }
+  }, [match.endedGames[0]?.offers]);
 
   const isPlayer = canUserPlay && playersBySide?.home.id;
 
@@ -305,46 +341,44 @@ const MatchContainerInner = ({
             </div>
 
             {/* Desktop Chat Widget */}
-            {isPlayer  && (
-            <div className="w-full hidden md:flex flex-1 min-h-0 w-full relative">
-              {(activeWidget === 'chat' && activeBot) ||
-              activeBot?.id?.slice(-3) == '000' ||
-              !activeBot && isPlayer? (
-               
-                <div className="w-full hidden md:flex flex-1 min-h-0 w-full relative">
-                  {(activeBot?.id?.slice(-3) == '000' || !activeBot  ) && (
-                  <ChatWidget
-                    pgn={
-                      matchState?.gameInPlay?.pgn ||
-                      matchState?.endedGames[0]?.pgn ||
-                      ''
-                    }
-                    messages={matchState?.messages || []}
-                    currentUserId={userId}
-                    activeBot={activeBot}
-                    playerNames={playerNames}
-                    oponentColor={oponentColor}
-                    onSendMessage={handleSendMessage}
-                    otherPlayerChatEnabled={true}
-                  />
-                  )}
-                  <div
-                    className={`
+            {isPlayer && (
+              <div className="w-full hidden md:flex flex-1 min-h-0 w-full relative">
+                {(activeWidget === 'chat' && activeBot) ||
+                activeBot?.id?.slice(-3) == '000' ||
+                (!activeBot && isPlayer) ? (
+                  <div className="w-full hidden md:flex flex-1 min-h-0 w-full relative">
+                    {(activeBot?.id?.slice(-3) == '000' || !activeBot) && (
+                      <ChatWidget
+                        pgn={
+                          matchState?.gameInPlay?.pgn ||
+                          matchState?.endedGames[0]?.pgn ||
+                          ''
+                        }
+                        messages={matchState?.messages || []}
+                        currentUserId={userId}
+                        activeBot={activeBot}
+                        playerNames={playerNames}
+                        oponentColor={oponentColor}
+                        onSendMessage={handleSendMessage}
+                        otherPlayerChatEnabled={true}
+                      />
+                    )}
+                    <div
+                      className={`
                       hidden md:block absolute z-20  cursor-pointer transition-all duration-300 ease-in-out
                       rounded-lg  overflow-hidden 
                       ${
-                        (cameraExpanded || ( activeBot && activeBot?.id?.slice(-3) !== '000' ))
+                        cameraExpanded ||
+                        (activeBot && activeBot?.id?.slice(-3) !== '000')
                           ? 'inset-0 w-full h-full z-[51]'
                           : 'top-1 right-1  w-2/5'
                       }
                     `}
-                  >
-
-                    { activeBot?.id?.slice(-3) !== '000' && !isMobile &&(
-
-                      <div>
-                        <div
-                          className={`
+                    >
+                      {activeBot?.id?.slice(-3) !== '000' && !isMobile && (
+                        <div>
+                          <div
+                            className={`
                        ${
                          camera
                            ? 'opacity-100 z-10'
@@ -352,46 +386,49 @@ const MatchContainerInner = ({
                        }
                       }
                     `}
-                        >
-                          <PeerToPeerCameraWidget
-                            cameraOnAgain={cameraOnAgain}
-                            activeBot={activeBot}
-                            onDisableCamera={() => cameraOff()}
-                            camera={camera}
-                            onToggleExpand={() => setCameraExpanded((p) => !p)}
-                            isExpanded={cameraExpanded}
-                          />
-                        </div>
+                          >
+                            <PeerToPeerCameraWidget
+                              cameraOnAgain={cameraOnAgain}
+                              activeBot={activeBot}
+                              onDisableCamera={() => cameraOff()}
+                              camera={camera}
+                              onToggleExpand={() =>
+                                setCameraExpanded((p) => !p)
+                              }
+                              isExpanded={cameraExpanded}
+                            />
+                          </div>
 
-                        <button
-                          onClick={() => {
-                            setCamera(true);
-                            setCameraOnAgain(true);
-                          }}
-                          className={` ${
-                            camera
-                              ? 'opacity-0 pointer-events-none -z-10'
-                              : 'opacity-100 z-10'
-                          }
+                          <button
+                            onClick={() => {
+                              setCamera(true);
+                              setCameraOnAgain(true);
+                            }}
+                            className={` ${
+                              camera
+                                ? 'opacity-0 pointer-events-none -z-10'
+                                : 'opacity-100 z-10'
+                            }
                                                         absolute  left-[82%] h-8  bg-black/50 text-white rounded-md p-1 hover:opacity-70
                                                         top-1   hover:rounded-xl
                                                       `}
-                        >
-                          <VideoCameraIcon className="h-5 w-5" />
-                        </button>
-                      </div>
-                    )}
+                          >
+                            <VideoCameraIcon className="h-5 w-5" />
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ) : (
-                // classic bot players
-                !isMobile && canUserPlay &&(
-                  <div className="w-1/2  md:w-full h-full overflow-hidden  rounded-lg shadow-2xl  ">
-                    <PeerToPeerCameraWidget activeBot={activeBot} />
-                  </div>
-                )
-              )}
-            </div>
+                ) : (
+                  // classic bot players
+                  !isMobile &&
+                  canUserPlay && (
+                    <div className="w-1/2  md:w-full h-full overflow-hidden  rounded-lg shadow-2xl  ">
+                      <PeerToPeerCameraWidget activeBot={activeBot} />
+                    </div>
+                  )
+                )}
+              </div>
             )}
             <div className="w-full pl-2 pr-2 md:pl-0 md:pr-0 pt-0 pb-0 flex flex-col md:gap-2 gap-2 md:flex-1 min-h-0 rounded-lg shadow-2xl  overflow-y-scroll no-scrollbar fixed bottom-1 left-0 right-0 md:relative md:bottom-auto md:left-auto md:right-auto ">
               {(match.gameInPlay?.status !== 'idling' || !isMobile) && (
