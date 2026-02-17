@@ -58,13 +58,12 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
   const dispatch = useMatchActionsDispatch();
   const router = useRouter();
   const { lastOffer, playerId } = useGame();
- const userId = useMovexClient(movexConfig)?.id;
+  const userId = useMovexClient(movexConfig)?.id;
   const isPlayer =
     !!userId &&
     !!match &&
     (userId === match.challenger.id || userId === match.challengee.id);
 
- 
   const params = useParams<{ roomId: string }>();
 
   const roomId = params.roomId;
@@ -194,44 +193,43 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
               {(match[match.winner].id.length !== 16 ||
                 match[match.winner].id.slice(-3) === '000') && (
                 <div className="justify-center items-center flex flex-col">
-
-    {isPlayer && (
-     <Button
-                    icon="ArrowPathRoundedSquareIcon"
-                    bgColor="green"
-                    style={{
-                      marginTop: 18,
-                      minWidth: '160px',
-                    }}
-                    onClick={async () => {
-                      if (playerId) {
-                        if (!isOpponentInRoom) {
-                          try {
-                            if (!alreadyRematch) {
-                              await newRematchRequestInitiate(roomId);
+                  {isPlayer && (
+                    <Button
+                      icon="ArrowPathRoundedSquareIcon"
+                      bgColor="green"
+                      style={{
+                        marginTop: 18,
+                        minWidth: '160px',
+                      }}
+                      onClick={async () => {
+                        if (playerId) {
+                          if (!isOpponentInRoom) {
+                            try {
+                              if (!alreadyRematch) {
+                                await newRematchRequestInitiate(roomId);
+                              }
+                              setAlreadyRematch(true);
+                            } catch (error) {
+                              console.error(
+                                '❌ Error sending rematch notification:',
+                                error
+                              );
                             }
-                            setAlreadyRematch(true);
-                          } catch (error) {
-                            console.error(
-                              '❌ Error sending rematch notification:',
-                              error
-                            );
                           }
+                          dispatch((masterContext) => ({
+                            type: 'play:sendOffer',
+                            payload: {
+                              byPlayer: playerId,
+                              offerType: 'rematch',
+                              timestamp: masterContext.requestAt(),
+                            },
+                          }));
                         }
-                        dispatch((masterContext) => ({
-                          type: 'play:sendOffer',
-                          payload: {
-                            byPlayer: playerId,
-                            offerType: 'rematch',
-                            timestamp: masterContext.requestAt(),
-                          },
-                        }));
-                      }
-                    }}
-                  >
-                    Rematch
-                  </Button>
-    )}
+                      }}
+                    >
+                      Rematch
+                    </Button>
+                  )}
 
                   <Link
                     href={`https://chess.outpostchess.com/room/new/r${room}?activity=aichess&userId=${userId}&theme=op&pgn=${roomId}&instructor=1`}

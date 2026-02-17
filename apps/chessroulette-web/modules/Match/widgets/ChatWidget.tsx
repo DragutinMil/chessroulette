@@ -351,15 +351,14 @@ for just **€4** — and improve faster with **AI-powered analysis and training
               style={{ boxShadow: 'rgba(7, 218, 99, 0.1) 0px 0px 10px 0px' }}
             >
               {activeBot?.picture && !isOwnMessage ? (
-                 <img
+                <img
                   src={activeBot.picture}
                   alt="avatar"
                   className="w-full h-full object-cover rounded-full"
                 />
-              ):(
-                 getInitials(displayName)
+              ) : (
+                getInitials(displayName)
               )}
-             
             </div>
           );
 
@@ -376,16 +375,18 @@ for just **€4** — and improve faster with **AI-powered analysis and training
                     isOwnMessage ? 'mr-4' : ''
                   }`}
                 >
-                  <Markdown  options={{
-    overrides: {
-      p: {
-        props: {
-          className:
-            "p-[14px] text-left whitespace-pre-wrap break-words ",
-        },
-      },
-    },
-  }}>
+                  <Markdown
+                    options={{
+                      overrides: {
+                        p: {
+                          props: {
+                            className:
+                              'p-[14px] text-left whitespace-pre-wrap break-words ',
+                          },
+                        },
+                      },
+                    }}
+                  >
                     {msg.content}
                   </Markdown>
                   {msg.content.includes('You’ve hit your daily limit.') && (

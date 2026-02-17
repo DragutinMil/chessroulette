@@ -4,33 +4,55 @@ import { ChatBotWidget } from '../widgets/ChatBotWidget';
 import { ChatMessage, ActiveBot } from '@app/modules/Match/movex/types';
 import { Chess } from 'chess.js';
 import { botVoiceSpeak } from '../widgets/chatBotSpeak';
+import { newRematchRequest } from '../utilsOutpost';
+
+export const botAcceptRematchOffer = (
+  dispatch: DispatchOf<MatchActions>,
+  delay = 1000
+) => {
+  const pathParts = window.location.pathname.split('/');
+  const matchId = pathParts[pathParts.length - 1];
+  setTimeout(() => {
+    const handleRematch = async () => {
+      const data = await newRematchRequest(matchId);
+
+      dispatch({
+        type: 'play:acceptOfferRematch',
+        payload: {
+          target_url: data.target_url,
+          initiator_url: data.initiator_url,
+        },
+      });
+    };
+    handleRematch();
+  }, delay);
+};
 
 export const botSendRematchOffer = (
   dispatch: DispatchOf<MatchActions>,
   byPlayerId: string,
   delay = 600,
-  responseId?:string
+  responseId?: string
 ) => {
   setTimeout(() => {
-    
-setTimeout(() => {
-    dispatch((masterContext) => ({
-      type: 'play:sendOffer',
-      payload: {
-        byPlayer: byPlayerId,
-        offerType: 'rematch',
-        timestamp: masterContext.requestAt(),
-      },
-    }));
-}, 600);
-     const contentList = [
-        'One more round?',
-        'Double or nothing? 😄',
-        'Let’s play again!',
-      ];
-      const content = contentList[Math.floor(Math.random() * contentList.length)];
+    setTimeout(() => {
+      dispatch((masterContext) => ({
+        type: 'play:sendOffer',
+        payload: {
+          byPlayer: byPlayerId,
+          offerType: 'rematch',
+          timestamp: masterContext.requestAt(),
+        },
+      }));
+    }, 600);
+    const contentList = [
+      'One more round?',
+      'Double or nothing? 😄',
+      'Let’s play again!',
+    ];
+    const content = contentList[Math.floor(Math.random() * contentList.length)];
 
-     dispatch({
+    dispatch({
       type: 'play:sendMessage',
       payload: {
         senderId: byPlayerId,
@@ -39,7 +61,6 @@ setTimeout(() => {
         responseId: responseId,
       },
     });
-
   }, delay);
 };
 
@@ -85,8 +106,6 @@ export const onTakeBackOfferBot = (
   }, delay);
 };
 
-
-
 export const botTalkInitiation = (
   dispatch: DispatchOf<MatchActions>,
   activeBot: ActiveBot,
@@ -97,28 +116,28 @@ export const botTalkInitiation = (
   if (!activeBot) {
     return;
   }
-  
-//   if(messages.length == 0){
-// const prompts = [
-//   `Hi! I’m your human chess bot ${activeBot.name}. Feel free to chat with me anytime.`,
-//   `Hey, I’m your human chess bot ${activeBot.name}. Let’s play and talk chess.`,
-//   `Hi there! I’m your human chess bot ${activeBot.name}... you can talk to me here anytime.`,
-//   `Welcome! I’m your human chess bot ${activeBot.name}. Ask me anything or just play.`,
-//   `Hey! I’m your human chess bot ${activeBot.name}. Let’s enjoy some chess together.`
-// ];
 
-// const prompt = prompts[Math.floor(Math.random() * prompts.length)];
+  //   if(messages.length == 0){
+  // const prompts = [
+  //   `Hi! I’m your human chess bot ${activeBot.name}. Feel free to chat with me anytime.`,
+  //   `Hey, I’m your human chess bot ${activeBot.name}. Let’s play and talk chess.`,
+  //   `Hi there! I’m your human chess bot ${activeBot.name}... you can talk to me here anytime.`,
+  //   `Welcome! I’m your human chess bot ${activeBot.name}. Ask me anything or just play.`,
+  //   `Hey! I’m your human chess bot ${activeBot.name}. Let’s enjoy some chess together.`
+  // ];
 
-//      dispatch({
-//         type: 'play:sendMessage',
-//         payload: {
-//           senderId: activeBot.id,
-//           content: prompt,
-//           timestamp: Date.now(),
-//         },
+  // const prompt = prompts[Math.floor(Math.random() * prompts.length)];
 
-//   })
-// }
+  //      dispatch({
+  //         type: 'play:sendMessage',
+  //         payload: {
+  //           senderId: activeBot.id,
+  //           content: prompt,
+  //           timestamp: Date.now(),
+  //         },
+
+  //   })
+  // }
   if (messages.length == 0 && pgn.length > 15 && pgn.length < 19) {
     const pgnToUciMoves = (pgn: string) => {
       const chess = new Chess();
@@ -145,9 +164,9 @@ export const botTalkInitiation = (
         UciFormat
       );
       if (content == 'ai_daily_limit_reached') {
-              return
-            }
-      
+        return;
+      }
+
       //  botVoiceSpeak( content.answer.text,activeBot.name)
 
       dispatch({
