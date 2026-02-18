@@ -46,14 +46,16 @@ export const ConfirmButton: React.FC<ConfirmButtonProps> = ({
       {showModal && (
         <>
           <div
-         
             className="justify-center  items-center flex overflow-x-hidden overflow-y-auto fixed inset-0 z-[70] outline-none focus:outline-none"
             tabIndex={-1}
             aria-hidden="true"
           >
-            <div  style={{
-                          boxShadow: '0px 0px 10px 0px #07DA6380',
-                        }} className="relative w-auto my-6 mx-auto max-w-3xl">
+            <div
+              style={{
+                boxShadow: '0px 0px 10px 0px #07DA6380',
+              }}
+              className="relative w-auto my-6 mx-auto max-w-3xl"
+            >
               <div className="sborder-0 rounded-lg shadow-lg relative flex flex-col w-full bg-green-900 outline-none focus:outline-none">
                 {/*header*/}
                 <div className="flex flex-1   sitems-start justify-between p-3 rounded-t-lg text-center justify-center content-center items-center">

@@ -62,19 +62,19 @@ const StockfishEngine: React.FC<StockfishEngineProps> = ({
           baseContempt = 0;
         } else if (bot == '9aEXYS0xwZS21000') {
           baseDepth = 3;
-          baseSkill = 7;
+          baseSkill = 6;
           baseContempt = 5;
         } else if (bot == 'fH0667J9nJ1Ez000') {
           baseDepth = 4;
-          baseSkill = 1;
+          baseSkill = 3;
           baseContempt = 4;
         } else if (bot == '-BihTlRZ-SKTL000') {
-          baseDepth = 7;
+          baseDepth = 6;
           baseSkill = 6;
           baseContempt = 8;
         } else if (bot == 'Pjdw8gu5kpiRk000') {
           baseDepth = 6;
-          baseSkill = 10;
+          baseSkill = 9;
           baseContempt = 9;
         }
         //  console.log('base', baseDepth, baseSkill, baseContempt);
@@ -90,7 +90,7 @@ const StockfishEngine: React.FC<StockfishEngineProps> = ({
         setDepth(String(finalDepth));
         setSkill(String(finalSkill));
         setContempt(String(finalContempt));
-         console.log(finalDepth, finalSkill, finalContempt);
+        console.log(finalDepth, finalSkill, finalContempt);
       }
     }
 
@@ -124,7 +124,6 @@ const StockfishEngine: React.FC<StockfishEngineProps> = ({
   }, []);
 
   useEffect(() => {
-    
     if (!stockfishRef.current) return;
 
     stockfishRef.current.postMessage(
@@ -142,29 +141,28 @@ const StockfishEngine: React.FC<StockfishEngineProps> = ({
 
     stockfishRef.current.postMessage(`position fen ${fen}`);
 
-
-    if (depth && Number(depth)>5 ) {
-      
-    stockfishRef.current.postMessage(`go depth ${depth}`);
-  } else if(Number(depth)>3)  {
-  
-   stockfishRef.current.postMessage(
-  `setoption name UCI_LimitStrength value true`
-);
-stockfishRef.current.postMessage(
-  `setoption name UCI_Elo value 800`
-);
-    stockfishRef.current.postMessage(`go movetime 35`);
-  }else{
-     
-     stockfishRef.current.postMessage(`go movetime 25`);
-     stockfishRef.current.postMessage(
-  `setoption name UCI_LimitStrength value true`
-);
-stockfishRef.current.postMessage(
-  `setoption name UCI_Elo value 600`
-);
-  }
+    if (depth && Number(depth) > 5) {
+      stockfishRef.current.postMessage(`go depth ${depth}`);
+    }
+    if (depth && Number(depth) > 3) {
+      stockfishRef.current.postMessage(
+        `setoption name UCI_LimitStrength value true`
+      );
+      stockfishRef.current.postMessage(`setoption name UCI_Elo value 850`);
+      stockfishRef.current.postMessage(`go depth ${depth}`);
+    } else if (Number(depth) > 2) {
+      stockfishRef.current.postMessage(
+        `setoption name UCI_LimitStrength value true`
+      );
+      stockfishRef.current.postMessage(`setoption name UCI_Elo value 720`);
+      stockfishRef.current.postMessage(`go movetime 35`);
+    } else {
+      stockfishRef.current.postMessage(`go movetime 25`);
+      stockfishRef.current.postMessage(
+        `setoption name UCI_LimitStrength value true`
+      );
+      stockfishRef.current.postMessage(`setoption name UCI_Elo value 600`);
+    }
   }, [fen, depth]);
 
   // useEffect(() => {
