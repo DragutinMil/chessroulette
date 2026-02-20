@@ -1133,6 +1133,7 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
                         isMobile={isMobile}
                         history={currentChapterState.notation?.history}
                         playerNames={playerNames}
+                        isAichess={true}
                         focusedIndex={
                           currentChapterState.notation?.focusedIndex
                         }
@@ -1484,6 +1485,7 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
                         isMobile={isMobile}
                         history={currentChapterState.notation?.history}
                         playerNames={playerNames}
+                         isAichess={true}
                         focusedIndex={
                           currentChapterState.notation?.focusedIndex
                         }

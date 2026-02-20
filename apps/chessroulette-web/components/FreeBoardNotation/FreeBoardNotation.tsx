@@ -13,6 +13,8 @@ export type FreeBoardNotationProps = {
   className?: string;
   containerClassName?: string;
   canDelete?: boolean;
+   isAichess?:boolean;
+  playersBySide?:any;
   reviewData?: EvaluationMove[];
   playerNames?: Array<string>;
   isMobile?: boolean;
@@ -31,8 +33,10 @@ export const FreeBoardNotation: React.FC<FreeBoardNotationProps> = ({
   focusedIndex = FreeBoardHistory.getStartingIndex(),
   onRefocus,
   onDelete,
+  isAichess,
   canDelete,
   reviewData,
+  playersBySide,
   playerNames,
   isMobile,
   containerClassName = '',
@@ -54,8 +58,10 @@ export const FreeBoardNotation: React.FC<FreeBoardNotationProps> = ({
           isMobile={isMobile}
           history={history}
           playerNames={playerNames}
+          isAichess={isAichess}
           focusedIndex={focusedIndex}
           onRefocus={onRefocus}
+          playersBySide={playersBySide}
           onDelete={onDelete}
           reviewData={reviewData || []}
           className={`flex flex-1 flex-col  ${className} ${

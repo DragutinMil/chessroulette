@@ -48,7 +48,6 @@ export const AichessActivity = ({
   const [playerNames, setPlayerNames] = useState(Array<string>);
   const [canFreePlay, setCanFreePlay] = useState(false);
   const [puzzleCounter, setPuzzleCounter] = useState(0);
-
   const [userData, setUserData] = useState({
     name_first: '',
     name_last: '',
@@ -125,7 +124,7 @@ export const AichessActivity = ({
             data.results.endedGames[lastGame].players.b == data.initiator_id
               ? data.initiator_name_first
               : data.target_name_first;
-
+         
           setPlayerNames([whitePlayerName, blackPlayerName]);
           const changeOrientation =
             (currentChapter.orientation === 'b' && black) ||
@@ -161,13 +160,13 @@ export const AichessActivity = ({
   const getUserData = async () => {
     const data = await getSubscribeInfo();
     setUserData({
-      name_first: data.name_first,
-      name_last: data.name_last,
-      picture: data.profile_image_url,
-      is_trial: data.is_trial,
-      product_name: data.product_name,
-      user_id: data.user_id,
-      puz_rating: data.puz_rating,
+      name_first: data?.name_first,
+      name_last: data?.name_last,
+      picture: data?.profile_image_url,
+      is_trial: data?.is_trial,
+      product_name: data?.product_name,
+      user_id: data?.user_id,
+      puz_rating: data?.puz_rating,
     });
   };
   const onCanPlayChange = (canPlay: boolean) => {
