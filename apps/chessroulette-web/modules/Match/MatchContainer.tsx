@@ -138,7 +138,7 @@ const MatchContainerInner = ({
     const savedState = localStorage.getItem(`chessroulette-chat-enabled`);
     return savedState === null ? true : savedState === 'true';
   });
-  //  console.log('activeBot',activeBot)
+  
   const handleSendMessage = (
     content: string,
     responseId?: string,
@@ -446,6 +446,7 @@ const MatchContainerInner = ({
                     <FreeBoardNotation
                       isMobile={isMobile}
                       history={displayState.history}
+                      playersBySide={playersBySide}
                       playerNames={[
                         playersBySide?.home.displayName ||
                           activeBot?.name ||
