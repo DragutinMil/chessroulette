@@ -148,20 +148,20 @@ const StockfishEngine: React.FC<StockfishEngineProps> = ({
       stockfishRef.current.postMessage(
         `setoption name UCI_LimitStrength value true`
       );
-      stockfishRef.current.postMessage(`setoption name UCI_Elo value 850`);
+      stockfishRef.current.postMessage(`setoption name UCI_Elo value 800`);
       stockfishRef.current.postMessage(`go depth ${depth}`);
     } else if (Number(depth) > 2) {
       stockfishRef.current.postMessage(
         `setoption name UCI_LimitStrength value true`
       );
-      stockfishRef.current.postMessage(`setoption name UCI_Elo value 720`);
+      stockfishRef.current.postMessage(`setoption name UCI_Elo value 700`);
       stockfishRef.current.postMessage(`go movetime 35`);
     } else {
-      stockfishRef.current.postMessage(`go movetime 25`);
+      stockfishRef.current.postMessage(`go movetime 20`);
       stockfishRef.current.postMessage(
         `setoption name UCI_LimitStrength value true`
       );
-      stockfishRef.current.postMessage(`setoption name UCI_Elo value 600`);
+      stockfishRef.current.postMessage(`setoption name UCI_Elo value 500`);
     }
   }, [fen, depth]);
 

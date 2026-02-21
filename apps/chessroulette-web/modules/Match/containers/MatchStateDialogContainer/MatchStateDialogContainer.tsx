@@ -134,7 +134,7 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
 
     return challengerConnected && challengeeConnected;
   }, [match, participants]);
-
+   
   if (match?.status === 'aborted') {
     return (
       <Dialog
@@ -175,7 +175,7 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
           <div className="flex flex-col gap-4 items-center">
             <div className="flex  justify-center content-center text-center flex-col">
               <Text>
-                {match[match.winner].id.length == 16 ? (
+                {(match.winner=='challenger' &&  match.challenger.id.length==16) || (match.winner=='challengee' &&  match.challengee.id.length==16)   ? (
                   <span className="capitalize">
                     {activeBot?.name}
                     {` `}Won{` `}
@@ -314,7 +314,7 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
 
       return <Text className="capitalize">{playerDisplay} Won!</Text>;
     });
-
+ 
     return (
       <Dialog
         title={
