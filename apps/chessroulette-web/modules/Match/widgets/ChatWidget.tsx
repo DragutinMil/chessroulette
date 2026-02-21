@@ -244,7 +244,7 @@ for just **€4** — and improve faster with **AI-powered analysis and training
   return (
     <div className="w-full flex flex-col h-full bg-op-widget rounded-lg shadow-2xl md:min-h-[250px] md:h-auto">
       {/* Mobile: Fullscreen header */}
-      <div className="md:hidden flex items-center justify-between p-4 border-b border-slate-800">
+      <div className="md:hidden flex items-center justify-between p-4 border-b border-slate-800 mt-8">
         <div className="flex items-center">
           <Text className="text-lg font-semibold">Chat</Text>
           {/* Mobile: Toggle switch in header */}

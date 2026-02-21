@@ -176,8 +176,7 @@ export const List: React.FC<ListProps> = ({
 
     return [move, index];
   }, [history, focusedIndex]);
-  console.log('reviewData',reviewData)
-   console.log('playerNames',playerNames)
+
  const { whitePlayer, blackPlayer } = useMemo(() => {
   if (isAichess && playerNames?.length === 2) {
     return {
