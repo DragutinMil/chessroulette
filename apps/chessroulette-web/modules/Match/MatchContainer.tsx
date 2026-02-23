@@ -138,7 +138,7 @@ const MatchContainerInner = ({
     const savedState = localStorage.getItem(`chessroulette-chat-enabled`);
     return savedState === null ? true : savedState === 'true';
   });
-  
+
   const handleSendMessage = (
     content: string,
     responseId?: string,

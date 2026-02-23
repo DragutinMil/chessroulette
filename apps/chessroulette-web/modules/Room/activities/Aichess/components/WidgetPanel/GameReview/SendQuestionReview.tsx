@@ -12,7 +12,7 @@ export async function SendQuestionReview(
   const previusMessageId =
     currentChapterState.messages[currentChapterState.messages.length - 1]
       .idResponse;
-  console.log('reviewData', reviewData);
+
   const pgn = currentChapterState.chessAiMode.fen;
   const fen = currentChapterState.displayFen;
   const moveNum = currentChapterState.notation.focusedIndex[0];
