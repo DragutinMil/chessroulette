@@ -23,6 +23,10 @@ import { RIGHT_SIDE_SIZE_PX } from '../../constants';
 import inputReducer, { initialInputState } from './reducers/inputReducer';
 import socketUtil from '../../../../socketUtil';
 
+import { FlipBoardIconButton } from '@app/components/Chessboard';
+import { IconButton } from '@app/components/Button';
+import { FreeBoardHistory } from '@xmatter/util-kit';
+
 // import { InstructorBoard } from './components/InstructorBoard';
 import { Square } from 'chess.js';
 import { boolean } from 'zod';
@@ -266,6 +270,39 @@ export const LearnAiActivity = ({
                   rightSideClassName="flex-1"
                   rightSideComponent={
                     <>
+                      <div className="flex flex-col gap-2 mb-2">
+                        <FlipBoardIconButton
+                          tooltipPositon="right"
+                          onClick={() => {
+                            dispatch({
+                              type: 'loadedChapter:setOrientation',
+                              payload: { color: swapColor(currentChapter.orientation) },
+                            });
+                          }}
+                        />
+                        <IconButton
+                          icon="ArrowUturnLeftIcon"
+                          iconKind="outline"
+                          type="clear"
+                          size="sm"
+                          tooltip="Undo"
+                          tooltipPositon="right"
+                          className="text-slate-400 hover:text-white"
+                          disabled={!currentChapter.notation?.history?.length}
+                          onClick={async () => {
+                            const history = currentChapter.notation?.history ?? [];
+                            if (history.length > 0) {
+                              const lastIndex = FreeBoardHistory.getLastIndexInHistory(history);
+                              await enqueueMovexUpdate(() =>
+                                dispatch({
+                                  type: 'loadedChapter:deleteHistoryMove',
+                                  payload: lastIndex,
+                                })
+                              );
+                            }
+                          }}
+                        />
+                      </div>
                       <div className="relative flex flex-1 flex-col items-center justify-center">
                         <PanelResizeHandle
                           className="w-1 h-20 rounded-lg bg-slate-600"
@@ -345,6 +382,14 @@ export const LearnAiActivity = ({
                 type: 'loadedChapter:setOrientation',
                 payload: { color: swapColor(currentChapter.orientation) },
               });
+            }}
+            onSetOrientation={(color) => {
+              enqueueMovexUpdate(() =>
+                dispatch({
+                  type: 'loadedChapter:setOrientation',
+                  payload: { color: color as 'w' | 'b' },
+                })
+              );
             }}
             historyBackToStart={historyBackToStart}
             userData={userData}

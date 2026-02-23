@@ -16,6 +16,10 @@ type Props = {
   openViewSubscription: () => void;
   onSelectRating: (category: number) => void;
   onSelectPuzzle: (category: string) => void;
+  showColorChoice?: boolean;
+  onSelectColor?: (color: 'w' | 'b') => void;
+  suggestedMoves?: Array<{ uci: string; san: string }> | null;
+  onSuggestedMove?: (uci: string) => void;
 };
 //console.log('currentChapterState',currentChapterState)
 
@@ -30,6 +34,8 @@ const Conversation = ({
   hint,
   onSelectPuzzle,
   onSelectRating,
+  suggestedMoves,
+  onSuggestedMove,
 }: Props) => {
   const scrollRef = useRef<HTMLDivElement>(null);
 

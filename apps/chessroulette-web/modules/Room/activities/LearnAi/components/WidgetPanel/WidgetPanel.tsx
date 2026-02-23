@@ -18,6 +18,7 @@ import { CircleDrawTuple, ArrowsMap } from '@app/components/Chessboard/types';
 import { EngineData } from '../../../../../ChessEngine/lib/io';
 import { LearnAiWidgetPanel } from './LearnAiWidgetPanel';
 import type { UserData } from '../../movex/types';
+import { ChessColor } from '@xmatter/util-kit';
 type Props = {
   chaptersMap: Record<Chapter['id'], Chapter>;
   chaptersMapIndex: number;
@@ -43,6 +44,7 @@ type Props = {
   showEngine?: boolean;
   engine?: EngineData;
   onFlipBoard?: () => void;
+  onSetOrientation?: (color: 'w' | 'b') => void;
 } & Pick<
   ChaptersTabProps,
   | 'onLoadChapter'
@@ -79,6 +81,7 @@ export const WidgetPanel = React.forwardRef<TabsRef, Props>(
       onCanPlayChange,
       onFlipBoard,
       playerNames,
+      onSetOrientation,
 
       userData,
       onHistoryNotationRefocus,
@@ -101,6 +104,7 @@ export const WidgetPanel = React.forwardRef<TabsRef, Props>(
         onArrowsChange={onArrowsChange}
         onCanPlayChange={onCanPlayChange}
         onFlipBoard={onFlipBoard}
+        onSetOrientation={onSetOrientation}
         onMove={onMove}
         onTakeBack={onTakeBack}
         historyBackToStart={historyBackToStart}
