@@ -12,27 +12,27 @@ import {
 } from '@xmatter/util-kit';
 import type { EvaluationMove } from '../../../modules/Room/activities/Aichess/movex/types';
 type Player = {
-  id: string
-  points: number
-  color: 'w' | 'b'
-  displayName?: string
-}
+  id: string;
+  points: number;
+  color: 'w' | 'b';
+  displayName?: string;
+};
 
 type PlayersBySide = {
-  home: Player
-  away: Player
-}
+  home: Player;
+  away: Player;
+};
 export type ListProps = {
   history: FBHHistory;
   onRefocus: (atIndex: FBHIndex) => void;
   onDelete: (atIndex: FBHIndex) => void;
   focusedIndex?: FBHIndex;
   isMobile?: boolean;
-  isAichess?:boolean;
+  isAichess?: boolean;
   className?: string;
   rowClassName?: string;
   canDelete?: boolean;
-  playersBySide?:PlayersBySide,
+  playersBySide?: PlayersBySide;
   reviewData: EvaluationMove[];
   playerNames?: Array<string>;
 } & (
@@ -177,33 +177,33 @@ export const List: React.FC<ListProps> = ({
     return [move, index];
   }, [history, focusedIndex]);
 
- const { whitePlayer, blackPlayer } = useMemo(() => {
-  if (isAichess && playerNames?.length === 2) {
-    return {
-      whitePlayer: { displayName: playerNames[0] } as Player,
-      blackPlayer: { displayName: playerNames[1] } as Player,
+  const { whitePlayer, blackPlayer } = useMemo(() => {
+    if (isAichess && playerNames?.length === 2) {
+      return {
+        whitePlayer: { displayName: playerNames[0] } as Player,
+        blackPlayer: { displayName: playerNames[1] } as Player,
+      };
     }
-  }
 
-  if (
-    !playersBySide ||
-    playersBySide.home?.id.length === 16 ||
-    playersBySide.away?.id.length === 16
-  ) {
-    return { whitePlayer: undefined, blackPlayer: undefined }
-  }
+    if (
+      !playersBySide ||
+      playersBySide.home?.id.length === 16 ||
+      playersBySide.away?.id.length === 16
+    ) {
+      return { whitePlayer: undefined, blackPlayer: undefined };
+    }
 
-  let whitePlayer: Player | undefined
-  let blackPlayer: Player | undefined
+    let whitePlayer: Player | undefined;
+    let blackPlayer: Player | undefined;
 
-  for (const player of Object.values(playersBySide)) {
-    if (player.color === 'w') whitePlayer = player
-    if (player.color === 'b') blackPlayer = player
-  }
+    for (const player of Object.values(playersBySide)) {
+      if (player.color === 'w') whitePlayer = player;
+      if (player.color === 'b') blackPlayer = player;
+    }
 
-  return { whitePlayer, blackPlayer }
-}, [playersBySide, isAichess, playerNames])
-  
+    return { whitePlayer, blackPlayer };
+  }, [playersBySide, isAichess, playerNames]);
+
   return (
     <div className="flex md:flex-col flex-row h-full ">
       {!isNested && (
@@ -212,16 +212,16 @@ export const List: React.FC<ListProps> = ({
           <div className="flex  w-full">
             <p className="text-[#8F8F90] md: text-[10px] font-bold w-[51%] ml-[7px] ">
               WHITE
-             
-                <span className="text-white">&nbsp; {whitePlayer?.displayName}</span>
-              
+              <span className="text-white">
+                &nbsp; {whitePlayer?.displayName}
+              </span>
             </p>
 
             <p className="text-[#8F8F90] text-[10px] font-bold   ">
               BLACK
-             
-                <span className="text-white">&nbsp; {blackPlayer?.displayName}</span>
-              
+              <span className="text-white">
+                &nbsp; {blackPlayer?.displayName}
+              </span>
             </p>
           </div>
         </div>
