@@ -14,8 +14,8 @@ import { ImportedInput } from '@app/components/PgnInputBox/PgnInputBox';
 import { Action } from 'movex-core-util';
 import { Square } from 'chess.js';
 
-export type AichessActivityState = {
-  activityType: 'aichess';
+export type ReviewActivityState = {
+  activityType: 'review';
   activityState: {
     // TODO: This is the LessonModel induced LessonState
     loadedChapterId: Chapter['id'];
@@ -104,7 +104,7 @@ export type ChapterBoardState = {
   orientation: ChessColor;
 };
 
-export type AichessActivityActions =
+export type ReviewActivityActions =
   // Chapter Logistcs
   | Action<'createChapter', ChapterState>
   | Action<
@@ -119,6 +119,7 @@ export type AichessActivityActions =
   | Action<'loadedChapter:addMove', ChessMove>
   | Action<'loadedChapter:addPuzzleMove', ChessMove>
   | Action<'loadedChapter:setPuzzleMoves', chessAiMode>
+  | Action<'loadedChapter:setReview', chessAiMode>
   | Action<'loadedChapter:writeMessage', Message>
   | Action<'loadedChapter:focusHistoryIndex', FBHIndex>
   | Action<'loadedChapter:deleteHistoryMove', FBHIndex>

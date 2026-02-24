@@ -200,27 +200,7 @@ export async function getPuzzle(category?: string) {
     };
   }
 }
-export async function getMatch(matchId: string) {
-  try {
-    const response = await fetch(
-      process.env.NEXT_PUBLIC_API_WEB +
-        `challenge_by_match_id?match_id=${matchId}`,
-      {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      }
-    );
 
-    if (!response.ok) {
-      throw new Error(`Error: ${response.status}`);
-    }
-    return response.json();
-  } catch (error) {
-    console.error('Fetch error', error);
-  }
-}
 ///SEND USER PUZZLE RATING
 export async function sendPuzzleUserRating(
   userPuzzleRating: number,

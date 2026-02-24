@@ -53,6 +53,7 @@ export const RoomTemplate = (props: Props) => {
         className={`${
           props.activity === 'match' ||
           props.activity === 'aichess' ||
+          props.activity === 'review' ||
           props.activity === 'puzzle' ||
           props.activity === 'ailearn'
             ? 'md:hidden'

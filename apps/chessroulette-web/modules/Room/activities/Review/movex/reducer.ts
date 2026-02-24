@@ -6,7 +6,7 @@ import {
   isValidPgn,
   FBHHistory,
 } from '@xmatter/util-kit';
-import { Chapter, ChapterState, AichessActivityState } from './types';
+import { Chapter, ChapterState, ReviewActivityState } from './types';
 
 import { initialChapterState, initialDefaultChapter } from './state';
 import {
@@ -20,7 +20,7 @@ import { ChessRouler } from 'util-kit/src/lib/ChessRouler';
 import { logsy } from '@app/lib/Logsy';
 
 export const findLoadedChapter = (
-  activityState: AichessActivityState['activityState']
+  activityState: ReviewActivityState['activityState']
 ): Chapter | undefined =>
   activityState.chaptersMap[activityState.loadedChapterId];
 
@@ -28,10 +28,10 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
   prev: ActivityState = initialActivityState,
   action: ActivityActions
 ): ActivityState => {
-  if (prev.activityType !== 'aichess') {
+  if (prev.activityType !== 'review') {
     return prev;
   }
-  // console.log('aichess', action);
+  // console.log('review', action);
   if (action.type === 'loadedChapter:takeBack') {
     const prevChapter = findLoadedChapter(prev.activityState);
     if (!prevChapter) {
@@ -910,7 +910,7 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
     };
   }
 
-  if (action.type === 'loadedChapter:setPuzzleMoves') {
+  if (action.type === 'loadedChapter:setReview') {
     const nextFen = action.payload.fen;
     const chessAiMode = action.payload;
 

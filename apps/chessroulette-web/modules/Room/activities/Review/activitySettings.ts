@@ -1,4 +1,4 @@
-export type JoinAichessRoomLinkProps =
+export type JoinReviewRoomLinkProps =
   | {
       showJoinRoomLink: true;
       joinRoomLinkParams: Record<string, string>;
@@ -10,7 +10,7 @@ export type JoinAichessRoomLinkProps =
       joinRoomLinkTooltip?: string | undefined;
     };
 
-export type AichessActivitySettings = {
+export type ReviewActivitySettings = {
   isInstructor: boolean;
   canFlipBoard: boolean;
   isBoardFlipped: boolean;
@@ -18,4 +18,4 @@ export type AichessActivitySettings = {
   canMakeInvalidMoves: boolean;
   canImport: boolean;
   showEngine: boolean;
-} & JoinAichessRoomLinkProps;
+} & JoinReviewRoomLinkProps;

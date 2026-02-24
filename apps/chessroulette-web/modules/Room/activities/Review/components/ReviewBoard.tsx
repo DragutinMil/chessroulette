@@ -1,14 +1,8 @@
 import { ChapterBoardState, ChapterState, chessAiMode } from '../movex';
-import { useAichessActivitySettings } from '../hooks/useAichessActivitySettings';
+import { useReviewActivitySettings } from '../hooks/useReviewActivitySettings';
 import { Freeboard, Playboard } from '@app/components/Boards';
 import { FreeBoardHistory } from '@xmatter/util-kit';
-import {
-  BoardEditorIconButton,
-  ClearBoardIconButton,
-  FlipBoardIconButton,
-  StartPositionIconButton,
-  ChessboardContainerProps,
-} from '@app/components/Chessboard';
+import { ChessboardContainerProps } from '@app/components/Chessboard';
 import { RIGHT_SIDE_SIZE_PX } from '@app/modules/Room/constants';
 
 type Props = Required<
@@ -26,10 +20,9 @@ type Props = Required<
     onClearBoard: () => void;
     onResetBoard: () => void;
     onBoardEditor: () => void;
-    // onChangePuzzleAnimation: boolean;
   };
 
-export const AichessBoard = ({
+export const ReviewBoard = ({
   displayFen: fen,
   orientation,
   arrowsMap,
@@ -43,10 +36,9 @@ export const AichessBoard = ({
   onClearBoard,
   onBoardEditor,
   chessAiMode,
-  // onChangePuzzleAnimation,
   ...chessBoardProps
 }: Props) => {
-  const settings = useAichessActivitySettings();
+  const settings = useReviewActivitySettings();
   const lm =
     notation &&
     FreeBoardHistory.findMoveAtIndex(notation.history, notation.focusedIndex);
@@ -61,7 +53,6 @@ export const AichessBoard = ({
       playingColor={orientation}
       sizePx={sizePx}
       fen={fen}
-      // onChangePuzzleAnimation={onChangePuzzleAnimation}
       lastMove={lastMove}
       arrowsMap={arrowsMap}
       circlesMap={circlesMap}

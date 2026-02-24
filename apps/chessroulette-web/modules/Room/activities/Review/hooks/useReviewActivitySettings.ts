@@ -1,9 +1,9 @@
 'use client';
 
 import { useUpdateableSearchParams } from '@app/hooks/useSearchParams';
-import { AichessActivitySettings } from '../activitySettings';
+import { ReviewActivitySettings } from '../activitySettings';
 
-export const useAichessActivitySettings = (): AichessActivitySettings => {
+export const useReviewActivitySettings = (): ReviewActivitySettings => {
   const updateableSearchParams = useUpdateableSearchParams();
   const isInstructor = updateableSearchParams.get('instructor') === '1';
 

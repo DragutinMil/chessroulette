@@ -83,7 +83,7 @@ export const AichessActivity = ({
     };
   }, []);
   useEffect(() => {
-    // console.log('currentChapter', currentChapter);
+    console.log('lisica');
 
     if (newReview === false && currentChapter.chessAiMode.mode == 'review') {
       return;
