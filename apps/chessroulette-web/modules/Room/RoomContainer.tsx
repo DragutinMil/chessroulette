@@ -25,6 +25,7 @@ import { LearnActivity } from './activities/Learn';
 import { LearnAiActivity } from './activities/LearnAi/LearnAiActivity';
 
 import { AichessActivity } from './activities/Aichess/AichessActivity';
+import { PuzzleActivity } from './activities/Puzzle/PuzzleActivity';
 
 import { MeetupActivity } from './activities/Meetup/MeetupActivity';
 import { MatchActivity } from './activities/Match/MatchActivity';
@@ -178,7 +179,9 @@ export const RoomContainer = ({ iceServers, rid, activity }: Props) => {
         const currentActivity = movexResource?.state?.activity?.activityType;
         const shouldShowNotification =
           // currentActivity === 'match' ||
-          currentActivity === 'aichess' || currentActivity === 'ailearn';
+          currentActivity === 'aichess' ||
+          currentActivity === 'ailearn' ||
+          currentActivity === 'puzzle';
 
         if (shouldShowNotification && challengeAcceptedData.from_user_object) {
           setChallengeAcceptedNotification(challengeAcceptedData);
@@ -256,6 +259,15 @@ export const RoomContainer = ({ iceServers, rid, activity }: Props) => {
     if (activity.activityType === 'ailearn') {
       return (
         <LearnAiActivity
+          {...commonActivityProps}
+          remoteState={activity.activityState}
+          dispatch={movexResource?.dispatch}
+        />
+      );
+    }
+    if (activity.activityType === 'puzzle') {
+      return (
+        <PuzzleActivity
           {...commonActivityProps}
           remoteState={activity.activityState}
           dispatch={movexResource?.dispatch}

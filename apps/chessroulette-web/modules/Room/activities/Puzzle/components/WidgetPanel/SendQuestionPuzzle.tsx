@@ -49,7 +49,6 @@ export async function SendQuestionPuzzle(
     'Best Move: ' +
     stockfishMovesInfo +
     ' ' +
-    'with' +
     bestMovePiece +
     '\n' +
     'FEN: ' +
