@@ -62,7 +62,6 @@ export const InstructorWidgetPanel = React.forwardRef<TabsRef, Props>(
     },
     tabsRef
   ) => {
-    // const settings = useAichessActivitySettings();
     const widgetPanelTabsNav = useWidgetPanelTabsNavAsSearchParams();
     const updateableSearchParams = useUpdateableSearchParams();
 

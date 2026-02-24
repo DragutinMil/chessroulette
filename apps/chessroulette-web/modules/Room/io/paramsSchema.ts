@@ -36,7 +36,10 @@ export const puzzleActivityParamsSchema = z.object({
   activity: z.literal('puzzle'), // This will be more in the future like play or others
   instructor: truthyParam.optional(),
 });
-
+export const reviewActivityParamsSchema = z.object({
+  activity: z.literal('review'), // This will be more in the future like play or others
+  instructor: truthyParam.optional(),
+});
 export type LearnActivityParamsSchema = z.TypeOf<
   typeof learnActivityParamsSchema
 >;
@@ -54,6 +57,7 @@ export const activityParamsSchema = z
     aichessActivityParamsSchema,
     learnAiActivityParamsSchema,
     puzzleActivityParamsSchema,
+    reviewActivityParamsSchema,
   ])
   .and(generalActivityParamsSchema);
 

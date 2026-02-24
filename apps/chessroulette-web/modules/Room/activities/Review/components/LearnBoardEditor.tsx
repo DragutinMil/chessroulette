@@ -1,7 +1,7 @@
 import { BoardEditor, BoardEditorProps } from '@app/components/BoardEditor';
 import { ChapterBoardState } from '../movex';
 
-export type AichessBoardEditorProps = {
+export type ReviewBoardEditorProps = {
   boardSizePx: number;
   state: ChapterBoardState;
   boardOrientation?: BoardEditorProps['boardOrientation'];
@@ -20,12 +20,12 @@ export type AichessBoardEditorProps = {
 >;
 
 // @deprecate a not used anymore in favor of InstructorBoard direct usage
-export const AichessBoardEditor = ({
+export const ReviewBoardEditor = ({
   state: { displayFen, orientation, arrowsMap, circlesMap },
   boardOrientation,
   boardSizePx,
   ...boardProps
-}: AichessBoardEditorProps) => (
+}: ReviewBoardEditorProps) => (
   <BoardEditor
     fen={displayFen}
     sizePx={boardSizePx}

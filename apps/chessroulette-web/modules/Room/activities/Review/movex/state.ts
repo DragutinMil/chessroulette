@@ -1,5 +1,5 @@
 import { ChessFENBoard, FreeBoardHistory, ChessPGN } from '@xmatter/util-kit';
-import type { Chapter, ChapterState, AichessActivityState } from './types';
+import type { Chapter, ChapterState, ReviewActivityState } from './types';
 //import { number } from 'zod';
 
 export const initialChapterState: ChapterState = {
@@ -47,7 +47,7 @@ export const initialDefaultChapter: Chapter = {
   id: '0',
 };
 
-export const initialAichessStateActivityState: AichessActivityState['activityState'] =
+export const initialReviewStateActivityState: ReviewActivityState['activityState'] =
   {
     chaptersMap: {
       [initialDefaultChapter.id]: initialDefaultChapter,
@@ -56,7 +56,7 @@ export const initialAichessStateActivityState: AichessActivityState['activitySta
     chaptersIndex: 1,
   };
 
-export const initialAichessActivityState: AichessActivityState = {
-  activityType: 'aichess',
-  activityState: initialAichessStateActivityState,
+export const initialReviewActivityState: ReviewActivityState = {
+  activityType: 'review',
+  activityState: initialReviewStateActivityState,
 };

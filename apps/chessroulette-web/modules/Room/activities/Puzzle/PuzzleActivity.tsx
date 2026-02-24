@@ -18,7 +18,6 @@ import {
   MovePiece,
 } from './movex';
 
-import { getMatch } from './util';
 import { WidgetPanel } from './components/WidgetPanel';
 import { PuzzleBoard } from './components/PuzzleBoard';
 import { RIGHT_SIDE_SIZE_PX } from '../../constants';
@@ -64,12 +63,6 @@ export const PuzzleActivity = ({
     initialInputState
   );
 
-  const gameReview = (payload: chessAiMode) => {
-    dispatch({
-      type: 'loadedChapter:setPuzzleMoves',
-      payload: payload as chessAiMode,
-    });
-  };
   const currentChapter =
     findLoadedChapter(remoteState) || initialDefaultChapter;
 
@@ -82,78 +75,7 @@ export const PuzzleActivity = ({
       socketUtil.disconnect();
     };
   }, []);
-  useEffect(() => {
-    // console.log('currentChapter', currentChapter);
 
-    if (newReview === false && currentChapter.chessAiMode.mode == 'review') {
-      return;
-    }
-    const hasBranches = JSON.stringify(
-      currentChapter.notation.history
-    ).includes('branchedHistories');
-    const hasIlegalMoves = JSON.stringify(
-      currentChapter.notation.history
-    ).includes('isNonMove');
-    if (
-      !hasBranches &&
-      !hasIlegalMoves &&
-      currentChapter.displayFen !==
-        'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
-    ) {
-      return;
-    }
-    //console.log('setNewReview2',newReview)
-    const url = new URL(window.location.href);
-    const rawPgn = url.searchParams.get('pgn');
-    const userId = url.searchParams.get('userId');
-
-    if (rawPgn) {
-      const getMatchInfo = async () => {
-        const data = await getMatch(rawPgn);
-        const lastGame = data.results.endedGames.length - 1;
-        if (data) {
-          const pgn = data.results.endedGames[lastGame].pgn;
-          const white = data.results.endedGames[lastGame].players.w == userId;
-          const black = data.results.endedGames[lastGame].players.b == userId;
-
-          const whitePlayerName =
-            data.results.endedGames[lastGame].players.w == data.initiator_id
-              ? data.initiator_name_first
-              : data.target_name_first;
-          const blackPlayerName =
-            data.results.endedGames[lastGame].players.b == data.initiator_id
-              ? data.initiator_name_first
-              : data.target_name_first;
-
-          setPlayerNames([whitePlayerName, blackPlayerName]);
-          const changeOrientation =
-            (currentChapter.orientation === 'b' && black) ||
-            (currentChapter.orientation === 'w' && white);
-
-          gameReview({
-            moves: [],
-            movesCount: 0,
-            badMoves: 0,
-            goodMoves: 0,
-            orientationChange: changeOrientation,
-            mode: 'review',
-            ratingChange: 0,
-            puzzleRatting: 0,
-            userPuzzleRating: 0,
-            puzzleId: 0,
-            prevUserPuzzleRating: 0,
-            fen: pgn,
-            responseId: '',
-            message: '',
-          });
-          setNewReview(false);
-        }
-      };
-      getMatchInfo();
-    }
-
-    getUserData();
-  }, [newReview == true]);
   const historyBackToStart = async () => {
     setNewReview(true);
   };

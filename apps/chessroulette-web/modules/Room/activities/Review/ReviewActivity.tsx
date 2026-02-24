@@ -5,13 +5,13 @@ import { PanelResizeHandle } from 'react-resizable-panels';
 import movexConfig from '@app/movex.config';
 import { TabsRef } from '@app/components/Tabs';
 import { ResizableDesktopLayout } from '@app/templates/ResizableDesktopLayout';
-import { useAichessActivitySettings } from './hooks/useAichessActivitySettings';
+import { useReviewActivitySettings } from './hooks/useReviewActivitySettings';
 import { getSubscribeInfo } from './util';
-import { AiChessDialogContainer } from './DialogContainer/AiChessDialogContainer';
+import { ReviewDialogContainer } from './DialogContainer/ReviewDialogContainer';
 import { enqueueMovexUpdate } from './util';
-import PuzzleScore from './components/WidgetPanel/PuzzleScore';
+
 import {
-  AichessActivityState,
+  ReviewActivityState,
   findLoadedChapter,
   initialDefaultChapter,
   chessAiMode,
@@ -20,7 +20,7 @@ import {
 
 import { getMatch } from './util';
 import { WidgetPanel } from './components/WidgetPanel';
-import { AichessBoard } from './components/AichessBoard';
+import { ReviewBoard } from './components/ReviewBoard';
 import { RIGHT_SIDE_SIZE_PX } from '../../constants';
 import inputReducer, { initialInputState } from './reducers/inputReducer';
 import socketUtil from '../../../../socketUtil';
@@ -30,14 +30,14 @@ import { Square } from 'chess.js';
 import { boolean, number } from 'zod';
 
 type Props = {
-  remoteState: AichessActivityState['activityState'];
+  remoteState: ReviewActivityState['activityState'];
   dispatch?: MovexBoundResourceFromConfig<
     (typeof movexConfig)['resources'],
     'room'
   >['dispatch'];
 };
 
-export const AichessActivity = ({
+export const ReviewActivity = ({
   remoteState,
   dispatch: optionalDispatch,
 }: Props) => {
@@ -47,7 +47,6 @@ export const AichessActivity = ({
   const [newReview, setNewReview] = useState(true);
   const [playerNames, setPlayerNames] = useState(Array<string>);
   const [canFreePlay, setCanFreePlay] = useState(false);
-  const [puzzleCounter, setPuzzleCounter] = useState(0);
   const [userData, setUserData] = useState({
     name_first: '',
     name_last: '',
@@ -58,7 +57,7 @@ export const AichessActivity = ({
     puz_rating: '',
   });
   // const [onChangePuzzleAnimation, setChangePuzzleAnimation] = useState(false);
-  const settings = useAichessActivitySettings();
+  const settings = useReviewActivitySettings();
   const [inputState, dispatchInputState] = useReducer(
     inputReducer,
     initialInputState
@@ -66,7 +65,7 @@ export const AichessActivity = ({
 
   const gameReview = (payload: chessAiMode) => {
     dispatch({
-      type: 'loadedChapter:setPuzzleMoves',
+      type: 'loadedChapter:setReview',
       payload: payload as chessAiMode,
     });
   };
@@ -110,6 +109,7 @@ export const AichessActivity = ({
     if (rawPgn) {
       const getMatchInfo = async () => {
         const data = await getMatch(rawPgn);
+
         const lastGame = data.results.endedGames.length - 1;
         if (data) {
           const pgn = data.results.endedGames[lastGame].pgn;
@@ -172,9 +172,6 @@ export const AichessActivity = ({
   const onCanPlayChange = (canPlay: boolean) => {
     setCanFreePlay(canPlay);
   };
-  const handlePuzzleRequest = () => {
-    setPuzzleCounter(puzzleCounter + 1);
-  };
 
   return (
     <ResizableDesktopLayout
@@ -184,89 +181,11 @@ export const AichessActivity = ({
           {settings.isInstructor && inputState.isActive ? (
             ''
           ) : (
-            // <InstructorBoard
-            //   fen={inputState.chapterState.displayFen}
-            //   boardOrientation={swapColor(inputState.chapterState.orientation)}
-            //   boardSizePx={boardSize}
-            //   onArrowsChange={(arrowsMap) => {
-            //     dispatchInputState({
-            //       type: 'updatePartialChapter',
-            //       payload: { arrowsMap },
-            //     });
-            //   }}
-            //   onCircleDraw={(payload) => {
-            //     dispatchInputState({
-            //       type: 'drawCircle',
-            //       payload,
-            //     });
-            //   }}
-            //   onClearCircles={() => {
-            //     dispatchInputState({ type: 'clearCircles' });
-            //   }}
-            //   onFlipBoard={() => {
-            //     dispatchInputState({
-            //       type: 'updatePartialChapter',
-            //       payload: {
-            //         orientation: swapColor(inputState.chapterState.orientation),
-            //       },
-            //     });
-            //   }}
-            //   onUpdateFen={(fen) => {
-            //     dispatchInputState({
-            //       type: 'updateChapterFen',
-            //       payload: { fen },
-            //     });
-            //   }}
-            //   onToggleBoardEditor={() => {
-            //     dispatchInputState({
-            //       type: 'update',
-            //       payload: { isBoardEditorShown: false },
-            //     });
-            //   }}
-            //   onMove={noop}
-            // />
-            //  Learn Mode */}
-
             <div>
-              <AiChessDialogContainer
-                onMessage={async (payload) =>
-                  await enqueueMovexUpdate(() =>
-                    dispatch({
-                      type: 'loadedChapter:writeMessage',
-                      payload: payload,
-                    })
-                  )
-                }
-                onPuzzleMove={async (payload) => {
-                  moveSound.play();
-                  await enqueueMovexUpdate(() =>
-                    dispatch({ type: 'loadedChapter:addPuzzleMove', payload })
-                  );
-                }}
-                addChessAi={async (payload: chessAiMode) =>
-                  await enqueueMovexUpdate(() =>
-                    dispatch({
-                      type: 'loadedChapter:setPuzzleMoves',
-                      payload: payload as chessAiMode,
-                    })
-                  )
-                }
-                newPuzzleRequest={handlePuzzleRequest}
-                canFreePlay={canFreePlay}
-                currentChapter={currentChapter}
-              />
+              <ReviewDialogContainer currentChapter={currentChapter} />
               <div>
-                {currentChapter.chessAiMode.mode !== 'review' && (
-                  <div className="block md:hidden mb-2 -mt-2">
-                    <PuzzleScore
-                      chessAiMode={currentChapter.chessAiMode}
-                      puzzle_rating={userData.puz_rating}
-                    />
-                  </div>
-                )}
-                <AichessBoard
+                <ReviewBoard
                   sizePx={boardSize}
-                  // onChangePuzzleAnimation={onChangePuzzleAnimation}
                   {...currentChapter}
                   orientation={
                     // The instructor gets the opposite side as the student (so they can play together)
@@ -283,14 +202,7 @@ export const AichessActivity = ({
                   onMove={async (payload) => {
                     moveSound.play();
 
-                    if (currentChapter.chessAiMode.mode === 'puzzle') {
-                      await enqueueMovexUpdate(() =>
-                        dispatch({
-                          type: 'loadedChapter:addPuzzleMove',
-                          payload,
-                        })
-                      );
-                    } else if (currentChapter.chessAiMode.mode === 'review') {
+                    if (currentChapter.chessAiMode.mode === 'review') {
                       await enqueueMovexUpdate(() =>
                         dispatch({ type: 'loadedChapter:addMove', payload })
                       );
@@ -413,7 +325,7 @@ export const AichessActivity = ({
             addChessAi={async (payload: chessAiMode) =>
               await enqueueMovexUpdate(() =>
                 dispatch({
-                  type: 'loadedChapter:setPuzzleMoves',
+                  type: 'loadedChapter:setReview',
                   payload: payload as chessAiMode,
                 })
               )
@@ -437,7 +349,6 @@ export const AichessActivity = ({
                 dispatch({ type: 'loadedChapter:writeMessage', payload })
               )
             }
-            puzzleCounter={puzzleCounter}
             onCanPlayChange={(payload) => onCanPlayChange(payload)}
             historyBackToStart={historyBackToStart}
             userData={userData}

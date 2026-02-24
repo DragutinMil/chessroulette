@@ -61,7 +61,7 @@ export default (
   prev: InputState = initialInputState,
   action: InputAction
 ): InputState => {
-  console.log('action aichess', action);
+  console.log('action Review', action);
 
   if (action.type === 'activate') {
     return {
