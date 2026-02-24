@@ -3,6 +3,8 @@
 import { useUpdateableSearchParams } from '@app/hooks/useSearchParams';
 import { useLearnActivitySettings } from '../activities/Learn';
 import { useAichessActivitySettings } from '../activities/Aichess';
+import { usePuzzleActivitySettings } from '../activities/Puzzle';
+
 import { useLearnAiActivitySettings } from '../activities/LearnAi';
 import { ActivityState } from '../activities/movex';
 import { invoke } from '@xmatter/util-kit';
@@ -27,6 +29,7 @@ export const useRoomSettings = (
   const meetupActivitySettings = useMeetupActivitySettings();
   const aichessActivitySettings = useAichessActivitySettings();
   const learnAiActivitySettings = useLearnAiActivitySettings();
+  const puzzleActivitySettings = usePuzzleActivitySettings();
 
   const joinRoomLinkProps = invoke((): JoinAichessRoomLinkProps => {
     if (activity === 'learn') {
@@ -37,6 +40,9 @@ export const useRoomSettings = (
     }
     if (activity === 'ailearn') {
       return learnAiActivitySettings;
+    }
+    if (activity === 'puzzle') {
+      return puzzleActivitySettings;
     }
 
     if (activity === 'meetup') {
