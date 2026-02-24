@@ -13,8 +13,8 @@ export type FreeBoardNotationProps = {
   className?: string;
   containerClassName?: string;
   canDelete?: boolean;
-   isAichess?:boolean;
-  playersBySide?:any;
+  isAichess?: boolean;
+  playersBySide?: any;
   reviewData?: EvaluationMove[];
   playerNames?: Array<string>;
   isMobile?: boolean;

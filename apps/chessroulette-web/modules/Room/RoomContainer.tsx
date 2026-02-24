@@ -25,7 +25,8 @@ import { LearnActivity } from './activities/Learn';
 import { LearnAiActivity } from './activities/LearnAi/LearnAiActivity';
 
 import { AichessActivity } from './activities/Aichess/AichessActivity';
-
+import { PuzzleActivity } from './activities/Puzzle/PuzzleActivity';
+import { ReviewActivity } from './activities/Review/ReviewActivity';
 import { MeetupActivity } from './activities/Meetup/MeetupActivity';
 import { MatchActivity } from './activities/Match/MatchActivity';
 import { useSearchParams } from 'next/navigation';
@@ -178,7 +179,10 @@ export const RoomContainer = ({ iceServers, rid, activity }: Props) => {
         const currentActivity = movexResource?.state?.activity?.activityType;
         const shouldShowNotification =
           // currentActivity === 'match' ||
-          currentActivity === 'aichess' || currentActivity === 'ailearn';
+          currentActivity === 'aichess' ||
+          currentActivity === 'ailearn' ||
+          currentActivity === 'review' ||
+          currentActivity === 'puzzle';
 
         if (shouldShowNotification && challengeAcceptedData.from_user_object) {
           setChallengeAcceptedNotification(challengeAcceptedData);
@@ -262,9 +266,27 @@ export const RoomContainer = ({ iceServers, rid, activity }: Props) => {
         />
       );
     }
+    if (activity.activityType === 'puzzle') {
+      return (
+        <PuzzleActivity
+          {...commonActivityProps}
+          remoteState={activity.activityState}
+          dispatch={movexResource?.dispatch}
+        />
+      );
+    }
     if (activity.activityType === 'aichess') {
       return (
         <AichessActivity
+          {...commonActivityProps}
+          remoteState={activity.activityState}
+          dispatch={movexResource?.dispatch}
+        />
+      );
+    }
+    if (activity.activityType === 'review') {
+      return (
+        <ReviewActivity
           {...commonActivityProps}
           remoteState={activity.activityState}
           dispatch={movexResource?.dispatch}
@@ -327,6 +349,7 @@ export const RoomContainer = ({ iceServers, rid, activity }: Props) => {
         {/* Dodajte ChallengeAcceptedNotification za match, aichess, i ailearn */}
         {(activity === 'match' ||
           activity === 'aichess' ||
+          activity === 'review' ||
           activity === 'ailearn') && (
           <ChallengeAcceptedNotification
             challenge={challengeAcceptedNotification}

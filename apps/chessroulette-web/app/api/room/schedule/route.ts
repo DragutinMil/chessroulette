@@ -119,6 +119,70 @@ export function GET(request: NextRequest) {
       ],
     });
   }
+  if (activityParams.activity === 'review') {
+    const instructor = links.getOnDemandRoomCreationLink(
+      {
+        ...objectOmit(activityParams, ['client']),
+        id: roomId,
+        instructor: true,
+      },
+      request.nextUrl
+    );
+
+    const student = links.getOnDemandRoomCreationLink(
+      {
+        ...objectOmit(activityParams, ['client']),
+        id: roomId,
+        instructor: false,
+      },
+      request.nextUrl
+    );
+
+    return NextResponse.json({
+      links: [
+        {
+          userRole: 'instructor',
+          url: instructor,
+        },
+        {
+          userRole: 'student',
+          url: student,
+        },
+      ],
+    });
+  }
+  if (activityParams.activity === 'puzzle') {
+    const instructor = links.getOnDemandRoomCreationLink(
+      {
+        ...objectOmit(activityParams, ['client']),
+        id: roomId,
+        instructor: true,
+      },
+      request.nextUrl
+    );
+
+    const student = links.getOnDemandRoomCreationLink(
+      {
+        ...objectOmit(activityParams, ['client']),
+        id: roomId,
+        instructor: false,
+      },
+      request.nextUrl
+    );
+
+    return NextResponse.json({
+      links: [
+        {
+          userRole: 'instructor',
+          url: instructor,
+        },
+        {
+          userRole: 'student',
+          url: student,
+        },
+      ],
+    });
+  }
 
   if (activityParams.activity === 'meetup') {
     return NextResponse.json({

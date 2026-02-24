@@ -201,6 +201,7 @@ export async function getPuzzle(category?: string) {
   }
 }
 export async function getMatch(matchId: string) {
+  console.log('aichessica');
   try {
     const response = await fetch(
       process.env.NEXT_PUBLIC_API_WEB +

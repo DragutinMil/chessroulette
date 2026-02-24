@@ -83,7 +83,7 @@ export const AichessActivity = ({
     };
   }, []);
   useEffect(() => {
-    // console.log('currentChapter', currentChapter);
+    console.log('lisica');
 
     if (newReview === false && currentChapter.chessAiMode.mode == 'review') {
       return;
@@ -124,7 +124,7 @@ export const AichessActivity = ({
             data.results.endedGames[lastGame].players.b == data.initiator_id
               ? data.initiator_name_first
               : data.target_name_first;
-         
+
           setPlayerNames([whitePlayerName, blackPlayerName]);
           const changeOrientation =
             (currentChapter.orientation === 'b' && black) ||
