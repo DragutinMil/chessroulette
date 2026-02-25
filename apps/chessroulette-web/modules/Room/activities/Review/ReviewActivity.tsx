@@ -73,14 +73,14 @@ export const ReviewActivity = ({
     findLoadedChapter(remoteState) || initialDefaultChapter;
 
   const tabsRef = useRef<TabsRef>(null);
-  useEffect(() => {
-    socketUtil.connect('reviewing');
-    localStorage.setItem('socket', 'reviewing');
+  // useEffect(() => {
+  //   socketUtil.connect('reviewing');
+  //   localStorage.setItem('socket', 'reviewing');
 
-    return () => {
-      socketUtil.disconnect();
-    };
-  }, []);
+  //   return () => {
+  //     socketUtil.disconnect();
+  //   };
+  // }, []);
   useEffect(() => {
     // console.log('currentChapter', currentChapter);
 
