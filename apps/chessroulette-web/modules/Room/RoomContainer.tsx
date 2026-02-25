@@ -12,6 +12,7 @@ import {
   useMovexClient,
 } from 'movex-react';
 import movexConfig from '@app/movex.config';
+
 import {
   IceServerRecord,
   PeerUsersMap,
@@ -148,14 +149,27 @@ export const RoomContainer = ({ iceServers, rid, activity }: Props) => {
       // }
     };
 
-    // Pretplati se na notifikacije
-    // console.log('📡 Subscribing to tb_notification...');
-    socketUtil.subscribe('tb_notification', handleChallengeNotification);
+    const Socketinitiation = async () => {
+      if (window.location.href.includes('review')) {
+        await socketUtil.connect('reviewing');
+      } else if (window.location.href.includes('puzzle')) {
+        await socketUtil.connect('puzzle');
+      } else if (window.location.href.includes('match')) {
+        await socketUtil.connect('playing');
+      }
+
+      setTimeout(() => {
+        socketUtil.subscribe('tb_notification', handleChallengeNotification);
+      }, 5000);
+    };
+
+    Socketinitiation();
 
     // Cleanup
     return () => {
       // console.log('🧹 Cleaning up socket subscription...');
       socketUtil.unsubscribe('tb_notification', handleChallengeNotification);
+      socketUtil.disconnect();
     };
   }, []);
 
@@ -190,7 +204,9 @@ export const RoomContainer = ({ iceServers, rid, activity }: Props) => {
       }
     };
 
-    socketUtil.subscribe('tb_notification', handleChallengeAccepted);
+    setTimeout(() => {
+      socketUtil.subscribe('tb_notification', handleChallengeAccepted);
+    }, 5000);
 
     return () => {
       socketUtil.unsubscribe('tb_notification', handleChallengeAccepted);
