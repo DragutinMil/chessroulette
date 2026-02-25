@@ -55,7 +55,7 @@ function buildArrowsFromUciMoves(
   hexColor: string = '#f2358d'
 ): ArrowsMap {
   const map: ArrowsMap = {} as ArrowsMap;
-  uciMoves.slice(0, 1).forEach((uci) => {
+  uciMoves.slice(0, 3).forEach((uci) => {
     if (uci.length >= 4) {
       const from = uci.slice(0, 2) as Square;
       const to = uci.slice(2, 4) as Square;
@@ -168,6 +168,7 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
       uciMoves: string[];
     } | null>(null);
     
+    const [suggestedOffset, setSuggestedOffset] = useState(0);
     const [suggestedMoves, setSuggestedMoves] = useState<Array<{ uci: string; san: string }> | null>(null);
     const [suggestedMainMoveUci, setSuggestedMainMoveUci] = useState<string | null>(null);
     const widgetPanelTabsNav = useWidgetPanelTabsNavAsSearchParams();
@@ -425,6 +426,8 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
       [fetchWikiContent]
     );
 
+    const [visibleSuggestedCount, setVisibleSuggestedCount] = useState(3);
+
     useEffect(() => {
       if (currentChapterState.aiLearn.mode !== 'opening') return;
       const fen = currentChapterState.displayFen;
@@ -433,13 +436,13 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
 
       setSuggestedMoves(null);
 
-      getLichessTopMoves(fen, 3).then((moves) => {
+      getLichessTopMoves(fen, 9).then((moves) => {
         console.log('lichess moves', moves);
         if (moves.length > 0) {
           setSuggestedMoves(moves);
           setSuggestedMainMoveUci(moves[0].uci);
-          onArrowsChange(buildArrowsFromUciMoves([moves[0].uci], LICHESS_PINK));
-        } else {
+          const firstThree = moves.slice(0, 3);
+          onArrowsChange(buildArrowsFromUciMoves(firstThree.map((m) => m.uci), LICHESS_PINK));        } else {
           setSuggestedMainMoveUci(null);
           onArrowsChange({} as ArrowsMap);
         }
@@ -449,6 +452,18 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
       currentChapterState.notation.history,
       currentChapterState.aiLearn.mode,
     ]);
+
+    useEffect(() => {
+      if (currentChapterState.aiLearn.mode !== 'opening' || !suggestedMoves?.length) return;
+      const LICHESS_PINK = '#f2358d';
+      const start = suggestedOffset * 3;
+      const page = suggestedMoves.slice(start, start + 3);
+      onArrowsChange(buildArrowsFromUciMoves(page.map((m) => m.uci), LICHESS_PINK));
+    }, [suggestedMoves, suggestedOffset, currentChapterState.aiLearn.mode, onArrowsChange]);
+
+    const handleOtherSuggested = useCallback(() => {
+      setSuggestedOffset((prev) => Math.min(prev + 1, Math.ceil((suggestedMoves?.length ?? 0) / 3) - 1));
+    }, [suggestedMoves?.length]);
 
     // Effect to follow the board (PGN/History)
     useEffect(() => {
@@ -813,6 +828,7 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
                         onHistoryNotationRefocus={onHistoryNotationRefocus}
                         notationHistoryLength={currentChapterState.notation?.history?.length ?? 0 }
                         suggestedMoves={suggestedMoves}
+                        onOtherSuggested={handleOtherSuggested}
                         onSuggestedMove={handleSuggestedMove}
                       />
 

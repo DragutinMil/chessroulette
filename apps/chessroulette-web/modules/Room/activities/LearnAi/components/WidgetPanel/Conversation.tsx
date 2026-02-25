@@ -28,6 +28,8 @@ type Props = {
   notationHistoryLength?: number;
   suggestedMoves?: Array<{ uci: string; san: string }> | null;
   onSuggestedMove?: (uci: string) => void;
+  visibleSuggestedRows?: number;
+  onOtherSuggested?: () => void;
 };
 //console.log('currentChapterState',currentChapterState)
 
@@ -51,6 +53,8 @@ const Conversation = ({
   notationHistoryLength = 0,
   suggestedMoves,
   onSuggestedMove,
+  visibleSuggestedRows = 1,
+  onOtherSuggested,
 }: Props) => {
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -251,34 +255,47 @@ const Conversation = ({
         );
       })}
 
-
 {suggestedMoves && suggestedMoves.length > 0 && (
-        <div className="mb-1 pt-1 text-[15px] md:pt-2 md:mb-2">
-          <div className="flex min-w-0">
-            <div>
-              <Image
-                src={greenLogo}
-                alt="outpost"
-                className="max-w-[28px] md:max-w-[36px]"
-              />
+  <div className="mb-1 pt-1 text-[15px] md:pt-2 md:mb-2">
+    <div className="flex min-w-0">
+      <div>
+        <Image
+          src={greenLogo}
+          alt="outpost"
+          className="max-w-[28px] md:max-w-[36px]"
+        />
+      </div>
+      <div className="text-white text-sm px-4 flex-1 min-w-0 max-w-md break-words overflow-hidden">
+        <p className="text-slate-200 mb-2">Odaberi dalji nastavak:</p>
+        <div className="flex flex-col gap-2 mt-2">
+          {Array.from({ length: visibleSuggestedRows }, (_, row) => (
+            <div key={row} className="flex flex-wrap gap-2">
+              {suggestedMoves.slice(row * 3, row * 3 + 3).map((m) => (
+                <ButtonGreen
+                  key={m.uci}
+                  onClick={() => onSuggestedMove?.(m.uci)}
+                  size="md"
+                  className="font-bold font-mono px-3"
+                >
+                  {m.san}
+                </ButtonGreen>
+              ))}
             </div>
-            <div className="text-white text-sm px-4 flex-1 min-w-0 max-w-md break-words overflow-hidden">
-            <p className="text-slate-200 mb-2">Odaberi dalji nastavak:</p>              <div className="flex flex-wrap gap-2 mt-2">
-                {suggestedMoves.slice(0, 3).map((m) => (
-                  <ButtonGreen
-                    key={m.uci}
-                    onClick={() => onSuggestedMove?.(m.uci)}
-                    size="md"
-                    className="font-bold font-mono px-3"
-                  >
-                    {m.san}
-                  </ButtonGreen>
-                ))}
-              </div>
-            </div>
-          </div>
+          ))}
+          {visibleSuggestedRows * 3 < suggestedMoves.length && (
+            <ButtonGreen
+              onClick={onOtherSuggested}
+              size="md"
+              className="font-bold px-3"
+            >
+              Other
+            </ButtonGreen>
+          )}
         </div>
-      )}
+      </div>
+    </div>
+  </div>
+)}
 
     </div>
   );
