@@ -107,23 +107,23 @@ const MatchContainerInner = ({
   // const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
   // Resize i socket connection
-  useEffect(() => {
-    // const handleResize = () => setIsMobile(window.innerWidth <= 768);
-    //  window.addEventListener('resize', handleResize);
-    if (match.challengee.id.length !== 16) {
-      localStorage.setItem('socket', 'playing');
-      socketUtil.connect('playing');
-    } else {
-      localStorage.setItem('socket', 'available');
+  // useEffect(() => {
+  //   // const handleResize = () => setIsMobile(window.innerWidth <= 768);
+  //   //  window.addEventListener('resize', handleResize);
 
-      socketUtil.connect('available');
-    }
+  //   if (match.challengee.id.length == 16 || match.challenger.id.length == 16) {
+  //      localStorage.setItem('socket', 'bot');
+  //      socketUtil.connect('bot');
+  //   } else {
+  //      localStorage.setItem('socket', 'playing');
+  //      socketUtil.connect('playing');
+  //   }
 
-    return () => {
-      // window.removeEventListener('resize', handleResize);
-      socketUtil.disconnect();
-    };
-  }, [match.challengee.id]);
+  //   return () => {
+  //     // window.removeEventListener('resize', handleResize);
+  //     socketUtil.disconnect();
+  //   };
+  // }, []);
 
   const playerNames = playersBySide
     ? {

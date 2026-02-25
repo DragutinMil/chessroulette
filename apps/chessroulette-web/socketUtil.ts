@@ -5,7 +5,9 @@ export const socketUtil = {
   socket: null as Socket | null,
   subscribers: {} as Record<string, Array<(data: any) => void>>,
 
-  connect: async (type: 'available' | 'playing' | 'watching' | 'reviewing') => {
+  connect: async (
+    type: 'puzzle' | 'playing' | 'watching' | 'reviewing' | 'bot' | 'learn'
+  ) => {
     try {
       // Prvo pokušaj da uzmeš token iz cookie (mobile app)
       let token = Cookies.get('token');
@@ -23,7 +25,9 @@ export const socketUtil = {
 
           socketUtil.socket.on('connect', () => {
             socketUtil.socket?.emit('client_token', token);
-            socketUtil.socket?.emit('users_online_status', type);
+            setTimeout(() => {
+              socketUtil.socket?.emit('users_online_status', type);
+            }, 5000);
           });
 
           socketUtil.socket.on('connect_error', (error) => {
@@ -91,10 +95,12 @@ export const socketUtil = {
       // Možete koristiti postojeći status ili dodati novi
 
       const socketType = localStorage.getItem('socket') as
-        | 'available'
+        | 'puzzle'
         | 'playing'
         | 'watching'
-        | 'reviewing';
+        | 'reviewing'
+        | 'bot'
+        | 'learn';
       await socketUtil.connect(socketType);
     }
 
