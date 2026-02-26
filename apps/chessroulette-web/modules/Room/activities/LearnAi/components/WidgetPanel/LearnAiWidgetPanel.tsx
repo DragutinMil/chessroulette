@@ -50,21 +50,27 @@ import { getOpenings, analyzeMovesPGN,
   buildPgnFromMessageContent, getOpeningByUserInput, 
   getOpeningFromAiByName, extractOpeningNameFromPhrase } from '../../util';
 
-function buildArrowsFromUciMoves(
-  uciMoves: string[],
-  hexColor: string = '#f2358d'
-): ArrowsMap {
-  const map: ArrowsMap = {} as ArrowsMap;
-  uciMoves.slice(0, 3).forEach((uci) => {
-    if (uci.length >= 4) {
-      const from = uci.slice(0, 2) as Square;
-      const to = uci.slice(2, 4) as Square;
-      const id = `${from}${to}` as keyof ArrowsMap;
-      map[id] = [from, to, hexColor];
-    }
-  });
-  return map;
-}
+  const SUGGESTED_ARROW_DIM = 'rgba(242, 53, 141, 0.28)';
+
+  function buildArrowsFromUciMoves(
+    uciMoves: string[],
+    hexColor: string = '#f2358d',
+    options?: { highlightUci?: string | null; dimColor?: string }
+  ): ArrowsMap {
+    const map: ArrowsMap = {} as ArrowsMap;
+    const dimColor = options?.dimColor ?? SUGGESTED_ARROW_DIM;
+    const highlightUci = options?.highlightUci ?? null;
+    uciMoves.forEach((uci) => {
+      if (uci.length >= 4) {
+        const from = uci.slice(0, 2) as Square;
+        const to = uci.slice(2, 4) as Square;
+        const id = `${from}${to}` as keyof ArrowsMap;
+        const color = highlightUci == null || uci === highlightUci ? hexColor : dimColor;
+        map[id] = [from, to, color];
+      }
+    });
+    return map;
+  }
 
 function buildArrowsFromFen(fen: string, count: number = 3): ArrowsMap {
   const map: ArrowsMap = {} as ArrowsMap;
@@ -168,8 +174,8 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
       uciMoves: string[];
     } | null>(null);
     
-    const [suggestedOffset, setSuggestedOffset] = useState(0);
     const [suggestedMoves, setSuggestedMoves] = useState<Array<{ uci: string; san: string }> | null>(null);
+    const [hoveredSuggestedUci, setHoveredSuggestedUci] = useState<string | null>(null);
     const [suggestedMainMoveUci, setSuggestedMainMoveUci] = useState<string | null>(null);
     const widgetPanelTabsNav = useWidgetPanelTabsNavAsSearchParams();
     
@@ -428,6 +434,8 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
 
     const [visibleSuggestedCount, setVisibleSuggestedCount] = useState(3);
 
+    const [visibleSuggestedRows, setVisibleSuggestedRows] = useState(1);
+
     useEffect(() => {
       if (currentChapterState.aiLearn.mode !== 'opening') return;
       const fen = currentChapterState.displayFen;
@@ -435,6 +443,8 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
       console.log('opening effect', currentChapterState.aiLearn.mode, fen);
 
       setSuggestedMoves(null);
+      setHoveredSuggestedUci(null);
+      setVisibleSuggestedRows(1);
 
       getLichessTopMoves(fen, 9).then((moves) => {
         console.log('lichess moves', moves);
@@ -449,22 +459,26 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
       });
     }, [
       currentChapterState.displayFen,
-      currentChapterState.notation.history,
       currentChapterState.aiLearn.mode,
     ]);
 
     useEffect(() => {
       if (currentChapterState.aiLearn.mode !== 'opening' || !suggestedMoves?.length) return;
       const LICHESS_PINK = '#f2358d';
-      const start = suggestedOffset * 3;
-      const page = suggestedMoves.slice(start, start + 3);
-      onArrowsChange(buildArrowsFromUciMoves(page.map((m) => m.uci), LICHESS_PINK));
-    }, [suggestedMoves, suggestedOffset, currentChapterState.aiLearn.mode, onArrowsChange]);
-
+      const visible = suggestedMoves.slice(0, visibleSuggestedRows * 3);
+      onArrowsChange(
+        buildArrowsFromUciMoves(visible.map((m) => m.uci), LICHESS_PINK, {
+          highlightUci: hoveredSuggestedUci,
+          dimColor: SUGGESTED_ARROW_DIM,
+        })
+      );
+    }, [suggestedMoves, visibleSuggestedRows, hoveredSuggestedUci, currentChapterState.aiLearn.mode, onArrowsChange]);
+    
     const handleOtherSuggested = useCallback(() => {
-      setSuggestedOffset((prev) => Math.min(prev + 1, Math.ceil((suggestedMoves?.length ?? 0) / 3) - 1));
+      setVisibleSuggestedRows((prev) =>
+        Math.min(prev + 1, Math.ceil((suggestedMoves?.length ?? 0) / 3))
+      );
     }, [suggestedMoves?.length]);
-
     // Effect to follow the board (PGN/History)
     useEffect(() => {
       if (currentChapterState?.notation?.history) {
@@ -753,9 +767,13 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
       const from = uci.slice(0, 2) as Square;
       const to = uci.slice(2, 4) as Square;
       const promotion = uci.length >= 5 ? (uci[4] as 'q' | 'r' | 'b' | 'n') : undefined;
+      const turn = currentChapterState.displayFen.split(' ')[1] as 'w' | 'b';
+      const promoteTo = promotion
+        ? (turn === 'w' ? (promotion.toUpperCase() as 'Q' | 'R' | 'B' | 'N') : promotion)
+        : undefined;
       setSuggestedMoves(null);
-      onMove(promotion ? { from, to} : { from, to });
-        }, [onMove]);
+      onMove(promoteTo ? { from, to, promoteTo } : { from, to });
+    }, [onMove, currentChapterState.displayFen]);
 
     const handleGameEvaluation = (newScore: number) => {
       setprevScoreCP(scoreCP);
@@ -828,8 +846,10 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
                         onHistoryNotationRefocus={onHistoryNotationRefocus}
                         notationHistoryLength={currentChapterState.notation?.history?.length ?? 0 }
                         suggestedMoves={suggestedMoves}
+                        visibleSuggestedRows={visibleSuggestedRows}
                         onOtherSuggested={handleOtherSuggested}
                         onSuggestedMove={handleSuggestedMove}
+                        onSuggestedMoveHover={setHoveredSuggestedUci}
                       />
 
                       <div className="relative flex flex-shrink-0 md:my-[20px] mt-3 my-[14px]">

@@ -33,6 +33,7 @@ export type Chapter = {
 export type MovePiece = {
   from: Square;
   to: Square;
+  promoteTo?: 'Q' | 'R' | 'B' | 'N' | 'q' | 'r' | 'b' | 'n';
 };
 
 export type aiLearn = {

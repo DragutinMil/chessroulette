@@ -30,6 +30,7 @@ type Props = {
   onSuggestedMove?: (uci: string) => void;
   visibleSuggestedRows?: number;
   onOtherSuggested?: () => void;
+  onSuggestedMoveHover?: (uci: string | null) => void;
 };
 //console.log('currentChapterState',currentChapterState)
 
@@ -55,6 +56,7 @@ const Conversation = ({
   onSuggestedMove,
   visibleSuggestedRows = 1,
   onOtherSuggested,
+  onSuggestedMoveHover,
 }: Props) => {
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -274,6 +276,8 @@ const Conversation = ({
                 <ButtonGreen
                   key={m.uci}
                   onClick={() => onSuggestedMove?.(m.uci)}
+                  onMouseEnter={() => onSuggestedMoveHover?.(m.uci)}
+                  onMouseLeave={() => onSuggestedMoveHover?.(null)}
                   size="md"
                   className="font-bold font-mono px-3"
                 >

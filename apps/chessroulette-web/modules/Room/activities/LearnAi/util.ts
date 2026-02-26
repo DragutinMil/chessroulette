@@ -138,6 +138,16 @@ export type MessageMoveSegment =
       return pgn ? `[Event "?"]\n[Site "?"]\n\n${pgn}` : null;
     }
 
+    function normalizeLichessCastlingUci(uci: string): string {
+      const castlingMap: Record<string, string> = {
+        e1h1: 'e1g1',
+        e1a1: 'e1c1',
+        e8h8: 'e8g8',
+        e8a8: 'e8c8',
+      };
+      return castlingMap[uci] ?? uci;
+    }
+
 /** Parses PGN body (no headers) into a list of SAN moves. */
 function pgnToSanList(pgn: string): string[] {
   const body = pgn.replace(/^\[\s*Event[^\]]*\][\s\S]*?\n\n?/i, '').trim();
@@ -460,10 +470,14 @@ export async function getLichessTopMoves(fen: string, limit: number = 9): Promis
     if (!Array.isArray(moves) || moves.length === 0) return [];
     return moves
       .slice(0, limit)
-      .map((m: { uci?: string; san?: string }) => ({
-        uci: typeof m?.uci === 'string' ? m.uci : '',
-        san: typeof m?.san === 'string' ? m.san : m?.uci ?? '',
-      }))
+      .map((m: { uci?: string; san?: string }) => {
+        const rawUci = typeof m?.uci === 'string' ? m.uci : '';
+        const uci = normalizeLichessCastlingUci(rawUci);
+        return {
+          uci,
+          san: typeof m?.san === 'string' ? m.san : m?.uci ?? '',
+        };
+      })
       .filter((m) => m.uci.length >= 4);
   } catch (e) {
     console.warn('Lichess explorer error', e);
