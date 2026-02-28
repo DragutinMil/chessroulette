@@ -86,8 +86,7 @@ export const ChatWidget: React.FC<Props> = ({
 
   useEffect(() => {
     ///CHAT BOT TALK
-    //activeBot
-    //  console.log('klik3',activeBot.length>0 , messages.at(-1)?.senderId, chatBot , messages.at(-1)?.content  )
+
     if (activeBot && messages.at(-1)?.senderId !== activeBot.id) {
       if (messages.at(-1)?.senderId !== currentUserId) {
         return;
@@ -105,7 +104,7 @@ export const ChatWidget: React.FC<Props> = ({
         }
 
         const lastMessage = messages.at(-1)?.content ?? '';
-
+        // console.log('proxim 2')
         try {
           const answer = await ChatBotWidget(
             lastMessage,
@@ -116,7 +115,7 @@ export const ChatWidget: React.FC<Props> = ({
           );
 
           const randomSeconds = Math.floor(Math.random() * (10 - 5 + 1)) + 5;
-          console.log('answer', answer);
+          // console.log('answer', answer);
           setTimeout(() => {
             // botVoiceSpeak(answer.answer.text.trim(), activeBot.name)
             if (answer?.answer?.text) {
@@ -220,7 +219,7 @@ for just **€4** — and improve faster with **AI-powered analysis and training
           ? messages.at(-1)?.responseId
           : undefined;
 
-      console.log('responseId', responseId);
+      // console.log('responseId', responseId);
       onSendMessage(inputValue.trim(), responseId);
       setInputValue('');
     }

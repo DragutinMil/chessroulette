@@ -67,16 +67,15 @@ export const PuzzleActivity = ({
     findLoadedChapter(remoteState) || initialDefaultChapter;
 
   const tabsRef = useRef<TabsRef>(null);
-  // useEffect(() => {
-  //   getUserData();
-  //   socketUtil.connect('puzzle');
-  //   localStorage.setItem('socket', 'puzzle');
+  useEffect(() => {
+    getUserData();
+    // socketUtil.connect('puzzle');
+    // localStorage.setItem('socket', 'puzzle');
 
-  //   return () => {
-  //     socketUtil.disconnect();
-  //   };
-
-  // }, []);
+    // return () => {
+    //   socketUtil.disconnect();
+    // };
+  }, []);
 
   const historyBackToStart = async () => {
     setNewReview(true);
