@@ -26,7 +26,7 @@ export async function ChatBotWidget(
     'color oponent: ' +
     oponentColor;
 
-  console.log('send question', question);
+  // console.log('send question', question);
   let data;
 
   if (messages.length > 1) {

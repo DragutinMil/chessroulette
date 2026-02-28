@@ -347,22 +347,23 @@ const MatchContainerInner = ({
                 activeBot?.id?.slice(-3) == '000' ||
                 (!activeBot && isPlayer) ? (
                   <div className="w-full hidden md:flex flex-1 min-h-0 w-full relative">
-                    {(activeBot?.id?.slice(-3) == '000' || !activeBot) && (
-                      <ChatWidget
-                        pgn={
-                          matchState?.gameInPlay?.pgn ||
-                          matchState?.endedGames[0]?.pgn ||
-                          ''
-                        }
-                        messages={matchState?.messages || []}
-                        currentUserId={userId}
-                        activeBot={activeBot}
-                        playerNames={playerNames}
-                        oponentColor={oponentColor}
-                        onSendMessage={handleSendMessage}
-                        otherPlayerChatEnabled={true}
-                      />
-                    )}
+                    {(activeBot?.id?.slice(-3) == '000' || !activeBot) &&
+                      !isMobileChatOpen && !isMobile && (
+                        <ChatWidget
+                          pgn={
+                            matchState?.gameInPlay?.pgn ||
+                            matchState?.endedGames[0]?.pgn ||
+                            ''
+                          }
+                          messages={matchState?.messages || []}
+                          currentUserId={userId}
+                          activeBot={activeBot}
+                          playerNames={playerNames}
+                          oponentColor={oponentColor}
+                          onSendMessage={handleSendMessage}
+                          otherPlayerChatEnabled={true}
+                        />
+                      )}
                     <div
                       className={`
                       hidden md:block absolute z-20  cursor-pointer transition-all duration-300 ease-in-out

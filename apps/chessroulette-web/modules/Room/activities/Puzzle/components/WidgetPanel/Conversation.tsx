@@ -50,7 +50,7 @@ const Conversation = ({
         ref={scrollRef}
         className={`
   overflow-y-auto rounded-lg no-scrollbar scroll-smooth
-  min-h-[150px]  overflow-scroll no-scrollbar 
+  min-h-[150px]  overflow-scroll 
   ${
     currentChapterState.chessAiMode.mode === 'puzzle'
       ? 'h-full'
