@@ -911,12 +911,12 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
               renderContent: () => (
                 <div className="flex flex-col flex-1 gap-2 min-h-0 overflow-scroll no-scrollbar ">
                   <div
-                    className={`flex-1 justify-between flex flex-col border bg-op-widget border-conversation-100 pb-2 px-2 md:px-4 md:pb-4 rounded-lg 
+                    className={`flex-1 justify-between flex bg-op-widget flex-col border  border-conversation-100 pb-2 px-2 md:px-4 md:pb-4 rounded-lg 
                      
                   ${isMobile ? 'mb-2' : ''}  
                   `}
                   >
-                    <div className="mt-4 flex flex-col justify-between  h-full max-h-[320px] md:max-h-[380px] md:min-h-[300px] min-h-[200px] ">
+                    <div className="mt-4  flex flex-col justify-between  h-full max-h-[320px] md:max-h-[380px] md:min-h-[300px] min-h-[200px] ">
                       {!isMobile && (
                         <Conversation
                           currentChapterState={currentChapterState}
@@ -933,16 +933,12 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
                       )}
 
                       <div
-                        className={` relative  flex md:my-[20px] justify-around items-center gap-3 mt-3 my-[14px]
-                             ${
-                               currentChapterState.chessAiMode.mode === 'top'
-                                 ? '10px'
-                                 : ''
-                             }
+                        className={` absolute left-0 rounded-lg w-full md:relative bg-green-900 pt-2 pb-2 pl-2 md:pl-0 pr-2 md:pr-0 md:pt-0 md:pb-0  min-h-[40px]  md:top-0  z-[50]  flex  justify-around items-center gap-3 mt-3 
+                            
                           `}
                         style={{
-                          top: isMobile ? '-14px' : '',
-                          marginBottom: isMobile ? '-10px' : '',
+                          top: isMobile ? '-12px' : '',
+                          marginBottom: isMobile ? '0px' : '',
                         }}
                       >
                         <ButtonGreen
@@ -1041,18 +1037,20 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
                       </div>
 
                       {isMobile && (
-                        <Conversation
-                          currentChapterState={currentChapterState}
-                          openViewSubscription={openViewSubscription}
-                          onSelectPuzzle={puzzles}
-                          onSelectRating={setRatingEngine}
-                          pulseDot={pulseDot}
-                          takeBack={takeBack}
-                          isMobile={isMobile}
-                          hint={hint}
-                          userData={userData}
-                          smallMobile={smallMobile}
-                        />
+                        <div className="top-4 relative">
+                          <Conversation
+                            currentChapterState={currentChapterState}
+                            openViewSubscription={openViewSubscription}
+                            onSelectPuzzle={puzzles}
+                            onSelectRating={setRatingEngine}
+                            pulseDot={pulseDot}
+                            takeBack={takeBack}
+                            isMobile={isMobile}
+                            hint={hint}
+                            userData={userData}
+                            smallMobile={smallMobile}
+                          />
+                        </div>
                       )}
                     </div>
 

@@ -271,12 +271,12 @@ const PuzzleScore = ({ chessAiMode, puzzle_rating }: Props) => {
       </style>
       {/* {value > 0 && ( */}
       <div
-        className={`rounded-lg mb-1 mt-1 md:px-4 md:pb-4 px-2 pb-2 pt-2 border border-conversation-100 bg-[#01210B]
+        className={`rounded-lg  mb-1  md:mt-1 mt-2 md:px-4 md:pb-4 px-2 pb-2 pt-2 border border-conversation-100 bg-[#01210B] 
     ${animateLabel ? 'animate-fire-pulse' : ''}
   `}
       >
-        <div className="flex justify-between ">
-          <div className="text-[10px] font-bold text-[#8F8F90] mb-1 relative">
+        <div className="flex justify-between hidden md:flex">
+          <div className="text-[10px] font-bold text-[#8F8F90]  mb-1 relative">
             {animateLabel && (
               <span className="text-red-400 text-[16px] animate-sublevel-blink-strong absolute bottom-[-3px] left-12">
                 🔥
@@ -284,7 +284,7 @@ const PuzzleScore = ({ chessAiMode, puzzle_rating }: Props) => {
             )}
             RATING
           </div>
-          <div className=" text-[10px] font-bold text-[#8F8F90] mb-1 ">
+          <div className=" text-[10px] font-bold text-[#8F8F90] mb-1   ">
             LEVEL
           </div>
         </div>

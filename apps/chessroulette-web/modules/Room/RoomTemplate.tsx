@@ -27,7 +27,7 @@ export const RoomTemplate = (props: Props) => {
       className={`
     flex
     h-screen w-screen
-    ${props.activity === 'match' ? 'fixed top-0 left-0' : 'relative'}
+    ${props.activity === 'match' ? 'fixed top-0 left-0' : 'fixed top-0 left-0'}
   `}
       style={{
         background: isOutpost
