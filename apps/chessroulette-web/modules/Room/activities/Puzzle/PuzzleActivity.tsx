@@ -72,9 +72,9 @@ export const PuzzleActivity = ({
     // socketUtil.connect('puzzle');
     // localStorage.setItem('socket', 'puzzle');
 
-    // return () => {
-    //   socketUtil.disconnect();
-    // };
+    return () => {
+      socketUtil.disconnect();
+    };
   }, []);
 
   const historyBackToStart = async () => {

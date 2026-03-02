@@ -170,6 +170,7 @@ export const RoomContainer = ({ iceServers, rid, activity }: Props) => {
       // console.log('🧹 Cleaning up socket subscription...');
       socketUtil.unsubscribe('tb_notification', handleChallengeNotification);
       socketUtil.disconnect();
+      
     };
   }, []);
 
