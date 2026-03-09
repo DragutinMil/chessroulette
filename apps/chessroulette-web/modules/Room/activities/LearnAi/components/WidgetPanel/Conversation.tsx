@@ -268,7 +268,7 @@ const Conversation = ({
         />
       </div>
       <div className="text-white text-sm px-4 flex-1 min-w-0 max-w-md break-words overflow-hidden">
-        <p className="text-slate-200 mb-2">Odaberi dalji nastavak:</p>
+        <p className="text-slate-200 mb-2">Choose next move:</p>
         <div className="flex flex-col gap-2 mt-2">
           {Array.from({ length: visibleSuggestedRows }, (_, row) => (
             <div key={row} className="flex flex-wrap gap-2">

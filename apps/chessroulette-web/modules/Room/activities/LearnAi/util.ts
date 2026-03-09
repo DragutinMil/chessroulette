@@ -435,6 +435,79 @@ export function getOpeningIdeas(openingName: string): string | null {
 
 const LICHESS_EXPLORER = 'https://explorer.lichess.ovh';
 
+const OUTPOST_NEXT_MOVES_API = 'https://api.outpostchess.com/api/v2/chess_next_moves';
+
+export type OutpostNextMoveRaw = { next: string; opening: string; cnt: string };
+
+/** Fetch next moves for a position from Outpost API. moves = space-separated UCI. */
+export async function getOutpostNextMoves(uciMoves: string): Promise<OutpostNextMoveRaw[]> {
+  try {
+    const encoded = encodeURIComponent(uciMoves.trim());
+    const url = `${OUTPOST_NEXT_MOVES_API}?moves=${encoded}`;
+    const res = await fetch(url, { method: 'GET' });
+    if (!res.ok) return [];
+    const data = await res.json();
+    return Array.isArray(data) ? data : [];
+  } catch (e) {
+    console.warn('Outpost next moves error', e);
+    return [];
+  }
+}
+
+export type OutpostSuggestion = { uci: string; san: string; opening: string; cnt: number };
+
+function extractNextUciFromLine(nextLine: string, currentMoveCount: number): string | null {
+  const tokens = nextLine.trim().split(/\s+/).filter(Boolean);
+  if (tokens.length <= currentMoveCount) return null;
+  const uci = tokens[currentMoveCount];
+  return uci && uci.length >= 4 ? normalizeLichessCastlingUci(uci) : null;
+}
+
+export function uciToSan(fen: string, uci: string): string {
+    try {
+    const chess = new Chess(fen);
+    const from = uci.slice(0, 2);
+    const to = uci.slice(2, 4);
+    const promo = uci.length >= 5 ? uci[4] : undefined;
+    const move = chess.move({ from, to, promotion: promo as any });
+    return move ? move.san : uci;
+  } catch {
+    return uci;
+  }
+}
+
+/** Parse API response: one suggestion per line (next move UCI + SAN + opening). */
+export function parseOutpostResponseToSuggestions(
+  data: OutpostNextMoveRaw[],
+  currentUciMoves: string,
+  fen: string
+): OutpostSuggestion[] {
+  const currentCount = currentUciMoves.trim() ? currentUciMoves.trim().split(/\s+/).length : 0;
+  const out: OutpostSuggestion[] = [];
+  for (const item of data) {
+    const uci = extractNextUciFromLine(item.next, currentCount);
+    if (!uci) continue;
+    const san = uciToSan(fen, uci);
+    const cnt = parseInt(String(item.cnt ?? 0), 10) || 0;
+    out.push({ uci, san, opening: item.opening || '', cnt });
+  }
+  return out;
+}
+
+/** If openingKeyword set: matching moves first (by cnt), then the rest. */
+export function filterAndOrderByOpening(
+  suggestions: OutpostSuggestion[],
+  openingKeyword: string | null
+): OutpostSuggestion[] {
+  if (!openingKeyword?.trim()) {
+    return [...suggestions].sort((a, b) => b.cnt - a.cnt);
+  }
+  const key = openingKeyword.toLowerCase().trim();
+  const matching = suggestions.filter((s) => s.opening.toLowerCase().includes(key));
+  const rest = suggestions.filter((s) => !s.opening.toLowerCase().includes(key));
+  return [...matching.sort((a, b) => b.cnt - a.cnt), ...rest.sort((a, b) => b.cnt - a.cnt)];
+}
+
 /** Vraća UCI glavnog poteza (najpopularniji u Lichess master bazi) za dati FEN, ili null. */
 export async function getLichessBestMove(fen: string): Promise<string | null> {
   try {

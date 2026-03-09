@@ -15,7 +15,7 @@ import {
 } from '@app/components/FreeBoardNotation';
 import debounce from 'debounce';
 import { Tabs, TabsRef } from '@app/components/Tabs';
-import { getLichessTopMoves } from '../../util'; 
+import { getLichessTopMoves, getOutpostNextMoves, parseOutpostResponseToSuggestions, uciToSan } from '../../util';
 import type {
   Chapter,
   ChapterState,
@@ -51,6 +51,51 @@ import { getOpenings, analyzeMovesPGN,
   getOpeningFromAiByName, extractOpeningNameFromPhrase } from '../../util';
 
   const SUGGESTED_ARROW_DIM = 'rgba(242, 53, 141, 0.28)';
+
+  function parseIdeasToMoveCommentsAligned(ideas: string, sanMoves: string[]): (string | null)[] {
+    const result: (string | null)[] = new Array(sanMoves.length).fill(null);
+    const list: { san: string; comment: string }[] = [];
+    const bracketRegex = /\[([^\]]*)\]/g;
+    let match;
+    let lastIndex = 0;
+    while ((match = bracketRegex.exec(ideas)) !== null) {
+      const partBeforeBracket = ideas.slice(lastIndex, match.index).trim();
+      lastIndex = match.index + match[0].length;
+      const tokens = partBeforeBracket.split(/\s+/).filter(Boolean);
+      const lastToken = tokens[tokens.length - 1] || '';
+      const san = lastToken.replace(/^\d+\.\.\.?\s*/, '').trim();
+      if (san) list.push({ san, comment: match[1].trim() });
+    }
+    let listIdx = 0;
+    for (const { san, comment } of list) {
+      const j = sanMoves.indexOf(san, listIdx);
+      if (j !== -1) {
+        result[j] = comment;
+        listIdx = j + 1;
+      }
+    }
+    return result;
+  }
+
+  function getCurrentPositionUci(notation: { history: any[]; focusedIndex: [number, number] }): string {
+    const { history, focusedIndex } = notation;
+    if (!Array.isArray(history) || history.length === 0) return '';
+    const [moveIdx, colorIdx] = focusedIndex;
+    if (moveIdx < 0) return '';
+    const pairs = history.slice(0, moveIdx + 1);
+    const lastPair = pairs[pairs.length - 1];
+    const moves: string[] = [];
+    for (let i = 0; i < pairs.length - 1; i++) {
+      const [w, b] = pairs[i];
+      if (w && !(w as any).isNonMove) moves.push(`${(w as any).from}${(w as any).to}${(w as any).promotion ?? ''}`);
+      if (b && !(b as any).isNonMove) moves.push(`${(b as any).from}${(b as any).to}${(b as any).promotion ?? ''}`);
+    }
+    if (lastPair) {
+      if (lastPair[0] && !(lastPair[0] as any).isNonMove) moves.push(`${(lastPair[0] as any).from}${(lastPair[0] as any).to}${(lastPair[0] as any).promotion ?? ''}`);
+      if (colorIdx === 1 && lastPair[1] && !(lastPair[1] as any).isNonMove) moves.push(`${(lastPair[1] as any).from}${(lastPair[1] as any).to}${(lastPair[1] as any).promotion ?? ''}`);
+    }
+    return moves.join(' ');
+  }
 
   function buildArrowsFromUciMoves(
     uciMoves: string[],
@@ -227,6 +272,18 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
     const [isListening, setIsListening] = useState(false);
     const recognitionRef = useRef<{ stop: () => void } | null>(null);
     
+    const [selectedOpeningFilter, setSelectedOpeningFilter] = useState<string | null>(null);
+    const [openingMoveComments, setOpeningMoveComments] = useState<(string | null)[]>([]);
+    function parseIdeasToMoveComments(ideas: string): string[] {
+      const comments: string[] = [];
+      const regex = /\[([^\]]*)\]/g;
+      let m;
+      while ((m = regex.exec(ideas)) !== null) {
+        comments.push(m[1].trim());
+      }
+      return comments;
+    }
+
     const startVoiceInput = useCallback(() => {
       if (typeof window === 'undefined') return;
       const SpeechRecognitionAPI =
@@ -278,17 +335,17 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
       opening: { name: string; pgn: string },
       precomputedIdeas?: string
     ) => {
-      const intro = `Let's play the ${opening.name}. We'll start from here. If you'd like to learn a different opening at any time, just tell me.`;
+
+      const intro = `Let's play the ${opening.name}. We'll start from the beginning. If you'd like to learn a different opening at any time, just tell me.`;
       let ideas = precomputedIdeas ?? getOpeningIdeas(opening.name);
       if (!ideas && opening.pgn?.trim()) {
         const lastId = currentChapterState.messages[currentChapterState.messages.length - 1]?.idResponse ?? '';
         const aiComment = await getOpeningCommentFromAi(opening.pgn, lastId);
         if (aiComment) ideas = aiComment;
       }
-      const content = ideas
-      ? `${intro}\n\nBasic ideas:\n${formatOpeningTextForDisplay(ideas)}`
-      : intro;
-      setLastOpeningIntroContent(content);
+
+      
+      setLastOpeningIntroContent(intro);
     
       let pgnToImport = opening.pgn;
       if (ideas) {
@@ -306,10 +363,12 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
         }
       }
 
-      onQuickImport({ type: 'PGN', val: pgnToImport });
-    
+      onQuickImport({ type: 'FEN', val: ChessFENBoard.STARTING_FEN });
       const chess = new Chess();
       chess.loadPgn(pgnToImport);
+      const sanMoves = chess.history();
+      const moveComments = ideas ? parseIdeasToMoveCommentsAligned(ideas, sanMoves) : [];
+      setOpeningMoveComments(moveComments);
       const uciMoves = chess
         .history({ verbose: true })
         .map((m) => `${m.from}${m.to}${m.promotion ?? ''}`);
@@ -320,7 +379,7 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
         moves: uciMoves,
       });
       onMessage({
-        content: content,
+        content: intro,
         participantId: 'chatGPT123456',
         idResponse: '',
       });
@@ -432,6 +491,28 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
       [fetchWikiContent]
     );
 
+    const prevMoveCountRef = useRef(0);
+
+useEffect(() => {
+  const moveCount = currentChapterState.notation.history
+    .flat()
+    .filter((m: any) => m && !m.isNonMove).length;
+  if (moveCount > prevMoveCountRef.current && moveCount > 0) {
+    const commentIndex = moveCount - 1;
+    const comment = openingMoveComments[commentIndex];
+    if (comment) {
+      onMessage({
+        content: comment,
+        participantId: 'chatGPT123456',
+        idResponse: '',
+      });
+    }
+    prevMoveCountRef.current = moveCount;
+  } else {
+    prevMoveCountRef.current = moveCount;
+  }
+}, [currentChapterState.notation.history, openingMoveComments, onMessage]);
+
     const [visibleSuggestedCount, setVisibleSuggestedCount] = useState(3);
 
     const [visibleSuggestedRows, setVisibleSuggestedRows] = useState(1);
@@ -440,33 +521,73 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
       if (currentChapterState.aiLearn.mode !== 'opening') return;
       const fen = currentChapterState.displayFen;
       const LICHESS_PINK = '#f2358d';
-      console.log('opening effect', currentChapterState.aiLearn.mode, fen);
+      const openingName = (currentChapterState.aiLearn.name ?? '').trim();
+      const hasOpeningSelected = openingName.length > 0;
 
       setSuggestedMoves(null);
       setHoveredSuggestedUci(null);
       setVisibleSuggestedRows(1);
 
-      getLichessTopMoves(fen, 9).then((moves) => {
-        console.log('lichess moves', moves);
-        if (moves.length > 0) {
-          setSuggestedMoves(moves);
-          setSuggestedMainMoveUci(moves[0].uci);
-          const firstThree = moves.slice(0, 3);
-          onArrowsChange(buildArrowsFromUciMoves(firstThree.map((m) => m.uci), LICHESS_PINK));        } else {
-          setSuggestedMainMoveUci(null);
-          onArrowsChange({} as ArrowsMap);
-        }
-      });
+      if (hasOpeningSelected) {
+        const currentUci = getCurrentPositionUci(currentChapterState.notation as any);
+        getOutpostNextMoves(currentUci).then((data) => {
+          const parsed = parseOutpostResponseToSuggestions(data, currentUci, fen);
+          const openingLower = openingName.toLowerCase();
+          const firstWord = openingLower.split(/\s+/)[0] || openingLower;
+          const matchKeys = [openingLower, firstWord];
+          if (firstWord === 'petrov' || openingLower.includes('petrov')) matchKeys.push('russian', "petrov's");
+          if (firstWord === 'vienna' || openingLower.includes('vienna')) matchKeys.push('vienna');
+          const onlyThisVariant = parsed
+            .filter((s) => {
+              const o = (s.opening || '').toLowerCase();
+              return matchKeys.some((k) => o.includes(k));
+            })
+            .sort((a, b) => b.cnt - a.cnt);
+          let asUi = onlyThisVariant.map((m) => ({ uci: m.uci, san: m.san }));
+          if (asUi.length === 0 && parsed.length > 0) {
+            asUi = parsed.sort((a, b) => b.cnt - a.cnt).map((m) => ({ uci: m.uci, san: m.san }));
+          }
+          if (asUi.length > 0) {
+            setSuggestedMoves(asUi);
+            setSuggestedMainMoveUci(asUi[0].uci);
+            const firstThree = asUi.slice(0, 3);
+            onArrowsChange(buildArrowsFromUciMoves(firstThree.map((m) => m.uci), LICHESS_PINK));
+          } else {
+            setSuggestedMainMoveUci(null);
+            onArrowsChange({} as ArrowsMap);
+            getLichessTopMoves(fen, 9).then((moves) => {
+              if (moves.length > 0) {
+                setSuggestedMoves(moves);
+                setSuggestedMainMoveUci(moves[0].uci);
+              }
+            });
+          }
+        });
+      } else {
+        getLichessTopMoves(fen, 9).then((moves) => {
+          if (moves.length > 0) {
+            setSuggestedMoves(moves);
+            setSuggestedMainMoveUci(moves[0].uci);
+            const firstThree = moves.slice(0, 3);
+            onArrowsChange(buildArrowsFromUciMoves(firstThree.map((m) => m.uci), LICHESS_PINK));
+          } else {
+            setSuggestedMainMoveUci(null);
+            onArrowsChange({} as ArrowsMap);
+          }
+        });
+      }
     }, [
       currentChapterState.displayFen,
       currentChapterState.aiLearn.mode,
+      currentChapterState.aiLearn.name,
     ]);
 
     useEffect(() => {
       if (currentChapterState.aiLearn.mode !== 'opening' || !suggestedMoves?.length) return;
       const LICHESS_PINK = '#f2358d';
+      const openingSelected = !!currentChapterState.aiLearn.name;
       const visible = suggestedMoves.slice(0, visibleSuggestedRows * 3);
-      onArrowsChange(
+            onArrowsChange(
         buildArrowsFromUciMoves(visible.map((m) => m.uci), LICHESS_PINK, {
           highlightUci: hoveredSuggestedUci,
           dimColor: SUGGESTED_ARROW_DIM,
@@ -681,12 +802,21 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
         '_self';
     };
 
-    const setRatingEngine = async (category: number) => {
-      // Placeholder logic
-    };
+    const setRatingEngine = useCallback((category: number) => {
+      setRatingBotEngine(category);
+      onQuickImport({ type: 'FEN', val: ChessFENBoard.STARTING_FEN });
+      onMessage({
+        content: `Game started! You're playing at ${category} level.`,
+        participantId: 'chatGPT123456',
+        idResponse: '',
+      });
+      setFreezeButton(false);
+    }, [onQuickImport, onMessage]);
 
     const openings = async () => {
       const data = await getOpenings();
+
+      onQuickImport({ type: 'FEN', val: ChessFENBoard.STARTING_FEN });
 
       const pgn = data.pgn;
       const chess = new Chess();
