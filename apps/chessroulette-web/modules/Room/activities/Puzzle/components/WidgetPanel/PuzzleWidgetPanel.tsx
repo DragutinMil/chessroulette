@@ -929,15 +929,16 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
                           isMobile={isMobile}
                           userData={userData}
                           smallMobile={smallMobile}
+                           puzzleRating={userData.puz_rating}
                         />
                       )}
 
                       <div
-                        className={` absolute left-0 rounded-lg w-full md:relative bg-green-900 pt-2 pb-2 pl-2 md:pl-0 pr-2 md:pr-0 md:pt-0 md:pb-0  min-h-[40px]  md:top-0  z-[50]  flex  justify-around items-center gap-3 mt-3 
+                        className={` absolute left-0 rounded-lg w-full md:relative bg-green-900 pt-2 pb-2 pl-2 md:pl-0 pr-2 md:pr-0 md:pt-0 md:pb-0  min-h-[40px]    z-[50]  flex  justify-around items-center gap-3 mt-3 
                             
                           `}
                         style={{
-                          top: isMobile ? '-12px' : '',
+                          top: isMobile ? '-12px' : '-12px',
                           marginBottom: isMobile ? '0px' : '',
                         }}
                       >
@@ -1049,12 +1050,15 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
                             hint={hint}
                             userData={userData}
                             smallMobile={smallMobile}
+                            puzzleRating={userData.puz_rating}
                           />
                         </div>
                       )}
                     </div>
 
-                    <div className="flex mb-2 mt-2 md:mt-0">
+                    <div className="flex mb-2 md:mb-0 mt-2 md:mt-0"
+                  
+                          >
                       <input
                         id="title"
                         type="text"
@@ -1108,7 +1112,7 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
                           'radial-gradient(61.84% 61.84% at 50% 131.62%, rgba(5, 135, 44, 0.2) 0%, #01210B 100%)',
                         height: isMobile
                           ? 'calc(100% - 600px)'
-                          : 'calc(100% - 600px)',
+                          : 'calc(100% - 570px)',
 
                         minHeight: isMobile ? '52px' : '202px',
                       }}

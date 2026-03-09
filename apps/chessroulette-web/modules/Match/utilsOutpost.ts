@@ -2,11 +2,11 @@ import Cookies from 'js-cookie';
 import { decodeJwt } from 'jose';
 
 export async function checkUser(userId: string | undefined) {
-  // console.log('userId', userId);
+  //  console.log('userId', userId);
   if (!userId) {
     return;
   }
-
+  
   function safeDecode(standardToken: string) {
     // if (!standardToken) return null;
     try {
