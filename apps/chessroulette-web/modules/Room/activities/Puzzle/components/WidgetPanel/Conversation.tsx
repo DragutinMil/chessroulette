@@ -16,6 +16,7 @@ type Props = {
   openViewSubscription: () => void;
   onSelectRating: (category: number) => void;
   onSelectPuzzle: (category: string) => void;
+   puzzleRating?:number
 };
 //console.log('currentChapterState',currentChapterState)
 
@@ -30,6 +31,7 @@ const Conversation = ({
   hint,
   onSelectPuzzle,
   onSelectRating,
+  puzzleRating
 }: Props) => {
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -118,6 +120,7 @@ const Conversation = ({
                           hint={hint}
                           scrollToBottom={scrollToBottom}
                           takeBack={takeBack}
+                          puzzleRating={puzzleRating}
                         />
                         {isSales && isLastMessage && (
                           <div className="flex  items-center gap-3 md:flex mt-2">
