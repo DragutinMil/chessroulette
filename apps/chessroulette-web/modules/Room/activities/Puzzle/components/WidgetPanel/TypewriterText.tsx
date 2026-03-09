@@ -10,6 +10,7 @@ interface TypewriterTextProps {
   hint: () => void;
   onSelectPuzzle: (category: string) => void;
   onSelectRating: (category: number) => void;
+  puzzleRating?:number
 }
 const TypewriterText: React.FC<TypewriterTextProps> = ({
   lastMessage = '',
@@ -18,6 +19,7 @@ const TypewriterText: React.FC<TypewriterTextProps> = ({
   hint,
   onSelectPuzzle,
   onSelectRating,
+  puzzleRating
 }) => {
   const [displayedText, setDisplayedText] = useState('');
   const [showCursor, setShowCursor] = useState(true);
@@ -91,7 +93,13 @@ const TypewriterText: React.FC<TypewriterTextProps> = ({
       <div className="flex flex-wrap">
         {lastMessage.includes('Ready for exercise') &&
           displayedText.length == lastMessage.length &&
-          puzzleCategories.map((category) => (
+          puzzleCategories
+  .filter((category) => {
+    if (puzzleRating && puzzleRating > 2000 && category.value === 'Check Mate in 1') {
+      return false
+    }
+    return true
+  }).map((category) => (
             <ButtonGreen
               key={category.value}
               onClick={() => {
@@ -110,6 +118,7 @@ const TypewriterText: React.FC<TypewriterTextProps> = ({
         ) &&
           displayedText.length == lastMessage.length &&
           ratingBot.map((category) => (
+           
             <ButtonGreen
               key={category.value}
               onClick={() => {

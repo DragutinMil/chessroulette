@@ -102,6 +102,7 @@ export class PeerConnections {
       }
 
       apc.getMyStream().then((myStream) => {
+       
         call.answer(myStream);
         call.on('stream', (stream) => {
           // console.log('on call handler stream tracks', stream.getTracks());
@@ -178,6 +179,7 @@ export class PeerConnections {
       let onStreamUnsubscriber = () => {};
       const onOpenUnsubscriber = apc.onOpen(() => {
         apc.getMyStream().then((stream) => {
+          
           const call = this.sdk.call(namespacedPeerId, stream);
 
           const onStreamHandler = (stream: MediaStream) => {
