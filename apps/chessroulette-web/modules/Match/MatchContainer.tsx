@@ -308,7 +308,7 @@ const MatchContainerInner = ({
   }, [match.endedGames[0]?.offers]);
 
   const isPlayer = canUserPlay && playersBySide?.home.id;
-
+  console.log('isPlayer',isPlayer)
   return (
     <>
       <div className="flex flex-col flex-1 min-h-0 gap-4 w-full md:w-1/2 md:hidden  mt-4 relative  z-[40]">
@@ -349,12 +349,12 @@ const MatchContainerInner = ({
             {/* Desktop Chat Widget */}
           
               <div className="w-full hidden md:flex flex-1 min-h-0 w-full relative">
-                {(activeWidget === 'chat' && activeBot) ||
+                {(activeWidget === 'chat' && activeBot ) ||
                 activeBot?.id?.slice(-3) == '000' ||
                 (!activeBot && isPlayer) ? (
                   <div className="w-full hidden md:flex flex-1 min-h-0 w-full relative">
                     {(activeBot?.id?.slice(-3) == '000' || !activeBot ) &&
-                      !isMobileChatOpen && !isMobile && (
+                      !isMobileChatOpen && !isMobile &&  isPlayer &&(
                         <ChatWidget
                           pgn={
                             matchState?.gameInPlay?.pgn ||
