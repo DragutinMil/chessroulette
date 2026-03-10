@@ -89,7 +89,6 @@ export const MultiFaceTimeCompact: React.FC<MultiFaceTimeCompactProps> = ({
 
  
   useEffect(() => {
-     console.log('kokok',userAsPlayer) 
      if(userAsPlayer){
         const initial = {
       ...avStreaminginstance.activeConstraints,
