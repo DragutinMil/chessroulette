@@ -1,7 +1,6 @@
 import React, {
   useCallback,
   useEffect,
-  useState,
   useMemo,
   useRef,
 } from 'react';
@@ -120,7 +119,7 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
   const engineMoveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
     null
   );
-
+  const botColor = match?.gameInPlay?.players.w==botId ? 'w' : match?.gameInPlay?.players.b==botId  && 'b'
   const arrowAndCircleColor = useArrowAndCircleColor();
   const arrows = useCustomArrows(onArrowsChange, props.arrowsMap);
   //console.log('arrows', arrows);
@@ -169,7 +168,7 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
     pendingMove,
     preMove,
     circlesMap,
-    isMyTurn,
+     isMyTurn,
     ...props,
   });
   useEffect(() => {
@@ -181,11 +180,13 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
     }
   }, [stopEngineMove]);
   const engineMove = useCallback(
+    
     (m: any) => {
+
       const from = m.slice(0, 2);
       const to = m.slice(2, 4);
       const promo = m[4];
-
+     
       if (promo === 'q') {
         engineMoveTimeoutRef.current = setTimeout(() => {
           onMove({ from, to, promoteTo: promo });
@@ -227,6 +228,7 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
           bot={botId}
           fen={fen}
           isMyTurn={isMyTurn}
+          botColor={botColor}
           engineMove={engineMove}
         />
       )}
