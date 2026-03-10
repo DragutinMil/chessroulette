@@ -67,6 +67,7 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
 
   const params = useParams<{ roomId: string }>();
 
+
   const roomId = params.roomId;
 
   const roomRid = `room:${roomId}`;
@@ -92,9 +93,10 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
 
   useEffect(() => {
     async function runCheck() {
+      if(isPlayer==false){
+        return}
       const result = await checkUser(userId );
       // console.log('Tok', result);
-
       if (result == false) {
         console.log('token error');
         if (
