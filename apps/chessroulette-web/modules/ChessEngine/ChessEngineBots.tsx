@@ -199,7 +199,9 @@ const StockfishEngine: React.FC<StockfishEngineProps> = ({
  
 
   useEffect(() => {
+    
     let m = bestMove;
+    const timeout = setTimeout(() => {
      const parts = fen.split(' ');
     //  console.log('parts[1]',parts[1])
     //   console.log('botColor',botColor)
@@ -207,10 +209,13 @@ const StockfishEngine: React.FC<StockfishEngineProps> = ({
     
     if (!isMyTurn && bestMove ) {
       
-         setTimeout(() => engineMove(m), 700);
+        engineMove(m)
     }
-  }, [bestMove]);
+    return () => clearTimeout(timeout);
+  }, 800);
 
+  }, [bestMove]);
+  
   return null;
 };
 

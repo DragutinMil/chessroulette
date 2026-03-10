@@ -180,7 +180,7 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
     }
   }, [stopEngineMove]);
   const engineMove = useCallback(
-    
+     
     (m: any) => {
 
       const from = m.slice(0, 2);

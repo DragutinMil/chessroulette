@@ -213,8 +213,9 @@ const MatchContainerInner = ({
     if (activeBot?.id?.slice(-3) !== '000') {
       return;
     }
-
+    
     if (
+      isPlayer && 
       match.gameInPlay &&
       match.messages.length == 0 &&
       match.gameInPlay.pgn.length > 15 &&
@@ -223,7 +224,6 @@ const MatchContainerInner = ({
       //  || (match.gameInPlay &&
       // match.messages.length == 0)
     ) {
-      console.log('botTalkInitiated', botTalkInitiated);
       setBotTalkInitiated(true);
       botTalkInitiation(
         dispatch,
@@ -264,7 +264,8 @@ const MatchContainerInner = ({
         setStopEngineMove(false);
       }, 2000);
     }
-    if (match.status === 'complete') {
+    if (match.status === 'complete' && isPlayer) {
+
       botSendRematchOffer(
         dispatch,
         activeBot.id,
@@ -308,7 +309,7 @@ const MatchContainerInner = ({
   }, [match.endedGames[0]?.offers]);
 
   const isPlayer = canUserPlay && playersBySide?.home.id;
-  console.log('isPlayer',isPlayer)
+  
   return (
     <>
       <div className="flex flex-col flex-1 min-h-0 gap-4 w-full md:w-1/2 md:hidden  mt-4 relative  z-[40]">
@@ -328,7 +329,8 @@ const MatchContainerInner = ({
               sizePx={boardSize}
               stopEngineMove={stopEngineMove}
               overlayComponent={
-                <MatchStateDialogContainer
+                isPlayer &&
+                  <MatchStateDialogContainer
                   activeBot={activeBot}
                   inviteLink={inviteLink}
                 />
@@ -452,7 +454,7 @@ const MatchContainerInner = ({
                   style={{
                     backgroundImage:
                       'radial-gradient(61.84% 61.84% at 50% 131.62%, rgba(5, 135, 44, 0.2) 0%, rgb(1, 33, 11) 100%)',
-                    height: isMobile ? '52px' : '290px',
+                    height: isMobile ? '52px' : isPlayer?  '290px':'100%',
                     minHeight: isMobile ? '52px' : '202px',
                     width: '100%',
                   }}
