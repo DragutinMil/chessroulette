@@ -21,8 +21,8 @@ export const PlayerBox: React.FC<Props> = ({
   activeBot,
   onCheckTime,
 }) => {
-  // const { match } = useMatchViewState();
-
+   const { match } = useMatchViewState();
+   
   // const [botName, setBotName] = useState('Bot');
   // useEffect(() => {
   //   if(match){
@@ -33,7 +33,10 @@ export const PlayerBox: React.FC<Props> = ({
   //    }
   //   }
   // }, []);
+  console.log('activeBot',activeBot)
+   console.log('playerInfo',playerInfo)
 
+  
   return (
     <div className="flex flex-1 gap-3 items-center justify-between mr-0 pr-0 w-full">
       {activeBot && activeBot?.length > 0 ? (
@@ -44,7 +47,7 @@ export const PlayerBox: React.FC<Props> = ({
         >
           {playerInfo.points}
           {playerInfo.points !== undefined ? ' ' : ''}
-          {playerInfo.displayName || activeBot}&nbsp;({playerInfo.color})
+          {playerInfo.displayName || activeBot || 'guest'}&nbsp;({playerInfo.color})
         </div>
       ) : (
         <div
