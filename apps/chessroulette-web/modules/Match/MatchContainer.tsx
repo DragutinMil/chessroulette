@@ -52,7 +52,6 @@ export const MatchContainer = ({
 }: Props) => {
   const [activeWidget, setActiveWidget] = useState<'chat' | 'camera'>('chat');
   const [isMobileChatOpen, setIsMobileChatOpen] = useState(false);
- 
 
   return (
     <MatchProvider match={match} userId={userId} dispatch={dispatch}>
@@ -104,7 +103,7 @@ const MatchContainerInner = ({
   const [isMobile, setIsMobile] = useState<boolean | null>(null);
   const [activeBot, setActiveBot] = useState<ActiveBot>();
   const [oponentColor, setOponentColor] = useState<string>();
-
+ const {  userAsPlayer } = useMatchViewState();
 
   // const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
  
@@ -113,18 +112,19 @@ const MatchContainerInner = ({
     // const handleResize = () => setIsMobile(window.innerWidth <= 768);
     //  window.addEventListener('resize', handleResize);
 
-    // if (match.challengee.id.length == 16 || match.challenger.id.length == 16) {
-    //    localStorage.setItem('socket', 'bot');
-    //    socketUtil.connect('bot');
-    // } else {
-    //    localStorage.setItem('socket', 'playing');
-    //    socketUtil.connect('playing');
-    // }
+    const Socketinitiation = async () => {
+          if ( userAsPlayer) {
+            await socketUtil.connect('playing');
+          }
+        };
+    
+        Socketinitiation();
+        return () => {
+          socketUtil.disconnect();
+          
+        };
 
-    return () => {
-      // window.removeEventListener('resize', handleResize);
-      socketUtil.disconnect();
-    };
+   
   }, []);
 
   const playerNames = playersBySide
@@ -353,7 +353,7 @@ const MatchContainerInner = ({
                 activeBot?.id?.slice(-3) == '000' ||
                 (!activeBot && isPlayer) ? (
                   <div className="w-full hidden md:flex flex-1 min-h-0 w-full relative">
-                    {(activeBot?.id?.slice(-3) == '000' || !activeBot) &&
+                    {(activeBot?.id?.slice(-3) == '000' || !activeBot ) &&
                       !isMobileChatOpen && !isMobile && (
                         <ChatWidget
                           pgn={
@@ -383,7 +383,7 @@ const MatchContainerInner = ({
                       }
                     `}
                     >
-                      {activeBot?.id?.slice(-3) !== '000' && !isMobile && (
+                      {(activeBot?.id?.slice(-3) !== '000' && isPlayer   && !isMobile)  && (
                         <div>
                           <div
                             className={`
@@ -429,15 +429,17 @@ const MatchContainerInner = ({
                    
                    
                   </div>
-                ) : !isPlayer? (
+                ) : !isPlayer  ? (
                    <div>
+                    
                       <PeerToPeerCameraWidget   />
                     </div>
                 ): (
                   // classic bot players
                   !isMobile &&
-                  canUserPlay && (
+                  canUserPlay   && (
                     <div className="w-1/2  md:w-full h-full overflow-hidden  rounded-lg shadow-2xl  ">
+                    
                       <PeerToPeerCameraWidget activeBot={activeBot}  />
                     </div>
                   )
