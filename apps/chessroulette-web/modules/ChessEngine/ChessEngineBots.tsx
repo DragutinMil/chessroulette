@@ -202,6 +202,8 @@ const StockfishEngine: React.FC<StockfishEngineProps> = ({
     
     let m = bestMove;
     const timeout = setTimeout(() => {
+
+      setTimeout(() => {
      const parts = fen.split(' ');
     //  console.log('parts[1]',parts[1])
     //   console.log('botColor',botColor)
@@ -211,8 +213,9 @@ const StockfishEngine: React.FC<StockfishEngineProps> = ({
       
         engineMove(m)
     }
+    }, 400);
     return () => clearTimeout(timeout);
-  }, 800);
+  }, 1000);
 
   }, [bestMove]);
   
