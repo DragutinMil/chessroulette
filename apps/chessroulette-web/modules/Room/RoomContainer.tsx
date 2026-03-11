@@ -35,7 +35,7 @@ import { ChallengeNotification } from '@app/components/ChallengeNotification/Cha
 import socketUtil from '../../socketUtil';
 import { useState, useEffect } from 'react';
 import { ChallengeAcceptedNotification } from '@app/components/ChallengeAcceptedNotification/ChallengeAcceptedNotification';
-
+import { useMatchViewState } from '../../modules/Match/hooks/useMatch';
 type Props = {
   rid: ResourceIdentifier<'room'>;
   iceServers: IceServerRecord[];
@@ -46,6 +46,7 @@ export const RoomContainer = ({ iceServers, rid, activity }: Props) => {
   const movex = useMovex(movexConfig);
   const movexResource = useMovexBoundResourceFromRid(movexConfig, rid);
   const userId = useMovexClient(movexConfig)?.id;
+  
   const participants = useMemo(
     () => movexSubcribersToUserMap(movexResource?.subscribers || {}),
     [movexResource?.subscribers]
@@ -154,20 +155,14 @@ export const RoomContainer = ({ iceServers, rid, activity }: Props) => {
         await socketUtil.connect('reviewing');
       } else if (window.location.href.includes('puzzle')) {
         await socketUtil.connect('puzzle');
-      } else if (window.location.href.includes('match')) {
-        await socketUtil.connect('playing');
-      }
-
-      setTimeout(() => {
+      } 
+ 
+    setTimeout(() => {
         socketUtil.subscribe('tb_notification', handleChallengeNotification);
       }, 5000);
     };
-
     Socketinitiation();
-
-    // Cleanup
     return () => {
-      // console.log('🧹 Cleaning up socket subscription...');
       socketUtil.unsubscribe('tb_notification', handleChallengeNotification);
       socketUtil.disconnect();
       
