@@ -6,7 +6,7 @@ export const socketUtil = {
   subscribers: {} as Record<string, Array<(data: any) => void>>,
 
   connect: async (
-    type: 'puzzle' | 'playing' | 'watching' | 'reviewing' | 'bot' | 'learn'
+    type: 'puzzle' | 'playing' | 'watching' | 'reviewing' | 'bot' | 'learn' | 'playingbot'
   ) => {
     try {
       // Prvo pokušaj da uzmeš token iz cookie (mobile app)
@@ -97,6 +97,7 @@ export const socketUtil = {
       const socketType = localStorage.getItem('socket') as
         | 'puzzle'
         | 'playing'
+        | 'playingbot'
         | 'watching'
         | 'reviewing'
         | 'bot'

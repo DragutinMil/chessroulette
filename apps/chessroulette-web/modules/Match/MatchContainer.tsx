@@ -108,24 +108,7 @@ const MatchContainerInner = ({
   // const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
   // Resize i socket connection
-  useEffect(() => {
-    // const handleResize = () => setIsMobile(window.innerWidth <= 768);
-    //  window.addEventListener('resize', handleResize);
 
-    const Socketinitiation = async () => {
-          if ( userAsPlayer) {
-            await socketUtil.connect('playing');
-          }
-        };
-    
-        Socketinitiation();
-        return () => {
-          socketUtil.disconnect();
-          
-        };
-
-   
-  }, []);
 
   const playerNames = playersBySide
     ? {
@@ -195,6 +178,10 @@ const MatchContainerInner = ({
     }
     if (match) {
       const bot = findIfBots(match?.challengee.id, match?.challenger.id);
+
+        
+    
+       
       if (bot) {
         setActiveBot(bot);
         if (match.gameInPlay?.players.w === bot.id) {
@@ -203,7 +190,33 @@ const MatchContainerInner = ({
           setOponentColor('white');
         }
       }
+       const Socketinitiation = async () => {
+          if ( userAsPlayer) {
+             console.log('bot',bot)
+            if(bot) {
+              console.log('activeBot')
+               await socketUtil.connect('playingbot');
+            }else{
+               await socketUtil.connect('playing');
+               console.log('nije activeBot')
+            }
+             
+          }
+        };
+
+
+
+
+       Socketinitiation();
     }
+   
+
+    
+     return () => {
+          socketUtil.disconnect();
+          
+        };
+
   }, []);
 
   useEffect(() => {
@@ -309,7 +322,7 @@ const MatchContainerInner = ({
   }, [match.endedGames[0]?.offers]);
 
   const isPlayer = canUserPlay && playersBySide?.home.id;
-    console.log('isPlayer',isPlayer)
+  
   return (
     <>
       <div className="flex flex-col flex-1 min-h-0 gap-4 w-full md:w-1/2 md:hidden  mt-4 relative  z-[40]">
