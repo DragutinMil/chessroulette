@@ -138,7 +138,7 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
     },
     [onCircleDraw, arrowAndCircleColor]
   );
-
+  
   const resetArrowsAndCircles = useCallback(() => {
     if (Object.keys(circlesMap || {}).length > 0) {
       onClearCircles();
@@ -179,6 +179,10 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
       }
     }
   }, [stopEngineMove]);
+
+
+
+
   const engineMove = useCallback(
      
     (m: any) => {
