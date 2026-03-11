@@ -106,7 +106,7 @@ const MatchContainerInner = ({
  const {  userAsPlayer } = useMatchViewState();
 
   // const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
- 
+
   // Resize i socket connection
   useEffect(() => {
     // const handleResize = () => setIsMobile(window.innerWidth <= 768);
@@ -309,13 +309,13 @@ const MatchContainerInner = ({
   }, [match.endedGames[0]?.offers]);
 
   const isPlayer = canUserPlay && playersBySide?.home.id;
-  
+    console.log('isPlayer',isPlayer)
   return (
     <>
       <div className="flex flex-col flex-1 min-h-0 gap-4 w-full md:w-1/2 md:hidden  mt-4 relative  z-[40]">
         <div className="flex flex-row md:flex-col w-full md:w-1/2">
           <div className="w-full md:w-1/2 mr-0 md:mr-0">
-            <MatchStateDisplayContainer activeBot={activeBot?.name} />
+            <MatchStateDisplayContainer activeBot={activeBot?.name} isPlayer={isPlayer} />
           </div>
         </div>
       </div>
@@ -344,7 +344,7 @@ const MatchContainerInner = ({
           <div className="flex flex-col flex-1 min-h-0 gap-4 w-full ">
             <div className="flex flex-row md:flex-col w-full">
               <div className="hidden md:block md:w-full mr-0 md:ml-0">
-                <MatchStateDisplayContainer activeBot={activeBot?.name} />
+                <MatchStateDisplayContainer activeBot={activeBot?.name} isPlayer={isPlayer} />
               </div>
             </div>
 

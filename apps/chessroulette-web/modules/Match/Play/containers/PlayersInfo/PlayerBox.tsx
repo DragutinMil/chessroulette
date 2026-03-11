@@ -22,21 +22,15 @@ export const PlayerBox: React.FC<Props> = ({
   onCheckTime,
 }) => {
    const { match } = useMatchViewState();
+  const [botColor, setBotColor] = useState<string | null>(null);
+   
    
   // const [botName, setBotName] = useState('Bot');
-  // useEffect(() => {
-  //   if(match){
-  //    const bot = findIfBots(match?.challengee.id, match?.challenger.id)
-  //    if(bot){
-  //      setBotName(bot.name)
-  //      setBots(true)
-  //    }
-  //   }
-  // }, []);
-  console.log('activeBot',activeBot)
-   console.log('playerInfo',playerInfo)
-
-  
+  useEffect(() => {
+    const BotColor= localStorage.getItem('botColor')
+    setBotColor(BotColor)
+  }, []);
+  const botPlayName =  botColor !== playerInfo.color? playerInfo.displayName : activeBot
   return (
     <div className="flex flex-1 gap-3 items-center justify-between mr-0 pr-0 w-full">
       {activeBot && activeBot?.length > 0 ? (
@@ -47,7 +41,7 @@ export const PlayerBox: React.FC<Props> = ({
         >
           {playerInfo.points}
           {playerInfo.points !== undefined ? ' ' : ''}
-          {playerInfo.displayName || activeBot || 'guest'}&nbsp;({playerInfo.color})
+           { botPlayName? botPlayName: 'guest'}&nbsp;({playerInfo.color})
         </div>
       ) : (
         <div

@@ -4,7 +4,7 @@ import { RoomPage } from '@app/modules/Room/RoomPage';
 import { metadata as rootMetadata } from '../../../../page';
 
 export const metadata: Metadata = {
-  title: `Puzzle | ${rootMetadata.title}`,
+  title: `Review | ${rootMetadata.title}`,
 };
 
 export default async function Page(props: {

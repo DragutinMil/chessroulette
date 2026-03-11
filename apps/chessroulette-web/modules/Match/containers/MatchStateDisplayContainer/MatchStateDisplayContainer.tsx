@@ -11,9 +11,11 @@ import { useCurrentOrPrevMatchPlay } from '../../Play/hooks';
 import { isMobile } from '@app/modules/Room/activities/Aichess/util';
 type MatchStateDisplayContainerProps = {
   activeBot?: string;
+  isPlayer?:any
 };
 export const MatchStateDisplayContainer = ({
   activeBot,
+  isPlayer
 }: MatchStateDisplayContainerProps) => {
   const { match, currentRound, drawsCount, endedGamesCount } =
     useMatchViewState();
@@ -86,7 +88,7 @@ export const MatchStateDisplayContainer = ({
       {match &&
         play.hasGame &&
         play.game.status === 'idling' &&
-        match.endedGames.length == 0 && (
+        match.endedGames.length == 0 &&  isPlayer && (
           <MatchAbortContainer
             key={play.game.startedAt + play.turn} // refresh it on each new game & when the turn changes
             game={play.game}
@@ -95,6 +97,7 @@ export const MatchStateDisplayContainer = ({
             timeToAbortMs={match.timeToAbortMs}
             playerId={play.userAsPlayerId}
             completedPlaysCount={endedGamesCount}
+           
             className="md:bg-green-500 rounded-md p-0 md:p-2 fixed bottom-16 md:relative md:bottom-0 w-[94%]  md:w-full h-8"
           />
         )}
