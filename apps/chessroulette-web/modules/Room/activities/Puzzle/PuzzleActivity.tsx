@@ -27,6 +27,7 @@ import socketUtil from '../../../../socketUtil';
 import { InstructorBoard } from './components/InstructorBoard';
 import { Square } from 'chess.js';
 import { boolean, number } from 'zod';
+import { he } from 'date-fns/locale';
 
 type Props = {
   remoteState: PuzzleActivityState['activityState'];

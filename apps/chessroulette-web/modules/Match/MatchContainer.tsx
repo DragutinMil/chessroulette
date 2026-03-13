@@ -103,12 +103,11 @@ const MatchContainerInner = ({
   const [isMobile, setIsMobile] = useState<boolean | null>(null);
   const [activeBot, setActiveBot] = useState<ActiveBot>();
   const [oponentColor, setOponentColor] = useState<string>();
- const {  userAsPlayer } = useMatchViewState();
+  const { userAsPlayer } = useMatchViewState();
 
   // const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
   // Resize i socket connection
-
 
   const playerNames = playersBySide
     ? {
@@ -169,8 +168,6 @@ const MatchContainerInner = ({
     }, 200);
   };
 
-  
-
   useEffect(() => {
     setIsMobile(window.innerWidth < 700);
     if (isMobile) {
@@ -179,9 +176,6 @@ const MatchContainerInner = ({
     if (match) {
       const bot = findIfBots(match?.challengee.id, match?.challenger.id);
 
-        
-    
-       
       if (bot) {
         setActiveBot(bot);
         if (match.gameInPlay?.players.w === bot.id) {
@@ -190,33 +184,22 @@ const MatchContainerInner = ({
           setOponentColor('white');
         }
       }
-       const Socketinitiation = async () => {
-          if ( userAsPlayer) {
-            
-            if(bot) {
-             
-               await socketUtil.connect('playingbot');
-            }else{
-               await socketUtil.connect('playing');
-             
-            }
-             
+      const Socketinitiation = async () => {
+        if (userAsPlayer) {
+          if (bot) {
+            await socketUtil.connect('playingbot');
+          } else {
+            await socketUtil.connect('playing');
           }
-        };
+        }
+      };
 
-
-
-
-       Socketinitiation();
+      Socketinitiation();
     }
-   
 
-    
-     return () => {
-          socketUtil.disconnect();
-          
-        };
-
+    return () => {
+      socketUtil.disconnect();
+    };
   }, []);
 
   useEffect(() => {
@@ -226,9 +209,9 @@ const MatchContainerInner = ({
     if (activeBot?.id?.slice(-3) !== '000') {
       return;
     }
-    
+
     if (
-      isPlayer && 
+      isPlayer &&
       match.gameInPlay &&
       match.messages.length == 0 &&
       match.gameInPlay.pgn.length > 15 &&
@@ -278,7 +261,6 @@ const MatchContainerInner = ({
       }, 2000);
     }
     if (match.status === 'complete' && isPlayer) {
-
       botSendRematchOffer(
         dispatch,
         activeBot.id,
@@ -287,8 +269,6 @@ const MatchContainerInner = ({
       );
     }
   }, [match.gameInPlay?.offers, match.status]);
-
-
 
   useEffect(() => {
     if (!activeBot || activeBot?.id?.slice(-3) !== '000') {
@@ -322,13 +302,16 @@ const MatchContainerInner = ({
   }, [match.endedGames[0]?.offers]);
 
   const isPlayer = canUserPlay && playersBySide?.home.id;
-  
+
   return (
     <>
       <div className="flex flex-col flex-1 min-h-0 gap-4 w-full md:w-1/2 md:hidden  mt-4 relative  z-[40]">
         <div className="flex flex-row md:flex-col w-full md:w-1/2">
           <div className="w-full md:w-1/2 mr-0 md:mr-0">
-            <MatchStateDisplayContainer activeBot={activeBot?.name} isPlayer={isPlayer} />
+            <MatchStateDisplayContainer
+              activeBot={activeBot?.name}
+              isPlayer={isPlayer}
+            />
           </div>
         </div>
       </div>
@@ -342,11 +325,12 @@ const MatchContainerInner = ({
               sizePx={boardSize}
               stopEngineMove={stopEngineMove}
               overlayComponent={
-                isPlayer &&
+                isPlayer && (
                   <MatchStateDialogContainer
-                  activeBot={activeBot}
-                  inviteLink={inviteLink}
-                />
+                    activeBot={activeBot}
+                    inviteLink={inviteLink}
+                  />
+                )
               }
               {...boardProps}
             />
@@ -357,37 +341,42 @@ const MatchContainerInner = ({
           <div className="flex flex-col flex-1 min-h-0 gap-4 w-full ">
             <div className="flex flex-row md:flex-col w-full">
               <div className="hidden md:block md:w-full mr-0 md:ml-0">
-                <MatchStateDisplayContainer activeBot={activeBot?.name} isPlayer={isPlayer} />
+                <MatchStateDisplayContainer
+                  activeBot={activeBot?.name}
+                  isPlayer={isPlayer}
+                />
               </div>
             </div>
 
             {/* Desktop Chat Widget */}
-          
-              <div className="w-full hidden md:flex flex-1 min-h-0 w-full relative">
-                {(activeWidget === 'chat' && activeBot ) ||
-                activeBot?.id?.slice(-3) == '000' ||
-                (!activeBot && isPlayer) ? (
-                  <div className="w-full hidden md:flex flex-1 min-h-0 w-full relative">
-                    {(activeBot?.id?.slice(-3) == '000' || !activeBot ) &&
-                      !isMobileChatOpen && !isMobile &&  isPlayer &&(
-                        <ChatWidget
-                          pgn={
-                            matchState?.gameInPlay?.pgn ||
-                            matchState?.endedGames[0]?.pgn ||
-                            ''
-                          }
-                          messages={matchState?.messages || []}
-                          currentUserId={userId}
-                          activeBot={activeBot}
-                          playerNames={playerNames}
-                          oponentColor={oponentColor}
-                          onSendMessage={handleSendMessage}
-                          otherPlayerChatEnabled={true}
-                        />
-                      )}
-                
- <div
-                      className={`
+
+            <div className="w-full hidden md:flex flex-1 min-h-0 w-full relative">
+              {(activeWidget === 'chat' && activeBot) ||
+              activeBot?.id?.slice(-3) == '000' ||
+              (!activeBot && isPlayer) ? (
+                <div className="w-full hidden md:flex flex-1 min-h-0 w-full relative">
+                  {(activeBot?.id?.slice(-3) == '000' || !activeBot) &&
+                    !isMobileChatOpen &&
+                    !isMobile &&
+                    isPlayer && (
+                      <ChatWidget
+                        pgn={
+                          matchState?.gameInPlay?.pgn ||
+                          matchState?.endedGames[0]?.pgn ||
+                          ''
+                        }
+                        messages={matchState?.messages || []}
+                        currentUserId={userId}
+                        activeBot={activeBot}
+                        playerNames={playerNames}
+                        oponentColor={oponentColor}
+                        onSendMessage={handleSendMessage}
+                        otherPlayerChatEnabled={true}
+                      />
+                    )}
+
+                  <div
+                    className={`
                       hidden md:block absolute z-20  cursor-pointer transition-all duration-300 ease-in-out
                       rounded-lg  overflow-hidden 
                       ${
@@ -397,8 +386,10 @@ const MatchContainerInner = ({
                           : 'top-1 right-1  w-2/5'
                       }
                     `}
-                    >
-                      {(activeBot?.id?.slice(-3) !== '000' && isPlayer   && !isMobile)  && (
+                  >
+                    {activeBot?.id?.slice(-3) !== '000' &&
+                      isPlayer &&
+                      !isMobile && (
                         <div>
                           <div
                             className={`
@@ -440,34 +431,30 @@ const MatchContainerInner = ({
                           </button>
                         </div>
                       )}
-                    </div>
-                   
-                   
                   </div>
-                ) : !isPlayer  ? (
-                   <div>
-                    
-                      <PeerToPeerCameraWidget   />
-                    </div>
-                ): (
-                  // classic bot players
-                  !isMobile &&
-                  canUserPlay   && (
-                    <div className="w-1/2  md:w-full h-full overflow-hidden  rounded-lg shadow-2xl  ">
-                    
-                      <PeerToPeerCameraWidget activeBot={activeBot}  />
-                    </div>
-                  )
-                )}
-              </div>
-            
+                </div>
+              ) : !isPlayer ? (
+                <div>
+                  <PeerToPeerCameraWidget />
+                </div>
+              ) : (
+                // classic bot players
+                !isMobile &&
+                canUserPlay && (
+                  <div className="w-1/2  md:w-full h-full overflow-hidden  rounded-lg shadow-2xl  ">
+                    <PeerToPeerCameraWidget activeBot={activeBot} />
+                  </div>
+                )
+              )}
+            </div>
+
             <div className="w-full pl-2 pr-2 md:pl-0 md:pr-0 pt-0 pb-0 flex flex-col md:gap-2 gap-2 md:flex-1 min-h-0 rounded-lg shadow-2xl  overflow-y-scroll no-scrollbar fixed bottom-1 left-0 right-0 md:relative md:bottom-auto md:left-auto md:right-auto ">
               {(match.gameInPlay?.status !== 'idling' || !isMobile) && (
                 <div
                   style={{
                     backgroundImage:
                       'radial-gradient(61.84% 61.84% at 50% 131.62%, rgba(5, 135, 44, 0.2) 0%, rgb(1, 33, 11) 100%)',
-                    height: isMobile ? '52px' : isPlayer?  '290px':'100%',
+                    height: isMobile ? '52px' : isPlayer ? '290px' : '100%',
                     minHeight: isMobile ? '52px' : '202px',
                     width: '100%',
                   }}

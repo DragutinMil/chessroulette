@@ -70,7 +70,6 @@ export const MatchAbortContainer = ({
         </div>
       }
       canAbortOnDemand={isMyTurn}
-      
       timeLeft={timeLeft}
     />
   );

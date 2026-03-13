@@ -66,8 +66,6 @@ export const MultiFaceTimeCompact: React.FC<MultiFaceTimeCompactProps> = ({
     () => ({ width: width || '100%', height: '100%' }),
     [width]
   );
- 
- 
 
   const label = useMemo(() => {
     if (!reel) {
@@ -83,38 +81,36 @@ export const MultiFaceTimeCompact: React.FC<MultiFaceTimeCompactProps> = ({
     AVStreaming['activeConstraints'] | null
   >(null);
   const [videoPermission, setVideoPermission] = useState(false);
-  const {  userAsPlayer } = useMatchViewState();
+  const { userAsPlayer } = useMatchViewState();
   const [isReady, setIsReady] = useState(false);
   const isMobile = window.innerWidth < 1000;
 
- 
   useEffect(() => {
-     if(userAsPlayer){
-        const initial = {
-      ...avStreaminginstance.activeConstraints,
-      video: isMobile ? false : avStreaminginstance.activeConstraints.video,
-      audio: isMobile  ? false : avStreaminginstance.activeConstraints.audio,
-    };
-    setMyFaceTimeConstraints(initial);
-    avStreaminginstance.updateConstraints(initial);
-    return avStreaminginstance.pubsy.subscribe(
-      'onUpdateConstraints',
-      setMyFaceTimeConstraints
-    );
-     }else{
-         const initial = {
-      ...avStreaminginstance.activeConstraints,
-      video: false ,
-      audio: false 
-    };
-    setMyFaceTimeConstraints(initial);
-    avStreaminginstance.updateConstraints(initial);
-    return avStreaminginstance.pubsy.subscribe(
-      'onUpdateConstraints',
-      setMyFaceTimeConstraints
-    );
-     }
-   
+    if (userAsPlayer) {
+      const initial = {
+        ...avStreaminginstance.activeConstraints,
+        video: isMobile ? false : avStreaminginstance.activeConstraints.video,
+        audio: isMobile ? false : avStreaminginstance.activeConstraints.audio,
+      };
+      setMyFaceTimeConstraints(initial);
+      avStreaminginstance.updateConstraints(initial);
+      return avStreaminginstance.pubsy.subscribe(
+        'onUpdateConstraints',
+        setMyFaceTimeConstraints
+      );
+    } else {
+      const initial = {
+        ...avStreaminginstance.activeConstraints,
+        video: false,
+        audio: false,
+      };
+      setMyFaceTimeConstraints(initial);
+      avStreaminginstance.updateConstraints(initial);
+      return avStreaminginstance.pubsy.subscribe(
+        'onUpdateConstraints',
+        setMyFaceTimeConstraints
+      );
+    }
   }, [userAsPlayer]);
   //console.log('myFaceTimeConstraints',myFaceTimeConstraints)
   const onStreamConfigChange = (value: boolean) => {

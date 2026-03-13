@@ -30,7 +30,7 @@ export const PeerToPeerCameraWidget = ({
 }: Props) => {
   const peerStreaming = usePeerStreaming();
   const { match } = useMatchViewState();
- 
+
   // if (!userAsPlayer) {
   //   return null;
   // }

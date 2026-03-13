@@ -46,7 +46,7 @@ export const RoomContainer = ({ iceServers, rid, activity }: Props) => {
   const movex = useMovex(movexConfig);
   const movexResource = useMovexBoundResourceFromRid(movexConfig, rid);
   const userId = useMovexClient(movexConfig)?.id;
-  
+
   const participants = useMemo(
     () => movexSubcribersToUserMap(movexResource?.subscribers || {}),
     [movexResource?.subscribers]
@@ -80,9 +80,11 @@ export const RoomContainer = ({ iceServers, rid, activity }: Props) => {
     // Poveži se na socket sa statusom 'available'
 
     const handleChallengeNotification = (data: any) => {
-      console.log('proveri datu',data.data.ch_amount)
-      if(data.data.ch_amount!==0){return}
-          console.log('proveri jbt')
+      console.log('proveri datu', data.data.ch_amount);
+      if (data.data.ch_amount !== 0) {
+        return;
+      }
+      console.log('proveri jbt');
       const isChallengeNotification =
         data.n_type === 'challenge_initiated' ||
         data.ch_uuid ||
@@ -158,9 +160,9 @@ export const RoomContainer = ({ iceServers, rid, activity }: Props) => {
         await socketUtil.connect('reviewing');
       } else if (window.location.href.includes('puzzle')) {
         await socketUtil.connect('puzzle');
-      } 
- 
-    setTimeout(() => {
+      }
+
+      setTimeout(() => {
         socketUtil.subscribe('tb_notification', handleChallengeNotification);
       }, 5000);
     };
@@ -168,7 +170,6 @@ export const RoomContainer = ({ iceServers, rid, activity }: Props) => {
     return () => {
       socketUtil.unsubscribe('tb_notification', handleChallengeNotification);
       socketUtil.disconnect();
-      
     };
   }, []);
 
@@ -350,7 +351,7 @@ export const RoomContainer = ({ iceServers, rid, activity }: Props) => {
         <Modal>Cannot connect. Check your Internet Connection!</Modal>
       )}
       <div className="flex-center">
-        {activity !== 'match'  && (
+        {activity !== 'match' && (
           <ChallengeNotification
             challenge={challengeNotification}
             onAccept={(challengeUuid) => {

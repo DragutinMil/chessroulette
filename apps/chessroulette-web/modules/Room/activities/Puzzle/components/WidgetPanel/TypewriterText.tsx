@@ -10,7 +10,7 @@ interface TypewriterTextProps {
   hint: () => void;
   onSelectPuzzle: (category: string) => void;
   onSelectRating: (category: number) => void;
-  puzzleRating?:number
+  puzzleRating?: number;
 }
 const TypewriterText: React.FC<TypewriterTextProps> = ({
   lastMessage = '',
@@ -19,7 +19,7 @@ const TypewriterText: React.FC<TypewriterTextProps> = ({
   hint,
   onSelectPuzzle,
   onSelectRating,
-  puzzleRating
+  puzzleRating,
 }) => {
   const [displayedText, setDisplayedText] = useState('');
   const [showCursor, setShowCursor] = useState(true);
@@ -94,23 +94,28 @@ const TypewriterText: React.FC<TypewriterTextProps> = ({
         {lastMessage.includes('Ready for exercise') &&
           displayedText.length == lastMessage.length &&
           puzzleCategories
-  .filter((category) => {
-    if (puzzleRating && puzzleRating > 2000 && category.value === 'Check Mate in 1') {
-      return false
-    }
-    return true
-  }).map((category) => (
-            <ButtonGreen
-              key={category.value}
-              onClick={() => {
-                onSelectPuzzle(category.value);
-              }}
-              size="md"
-              className=" font-bold mt-2 px-1 mr-2 whitespace-nowrap"
-            >
-              {category.label}
-            </ButtonGreen>
-          ))}
+            .filter((category) => {
+              if (
+                puzzleRating &&
+                puzzleRating > 2000 &&
+                category.value === 'Check Mate in 1'
+              ) {
+                return false;
+              }
+              return true;
+            })
+            .map((category) => (
+              <ButtonGreen
+                key={category.value}
+                onClick={() => {
+                  onSelectPuzzle(category.value);
+                }}
+                size="md"
+                className=" font-bold mt-2 px-1 mr-2 whitespace-nowrap"
+              >
+                {category.label}
+              </ButtonGreen>
+            ))}
       </div>
       <div className="flex flex-wrap">
         {lastMessage.includes(
@@ -118,7 +123,6 @@ const TypewriterText: React.FC<TypewriterTextProps> = ({
         ) &&
           displayedText.length == lastMessage.length &&
           ratingBot.map((category) => (
-           
             <ButtonGreen
               key={category.value}
               onClick={() => {
