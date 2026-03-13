@@ -1025,7 +1025,7 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
                             puzzles();
                           }}
                           size="sm"
-                          className=" md:max-w-[92px] max-w-[84px] px-8"
+                          className=" md:max-w-[94px] max-w-[86px] px-8"
                           disabled={
                             freezeButton ||
                             currentChapterState.messages[
