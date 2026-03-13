@@ -53,8 +53,7 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
 
   // const [matchId, setMatchId] = useState('');
   const [room, setRoom] = useState('');
- 
-    
+
   //const [userId, setUserId] = useState('');
   const dispatch = useMatchActionsDispatch();
   const router = useRouter();
@@ -66,7 +65,6 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
     (userId === match.challenger.id || userId === match.challengee.id);
 
   const params = useParams<{ roomId: string }>();
-
 
   const roomId = params.roomId;
 
@@ -93,9 +91,10 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
 
   useEffect(() => {
     async function runCheck() {
-      if(isPlayer==false){
-        return}
-      const result = await checkUser(userId );
+      if (isPlayer == false) {
+        return;
+      }
+      const result = await checkUser(userId);
       // console.log('Tok', result);
       if (result == false) {
         console.log('token error');
@@ -107,7 +106,7 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
           router.push('https://app.outpostchess.com/online-list');
         }
       }
-     
+
       let room = Array(7)
         .fill(0)
         .map(() =>
@@ -117,7 +116,6 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
         )
         .join('');
       setRoom(room);
-      
     }
     runCheck();
   }, []);

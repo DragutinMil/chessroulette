@@ -16,7 +16,7 @@ type Props = {
   openViewSubscription: () => void;
   onSelectRating: (category: number) => void;
   onSelectPuzzle: (category: string) => void;
-   puzzleRating?:number
+  puzzleRating?: number;
 };
 //console.log('currentChapterState',currentChapterState)
 
@@ -31,7 +31,7 @@ const Conversation = ({
   hint,
   onSelectPuzzle,
   onSelectRating,
-  puzzleRating
+  puzzleRating,
 }: Props) => {
   const scrollRef = useRef<HTMLDivElement>(null);
 

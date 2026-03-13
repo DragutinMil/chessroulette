@@ -909,7 +909,7 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
               id: 'notation',
               renderHeader: (p) => <div></div>,
               renderContent: () => (
-                <div className="flex flex-col flex-1 gap-2 min-h-0 overflow-scroll no-scrollbar ">
+                <div className="flex flex-col flex-1 gap-2 min-h-0 overflow-scroll no-scrollbar  pb-24 md:pb-0">
                   <div
                     className={`flex-1 justify-between flex bg-op-widget flex-col border  border-conversation-100 pb-2 px-2 md:px-4 md:pb-4 rounded-lg 
                      
@@ -929,7 +929,7 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
                           isMobile={isMobile}
                           userData={userData}
                           smallMobile={smallMobile}
-                           puzzleRating={userData.puz_rating}
+                          puzzleRating={userData.puz_rating}
                         />
                       )}
 
@@ -1056,9 +1056,7 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
                       )}
                     </div>
 
-                    <div className="flex mb-2 md:mb-0 mt-2 md:mt-0"
-                  
-                          >
+                    <div className="flex mb-2 md:mb-0 mt-2 md:mt-0">
                       <input
                         id="title"
                         type="text"

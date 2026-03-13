@@ -11,7 +11,7 @@ type StockfishEngineProps = {
   fen: ChessFEN;
   isMyTurn: boolean;
   bot: string;
-  botColor:any;
+  botColor: any;
   engineMove: any;
   // engineMove: (m: ShortChessMove) => void;
 };
@@ -196,29 +196,26 @@ const StockfishEngine: React.FC<StockfishEngineProps> = ({
   //     setStockfishOutput('Failed to load Stockfish.');
   //   }
   // }, [fen]);
- 
 
   useEffect(() => {
-    
     let m = bestMove;
     const timeout = setTimeout(() => {
-
       setTimeout(() => {
-     const parts = fen.split(' ');
-    //  console.log('parts[1]',parts[1])
-    //   console.log('botColor',botColor)
-    if(botColor !== parts[1]) {return} 
-    
-    if (!isMyTurn && bestMove ) {
-      
-        engineMove(m)
-    }
-    }, 400);
-    return () => clearTimeout(timeout);
-  }, 1000);
+        const parts = fen.split(' ');
+        //  console.log('parts[1]',parts[1])
+        //   console.log('botColor',botColor)
+        if (botColor !== parts[1]) {
+          return;
+        }
 
+        if (!isMyTurn && bestMove) {
+          engineMove(m);
+        }
+      }, 400);
+      return () => clearTimeout(timeout);
+    }, 1000);
   }, [bestMove]);
-  
+
   return null;
 };
 

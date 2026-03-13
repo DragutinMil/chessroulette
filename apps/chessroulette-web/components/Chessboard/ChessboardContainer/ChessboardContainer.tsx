@@ -1,9 +1,4 @@
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-} from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import {
   ChessFEN,
   PieceSan,
@@ -119,7 +114,10 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
   const engineMoveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
     null
   );
-  const botColor = match?.gameInPlay?.players.w==botId ? 'w' : match?.gameInPlay?.players.b==botId  && 'b'
+  const botColor =
+    match?.gameInPlay?.players.w == botId
+      ? 'w'
+      : match?.gameInPlay?.players.b == botId && 'b';
   const arrowAndCircleColor = useArrowAndCircleColor();
   const arrows = useCustomArrows(onArrowsChange, props.arrowsMap);
   //console.log('arrows', arrows);
@@ -138,7 +136,7 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
     },
     [onCircleDraw, arrowAndCircleColor]
   );
-  
+
   const resetArrowsAndCircles = useCallback(() => {
     if (Object.keys(circlesMap || {}).length > 0) {
       onClearCircles();
@@ -168,7 +166,7 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
     pendingMove,
     preMove,
     circlesMap,
-     isMyTurn,
+    isMyTurn,
     ...props,
   });
   useEffect(() => {
@@ -180,17 +178,12 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
     }
   }, [stopEngineMove]);
 
-
-
-
   const engineMove = useCallback(
-     
     (m: any) => {
-
       const from = m.slice(0, 2);
       const to = m.slice(2, 4);
       const promo = m[4];
-     
+
       if (promo === 'q') {
         engineMoveTimeoutRef.current = setTimeout(() => {
           onMove({ from, to, promoteTo: promo });
