@@ -17,7 +17,7 @@ export async function SendQuestionReview(
   const fen = currentChapterState.displayFen;
   const moveNum = currentChapterState.notation.focusedIndex[0];
   const submoveNum = currentChapterState.notation.focusedIndex[1];
-  const userColor = currentChapterState.orientation
+  const userColor = currentChapterState.orientation;
   const actualPGN = slicePgn(pgn, moveNum, submoveNum);
   const normalizedReview = reviewData.map((m, index, arr) => {
     const previous = arr[index - 1];

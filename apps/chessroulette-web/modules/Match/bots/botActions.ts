@@ -45,43 +45,39 @@ export const botSendRematchOffer = (
         },
       }));
     }, 600);
-    let contentList
-    if( byPlayerId == '9yzBb59_POb9L000'){
+    let contentList;
+    if (byPlayerId == '9yzBb59_POb9L000') {
       contentList = [
-      'You’re not leaving now, right? Come on, show me what you’ve got.',
-      'If you walk away now, it’ll look like you’re running… just saying. 😄',
-      'One more. I’m not done with you yet.',
-    ];
-    }else if(byPlayerId == '9aEXYS0xwZS21000'){
-        contentList = [
-      'Nice game. Want another one to see the pattern?',
-      'That was interesting… I’d like to continue.',
-      'If you’ve got time, let’s play again.😄',
-    ];
-    }
-    else if(byPlayerId == '9aEXYS0xwZS21000'){
-       contentList = [
-      'What’s this, leaving already? Yeah, right.',
-      'Come on, one more. I promise I’ll be nice this time… maybe. 😄',
-      'Okay, okay… let me hit rematch so I can bother you a bit more.',
-    ];
-    }
-    else if(byPlayerId == '9aEXYS0xwZS21000'){
-        contentList = [
-      'I really enjoyed that game. Shall we play another?',
-      'Let’s continue — I feel the next one will be even better. 😄',
-      'If you want a rematch, I’m here. I always enjoy playing with you.',
-    ];
-    }
-    else {
-        contentList = [
-      'Let’s go again. No way we’re ending it like this.',
-      'If you’re ready for a rematch, I’m ready.',
-      'Want another one — or is that enough for today?',
-    ];
+        'You’re not leaving now, right? Come on, show me what you’ve got.',
+        'If you walk away now, it’ll look like you’re running… just saying. 😄',
+        'One more. I’m not done with you yet.',
+      ];
+    } else if (byPlayerId == '9aEXYS0xwZS21000') {
+      contentList = [
+        'Nice game. Want another one to see the pattern?',
+        'That was interesting… I’d like to continue.',
+        'If you’ve got time, let’s play again.😄',
+      ];
+    } else if (byPlayerId == '9aEXYS0xwZS21000') {
+      contentList = [
+        'What’s this, leaving already? Yeah, right.',
+        'Come on, one more. I promise I’ll be nice this time… maybe. 😄',
+        'Okay, okay… let me hit rematch so I can bother you a bit more.',
+      ];
+    } else if (byPlayerId == '9aEXYS0xwZS21000') {
+      contentList = [
+        'I really enjoyed that game. Shall we play another?',
+        'Let’s continue — I feel the next one will be even better. 😄',
+        'If you want a rematch, I’m here. I always enjoy playing with you.',
+      ];
+    } else {
+      contentList = [
+        'Let’s go again. No way we’re ending it like this.',
+        'If you’re ready for a rematch, I’m ready.',
+        'Want another one — or is that enough for today?',
+      ];
     }
 
-  
     const content = contentList[Math.floor(Math.random() * contentList.length)];
 
     dispatch({

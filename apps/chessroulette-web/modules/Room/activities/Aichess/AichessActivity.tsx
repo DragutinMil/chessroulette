@@ -83,7 +83,6 @@ export const AichessActivity = ({
     };
   }, []);
   useEffect(() => {
-
     if (newReview === false && currentChapter.chessAiMode.mode == 'review') {
       return;
     }

@@ -6,7 +6,7 @@ export async function checkUser(userId: string | undefined) {
   if (!userId) {
     return;
   }
-  
+
   function safeDecode(standardToken: string) {
     // if (!standardToken) return null;
     try {
