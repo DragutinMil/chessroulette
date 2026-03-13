@@ -80,6 +80,9 @@ export const RoomContainer = ({ iceServers, rid, activity }: Props) => {
     // Poveži se na socket sa statusom 'available'
 
     const handleChallengeNotification = (data: any) => {
+      console.log('proveri datu',data.data.ch_amount)
+      if(data.data.ch_amount!==0){return}
+          console.log('proveri jbt')
       const isChallengeNotification =
         data.n_type === 'challenge_initiated' ||
         data.ch_uuid ||
@@ -347,7 +350,7 @@ export const RoomContainer = ({ iceServers, rid, activity }: Props) => {
         <Modal>Cannot connect. Check your Internet Connection!</Modal>
       )}
       <div className="flex-center">
-        {activity !== 'match' && (
+        {activity !== 'match'  && (
           <ChallengeNotification
             challenge={challengeNotification}
             onAccept={(challengeUuid) => {

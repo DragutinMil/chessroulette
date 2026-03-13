@@ -192,13 +192,13 @@ const MatchContainerInner = ({
       }
        const Socketinitiation = async () => {
           if ( userAsPlayer) {
-             console.log('bot',bot)
+            
             if(bot) {
-              console.log('activeBot')
+             
                await socketUtil.connect('playingbot');
             }else{
                await socketUtil.connect('playing');
-               console.log('nije activeBot')
+             
             }
              
           }
