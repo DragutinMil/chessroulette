@@ -47,6 +47,8 @@ export type ChessboardContainerProps = Omit<
   containerClassName?: string;
   stopEngineMove?: boolean;
   botId?: string;
+  botType?: string;
+  userRating?: number;
   onLastMoveWasPromotionChange?: (wasPromotion: boolean) => void;
   onPieceDrop?: (from: Square, to: Square, piece?: string) => void;
   onArrowsChange?: (arrows: ArrowsMap) => void;
@@ -95,6 +97,8 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
   boardOrientation = 'w',
   stopEngineMove,
   botId,
+  botType,
+  userRating,
   onLastMoveWasPromotionChange,
   rightSideComponent,
   rightSideSizePx = 0,
@@ -120,8 +124,6 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
       : match?.gameInPlay?.players.b == botId && 'b';
   const arrowAndCircleColor = useArrowAndCircleColor();
   const arrows = useCustomArrows(onArrowsChange, props.arrowsMap);
-  //console.log('arrows', arrows);
-
   // useEffect(() => {
   //   setBots(
   //     match?.challengee?.id?.length === 16 ||
@@ -223,6 +225,8 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
       {botId && (
         <StockFishEngine
           bot={botId}
+          userRating={userRating}
+          botType={botType}
           fen={fen}
           isMyTurn={isMyTurn}
           botColor={botColor}

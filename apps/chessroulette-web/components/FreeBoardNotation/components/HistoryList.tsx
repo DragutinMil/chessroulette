@@ -212,16 +212,20 @@ export const List: React.FC<ListProps> = ({
           <div className="flex  w-full">
             <p className="text-[#8F8F90] md: text-[10px] font-bold w-[51%] ml-[7px] ">
               WHITE
-              <span className="text-white">
-                &nbsp; {whitePlayer?.displayName}
-              </span>
+              {isAichess && (
+                <span className="text-white">
+                  &nbsp; {whitePlayer?.displayName}
+                </span>
+              )}
             </p>
 
             <p className="text-[#8F8F90] text-[10px] font-bold   ">
               BLACK
-              <span className="text-white">
-                &nbsp; {blackPlayer?.displayName}
-              </span>
+              {isAichess && (
+                <span className="text-white">
+                  &nbsp; {blackPlayer?.displayName}
+                </span>
+              )}
             </p>
           </div>
         </div>

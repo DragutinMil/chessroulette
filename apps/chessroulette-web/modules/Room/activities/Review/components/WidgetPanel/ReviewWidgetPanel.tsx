@@ -168,7 +168,7 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
         setPulseDot(false);
         onMessage({
           content: `You’ve hit your daily limit.
-Unlock Unlimited Puzzles, Unlimited Game Reviews, and Unlimited AI Chat for just €4,  and improve faster with AI-powered analysis and training.`,
+Unlock Unlimited Puzzles, Unlimited Game Reviews, and Unlimited AI Chat for just €4/Month,  and improve faster with AI-powered analysis and training.`,
 
           participantId: 'chatGPT123456sales',
           idResponse: '',
