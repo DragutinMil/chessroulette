@@ -23,6 +23,8 @@ export type PlayboardProps = DistributiveOmit<
   onLastMoveWasPromotionChange?: (wasPromotion: boolean) => void;
   stopEngineMove?: boolean;
   botId?: string;
+  botType?: string;
+  userRating?: number;
   canPlay?: boolean;
   overlayComponent?: React.ReactNode;
 };
@@ -40,6 +42,8 @@ export const Playboard = ({
   onMove,
   stopEngineMove,
   botId,
+  botType,
+  userRating,
   onLastMoveWasPromotionChange,
   canPlay = false,
   turn,
@@ -105,6 +109,8 @@ export const Playboard = ({
       //   setCirclesMap({});
       // }}
       botId={botId}
+      botType={botType}
+      userRating={userRating}
       stopEngineMove={stopEngineMove}
       onLastMoveWasPromotionChange={onLastMoveWasPromotionChange}
     />

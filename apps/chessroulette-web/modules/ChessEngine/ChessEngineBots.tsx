@@ -13,6 +13,8 @@ type StockfishEngineProps = {
   bot: string;
   botColor: any;
   engineMove: any;
+  botType?: string;
+  userRating?: number;
   // engineMove: (m: ShortChessMove) => void;
 };
 
@@ -21,40 +23,44 @@ const StockfishEngine: React.FC<StockfishEngineProps> = ({
   isMyTurn,
   engineMove,
   botColor,
+  botType,
+  userRating,
   bot,
 }) => {
-  const [stockfishOutput, setStockfishOutput] = useState('Initializing...');
+  // const [stockfishOutput, setStockfishOutput] = useState('Initializing...');
   const [bestMove, setBestMove] = useState('');
   const [depth, setDepth] = useState('1');
   const [skill, setSkill] = useState('');
+  const [changeAfterMove, setChangeAfterMove] = useState(0);
+
+  const [score, setScore] = useState('');
   const [contempt, setContempt] = useState('');
   const stockfishRef = useRef<Worker | null>(null);
+
   useEffect(() => {
     if (typeof window === 'undefined') return; // Ensure it's client-side
-
     if (skill == '' && bot) {
       let baseDepth = 1;
       let baseSkill = 0;
       let baseContempt = 20;
-
       if (skill === '' && bot) {
-        if (bot.slice(-2) == '10') {
-          baseDepth = 5;
+        if (bot.slice(-2) == 'vpHH6Jf7rYKwN010') {
+          baseDepth = 6;
           baseSkill = 12;
           baseContempt = 22;
-        } else if (bot.slice(-2) == '08') {
+        } else if (bot == 'KdydnDHbBU1JY008') {
           baseDepth = 8;
           baseSkill = 8;
           baseContempt = 18;
-        } else if (bot.slice(-2) == '05') {
-          baseDepth = 9;
+        } else if (bot == 'O8kiLgwcKJWy9005') {
+          baseDepth = 7;
           baseSkill = 5;
           baseContempt = 15;
-        } else if (bot.slice(-2) == '02') {
+        } else if (bot == 'NaNuXa7Ew8Kac002') {
           baseDepth = 5;
           baseSkill = 3;
           baseContempt = 15;
-        } else if (bot.slice(-2) == '20') {
+        } else if (bot == '8WCVE7ljCQJTW020') {
           baseDepth = 4;
           baseSkill = 0;
           baseContempt = 12;
@@ -79,20 +85,7 @@ const StockfishEngine: React.FC<StockfishEngineProps> = ({
           baseSkill = 9;
           baseContempt = 9;
         }
-        //  console.log('base', baseDepth, baseSkill, baseContempt);
-        const randomize = (value: number, delta = 2, min = 0, max = 20) => {
-          const rnd = Math.floor(Math.random() * (delta * 2 + 1)) - delta; // -delta .. +delta
-          const v = value + rnd;
-          return Math.max(min, Math.min(max, v));
-        };
-        const finalDepth = randomize(baseDepth, 2, 1, 15);
-        const finalSkill = randomize(baseSkill, 2, 0, 20);
-        const finalContempt = randomize(baseContempt, 2, 0, 30);
-
-        setDepth(String(finalDepth));
-        setSkill(String(finalSkill));
-        setContempt(String(finalContempt));
-        console.log(finalDepth, finalSkill, finalContempt);
+        getFinalSkill(baseDepth, baseSkill, baseContempt);
       }
     }
 
@@ -101,18 +94,31 @@ const StockfishEngine: React.FC<StockfishEngineProps> = ({
       stockfishRef.current = stockfish;
 
       stockfish.onmessage = (event) => {
+        // console.log('stockfish data',event.data)
+
         if (
           typeof event.data === 'string' &&
           event.data.startsWith('bestmove')
         ) {
           setBestMove(event.data.split(' ')[1]);
+          // console.log('best move',event.data.split(' ')[1])
         }
-        setStockfishOutput(event.data);
+        if (
+          typeof event.data === 'string' &&
+          event.data.startsWith(`info depth ${depth}`)
+        ) {
+          const cp = event.data.match(/score cp (-?\d+)/)?.[1];
+
+          if (cp) {
+            setScore(cp);
+          }
+        }
+        // setStockfishOutput(event.data);
       };
 
-      stockfish.onerror = () => {
-        setStockfishOutput('Stockfish error! Check console.');
-      };
+      // stockfish.onerror = () => {
+      //   setStockfishOutput('Stockfish error! Check console.');
+      // };
 
       stockfish.postMessage('uci');
 
@@ -121,9 +127,107 @@ const StockfishEngine: React.FC<StockfishEngineProps> = ({
         stockfishRef.current = null;
       };
     } catch (error) {
-      setStockfishOutput('Failed to load Stockfish.');
+      // setStockfishOutput('Failed to load Stockfish.');
     }
   }, []);
+
+  useEffect(() => {
+    if (!isMyTurn) {
+      return;
+    }
+
+    const moveNumber = parseInt(fen.split(' ')[5]);
+    if (moveNumber % 5 === 0 && changeAfterMove !== moveNumber) {
+      let newDepth = Number(depth);
+      let newSkill = Number(skill);
+      let newContempt = Number(contempt);
+
+      if (Number(score) > 500 && Number(score) < 800) {
+        newDepth += 1;
+        newSkill += 1;
+        newContempt += 2;
+      }
+
+      if (Number(score) > 800) {
+        newDepth += 2;
+        newSkill += 2;
+        newContempt += 3;
+      }
+
+      if (Number(score) < -400 && Number(score) > -700) {
+        newDepth -= 1;
+        newSkill -= 1;
+        newContempt -= 2;
+      }
+
+      if (Number(score) < -700) {
+        newDepth -= 2;
+        newSkill -= 2;
+        newContempt -= 3;
+      }
+
+      // 👉 zaštita da ne ide ispod 0
+      setDepth(String(Math.max(0, newDepth)));
+      setSkill(String(Math.max(0, newSkill)));
+      setContempt(String(Math.max(0, newContempt)));
+
+      setChangeAfterMove(moveNumber);
+    }
+    //  console.log('cp score', score)
+  }, [score]);
+
+  useEffect(() => {
+    if (userRating == undefined) {
+      return;
+    }
+    //pocetna podesavanja za MATCH MAKE
+    let baseDepth;
+    let baseSkill;
+    let baseContempt;
+    if (userRating && userRating > 1500) {
+      baseDepth = 7;
+      baseSkill = 8;
+      baseContempt = 10;
+    } else if (userRating > 1300) {
+      baseDepth = 4;
+      baseSkill = 6;
+      baseContempt = 5;
+    } else if (userRating > 1200) {
+      baseDepth = 3;
+      baseSkill = 5;
+      baseContempt = 5;
+    } else if (userRating > 1100) {
+      baseDepth = 2;
+      baseSkill = 3;
+      baseContempt = 4;
+    } else {
+      baseDepth = 1;
+      baseSkill = 1;
+      baseContempt = 1;
+    }
+    getFinalSkill(baseDepth, baseSkill, baseContempt);
+  }, [userRating]);
+
+  const getFinalSkill = (
+    baseDepth: number,
+    baseSkill: number,
+    baseContempt: number
+  ) => {
+    const randomize = (value: number, delta = 2, min = 0, max = 20) => {
+      const rnd = Math.floor(Math.random() * (delta * 2 + 1)) - delta; // -delta .. +delta
+      const v = value + rnd;
+      return Math.max(min, Math.min(max, v));
+    };
+    const finalDepth = randomize(baseDepth, 2, 1, 15);
+    const finalSkill = randomize(baseSkill, 2, 0, 20);
+    const finalContempt = randomize(baseContempt, 2, 0, 30);
+    setDepth(String(finalDepth));
+    setSkill(String(finalSkill));
+    setContempt(String(finalContempt));
+  };
+  useEffect(() => {
+    console.log(depth, skill, contempt);
+  }, [depth]);
 
   useEffect(() => {
     if (!stockfishRef.current) return;
@@ -166,36 +270,6 @@ const StockfishEngine: React.FC<StockfishEngineProps> = ({
       stockfishRef.current.postMessage(`setoption name UCI_Elo value 500`);
     }
   }, [fen, depth]);
-
-  // useEffect(() => {
-  // if (typeof window === 'undefined') return;
-  //   try {
-  //     const stockfish = new Worker('/stockfish.js');
-  //     stockfish.onmessage = (event) => {
-  //       if (event.data.startsWith('bestmove')) {
-  //         setBestMove(event.data.split(' ')[1]);
-  //       }
-  //       setStockfishOutput(event.data);
-  //     };
-  //     stockfish.onerror = (error) => {
-  //       // console.error("Stockfish error:", error);
-  //       setStockfishOutput('Stockfish error! Check console.');
-  //     };
-  //     stockfish.postMessage('uci'); // Send UCI command to initialize Stockfish
-  //     stockfish.postMessage(`setoption name Skill Level value ${skill}`);
-  //     stockfish.postMessage(`setoption name Contempt value ${contempt}`);
-
-  //     setTimeout(() => {
-  //       stockfish.postMessage(`position fen ${fen}`);
-  //       stockfish.postMessage(`go depth ${depth}`);
-  //     }, 1000);
-
-  //     return () => stockfish.terminate(); // Cleanup on unmount
-  //   } catch (error) {
-  //     // console.error("Failed to load Stockfish:", error);
-  //     setStockfishOutput('Failed to load Stockfish.');
-  //   }
-  // }, [fen]);
 
   useEffect(() => {
     let m = bestMove;

@@ -70,6 +70,31 @@ export async function ai_prompt(
     console.error('Fetch error', error);
   }
 }
+export async function getUserInfo() {
+  const token = Cookies.get('sessionToken');
+  if (!token) {
+    console.log('token error');
+    return;
+  }
+  try {
+    const response = await fetch(
+      process.env.NEXT_PUBLIC_API_WEB + 'current_user_info',
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    if (!response.ok) {
+      throw new Error(`Error: ${response.status}`);
+    }
+    return response.json();
+  } catch (error) {
+    console.error('Fetch error', error);
+  }
+}
 
 export const findIfBots = (challengeeId: string, challengerId: string) => {
   const idsToCheck = [challengeeId, challengerId].filter(Boolean);
@@ -79,6 +104,25 @@ export const findIfBots = (challengeeId: string, challengerId: string) => {
   return bot;
 };
 
+export const getMakeFakeName = () => {
+  const pathParts = window.location.pathname.split('/');
+  const matchId = pathParts[pathParts.length - 1];
+  let result = '';
+  for (let i = 0; i < matchId.length; i++) {
+    const charCode = matchId.charCodeAt(i);
+    result += charCode % 10;
+  }
+  const name = 'Guest ' + result;
+  const fakeBot = {
+    id: 'TbN0mQQJy8s2-',
+    name: name,
+    lastName: '',
+    picture: '',
+    botType: 'matchFake',
+  };
+  return fakeBot;
+};
+
 export const chatBotList = [
   {
     id: '9yzBb59_POb9L000',
@@ -86,6 +130,7 @@ export const chatBotList = [
     lastName: 'Boticelli',
     picture:
       'https://api.outpostchess.com/upload/w_64,ao_1/https://outpostchess.fra1.digitaloceanspaces.com/2153132f-0e18-4778-b619-12e3e058da68.png',
+    botType: 'botelja',
   },
   {
     id: '9aEXYS0xwZS21000',
@@ -93,6 +138,7 @@ export const chatBotList = [
     lastName: 'Frustain',
     picture:
       'https://api.outpostchess.com/upload/w_64,ao_1/https://outpostchess.fra1.digitaloceanspaces.com/2f2d0621-f741-4ee3-83a7-b75db533c4b6.png',
+    botType: 'botelja',
   },
   {
     id: 'fH0667J9nJ1Ez000',
@@ -100,6 +146,7 @@ export const chatBotList = [
     lastName: 'Boncwik',
     picture:
       'https://api.outpostchess.com/upload/w_64,ao_1/https://outpostchess.fra1.digitaloceanspaces.com/66922ae6-fd30-42d4-8137-a03713b34563.png',
+    botType: 'botelja',
   },
   {
     id: '-BihTlRZ-SKTL000',
@@ -107,6 +154,7 @@ export const chatBotList = [
     lastName: 'Stein',
     picture:
       'https://api.outpostchess.com/upload/w_64,ao_1/https://outpostchess.fra1.digitaloceanspaces.com/bb7350ac-c63b-44a8-b68e-700a8bab9e48.png',
+    botType: 'botelja',
   },
   {
     id: 'Pjdw8gu5kpiRk000',
@@ -114,6 +162,7 @@ export const chatBotList = [
     lastName: 'Petersson',
     picture:
       'https://api.outpostchess.com/upload/w_64,ao_1/https://outpostchess.fra1.digitaloceanspaces.com/9b54c468-1718-45a2-b6a3-7b2909c35a20.png',
+    botType: 'botelja',
   },
   {
     id: '8WCVE7ljCQJTW020',
@@ -121,6 +170,7 @@ export const chatBotList = [
     lastName: 'Smith',
     picture:
       'https://outpostchess.fra1.digitaloceanspaces.com/1cbac9bd-fd34-4931-9a08-32f6487afc2d.png',
+    botType: 'basic',
   },
   {
     id: 'NaNuXa7Ew8Kac002',
@@ -128,6 +178,7 @@ export const chatBotList = [
     lastName: 'Johansen',
     picture:
       'https://outpostchess.fra1.digitaloceanspaces.com/96124b0e-0775-48e2-8017-59904373276f.png',
+    botType: 'basic',
   },
   {
     id: 'O8kiLgwcKJWy9005',
@@ -135,6 +186,7 @@ export const chatBotList = [
     lastName: 'Fernandez',
     picture:
       'https://outpostchess.fra1.digitaloceanspaces.com/fa245412-a7e2-4d29-b9d6-34f471df8d08.png',
+    botType: 'basic',
   },
   {
     id: 'KdydnDHbBU1JY008',
@@ -142,6 +194,7 @@ export const chatBotList = [
     lastName: 'Singh',
     picture:
       'https://outpostchess.fra1.digitaloceanspaces.com/805cf0d7-e73f-4135-9837-733b31fa3e49.png',
+    botType: 'basic',
   },
   {
     id: 'vpHH6Jf7rYKwN010',
@@ -149,5 +202,577 @@ export const chatBotList = [
     lastName: 'Li',
     picture:
       'https://outpostchess.fra1.digitaloceanspaces.com/4e5cf95f-e232-45cb-9c09-74354791db10.png',
+    botType: 'basic',
+  },
+  {
+    id: 'Y5MbWjWjIVQZw',
+    name: 'Amara',
+    lastName: 'Diallo',
+    picture: '',
+    botType: 'matchFake',
+  },
+  {
+    id: 'sl0BRsRcmd1RX',
+    name: 'Kwame',
+    lastName: 'Asante',
+    picture: '',
+    botType: 'matchFake',
+  },
+  {
+    id: 'CrARTofbHqDrb',
+    name: 'Fatima',
+    lastName: 'Okafor',
+    picture: '',
+    botType: 'matchFake',
+  },
+  {
+    id: 'Z9AqXjzkMYgd-',
+    name: 'Seun',
+    lastName: 'Adeyemi',
+    picture: '',
+    botType: 'matchFake',
+  },
+  {
+    id: 'X3r6UTx627ZoG',
+    name: 'Nadia',
+    lastName: 'Mensah',
+    picture: '',
+    botType: 'matchFake',
+  },
+  {
+    id: 'CLeUBmNBqlQfX',
+    name: 'Wei',
+    lastName: 'Zhang',
+    picture: '',
+    botType: 'matchFake',
+  },
+  {
+    id: 'M51vZsaExoX9C',
+    name: 'Yuki',
+    lastName: 'Tanaka',
+    picture: '',
+    botType: 'matchFake',
+  },
+  {
+    id: '2C9NmRvfaRVj9',
+    name: 'Hana',
+    lastName: 'Kim',
+    picture: '',
+    botType: 'matchFake',
+  },
+  {
+    id: '91NoBxnln7MOt',
+    name: 'Jian',
+    lastName: 'Liu',
+    picture: '',
+    botType: 'matchFake',
+  },
+  {
+    id: '3s7vuKkkbpgul',
+    name: 'Min-jun',
+    lastName: 'Park',
+    picture: '',
+    botType: 'matchFake',
+  },
+  {
+    id: 'YvxAjFrAa6oHR',
+    name: 'Priya',
+    lastName: 'Sharma',
+    picture: '',
+    botType: 'matchFake',
+  },
+  {
+    id: 'hIdXS7Ab7DhSY',
+    name: 'Arjun',
+    lastName: 'Patel',
+    picture: '',
+    botType: 'matchFake',
+  },
+  {
+    id: 'uBGlS5JqsokIE',
+    name: 'Sneha',
+    lastName: 'Reddy',
+    picture: '',
+    botType: 'matchFake',
+  },
+  {
+    id: 'UlRx1Uy6RLPYd',
+    name: 'Rajan',
+    lastName: 'Nair',
+    picture: '',
+    botType: 'matchFake',
+  },
+  {
+    id: 'oLgZm3Vrj5nWP',
+    name: 'Siti',
+    lastName: 'Rahmat',
+    picture: '',
+    botType: 'matchFake',
+  },
+  {
+    id: 'mDq4toCnzWVvL',
+    name: 'Batu',
+    lastName: 'Erdene',
+    picture: '',
+    botType: 'matchFake',
+  },
+  {
+    id: '9DnY3r7_DwAV5',
+    name: 'Sofia',
+    lastName: 'Andersen',
+    picture: '',
+    botType: 'matchFake',
+  },
+  {
+    id: 'lBMjWlJsDwkHK',
+    name: 'Lukas',
+    lastName: 'Müller',
+    picture: '',
+    botType: 'matchFake',
+  },
+  {
+    id: 'RmB8Xld9MDixi',
+    name: 'Isabelle',
+    lastName: 'Dupont',
+    picture: '',
+    botType: 'matchFake',
+  },
+  {
+    id: 'sxu-t30QhMqI0',
+    name: 'Carlos',
+    lastName: 'Fernández',
+    picture: '',
+    botType: 'matchFake',
+  },
+  {
+    id: 'IIqk2Cql8Yx0W',
+    name: 'Emma',
+    lastName: 'Johansson',
+    picture: '',
+    botType: 'matchFake',
+  },
+  {
+    id: 'cBPkhSs8bDSfd',
+    name: 'Marco',
+    lastName: 'Rossi',
+    picture: '',
+    botType: 'matchFake',
+  },
+  {
+    id: 'fsNdGdpTw00X7',
+    name: 'Olena',
+    lastName: 'Kovalenko',
+    picture: '',
+    botType: 'matchFake',
+  },
+  {
+    id: 'z1zD7JuTp7LbR',
+    name: 'Dmitri',
+    lastName: 'Volkov',
+    picture: '',
+    botType: 'matchFake',
+  },
+  {
+    id: '5BCNTngCHKiRt',
+    name: 'Agnieszka',
+    lastName: 'Kowalski',
+    picture: '',
+    botType: 'matchFake',
+  },
+  {
+    id: 'bJMXJZCR0rIR9',
+    name: 'Bogdan',
+    lastName: 'Ionescu',
+    picture: '',
+    botType: 'matchFake',
+  },
+  {
+    id: '5CbR6JvDUQeUU',
+    name: 'Nikos',
+    lastName: 'Papadopoulos',
+    picture: '',
+    botType: 'matchFake',
+  },
+  {
+    id: 'yctfJ0YdymR2r',
+    name: 'Ana',
+    lastName: 'Pereira',
+    picture: '',
+    botType: 'matchFake',
+  },
+  {
+    id: 'gDC3H0sbisXhx',
+    name: 'Michael',
+    lastName: 'Johnson',
+    picture: '',
+    botType: 'matchFake',
+  },
+  {
+    id: 'MfsWkvLqWP9Gc',
+    name: 'Ashley',
+    lastName: 'Williams',
+    picture: '',
+    botType: 'matchFake',
+  },
+  {
+    id: 'VvIkhmT3javRO',
+    name: 'Tyler',
+    lastName: 'Brown',
+    picture: '',
+    botType: 'matchFake',
+  },
+  {
+    id: 'RYcntqbRYQIaE',
+    name: 'Mia',
+    lastName: 'Davis',
+    picture: '',
+    botType: 'matchFake',
+  },
+  {
+    id: 'm9PHH2_v4p0__',
+    name: 'Jorge',
+    lastName: 'Ramirez',
+    picture: '',
+    botType: 'matchFake',
+  },
+  {
+    id: 'axhNc9rbizcWZ',
+    name: 'Camila',
+    lastName: 'Herrera',
+    picture: '',
+    botType: 'matchFake',
+  },
+  {
+    id: '8SIzzgmr2tIyN',
+    name: 'Lucas',
+    lastName: 'Oliveira',
+    picture: '',
+    botType: 'matchFake',
+  },
+  {
+    id: 'kvXf4jgY71kgG',
+    name: 'Valentina',
+    lastName: 'García',
+    picture: '',
+    botType: 'matchFake',
+  },
+  {
+    id: '4qIlM6r556ktf',
+    name: 'Rodrigo',
+    lastName: 'Silva',
+    picture: '',
+    botType: 'matchFake',
+  },
+  {
+    id: 'YipTDBjodBR_X',
+    name: 'Liam',
+    lastName: "O'Brien",
+    picture: '',
+    botType: 'matchFake',
+  },
+  {
+    id: 'GZCnLZvv507t_',
+    name: 'Sophie',
+    lastName: 'Nguyen',
+    picture: '',
+    botType: 'matchFake',
+  },
+  {
+    id: 'w8Mo6rK8cKpxB',
+    name: 'James',
+    lastName: 'Walker',
+    picture: '',
+    botType: 'matchFake',
+  },
+  {
+    id: 'PgMnNKvYKzH2N',
+    name: 'Layla',
+    lastName: 'Al-Rashid',
+    picture: '',
+    botType: 'matchFake',
+  },
+  {
+    id: '1KR7Hm_JxkPyM',
+    name: 'Omar',
+    lastName: 'Hassan',
+    picture: '',
+    botType: 'matchFake',
+  },
+  {
+    id: 't5fj0K212v4Vp',
+    name: 'Yasmin',
+    lastName: 'Khalil',
+    picture: '',
+    botType: 'matchFake',
+  },
+  {
+    id: 'd7vmk4w5EzOFS',
+    name: 'Aigerim',
+    lastName: 'Bekova',
+    picture: '',
+    botType: 'matchFake',
+  },
+  {
+    id: 'qZwz-J1zqevft',
+    name: 'Temur',
+    lastName: 'Rashidov',
+    picture: '',
+    botType: 'matchFake',
+  },
+  {
+    id: 'VRP7uLFmC7iHJ',
+    name: 'Nguyen',
+    lastName: 'Thanh',
+    picture: '',
+    botType: 'matchFake',
+  },
+  {
+    id: 'iud5uEh7Kmkds',
+    name: 'Maria',
+    lastName: 'Santos',
+    picture: '',
+    botType: 'matchFake',
+  },
+  {
+    id: 'WQ0D2BXPkh5IO',
+    name: 'Daniela',
+    lastName: 'Cruz',
+    picture: '',
+    botType: 'matchFake',
+  },
+  {
+    id: 'lM6jZXMCnE5nw',
+    name: 'Martín',
+    lastName: 'Vargas',
+    picture: '',
+    botType: 'matchFake',
+  },
+  {
+    id: 'hLyaWMRkXAU0p',
+    name: 'Ingrid',
+    lastName: 'Larsen',
+    picture: '',
+    botType: 'matchFake',
+  },
+  {
+    id: '4zS5kX_-_2alW',
+    name: 'Mikael',
+    lastName: 'Virtanen',
+    picture: '',
+    botType: 'matchFake',
+  },
+  {
+    id: 'TbN0mQQJy8s2-',
+    name: 'Sajko',
+    lastName: '',
+    picture: '',
+    botType: 'matchFake',
   },
 ];
+
+// {
+//     id: '30474046-2779-11f1-90f3-4eb0dee0fbb1',
+//     name: 'Amara',
+//     lastName: 'Diallo',
+//     picture:
+//       '',
+//     botType:'matchFake',
+//   },
+//    {
+//     id: 'eabcc300-277a-11f1-9145-4eb0dee0fbb1',
+//     name: 'Kwame',
+//     lastName: 'Asante',
+//     picture:
+//       '',
+//     botType:'matchFake',
+//   },
+//   {
+//     id: 'bce82810-277b-11f1-9dd5-4eb0dee0fbb1',
+//     name: 'Fatima',
+//     lastName: 'Okafor',
+//     picture:
+//       '',
+//     botType:'matchFake',
+//   },
+//   {
+//     id: 'da24ffa2-277b-11f1-964c-4eb0dee0fbb1',
+//     name: 'Seun',
+//     lastName: 'Adeyemi',
+//     picture:
+//       '',
+//     botType:'matchFake',
+//   },
+//   {
+//     id: '0d675982-277c-11f1-a308-4eb0dee0fbb1',
+//     name: 'Nadia',
+//     lastName: 'Mensah',
+//     picture:
+//       '',
+//     botType:'matchFake',
+//   },
+//   {
+//     id: '340cdabc-277c-11f1-93c2-4eb0dee0fbb1',
+//     name: 'Wei',
+//     lastName: 'Zhang',
+//     picture:
+//       '',
+//     botType:'matchFake',
+//   },
+//   {
+//     id: '6c23b01a-277c-11f1-9321-4eb0dee0fbb1',
+//     name: 'Yuki',
+//     lastName: 'Tanaka',
+//     picture:
+//       '',
+//     botType:'matchFake',
+//   },
+//   {
+//     id: '8ba570c2-277c-11f1-8715-4eb0dee0fbb1',
+//     name: 'Hana',
+//     lastName: 'Kim',
+//     picture:
+//       '',
+//     botType:'matchFake',
+//   },
+//   {
+//     id: 'a58c8cea-277d-11f1-a26c-4eb0dee0fbb1',
+//     name: 'Jian',
+//     lastName: 'Liu',
+//     picture:
+//       '',
+//     botType:'matchFake',
+//   },
+//   {
+//     id: '7c5710aa-277f-11f1-8bd9-4eb0dee0fbb1',
+//     name: 'Min-jun',
+//     lastName: 'Park',
+//     picture:
+//       '',
+//     botType:'matchFake',
+//   },
+//   {
+//     id: '3f337fb4-2780-11f1-96ca-4eb0dee0fbb1',
+//     name: 'Priya',
+//     lastName: 'Sharma',
+//     picture:
+//       '',
+//     botType:'matchFake',
+//   },
+//   {
+//     id: '79c804ec-2780-11f1-b34b-4eb0dee0fbb1',
+//     name: 'Arjun',
+//     lastName: 'Patel',
+//     picture:
+//       '',
+//     botType:'matchFake',
+//   },
+//    {
+//     id: 'ac7955b2-2780-11f1-8884-4eb0dee0fbb1',
+//     name: 'Sneha',
+//     lastName: 'Reddy',
+//     picture:
+//       '',
+//     botType:'matchFake',
+//   },
+//    {
+//     id: 'd3e29884-2780-11f1-b34b-4eb0dee0fbb1',
+//     name: 'Rajan',
+//     lastName: 'Nair',
+//     picture:
+//       '',
+//     botType:'matchFake',
+//   },
+//    {
+//     id: 'd47aea58-2780-11f1-b34b-4eb0dee0fbb1',
+//     name: 'Siti',
+//     lastName: 'Rahmat',
+//     picture:
+//       '',
+//     botType:'matchFake',
+//   },
+//   {
+//     id: 'd513fb12-2780-11f1-923e-4eb0dee0fbb1',
+//     name: 'Batu',
+//     lastName: 'Erdene',
+//     picture:
+//       '',
+//     botType:'matchFake',
+//   },
+//   {
+//     id: 'd5ac2bb2-2780-11f1-923e-4eb0dee0fbb1',
+//     name: 'Sofia',
+//     lastName: 'Andersen',
+//     picture:
+//       '',
+//     botType:'matchFake',
+//   },
+//   {
+//     id: '8a9dc3f8-27d3-11f1-bb6c-4eb0dee0fbb1',
+//     name: 'Lukas',
+//     lastName: 'Müller',
+//     picture:
+//       '',
+//     botType:'matchFake',
+//   },
+
+//   {
+//     id: 'd6dd3904-2780-11f1-923e-4eb0dee0fbb1',
+//     name: 'Isabelle',
+//     lastName: 'Dupont',
+//     picture:
+//       '',
+//     botType:'matchFake',
+//   },
+//  {
+//     id: '73328b30-27d4-11f1-92d8-4eb0dee0fbb1',
+//     name: 'Carlos',
+//     lastName: 'Fernández',
+//     picture:
+//       '',
+//     botType:'matchFake',
+//   },
+//   {
+//     id: 'd810046e-2780-11f1-923e-4eb0dee0fbb1',
+//     name: 'Emma',
+//     lastName: 'Johansson',
+//     picture:
+//       '',
+//     botType:'matchFake',
+//   },
+//   {
+//     id: 'd8a703c8-2780-11f1-b34b-4eb0dee0fbb1',
+//     name: 'Marco',
+//     lastName: 'Rossi',
+//     picture:
+//       '',
+//     botType:'matchFake',
+//   },
+//   { id: "d940e75e-2780-11f1-b34b-4eb0dee0fbb1", name: "Olena", lastName: "Kovalenko", picture: "", botType: "matchFake" },
+//   { id: "d9d83f78-2780-11f1-a999-4eb0dee0fbb1", name: "Dmitri", lastName: "Volkov", picture: "", botType: "matchFake" },
+//   { id: "da712a12-2780-11f1-923e-4eb0dee0fbb1", name: "Agnieszka", lastName: "Kowalski", picture: "", botType: "matchFake" },
+//   { id: "db0f8e1e-2780-11f1-989c-4eb0dee0fbb1", name: "Bogdan", lastName: "Ionescu", picture: "", botType: "matchFake" },
+//   { id: "dba2a870-2780-11f1-b230-4eb0dee0fbb1", name: "Nikos", lastName: "Papadopoulos", picture: "", botType: "matchFake" },
+//   { id: "dc3bbb28-2780-11f1-b230-4eb0dee0fbb1", name: "Ana", lastName: "Pereira", picture: "", botType: "matchFake" },
+//   { id: "dcd3c922-2780-11f1-b230-4eb0dee0fbb1", name: "Michael", lastName: "Johnson", picture: "", botType: "matchFake" },
+//   { id: "dd6ba3b4-2780-11f1-989c-4eb0dee0fbb1", name: "Ashley", lastName: "Williams", picture: "", botType: "matchFake" },
+//   { id: "de05eb4a-2780-11f1-989c-4eb0dee0fbb1", name: "Tyler", lastName: "Brown", picture: "", botType: "matchFake" },
+//   { id: "de9cfc06-2780-11f1-b230-4eb0dee0fbb1", name: "Mia", lastName: "Davis", picture: "", botType: "matchFake" },
+//   { id: "df362322-2780-11f1-b230-4eb0dee0fbb1", name: "Jorge", lastName: "Ramirez", picture: "", botType: "matchFake" },
+//   { id: "dfce93c8-2780-11f1-b34b-4eb0dee0fbb1", name: "Camila", lastName: "Herrera", picture: "", botType: "matchFake" },
+//   { id: "e0675ca2-2780-11f1-b230-4eb0dee0fbb1", name: "Lucas", lastName: "Oliveira", picture: "", botType: "matchFake" },
+//   { id: "fbef2748-27d5-11f1-8002-4eb0dee0fbb1", name: "Valentina", lastName: "García", picture: "", botType: "matchFake" },
+//   { id: "e198a234-2780-11f1-b34b-4eb0dee0fbb1", name: "Rodrigo", lastName: "Silva", picture: "", botType: "matchFake" },
+//   { id: "859e9a1e-27d6-11f1-9f98-4eb0dee0fbb1", name: "Liam", lastName: "O'Brien", picture: "", botType: "matchFake" },
+//   { id: "e2c9c480-2780-11f1-b34b-4eb0dee0fbb1", name: "Sophie", lastName: "Nguyen", picture: "", botType: "matchFake" },
+//   { id: "e3616ff6-2780-11f1-989c-4eb0dee0fbb1", name: "James", lastName: "Walker", picture: "", botType: "matchFake" },
+//   { id: "e3faa25c-2780-11f1-989c-4eb0dee0fbb1", name: "Layla", lastName: "Al-Rashid", picture: "", botType: "matchFake" },
+//   { id: "e4937e0a-2780-11f1-b34b-4eb0dee0fbb1", name: "Omar", lastName: "Hassan", picture: "", botType: "matchFake" },
+//   { id: "e52bf428-2780-11f1-8dbd-4eb0dee0fbb1", name: "Yasmin", lastName: "Khalil", picture: "", botType: "matchFake" },
+//   { id: "e5c3b100-2780-11f1-8dbd-4eb0dee0fbb1", name: "Aigerim", lastName: "Bekova", picture: "", botType: "matchFake" },
+//   { id: "e65c840c-2780-11f1-8dbd-4eb0dee0fbb1", name: "Temur", lastName: "Rashidov", picture: "", botType: "matchFake" },
+//   { id: "e6f5c676-2780-11f1-b230-4eb0dee0fbb1", name: "Nguyen", lastName: "Thanh", picture: "", botType: "matchFake" },
+//   { id: "e78e4720-2780-11f1-b34b-4eb0dee0fbb1", name: "Maria", lastName: "Santos", picture: "", botType: "matchFake" },
+//   { id: "e8272328-2780-11f1-9299-4eb0dee0fbb1", name: "Daniela", lastName: "Cruz", picture: "", botType: "matchFake" },
+//   { id: "81888f5e-2815-11f1-905b-4eb0dee0fbb1", name: "Martín", lastName: "Vargas", picture: "", botType: "matchFake" },
+//   { id: "e95d780a-2780-11f1-b34b-4eb0dee0fbb1", name: "Ingrid", lastName: "Larsen", picture: "", botType: "matchFake" },
+//   { id: "e9f10160-2780-11f1-b34b-4eb0dee0fbb1", name: "Mikael", lastName: "Virtanen", picture: "", botType: "matchFake" },

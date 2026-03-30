@@ -228,7 +228,7 @@ export const PuzzleWidgetPanel = React.forwardRef<TabsRef, Props>(
           setPulseDot(false);
           onMessage({
             content: `You’ve hit your daily limit.
-Unlock Unlimited Puzzles, Unlimited Game Reviews, and Unlimited AI Chat for just €4,  and improve faster with AI-powered analysis and training.`,
+Unlock Unlimited Puzzles, Unlimited Game Reviews, and Unlimited AI Chat for just €4/Month,  and improve faster with AI-powered analysis and training.`,
             //             `You’ve reached today’s puzzle limit! ♟️
             // But your next great move is just one click away — start your 7-day free trial today (cancel anytime).
 
