@@ -191,20 +191,31 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
           onMove({ from, to, promoteTo: promo });
         }, 2000);
       } else {
-        if (
-          match?.challengee.id.slice(-3) === '000' ||
-          match?.challenger.id.slice(-3) === '000'
+        if ( match && (  botType=='botelja' || botType=='matchFake')
         ) {
           let randomDelay;
+           const moveCount = match.gameInPlay?.pgn ? match.gameInPlay?.pgn.split(" ").length : 0;
           if (match.gameInPlay?.timeClass.includes('blitz')) {
-            randomDelay = (min = 0, max = 4000) =>
+            randomDelay = (min = 200, max = 4000) =>
               Math.floor(Math.random() * (max - min + 1)) + min;
           } else if (match.gameInPlay?.timeClass.includes('bullet')) {
-            randomDelay = (min = 0, max = 2000) =>
+            randomDelay = (min = 100, max = 1800) =>
               Math.floor(Math.random() * (max - min + 1)) + min;
-          } else
-            randomDelay = (min = 0, max = 5000) =>
+          } else{
+            randomDelay = (min = 500, max = 6000) =>
               Math.floor(Math.random() * (max - min + 1)) + min;
+          }
+          console.log('moveCount',moveCount)
+           if(moveCount < 20){
+            //prvih 5-6-7 poteza
+            randomDelay = (min = 300, max = 900) =>
+              Math.floor(Math.random() * (max - min + 1)) + min;
+          }
+          if (moveCount > 100 && !match.gameInPlay?.timeClass.includes('bullet')) {
+            //posle 35 poteza
+           randomDelay = (min = 1500, max = 5000) =>
+              Math.floor(Math.random() * (max - min + 1)) + min;
+  }  
           engineMoveTimeoutRef.current = setTimeout(() => {
             onMove({ from, to });
           }, randomDelay());
