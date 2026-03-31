@@ -63,7 +63,7 @@ const Conversation = ({
         style={{
           maxHeight: smallMobile ? '160px' : isMobile ? '220px' : '',
           marginTop: isMobile ? '15px' : '',
-           marginBottom: isMobile ? '15px' : '',
+          marginBottom: isMobile ? '15px' : '',
         }}
       >
         {currentChapterState.messages.map((msg, index) => {

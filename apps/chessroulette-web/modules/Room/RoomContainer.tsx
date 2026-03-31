@@ -80,8 +80,7 @@ export const RoomContainer = ({ iceServers, rid, activity }: Props) => {
     // Poveži se na socket sa statusom 'available'
 
     const handleChallengeNotification = (data: any) => {
-      console.log('proveri datu', data.data.ch_amount);
-      if (data.data.ch_amount !== 0) {
+      if (data?.data?.ch_amount !== 0) {
         return;
       }
       console.log('proveri jbt');

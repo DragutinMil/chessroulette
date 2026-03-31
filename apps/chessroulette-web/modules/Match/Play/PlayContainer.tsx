@@ -13,12 +13,16 @@ export type PlayerContainerProps = DistributiveOmit<
 > & {
   stopEngineMove?: boolean;
   botId?: string;
+  userRating?: number;
+  botType?: string;
 };
 
 export const PlayContainer = (
   playBoardProps: PlayerContainerProps,
   stopEngineMove: boolean,
-  botId?: string
+  botId?: string,
+  userRating?: number,
+  botType?: string
 ) => {
   const play = useCurrentOrPrevMatchPlay();
   const dispatch = usePlayActionsDispatch();
@@ -102,6 +106,8 @@ export const PlayContainer = (
       }}
       stopEngineMove={stopEngineMove}
       botId={botId}
+      botType={botType}
+      userRating={userRating}
       onLastMoveWasPromotionChange={setLastMoveWasPromotion}
       {...playBoardProps}
     />

@@ -7,6 +7,7 @@ import { PlayContainer, PlayerContainerProps } from './Play/PlayContainer';
 import { MatchActions, MatchState } from './movex';
 import { MatchProvider } from './providers';
 import { findIfBots } from './utils';
+import { getMakeFakeName, getUserInfo } from './utils';
 import { VideoCameraIcon } from '@heroicons/react/24/solid';
 
 import {
@@ -95,6 +96,7 @@ const MatchContainerInner = ({
   const [camera, setCamera] = useState(true);
   const [cameraOnAgain, setCameraOnAgain] = useState(false);
   const [botTalkInitiated, setBotTalkInitiated] = useState(false);
+  const [userRating, setUserRating] = useState<number>();
 
   const [stopEngineMove, setStopEngineMove] = useState(false);
   const lastTakebackHandledAtRef = useRef<number>(0);
@@ -177,7 +179,21 @@ const MatchContainerInner = ({
       const bot = findIfBots(match?.challengee.id, match?.challenger.id);
 
       if (bot) {
-        setActiveBot(bot);
+        if (bot.id == 'TbN0mQQJy8s2-') {
+          const botFakeGuest = getMakeFakeName();
+          setActiveBot(botFakeGuest);
+        } else {
+          setActiveBot(bot);
+        }
+
+        if (bot.botType == 'matchFake') {
+          const userData = async () => {
+            const data = await getUserInfo();
+            setUserRating(data?.rejting);
+          };
+          userData();
+        }
+
         if (match.gameInPlay?.players.w === bot.id) {
           setOponentColor('black');
         } else {
@@ -195,6 +211,7 @@ const MatchContainerInner = ({
       };
 
       Socketinitiation();
+      // matchInitialization()
     }
 
     return () => {
@@ -206,7 +223,7 @@ const MatchContainerInner = ({
     if (!activeBot) {
       return;
     }
-    if (activeBot?.id?.slice(-3) !== '000') {
+    if (activeBot?.botType !== 'botelja') {
       return;
     }
 
@@ -232,7 +249,7 @@ const MatchContainerInner = ({
   }, [match.gameInPlay?.pgn]);
 
   useEffect(() => {
-    if (!activeBot || activeBot?.id?.slice(-3) !== '000') {
+    if (!activeBot || activeBot?.botType !== 'botelja') {
       return;
     }
     const offer = match?.gameInPlay?.offers.at(-1);
@@ -271,7 +288,10 @@ const MatchContainerInner = ({
   }, [match.gameInPlay?.offers, match.status]);
 
   useEffect(() => {
-    if (!activeBot || activeBot?.id?.slice(-3) !== '000') {
+    if (
+      !activeBot ||
+      (activeBot?.botType !== 'botelja' && activeBot?.botType !== 'matchFake')
+    ) {
       return;
     }
     const offer = match?.endedGames[0]?.offers[0];
@@ -302,7 +322,6 @@ const MatchContainerInner = ({
   }, [match.endedGames[0]?.offers]);
 
   const isPlayer = canUserPlay && playersBySide?.home.id;
-
   return (
     <>
       <div className="flex flex-col flex-1 min-h-0 gap-4 w-full md:w-1/2 md:hidden  mt-4 relative  z-[40]">
@@ -321,6 +340,8 @@ const MatchContainerInner = ({
           <div className=" w-max[full] md:w-max[3/4] mr-0 ">
             <PlayContainer
               key={match.endedGames.length}
+              botType={activeBot?.botType}
+              userRating={userRating}
               botId={activeBot?.id}
               sizePx={boardSize}
               stopEngineMove={stopEngineMove}
@@ -352,10 +373,13 @@ const MatchContainerInner = ({
 
             <div className="w-full hidden md:flex flex-1 min-h-0 w-full relative">
               {(activeWidget === 'chat' && activeBot) ||
-              activeBot?.id?.slice(-3) == '000' ||
+              activeBot?.botType == 'botelja' ||
+              activeBot?.botType == 'matchFake' ||
               (!activeBot && isPlayer) ? (
                 <div className="w-full hidden md:flex flex-1 min-h-0 w-full relative">
-                  {(activeBot?.id?.slice(-3) == '000' || !activeBot) &&
+                  {(activeBot?.botType == 'botelja' ||
+                    activeBot?.botType == 'matchFake' ||
+                    !activeBot) &&
                     !isMobileChatOpen &&
                     !isMobile &&
                     isPlayer && (
@@ -381,13 +405,16 @@ const MatchContainerInner = ({
                       rounded-lg  overflow-hidden 
                       ${
                         cameraExpanded ||
-                        (activeBot && activeBot?.id?.slice(-3) !== '000')
+                        (activeBot &&
+                          activeBot?.botType !== 'botelja' &&
+                          activeBot?.botType !== 'matchFake')
                           ? 'inset-0 w-full h-full z-[51]'
                           : 'top-1 right-1  w-2/5'
                       }
                     `}
                   >
-                    {activeBot?.id?.slice(-3) !== '000' &&
+                    {activeBot?.botType !== 'botelja' &&
+                      activeBot?.botType !== 'matchFake' &&
                       isPlayer &&
                       !isMobile && (
                         <div>
