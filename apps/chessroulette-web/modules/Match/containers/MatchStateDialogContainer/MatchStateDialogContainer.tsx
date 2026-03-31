@@ -179,9 +179,9 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
             <div className="flex  justify-center content-center text-center flex-col">
               <Text>
                 {(match.winner == 'challenger' &&
-                  match.challenger.id.length == 16) ||
+                  match.challenger.id == activeBot?.id) ||
                 (match.winner == 'challengee' &&
-                  match.challengee.id.length == 16) ? (
+                  match.challengee.id == activeBot?.id) ? (
                   <span className="capitalize">
                     {activeBot?.name}
                     {` `}Won{` `}

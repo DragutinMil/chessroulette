@@ -196,19 +196,19 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
           let randomDelay;
            const moveCount = match.gameInPlay?.pgn ? match.gameInPlay?.pgn.split(" ").length : 0;
           if (match.gameInPlay?.timeClass.includes('blitz')) {
-            randomDelay = (min = 200, max = 4000) =>
+            randomDelay = (min = 400, max = 4400) =>
               Math.floor(Math.random() * (max - min + 1)) + min;
           } else if (match.gameInPlay?.timeClass.includes('bullet')) {
-            randomDelay = (min = 100, max = 1800) =>
+            randomDelay = (min = 300, max = 2000) =>
               Math.floor(Math.random() * (max - min + 1)) + min;
           } else{
-            randomDelay = (min = 500, max = 6000) =>
+            randomDelay = (min = 700, max = 6000) =>
               Math.floor(Math.random() * (max - min + 1)) + min;
           }
-          console.log('moveCount',moveCount)
+         
            if(moveCount < 20){
             //prvih 5-6-7 poteza
-            randomDelay = (min = 300, max = 900) =>
+            randomDelay = (min = 500, max = 1000) =>
               Math.floor(Math.random() * (max - min + 1)) + min;
           }
           if (moveCount > 100 && !match.gameInPlay?.timeClass.includes('bullet')) {
