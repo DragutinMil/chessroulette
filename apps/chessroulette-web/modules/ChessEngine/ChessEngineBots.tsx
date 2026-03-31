@@ -32,7 +32,8 @@ const StockfishEngine: React.FC<StockfishEngineProps> = ({
   const [depth, setDepth] = useState('1');
   const [skill, setSkill] = useState('');
   const [changeAfterMove, setChangeAfterMove] = useState(0);
-
+  const lastPlayedFenRef = useRef<string | null>(null);
+  const fenRef = useRef(fen);
   const [score, setScore] = useState('');
   const [contempt, setContempt] = useState('');
   const stockfishRef = useRef<Worker | null>(null);
@@ -240,6 +241,7 @@ const StockfishEngine: React.FC<StockfishEngineProps> = ({
     );
   }, [skill, contempt]);
   useEffect(() => {
+    fenRef.current = fen;
     if (!stockfishRef.current) return;
 
     // prekini prethodnu analizu
@@ -271,24 +273,59 @@ const StockfishEngine: React.FC<StockfishEngineProps> = ({
     }
   }, [fen, depth]);
 
-  useEffect(() => {
-    let m = bestMove;
-    const timeout = setTimeout(() => {
-      setTimeout(() => {
-        const parts = fen.split(' ');
-        //  console.log('parts[1]',parts[1])
-        //   console.log('botColor',botColor)
-        if (botColor !== parts[1]) {
-          return;
-        }
+  // useEffect(() => {
+  //   if (!bestMove) return;
+  //   const currentFen = fenRef.current;
+  //   let m = bestMove;
+  //   if (lastPlayedFenRef.current === currentFen) {
+  //   console.log('⛔ already played this position');
+  //   return;
+  // }
+  //   const timeout = setTimeout(() => {
+  //     setTimeout(() => {
+  //       const parts = currentFen.split(' ');
+  //       //  console.log('parts[1]',parts[1])
+  //       //   console.log('botColor',botColor)
+  //       if (botColor !== parts[1]) {
+  //         console.log('❌ NOT BOT TURN (blocked)');
+  //         return;
+  //       }
 
-        if (!isMyTurn && bestMove) {
-          engineMove(m);
-        }
-      }, 400);
-      return () => clearTimeout(timeout);
-    }, 1000);
-  }, [bestMove]);
+  //       if (!isMyTurn && bestMove) {
+  //         lastPlayedFenRef.current = currentFen;
+  //         engineMove(m);
+  //       }
+  //     }, 300);
+  //     return () => clearTimeout(timeout);
+  //   }, 400);
+  // }, [bestMove]);
+
+  useEffect(() => {
+  if (!bestMove) return;
+
+  const timeout = setTimeout(() => {
+    const currentFen = fenRef.current; // 🔥 uzmi NAJNOVIJI fen ovde
+
+    const parts = currentFen.split(' ');
+
+    if (botColor !== parts[1]) {
+      return;
+    }
+
+    if (lastPlayedFenRef.current === currentFen) {
+      console.log('⛔ already played this position');
+      return;
+    }
+
+    if (!isMyTurn) {
+      lastPlayedFenRef.current = currentFen;
+      engineMove(bestMove);
+    }
+
+  }, 500);
+
+  return () => clearTimeout(timeout); // ✅ pravi cleanup
+}, [bestMove]);
 
   return null;
 };
