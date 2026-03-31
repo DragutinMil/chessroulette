@@ -40,9 +40,9 @@ const StockfishEngine: React.FC<StockfishEngineProps> = ({
   useEffect(() => {
     if (typeof window === 'undefined') return; // Ensure it's client-side
     if (skill == '' && bot) {
-      let baseDepth = 1;
-      let baseSkill = 0;
-      let baseContempt = 20;
+      let baseDepth = 2;
+      let baseSkill = 1;
+      let baseContempt = 10;
       if (skill === '' && bot) {
         if (bot.slice(-2) == 'vpHH6Jf7rYKwN010') {
           baseDepth = 6;
