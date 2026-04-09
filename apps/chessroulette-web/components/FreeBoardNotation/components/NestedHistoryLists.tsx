@@ -12,7 +12,7 @@ type Props = {
   rowClassName?: RowProps['className'];
   className?: string;
   canDelete?: boolean;
-  reviewData?: EvaluationMove[];
+  // reviewData?: EvaluationMove[];
 };
 
 export const NestedLists = ({
@@ -22,7 +22,7 @@ export const NestedLists = ({
   className,
   rowClassName,
   canDelete,
-  reviewData,
+  // reviewData,
   onFocus,
   onDelete,
 }: Props) => {
@@ -47,7 +47,7 @@ export const NestedLists = ({
         <List
           key={`${rootTurnIndex}-${rootMovePosition}--${branchIndex}`}
           history={branchedHistory}
-          reviewData={reviewData || []}
+          // reviewData={reviewData || []}
           onRefocus={(ni) => onFocus(constructNestedIndex(ni, branchIndex))}
           onDelete={(ni) => onDelete(constructNestedIndex(ni, branchIndex))}
           className={className}
