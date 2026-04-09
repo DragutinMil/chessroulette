@@ -4,7 +4,7 @@ import type { Chapter, ChapterState, ReviewActivityState } from './types';
 
 export const initialChapterState: ChapterState = {
   name: 'New Chapter', // TODO: Should it have a name?
-  displayFen: ChessFENBoard.STARTING_FEN,
+  displayFen: ChessFENBoard.EMPTY_FEN,
   arrowsMap: {},
   circlesMap: {},
   messages: [
@@ -16,17 +16,11 @@ export const initialChapterState: ChapterState = {
   ],
   chessAiMode: {
     mode: '',
-    moves: [],
-    movesCount: 0,
-    badMoves: 0,
-    goodMoves: 0,
     orientationChange: false,
-    puzzleRatting: 0,
-    userPuzzleRating: 0,
-    ratingChange: 0,
-    puzzleId: 0,
-    prevUserPuzzleRating: 0,
-    fen: ChessFENBoard.STARTING_FEN,
+    review: [],
+    fen: ChessFENBoard.EMPTY_FEN,
+    originalPGN: '',
+    opponentName: '',
     responseId: '',
     message: '',
   },
@@ -34,7 +28,7 @@ export const initialChapterState: ChapterState = {
   notation: {
     history: [],
     focusedIndex: FreeBoardHistory.getStartingIndex(),
-    startingFen: ChessFENBoard.STARTING_FEN,
+    startingFen: ChessFENBoard.EMPTY_FEN,
   },
   orientation: 'w',
 };

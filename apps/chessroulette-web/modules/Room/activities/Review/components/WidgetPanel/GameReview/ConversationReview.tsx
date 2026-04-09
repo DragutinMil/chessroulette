@@ -36,6 +36,12 @@ const ConversationReview = ({
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [currentChapterState.messages, pulseDot]);
+  useEffect(() => {
+    if (currentChapterState.chessAiMode.review.length == 0) {
+      return;
+    }
+    setDisableButton(false);
+  }, [currentChapterState.chessAiMode.review]);
   const scrollToBottom = () => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
