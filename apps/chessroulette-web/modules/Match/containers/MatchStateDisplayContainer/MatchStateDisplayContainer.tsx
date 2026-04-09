@@ -8,7 +8,7 @@ import {
 } from '../../hooks/useMatch';
 import { enqueueMovexUpdatePlay } from '../../utils';
 import { useCurrentOrPrevMatchPlay } from '../../Play/hooks';
-import { isMobile } from '@app/modules/Room/activities/Aichess/util';
+import { isMobile } from '@app/modules/Room/activities/Review/util';
 type MatchStateDisplayContainerProps = {
   activeBot?: string;
   isPlayer?: any;

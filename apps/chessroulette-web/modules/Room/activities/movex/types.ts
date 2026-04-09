@@ -1,5 +1,4 @@
 import type { LearnActivityState, LearnActivityActions } from '../Learn/movex';
-import { AichessActivityState, AichessActivityActions } from '../Aichess/movex';
 import { LearnAiActivityState, LearnAiActivityActions } from '../LearnAi/movex';
 import { PuzzleActivityState, PuzzleActivityActions } from '../Puzzle/movex';
 import { ReviewActivityState, ReviewActivityActions } from '../Review/movex';
@@ -19,7 +18,6 @@ export type ActivityState =
   | MeetupActivityState
   | NoneActivityState
   | MatchActivityState
-  | AichessActivityState
   | LearnAiActivityState
   | ReviewActivityState
   | PuzzleActivityState;
@@ -28,7 +26,6 @@ export type ActivityActions =
   | LearnActivityActions
   | MeetupActivityActions
   | MatchActivityActions
-  | AichessActivityActions
   | ReviewActivityActions
   | LearnAiActivityActions
   | PuzzleActivityActions;

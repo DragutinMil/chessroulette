@@ -24,8 +24,6 @@ import { PeerStreamingProvider } from '@app/modules/PeerToPeer';
 import { ActivityState } from './activities/movex';
 import { LearnActivity } from './activities/Learn';
 import { LearnAiActivity } from './activities/LearnAi/LearnAiActivity';
-
-import { AichessActivity } from './activities/Aichess/AichessActivity';
 import { PuzzleActivity } from './activities/Puzzle/PuzzleActivity';
 import { ReviewActivity } from './activities/Review/ReviewActivity';
 import { MeetupActivity } from './activities/Meetup/MeetupActivity';
@@ -188,11 +186,10 @@ export const RoomContainer = ({ iceServers, rid, activity }: Props) => {
           },
         };
 
-        // Proveri da li je korisnik u match, aichess, ili ailearn aktivnosti
+      
         const currentActivity = movexResource?.state?.activity?.activityType;
         const shouldShowNotification =
           // currentActivity === 'match' ||
-          currentActivity === 'aichess' ||
           currentActivity === 'ailearn' ||
           currentActivity === 'review' ||
           currentActivity === 'puzzle';
@@ -290,15 +287,7 @@ export const RoomContainer = ({ iceServers, rid, activity }: Props) => {
         />
       );
     }
-    if (activity.activityType === 'aichess') {
-      return (
-        <AichessActivity
-          {...commonActivityProps}
-          remoteState={activity.activityState}
-          dispatch={movexResource?.dispatch}
-        />
-      );
-    }
+   
     if (activity.activityType === 'review') {
       return (
         <ReviewActivity
@@ -361,9 +350,8 @@ export const RoomContainer = ({ iceServers, rid, activity }: Props) => {
             }}
           />
         )}
-        {/* Dodajte ChallengeAcceptedNotification za match, aichess, i ailearn */}
+        {/* Dodajte ChallengeAcceptedNotification za match, i ailearn */}
         {(activity === 'match' ||
-          activity === 'aichess' ||
           activity === 'review' ||
           activity === 'ailearn') && (
           <ChallengeAcceptedNotification
