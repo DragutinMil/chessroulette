@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { List } from './HistoryList';
 import { RowProps } from './HistoryRow';
 import { FBHHistory, FBHIndex, FBHRecursiveIndexes } from '@xmatter/util-kit';
-import type { EvaluationMove } from '../../../modules/Room/activities/Aichess/movex/types';
+import type { EvaluationMove } from '../../../modules/Room/activities/Review/movex/types';
 type Props = {
   branchedHistories: FBHHistory[];
   rootHistoryIndex: FBHIndex;
