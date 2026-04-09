@@ -113,7 +113,7 @@ export type ReviewActivityActions =
   | Action<'loadChapter', { id: Chapter['id'] }>
   | Action<'loadedChapter:addMove', ChessMove>
   | Action<'loadedChapter:addPuzzleMove', ChessMove>
-  | Action<'loadedChapter:setPuzzleMoves', chessAiMode>
+  // | Action<'loadedChapter:setPuzzleMoves', chessAiMode>
   | Action<'loadedChapter:setReview', chessAiMode>
   | Action<'loadedChapter:writeMessage', Message>
   | Action<'loadedChapter:eraseMessages'>
