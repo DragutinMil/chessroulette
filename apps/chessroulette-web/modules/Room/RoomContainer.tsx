@@ -83,7 +83,7 @@ export const RoomContainer = ({ iceServers, rid, activity }: Props) => {
       if (data?.data?.ch_amount !== 0) {
         return;
       }
-      console.log('proveri jbt');
+
       const isChallengeNotification =
         data.n_type === 'challenge_initiated' ||
         data.ch_uuid ||
