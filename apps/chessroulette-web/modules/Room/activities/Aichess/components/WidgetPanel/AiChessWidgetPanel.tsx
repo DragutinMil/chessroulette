@@ -1129,7 +1129,7 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
                     `}
                     >
                       <FreeBoardNotation
-                        reviewData={reviewData}
+                        // reviewData={reviewData}
                         isMobile={isMobile}
                         history={currentChapterState.notation?.history}
                         playerNames={playerNames}
@@ -1481,7 +1481,7 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
                     `}
                     >
                       <FreeBoardNotation
-                        reviewData={reviewData}
+                        // reviewData={reviewData}
                         isMobile={isMobile}
                         history={currentChapterState.notation?.history}
                         playerNames={playerNames}
