@@ -138,7 +138,13 @@ const StockfishEngine: React.FC<StockfishEngineProps> = ({
     }
 
     const moveNumber = parseInt(fen.split(' ')[5]);
-    if (moveNumber % 5 === 0 && changeAfterMove !== moveNumber) {
+    if (
+      ((moveNumber % 5 === 0 && botType == 'matchFake') ||
+        (moveNumber % 10 === 0 &&
+          (botType == 'botelja' || botType == 'basic'))) &&
+      changeAfterMove !== moveNumber
+    ) {
+      console.log('deljiv je ', moveNumber);
       let newDepth = Number(depth);
       let newSkill = Number(skill);
       let newContempt = Number(contempt);
@@ -150,7 +156,7 @@ const StockfishEngine: React.FC<StockfishEngineProps> = ({
       }
 
       if (Number(score) > 800) {
-        newDepth += 2;
+        newDepth += 1;
         newSkill += 2;
         newContempt += 3;
       }
@@ -162,7 +168,7 @@ const StockfishEngine: React.FC<StockfishEngineProps> = ({
       }
 
       if (Number(score) < -700) {
-        newDepth -= 2;
+        newDepth -= 1;
         newSkill -= 2;
         newContempt -= 3;
       }
@@ -181,6 +187,9 @@ const StockfishEngine: React.FC<StockfishEngineProps> = ({
     if (userRating == undefined) {
       return;
     }
+    if (botType !== 'matchFake') {
+      return;
+    }
     //pocetna podesavanja za MATCH MAKE
     let baseDepth;
     let baseSkill;
@@ -195,10 +204,10 @@ const StockfishEngine: React.FC<StockfishEngineProps> = ({
       baseContempt = 5;
     } else if (userRating > 1200) {
       baseDepth = 3;
-      baseSkill = 5;
+      baseSkill = 4;
       baseContempt = 5;
     } else if (userRating > 1100) {
-      baseDepth = 2;
+      baseDepth = 1;
       baseSkill = 3;
       baseContempt = 4;
     } else {
@@ -301,31 +310,30 @@ const StockfishEngine: React.FC<StockfishEngineProps> = ({
   // }, [bestMove]);
 
   useEffect(() => {
-  if (!bestMove) return;
+    if (!bestMove) return;
 
-  const timeout = setTimeout(() => {
-    const currentFen = fenRef.current; // 🔥 uzmi NAJNOVIJI fen ovde
+    const timeout = setTimeout(() => {
+      const currentFen = fenRef.current; // 🔥 uzmi NAJNOVIJI fen ovde
 
-    const parts = currentFen.split(' ');
+      const parts = currentFen.split(' ');
 
-    if (botColor !== parts[1]) {
-      return;
-    }
+      if (botColor !== parts[1]) {
+        return;
+      }
 
-    if (lastPlayedFenRef.current === currentFen) {
-      console.log('⛔ already played this position');
-      return;
-    }
+      if (lastPlayedFenRef.current === currentFen) {
+        console.log('⛔ already played this position');
+        return;
+      }
 
-    if (!isMyTurn) {
-      lastPlayedFenRef.current = currentFen;
-      engineMove(bestMove);
-    }
+      if (!isMyTurn) {
+        lastPlayedFenRef.current = currentFen;
+        engineMove(bestMove);
+      }
+    }, 500);
 
-  }, 500);
-
-  return () => clearTimeout(timeout); // ✅ pravi cleanup
-}, [bestMove]);
+    return () => clearTimeout(timeout); // ✅ pravi cleanup
+  }, [bestMove]);
 
   return null;
 };

@@ -97,14 +97,13 @@ export const botRejectDrawOffer = (
   activeBot: ActiveBot,
   messages: ChatMessage[],
   pgn: string,
-  delay = 1000
+  delay = 1200,
+  botAnswer: boolean
 ) => {
   if (!activeBot) {
     return;
   }
-  setTimeout(() => {
-    dispatch({ type: 'play:cancelOffer' });
-  }, delay);
+
   const prompt =
     'User offer draw. Explain shortly to user that you dont accept offer';
 
@@ -122,16 +121,32 @@ export const botRejectDrawOffer = (
       });
     }
   };
-  sendMessage();
+  if (botAnswer) {
+    setTimeout(() => {
+      dispatch({ type: 'play:cancelOffer' });
+    }, delay);
+    sendMessage();
+  } else {
+    setTimeout(() => {
+      dispatch({ type: 'play:cancelOffer' });
+    }, 2200);
+  }
 };
 
 export const onTakeBackOfferBot = (
   dispatch: DispatchOf<MatchActions>,
-  delay = 1000
+  delay = 1000,
+  accepting: boolean
 ) => {
-  setTimeout(() => {
-    dispatch({ type: 'play:acceptTakeBack' });
-  }, delay);
+  if (accepting) {
+    setTimeout(() => {
+      dispatch({ type: 'play:acceptTakeBack' });
+    }, delay);
+  } else {
+    setTimeout(() => {
+      dispatch({ type: 'play:denyOffer' });
+    }, delay);
+  }
 };
 
 export const botTalkInitiation = (

@@ -2,6 +2,7 @@ import {
   ChessColor,
   ChessFEN,
   ChessMove,
+  ChessPGN,
   FBHHistory,
   FBHIndex,
 } from '@xmatter/util-kit';
@@ -37,18 +38,12 @@ export type MovePiece = {
 
 export type chessAiMode = {
   mode: string;
-  moves: string[];
-  movesCount: number;
-  badMoves: number;
-  goodMoves: number;
+  review: EvaluationMove[];
   orientationChange: Boolean;
-  puzzleRatting: number;
-  userPuzzleRating: number;
-  ratingChange: number;
-  puzzleId: number;
-  prevUserPuzzleRating: number;
   fen: ChessFEN;
   responseId: string;
+  originalPGN: ChessPGN;
+  opponentName: string;
   message: string;
 };
 // export type evaluation = {
@@ -118,9 +113,10 @@ export type ReviewActivityActions =
   | Action<'loadChapter', { id: Chapter['id'] }>
   | Action<'loadedChapter:addMove', ChessMove>
   | Action<'loadedChapter:addPuzzleMove', ChessMove>
-  | Action<'loadedChapter:setPuzzleMoves', chessAiMode>
+  // | Action<'loadedChapter:setPuzzleMoves', chessAiMode>
   | Action<'loadedChapter:setReview', chessAiMode>
   | Action<'loadedChapter:writeMessage', Message>
+  | Action<'loadedChapter:eraseMessages'>
   | Action<'loadedChapter:focusHistoryIndex', FBHIndex>
   | Action<'loadedChapter:deleteHistoryMove', FBHIndex>
   | Action<'loadedChapter:drawCircle', CircleDrawTuple>

@@ -191,31 +191,35 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
           onMove({ from, to, promoteTo: promo });
         }, 2000);
       } else {
-        if ( match && (  botType=='botelja' || botType=='matchFake')
-        ) {
+        if (match && (botType == 'botelja' || botType == 'matchFake')) {
           let randomDelay;
-           const moveCount = match.gameInPlay?.pgn ? match.gameInPlay?.pgn.split(" ").length : 0;
+          const moveCount = match.gameInPlay?.pgn
+            ? match.gameInPlay?.pgn.split(' ').length
+            : 0;
           if (match.gameInPlay?.timeClass.includes('blitz')) {
-            randomDelay = (min = 400, max = 4400) =>
+            randomDelay = (min = 500, max = 4500) =>
               Math.floor(Math.random() * (max - min + 1)) + min;
           } else if (match.gameInPlay?.timeClass.includes('bullet')) {
-            randomDelay = (min = 300, max = 2000) =>
+            randomDelay = (min = 500, max = 3000) =>
               Math.floor(Math.random() * (max - min + 1)) + min;
-          } else{
+          } else {
             randomDelay = (min = 700, max = 6000) =>
               Math.floor(Math.random() * (max - min + 1)) + min;
           }
-         
-           if(moveCount < 20){
+
+          if (moveCount < 20) {
             //prvih 5-6-7 poteza
-            randomDelay = (min = 500, max = 1000) =>
+            randomDelay = (min = 500, max = 1300) =>
               Math.floor(Math.random() * (max - min + 1)) + min;
           }
-          if (moveCount > 100 && !match.gameInPlay?.timeClass.includes('bullet')) {
+          if (
+            moveCount > 100 &&
+            !match.gameInPlay?.timeClass.includes('bullet')
+          ) {
             //posle 35 poteza
-           randomDelay = (min = 1500, max = 5000) =>
+            randomDelay = (min = 1500, max = 5000) =>
               Math.floor(Math.random() * (max - min + 1)) + min;
-  }  
+          }
           engineMoveTimeoutRef.current = setTimeout(() => {
             onMove({ from, to });
           }, randomDelay());

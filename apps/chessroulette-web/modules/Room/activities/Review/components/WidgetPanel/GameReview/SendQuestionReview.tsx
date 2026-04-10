@@ -5,7 +5,7 @@ import { slicePgn } from './slicePgn';
 export async function SendQuestionReview(
   prompt: string,
   currentChapterState: ChapterState,
-  reviewData: EvaluationMove[],
+  // reviewData: EvaluationMove[],
   moveSan: string
 ) {
   const model = 'gpt-5.1';
@@ -19,21 +19,23 @@ export async function SendQuestionReview(
   const submoveNum = currentChapterState.notation.focusedIndex[1];
   const userColor = currentChapterState.orientation;
   const actualPGN = slicePgn(pgn, moveNum, submoveNum);
-  const normalizedReview = reviewData.map((m, index, arr) => {
-    const previous = arr[index - 1];
-    return {
-      moveNum: m.moveNum,
-      color: m.moveCalc % 2 == 0 ? 'black' : 'white',
-      move: m.move,
-      eval: m.eval,
-      diff: parseFloat(m.diff),
-      // ako postoji prethodni objekat, uzmi njegov prvi bestMoves
-      bestMove:
-        previous && Array.isArray(previous.bestMoves)
-          ? previous.bestMoves[0]
-          : null,
-    };
-  });
+  const normalizedReview = currentChapterState?.chessAiMode?.review?.map(
+    (m, index, arr) => {
+      const previous = arr[index - 1];
+      return {
+        moveNum: m.moveNum,
+        color: m.moveCalc % 2 == 0 ? 'black' : 'white',
+        move: m.move,
+        eval: m.eval,
+        diff: parseFloat(m.diff),
+        // ako postoji prethodni objekat, uzmi njegov prvi bestMoves
+        bestMove:
+          previous && Array.isArray(previous.bestMoves)
+            ? previous.bestMoves[0]
+            : null,
+      };
+    }
+  );
 
   const question =
     'QUESTION:\n' +

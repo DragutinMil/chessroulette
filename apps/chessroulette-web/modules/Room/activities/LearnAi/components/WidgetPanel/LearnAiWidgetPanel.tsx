@@ -116,7 +116,7 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
     },
     tabsRef
   ) => {
-    // const settings = useAichessActivitySettings();
+    
     const widgetPanelTabsNav = useWidgetPanelTabsNavAsSearchParams();
     const updateableSearchParams = useUpdateableSearchParams();
     const [pulseDot, setPulseDot] = useState(false);
@@ -613,7 +613,7 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
                     `}
                   >
                     <FreeBoardNotation
-                      reviewData={reviewData}
+                      // reviewData={reviewData}
                       isMobile={isMobile}
                       history={currentChapterState.notation?.history}
                       playerNames={playerNames}

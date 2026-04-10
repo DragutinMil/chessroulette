@@ -10,7 +10,7 @@ import {
   FBHMove,
   FreeBoardHistory,
 } from '@xmatter/util-kit';
-import type { EvaluationMove } from '../../../modules/Room/activities/Aichess/movex/types';
+import type { EvaluationMove } from '../../../modules/Room/activities/Review/movex/types';
 type Player = {
   id: string;
   points: number;
@@ -33,8 +33,9 @@ export type ListProps = {
   rowClassName?: string;
   canDelete?: boolean;
   playersBySide?: PlayersBySide;
-  reviewData: EvaluationMove[];
+  reviewDataToNotation?: EvaluationMove[];
   playerNames?: Array<string>;
+  showNames?: boolean;
 } & (
   | {
       isNested: true;
@@ -68,7 +69,8 @@ export const List: React.FC<ListProps> = ({
   isNested = false,
   canDelete,
   playerNames,
-  reviewData,
+  reviewDataToNotation,
+  showNames,
 }) => {
   const rowElementRefs = useRef<Record<number, HTMLDivElement | null>>({});
   const containerElementRef = useRef<HTMLDivElement | null>(null);
@@ -108,9 +110,6 @@ export const List: React.FC<ListProps> = ({
           behavior: 'auto',
         });
       }, 500);
-      //  if (containerElementRef.current) {
-      //   containerElementRef.current.scrollTo(0, 9999);
-      // }
     }
   }, []);
 
@@ -135,9 +134,6 @@ export const List: React.FC<ListProps> = ({
   };
   const forwardFocus = async () => {
     if (focusedIndex) {
-      //console.log('history[history.length][1]',history[history.length][1])
-      //  console.log('history.length', history.length, focusedIndex[0] + 2);
-      //  history[history.length][1])
       let moveNum;
       let moveTurn;
       if (
@@ -178,6 +174,11 @@ export const List: React.FC<ListProps> = ({
   }, [history, focusedIndex]);
 
   const { whitePlayer, blackPlayer } = useMemo(() => {
+    console.log('showNames', showNames);
+    if (!showNames) {
+      return { whitePlayer: undefined, blackPlayer: undefined };
+    }
+
     if (isAichess && playerNames?.length === 2) {
       return {
         whitePlayer: { displayName: playerNames[0] } as Player,
@@ -200,9 +201,8 @@ export const List: React.FC<ListProps> = ({
       if (player.color === 'w') whitePlayer = player;
       if (player.color === 'b') blackPlayer = player;
     }
-
     return { whitePlayer, blackPlayer };
-  }, [playersBySide, isAichess, playerNames]);
+  }, [playersBySide, isAichess, playerNames, showNames]);
 
   return (
     <div className="flex md:flex-col flex-row h-full ">
@@ -254,17 +254,20 @@ export const List: React.FC<ListProps> = ({
               historyTurn[0].san
             }-${historyTurn[1]?.san || ''}`;
             const evalRow =
-              reviewData?.length > 0
+              (reviewDataToNotation ?? [])?.length > 0
                 ? [
-                    reviewData[historyTurnIndex * 2]?.diff,
-                    reviewData[(historyTurnIndex + 1) * 2 - 1]?.diff,
+                    (reviewDataToNotation ?? [])[historyTurnIndex * 2]?.diff,
+                    (reviewDataToNotation ?? [])[(historyTurnIndex + 1) * 2 - 1]
+                      ?.diff,
                   ]
                 : [];
             const bestMovesEngine =
-              reviewData?.length > 0
+              (reviewDataToNotation ?? [])?.length > 0
                 ? [
-                    reviewData[historyTurnIndex * 2 - 1]?.bestMoves,
-                    reviewData[(historyTurnIndex + 1) * 2 - 2]?.bestMoves,
+                    (reviewDataToNotation ?? [])[historyTurnIndex * 2 - 1]
+                      ?.bestMoves,
+                    (reviewDataToNotation ?? [])[(historyTurnIndex + 1) * 2 - 2]
+                      ?.bestMoves,
                   ]
                 : [];
 

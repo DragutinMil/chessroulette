@@ -263,7 +263,8 @@ const MatchContainerInner = ({
         activeBot,
         match.messages,
         match.gameInPlay.pgn,
-        1000
+        1000,
+        true
       );
     } else if (offer?.type === 'takeback' && offer.status === 'pending') {
       const now = Date.now();
@@ -271,7 +272,7 @@ const MatchContainerInner = ({
         return;
       }
       lastTakebackHandledAtRef.current = now;
-      onTakeBackOfferBot(dispatch, 1500);
+      onTakeBackOfferBot(dispatch, 1500, true);
       setStopEngineMove(true);
       setTimeout(() => {
         setStopEngineMove(false);
@@ -286,6 +287,31 @@ const MatchContainerInner = ({
       );
     }
   }, [match.gameInPlay?.offers, match.status]);
+
+  useEffect(() => {
+    if (!activeBot || activeBot?.botType !== 'matchFake') {
+      return;
+    }
+    const offer = match?.gameInPlay?.offers.at(-1);
+    if (offer?.type === 'takeback' && offer.status === 'pending') {
+      console.log('activeBot?.botType trtrr', activeBot?.botType);
+      onTakeBackOfferBot(dispatch, 1000, false);
+    }
+    if (
+      offer?.type === 'draw' &&
+      match.gameInPlay &&
+      offer.status === 'pending'
+    ) {
+      botRejectDrawOffer(
+        dispatch,
+        activeBot,
+        match.messages,
+        match.gameInPlay.pgn,
+        1000,
+        false
+      );
+    }
+  }, [match.gameInPlay?.offers]);
 
   useEffect(() => {
     if (

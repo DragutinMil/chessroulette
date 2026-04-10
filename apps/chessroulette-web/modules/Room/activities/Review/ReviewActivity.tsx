@@ -82,9 +82,7 @@ export const ReviewActivity = ({
     };
   }, []);
   useEffect(() => {
-    // console.log('currentChapter', currentChapter);
-
-    if (newReview === false && currentChapter.chessAiMode.mode == 'review') {
+    if (newReview === false) {
       return;
     }
     const hasBranches = JSON.stringify(
@@ -93,14 +91,7 @@ export const ReviewActivity = ({
     const hasIlegalMoves = JSON.stringify(
       currentChapter.notation.history
     ).includes('isNonMove');
-    if (
-      !hasBranches &&
-      !hasIlegalMoves &&
-      currentChapter.displayFen !==
-        'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
-    ) {
-      return;
-    }
+
     //console.log('setNewReview2',newReview)
     const url = new URL(window.location.href);
     const rawPgn = url.searchParams.get('pgn');
@@ -109,7 +100,7 @@ export const ReviewActivity = ({
     if (rawPgn) {
       const getMatchInfo = async () => {
         const data = await getMatch(rawPgn);
-
+        console.log('mech', data);
         const lastGame = data.results.endedGames.length - 1;
         if (data) {
           const pgn = data.results.endedGames[lastGame].pgn;
@@ -130,19 +121,21 @@ export const ReviewActivity = ({
             (currentChapter.orientation === 'b' && black) ||
             (currentChapter.orientation === 'w' && white);
 
+          if (
+            !hasBranches &&
+            !hasIlegalMoves &&
+            currentChapter.displayFen !== '8/8/8/8/8/8/8/8 w - - 0 1'
+          ) {
+            return;
+          }
+          const opponentName = white ? blackPlayerName : whitePlayerName;
           gameReview({
-            moves: [],
-            movesCount: 0,
-            badMoves: 0,
-            goodMoves: 0,
             orientationChange: changeOrientation,
             mode: 'review',
-            ratingChange: 0,
-            puzzleRatting: 0,
-            userPuzzleRating: 0,
-            puzzleId: 0,
-            prevUserPuzzleRating: 0,
             fen: pgn,
+            originalPGN: pgn,
+            opponentName: opponentName,
+            review: [],
             responseId: '',
             message: '',
           });
@@ -154,6 +147,7 @@ export const ReviewActivity = ({
 
     getUserData();
   }, [newReview == true]);
+
   const historyBackToStart = async () => {
     setNewReview(true);
   };
@@ -347,6 +341,11 @@ export const ReviewActivity = ({
             onMessage={async (payload) =>
               await enqueueMovexUpdate(() =>
                 dispatch({ type: 'loadedChapter:writeMessage', payload })
+              )
+            }
+            resetMessages={async () =>
+              await enqueueMovexUpdate(() =>
+                dispatch({ type: 'loadedChapter:eraseMessages' })
               )
             }
             onCanPlayChange={(payload) => onCanPlayChange(payload)}
