@@ -65,7 +65,7 @@ export const ResizableDesktopLayout = ({
 
   return (
     <div
-      className="flex w-full h-full align-center justify-center ml-0"
+      className="flex w-full h-full align-center justify-center ml-0 overflow-y-auto sm:overflow-visible"
       ref={containerRef}
       style={{
         marginLeft: -negativeMargin,
@@ -75,7 +75,7 @@ export const ResizableDesktopLayout = ({
       <PanelGroup
         autoSaveId="desktop-room-layout" // TODO should this be dyanmic?
         direction={isMobile ? 'vertical' : 'horizontal'}
-        className="relative"
+        className="relative "
       >
         {/* <div className="absolute bg-red-900 p-2" style={{ right: 0, zIndex: 999}}>{negativeMargin}</div> */}
         {isMobile ? (

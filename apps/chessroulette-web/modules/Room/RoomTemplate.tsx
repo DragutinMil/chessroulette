@@ -44,20 +44,23 @@ export const RoomTemplate = (props: Props) => {
            mb-0 md:mb-[max(env(safe-area-inset-right),2rem)]
            md:mt-2
            mt-0
-           flex-1 relative overflow-hidden ${props.contentClassname}`}
+           flex-1 relative overflow-hidden  ${props.contentClassname}`}
         >
           <div className="absolute inset-0">{props.children}</div>
         </div>
       </div>
       <menu
-        className={`${
+        className={
+          `
+          ${
           props.activity === 'match' ||
           props.activity === 'review' ||
           props.activity === 'puzzle' ||
           props.activity === 'ailearn'
             ? 'md:hidden'
             : 'md:block'
-        }  hidden  bg-indigo-1300 flex-0 flex flex-col p-2 `}
+        } 
+         hidden  bg-indigo-1300 flex-0 flex flex-col p-2 `}
       >
         <OnboardingWidget session={props.session} />
         <div className="pb-6 border-b border-slate-500 mb-4 " />
