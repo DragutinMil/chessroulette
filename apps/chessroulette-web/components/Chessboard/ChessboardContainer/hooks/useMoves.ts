@@ -111,6 +111,7 @@ Props): MoveActions => {
     square: Square;
     pieceSan?: PieceSan;
   }) => {
+    // console.log('clickdrag')
     const piece = pieceSan ? pieceSanToPiece(pieceSan) : undefined;
     const isMyPiece = piece?.color === playingColor;
     const currentMoves = getCurrentMoves();
@@ -201,25 +202,33 @@ Props): MoveActions => {
     ///PREMOVE
     // First handle premoves during opponent's turn
 
+
     if (allowsPremoves && !isMyTurn) {
+      
       // Case 1: Click on my piece to start premove
       // Case 4: Drag my piece to start premove
       if (!currentMoves.preMove && piece && isMyPiece) {
         setPreMove({ from: square, piece });
-
         return;
       }
-
+     
       if (currentMoves.preMove) {
         // Cancel premove if clicking same square
-
-        if (currentMoves.preMove.from === square) {
+       
+        if (currentMoves.preMove.from === square || ( currentMoves.preMove.from && currentMoves.preMove.to ) ) {
           setPreMove(undefined);
           return;
         }
+        // Change premove piece if clicking different piece
+
+       
+
 
         // Case 2: Complete premove by clicking destination
+       
+     
         if (!piece || piece.color !== playingColor) {
+          
           const completedPreMove = {
             ...currentMoves.preMove,
             to: square,
@@ -253,9 +262,18 @@ Props): MoveActions => {
           return;
         }
 
-        // Change premove piece if clicking different piece
+
+        
+        //premove to my piece
+        // console.log(piece,isMyPiece)
         if (piece && isMyPiece) {
-          setPreMove({ from: square, piece });
+             const completedPreMove = {
+            ...currentMoves.preMove,
+            to: square,
+          };
+        setPreMove(completedPreMove);
+        
+        //  setPreMove({ from: square, piece });
           return;
         }
       }
