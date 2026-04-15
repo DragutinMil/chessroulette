@@ -73,7 +73,7 @@ Props): MoveActions => {
 
   const [lastMoveWasPromotion, setLastMoveWasPromotion] = useState(false); // Dodajte ovo
 
-  const [premoveAnimationDelay] = useState(0);
+  const [premoveAnimationDelay] = useState(200);
   // pre move
   const allowsPremoves = !!onPreMove;
 

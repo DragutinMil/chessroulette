@@ -144,8 +144,6 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
         title="Match Aborted"
         content={
           <>
-          
-
             <div className="flex justify-center w-full">
               <Button
                 className="w-3/5 md:w-1/2  "
@@ -253,7 +251,6 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
                       Review
                     </Button>
                   </Link>
-            
 
                   <Button
                     icon="ArrowLeftIcon"

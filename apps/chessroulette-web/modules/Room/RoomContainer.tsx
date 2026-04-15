@@ -186,7 +186,6 @@ export const RoomContainer = ({ iceServers, rid, activity }: Props) => {
           },
         };
 
-      
         const currentActivity = movexResource?.state?.activity?.activityType;
         const shouldShowNotification =
           // currentActivity === 'match' ||
@@ -287,7 +286,7 @@ export const RoomContainer = ({ iceServers, rid, activity }: Props) => {
         />
       );
     }
-   
+
     if (activity.activityType === 'review') {
       return (
         <ReviewActivity
