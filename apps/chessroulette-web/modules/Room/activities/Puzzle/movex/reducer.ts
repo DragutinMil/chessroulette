@@ -1021,8 +1021,6 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
       };
     }
 
-    
-
     ///////////// PUZZLE
     if (action.payload.movesCount > 0 && action.payload.goodMoves == 0) {
       const responses =

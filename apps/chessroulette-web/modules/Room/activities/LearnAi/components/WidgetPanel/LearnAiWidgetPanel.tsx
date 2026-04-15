@@ -116,7 +116,6 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
     },
     tabsRef
   ) => {
-    
     const widgetPanelTabsNav = useWidgetPanelTabsNavAsSearchParams();
     const updateableSearchParams = useUpdateableSearchParams();
     const [pulseDot, setPulseDot] = useState(false);
