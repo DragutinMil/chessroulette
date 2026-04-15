@@ -1,6 +1,8 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
+     "moduleResolution": "bundler",//brisati ovu i dole ispod
+    "ignoreDeprecations": "6.0",
     "jsx": "preserve",
     "allowJs": true,
     "esModuleInterop": true,
