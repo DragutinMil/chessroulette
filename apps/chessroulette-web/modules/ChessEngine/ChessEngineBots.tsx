@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
+import { usePlayActionsDispatch } from '../Match/Play/hooks';
 import {
   // ChessColor,
   ChessFEN,
@@ -37,6 +38,7 @@ const StockfishEngine: React.FC<StockfishEngineProps> = ({
   const [score, setScore] = useState('');
   const [contempt, setContempt] = useState('');
   const stockfishRef = useRef<Worker | null>(null);
+  const dispatch = usePlayActionsDispatch();
 
   useEffect(() => {
     if (typeof window === 'undefined') return; // Ensure it's client-side
@@ -144,7 +146,6 @@ const StockfishEngine: React.FC<StockfishEngineProps> = ({
           (botType == 'botelja' || botType == 'basic'))) &&
       changeAfterMove !== moveNumber
     ) {
-      console.log('deljiv je ', moveNumber);
       let newDepth = Number(depth);
       let newSkill = Number(skill);
       let newContempt = Number(contempt);
@@ -172,6 +173,13 @@ const StockfishEngine: React.FC<StockfishEngineProps> = ({
         newSkill -= 2;
         newContempt -= 3;
       }
+      
+      if (Number(score) > 2000 && moveNumber > 20 && botType == 'matchFake') {
+        dispatch({
+          type: 'play:resignGame',
+          payload: { color: botColor },
+        });
+      }
 
       // 👉 zaštita da ne ide ispod 0
       setDepth(String(Math.max(0, newDepth)));
@@ -180,7 +188,7 @@ const StockfishEngine: React.FC<StockfishEngineProps> = ({
 
       setChangeAfterMove(moveNumber);
     }
-    //  console.log('cp score', score)
+    console.log('cp score', score);
   }, [score]);
 
   useEffect(() => {
@@ -203,16 +211,16 @@ const StockfishEngine: React.FC<StockfishEngineProps> = ({
       baseSkill = 6;
       baseContempt = 5;
     } else if (userRating > 1200) {
-      baseDepth = 3;
-      baseSkill = 4;
+      baseDepth = 2;
+      baseSkill = 3;
       baseContempt = 5;
     } else if (userRating > 1100) {
-      baseDepth = 1;
-      baseSkill = 3;
+      baseDepth = 0;
+      baseSkill = 1;
       baseContempt = 4;
     } else {
-      baseDepth = 1;
-      baseSkill = 1;
+      baseDepth = 0;
+      baseSkill = 0;
       baseContempt = 1;
     }
     getFinalSkill(baseDepth, baseSkill, baseContempt);

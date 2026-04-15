@@ -55,7 +55,6 @@ export function GET(request: NextRequest) {
     });
   }
 
- 
   if (activityParams.activity === 'ailearn') {
     const instructor = links.getOnDemandRoomCreationLink(
       {

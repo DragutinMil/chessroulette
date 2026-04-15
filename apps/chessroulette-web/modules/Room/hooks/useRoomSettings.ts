@@ -33,7 +33,7 @@ export const useRoomSettings = (
     if (activity === 'learn') {
       return learnActivitySettings;
     }
-   
+
     if (activity === 'ailearn') {
       return learnAiActivitySettings;
     }

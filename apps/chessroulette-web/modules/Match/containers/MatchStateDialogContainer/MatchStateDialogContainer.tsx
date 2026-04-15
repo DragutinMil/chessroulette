@@ -144,8 +144,6 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
         title="Match Aborted"
         content={
           <>
-            {/* { (document.referrer.includes('app.outpostchess.com') || document.referrer.includes('localhost:8080') || document.referrer.includes('test-app.outpostchess.com')) && */}
-
             <div className="flex justify-center w-full">
               <Button
                 className="w-3/5 md:w-1/2  "
@@ -186,6 +184,7 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
                     {activeBot?.name}
                     {` `}Won{` `}
                     <span>🏆</span>
+                    
                   </span>
                 ) : (
                   // REGULAR NAME
@@ -253,7 +252,6 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
                       Review
                     </Button>
                   </Link>
-                  {/* { (document.referrer.includes('app.outpostchess.com') || document.referrer.includes('localhost:8080') || document.referrer.includes('test-app.outpostchess.com')) && */}
 
                   <Button
                     icon="ArrowLeftIcon"

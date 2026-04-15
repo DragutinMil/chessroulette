@@ -174,7 +174,6 @@ export const List: React.FC<ListProps> = ({
   }, [history, focusedIndex]);
 
   const { whitePlayer, blackPlayer } = useMemo(() => {
-    console.log('showNames', showNames);
     if (!showNames) {
       return { whitePlayer: undefined, blackPlayer: undefined };
     }

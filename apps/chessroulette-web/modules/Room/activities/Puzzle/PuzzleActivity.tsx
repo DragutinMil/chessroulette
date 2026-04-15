@@ -101,56 +101,12 @@ export const PuzzleActivity = ({
   };
 
   return (
+  
     <ResizableDesktopLayout
       rightSideSize={RIGHT_SIDE_SIZE_PX}
       mainComponent={({ boardSize }) => (
+        
         <>
-          {settings.isInstructor && inputState.isActive ? (
-            ''
-          ) : (
-            // <InstructorBoard
-            //   fen={inputState.chapterState.displayFen}
-            //   boardOrientation={swapColor(inputState.chapterState.orientation)}
-            //   boardSizePx={boardSize}
-            //   onArrowsChange={(arrowsMap) => {
-            //     dispatchInputState({
-            //       type: 'updatePartialChapter',
-            //       payload: { arrowsMap },
-            //     });
-            //   }}
-            //   onCircleDraw={(payload) => {
-            //     dispatchInputState({
-            //       type: 'drawCircle',
-            //       payload,
-            //     });
-            //   }}
-            //   onClearCircles={() => {
-            //     dispatchInputState({ type: 'clearCircles' });
-            //   }}
-            //   onFlipBoard={() => {
-            //     dispatchInputState({
-            //       type: 'updatePartialChapter',
-            //       payload: {
-            //         orientation: swapColor(inputState.chapterState.orientation),
-            //       },
-            //     });
-            //   }}
-            //   onUpdateFen={(fen) => {
-            //     dispatchInputState({
-            //       type: 'updateChapterFen',
-            //       payload: { fen },
-            //     });
-            //   }}
-            //   onToggleBoardEditor={() => {
-            //     dispatchInputState({
-            //       type: 'update',
-            //       payload: { isBoardEditorShown: false },
-            //     });
-            //   }}
-            //   onMove={noop}
-            // />
-            //  Learn Mode */}
-
             <div>
               <PuzzleDialogContainer
                 onMessage={async (payload) =>
@@ -179,7 +135,7 @@ export const PuzzleActivity = ({
                 canFreePlay={canFreePlay}
                 currentChapter={currentChapter}
               />
-              <div>
+              <div className="scroll-overflow">
                 {currentChapter.chessAiMode.mode !== 'review' && (
                   <div className="block md:hidden mb-2 -mt-2">
                     <PuzzleScore
@@ -288,11 +244,11 @@ export const PuzzleActivity = ({
                 />
               </div>
             </div>
-          )}
+       
         </>
       )}
       rightComponent={
-        <div className="flex flex-col flex-1 min-h-0 gap-4max-h-screen ">
+        <div className="flex flex-col flex-1 min-h-0 gap-4 max-h-screen ">
           {/* <div className="overflow-hidden  rounded-lg shadow-2xl mb-4">
             <img
               src="https://outpostchess.fra1.digitaloceanspaces.com/bfce3526-2133-4ac5-8b16-9c377529f0b6.jpg"
@@ -404,5 +360,6 @@ export const PuzzleActivity = ({
         </div>
       }
     />
+  
   );
 };

@@ -18,6 +18,7 @@ import { ChessboardDisplay, ChessboardDisplayProps } from './ChessboardDisplay';
 import { useMoves } from './hooks/useMoves';
 import StockFishEngine from '@app/modules/ChessEngine/ChessEngineBots';
 import { useMatchViewState } from '../../../modules/Match/hooks/useMatch';
+
 import { boolean } from 'zod';
 
 export type ChessboardContainerProps = Omit<
@@ -118,6 +119,7 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
   const engineMoveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
     null
   );
+
   const botColor =
     match?.gameInPlay?.players.w == botId
       ? 'w'
@@ -157,6 +159,7 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
     onMove,
     onPreMove: onMove,
     isSquareEmpty,
+    botType
     // Event to reset the circles and arrows when any square is clicked or dragged
     // onSquareClickOrDrag: resetArrowsAndCircles,
   });
@@ -192,37 +195,49 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
         }, 2000);
       } else {
         if (match && (botType == 'botelja' || botType == 'matchFake')) {
-          let randomDelay;
-          const moveCount = match.gameInPlay?.pgn
-            ? match.gameInPlay?.pgn.split(' ').length
-            : 0;
-          if (match.gameInPlay?.timeClass.includes('blitz')) {
-            randomDelay = (min = 500, max = 4500) =>
-              Math.floor(Math.random() * (max - min + 1)) + min;
-          } else if (match.gameInPlay?.timeClass.includes('bullet')) {
-            randomDelay = (min = 500, max = 3000) =>
-              Math.floor(Math.random() * (max - min + 1)) + min;
-          } else {
-            randomDelay = (min = 700, max = 6000) =>
-              Math.floor(Math.random() * (max - min + 1)) + min;
-          }
+          const getRandom = (min: number, max: number) =>
+            Math.floor(Math.random() * (max - min + 1)) + min;
 
-          if (moveCount < 20) {
-            //prvih 5-6-7 poteza
-            randomDelay = (min = 500, max = 1300) =>
-              Math.floor(Math.random() * (max - min + 1)) + min;
+          if (match && (botType === 'botelja' || botType === 'matchFake')) {
+            const pgn = match.gameInPlay?.pgn || '';
+            const moveCount = pgn ? pgn.split(' ').length : 0;
+            const timeClass = match.gameInPlay?.timeClass || '';
+
+            let min = 600;
+            let max = 1300;
+            // Early game
+            if (moveCount < 20) {
+              min = 600;
+              max = 1300;
+            }
+            // Bullet
+            else if (timeClass.includes('bullet')) {
+              min = 600;
+              max = 3000;
+            }
+            // Blitz
+            else if (timeClass.includes('blitz')) {
+              min = 600;
+              max = 4500;
+            }
+            // Default
+            else {
+              min = 700;
+              max = 6000;
+            }
+
+            // Late game override
+            if (moveCount > 100 && !timeClass.includes('bullet')) {
+              min = 1500;
+              max = 5000;
+            }
+
+            const delay = getRandom(min, max);
+
+            engineMoveTimeoutRef.current = setTimeout(() => {
+              onMove({ from, to });
+            }, delay);
           }
-          if (
-            moveCount > 100 &&
-            !match.gameInPlay?.timeClass.includes('bullet')
-          ) {
-            //posle 35 poteza
-            randomDelay = (min = 1500, max = 5000) =>
-              Math.floor(Math.random() * (max - min + 1)) + min;
-          }
-          engineMoveTimeoutRef.current = setTimeout(() => {
-            onMove({ from, to });
-          }, randomDelay());
         } else {
           onMove({ from, to });
         }
