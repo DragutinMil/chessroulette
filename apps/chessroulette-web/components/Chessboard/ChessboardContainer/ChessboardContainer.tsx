@@ -159,6 +159,7 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
     onMove,
     onPreMove: onMove,
     isSquareEmpty,
+    botType
     // Event to reset the circles and arrows when any square is clicked or dragged
     // onSquareClickOrDrag: resetArrowsAndCircles,
   });
