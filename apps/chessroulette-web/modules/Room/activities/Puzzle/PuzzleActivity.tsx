@@ -101,7 +101,7 @@ export const PuzzleActivity = ({
   };
 
   return (
-   <div className="h-[750px] overflow-scroll md:overflow-hidden min-h-0">
+  
     <ResizableDesktopLayout
       rightSideSize={RIGHT_SIDE_SIZE_PX}
       mainComponent={({ boardSize }) => (
@@ -248,7 +248,7 @@ export const PuzzleActivity = ({
         </>
       )}
       rightComponent={
-        <div className="flex flex-col w-full min-h-0 gap-4  h-[700px]">
+        <div className="flex flex-col flex-1 min-h-0 gap-4 max-h-screen ">
           {/* <div className="overflow-hidden  rounded-lg shadow-2xl mb-4">
             <img
               src="https://outpostchess.fra1.digitaloceanspaces.com/bfce3526-2133-4ac5-8b16-9c377529f0b6.jpg"
@@ -360,6 +360,6 @@ export const PuzzleActivity = ({
         </div>
       }
     />
-   </div>
+  
   );
 };

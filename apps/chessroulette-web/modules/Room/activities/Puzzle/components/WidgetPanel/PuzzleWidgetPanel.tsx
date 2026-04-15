@@ -910,14 +910,14 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
               renderHeader: (p) => <div></div>,
               renderContent: () => (
                 // ovde ide pb-24
-                <div className="flex flex-col flex-1 gap-2 min-h-0 overflow-scroll no-scrollbar   md:pb-0">
+                 <div className="flex flex-col flex-1 gap-2 min-h-0 overflow-scroll no-scrollbar  pb-24 md:pb-0">
                   <div
                     className={`flex-1 justify-between flex bg-op-widget flex-col border  border-conversation-100 pb-2 px-2 md:px-4 md:pb-4 rounded-lg 
                      
                   ${isMobile ? 'mb-2' : ''}  
                   `}
                   >
-                    <div className="mt-4  flex flex-col justify-between  md:h-full h-128  max-h-[320px] md:max-h-[380px] md:min-h-[300px] min-h-[200px] ">
+                    <div className="mt-4  flex flex-col justify-between  h-full max-h-[320px] md:max-h-[380px] md:min-h-[300px] min-h-[200px] ">
                       {!isMobile && (
                         <Conversation
                           currentChapterState={currentChapterState}
@@ -1039,7 +1039,7 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
                       </div>
 
                       {isMobile && (
-                        <div className="top-4 relative h-128">
+                        <div className="top-4 relative ">
                           <Conversation
                             currentChapterState={currentChapterState}
                             openViewSubscription={openViewSubscription}

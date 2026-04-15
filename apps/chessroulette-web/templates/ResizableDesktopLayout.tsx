@@ -65,7 +65,7 @@ export const ResizableDesktopLayout = ({
 
   return (
     <div
-      className="flex w-full h-full align-center justify-center ml-0 overflow-y-auto sm:overflow-visible"
+      className="flex w-full h-full align-center justify-center ml-0"
       ref={containerRef}
       style={{
         marginLeft: -negativeMargin,
