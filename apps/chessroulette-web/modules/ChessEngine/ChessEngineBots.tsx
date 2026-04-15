@@ -173,7 +173,7 @@ const StockfishEngine: React.FC<StockfishEngineProps> = ({
         newSkill -= 2;
         newContempt -= 3;
       }
-      console.log(Number(score), moveNumber, botType);
+      
       if (Number(score) > 2000 && moveNumber > 20 && botType == 'matchFake') {
         dispatch({
           type: 'play:resignGame',

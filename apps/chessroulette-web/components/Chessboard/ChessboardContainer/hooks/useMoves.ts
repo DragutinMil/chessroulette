@@ -46,6 +46,7 @@ type Props = {
   onMove: (m: ShortChessMove) => void;
   onPreMove?: (m: ShortChessMove) => void;
   onValidateMove: (m: ShortChessMove) => boolean;
+  botType?:string
   // onValidatePromoMove: (m: ShortChessMove) => boolean;
   // onValidatePreMove: (m: ShortChessMove) => boolean;
   // onSquareClickOrDrag?: () => void;
@@ -59,6 +60,7 @@ export const useMoves = ({
   onPreMove,
   onValidateMove,
   isSquareEmpty,
+  botType
 }: // onValidatePromoMove,
 // onValidatePreMove,
 // onSquareClickOrDrag,
@@ -73,7 +75,9 @@ Props): MoveActions => {
 
   const [lastMoveWasPromotion, setLastMoveWasPromotion] = useState(false); // Dodajte ovo
 
-  const [premoveAnimationDelay] = useState(200);
+  const [premoveAnimationDelay] = useState(
+  botType === 'matchFake' ? 200 : 0
+);
   // pre move
   const allowsPremoves = !!onPreMove;
 
