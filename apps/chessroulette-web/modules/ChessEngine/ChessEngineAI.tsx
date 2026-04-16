@@ -196,7 +196,7 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
         setStockfishOutput('Stockfish error! Check console.');
       };
       // Send UCI command to initialize Stockfish
-      stockfishRef.current.postMessage('stop');
+     
       stockfishRef.current.postMessage(`position fen ${fen}`);
       stockfishRef.current.postMessage(`go depth ${depth}`);
       stockfishRef.current.postMessage(

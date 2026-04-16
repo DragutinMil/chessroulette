@@ -10,7 +10,7 @@ export const validateMove = (
   move: ChessMove,
   fen: ChessFEN,
   playingColor: ShortChessColor,
-  isReview
+  isReview?:boolean
 ):
   | {
       valid: false;
