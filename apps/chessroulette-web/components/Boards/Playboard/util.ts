@@ -9,7 +9,8 @@ import {
 export const validateMove = (
   move: ChessMove,
   fen: ChessFEN,
-  playingColor: ShortChessColor
+  playingColor: ShortChessColor,
+  isReview
 ):
   | {
       valid: false;
@@ -19,9 +20,9 @@ export const validateMove = (
       fen: ChessFEN;
     } => {
   const chess = getNewChessGame({ fen });
-
-  // Validate Turn
-  if (chess.turn() !== playingColor) {
+  
+  // Validate Turn  
+  if (chess.turn() !== playingColor && !isReview) {
     return {
       valid: false,
     };

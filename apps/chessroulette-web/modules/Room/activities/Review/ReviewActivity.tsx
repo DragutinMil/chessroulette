@@ -100,7 +100,6 @@ export const ReviewActivity = ({
     if (rawPgn) {
       const getMatchInfo = async () => {
         const data = await getMatch(rawPgn);
-        console.log('mech', data);
         const lastGame = data.results.endedGames.length - 1;
         if (data) {
           const pgn = data.results.endedGames[lastGame].pgn;
@@ -343,6 +342,12 @@ export const ReviewActivity = ({
                 dispatch({ type: 'loadedChapter:writeMessage', payload })
               )
             }
+            onMatchReview={(payload) =>
+            dispatch({
+              type: 'loadedChapter:addReview',
+              payload,
+            })
+}
             resetMessages={async () =>
               await enqueueMovexUpdate(() =>
                 dispatch({ type: 'loadedChapter:eraseMessages' })

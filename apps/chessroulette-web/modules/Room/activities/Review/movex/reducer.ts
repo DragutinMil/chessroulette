@@ -477,7 +477,7 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
     };
   }
   if (action.type === 'loadedChapter:setArrows') {
-    console.log('arrow change', action);
+  
     const prevChapter = findLoadedChapter(prev.activityState);
 
     if (!prevChapter) {
@@ -952,14 +952,33 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
       },
     };
   }
+  if(action.type  === 'loadedChapter:addReview'){
+   
+    const message = action.payload.message
+     const evaluation = action.payload.evaluation
+    return {
+      ...prev,
+      activityState: {
+        ...prev.activityState,
+        chaptersMap: {
+          ...prev.activityState.chaptersMap,
+          [0]: {
+            ...prev.activityState.chaptersMap[0],
+            chessAiMode:{
+              ...prev.activityState.chaptersMap[0].chessAiMode,
+              review: evaluation
+            },
+            messages: [
+              ...(prev.activityState.chaptersMap[0].messages ?? []),
+              message
+            ],
+          },
+        },
+      },
+    };
+  }
 
   if (action.type === 'loadedChapter:writeMessage') {
-    // if (
-    //   prev.activityState.chaptersMap[0].messages[
-    //     prev.activityState.chaptersMap[0].messages.length - 1
-    //   ].participantId !== action.payload.participantId
-    // ) {
-
     return {
       ...prev,
       activityState: {

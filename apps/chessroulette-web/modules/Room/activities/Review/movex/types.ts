@@ -98,7 +98,10 @@ export type ChapterBoardState = {
   circlesMap: CirclesMap;
   orientation: ChessColor;
 };
-
+type MatchReviewPayload = {
+  evaluation: EvaluationMove[];
+  message: Message;
+};
 export type ReviewActivityActions =
   // Chapter Logistcs
   | Action<'createChapter', ChapterState>
@@ -116,6 +119,7 @@ export type ReviewActivityActions =
   // | Action<'loadedChapter:setPuzzleMoves', chessAiMode>
   | Action<'loadedChapter:setReview', chessAiMode>
   | Action<'loadedChapter:writeMessage', Message>
+    | Action<'loadedChapter:addReview',MatchReviewPayload>
   | Action<'loadedChapter:eraseMessages'>
   | Action<'loadedChapter:focusHistoryIndex', FBHIndex>
   | Action<'loadedChapter:deleteHistoryMove', FBHIndex>

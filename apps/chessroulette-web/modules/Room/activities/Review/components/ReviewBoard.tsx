@@ -43,11 +43,12 @@ export const ReviewBoard = ({
     notation &&
     FreeBoardHistory.findMoveAtIndex(notation.history, notation.focusedIndex);
   const lastMove = lm?.isNonMove ? undefined : lm;
-
   const Board = settings.canMakeInvalidMoves ? Freeboard : Playboard;
+
   const turn = orientation;
   return (
     <Board
+      isReview={true}
       containerClassName={`shadow-2xl`}
       boardOrientation={orientation}
       playingColor={orientation}

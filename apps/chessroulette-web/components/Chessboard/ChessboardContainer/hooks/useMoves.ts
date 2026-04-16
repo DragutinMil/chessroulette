@@ -323,6 +323,7 @@ Props): MoveActions => {
 
   const onMoveIfValid = (m: ShortChessMove): Result<void, void> => {
     if (onValidateMove(m)) {
+      console.log('trtttrrt mikos')
       onMove(m);
       return Ok.EMPTY;
     }

@@ -18,6 +18,7 @@ const nextConfig = {
     svgr: false,
   },
   reactStrictMode: false,
+  
 };
 
 const withPlugins = composePlugins(withNx, withBundleAnalyzer)(nextConfig);
@@ -60,8 +61,10 @@ module.exports = withSentryConfig(
     // https://docs.sentry.io/product/crons/
     // https://vercel.com/docs/cron-jobs
     automaticVercelMonitors: true,
-  }
+  },
+ 
 );
+
 
 // const plugins = [
 //   // Add more Next.js plugins to this list if needed.
