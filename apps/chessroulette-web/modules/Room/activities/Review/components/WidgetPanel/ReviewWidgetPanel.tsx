@@ -21,7 +21,7 @@ import type {
   UserData,
   EvaluationMove,
 } from '../../movex/types';
-
+import Loader from "./Loader";
 import { CircleDrawTuple, ArrowsMap } from '@app/components/Chessboard/types';
 import {
   PgnInputBox,
@@ -59,6 +59,7 @@ type Props = {
   onArrowsChange: (tuple: ArrowsMap) => void;
   addChessAi: (moves: chessAiMode) => void;
   onMessage: (message: Message) => void;
+  onMatchReview: (payload: {evaluation: EvaluationMove[]; message: Message;}) => void;
   resetMessages: () => void;
   playerNames: Array<string>;
   // Board
@@ -113,6 +114,7 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
       addGameEvaluation,
       historyBackToStart,
       userData,
+      onMatchReview,
       ...chaptersTabProps
     },
     tabsRef
@@ -411,16 +413,7 @@ Unlock Unlimited Puzzles, Unlimited Game Reviews, and Unlimited AI Chat for just
         diff: item.diff,
         bestMoves: item.bestMoves,
       }));
-      if (filtered.length > 0) {
-        setTimeout(
-          () =>
-            addChessAi({
-              ...currentChapterState.chessAiMode,
-              review: filtered,
-            }),
-          2000
-        );
-      }
+      
 
       if (data) {
         setPulseDot(false);
@@ -429,18 +422,23 @@ Unlock Unlimited Puzzles, Unlimited Game Reviews, and Unlimited AI Chat for just
 
       const analiticsReview = reviewAnalitics(data);
 
-      if (!currentChapterState.messages[1]?.content.includes('analyzeReview')) {
-        onMessage({
-          content: analiticsReview + '/analyzeReview',
-          participantId: 'chatGPT123456',
-          idResponse:
-            currentChapterState.messages[
-              currentChapterState.messages.length - 1
-            ].idResponse,
-        });
-      }
+       if (!currentChapterState.messages[1]?.content.includes('analyzeReview') && filtered.length > 0) {
+       onMatchReview({
+  evaluation: filtered,
+  message: {
+    content: analiticsReview + '/analyzeReview',
+    participantId: 'chatGPT123456',
+    idResponse:
+      currentChapterState.messages[
+        currentChapterState.messages.length - 1
+      ].idResponse,
+  },
+});
+      
     };
+  }
     const handleGameEvaluation = (newScore: number) => {
+      console.log('ide novi score',newScore)
       setprevScoreCP(scoreCP);
       setScoreCP(newScore);
     };
@@ -618,8 +616,8 @@ Unlock Unlimited Puzzles, Unlimited Game Reviews, and Unlimited AI Chat for just
                             style={{ width: `${percentB}%` }}
                           ></div>
                         </div>
-
-                        {scoreCP !== 0 && (
+                     {/* <div>{scoreCP}</div> */}
+                        {scoreCP !== 0 ? (
                           <div className="flex justify-between items-center mt-0 md:mt-1">
                             <div className={` flex  items-center mt-2 `}>
                               {scoreCP < 49999 &&
@@ -636,10 +634,13 @@ Unlock Unlimited Puzzles, Unlimited Game Reviews, and Unlimited AI Chat for just
                                   </p>
                                 ))}
                               &nbsp;&nbsp;{' '}
-                              <p className={'text-sm  '}>
+                            {/* {  moveSan && ( */}
+                               <p className={'text-sm  '}>
                                 {' '}
                                 Best Move: {moveSan}{' '}
                               </p>
+                              {/* )} */}
+                             
                             </div>
                             {!showNames && (
                               <ButtonGreen
@@ -661,6 +662,8 @@ Unlock Unlimited Puzzles, Unlimited Game Reviews, and Unlimited AI Chat for just
                               </ButtonGreen>
                             )}
                           </div>
+                        ):(
+                          <Loader />
                         )}
                       </div>
                     )}
