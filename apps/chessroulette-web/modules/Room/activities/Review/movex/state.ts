@@ -21,6 +21,7 @@ export const initialChapterState: ChapterState = {
     fen: ChessFENBoard.EMPTY_FEN,
     originalPGN: '',
     opponentName: '',
+    opponentColor: '',
     responseId: '',
     message: '',
   },

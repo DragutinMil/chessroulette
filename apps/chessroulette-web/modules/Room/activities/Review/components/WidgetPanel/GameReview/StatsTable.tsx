@@ -1,7 +1,10 @@
 import React from 'react';
+import EvalChart from './EvalChart';
+import { EvaluationMove } from '../../../movex';
 
 type StatsTableProps = {
   content: string;
+  review: EvaluationMove[];
 };
 
 const getHighlightClassError = (value: number): string => {
@@ -15,120 +18,154 @@ const getHighlightClassGood = (value: number): string => {
   return '';
 };
 
-export const StatsTable: React.FC<StatsTableProps> = ({ content }) => {
+export const StatsTable: React.FC<StatsTableProps> = ({ content, review }) => {
   const values = content.split('/').map(Number);
   // console.log(values)
   return (
-    <div className="w-[85%] justify-center">
+    <div className="w-[100%] justify-center">
+      <div>
+        <p className="relative bottom-2">Evaluation Graph</p>
+        <EvalChart review={review} />
+      </div>
       {/* Header */}
-      <div className="flex">
-        <div className="w-[50%]"></div>
-        <div className="w-[25%] text-center">White</div>
-        <div className="w-[25%] text-center">Black</div>
-      </div>
+      <div className="w-[85%] justify-center mt-2">
+        <div className="flex">
+          <div className="w-[50%]"></div>
+          <div className="w-[25%] text-center">White</div>
+          <div className="w-[25%] text-center">Black</div>
+        </div>
 
-      {/* ✅ Excellent */}
-      <div className="flex mt-1">
-        <div className="w-[50%]">✅ Excellent:</div>
-        <div
-          className={`w-[25%] text-center ${getHighlightClassGood(values[3])}`}
-        >
-          {values[3]}
+        {/* ✅ Excellent */}
+        <div className="flex mt-1">
+          <div className="w-[50%]">✅ Excellent:</div>
+          <div
+            className={`w-[25%] text-center ${getHighlightClassGood(
+              values[3]
+            )}`}
+          >
+            {values[3]}
+          </div>
+          <div
+            className={`w-[25%] text-center ${getHighlightClassGood(
+              values[10]
+            )}`}
+          >
+            {values[10]}
+          </div>
         </div>
-        <div
-          className={`w-[25%] text-center ${getHighlightClassGood(values[10])}`}
-        >
-          {values[10]}
-        </div>
-      </div>
 
-      {/* ✅ Good moves */}
-      <div className="flex mt-1">
-        <div className="w-[50%]">✅ Good moves:</div>
-        <div
-          className={`w-[25%] text-center ${getHighlightClassGood(values[2])}`}
-        >
-          {values[2]}
+        {/* ✅ Good moves */}
+        <div className="flex mt-1">
+          <div className="w-[50%]">✅ Good moves:</div>
+          <div
+            className={`w-[25%] text-center ${getHighlightClassGood(
+              values[2]
+            )}`}
+          >
+            {values[2]}
+          </div>
+          <div
+            className={`w-[25%] text-center ${getHighlightClassGood(
+              values[9]
+            )}`}
+          >
+            {values[9]}
+          </div>
         </div>
-        <div
-          className={`w-[25%] text-center ${getHighlightClassGood(values[9])}`}
-        >
-          {values[9]}
-        </div>
-      </div>
 
-      {/* ⬇️ Bad moves */}
-      <div className="flex mt-1">
-        <div className="w-[50%]">⬇️ Bad moves:</div>
-        <div
-          className={`w-[25%] text-center ${getHighlightClassError(values[1])}`}
-        >
-          {values[1]}
+        {/* ⬇️ Bad moves */}
+        <div className="flex mt-1">
+          <div className="w-[50%]">⬇️ Bad moves:</div>
+          <div
+            className={`w-[25%] text-center ${getHighlightClassError(
+              values[1]
+            )}`}
+          >
+            {values[1]}
+          </div>
+          <div
+            className={`w-[25%] text-center ${getHighlightClassError(
+              values[8]
+            )}`}
+          >
+            {values[8]}
+          </div>
         </div>
-        <div
-          className={`w-[25%] text-center ${getHighlightClassError(values[8])}`}
-        >
-          {values[8]}
-        </div>
-      </div>
 
-      {/* ❌ Blunder */}
-      <div className="flex mt-1">
-        <div className="w-[50%]">❌ Blunder:</div>
-        <div
-          className={`w-[25%] text-center ${getHighlightClassError(values[0])}`}
-        >
-          {values[0]}
+        {/* ❌ Blunder */}
+        <div className="flex mt-1">
+          <div className="w-[50%]">❌ Blunder:</div>
+          <div
+            className={`w-[25%] text-center ${getHighlightClassError(
+              values[0]
+            )}`}
+          >
+            {values[0]}
+          </div>
+          <div
+            className={`w-[25%] text-center ${getHighlightClassError(
+              values[7]
+            )}`}
+          >
+            {values[7]}
+          </div>
         </div>
-        <div
-          className={`w-[25%] text-center ${getHighlightClassError(values[7])}`}
-        >
-          {values[7]}
-        </div>
-      </div>
 
-      {/* 🎯 First Line */}
-      <div className="flex mt-1">
-        <div className="w-[50%]">🎯 First Line</div>
-        <div
-          className={`w-[25%] text-center ${getHighlightClassGood(values[4])}`}
-        >
-          {values[4]}
+        {/* 🎯 First Line */}
+        <div className="flex mt-1">
+          <div className="w-[50%]">🎯 First Line</div>
+          <div
+            className={`w-[25%] text-center ${getHighlightClassGood(
+              values[4]
+            )}`}
+          >
+            {values[4]}
+          </div>
+          <div
+            className={`w-[25%] text-center ${getHighlightClassGood(
+              values[11]
+            )}`}
+          >
+            {values[11]}
+          </div>
         </div>
-        <div
-          className={`w-[25%] text-center ${getHighlightClassGood(values[11])}`}
-        >
-          {values[11]}
-        </div>
-      </div>
 
-      {/* ⚡ Second */}
-      <div className="flex mt-1">
-        <div className="w-[50%]">⚡⚡ Second:</div>
-        <div
-          className={`w-[25%] text-center ${getHighlightClassGood(values[5])}`}
-        >
-          {values[5]}
+        {/* ⚡ Second */}
+        <div className="flex mt-1">
+          <div className="w-[50%]">⚡⚡ Second:</div>
+          <div
+            className={`w-[25%] text-center ${getHighlightClassGood(
+              values[5]
+            )}`}
+          >
+            {values[5]}
+          </div>
+          <div
+            className={`w-[25%] text-center ${getHighlightClassGood(
+              values[12]
+            )}`}
+          >
+            {values[12]}
+          </div>
         </div>
-        <div
-          className={`w-[25%] text-center ${getHighlightClassGood(values[12])}`}
-        >
-          {values[12]}
-        </div>
-      </div>
 
-      {/* ⚡ Third */}
-      <div className="flex mt-1">
-        <div className="w-[50%]">⚡ Third:</div>
-        <div
-          className={`w-[25%] text-center ${getHighlightClassGood(values[6])}`}
-        >
-          {values[6]}
-        </div>
-        <div
-          className={`w-[25%] text-center ${getHighlightClassGood(values[13])}`}
-        >
-          {values[13]}
+        {/* ⚡ Third */}
+        <div className="flex mt-1">
+          <div className="w-[50%]">⚡ Third:</div>
+          <div
+            className={`w-[25%] text-center ${getHighlightClassGood(
+              values[6]
+            )}`}
+          >
+            {values[6]}
+          </div>
+          <div
+            className={`w-[25%] text-center ${getHighlightClassGood(
+              values[13]
+            )}`}
+          >
+            {values[13]}
+          </div>
         </div>
       </div>
     </div>

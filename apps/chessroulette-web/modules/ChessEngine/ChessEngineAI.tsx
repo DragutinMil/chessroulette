@@ -6,7 +6,7 @@ import {
   promotionalPieceSanToFenBoardPromotionalPieceSymbol,
   toLongChessColor,
 } from '@xmatter/util-kit';
-import {  newStockfish } from './stockfishWorker.js';
+import { newStockfish } from './stockfishWorker.js';
 
 type StockfishEngineAIProps = {
   fen: ChessFEN;
@@ -96,7 +96,7 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
 
   useEffect(() => {
     if (typeof window === 'undefined') return; // Ensure it's client-side
-    console.log('error',error)
+
     try {
       const stockfish = newStockfish();
       stockfishRef.current = stockfish;
@@ -106,9 +106,7 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
         stockfishRef.current?.terminate();
         setError(true);
       };
-    
     } catch (error) {
-     
       setStockfishOutput('Failed to load Stockfish.');
     }
   }, [error]);
@@ -117,20 +115,20 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
     if (puzzleMode && !isMyTurn) {
       return;
     }
-    
+
     // console.log('stockfishRef.current',stockfishRef.current)
     if (stockfishRef.current) {
       stockfishRef.current.onmessage = (event) => {
-      
         // console.log('feniranje');
-          // console.log('event.data', event.data);
+        // console.log('event.data', event.data);
         if (event.data.startsWith('bestmove')) {
-         
           setTimeout(() => {
             setBestMove(event.data.split(' ')[1]), 300;
           });
+        } else {
+          setBestMove('');
         }
-
+        //  console.log(`bilo sta` ,event.data)
         if (event.data.startsWith('info depth')) {
           if (event.data == 'info depth 0 score mate 0') {
             IsMate(true);
@@ -145,7 +143,7 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
           //console.log('sta',event.data)
           if (event.data.startsWith(`info depth ${depth}`)) {
             const pvIndex = event.data.indexOf(' pv ');
-            // console.log(event.data)
+            //  console.log(`data iz stockfish depth ${depth}` ,event.data)
             if (event.data.includes('multipv 2')) {
               setLinesTwo(event.data.slice(pvIndex + 4));
             }
@@ -157,16 +155,15 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
 
               if (match) {
                 const type = match[0];
-                const value = parseInt(match[2], 10);
-                if (type == 'score mate 1' || type == 'score mate 3') {
-                  //  console.log('ide mat 1 ili 3');
-                  const parts = fen.split(' ');
 
+                const value = parseInt(match[2], 10);
+                if (type.includes('mate') && Number(match[2]) > 0) {
+                  const parts = fen.split(' ');
                   (parts[1] === 'w' && orientation === 'w') ||
                   (parts[1] === 'b' && orientation === 'b')
                     ? addGameEvaluation(50000)
                     : addGameEvaluation(-50000);
-                } else if (type === 'score mate 2') {
+                } else if (type.includes('mate')) {
                   const parts = fen.split(' ');
                   //   console.log('ide mat 2', parts);
                   (parts[1] === 'w' && orientation === 'w') ||
@@ -176,6 +173,7 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
                     : addGameEvaluation(50000);
                 } else {
                   const score = isMyTurn ? value : -1 * value;
+
                   addGameEvaluation(score);
                 }
               }
@@ -196,7 +194,7 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
         setStockfishOutput('Stockfish error! Check console.');
       };
       // Send UCI command to initialize Stockfish
-      stockfishRef.current.postMessage('stop');
+
       stockfishRef.current.postMessage(`position fen ${fen}`);
       stockfishRef.current.postMessage(`go depth ${depth}`);
       stockfishRef.current.postMessage(

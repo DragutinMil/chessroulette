@@ -44,6 +44,7 @@ export type chessAiMode = {
   responseId: string;
   originalPGN: ChessPGN;
   opponentName: string;
+  opponentColor: string;
   message: string;
 };
 // export type evaluation = {
@@ -119,7 +120,7 @@ export type ReviewActivityActions =
   // | Action<'loadedChapter:setPuzzleMoves', chessAiMode>
   | Action<'loadedChapter:setReview', chessAiMode>
   | Action<'loadedChapter:writeMessage', Message>
-    | Action<'loadedChapter:addReview',MatchReviewPayload>
+  | Action<'loadedChapter:addReview', MatchReviewPayload>
   | Action<'loadedChapter:eraseMessages'>
   | Action<'loadedChapter:focusHistoryIndex', FBHIndex>
   | Action<'loadedChapter:deleteHistoryMove', FBHIndex>
@@ -130,4 +131,5 @@ export type ReviewActivityActions =
   | Action<'loadedChapter:setOrientation', { color: ChessColor }>
   | Action<'loadedChapter:takeBack', FBHIndex>
   | Action<'loadedChapter:updateFen', ChessFEN>
-  | Action<'loadedChapter:import', { input: ImportedInput }>;
+  | Action<'loadedChapter:import', { input: ImportedInput }>
+  | Action<'loadedChapter:changePosition', { input: ImportedInput }>;

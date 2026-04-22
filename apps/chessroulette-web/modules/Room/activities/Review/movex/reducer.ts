@@ -7,7 +7,10 @@ import {
   FBHHistory,
 } from '@xmatter/util-kit';
 import { Chapter, ChapterState, ReviewActivityState } from './types';
-
+import {
+  FBHIndexMovePosition,
+  FBHRecursiveIndexes,
+} from 'util-kit/src/lib/FreeBoardHistory/types';
 import { initialChapterState, initialDefaultChapter } from './state';
 import {
   ActivityActions,
@@ -212,44 +215,44 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
     }
   }
 
-  if (action.type === 'loadedChapter:import') {
-    console.log('akcija', action);
+  if (action.type === 'loadedChapter:changePosition') {
+    console.log('action reducer', action.payload);
     const prevChapter = findLoadedChapter(prev.activityState);
-
     if (!prevChapter) {
       console.error('The chapter wasnt found');
       return prev;
     }
-
-    if (action.payload.input.type === 'FEN') {
-      if (!ChessFENBoard.validateFenString(action.payload.input.val).ok) {
+    if (action.payload.input.type === 'PGN') {
+      if (!isValidPgn(action.payload.input.val)) {
         return prev;
       }
 
-      const nextFen = action.payload.input.val;
-      const notation = {
-        startingFen: nextFen,
-        history: [],
-        focusedIndex: FreeBoardHistory.getStartingIndex(),
-      };
-      const content = 'Alright, let’s take a look at this one.';
+      const chessGame = getNewChessGame({
+        pgn: action.payload.input.val,
+      });
+      const nextHistory = FreeBoardHistory.pgnToHistory(
+        action.payload.input.val
+      );
+      if (!action.payload.input.position) {
+        return prev;
+      }
       const nextChapterState: ChapterState = {
         ...prevChapter,
         arrowsMap: {},
-        messages: [
-          {
-            content: content,
-            idResponse: '',
-            participantId: 'chatGPT123456',
-          },
-        ],
+        displayFen: chessGame.fen(),
         chessAiMode: {
           ...prevChapter.chessAiMode,
-          fen: '',
+          fen: action.payload.input.val,
         },
-        displayFen: nextFen,
-        // When importing PGNs set the notation from this fen
-        notation: notation,
+
+        // When importing PGNs set the notation history as well
+        notation: {
+          ...prev.activityState.chaptersMap[0].notation,
+          focusedIndex: [
+            action.payload.input.position[0],
+            action.payload.input.position[1] as FBHIndexMovePosition,
+          ],
+        },
       };
 
       return {
@@ -266,6 +269,47 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
         },
       };
     }
+  }
+
+  if (action.type === 'loadedChapter:import') {
+    const prevChapter = findLoadedChapter(prev.activityState);
+
+    if (!prevChapter) {
+      console.error('The chapter wasnt found');
+      return prev;
+    }
+
+    // if (action.payload.input.type === 'FEN') {
+    //   if (!ChessFENBoard.validateFenString(action.payload.input.val).ok) {
+    //     return prev;
+    //   }
+
+    //   const nextFen = action.payload.input.val;
+    //   const notation = {
+    //      ...prev.activityState.chaptersMap[0].notation,
+    //     focusedIndex: FreeBoardHistory.getStartingIndex(),
+    //   };
+    //   const nextChapterState: ChapterState = {
+    //     ...prevChapter,
+    //     // arrowsMap: {},
+    //     displayFen: nextFen,
+    //     notation: notation,
+    //   };
+
+    //   return {
+    //     ...prev,
+    //     activityState: {
+    //       ...prev.activityState,
+    //       chaptersMap: {
+    //         ...prev.activityState.chaptersMap,
+    //         [0]: {
+    //           ...prev.activityState.chaptersMap[0],
+    //           ...nextChapterState,
+    //         },
+    //       },
+    //     },
+    //   };
+    // }
 
     if (action.payload.input.type === 'PGN') {
       if (!isValidPgn(action.payload.input.val)) {
@@ -477,11 +521,16 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
     };
   }
   if (action.type === 'loadedChapter:setArrows') {
-  
     const prevChapter = findLoadedChapter(prev.activityState);
 
     if (!prevChapter) {
       console.error('No loaded chapter');
+      return prev;
+    }
+    //remove duplicates
+    const values = Object.values(action.payload);
+    const unique = new Set(values.map((v) => v.join(',')));
+    if (unique.size !== values.length) {
       return prev;
     }
     const nextChapter: Chapter = {
@@ -952,10 +1001,9 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
       },
     };
   }
-  if(action.type  === 'loadedChapter:addReview'){
-   
-    const message = action.payload.message
-     const evaluation = action.payload.evaluation
+  if (action.type === 'loadedChapter:addReview') {
+    const message = action.payload.message;
+    const evaluation = action.payload.evaluation;
     return {
       ...prev,
       activityState: {
@@ -964,14 +1012,20 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
           ...prev.activityState.chaptersMap,
           [0]: {
             ...prev.activityState.chaptersMap[0],
-            chessAiMode:{
+            displayFen:
+              'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+            chessAiMode: {
               ...prev.activityState.chaptersMap[0].chessAiMode,
-              review: evaluation
+              review: evaluation,
             },
             messages: [
               ...(prev.activityState.chaptersMap[0].messages ?? []),
-              message
+              message,
             ],
+            notation: {
+              ...prev.activityState.chaptersMap[0].notation,
+              focusedIndex: [0, 0],
+            },
           },
         },
       },

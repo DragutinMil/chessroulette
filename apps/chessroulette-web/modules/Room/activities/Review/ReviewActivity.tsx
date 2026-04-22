@@ -11,11 +11,15 @@ import { ReviewDialogContainer } from './DialogContainer/ReviewDialogContainer';
 import { enqueueMovexUpdate } from './util';
 
 import {
+  FreeBoardNotation,
+  FreeBoardNotationProps,
+} from '@app/components/FreeBoardNotation';
+import {
   ReviewActivityState,
   findLoadedChapter,
   initialDefaultChapter,
   chessAiMode,
-  MovePiece,
+  EvaluationMove,
 } from './movex';
 
 import { getMatch } from './util';
@@ -24,10 +28,6 @@ import { ReviewBoard } from './components/ReviewBoard';
 import { RIGHT_SIDE_SIZE_PX } from '../../constants';
 import inputReducer, { initialInputState } from './reducers/inputReducer';
 import socketUtil from '../../../../socketUtil';
-
-import { InstructorBoard } from './components/InstructorBoard';
-import { Square } from 'chess.js';
-import { boolean, number } from 'zod';
 
 type Props = {
   remoteState: ReviewActivityState['activityState'];
@@ -43,10 +43,14 @@ export const ReviewActivity = ({
 }: Props) => {
   const moveSound = new Audio('/chessmove.mp3');
   const dispatch = optionalDispatch || noop;
-  const [cameraOff, setCameraOff] = useState(false);
   const [newReview, setNewReview] = useState(true);
   const [playerNames, setPlayerNames] = useState(Array<string>);
   const [canFreePlay, setCanFreePlay] = useState(false);
+  const [isFocusedInput, setIsFocusedInput] = useState(false);
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+  const [reviewDataToNotation, setReviewDataToNotation] = useState<
+    EvaluationMove[]
+  >([]);
   const [userData, setUserData] = useState({
     name_first: '',
     name_last: '',
@@ -81,6 +85,9 @@ export const ReviewActivity = ({
       socketUtil.disconnect();
     };
   }, []);
+  useEffect(() => {
+    isMobile && setReviewDataToNotation(currentChapter.chessAiMode.review);
+  }, [currentChapter.chessAiMode.review]);
   useEffect(() => {
     if (newReview === false) {
       return;
@@ -128,13 +135,15 @@ export const ReviewActivity = ({
             return;
           }
           const opponentName = white ? blackPlayerName : whitePlayerName;
+          const opponentColor = white ? 'black' : 'white';
           gameReview({
+            ...currentChapter.chessAiMode,
             orientationChange: changeOrientation,
             mode: 'review',
             fen: pgn,
             originalPGN: pgn,
             opponentName: opponentName,
-            review: [],
+            opponentColor: opponentColor,
             responseId: '',
             message: '',
           });
@@ -166,6 +175,23 @@ export const ReviewActivity = ({
     setCanFreePlay(canPlay);
   };
 
+  const onHistoryNotationRefocus = async (payload: any) => {
+    await enqueueMovexUpdate(() =>
+      dispatch({
+        type: 'loadedChapter:focusHistoryIndex',
+        payload,
+      })
+    );
+  };
+  const onHistoryNotationDelete = async (payload: any) => {
+    await enqueueMovexUpdate(() =>
+      dispatch({
+        type: 'loadedChapter:deleteHistoryMove',
+        payload,
+      })
+    );
+  };
+
   return (
     <ResizableDesktopLayout
       rightSideSize={RIGHT_SIDE_SIZE_PX}
@@ -176,6 +202,37 @@ export const ReviewActivity = ({
           ) : (
             <div>
               <ReviewDialogContainer currentChapter={currentChapter} />
+              {isMobile && (
+                <div
+                  style={{
+                    // backgroundImage:
+                    //   'radial-gradient(61.84% 61.84% at 50% 131.62%, rgba(5, 135, 44, 0.2) 0%, #01210B 100%)',
+                    height: isMobile ? '52px' : '290px',
+                    minHeight: isMobile ? '52px' : '202px',
+                  }}
+                  className={`
+                      ${
+                        currentChapter.chessAiMode.mode === 'review'
+                          ? 'block'
+                          : 'hidden'
+                      }  
+                      
+                     overflow-x-auto md:overflow-x-hidden  md:flex rounded-lg md:mb-0  md:p-4 p-2 
+                    `}
+                >
+                  <FreeBoardNotation
+                    reviewDataToNotation={reviewDataToNotation}
+                    isMobile={isMobile}
+                    history={currentChapter.notation?.history}
+                    // playerNames={playerNames}
+                    isAichess={true}
+                    focusedIndex={currentChapter.notation?.focusedIndex}
+                    onDelete={onHistoryNotationDelete}
+                    onRefocus={onHistoryNotationRefocus}
+                    isFocusedInput={isFocusedInput}
+                  />
+                </div>
+              )}
               <div>
                 <ReviewBoard
                   sizePx={boardSize}
@@ -337,17 +394,12 @@ export const ReviewActivity = ({
                 dispatch({ type: 'loadedChapter:setArrows', payload })
               );
             }}
-            onMessage={async (payload) =>
-              await enqueueMovexUpdate(() =>
-                dispatch({ type: 'loadedChapter:writeMessage', payload })
-              )
-            }
             onMatchReview={(payload) =>
-            dispatch({
-              type: 'loadedChapter:addReview',
-              payload,
-            })
-}
+              dispatch({
+                type: 'loadedChapter:addReview',
+                payload,
+              })
+            }
             resetMessages={async () =>
               await enqueueMovexUpdate(() =>
                 dispatch({ type: 'loadedChapter:eraseMessages' })
@@ -433,6 +485,19 @@ export const ReviewActivity = ({
                 payload: { id },
               });
             }}
+            onChangePosition={async (input) => {
+              await enqueueMovexUpdate(() =>
+                dispatch({
+                  type: 'loadedChapter:changePosition',
+                  payload: { input },
+                })
+              );
+            }}
+            onMessage={async (payload) =>
+              await enqueueMovexUpdate(() =>
+                dispatch({ type: 'loadedChapter:writeMessage', payload })
+              )
+            }
             onQuickImport={(input) => {
               dispatch({
                 type: 'loadedChapter:import',

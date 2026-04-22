@@ -26,7 +26,7 @@ export type PlayboardProps = DistributiveOmit<
   botType?: string;
   userRating?: number;
   canPlay?: boolean;
-  isReview?:boolean;
+  isReview?: boolean;
   overlayComponent?: React.ReactNode;
 };
 
@@ -61,11 +61,10 @@ export const Playboard = ({
 
   const onValidateMove = useCallback(
     (move: ShortChessMove) => {
-    
-      if(isReview){
+      if (isReview) {
         return validateMove(move, fen, playingColor, isReview).valid;
       }
-      console.log('proslo dalje')
+      console.log('proslo dalje');
       if (!canPlay) {
         return false;
       }

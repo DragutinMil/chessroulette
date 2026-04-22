@@ -101,150 +101,147 @@ export const PuzzleActivity = ({
   };
 
   return (
-  
     <ResizableDesktopLayout
       rightSideSize={RIGHT_SIDE_SIZE_PX}
       mainComponent={({ boardSize }) => (
-        
         <>
-            <div>
-              <PuzzleDialogContainer
-                onMessage={async (payload) =>
-                  await enqueueMovexUpdate(() =>
-                    dispatch({
-                      type: 'loadedChapter:writeMessage',
-                      payload: payload,
-                    })
-                  )
+          <div>
+            <PuzzleDialogContainer
+              onMessage={async (payload) =>
+                await enqueueMovexUpdate(() =>
+                  dispatch({
+                    type: 'loadedChapter:writeMessage',
+                    payload: payload,
+                  })
+                )
+              }
+              onPuzzleMove={async (payload) => {
+                moveSound.play();
+                await enqueueMovexUpdate(() =>
+                  dispatch({ type: 'loadedChapter:addPuzzleMove', payload })
+                );
+              }}
+              addChessAi={async (payload: chessAiMode) =>
+                await enqueueMovexUpdate(() =>
+                  dispatch({
+                    type: 'loadedChapter:setPuzzleMoves',
+                    payload: payload as chessAiMode,
+                  })
+                )
+              }
+              newPuzzleRequest={handlePuzzleRequest}
+              canFreePlay={canFreePlay}
+              currentChapter={currentChapter}
+            />
+            <div className="scroll-overflow">
+              {currentChapter.chessAiMode.mode !== 'review' && (
+                <div className="block md:hidden mb-2 -mt-2">
+                  <PuzzleScore
+                    chessAiMode={currentChapter.chessAiMode}
+                    puzzle_rating={userData.puz_rating}
+                  />
+                </div>
+              )}
+              <PuzzleBoard
+                sizePx={boardSize}
+                // onChangePuzzleAnimation={onChangePuzzleAnimation}
+                {...currentChapter}
+                orientation={
+                  // The instructor gets the opposite side as the student (so they can play together)
+                  settings.isInstructor
+                    ? swapColor(currentChapter.orientation)
+                    : currentChapter.orientation
                 }
-                onPuzzleMove={async (payload) => {
-                  moveSound.play();
-                  await enqueueMovexUpdate(() =>
-                    dispatch({ type: 'loadedChapter:addPuzzleMove', payload })
-                  );
+                onFlip={() => {
+                  dispatch({
+                    type: 'loadedChapter:setOrientation',
+                    payload: { color: swapColor(currentChapter.orientation) },
+                  });
                 }}
-                addChessAi={async (payload: chessAiMode) =>
-                  await enqueueMovexUpdate(() =>
-                    dispatch({
-                      type: 'loadedChapter:setPuzzleMoves',
-                      payload: payload as chessAiMode,
-                    })
-                  )
+                onMove={async (payload) => {
+                  moveSound.play();
+
+                  if (currentChapter.chessAiMode.mode === 'puzzle') {
+                    await enqueueMovexUpdate(() =>
+                      dispatch({
+                        type: 'loadedChapter:addPuzzleMove',
+                        payload,
+                      })
+                    );
+                  } else if (currentChapter.chessAiMode.mode === 'review') {
+                    await enqueueMovexUpdate(() =>
+                      dispatch({ type: 'loadedChapter:addMove', payload })
+                    );
+                  } else if (
+                    (currentChapter.notation.focusedIndex[0] !==
+                      currentChapter.notation.history?.length - 1 ||
+                      currentChapter.notation.focusedIndex[1] !==
+                        currentChapter.notation.history[
+                          currentChapter.notation.history.length - 1
+                        ]?.length -
+                          1) &&
+                    currentChapter.notation.history.length !== 0
+                  ) {
+                    return;
+                  } else {
+                    await enqueueMovexUpdate(() =>
+                      dispatch({ type: 'loadedChapter:addMove', payload })
+                    );
+                  }
+
+                  // TODO: This can be returned from a more internal component
+                  return true;
+                }}
+                onArrowsChange={(payload) => {
+                  // console.log('arrow karioka');
+                  // dispatch({ type: 'loadedChapter:setArrows', payload });
+                }}
+                onCircleDraw={(tuple) => {
+                  dispatch({
+                    type: 'loadedChapter:drawCircle',
+                    payload: tuple,
+                  });
+                }}
+                onClearCircles={() => {
+                  dispatch({ type: 'loadedChapter:clearCircles' });
+                }}
+                onClearBoard={() => {
+                  dispatch({
+                    type: 'loadedChapter:updateFen',
+                    payload: ChessFENBoard.ONLY_KINGS_FEN,
+                  });
+                }}
+                onResetBoard={() => {
+                  dispatch({
+                    type: 'loadedChapter:updateFen',
+                    payload: ChessFENBoard.STARTING_FEN,
+                  });
+                }}
+                onBoardEditor={() => {
+                  dispatchInputState({
+                    type: 'activate',
+                    payload: {
+                      isBoardEditorShown: true,
+                      chapterState: currentChapter,
+                    },
+                  });
+                  tabsRef.current?.focusByTabId('chapters', 2);
+                }}
+                rightSideClassName="flex-1"
+                rightSideComponent={
+                  <>
+                    <div className="relative flex flex-1 flex-col items-center justify-center">
+                      <PanelResizeHandle
+                        className="w-1 h-20 rounded-lg bg-slate-600"
+                        title="Resize"
+                      />
+                    </div>
+                    <div className="flex-1" />
+                  </>
                 }
-                newPuzzleRequest={handlePuzzleRequest}
-                canFreePlay={canFreePlay}
-                currentChapter={currentChapter}
               />
-              <div className="scroll-overflow">
-                {currentChapter.chessAiMode.mode !== 'review' && (
-                  <div className="block md:hidden mb-2 -mt-2">
-                    <PuzzleScore
-                      chessAiMode={currentChapter.chessAiMode}
-                      puzzle_rating={userData.puz_rating}
-                    />
-                  </div>
-                )}
-                <PuzzleBoard
-                  sizePx={boardSize}
-                  // onChangePuzzleAnimation={onChangePuzzleAnimation}
-                  {...currentChapter}
-                  orientation={
-                    // The instructor gets the opposite side as the student (so they can play together)
-                    settings.isInstructor
-                      ? swapColor(currentChapter.orientation)
-                      : currentChapter.orientation
-                  }
-                  onFlip={() => {
-                    dispatch({
-                      type: 'loadedChapter:setOrientation',
-                      payload: { color: swapColor(currentChapter.orientation) },
-                    });
-                  }}
-                  onMove={async (payload) => {
-                    moveSound.play();
-
-                    if (currentChapter.chessAiMode.mode === 'puzzle') {
-                      await enqueueMovexUpdate(() =>
-                        dispatch({
-                          type: 'loadedChapter:addPuzzleMove',
-                          payload,
-                        })
-                      );
-                    } else if (currentChapter.chessAiMode.mode === 'review') {
-                      await enqueueMovexUpdate(() =>
-                        dispatch({ type: 'loadedChapter:addMove', payload })
-                      );
-                    } else if (
-                      (currentChapter.notation.focusedIndex[0] !==
-                        currentChapter.notation.history?.length - 1 ||
-                        currentChapter.notation.focusedIndex[1] !==
-                          currentChapter.notation.history[
-                            currentChapter.notation.history.length - 1
-                          ]?.length -
-                            1) &&
-                      currentChapter.notation.history.length !== 0
-                    ) {
-                      return;
-                    } else {
-                      await enqueueMovexUpdate(() =>
-                        dispatch({ type: 'loadedChapter:addMove', payload })
-                      );
-                    }
-
-                    // TODO: This can be returned from a more internal component
-                    return true;
-                  }}
-                  onArrowsChange={(payload) => {
-                    // console.log('arrow karioka');
-                    // dispatch({ type: 'loadedChapter:setArrows', payload });
-                  }}
-                  onCircleDraw={(tuple) => {
-                    dispatch({
-                      type: 'loadedChapter:drawCircle',
-                      payload: tuple,
-                    });
-                  }}
-                  onClearCircles={() => {
-                    dispatch({ type: 'loadedChapter:clearCircles' });
-                  }}
-                  onClearBoard={() => {
-                    dispatch({
-                      type: 'loadedChapter:updateFen',
-                      payload: ChessFENBoard.ONLY_KINGS_FEN,
-                    });
-                  }}
-                  onResetBoard={() => {
-                    dispatch({
-                      type: 'loadedChapter:updateFen',
-                      payload: ChessFENBoard.STARTING_FEN,
-                    });
-                  }}
-                  onBoardEditor={() => {
-                    dispatchInputState({
-                      type: 'activate',
-                      payload: {
-                        isBoardEditorShown: true,
-                        chapterState: currentChapter,
-                      },
-                    });
-                    tabsRef.current?.focusByTabId('chapters', 2);
-                  }}
-                  rightSideClassName="flex-1"
-                  rightSideComponent={
-                    <>
-                      <div className="relative flex flex-1 flex-col items-center justify-center">
-                        <PanelResizeHandle
-                          className="w-1 h-20 rounded-lg bg-slate-600"
-                          title="Resize"
-                        />
-                      </div>
-                      <div className="flex-1" />
-                    </>
-                  }
-                />
-              </div>
             </div>
-       
+          </div>
         </>
       )}
       rightComponent={
@@ -360,6 +357,5 @@ export const PuzzleActivity = ({
         </div>
       }
     />
-  
   );
 };
