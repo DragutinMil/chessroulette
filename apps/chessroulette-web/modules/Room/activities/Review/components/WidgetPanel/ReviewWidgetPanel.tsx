@@ -6,7 +6,7 @@ import React, {
   useRef,
 } from 'react';
 import { ButtonGreen } from '@app/components/Button/ButtonGreen';
-import { ChessFENBoard, isValidPgn } from '@xmatter/util-kit';
+
 import {
   FreeBoardNotation,
   FreeBoardNotationProps,
@@ -21,7 +21,8 @@ import type {
   UserData,
   EvaluationMove,
 } from '../../movex/types';
-import Loader from "./Loader";
+import { slicePgn } from './GameReview/slicePgn';
+import Loader from './Loader';
 import { CircleDrawTuple, ArrowsMap } from '@app/components/Chessboard/types';
 import {
   PgnInputBox,
@@ -59,12 +60,16 @@ type Props = {
   onArrowsChange: (tuple: ArrowsMap) => void;
   addChessAi: (moves: chessAiMode) => void;
   onMessage: (message: Message) => void;
-  onMatchReview: (payload: {evaluation: EvaluationMove[]; message: Message;}) => void;
+  onMatchReview: (payload: {
+    evaluation: EvaluationMove[];
+    message: Message;
+  }) => void;
   resetMessages: () => void;
   playerNames: Array<string>;
   // Board
   onImport: PgnInputBoxProps['onChange'];
   onQuickImport: PgnInputBoxProps['onChange'];
+  onChangePosition: PgnInputBoxProps['onChange'];
   onHistoryNotationRefocus: FreeBoardNotationProps['onRefocus'];
   onHistoryNotationDelete: FreeBoardNotationProps['onDelete'];
   addGameEvaluation: (score: number) => void;
@@ -109,6 +114,7 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
       onMessage,
       resetMessages,
       onQuickImport,
+      onChangePosition,
       onHistoryNotationDelete,
       onHistoryNotationRefocus,
       addGameEvaluation,
@@ -150,6 +156,8 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
     const [percentB, setPercentB] = useState(50);
 
     const [moveSan, setMoveSan] = useState('');
+    const [moveLan, setMoveLan] = useState('');
+
     const [stockfishMovesInfo, setStockfishMovesInfo] = useState('');
     const [lines, setLines] = useState<StockfishLines>({
       1: '',
@@ -172,12 +180,12 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
       currentChapterState.displayFen.split(' ')[1] ===
       currentChapterState.orientation;
 
-    const checkAnswerGPT = async (data: any) => {
+    const checkAnswerGPT = async (data: any, predefined?: string) => {
       if (data == 'ai_daily_limit_reached') {
         setPulseDot(false);
         onMessage({
           content: `You’ve hit your daily limit.
-Unlock Unlimited Puzzles, Unlimited Game Reviews, and Unlimited AI Chat for just €4/Month,  and improve faster with AI-powered analysis and training.`,
+          Unlock Unlimited Puzzles, Unlimited Game Reviews, and Unlimited AI Chat for just €4/Month,  and improve faster with AI-powered analysis and training.`,
 
           participantId: 'chatGPT123456sales',
           idResponse: '',
@@ -193,9 +201,35 @@ Unlock Unlimited Puzzles, Unlimited Game Reviews, and Unlimited AI Chat for just
           idResponse: data.id,
         });
       } else {
+        if (data.answer.action !== '' && data.answer.actionType == 'bestMove') {
+          const from = data.answer.action.slice(0, 2);
+          const to = data.answer.action.slice(2, 4);
+          const color = '#11c6d1';
+          const arrowId = `${from}${to}-${color}`;
+          onArrowsChange({
+            [arrowId]: [from as Square, to as Square],
+          });
+        } else if (
+          data.answer.actionType == 'toPosition' &&
+          data.answer.action !== ''
+        ) {
+          console.log('akcija', data.answer.action);
+          const a = data.answer.action;
+          const b =
+            currentChapterState.chessAiMode.opponentColor == 'white' ? 1 : 0;
+          const pgn = currentChapterState.chessAiMode.fen;
+          const slicePGN = slicePgn(pgn, a, b);
+          console.log('slicePGN', slicePGN);
+
+          onChangePosition({
+            type: 'PGN',
+            val: slicePGN,
+            position: [Number(a) - 1, Number(b)],
+          });
+        }
         onMessage({
           content: data.answer.text,
-          participantId: 'chatGPT123456',
+          participantId: 'chatGPT123456' + predefined,
           idResponse: data.id,
         });
       }
@@ -225,7 +259,9 @@ Unlock Unlimited Puzzles, Unlimited Game Reviews, and Unlimited AI Chat for just
       const data = await SendQuestionReview(
         question,
         currentChapterState,
-        moveSan
+        moveSan,
+        moveLan,
+        scoreCP
       );
 
       if (data) {
@@ -284,9 +320,9 @@ Unlock Unlimited Puzzles, Unlimited Game Reviews, and Unlimited AI Chat for just
         setTimeout(
           () =>
             addChessAi({
+              ...currentChapterState.chessAiMode,
               mode: 'checkmate',
               orientationChange: false,
-              review: [],
               originalPGN: currentChapterState.chessAiMode.originalPGN,
               opponentName: currentChapterState.chessAiMode.opponentName,
               fen: currentChapterState.displayFen,
@@ -303,8 +339,10 @@ Unlock Unlimited Puzzles, Unlimited Game Reviews, and Unlimited AI Chat for just
     };
     const engineMove = (m: any, n?: boolean) => {
       //if engine dont have move, play mod is disabled
-      if (m === '(none)') {
+      if (m === '(none)' || m === '') {
         onCanPlayChange(false);
+        setMoveSan('');
+        setMoveLan('');
       } else {
         onCanPlayChange(true);
       }
@@ -313,17 +351,14 @@ Unlock Unlimited Puzzles, Unlimited Game Reviews, and Unlimited AI Chat for just
       let fromChess = m.slice(0, 2);
       let toChess = m.slice(2, 4);
 
-      if (
-        fromChess &&
-        toChess &&
-        currentChapterState.chessAiMode.mode === 'review'
-      ) {
+      if (fromChess && toChess) {
         try {
           const chess = new Chess(currentChapterState.displayFen);
           const move = chess.move({ from: fromChess, to: toChess });
 
           if (move) {
             setMoveSan(move.san);
+            setMoveLan(move.lan);
             const reviewData = currentChapterState.chessAiMode.review;
             if (reviewData.length > 0) {
               const index =
@@ -333,8 +368,8 @@ Unlock Unlimited Puzzles, Unlimited Game Reviews, and Unlimited AI Chat for just
               const whiteMove = index % 2 !== 0 ? true : false;
 
               if (
-                (Number(reviewData[index + 1].diff) > 0.7 && !whiteMove) ||
-                (Number(reviewData[index + 1].diff) < -0.7 && whiteMove)
+                (Number(reviewData[index + 1].diff) > 0.6 && !whiteMove) ||
+                (Number(reviewData[index + 1].diff) < -0.6 && whiteMove)
               ) {
                 const color = '#07da63';
                 const colorBlunder = '#f2358d';
@@ -390,6 +425,31 @@ Unlock Unlimited Puzzles, Unlimited Game Reviews, and Unlimited AI Chat for just
       (window.location.href = 'https://app.outpostchess.com/subscribe'),
         '_self';
     };
+    const analizeWorstMove = async () => {
+      setQuestion('');
+      setTimeout(() => {
+        setPulseDot(true);
+      }, 500);
+      const question = 'Find my worst move.';
+      const data = await SendQuestionReview(question, currentChapterState);
+      if (data) {
+        setPulseDot(false);
+      }
+      checkAnswerGPT(data, 'worstMove');
+    };
+    const checkOpening = async () => {
+      setQuestion('');
+      setTimeout(() => {
+        setPulseDot(true);
+      }, 500);
+      const question =
+        'Analize users opening. Maybe say somethig you recognize.Pop up if there were any wrong or very good moves by the user';
+      const data = await SendQuestionReview(question, currentChapterState);
+      if (data) {
+        setPulseDot(false);
+      }
+      checkAnswerGPT(data, 'gameOpening');
+    };
 
     const analizeMatch = async () => {
       historyBackToStart();
@@ -413,7 +473,6 @@ Unlock Unlimited Puzzles, Unlimited Game Reviews, and Unlimited AI Chat for just
         diff: item.diff,
         bestMoves: item.bestMoves,
       }));
-      
 
       if (data) {
         setPulseDot(false);
@@ -422,23 +481,24 @@ Unlock Unlimited Puzzles, Unlimited Game Reviews, and Unlimited AI Chat for just
 
       const analiticsReview = reviewAnalitics(data);
 
-       if (!currentChapterState.messages[1]?.content.includes('analyzeReview') && filtered.length > 0) {
-       onMatchReview({
-  evaluation: filtered,
-  message: {
-    content: analiticsReview + '/analyzeReview',
-    participantId: 'chatGPT123456',
-    idResponse:
-      currentChapterState.messages[
-        currentChapterState.messages.length - 1
-      ].idResponse,
-  },
-});
-      
+      if (
+        !currentChapterState.messages[1]?.content.includes('analyzeReview') &&
+        filtered.length > 0
+      ) {
+        onMatchReview({
+          evaluation: filtered,
+          message: {
+            content: analiticsReview + '/analyzeReview',
+            participantId: 'chatGPT123456',
+            idResponse:
+              currentChapterState.messages[
+                currentChapterState.messages.length - 1
+              ].idResponse,
+          },
+        });
+      }
     };
-  }
     const handleGameEvaluation = (newScore: number) => {
-      console.log('ide novi score',newScore)
       setprevScoreCP(scoreCP);
       setScoreCP(newScore);
     };
@@ -485,7 +545,7 @@ Unlock Unlimited Puzzles, Unlimited Game Reviews, and Unlimited AI Chat for just
               ),
               renderContent: () => (
                 <div className="flex flex-col flex-1 gap-2 min-h-0 overflow-scroll no-scrollbar pb-16 md:pb-0">
-                  {isMobile && (
+                  {/* {isMobile && (
                     <div
                       style={{
                         backgroundImage:
@@ -518,9 +578,9 @@ Unlock Unlimited Puzzles, Unlimited Game Reviews, and Unlimited AI Chat for just
                         isFocusedInput={isFocusedInput}
                       />
                     </div>
-                  )}
+                  )} */}
                   <div
-                    className={`flex-1 justify-between flex flex-col border bg-op-widget border-conversation-100 pb-2 px-2 md:px-4 md:pb-4 rounded-lg 
+                    className={`flex-1 justify-between flex flex-col border bg-op-widget border-conversation-100 pb-2 px-2 md:px-4 md:pb-1 rounded-lg 
                      
                   ${isMobile ? 'mb-2' : ''}  
                   `}
@@ -528,145 +588,138 @@ Unlock Unlimited Puzzles, Unlimited Game Reviews, and Unlimited AI Chat for just
                     <div>
                       <ConversationReview
                         analizeMatch={analizeMatch}
+                        worstMove={analizeWorstMove}
+                        checkOpening={checkOpening}
                         openViewSubscription={openViewSubscription}
                         smallMobile={smallMobile}
                         progressReview={progressReview}
                         currentChapterState={currentChapterState}
                         pulseDot={pulseDot}
                         userData={userData}
+                        scoreCP={scoreCP}
                       />
-
-                      {/* <div className="mt-auto flex md:my-[20px]  items-center gap-3 mt-3 my-[14px]">
-                        {currentChapterState.chessAiMode.review?.length === 0 && (
-                            <ButtonGreen
-                              onClick={() => {
-                                analizeMatch();
-                              }}
-                              disabled={pulseDot || progressReview > 0}
-                              size="sm"
-                              className="bg-green-600 text-black"
-                              style={{ color: 'black' }}
-                            >
-                              <p>Game Review</p>
-                            </ButtonGreen>
-                          )}
-                      </div> */}
                     </div>
-
-                    {currentChapterState.chessAiMode.review?.length !== 0 && (
-                      //  &&
-                      // (!currentChapterState.messages[
-                      //   currentChapterState.messages.length - 1
-                      // ]?.participantId.includes('sales') ||
-                      //   (currentChapterState.messages[
-                      //     currentChapterState.messages.length - 1
-                      //   ]?.participantId.includes('sales') &&
-                      //     currentChapterState.chessAiMode.mode ==
-                      //       'review'))
-                      <div className="flex mb-2 mt-2 md:mt-0">
-                        <input
-                          id="title"
-                          type="text"
-                          name="tags"
-                          placeholder="Start chessiness..."
-                          value={question}
-                          style={{
-                            boxShadow: '0px 0px 10px 0px #07DA6380',
-                          }}
-                          // className="w-full my-2 text-sm rounded-md border-slate-500 focus:border-slate-400 border border-transparent block bg-slate-600 text-white block py-1 px-2"
-                          className="w-full text-sm rounded-[20px] border  border-conversation-100 bg-[#111111]/40 text-white 
+                    <div>
+                      {currentChapterState.chessAiMode.review?.length !== 0 && (
+                        <div className="flex mb-0 mt-2 md:mt-2">
+                          <input
+                            id="title"
+                            type="text"
+                            name="tags"
+                            placeholder="Start chessiness..."
+                            value={question}
+                            style={{
+                              boxShadow: '0px 0px 10px 0px #07DA6380',
+                            }}
+                            // className="w-full my-2 text-sm rounded-md border-slate-500 focus:border-slate-400 border border-transparent block bg-slate-600 text-white block py-1 px-2"
+                            className="w-full text-sm rounded-[20px] border  border-conversation-100 bg-[#111111]/40 text-white 
                         placeholder-slate-400 px-4 py-2  transition-colors duration-200 focus:outline-none 
                         focus:ring-1 focus:ring-slate-400 focus:border-conversation-200 hover:border-conversation-300"
-                          onChange={(e) => {
-                            setQuestion(e.target.value);
-                          }}
-                          onFocus={() => setIsFocusedInput(true)}
-                          onBlur={() => setIsFocusedInput(false)}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter' && !e.shiftKey) {
-                              //e.preventDefault(); // sprečava novi red ako koristiš textarea
-                              addQuestion(question);
-                            }
-                          }}
-                        />
-                        <ButtonGreen
-                          size="md"
-                          onClick={() => {
-                            if (question.trim() !== '') {
-                              addQuestion(question);
-                            }
-                          }}
-                          disabled={question.trim() == ''}
-                          icon="PaperAirplaneIcon"
-                          className="ml-2 px-4 py-2 
+                            onChange={(e) => {
+                              setQuestion(e.target.value);
+                            }}
+                            onFocus={() => setIsFocusedInput(true)}
+                            onBlur={() => setIsFocusedInput(false)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter' && !e.shiftKey) {
+                                //e.preventDefault(); // sprečava novi red ako koristiš textarea
+                                addQuestion(question);
+                              }
+                            }}
+                          />
+                          <ButtonGreen
+                            size="md"
+                            onClick={() => {
+                              if (question.trim() !== '') {
+                                addQuestion(question);
+                              }
+                            }}
+                            disabled={question.trim() == ''}
+                            icon="PaperAirplaneIcon"
+                            className="ml-2 px-4 py-2 
                           duration-200"
-                        ></ButtonGreen>
-                      </div>
-                    )}
-
-                    {currentChapterState.chessAiMode.mode == 'review' && (
-                      <div className="md:h-16 h-8">
-                        <div className="w-full mt-1 h-4 md:flex hidden overflow-hidden rounded mt-4 ">
-                          <div
-                            className={`bg-white transition-all duration-500`}
-                            style={{ width: `${percentW}%` }}
-                          ></div>
-                          <div
-                            className={`bg-[#000000] transition-all duration-500`}
-                            style={{ width: `${percentB}%` }}
-                          ></div>
+                          ></ButtonGreen>
                         </div>
-                     {/* <div>{scoreCP}</div> */}
-                        {scoreCP !== 0 ? (
-                          <div className="flex justify-between items-center mt-0 md:mt-1">
-                            <div className={` flex  items-center mt-2 `}>
-                              {scoreCP < 49999 &&
-                                scoreCP > -49999 &&
-                                (currentChapterState.orientation == 'b' ? (
-                                  <p className={'font-bold '}>
-                                    {' '}
-                                    {(scoreCP / 100) * -1}
-                                  </p>
-                                ) : (
-                                  <p className={'font-bold '}>
-                                    {' '}
-                                    {scoreCP / 100}
-                                  </p>
-                                ))}
-                              &nbsp;&nbsp;{' '}
-                            {/* {  moveSan && ( */}
-                               <p className={'text-sm  '}>
-                                {' '}
-                                Best Move: {moveSan}{' '}
-                              </p>
-                              {/* )} */}
-                             
-                            </div>
-                            {!showNames && (
-                              <ButtonGreen
-                                icon="ArrowLeftIcon"
-                                onClick={() => {
-                                  setShowNames(true);
-                                  onQuickImport({
-                                    type: 'PGN',
-                                    val: currentChapterState.chessAiMode
-                                      .originalPGN,
-                                  });
-                                }}
-                                size="md"
-                                className="bg-green-600  text-black font-bold mt-2 px-1 mr-2 whitespace-nowrap px-4"
-                                style={{ color: 'black' }}
-                              >
-                                &nbsp;&nbsp;Me vs{' '}
-                                {currentChapterState.chessAiMode.opponentName}
-                              </ButtonGreen>
-                            )}
+                      )}
+
+                      {currentChapterState.chessAiMode.mode == 'review' && (
+                        <div className="md:h-16 h-8 ">
+                          <div className="w-full mt-1 h-4 md:flex hidden overflow-hidden rounded mt-4 ">
+                            <div
+                              className={`bg-white transition-all duration-500`}
+                              style={{ width: `${percentW}%` }}
+                            ></div>
+                            <div
+                              className={`bg-[#000000] transition-all duration-500`}
+                              style={{ width: `${percentB}%` }}
+                            ></div>
                           </div>
-                        ):(
-                          <Loader />
-                        )}
-                      </div>
-                    )}
+                          {/* <div>{scoreCP}</div> */}
+                          {scoreCP !== 0 ? (
+                            <div
+                              className={`flex justify-between items-center relative top-2 ${
+                                showNames ? 'md:top-0' : 'md:top-4'
+                              }`}
+                            >
+                              <div className={` flex  items-center  `}>
+                                {scoreCP < 49999 &&
+                                  scoreCP > -49999 &&
+                                  (currentChapterState.orientation == 'b' ? (
+                                    <p className={'font-bold '}>
+                                      {' '}
+                                      {(scoreCP / 100) * -1}
+                                    </p>
+                                  ) : (
+                                    <p className={'font-bold '}>
+                                      {' '}
+                                      {scoreCP / 100}
+                                    </p>
+                                  ))}
+                                &nbsp;&nbsp;{' '}
+                                {moveSan && (
+                                  <p className={'text-sm  '}>
+                                    {' '}
+                                    Best Move: {moveSan}{' '}
+                                  </p>
+                                )}
+                              </div>
+                              {!showNames ? (
+                                <ButtonGreen
+                                  icon="ArrowLeftIcon"
+                                  onClick={() => {
+                                    setShowNames(true);
+                                    onQuickImport({
+                                      type: 'PGN',
+                                      val: currentChapterState.chessAiMode
+                                        .originalPGN,
+                                    });
+                                  }}
+                                  size="md"
+                                  className="bg-green-600  text-black font-bold  px-1 mr-2 whitespace-nowrap px-4"
+                                  style={{ color: 'black' }}
+                                >
+                                  &nbsp;&nbsp; vs{' '}
+                                  {currentChapterState.chessAiMode.opponentName}
+                                </ButtonGreen>
+                              ) : (
+                                <div className="md:flex hidden items-center overflow-x-hidden gap-3 h-[55px] ">
+                                  <label className="font-bold text-sm  text-gray-400">
+                                    {/* Import */}
+                                  </label>
+                                  <PgnInputBox
+                                    compact
+                                    containerClassName="flex-1"
+                                    onChange={onImport}
+                                  />
+                                </div>
+                              )}
+                            </div>
+                          ) : (
+                            <Loader />
+                          )}
+                        </div>
+                      )}
+                    </div>
                   </div>
 
                   {!isMobile && (
@@ -700,18 +753,6 @@ Unlock Unlimited Puzzles, Unlimited Game Reviews, and Unlimited AI Chat for just
                         onDelete={onHistoryNotationDelete}
                         onRefocus={onHistoryNotationRefocus}
                         isFocusedInput={isFocusedInput}
-                      />
-                    </div>
-                  )}
-                  {currentChapterState.chessAiMode.mode == 'review' && (
-                    <div className="md:flex hidden items-center overflow-x-hidden gap-3 h-[55px] ">
-                      <label className="font-bold text-sm  text-gray-400">
-                        Import
-                      </label>
-                      <PgnInputBox
-                        compact
-                        containerClassName="flex-1"
-                        onChange={onImport}
                       />
                     </div>
                   )}

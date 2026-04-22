@@ -5,19 +5,25 @@ export function slicePgn(
 ): string {
   const tokens = pgn.trim().split(/\s+/);
 
-  // Sledeći broj poteza koji označava gde stajemo
-  const stopMove = moveIndex + 2 + '.';
+  const result: string[] = [];
+  let moveCount = 0;
 
-  // Pronađi indeks gde počinje sledeći potez
-  let endIndex = tokens.findIndex((t) => t === stopMove);
-  if (endIndex === -1) endIndex = tokens.length;
+  for (let i = 0; i < tokens.length; i++) {
+    const token = tokens[i];
 
-  // Uzmemo sve do tog indeksa
-  let result = tokens.slice(0, endIndex);
+    result.push(token);
 
-  // Ako je poslednji igrao beli → uklanjamo zadnji token
-  if (isBlack === 0 && result.length > 0) {
-    result = result.slice(0, -1);
+    // preskoči "1.", "2." itd
+    if (token.includes('.')) continue;
+
+    moveCount++;
+
+    // cilj:
+    // beli = 2*moveIndex + 1
+    // crni = 2*moveIndex + 2
+    const target = isBlack === 0 ? moveIndex * 2 + 1 : moveIndex * 2 + 2;
+
+    if (moveCount === target) break;
   }
 
   return result.join(' ');

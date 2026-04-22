@@ -279,6 +279,7 @@ export async function ai_prompt(
           prompt: question,
           previous_response_id: previusMessageId,
           model: model,
+          agent_name: 'Review',
         }),
       }
     );

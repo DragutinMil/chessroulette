@@ -6,7 +6,9 @@ export async function SendQuestionReview(
   prompt: string,
   currentChapterState: ChapterState,
   // reviewData: EvaluationMove[],
-  moveSan: string
+  moveSan?: string,
+  moveLan?: string,
+  scoreCP?: any
 ) {
   const model = 'gpt-5.1';
   const previusMessageId =
@@ -17,8 +19,12 @@ export async function SendQuestionReview(
   const fen = currentChapterState.displayFen;
   const moveNum = currentChapterState.notation.focusedIndex[0];
   const submoveNum = currentChapterState.notation.focusedIndex[1];
-  const userColor = currentChapterState.orientation;
+  const userColor =
+    currentChapterState.chessAiMode.opponentColor == 'white'
+      ? 'black'
+      : 'white';
   const actualPGN = slicePgn(pgn, moveNum, submoveNum);
+  const evaluation = (scoreCP / 100) * -1;
   const normalizedReview = currentChapterState?.chessAiMode?.review?.map(
     (m, index, arr) => {
       const previous = arr[index - 1];
@@ -26,7 +32,6 @@ export async function SendQuestionReview(
         moveNum: m.moveNum,
         color: m.moveCalc % 2 == 0 ? 'black' : 'white',
         move: m.move,
-        eval: m.eval,
         diff: parseFloat(m.diff),
         // ako postoji prethodni objekat, uzmi njegov prvi bestMoves
         bestMove:
@@ -42,16 +47,13 @@ export async function SendQuestionReview(
     prompt +
     '\n\n' +
     'CONTEXT:\n' +
-    'pgn:\n ' +
+    'whole match pgn:\n ' +
     pgn +
     '\n' +
-    'played by:\n ' +
-    (currentChapterState.orientation == 'b' ? 'white player' : 'black player') +
-    '\n' +
-    'pgn actual:' +
+    'pgn actual position:' +
     actualPGN +
     '\n' +
-    'fen  actual:' +
+    'fen actual position:' +
     fen +
     '\n' +
     'user pieces color:' +
@@ -59,6 +61,12 @@ export async function SendQuestionReview(
     '\n' +
     'best move:' +
     moveSan +
+    '\n' +
+    'best move to proceed:' +
+    moveLan +
+    '\n' +
+    'evaluation:' +
+    evaluation +
     '\n' +
     'REVIEW:\n' +
     ` 
@@ -70,4 +78,5 @@ ${JSON.stringify(normalizedReview, null, 2)}
   const data = await ai_prompt(question, previusMessageId, model);
 
   return data;
+  // return {}
 }

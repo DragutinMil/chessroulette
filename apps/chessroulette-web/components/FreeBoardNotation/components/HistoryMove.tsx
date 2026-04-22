@@ -94,27 +94,11 @@ export const HistoryMove = ({
   return (
     <RowItem
       san={moveCoplete}
-      // tooltip={
-      //   !bestMoves
-      //     ? ''
-      //     : iconicEngine === '🎯'
-      //     ? 'Top move'
-      //     : iconicEngine === '⚡⚡'
-      //     ? 'Strong move'
-      //     : iconicEngine === '⚡'
-      //     ? 'Strong move'
-      //     : iconic === '❌'
-      //     ? 'Blunder!'
-      //     : iconic === '⬇️'
-      //     ? 'Inaccuracy'
-      //     : iconic === '✅'
-      //     ? 'Good move.'
-      //     : iconic === '✅✅'
-      //     ? 'Amazing move!'
-      //     : ''
-      // }
       isFocused={isFocused}
-      onClick={() => onFocus(rootHistoryIndex)}
+      onClick={() =>
+        // console.log('rootHistoryIndex',rootHistoryIndex)
+        onFocus(rootHistoryIndex)
+      }
       onContextMenu={onContextMenu}
       variantMenu={
         isFocused && move.branchedHistories && move.branchedHistories.length > 0
