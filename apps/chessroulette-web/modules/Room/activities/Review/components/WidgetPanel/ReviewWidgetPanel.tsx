@@ -217,8 +217,8 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
           const a = data.answer.action;
           const b =
             currentChapterState.chessAiMode.opponentColor == 'white' ? 1 : 0;
-          const pgn = currentChapterState.chessAiMode.fen;
-          const slicePGN = slicePgn(pgn, a, b);
+          const pgn = currentChapterState.chessAiMode.originalPGN;
+          const slicePGN = slicePgn(pgn, a-1, b);
           console.log('slicePGN', slicePGN);
 
           onChangePosition({
