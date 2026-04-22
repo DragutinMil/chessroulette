@@ -123,9 +123,7 @@ export const ReviewActivity = ({
               : data.target_name_first;
 
           setPlayerNames([whitePlayerName, blackPlayerName]);
-          const changeOrientation =
-            (currentChapter.orientation === 'b' && black) ||
-            (currentChapter.orientation === 'w' && white);
+          
 
           if (
             !hasBranches &&
@@ -136,6 +134,9 @@ export const ReviewActivity = ({
           }
           const opponentName = white ? blackPlayerName : whitePlayerName;
           const opponentColor = white ? 'black' : 'white';
+          const changeOrientation =
+            (currentChapter.orientation === 'b' && black) ||
+            (currentChapter.orientation === 'w' && white);
           gameReview({
             ...currentChapter.chessAiMode,
             orientationChange: changeOrientation,
