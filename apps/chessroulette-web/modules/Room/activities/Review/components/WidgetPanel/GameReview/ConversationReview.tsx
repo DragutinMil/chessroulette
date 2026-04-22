@@ -56,7 +56,7 @@ const ConversationReview = ({
         m.participantId?.includes('gameOpening')
       );
       if (openingButtonClicked) {
-        setDisableWorstMoveButton(openingButtonClicked);
+        setDisableOpeningButton(openingButtonClicked);
       }
     }
   }, []);
