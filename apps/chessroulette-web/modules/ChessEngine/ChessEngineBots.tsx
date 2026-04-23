@@ -188,7 +188,7 @@ const StockfishEngine: React.FC<StockfishEngineProps> = ({
 
       setChangeAfterMove(moveNumber);
     }
-    console.log('cp score', score);
+   
   }, [score]);
 
   useEffect(() => {

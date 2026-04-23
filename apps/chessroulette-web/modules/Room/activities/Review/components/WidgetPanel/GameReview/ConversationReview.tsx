@@ -82,11 +82,11 @@ const ConversationReview = ({
       className={`
   flex-1 overflow-y-auto rounded-lg no-scrollbar scroll-smooth
   min-h-[150px]
- md:max-h-[600px] max-h-[200px] 
+ md:max-h-[600px] max-h-[220px] 
   md:h-[400px]
 `}
       style={{
-        maxHeight: smallMobile ? '140px' : '',
+        maxHeight: smallMobile ? '180px' : '',
       }}
     >
       {currentChapterState.messages.map((msg, index) => {
@@ -127,7 +127,7 @@ const ConversationReview = ({
                 </div>
 
                 <div
-                  className={`text-white text-sm px-4  w-full flex   flex-col  items-start `}
+                  className={`text-white text-sm px-1 md:px-4  w-full flex   flex-col  items-start `}
                 >
                   {msg.content.includes('analyzeReview') ? (
                     <StatsTable
@@ -158,7 +158,7 @@ const ConversationReview = ({
                         </ButtonGreen>
                       )}
                     {index == 1 && currentChapterState.messages.length > 1 && (
-                      <div className="flex mt-2">
+                      <div className="flex flex-wrap mt-2">
                         <ButtonGreen
                           onClick={() => {
                             setDisableWorstMoveButton(true);

@@ -208,8 +208,8 @@ export const ReviewActivity = ({
                   style={{
                     // backgroundImage:
                     //   'radial-gradient(61.84% 61.84% at 50% 131.62%, rgba(5, 135, 44, 0.2) 0%, #01210B 100%)',
-                    height: isMobile ? '52px' : '290px',
-                    minHeight: isMobile ? '52px' : '202px',
+                    height: isMobile ? '50px' : '290px',
+                    minHeight: isMobile ? '50px' : '202px',
                   }}
                   className={`
                       ${
@@ -218,7 +218,7 @@ export const ReviewActivity = ({
                           : 'hidden'
                       }  
                       
-                     overflow-x-auto md:overflow-x-hidden  md:flex rounded-lg md:mb-0  md:p-4 p-2 
+                     overflow-x-auto md:overflow-x-hidden  md:flex rounded-lg md:mb-0   md:p-4 p-2 
                     `}
                 >
                   <FreeBoardNotation
