@@ -75,8 +75,9 @@ Props): MoveActions => {
 
   const [lastMoveWasPromotion, setLastMoveWasPromotion] = useState(false); // Dodajte ovo
 
-  const [premoveAnimationDelay] = useState(botType ? 200 : 0);
-  // pre move
+   const [premoveAnimationDelay] = useState(
+  botType === 'matchFake' ? 200 : 0
+);
   const allowsPremoves = !!onPreMove;
 
   const currentPlayer = playingColor === 'w' ? 'white' : 'black';
