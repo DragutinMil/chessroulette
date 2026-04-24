@@ -93,8 +93,9 @@ export const PlayContainer = (
             turn: 'b',
           })}
       onMove={(move) => {
+
         const now = Date.now();
-  if (now - lastDispatchAtRef.current < 350) {
+  if (now - lastDispatchAtRef.current < 350 && botType) {
     return true; // preskoči, prebrzo
   }
         dispatch((masterContext) => ({
