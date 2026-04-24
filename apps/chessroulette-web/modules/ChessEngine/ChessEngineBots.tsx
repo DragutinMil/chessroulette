@@ -35,6 +35,10 @@ const StockfishEngine: React.FC<StockfishEngineProps> = ({
   const [changeAfterMove, setChangeAfterMove] = useState(0);
   const lastPlayedFenRef = useRef<string | null>(null);
   const fenRef = useRef(fen);
+  const isMyTurnRef = useRef(isMyTurn);
+  useEffect(() => {
+    isMyTurnRef.current = isMyTurn;
+  }, [isMyTurn]);
   const [score, setScore] = useState('');
   const [contempt, setContempt] = useState('');
   const stockfishRef = useRef<Worker | null>(null);
@@ -334,7 +338,7 @@ const StockfishEngine: React.FC<StockfishEngineProps> = ({
         return;
       }
 
-      if (!isMyTurn) {
+      if (!isMyTurnRef.current) {
         lastPlayedFenRef.current = currentFen;
         engineMove(bestMove);
       }
