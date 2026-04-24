@@ -35,6 +35,10 @@ const StockfishEngine: React.FC<StockfishEngineProps> = ({
   const [changeAfterMove, setChangeAfterMove] = useState(0);
   const lastPlayedFenRef = useRef<string | null>(null);
   const fenRef = useRef(fen);
+  const isMyTurnRef = useRef(isMyTurn);
+  useEffect(() => {
+    isMyTurnRef.current = isMyTurn;
+  }, [isMyTurn]);
   const [score, setScore] = useState('');
   const [contempt, setContempt] = useState('');
   const stockfishRef = useRef<Worker | null>(null);
@@ -173,7 +177,7 @@ const StockfishEngine: React.FC<StockfishEngineProps> = ({
         newSkill -= 2;
         newContempt -= 3;
       }
-      
+
       if (Number(score) > 2000 && moveNumber > 20 && botType == 'matchFake') {
         dispatch({
           type: 'play:resignGame',
@@ -188,7 +192,7 @@ const StockfishEngine: React.FC<StockfishEngineProps> = ({
 
       setChangeAfterMove(moveNumber);
     }
-    console.log('cp score', score);
+   
   }, [score]);
 
   useEffect(() => {
@@ -207,8 +211,8 @@ const StockfishEngine: React.FC<StockfishEngineProps> = ({
       baseSkill = 8;
       baseContempt = 10;
     } else if (userRating > 1300) {
-      baseDepth = 4;
-      baseSkill = 6;
+      baseDepth = 3;
+      baseSkill = 5;
       baseContempt = 5;
     } else if (userRating > 1200) {
       baseDepth = 2;
@@ -260,7 +264,7 @@ const StockfishEngine: React.FC<StockfishEngineProps> = ({
   useEffect(() => {
     fenRef.current = fen;
     if (!stockfishRef.current) return;
-
+    setBestMove(''); // ← reset pre nove analize
     // prekini prethodnu analizu
     stockfishRef.current.postMessage('stop');
 
@@ -334,7 +338,7 @@ const StockfishEngine: React.FC<StockfishEngineProps> = ({
         return;
       }
 
-      if (!isMyTurn) {
+      if (!isMyTurnRef.current) {
         lastPlayedFenRef.current = currentFen;
         engineMove(bestMove);
       }

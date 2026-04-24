@@ -32,7 +32,7 @@ export const RoomTemplate = (props: Props) => {
       style={{
         background: isOutpost
           ? 'linear-gradient(112.99deg, #07DA63 -68.31%, #000000 23.1%, #01160A 73.92%, #06B251 154.15%)'
-          : '#161A2B',
+          : 'linear-gradient(112.99deg, #07DA63 -68.31%, #000000 23.1%, #01160A 73.92%, #06B251 154.15%)',
       }}
     >
       <div className="flex flex-col flex-1 ">
@@ -50,16 +50,15 @@ export const RoomTemplate = (props: Props) => {
         </div>
       </div>
       <menu
-        className={
-          `
+        className={`
           ${
-          props.activity === 'match' ||
-          props.activity === 'review' ||
-          props.activity === 'puzzle' ||
-          props.activity === 'ailearn'
-            ? 'md:hidden'
-            : 'md:block'
-        } 
+            props.activity === 'match' ||
+            props.activity === 'review' ||
+            props.activity === 'puzzle' ||
+            props.activity === 'ailearn'
+              ? 'md:hidden'
+              : 'md:block'
+          } 
          hidden  bg-indigo-1300 flex-0 flex flex-col p-2 `}
       >
         <OnboardingWidget session={props.session} />

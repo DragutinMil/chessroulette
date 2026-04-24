@@ -17,7 +17,7 @@ import React from 'react';
 import { CircleDrawTuple, ArrowsMap } from '@app/components/Chessboard/types';
 import { EngineData } from '../../../../../ChessEngine/lib/io';
 import { ReviewWidgetPanel } from './ReviewWidgetPanel';
-import type { UserData } from '../../movex/types';
+import type { UserData, EvaluationMove } from '../../movex/types';
 type Props = {
   chaptersMap: Record<Chapter['id'], Chapter>;
   chaptersMapIndex: number;
@@ -27,11 +27,16 @@ type Props = {
 
   onImport: PgnInputBoxProps['onChange'];
   onQuickImport: PgnInputBoxProps['onChange'];
+  onChangePosition: PgnInputBoxProps['onChange'];
   onPuzzleMove: (move: MovePiece) => void;
   onMove: (move: MovePiece) => void;
   onTakeBack: FreeBoardNotationProps['onRefocus'];
   addChessAi: (moves: chessAiMode) => void;
   onMessage: (message: Message) => void;
+  onMatchReview: (payload: {
+    evaluation: EvaluationMove[];
+    message: Message;
+  }) => void;
   resetMessages: () => void;
   onCircleDraw: (tuple: CircleDrawTuple) => void;
   onArrowsChange: (tuple: ArrowsMap) => void;
@@ -80,8 +85,10 @@ export const WidgetPanel = React.forwardRef<TabsRef, Props>(
       onTakeBack,
       addChessAi,
       onMessage,
+      onMatchReview,
       resetMessages,
       onMove,
+      onChangePosition,
       onCanPlayChange,
       playerNames,
       addGameEvaluation,
@@ -93,6 +100,7 @@ export const WidgetPanel = React.forwardRef<TabsRef, Props>(
   ) => {
     return (
       <ReviewWidgetPanel
+        onMatchReview={onMatchReview}
         userData={userData}
         playerNames={playerNames}
         onHistoryNotationDelete={onHistoryNotationDelete}
@@ -103,6 +111,7 @@ export const WidgetPanel = React.forwardRef<TabsRef, Props>(
         addGameEvaluation={addGameEvaluation}
         currentChapterState={currentChapterState}
         currentLoadedChapterId={currentLoadedChapterId}
+        onChangePosition={onChangePosition}
         onQuickImport={onQuickImport}
         onCircleDraw={onCircleDraw}
         onArrowsChange={onArrowsChange}

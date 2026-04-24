@@ -7,7 +7,10 @@ import {
   FBHHistory,
 } from '@xmatter/util-kit';
 import { Chapter, ChapterState, ReviewActivityState } from './types';
-
+import {
+  FBHIndexMovePosition,
+  FBHRecursiveIndexes,
+} from 'util-kit/src/lib/FreeBoardHistory/types';
 import { initialChapterState, initialDefaultChapter } from './state';
 import {
   ActivityActions,
@@ -212,44 +215,44 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
     }
   }
 
-  if (action.type === 'loadedChapter:import') {
-    console.log('akcija', action);
+  if (action.type === 'loadedChapter:changePosition') {
+    console.log('action reducer', action.payload);
     const prevChapter = findLoadedChapter(prev.activityState);
-
     if (!prevChapter) {
       console.error('The chapter wasnt found');
       return prev;
     }
-
-    if (action.payload.input.type === 'FEN') {
-      if (!ChessFENBoard.validateFenString(action.payload.input.val).ok) {
+    if (action.payload.input.type === 'PGN') {
+      if (!isValidPgn(action.payload.input.val)) {
         return prev;
       }
 
-      const nextFen = action.payload.input.val;
-      const notation = {
-        startingFen: nextFen,
-        history: [],
-        focusedIndex: FreeBoardHistory.getStartingIndex(),
-      };
-      const content = 'Alright, let’s take a look at this one.';
+      const chessGame = getNewChessGame({
+        pgn: action.payload.input.val,
+      });
+      const nextHistory = FreeBoardHistory.pgnToHistory(
+        action.payload.input.val
+      );
+      if (!action.payload.input.position) {
+        return prev;
+      }
       const nextChapterState: ChapterState = {
         ...prevChapter,
         arrowsMap: {},
-        messages: [
-          {
-            content: content,
-            idResponse: '',
-            participantId: 'chatGPT123456',
-          },
-        ],
+        displayFen: chessGame.fen(),
         chessAiMode: {
           ...prevChapter.chessAiMode,
-          fen: '',
+          fen: action.payload.input.val,
         },
-        displayFen: nextFen,
-        // When importing PGNs set the notation from this fen
-        notation: notation,
+
+        // When importing PGNs set the notation history as well
+        notation: {
+          ...prev.activityState.chaptersMap[0].notation,
+          focusedIndex: [
+            action.payload.input.position[0],
+            action.payload.input.position[1] as FBHIndexMovePosition,
+          ],
+        },
       };
 
       return {
@@ -266,6 +269,47 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
         },
       };
     }
+  }
+
+  if (action.type === 'loadedChapter:import') {
+    const prevChapter = findLoadedChapter(prev.activityState);
+
+    if (!prevChapter) {
+      console.error('The chapter wasnt found');
+      return prev;
+    }
+
+    // if (action.payload.input.type === 'FEN') {
+    //   if (!ChessFENBoard.validateFenString(action.payload.input.val).ok) {
+    //     return prev;
+    //   }
+
+    //   const nextFen = action.payload.input.val;
+    //   const notation = {
+    //      ...prev.activityState.chaptersMap[0].notation,
+    //     focusedIndex: FreeBoardHistory.getStartingIndex(),
+    //   };
+    //   const nextChapterState: ChapterState = {
+    //     ...prevChapter,
+    //     // arrowsMap: {},
+    //     displayFen: nextFen,
+    //     notation: notation,
+    //   };
+
+    //   return {
+    //     ...prev,
+    //     activityState: {
+    //       ...prev.activityState,
+    //       chaptersMap: {
+    //         ...prev.activityState.chaptersMap,
+    //         [0]: {
+    //           ...prev.activityState.chaptersMap[0],
+    //           ...nextChapterState,
+    //         },
+    //       },
+    //     },
+    //   };
+    // }
 
     if (action.payload.input.type === 'PGN') {
       if (!isValidPgn(action.payload.input.val)) {
@@ -477,11 +521,16 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
     };
   }
   if (action.type === 'loadedChapter:setArrows') {
-    console.log('arrow change', action);
     const prevChapter = findLoadedChapter(prev.activityState);
 
     if (!prevChapter) {
       console.error('No loaded chapter');
+      return prev;
+    }
+    //remove duplicates
+    const values = Object.values(action.payload);
+    const unique = new Set(values.map((v) => v.join(',')));
+    if (unique.size !== values.length) {
       return prev;
     }
     const nextChapter: Chapter = {
@@ -710,117 +759,9 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
   }
 
   if (action.type === 'loadedChapter:setReview') {
+    console.log('action review',action)
     const nextFen = action.payload.fen;
     const chessAiMode = action.payload;
-
-    ///////////PLAY
-    if (action.payload.mode === 'play') {
-      const responses =
-        chessAiMode.message !== ''
-          ? [chessAiMode.message]
-          : prev.activityState.chaptersMap[0].chessAiMode.mode == ''
-          ? [
-              "Awesome, let's play chess. Which strength level would you like to play against?",
-            ]
-          : [
-              'Let’s keep it going, nice and casual! Which strength level would you like to play against?',
-              'Let’s keep the game rolling, just for fun! Which strength level would you like to play against?',
-              'Let’s play on, nice and easy! Which strength level would you like to play against?',
-            ];
-
-      const prompt = responses[Math.floor(Math.random() * responses.length)];
-      const idResponse =
-        chessAiMode.responseId !== ''
-          ? chessAiMode.responseId
-          : prev.activityState.chaptersMap[0].messages[
-              prev.activityState.chaptersMap[0].messages.length - 1
-            ].idResponse;
-
-      const message = {
-        content: prompt,
-        participantId: 'chatGPT123456',
-        idResponse: idResponse,
-      };
-
-      // const evaluation =
-      //   chessAiMode.message !== ''
-      //     ? {
-      //         prevCp: 0,
-      //         newCp: 0,
-      //         diffCp: 0,
-      //       }
-      //     : prev.activityState.chaptersMap[0].evaluation;
-
-      return {
-        ...prev,
-        activityState: {
-          ...prev.activityState,
-          chaptersMap: {
-            ...prev.activityState.chaptersMap,
-            [0]: {
-              ...prev.activityState.chaptersMap[0],
-              displayFen: nextFen,
-              chessAiMode: chessAiMode,
-              notation: {
-                startingFen: nextFen,
-                history: [],
-                focusedIndex: FreeBoardHistory.getStartingIndex(),
-              },
-              messages: [
-                ...(prev.activityState.chaptersMap[0].messages ?? []),
-                message,
-              ],
-              // evaluation: evaluation,
-            },
-          },
-        },
-      };
-    }
-
-    ///////////// POPUP
-    if (action.payload.mode === 'popup') {
-      const responses = [
-        'Congratulations! You solved it 🎉',
-        'You did it! On to the next one 🚀',
-        'Great work! You nailed it 🧠',
-      ];
-
-      const prompt = responses[Math.floor(Math.random() * responses.length)];
-      const idResponse =
-        prev.activityState.chaptersMap[0].messages[
-          prev.activityState.chaptersMap[0].messages.length - 1
-        ].idResponse;
-      const message = {
-        content: prompt,
-        participantId: 'chatGPT123456',
-        idResponse: idResponse,
-      };
-      return {
-        ...prev,
-        activityState: {
-          ...prev.activityState,
-          chaptersMap: {
-            ...prev.activityState.chaptersMap,
-            [0]: {
-              ...prev.activityState.chaptersMap[0],
-              displayFen: nextFen,
-              chessAiMode: chessAiMode,
-              notation: {
-                startingFen: nextFen,
-                history: [],
-                focusedIndex: FreeBoardHistory.getStartingIndex(),
-              },
-              messages: [
-                ...(prev.activityState.chaptersMap[0].messages ?? []),
-                message,
-              ],
-            },
-          },
-        },
-      };
-    }
-
-    ///////////// REVIEW
     if (action.payload.mode === 'review') {
       if (!isValidPgn(action.payload.fen)) {
         return prev;
@@ -828,9 +769,7 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
       const chessGame = getNewChessGame({
         pgn: action.payload.fen,
       });
-
       const nextHistory = FreeBoardHistory.pgnToHistory(action.payload.fen);
-
       const message =
         prev.activityState.chaptersMap[0].messages.length == 0
           ? [
@@ -842,12 +781,13 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
               },
             ]
           : [...prev.activityState.chaptersMap[0].messages];
-
+      
       const orient = action.payload.orientationChange;
-
-      if (orient) {
+      console.log('orient',orient)
+      if (!orient) {
         if (prev.activityState.chaptersMap[0].orientation == 'b') {
           const toOrientation = 'w';
+          console.log('ako je orijentacija b , promeni na w')
           return {
             ...prev,
             activityState: {
@@ -873,6 +813,7 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
           };
         } else if (prev.activityState.chaptersMap[0].orientation == 'w') {
           const toOrientation = 'b';
+          console.log('ako je orijentacija w , promeni na b')
           return {
             ...prev,
             activityState: {
@@ -952,14 +893,38 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
       },
     };
   }
+  if (action.type === 'loadedChapter:addReview') {
+    const message = action.payload.message;
+    const evaluation = action.payload.evaluation;
+    return {
+      ...prev,
+      activityState: {
+        ...prev.activityState,
+        chaptersMap: {
+          ...prev.activityState.chaptersMap,
+          [0]: {
+            ...prev.activityState.chaptersMap[0],
+            displayFen:
+              'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+            chessAiMode: {
+              ...prev.activityState.chaptersMap[0].chessAiMode,
+              review: evaluation,
+            },
+            messages: [
+              ...(prev.activityState.chaptersMap[0].messages ?? []),
+              message,
+            ],
+            notation: {
+              ...prev.activityState.chaptersMap[0].notation,
+              focusedIndex: [0, 0],
+            },
+          },
+        },
+      },
+    };
+  }
 
   if (action.type === 'loadedChapter:writeMessage') {
-    // if (
-    //   prev.activityState.chaptersMap[0].messages[
-    //     prev.activityState.chaptersMap[0].messages.length - 1
-    //   ].participantId !== action.payload.participantId
-    // ) {
-
     return {
       ...prev,
       activityState: {

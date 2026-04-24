@@ -184,7 +184,6 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
                     {activeBot?.name}
                     {` `}Won{` `}
                     <span>🏆</span>
-                    
                   </span>
                 ) : (
                   // REGULAR NAME

@@ -181,12 +181,12 @@ export const PuzzleWidgetPanel = React.forwardRef<TabsRef, Props>(
 
           const chess = new Chess(data.puzzle.fen);
           const piece = chess.get(from);
-          if (piece.type === 'p' && piece.color === 'w' && to[1] === '8') {
+          if (piece?.type === 'p' && piece.color === 'w' && to[1] === '8') {
             const first_move = { from: from, to: to, promoteTo: 'Q' };
             setTimeout(() => onPuzzleMove(first_move as MovePiece), 1200);
           } else if (
-            piece.type === 'p' &&
-            piece.color === 'b' &&
+            piece?.type === 'p' &&
+            piece?.color === 'b' &&
             to[1] === '1'
           ) {
             const first_move = { from: from, to: to, promoteTo: 'q' };
@@ -383,12 +383,12 @@ Unlock Unlimited Puzzles, Unlimited Game Reviews, and Unlimited AI Chat for just
 
           const chess = new Chess(currentChapterState.displayFen);
           const piece = chess.get(from as Square);
-          if (piece.type === 'p' && piece.color === 'w' && to[1] === '8') {
+          if (piece?.type === 'p' && piece?.color === 'w' && to[1] === '8') {
             const n = { from: from, to: to, promoteTo: 'Q' };
             setTimeout(() => onPuzzleMove(n as MovePiece), 1200);
           } else if (
-            piece.type === 'p' &&
-            piece.color === 'b' &&
+            piece?.type === 'p' &&
+            piece?.color === 'b' &&
             to[1] === '1'
           ) {
             const n = { from: from, to: to, promoteTo: 'q' };
@@ -414,11 +414,11 @@ Unlock Unlimited Puzzles, Unlimited Game Reviews, and Unlimited AI Chat for just
             //const m = currentChapterState.chessAiMode.moves[2 * length - 2];
             const chess = new Chess(currentChapterState.displayFen);
             const piece = chess.get(from as Square);
-            if (piece.type === 'p' && piece.color === 'w' && to[1] === '8') {
+            if (piece?.type === 'p' && piece.color === 'w' && to[1] === '8') {
               const n = { from: from, to: to, promoteTo: 'Q' };
               setTimeout(() => onPuzzleMove(n as MovePiece), 1200);
             } else if (
-              piece.type === 'p' &&
+              piece?.type === 'p' &&
               piece.color === 'b' &&
               to[1] === '1'
             ) {
@@ -786,10 +786,14 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
         setTimeout(() => setFreezeButton(false), 2000);
         const chess = new Chess(data.fen);
         const piece = chess.get(from);
-        if (piece.type === 'p' && piece.color === 'w' && to[1] === '8') {
+        if (piece?.type === 'p' && piece.color === 'w' && to[1] === '8') {
           const first_move = { from: from, to: to, promoteTo: 'Q' };
           setTimeout(() => onPuzzleMove(first_move as MovePiece), 1200);
-        } else if (piece.type === 'p' && piece.color === 'b' && to[1] === '1') {
+        } else if (
+          piece?.type === 'p' &&
+          piece.color === 'b' &&
+          to[1] === '1'
+        ) {
           const first_move = { from: from, to: to, promoteTo: 'q' };
           setTimeout(() => onPuzzleMove(first_move as MovePiece), 1200);
         } else {
@@ -910,7 +914,7 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
               renderHeader: (p) => <div></div>,
               renderContent: () => (
                 // ovde ide pb-24
-                 <div className="flex flex-col flex-1 gap-2 min-h-0 overflow-scroll no-scrollbar  pb-24 md:pb-0">
+                <div className="flex flex-col flex-1 gap-2 min-h-0 overflow-scroll no-scrollbar  pb-24 md:pb-0">
                   <div
                     className={`flex-1 justify-between flex bg-op-widget flex-col border  border-conversation-100 pb-2 px-2 md:px-4 md:pb-4 rounded-lg 
                      

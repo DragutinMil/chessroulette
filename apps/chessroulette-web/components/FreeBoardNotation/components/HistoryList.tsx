@@ -143,6 +143,7 @@ export const List: React.FC<ListProps> = ({
       ) {
         moveNum = 1;
         moveTurn = focusedIndex[0];
+        console.log(moveTurn, moveNum);
         onRefocus([moveTurn, moveNum as any]);
       }
 

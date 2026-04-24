@@ -14,8 +14,11 @@ type Props = {
   userData: UserData;
   progressReview: number;
   analizeMatch: () => void;
+  worstMove: () => void;
   openViewSubscription: () => void;
+  checkOpening: () => void;
   smallMobile: boolean;
+  scoreCP?: number;
 };
 //console.log('currentChapterState',currentChapterState)
 
@@ -25,12 +28,38 @@ const ConversationReview = ({
   userData,
   progressReview,
   analizeMatch,
+  worstMove,
+  checkOpening,
   openViewSubscription,
   smallMobile,
+  scoreCP,
 }: Props) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [disableButton, setDisableButton] = useState(false);
+  const [disableWorstMoveButton, setDisableWorstMoveButton] = useState(false);
+  const [disableOpeningButton, setDisableOpeningButton] = useState(false);
 
+  useEffect(() => {
+    if (currentChapterState.messages.length < 2) {
+      return;
+    }
+    if (!disableWorstMoveButton) {
+      const worstMoveButtonClicked = currentChapterState.messages.some((m) =>
+        m.participantId?.includes('worstMove')
+      );
+      if (worstMoveButtonClicked) {
+        setDisableWorstMoveButton(worstMoveButtonClicked);
+      }
+    }
+    if (!disableWorstMoveButton) {
+      const openingButtonClicked = currentChapterState.messages.some((m) =>
+        m.participantId?.includes('gameOpening')
+      );
+      if (openingButtonClicked) {
+        setDisableOpeningButton(openingButtonClicked);
+      }
+    }
+  }, []);
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
@@ -53,11 +82,11 @@ const ConversationReview = ({
       className={`
   flex-1 overflow-y-auto rounded-lg no-scrollbar scroll-smooth
   min-h-[150px]
- md:max-h-[500px] max-h-[200px] 
-  md:h-[316px]
+ md:max-h-[600px] max-h-[220px] 
+  md:h-[400px]
 `}
       style={{
-        maxHeight: smallMobile ? '140px' : '',
+        maxHeight: smallMobile ? '180px' : '',
       }}
     >
       {currentChapterState.messages.map((msg, index) => {
@@ -81,12 +110,12 @@ const ConversationReview = ({
             {/* CHAT GPT TEXT */}
             {participant.includes('chatGPT123456') ? (
               <div className="flex">
-                <div className="md:flex items-start hidden">
+                <div className=" items-start hidden">
                   {isLastFromThisParticipant ? (
                     <Image
                       src={greenLogo}
                       alt="outpost"
-                      className=" max-w-[28px] md:max-w-[36px]"
+                      className=" max-w-[28px] md:max-w-[px]"
                     />
                   ) : (
                     <Image
@@ -98,10 +127,13 @@ const ConversationReview = ({
                 </div>
 
                 <div
-                  className={`text-white text-sm px-4  w-full flex   flex-col  items-start `}
+                  className={`text-white text-sm px-1 md:px-4  w-full flex   flex-col  items-start `}
                 >
                   {msg.content.includes('analyzeReview') ? (
-                    <StatsTable content={msg.content} />
+                    <StatsTable
+                      content={msg.content}
+                      review={currentChapterState.chessAiMode.review}
+                    />
                   ) : (
                     <p className="flex  items-center text-[14px]  justify-start  text-left whitespace-pre-line">
                       {msg.content}
@@ -117,7 +149,7 @@ const ConversationReview = ({
                             setDisableButton(true);
                             analizeMatch();
                           }}
-                          disabled={disableButton}
+                          disabled={disableButton || scoreCP == 0}
                           size="md"
                           className="bg-green-600  text-black font-bold mt-2 px-1 mr-2 whitespace-nowrap px-4"
                           style={{ color: 'black' }}
@@ -125,6 +157,34 @@ const ConversationReview = ({
                           Game Review
                         </ButtonGreen>
                       )}
+                    {index == 1 && currentChapterState.messages.length > 1 && (
+                      <div className="flex flex-wrap mt-2">
+                        <ButtonGreen
+                          onClick={() => {
+                            setDisableWorstMoveButton(true);
+                            worstMove();
+                          }}
+                          disabled={disableWorstMoveButton}
+                          size="md"
+                          className="bg-green-600  text-black font-bold mt-2 px-1 mr-2 whitespace-nowrap px-4"
+                          style={{ color: 'black' }}
+                        >
+                          My bad move?
+                        </ButtonGreen>
+                        <ButtonGreen
+                          onClick={() => {
+                            setDisableOpeningButton(true);
+                            checkOpening();
+                          }}
+                          disabled={disableOpeningButton}
+                          size="md"
+                          className="bg-green-600  text-black font-bold mt-2 px-1 mr-2 whitespace-nowrap px-4"
+                          style={{ color: 'black' }}
+                        >
+                          How was my opening?
+                        </ButtonGreen>
+                      </div>
+                    )}
                   </div>
                   {isSales && isLastMessage && (
                     <div className="flex  items-center gap-3 md:flex mt-2">
