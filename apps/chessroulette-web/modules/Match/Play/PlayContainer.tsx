@@ -26,7 +26,7 @@ export const PlayContainer = (
 ) => {
   const play = useCurrentOrPrevMatchPlay();
   const dispatch = usePlayActionsDispatch();
-
+  const lastDispatchAtRef = useRef(0);
   const moveAudioRef = useRef<HTMLAudioElement | null>(null);
   const [lastMoveWasPromotion, setLastMoveWasPromotion] = useState(false);
   useEffect(() => {
@@ -93,6 +93,11 @@ export const PlayContainer = (
             turn: 'b',
           })}
       onMove={(move) => {
+
+        const now = Date.now();
+  if (now - lastDispatchAtRef.current < 350 && botType) {
+    return true; // preskoči, prebrzo
+  }
         dispatch((masterContext) => ({
           type: 'play:move',
           payload: {

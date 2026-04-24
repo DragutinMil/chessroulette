@@ -264,7 +264,7 @@ const StockfishEngine: React.FC<StockfishEngineProps> = ({
   useEffect(() => {
     fenRef.current = fen;
     if (!stockfishRef.current) return;
-
+    setBestMove(''); // ← reset pre nove analize
     // prekini prethodnu analizu
     stockfishRef.current.postMessage('stop');
 
