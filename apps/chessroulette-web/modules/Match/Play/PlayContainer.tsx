@@ -27,10 +27,14 @@ export const PlayContainer = (
   const play = useCurrentOrPrevMatchPlay();
   const dispatch = usePlayActionsDispatch();
   const lastDispatchAtRef = useRef(0);
+  const pendingDispatchRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const moveAudioRef = useRef<HTMLAudioElement | null>(null);
   const [lastMoveWasPromotion, setLastMoveWasPromotion] = useState(false);
   useEffect(() => {
     moveAudioRef.current = new Audio('/chessmove.mp3');
+    return () => {
+      if (pendingDispatchRef.current) clearTimeout(pendingDispatchRef.current);
+    };
   }, []);
   useEffect(() => {
     lastMoveWasPromotionCallbacks.forEach((callback) => {
@@ -93,20 +97,40 @@ export const PlayContainer = (
             turn: 'b',
           })}
       onMove={(move) => {
+        const doDispatch = () => {
+          lastDispatchAtRef.current = Date.now();
+          dispatch((masterContext) => ({
+            type: 'play:move',
+            payload: {
+              ...move,
+              moveAt: masterContext.requestAt(),
+            },
+          }));
+        };
 
         const now = Date.now();
-  if (now - lastDispatchAtRef.current < 350 && botType) {
-    return true; // preskoči, prebrzo
-  }
-        dispatch((masterContext) => ({
-          type: 'play:move',
-          payload: {
-            ...move,
-            moveAt: masterContext.requestAt(),
-          },
-        }));
+        const timeSinceLast = now - lastDispatchAtRef.current;
 
-        // TODO: This can be returned from a more internal component
+        // Bot igre: svaki dispatch koristi requestAt() (server timestamp) što uvek
+        // uzrokuje checksum mismatch → resyncLocalState(). Ako dva dispatcha stignu
+        // pre nego što se prvi resync završi, oba pozovu syncState() na istom
+        // PromiseDelegate → "already settled" crash.
+        // Fix: drugi dispatch (premove) odložiti dok se prvi ne slegne (~500ms).
+        if (timeSinceLast < 500 && botType) {
+          if (pendingDispatchRef.current) clearTimeout(pendingDispatchRef.current);
+          pendingDispatchRef.current = setTimeout(() => {
+            pendingDispatchRef.current = null;
+            doDispatch();
+          }, 500 - timeSinceLast);
+          return true;
+        }
+
+        if (pendingDispatchRef.current) {
+          clearTimeout(pendingDispatchRef.current);
+          pendingDispatchRef.current = null;
+        }
+
+        doDispatch();
         return true;
       }}
       stopEngineMove={stopEngineMove}
