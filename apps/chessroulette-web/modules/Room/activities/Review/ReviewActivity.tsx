@@ -105,51 +105,58 @@ export const ReviewActivity = ({
     const userId = url.searchParams.get('userId');
 
     if (rawPgn) {
-      const getMatchInfo = async () => {
+      const getMatchInfo = async (attempt = 1): Promise<void> => {
         const data = await getMatch(rawPgn);
-        const lastGame = data.results.endedGames.length - 1;
-        if (data) {
-          const pgn = data.results.endedGames[lastGame].pgn;
-          const white = data.results.endedGames[lastGame].players.w == userId;
-          const black = data.results.endedGames[lastGame].players.b == userId;
 
-          const whitePlayerName =
-            data.results.endedGames[lastGame].players.w == data.initiator_id
-              ? data.initiator_name_first
-              : data.target_name_first;
-          const blackPlayerName =
-            data.results.endedGames[lastGame].players.b == data.initiator_id
-              ? data.initiator_name_first
-              : data.target_name_first;
-
-          setPlayerNames([whitePlayerName, blackPlayerName]);
-          
-
-          if (
-            !hasBranches &&
-            !hasIlegalMoves &&
-            currentChapter.displayFen !== '8/8/8/8/8/8/8/8 w - - 0 1'
-          ) {
-            return;
+        if (!data) {
+          if (attempt === 1) {
+            setTimeout(() => getMatchInfo(2), 1000);
+          } else if (attempt === 2) {
+            setTimeout(() => getMatchInfo(3), 3000);
           }
-          const opponentName = white ? blackPlayerName : whitePlayerName;
-          const opponentColor = white ? 'black' : 'white';
-          const changeOrientation =
-            (currentChapter.orientation === 'b' && black) ||
-            (currentChapter.orientation === 'w' && white);
-          gameReview({
-            ...currentChapter.chessAiMode,
-            orientationChange: changeOrientation,
-            mode: 'review',
-            fen: pgn,
-            originalPGN: pgn,
-            opponentName: opponentName,
-            opponentColor: opponentColor,
-            responseId: '',
-            message: '',
-          });
-          setNewReview(false);
+          return;
         }
+
+        const lastGame = data.results.endedGames.length - 1;
+        const pgn = data.results.endedGames[lastGame].pgn;
+        const white = data.results.endedGames[lastGame].players.w == userId;
+        const black = data.results.endedGames[lastGame].players.b == userId;
+
+        const whitePlayerName =
+          data.results.endedGames[lastGame].players.w == data.initiator_id
+            ? data.initiator_name_first
+            : data.target_name_first;
+        const blackPlayerName =
+          data.results.endedGames[lastGame].players.b == data.initiator_id
+            ? data.initiator_name_first
+            : data.target_name_first;
+
+        setPlayerNames([whitePlayerName, blackPlayerName]);
+
+        if (
+          !hasBranches &&
+          !hasIlegalMoves &&
+          currentChapter.displayFen !== '8/8/8/8/8/8/8/8 w - - 0 1'
+        ) {
+          return;
+        }
+        const opponentName = white ? blackPlayerName : whitePlayerName;
+        const opponentColor = white ? 'black' : 'white';
+        const changeOrientation =
+          (currentChapter.orientation === 'b' && black) ||
+          (currentChapter.orientation === 'w' && white);
+        gameReview({
+          ...currentChapter.chessAiMode,
+          orientationChange: changeOrientation,
+          mode: 'review',
+          fen: pgn,
+          originalPGN: pgn,
+          opponentName: opponentName,
+          opponentColor: opponentColor,
+          responseId: '',
+          message: '',
+        });
+        setNewReview(false);
       };
       getMatchInfo();
     }
