@@ -108,14 +108,14 @@ export const ReviewActivity = ({
       const getMatchInfo = async (): Promise<void> => {
     let data = null;
 
-    for (let attempt = 1; attempt <= 4; attempt++) {
+    for (let attempt = 1; attempt <= 5; attempt++) {
       try {
         data = await getMatch(rawPgn);
       } catch (e) {
         data = null;
       }
 
-      if (data) break;
+      if (data?.results?.endedGames) break;
 
       if (attempt === 1) {
         await new Promise(res => setTimeout(res, 1000));
@@ -124,6 +124,9 @@ export const ReviewActivity = ({
       }
       else if (attempt === 3) {
         await new Promise(res => setTimeout(res, 5000));
+      }
+      else if (attempt === 4) {
+        await new Promise(res => setTimeout(res, 10000));
       }
     }
 
