@@ -105,17 +105,29 @@ export const ReviewActivity = ({
     const userId = url.searchParams.get('userId');
 
     if (rawPgn) {
-      const getMatchInfo = async (attempt = 1): Promise<void> => {
-        const data = await getMatch(rawPgn);
+      const getMatchInfo = async (): Promise<void> => {
+    let data = null;
 
-        if (!data) {
-          if (attempt === 1) {
-            setTimeout(() => getMatchInfo(2), 1000);
-          } else if (attempt === 2) {
-            setTimeout(() => getMatchInfo(3), 3000);
-          }
-          return;
-        }
+    for (let attempt = 1; attempt <= 4; attempt++) {
+      try {
+        data = await getMatch(rawPgn);
+      } catch (e) {
+        data = null;
+      }
+
+      if (data) break;
+
+      if (attempt === 1) {
+        await new Promise(res => setTimeout(res, 1000));
+      } else if (attempt === 2) {
+        await new Promise(res => setTimeout(res, 3000));
+      }
+      else if (attempt === 3) {
+        await new Promise(res => setTimeout(res, 5000));
+      }
+    }
+
+    if (!data) return;
 
         const lastGame = data.results.endedGames.length - 1;
         const pgn = data.results.endedGames[lastGame].pgn;
