@@ -22,7 +22,7 @@ import {
   EvaluationMove,
 } from './movex';
 
-import { getMatch } from './util';
+import { getMatch, getMovexRoom } from './util';
 import { WidgetPanel } from './components/WidgetPanel';
 import { ReviewBoard } from './components/ReviewBoard';
 import { RIGHT_SIDE_SIZE_PX } from '../../constants';
@@ -88,6 +88,8 @@ export const ReviewActivity = ({
   useEffect(() => {
     isMobile && setReviewDataToNotation(currentChapter.chessAiMode.review);
   }, [currentChapter.chessAiMode.review]);
+
+
   useEffect(() => {
     if (newReview === false) {
       return;
@@ -105,32 +107,72 @@ export const ReviewActivity = ({
     const userId = url.searchParams.get('userId');
 
     if (rawPgn) {
+      // Shared flag — whichever path fires gameReview first sets this to true
+      const reviewCalled = { current: false };
+
+      // Fast path: movex (open API, no auth, usually instant)
+      const getMovexInfo = async (): Promise<void> => {
+        
+        if(reviewCalled.current){return}
+       
+        const data = await getMovexRoom(rawPgn);
+        if (!data ) return;
+        // Adjust this path to match the actual movex response envelope if needed
+        const state= data?.state[0].activity.activityState
+      
+         const lastGame = state.endedGames.length - 1;
+        const pgn = state.endedGames[lastGame].pgn;
+        const white = state.endedGames[lastGame].players.w == userId;
+        const black = state.endedGames[lastGame].players.b == userId;
+
+        if (!pgn || reviewCalled.current) return;
+         const opponentColor = white ? 'black' : 'white';
+         const changeOrientation =
+          (currentChapter.orientation === 'b' && black) ||
+          (currentChapter.orientation === 'w' && white);
+       
+
+        reviewCalled.current = true;
+        gameReview({
+          ...currentChapter.chessAiMode,
+          orientationChange: changeOrientation,
+          mode: 'review',
+          fen: pgn,
+          originalPGN: pgn,
+          opponentName: '',
+           opponentColor: opponentColor,
+          responseId: '',
+          message: '',
+        });
+        setNewReview(false);
+      };
+
+      // Slow path: our backend with retries (authoritative — has player names)
       const getMatchInfo = async (): Promise<void> => {
-    let data = null;
+        let data = null;
 
-    for (let attempt = 1; attempt <= 5; attempt++) {
-      try {
-        data = await getMatch(rawPgn);
-      } catch (e) {
-        data = null;
-      }
+        for (let attempt = 1; attempt <= 5; attempt++) {
+          try {
+            data = await getMatch(rawPgn);
+          } catch (e) {
+            data = null;
+          }
 
-      if (data?.results?.endedGames) break;
+          if (data?.results?.endedGames) break;
 
-      if (attempt === 1) {
-        await new Promise(res => setTimeout(res, 1000));
-      } else if (attempt === 2) {
-        await new Promise(res => setTimeout(res, 3000));
-      }
-      else if (attempt === 3) {
-        await new Promise(res => setTimeout(res, 5000));
-      }
-      else if (attempt === 4) {
-        await new Promise(res => setTimeout(res, 10000));
-      }
-    }
+          if (attempt === 1) {
+             getMovexInfo();
+            await new Promise(res => setTimeout(res, 1000));
+          } else if (attempt === 2) {
+            await new Promise(res => setTimeout(res, 3000));
+          } else if (attempt === 3) {
+            await new Promise(res => setTimeout(res, 5000));
+          } else if (attempt === 4) {
+            await new Promise(res => setTimeout(res, 10000));
+          }
+        }
 
-    if (!data) return;
+        if (!data) return;
 
         const lastGame = data.results.endedGames.length - 1;
         const pgn = data.results.endedGames[lastGame].pgn;
@@ -148,6 +190,9 @@ export const ReviewActivity = ({
 
         setPlayerNames([whitePlayerName, blackPlayerName]);
 
+        // Movex already fired gameReview — just updating player names above is enough
+        if (reviewCalled.current) return;
+
         if (
           !hasBranches &&
           !hasIlegalMoves &&
@@ -155,11 +200,14 @@ export const ReviewActivity = ({
         ) {
           return;
         }
+
         const opponentName = white ? blackPlayerName : whitePlayerName;
         const opponentColor = white ? 'black' : 'white';
         const changeOrientation =
           (currentChapter.orientation === 'b' && black) ||
           (currentChapter.orientation === 'w' && white);
+
+        reviewCalled.current = true;
         gameReview({
           ...currentChapter.chessAiMode,
           orientationChange: changeOrientation,
@@ -173,6 +221,8 @@ export const ReviewActivity = ({
         });
         setNewReview(false);
       };
+
+     
       getMatchInfo();
     }
 

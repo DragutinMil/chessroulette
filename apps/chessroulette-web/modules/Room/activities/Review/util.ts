@@ -316,6 +316,19 @@ export async function getUserInfo() {
     console.error('Fetch error', error);
   }
 }
+export async function getMovexRoom(roomId: string) {
+  try {
+    const response = await fetch(
+      `https://movex.outpostchess.com/api/resources/room:${roomId}`
+    );
+    if (!response.ok) throw new Error(`Error: ${response.status}`);
+    return response.json();
+  } catch (error) {
+    console.error('Movex fetch error', error);
+    return null;
+  }
+}
+
 export async function getSubscribeInfo() {
   const token = Cookies.get('sessionToken');
 
