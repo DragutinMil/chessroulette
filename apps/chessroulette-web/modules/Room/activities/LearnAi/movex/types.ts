@@ -33,10 +33,11 @@ export type Chapter = {
 export type MovePiece = {
   from: Square;
   to: Square;
+  promoteTo?: 'Q' | 'R' | 'B' | 'N' | 'q' | 'r' | 'b' | 'n';
 };
 
 export type aiLearn = {
-  mode: 'opening' | 'midgame' | 'endgame';
+  mode: 'opening' | 'midgame' | 'endgame' | 'play';
   name: string;
   // uci: string,
   moves: string[];
