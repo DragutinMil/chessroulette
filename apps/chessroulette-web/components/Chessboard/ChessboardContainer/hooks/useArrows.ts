@@ -39,22 +39,28 @@ export const useCustomArrows = (
     [onUpdate, arrowsMap, localBoardArrowsMap]
   );
 
-  const arrowsToRender = useMemo((): Array<{ startSquare: Square; endSquare: Square; color: string }> => {
-    const map = arrowsMap || {};
-    return objectKeys(map)
-      .filter((id) => !Object(localBoardArrowsMap).hasOwnProperty(id))
-      .map((id) => {
-        const tuple = map[id];
-        if (!tuple || tuple.length < 2) return null;
-        return {
-          startSquare: tuple[0],
-          endSquare: tuple[1],
-          color: tuple[2] ?? '',
-        };
-      })
-      .filter((x): x is { startSquare: Square; endSquare: Square; color: string } => x != null);
-  }, [localBoardArrowsMap, arrowsMap]);
-
+  // const arrowsToRender = useMemo((): Array<{ startSquare: Square; endSquare: Square; color: string }> => {
+  //   const map = arrowsMap || {};
+  //   return objectKeys(map)
+  //     .filter((id) => !Object(localBoardArrowsMap).hasOwnProperty(id))
+  //     .map((id) => {
+  //       const tuple = map[id];
+  //       if (!tuple || tuple.length < 2) return null;
+  //       return {
+  //         startSquare: tuple[0],
+  //         endSquare: tuple[1],
+  //         color: tuple[2] ?? '',
+  //       };
+  //     })
+  //     .filter((x): x is { startSquare: Square; endSquare: Square; color: string } => x != null);
+  // }, [localBoardArrowsMap, arrowsMap]);
+  const arrowsToRender = useMemo(
+    () =>
+      objectKeys(arrowsMap || {})
+        .filter((a) => !Object(localBoardArrowsMap).hasOwnProperty(a))
+        .map(toChessArrowFromId),
+    [localBoardArrowsMap, arrowsMap]
+  );
   const [safelyMounted, setSafelyMounted] = useState(false);
   useEffect(() => {
     setTimeout(() => {

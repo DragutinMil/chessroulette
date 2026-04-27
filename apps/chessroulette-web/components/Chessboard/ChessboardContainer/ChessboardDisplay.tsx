@@ -36,7 +36,7 @@ export type ChessboardDisplayProps = Omit<
   onPieceDrag?: (square: string | null, piece: string) => void;
   onPieceDrop?: (from: string, to: string, piece?: string | null) => void;
   onArrowsChange: any;
-  displayArrows?: any;
+  // displayArrows?: any;
   highlightSquares?: Record<string, any>;
   //highlightArrows?: Array<[string, string]>;
 
@@ -70,7 +70,7 @@ export const ChessboardDisplay = ({
   lastMove,
   squareStyles,
   onArrowsChange,
-  displayArrows,
+  // displayArrows,
 
   // onChangePuzzleAnimation,
   onCancelPromoMove,
@@ -139,8 +139,9 @@ export const ChessboardDisplay = ({
               outline: `5px solid ${boardTheme.hoveredSquare}`,
               boxShadow: boardTheme.hoveredSquare,
             },
-            arrows: Array.isArray(displayArrows) ? displayArrows : undefined,
-            onArrowsChange,
+            arrows: onArrowsChange,
+            // arrows: Array.isArray(displayArrows) ? displayArrows : undefined,
+            // onArrowsChange,
             arrowOptions: {
               color: boardTheme.arrowColors[1],
               secondaryColor: 'rgb(74 222 128)',

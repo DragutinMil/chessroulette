@@ -53,7 +53,7 @@ export const FreeBoardNotation: React.FC<FreeBoardNotationProps> = ({
 
   return (
     <div
-    className={`md:flex flex-col h-full flex-1 overflow-hidden overflow-x-auto no-scrollbar min-h-0 min-w-0 max-w-full md:max-w-md w-full ${containerClassName}`}
+    className={`md:flex flex-col h-full w-full flex-1 overflow-hidden no-scrollbar   min-h-0 min-w-0 ${containerClassName} `}
          > {history.length > 0 ? (
         <List
           isMobile={isMobile}
