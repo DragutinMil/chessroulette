@@ -13,6 +13,10 @@ Next.js 14 full-stack šahovska platforma sa real-time multiplayer igrom, botovi
 - Ako vidim potencijalni problem koji nije tražen — napomenem, ne diram
 - Kratki odgovori osim kada objašnjavam nešto kompleksno
 
+## Fajlovi
+- **Ne dodavaj nikakve nove fajlove** bez eksplicitnog pitanja i dozvole korisnika
+- **Ne brišaj fajlove** bez eksplicitnog zahteva
+
 ## Git & Build
 - **Ne pravi git commitove** bez eksplicitnog zahteva
 - **Ne push-uj** na remote bez eksplicitnog zahteva
