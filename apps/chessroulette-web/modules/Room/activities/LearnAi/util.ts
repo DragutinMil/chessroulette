@@ -117,7 +117,9 @@ export type MessageMoveSegment =
     };
 
     export function buildPgnFromMessageContent(content: string): string | null {
-      const segments = parseMessageMoves(content).filter((s) => s.type === 'move');
+      const segments = parseMessageMoves(content).filter(
+  (s): s is Extract<MessageMoveSegment, { type: 'move' }> => s.type === 'move'
+);
       if (segments.length === 0) return null;
       const pairs: [string, string | undefined][] = [];
       for (const seg of segments) {
