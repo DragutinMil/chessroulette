@@ -2,13 +2,13 @@
 
 import { useUpdateableSearchParams } from '@app/hooks/useSearchParams';
 import { useLearnActivitySettings } from '../activities/Learn';
-import { useAichessActivitySettings } from '../activities/Aichess';
+import { usePuzzleActivitySettings } from '../activities/Puzzle';
+import { useReviewActivitySettings } from '../activities/Review';
 import { useLearnAiActivitySettings } from '../activities/LearnAi';
 import { ActivityState } from '../activities/movex';
 import { invoke } from '@xmatter/util-kit';
 import { useMeetupActivitySettings } from '../activities/Meetup/useMeetupActivitySettings';
 import { JoinRoomLinkProps } from '../activities/Learn/activitySettings';
-import { JoinAichessRoomLinkProps } from '../activities/Aichess/activitySettings';
 
 export type RoomSettings = {
   theme: string | undefined; // TODO: this can be more specific
@@ -25,18 +25,23 @@ export const useRoomSettings = (
   const updateableSearchParams = useUpdateableSearchParams();
   const learnActivitySettings = useLearnActivitySettings();
   const meetupActivitySettings = useMeetupActivitySettings();
-  const aichessActivitySettings = useAichessActivitySettings();
   const learnAiActivitySettings = useLearnAiActivitySettings();
+  const puzzleActivitySettings = usePuzzleActivitySettings();
+  const reviewActivitySettings = useReviewActivitySettings();
 
-  const joinRoomLinkProps = invoke((): JoinAichessRoomLinkProps => {
+  const joinRoomLinkProps = invoke((): JoinRoomLinkProps => {
     if (activity === 'learn') {
       return learnActivitySettings;
     }
-    if (activity === 'aichess') {
-      return aichessActivitySettings;
-    }
+
     if (activity === 'ailearn') {
       return learnAiActivitySettings;
+    }
+    if (activity === 'puzzle') {
+      return puzzleActivitySettings;
+    }
+    if (activity === 'review') {
+      return reviewActivitySettings;
     }
 
     if (activity === 'meetup') {

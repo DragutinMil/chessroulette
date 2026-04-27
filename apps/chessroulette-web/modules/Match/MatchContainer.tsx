@@ -7,6 +7,7 @@ import { PlayContainer, PlayerContainerProps } from './Play/PlayContainer';
 import { MatchActions, MatchState } from './movex';
 import { MatchProvider } from './providers';
 import { findIfBots } from './utils';
+import { getMakeFakeName, getUserInfo } from './utils';
 import { VideoCameraIcon } from '@heroicons/react/24/solid';
 
 import {
@@ -27,6 +28,7 @@ import {
   botRejectDrawOffer,
   onTakeBackOfferBot,
   botTalkInitiation,
+  botAcceptRematchOffer,
 } from './bots/botActions';
 import { noop } from '@xmatter/util-kit';
 import { useGame } from '../Game/hooks';
@@ -86,7 +88,7 @@ const MatchContainerInner = ({
   setIsMobileChatOpen: (open: boolean) => void;
 }) => {
   const { match: matchState } = useMatchViewState();
-  const { playersBySide } = useCurrentOrPrevMatchPlay();
+  const { playersBySide, canUserPlay } = useCurrentOrPrevMatchPlay();
   const dispatchPlay = usePlayActionsDispatch();
   const { displayState, actions } = useGame();
   const [cameraExpanded, setCameraExpanded] = useState(false);
@@ -94,35 +96,20 @@ const MatchContainerInner = ({
   const [camera, setCamera] = useState(true);
   const [cameraOnAgain, setCameraOnAgain] = useState(false);
   const [botTalkInitiated, setBotTalkInitiated] = useState(false);
+  const [userRating, setUserRating] = useState<number>();
 
   const [stopEngineMove, setStopEngineMove] = useState(false);
   const lastTakebackHandledAtRef = useRef<number>(0);
-
+  const lastProcessedTimestamp = useRef<number | null>(null);
   //const [offersWithChatBot, setOffersWithChatBot] = useState('');
   const [isMobile, setIsMobile] = useState<boolean | null>(null);
   const [activeBot, setActiveBot] = useState<ActiveBot>();
   const [oponentColor, setOponentColor] = useState<string>();
+  const { userAsPlayer } = useMatchViewState();
 
   // const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
   // Resize i socket connection
-  useEffect(() => {
-    // const handleResize = () => setIsMobile(window.innerWidth <= 768);
-    //  window.addEventListener('resize', handleResize);
-    if (match.challengee.id.length !== 16) {
-      localStorage.setItem('socket', 'playing');
-      socketUtil.connect('playing');
-    } else {
-      localStorage.setItem('socket', 'available');
-
-      socketUtil.connect('available');
-    }
-
-    return () => {
-      // window.removeEventListener('resize', handleResize);
-      socketUtil.disconnect();
-    };
-  }, [match.challengee.id]);
 
   const playerNames = playersBySide
     ? {
@@ -143,6 +130,8 @@ const MatchContainerInner = ({
     responseId?: string,
     senderId?: string
   ) => {
+    // da povuce istoriju neophodno je da ide bez id prva poruka
+
     dispatch({
       type: 'play:sendMessage',
       payload: {
@@ -188,31 +177,65 @@ const MatchContainerInner = ({
     }
     if (match) {
       const bot = findIfBots(match?.challengee.id, match?.challenger.id);
+
       if (bot) {
-        setActiveBot(bot);
+        if (bot.id == 'TbN0mQQJy8s2-') {
+          const botFakeGuest = getMakeFakeName();
+          setActiveBot(botFakeGuest);
+        } else {
+          setActiveBot(bot);
+        }
+
+        if (bot.botType == 'matchFake') {
+          const userData = async () => {
+            const data = await getUserInfo();
+            setUserRating(data?.rejting);
+          };
+          userData();
+        }
+
         if (match.gameInPlay?.players.w === bot.id) {
           setOponentColor('black');
         } else {
           setOponentColor('white');
         }
       }
+      const Socketinitiation = async () => {
+        if (userAsPlayer) {
+          if (bot) {
+            await socketUtil.connect('playingbot');
+          } else {
+            await socketUtil.connect('playing');
+          }
+        }
+      };
+
+      Socketinitiation();
+      // matchInitialization()
     }
+
+    return () => {
+      socketUtil.disconnect();
+    };
   }, []);
 
   useEffect(() => {
     if (!activeBot) {
       return;
     }
-    if (activeBot?.id?.slice(-3) !== '000') {
+    if (activeBot?.botType !== 'botelja') {
       return;
     }
 
     if (
+      isPlayer &&
       match.gameInPlay &&
       match.messages.length == 0 &&
       match.gameInPlay.pgn.length > 15 &&
-      match.gameInPlay.pgn.length > 19 &&
+      match.gameInPlay.pgn.length < 19 &&
       !botTalkInitiated
+      //  || (match.gameInPlay &&
+      // match.messages.length == 0)
     ) {
       setBotTalkInitiated(true);
       botTalkInitiation(
@@ -226,7 +249,7 @@ const MatchContainerInner = ({
   }, [match.gameInPlay?.pgn]);
 
   useEffect(() => {
-    if (!activeBot || activeBot?.id?.slice(-3) !== '000') {
+    if (!activeBot || activeBot?.botType !== 'botelja') {
       return;
     }
     const offer = match?.gameInPlay?.offers.at(-1);
@@ -240,7 +263,8 @@ const MatchContainerInner = ({
         activeBot,
         match.messages,
         match.gameInPlay.pgn,
-        1000
+        1000,
+        true
       );
     } else if (offer?.type === 'takeback' && offer.status === 'pending') {
       const now = Date.now();
@@ -248,23 +272,91 @@ const MatchContainerInner = ({
         return;
       }
       lastTakebackHandledAtRef.current = now;
-      onTakeBackOfferBot(dispatch, 1500);
+      onTakeBackOfferBot(dispatch, 1500, true);
       setStopEngineMove(true);
       setTimeout(() => {
         setStopEngineMove(false);
       }, 2000);
     }
-    if (match.status === 'complete') {
-      botSendRematchOffer(dispatch, activeBot.name, 1000);
+    if (match.status === 'complete' && isPlayer) {
+      botSendRematchOffer(
+        dispatch,
+        activeBot.id,
+        1000,
+        match?.messages[match.messages.length - 1]?.responseId
+      );
     }
   }, [match.gameInPlay?.offers, match.status]);
 
+  useEffect(() => {
+    if (!activeBot || activeBot?.botType !== 'matchFake') {
+      return;
+    }
+    const offer = match?.gameInPlay?.offers.at(-1);
+    if (offer?.type === 'takeback' && offer.status === 'pending') {
+      console.log('activeBot?.botType trtrr', activeBot?.botType);
+      onTakeBackOfferBot(dispatch, 1000, false);
+    }
+    if (
+      offer?.type === 'draw' &&
+      match.gameInPlay &&
+      offer.status === 'pending'
+    ) {
+      botRejectDrawOffer(
+        dispatch,
+        activeBot,
+        match.messages,
+        match.gameInPlay.pgn,
+        1000,
+        false
+      );
+    }
+  }, [match.gameInPlay?.offers]);
+
+  useEffect(() => {
+    if (
+      !activeBot ||
+      (activeBot?.botType !== 'botelja' && activeBot?.botType !== 'matchFake')
+    ) {
+      return;
+    }
+    const offer = match?.endedGames[0]?.offers[0];
+    if (offer) {
+      if (!offer?.timestamp) return;
+      const currentSecond = Math.floor(offer.timestamp / 1000);
+
+      const lastSecond = lastProcessedTimestamp.current
+        ? Math.floor(lastProcessedTimestamp.current / 1000)
+        : null;
+
+      if (lastSecond === currentSecond) {
+        return;
+      }
+      lastProcessedTimestamp.current = offer.timestamp;
+      if (
+        (offer && activeBot?.id == offer?.byPlayer) ||
+        offer?.byPlayer.length == 16
+      ) {
+        return;
+      }
+
+      if (offer.status === 'pending' && offer.type === 'rematch') {
+        console.log('prihvata rematch');
+        botAcceptRematchOffer(dispatch, 1000);
+      }
+    }
+  }, [match.endedGames[0]?.offers]);
+
+  const isPlayer = canUserPlay && playersBySide?.home.id;
   return (
     <>
       <div className="flex flex-col flex-1 min-h-0 gap-4 w-full md:w-1/2 md:hidden  mt-4 relative  z-[40]">
         <div className="flex flex-row md:flex-col w-full md:w-1/2">
           <div className="w-full md:w-1/2 mr-0 md:mr-0">
-            <MatchStateDisplayContainer activeBot={activeBot?.name} />
+            <MatchStateDisplayContainer
+              activeBot={activeBot?.name}
+              isPlayer={isPlayer}
+            />
           </div>
         </div>
       </div>
@@ -274,14 +366,18 @@ const MatchContainerInner = ({
           <div className=" w-max[full] md:w-max[3/4] mr-0 ">
             <PlayContainer
               key={match.endedGames.length}
+              botType={activeBot?.botType}
+              userRating={userRating}
               botId={activeBot?.id}
               sizePx={boardSize}
               stopEngineMove={stopEngineMove}
               overlayComponent={
-                <MatchStateDialogContainer
-                  activeBot={activeBot}
-                  inviteLink={inviteLink}
-                />
+                isPlayer && (
+                  <MatchStateDialogContainer
+                    activeBot={activeBot}
+                    inviteLink={inviteLink}
+                  />
+                )
               }
               {...boardProps}
             />
@@ -292,40 +388,64 @@ const MatchContainerInner = ({
           <div className="flex flex-col flex-1 min-h-0 gap-4 w-full ">
             <div className="flex flex-row md:flex-col w-full">
               <div className="hidden md:block md:w-full mr-0 md:ml-0">
-                <MatchStateDisplayContainer activeBot={activeBot?.name} />
+                <MatchStateDisplayContainer
+                  activeBot={activeBot?.name}
+                  isPlayer={isPlayer}
+                />
               </div>
             </div>
 
             {/* Desktop Chat Widget */}
+
             <div className="w-full hidden md:flex flex-1 min-h-0 w-full relative">
               {(activeWidget === 'chat' && activeBot) ||
-              activeBot?.id?.slice(-3) == '000' ||
-              !activeBot ? (
+              activeBot?.botType == 'botelja' ||
+              activeBot?.botType == 'matchFake' ||
+              (!activeBot && isPlayer) ? (
                 <div className="w-full hidden md:flex flex-1 min-h-0 w-full relative">
-                  <ChatWidget
-                    pgn={matchState?.gameInPlay?.pgn || ''}
-                    messages={matchState?.messages || []}
-                    currentUserId={userId}
-                    activeBot={activeBot}
-                    playerNames={playerNames}
-                    onSendMessage={handleSendMessage}
-                    otherPlayerChatEnabled={true}
-                  />
+                  {(activeBot?.botType == 'botelja' ||
+                    activeBot?.botType == 'matchFake' ||
+                    !activeBot) &&
+                    !isMobileChatOpen &&
+                    !isMobile &&
+                    isPlayer && (
+                      <ChatWidget
+                        pgn={
+                          matchState?.gameInPlay?.pgn ||
+                          matchState?.endedGames[0]?.pgn ||
+                          ''
+                        }
+                        messages={matchState?.messages || []}
+                        currentUserId={userId}
+                        activeBot={activeBot}
+                        playerNames={playerNames}
+                        oponentColor={oponentColor}
+                        onSendMessage={handleSendMessage}
+                        otherPlayerChatEnabled={true}
+                      />
+                    )}
+
                   <div
                     className={`
                       hidden md:block absolute z-20  cursor-pointer transition-all duration-300 ease-in-out
                       rounded-lg  overflow-hidden 
                       ${
-                        cameraExpanded
+                        cameraExpanded ||
+                        (activeBot &&
+                          activeBot?.botType !== 'botelja' &&
+                          activeBot?.botType !== 'matchFake')
                           ? 'inset-0 w-full h-full z-[51]'
                           : 'top-1 right-1  w-2/5'
                       }
                     `}
                   >
-                    {activeBot?.id?.slice(-3) !== '000' && !isMobile && (
-                      <div>
-                        <div
-                          className={`
+                    {activeBot?.botType !== 'botelja' &&
+                      activeBot?.botType !== 'matchFake' &&
+                      isPlayer &&
+                      !isMobile && (
+                        <div>
+                          <div
+                            className={`
                        ${
                          camera
                            ? 'opacity-100 z-10'
@@ -333,40 +453,47 @@ const MatchContainerInner = ({
                        }
                       }
                     `}
-                        >
-                          <PeerToPeerCameraWidget
-                            cameraOnAgain={cameraOnAgain}
-                            activeBot={activeBot}
-                            onDisableCamera={() => cameraOff()}
-                            camera={camera}
-                            onToggleExpand={() => setCameraExpanded((p) => !p)}
-                            isExpanded={cameraExpanded}
-                          />
-                        </div>
+                          >
+                            <PeerToPeerCameraWidget
+                              cameraOnAgain={cameraOnAgain}
+                              activeBot={activeBot}
+                              onDisableCamera={() => cameraOff()}
+                              camera={camera}
+                              onToggleExpand={() =>
+                                setCameraExpanded((p) => !p)
+                              }
+                              isExpanded={cameraExpanded}
+                            />
+                          </div>
 
-                        <button
-                          onClick={() => {
-                            setCamera(true);
-                            setCameraOnAgain(true);
-                          }}
-                          className={` ${
-                            camera
-                              ? 'opacity-0 pointer-events-none -z-10'
-                              : 'opacity-100 z-10'
-                          }
+                          <button
+                            onClick={() => {
+                              setCamera(true);
+                              setCameraOnAgain(true);
+                            }}
+                            className={` ${
+                              camera
+                                ? 'opacity-0 pointer-events-none -z-10'
+                                : 'opacity-100 z-10'
+                            }
                                                         absolute  left-[82%] h-8  bg-black/50 text-white rounded-md p-1 hover:opacity-70
                                                         top-1   hover:rounded-xl
                                                       `}
-                        >
-                          <VideoCameraIcon className="h-5 w-5" />
-                        </button>
-                      </div>
-                    )}
+                          >
+                            <VideoCameraIcon className="h-5 w-5" />
+                          </button>
+                        </div>
+                      )}
                   </div>
+                </div>
+              ) : !isPlayer ? (
+                <div>
+                  <PeerToPeerCameraWidget />
                 </div>
               ) : (
                 // classic bot players
-                !isMobile && (
+                !isMobile &&
+                canUserPlay && (
                   <div className="w-1/2  md:w-full h-full overflow-hidden  rounded-lg shadow-2xl  ">
                     <PeerToPeerCameraWidget activeBot={activeBot} />
                   </div>
@@ -380,7 +507,7 @@ const MatchContainerInner = ({
                   style={{
                     backgroundImage:
                       'radial-gradient(61.84% 61.84% at 50% 131.62%, rgba(5, 135, 44, 0.2) 0%, rgb(1, 33, 11) 100%)',
-                    height: isMobile ? '52px' : '290px',
+                    height: isMobile ? '52px' : isPlayer ? '290px' : '100%',
                     minHeight: isMobile ? '52px' : '202px',
                     width: '100%',
                   }}
@@ -390,6 +517,7 @@ const MatchContainerInner = ({
                     <FreeBoardNotation
                       isMobile={isMobile}
                       history={displayState.history}
+                      playersBySide={playersBySide}
                       playerNames={[
                         playersBySide?.home.displayName ||
                           activeBot?.name ||
@@ -420,13 +548,18 @@ const MatchContainerInner = ({
         }
       />
 
-      {isMobileChatOpen && (
+      {isPlayer && isMobileChatOpen && (
         <div className="md:hidden fixed inset-0 z-50 bg-[#01210b] flex flex-col">
           <div className="flex-1 overflow-hidden">
             <ChatWidget
-              pgn={matchState?.gameInPlay?.pgn || ''}
+              pgn={
+                matchState?.gameInPlay?.pgn ||
+                matchState?.endedGames[0]?.pgn ||
+                ''
+              }
               messages={matchState?.messages || []}
               currentUserId={userId}
+              oponentColor={oponentColor}
               activeBot={activeBot}
               playerNames={playerNames}
               onSendMessage={handleSendMessage}

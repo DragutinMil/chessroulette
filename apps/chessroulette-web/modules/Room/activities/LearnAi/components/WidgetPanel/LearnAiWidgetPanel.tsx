@@ -1158,7 +1158,7 @@ useEffect(() => {
                     `}
                   >
                     <FreeBoardNotation
-                      reviewData={reviewData}
+                      // reviewData={reviewData}
                       isMobile={isMobile}
                       history={currentChapterState.notation?.history}
                       playerNames={playerNames}

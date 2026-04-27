@@ -2,7 +2,7 @@ import React from 'react';
 import { List, ListProps } from './components/HistoryList';
 import { useKeysToRefocusHistory } from './hooks';
 import { FBHHistory, FreeBoardHistory } from '@xmatter/util-kit';
-import type { EvaluationMove } from '../../modules/Room/activities/Aichess/movex/types';
+import type { EvaluationMove } from '../../modules/Room/activities/Review/movex/types';
 export type FreeBoardNotationProps = {
   history?: FBHHistory;
   isFocusedInput?: boolean;
@@ -13,9 +13,12 @@ export type FreeBoardNotationProps = {
   className?: string;
   containerClassName?: string;
   canDelete?: boolean;
-  reviewData?: EvaluationMove[];
+  isAichess?: boolean;
+  playersBySide?: any;
+  reviewDataToNotation?: EvaluationMove[];
   playerNames?: Array<string>;
   isMobile?: boolean;
+  showNames?: boolean;
 };
 
 /**
@@ -31,12 +34,15 @@ export const FreeBoardNotation: React.FC<FreeBoardNotationProps> = ({
   focusedIndex = FreeBoardHistory.getStartingIndex(),
   onRefocus,
   onDelete,
+  isAichess,
   canDelete,
-  reviewData,
+  reviewDataToNotation,
+  playersBySide,
   playerNames,
   isMobile,
   containerClassName = '',
   className = '',
+  showNames,
 }) => {
   useKeysToRefocusHistory(
     history,
@@ -53,10 +59,13 @@ export const FreeBoardNotation: React.FC<FreeBoardNotationProps> = ({
           isMobile={isMobile}
           history={history}
           playerNames={playerNames}
+          isAichess={isAichess}
           focusedIndex={focusedIndex}
           onRefocus={onRefocus}
+          playersBySide={playersBySide}
           onDelete={onDelete}
-          reviewData={reviewData || []}
+          reviewDataToNotation={reviewDataToNotation || []}
+          showNames={showNames}
           className={`flex flex-1 flex-col  ${className} ${
             canDelete === false ? 'hidden md:flex' : 'flex'
           }`}

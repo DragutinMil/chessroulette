@@ -70,14 +70,14 @@ export const LearnAiActivity = ({
     findLoadedChapter(remoteState) || initialDefaultChapter;
 
   const tabsRef = useRef<TabsRef>(null);
-  useEffect(() => {
-    socketUtil.connect('reviewing');
-    localStorage.setItem('socket', 'reviewing');
+  // useEffect(() => {
+  //   socketUtil.connect('learn');
+  //   localStorage.setItem('socket', 'learn');
 
-    return () => {
-      socketUtil.disconnect();
-    };
-  }, []);
+  //   return () => {
+  //     socketUtil.disconnect();
+  //   };
+  // }, []);
 
   const historyBackToStart = async () => {
     setNewReview(true);

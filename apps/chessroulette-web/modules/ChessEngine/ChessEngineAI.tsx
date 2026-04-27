@@ -6,7 +6,7 @@ import {
   promotionalPieceSanToFenBoardPromotionalPieceSymbol,
   toLongChessColor,
 } from '@xmatter/util-kit';
-import { getStockfishWorker, newStockfish } from './stockfishWorker.js';
+import { newStockfish } from './stockfishWorker.js';
 
 type StockfishEngineAIProps = {
   fen: ChessFEN;
@@ -58,7 +58,7 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
   // const [lastFen, setLastFen] = useState("");
 
   const stockfishRef = useRef<Worker | null>(null);
-
+  const restartingRef = useRef(false);
   useEffect(() => {
     function getStockfishSettingsByRating(rating: number) {
       if (rating < 900) return { skill: 1, depth: 2, ratingCurr: 800 };
@@ -100,87 +100,13 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
     try {
       const stockfish = newStockfish();
       stockfishRef.current = stockfish;
-      // stockfish.onmessage = (event:any) => {
-      //    console.log('standard ucitavanje1')
-      //   if (event.data.startsWith('bestmove')) {
-      //     setTimeout(() => {
-      //       setBestMove(event.data.split(' ')[1]);
-      //     }, 300);
-      //   }
-
-      //   if (event.data.startsWith('info depth')) {
-      //     if (event.data == 'info depth 0 score mate 0') {
-      //       IsMate(true);
-      //       const parts = fen.split(' ');
-      //       parts[1] === 'w'
-      //         ? addGameEvaluation(50000)
-      //         : addGameEvaluation(-50000);
-      //     }
-      //     //   console.log('sta',event.data)
-      //     if (event.data.startsWith(`info depth ${depth}`)) {
-      //       const pvIndex = event.data.indexOf(' pv ');
-      //       //   console.log('deptara',event.data)
-      //       if (event.data.includes('multipv 2')) {
-      //         setLinesTwo(event.data.slice(pvIndex + 4));
-      //       }
-      //       if (event.data.includes('multipv 1')) {
-      //         setLineOne(event.data.slice(pvIndex + 4));
-      //         const match = event.data.match(/score (cp|mate) (-?\d+)/);
-
-      //         // POTEZI EVALUACIJA
-
-      //         if (match) {
-      //           const type = match[0];
-      //           const value = parseInt(match[2], 10);
-      //           if (type == 'score mate 1' || type == 'score mate 3') {
-      //             console.log('ide mat 1 ili 3', type);
-      //             const parts = fen.split(' ');
-
-      //             parts[1] === 'b'
-      //               ? addGameEvaluation(50000)
-      //               : addGameEvaluation(-50000);
-      //           } else if (type === 'score mate 2') {
-      //             const parts = fen.split(' ');
-
-      //             parts[1] === 'b'
-      //               ? addGameEvaluation(-50000)
-      //               : addGameEvaluation(50000);
-      //           } else {
-      //             const score = isMyTurn ? value : -1 * value;
-      //             addGameEvaluation(score);
-      //           }
-      //         }
-      //       }
-      //       if (event.data.includes('multipv 3')) {
-      //         setLineThree(event.data.slice(pvIndex + 4));
-      //       }
-
-      //       setChanges((prev) => prev + 1);
-      //     }
-      //   }
-      //   setStockfishOutput(event.data);
-      // };
       stockfish.onerror = (error: any) => {
         console.error('Stockfish error:', error);
         setStockfishOutput('Stockfish error! Check console.');
         stockfishRef.current?.terminate();
         setError(true);
       };
-      // Send UCI command to initialize Stockfish
-      // setTimeout(() => {
-      //   console.log('sadda')
-      //   stockfish.postMessage(`isready`);
-      //   stockfish.postMessage(`setoption name MultiPV value 3`);
-      //   stockfish.postMessage('setoption name Threads value 2');
-      //   stockfish.postMessage('setoption name Hash value 64');
-      //   stockfish.postMessage(`setoption name Skill Level value ${skill}`);
-      //   stockfish.postMessage(`position fen ${fen}`);
-      //   stockfish.postMessage(`go depth ${depth}`);
-      // }, 10000);
-
-      //  return () => stockfish.terminate(); // Cleanup on unmount
     } catch (error) {
-      // console.error("Failed to load Stockfish:", error);
       setStockfishOutput('Failed to load Stockfish.');
     }
   }, [error]);
@@ -189,16 +115,20 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
     if (puzzleMode && !isMyTurn) {
       return;
     }
+
     // console.log('stockfishRef.current',stockfishRef.current)
     if (stockfishRef.current) {
       stockfishRef.current.onmessage = (event) => {
         // console.log('feniranje');
+        // console.log('event.data', event.data);
         if (event.data.startsWith('bestmove')) {
           setTimeout(() => {
             setBestMove(event.data.split(' ')[1]), 300;
           });
+        } else {
+          setBestMove('');
         }
-
+        //  console.log(`bilo sta` ,event.data)
         if (event.data.startsWith('info depth')) {
           if (event.data == 'info depth 0 score mate 0') {
             IsMate(true);
@@ -213,7 +143,7 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
           //console.log('sta',event.data)
           if (event.data.startsWith(`info depth ${depth}`)) {
             const pvIndex = event.data.indexOf(' pv ');
-            // console.log(event.data)
+            //  console.log(`data iz stockfish depth ${depth}` ,event.data)
             if (event.data.includes('multipv 2')) {
               setLinesTwo(event.data.slice(pvIndex + 4));
             }
@@ -225,16 +155,15 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
 
               if (match) {
                 const type = match[0];
-                const value = parseInt(match[2], 10);
-                if (type == 'score mate 1' || type == 'score mate 3') {
-                  //  console.log('ide mat 1 ili 3');
-                  const parts = fen.split(' ');
 
+                const value = parseInt(match[2], 10);
+                if (type.includes('mate') && Number(match[2]) > 0) {
+                  const parts = fen.split(' ');
                   (parts[1] === 'w' && orientation === 'w') ||
                   (parts[1] === 'b' && orientation === 'b')
                     ? addGameEvaluation(50000)
                     : addGameEvaluation(-50000);
-                } else if (type === 'score mate 2') {
+                } else if (type.includes('mate')) {
                   const parts = fen.split(' ');
                   //   console.log('ide mat 2', parts);
                   (parts[1] === 'w' && orientation === 'w') ||
@@ -244,6 +173,7 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
                     : addGameEvaluation(50000);
                 } else {
                   const score = isMyTurn ? value : -1 * value;
+
                   addGameEvaluation(score);
                 }
               }
@@ -252,7 +182,7 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
               setLineThree(event.data.slice(pvIndex + 4));
             }
 
-            setChanges(changes + 1);
+            setChanges((prev) => prev + 1);
           }
         }
         setStockfishOutput(event.data);

@@ -61,7 +61,7 @@ export const MatchAbortContainer = ({
         });
       }}
       confirmContent={
-        <div className="flex flex-row justify-center ">
+        <div className="flex flex-row justify-center  ">
           <div>
             {firstRound
               ? 'If you abort, this match will be canceled and invalid!'

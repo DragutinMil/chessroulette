@@ -4,20 +4,91 @@ import { ChatBotWidget } from '../widgets/ChatBotWidget';
 import { ChatMessage, ActiveBot } from '@app/modules/Match/movex/types';
 import { Chess } from 'chess.js';
 import { botVoiceSpeak } from '../widgets/chatBotSpeak';
+import { newRematchRequest } from '../utilsOutpost';
+
+export const botAcceptRematchOffer = (
+  dispatch: DispatchOf<MatchActions>,
+  delay = 1000
+) => {
+  const pathParts = window.location.pathname.split('/');
+  const matchId = pathParts[pathParts.length - 1];
+  setTimeout(() => {
+    const handleRematch = async () => {
+      const data = await newRematchRequest(matchId);
+
+      dispatch({
+        type: 'play:acceptOfferRematch',
+        payload: {
+          target_url: data.target_url,
+          initiator_url: data.initiator_url,
+        },
+      });
+    };
+    handleRematch();
+  }, delay);
+};
+
 export const botSendRematchOffer = (
   dispatch: DispatchOf<MatchActions>,
   byPlayerId: string,
-  delay = 1000
+  delay = 600,
+  responseId?: string
 ) => {
   setTimeout(() => {
-    dispatch((masterContext) => ({
-      type: 'play:sendOffer',
+    setTimeout(() => {
+      dispatch((masterContext) => ({
+        type: 'play:sendOffer',
+        payload: {
+          byPlayer: byPlayerId,
+          offerType: 'rematch',
+          timestamp: masterContext.requestAt(),
+        },
+      }));
+    }, 600);
+    let contentList;
+    if (byPlayerId == '9yzBb59_POb9L000') {
+      contentList = [
+        'You’re not leaving now, right? Come on, show me what you’ve got.',
+        'If you walk away now, it’ll look like you’re running… just saying. 😄',
+        'One more. I’m not done with you yet.',
+      ];
+    } else if (byPlayerId == '9aEXYS0xwZS21000') {
+      contentList = [
+        'Nice game. Want another one to see the pattern?',
+        'That was interesting… I’d like to continue.',
+        'If you’ve got time, let’s play again.😄',
+      ];
+    } else if (byPlayerId == '9aEXYS0xwZS21000') {
+      contentList = [
+        'What’s this, leaving already? Yeah, right.',
+        'Come on, one more. I promise I’ll be nice this time… maybe. 😄',
+        'Okay, okay… let me hit rematch so I can bother you a bit more.',
+      ];
+    } else if (byPlayerId == '9aEXYS0xwZS21000') {
+      contentList = [
+        'I really enjoyed that game. Shall we play another?',
+        'Let’s continue — I feel the next one will be even better. 😄',
+        'If you want a rematch, I’m here. I always enjoy playing with you.',
+      ];
+    } else {
+      contentList = [
+        'Let’s go again. No way we’re ending it like this.',
+        'If you’re ready for a rematch, I’m ready.',
+        'Want another one — or is that enough for today?',
+      ];
+    }
+
+    const content = contentList[Math.floor(Math.random() * contentList.length)];
+
+    dispatch({
+      type: 'play:sendMessage',
       payload: {
-        byPlayer: byPlayerId,
-        offerType: 'rematch',
-        timestamp: masterContext.requestAt(),
+        senderId: byPlayerId,
+        content,
+        timestamp: Date.now(),
+        responseId: responseId,
       },
-    }));
+    });
   }, delay);
 };
 
@@ -26,14 +97,13 @@ export const botRejectDrawOffer = (
   activeBot: ActiveBot,
   messages: ChatMessage[],
   pgn: string,
-  delay = 1000
+  delay = 1200,
+  botAnswer: boolean
 ) => {
   if (!activeBot) {
     return;
   }
-  setTimeout(() => {
-    dispatch({ type: 'play:cancelOffer' });
-  }, delay);
+
   const prompt =
     'User offer draw. Explain shortly to user that you dont accept offer';
 
@@ -51,16 +121,32 @@ export const botRejectDrawOffer = (
       });
     }
   };
-  sendMessage();
+  if (botAnswer) {
+    setTimeout(() => {
+      dispatch({ type: 'play:cancelOffer' });
+    }, delay);
+    sendMessage();
+  } else {
+    setTimeout(() => {
+      dispatch({ type: 'play:cancelOffer' });
+    }, 2200);
+  }
 };
 
 export const onTakeBackOfferBot = (
   dispatch: DispatchOf<MatchActions>,
-  delay = 1000
+  delay = 1000,
+  accepting: boolean
 ) => {
-  setTimeout(() => {
-    dispatch({ type: 'play:acceptTakeBack' });
-  }, delay);
+  if (accepting) {
+    setTimeout(() => {
+      dispatch({ type: 'play:acceptTakeBack' });
+    }, delay);
+  } else {
+    setTimeout(() => {
+      dispatch({ type: 'play:denyOffer' });
+    }, delay);
+  }
 };
 
 export const botTalkInitiation = (
@@ -74,7 +160,28 @@ export const botTalkInitiation = (
     return;
   }
 
-  if (messages.length == 0 && pgn.length > 15 && pgn.length > 19) {
+  //   if(messages.length == 0){
+  // const prompts = [
+  //   `Hi! I’m your human chess bot ${activeBot.name}. Feel free to chat with me anytime.`,
+  //   `Hey, I’m your human chess bot ${activeBot.name}. Let’s play and talk chess.`,
+  //   `Hi there! I’m your human chess bot ${activeBot.name}... you can talk to me here anytime.`,
+  //   `Welcome! I’m your human chess bot ${activeBot.name}. Ask me anything or just play.`,
+  //   `Hey! I’m your human chess bot ${activeBot.name}. Let’s enjoy some chess together.`
+  // ];
+
+  // const prompt = prompts[Math.floor(Math.random() * prompts.length)];
+
+  //      dispatch({
+  //         type: 'play:sendMessage',
+  //         payload: {
+  //           senderId: activeBot.id,
+  //           content: prompt,
+  //           timestamp: Date.now(),
+  //         },
+
+  //   })
+  // }
+  if (messages.length == 0 && pgn.length > 15 && pgn.length < 19) {
     const pgnToUciMoves = (pgn: string) => {
       const chess = new Chess();
       chess.loadPgn(pgn);
@@ -87,7 +194,7 @@ export const botTalkInitiation = (
     };
     const UciFormat = pgnToUciMoves(pgn);
     const prompt =
-      'give me an interesting opinion about the opening based on the move we played ' +
+      'say hello and give me an interesting opinion about the opening based on the move we played ' +
       UciFormat;
 
     const sendMessage = async () => {
@@ -96,9 +203,12 @@ export const botTalkInitiation = (
         pgn,
         messages,
         activeBot.name,
-        UciFormat,
-        botColor
+        botColor,
+        UciFormat
       );
+      if (content == 'ai_daily_limit_reached') {
+        return;
+      }
 
       //  botVoiceSpeak( content.answer.text,activeBot.name)
 

@@ -23,7 +23,10 @@ export type PlayboardProps = DistributiveOmit<
   onLastMoveWasPromotionChange?: (wasPromotion: boolean) => void;
   stopEngineMove?: boolean;
   botId?: string;
+  botType?: string;
+  userRating?: number;
   canPlay?: boolean;
+  isReview?: boolean;
   overlayComponent?: React.ReactNode;
 };
 
@@ -40,9 +43,12 @@ export const Playboard = ({
   onMove,
   stopEngineMove,
   botId,
+  botType,
+  userRating,
   onLastMoveWasPromotionChange,
   canPlay = false,
   turn,
+  isReview,
   ...props
 }: PlayboardProps) => {
   const boardTheme = useBoardTheme();
@@ -55,13 +61,17 @@ export const Playboard = ({
 
   const onValidateMove = useCallback(
     (move: ShortChessMove) => {
+      if (isReview) {
+        return validateMove(move, fen, playingColor, isReview).valid;
+      }
+   
       if (!canPlay) {
         return false;
       }
       if (turn !== playingColor) {
         return false;
       }
-
+      // console.log('rok',move, fen, playingColor)
       return validateMove(move, fen, playingColor).valid;
     },
     [canPlay, turn, fen, playingColor]
@@ -105,6 +115,8 @@ export const Playboard = ({
       //   setCirclesMap({});
       // }}
       botId={botId}
+      botType={botType}
+      userRating={userRating}
       stopEngineMove={stopEngineMove}
       onLastMoveWasPromotionChange={onLastMoveWasPromotionChange}
     />

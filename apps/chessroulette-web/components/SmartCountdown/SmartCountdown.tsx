@@ -51,8 +51,6 @@ export const SmartCountdown = ({
       // onFinished();
       const random = Math.floor(Math.random() * 1000) + 1;
       setTimeout(() => onFinished(), random);
-      // const random2 = Math.floor(Math.random() * 1000) + 1;
-      // setTimeout(() => setTimeout(() => onFinished(), random2), 1000);
     }
   }, [finished]);
 

@@ -58,9 +58,12 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
   const dispatch = useMatchActionsDispatch();
   const router = useRouter();
   const { lastOffer, playerId } = useGame();
-
-  ////
   const userId = useMovexClient(movexConfig)?.id;
+  const isPlayer =
+    !!userId &&
+    !!match &&
+    (userId === match.challenger.id || userId === match.challengee.id);
+
   const params = useParams<{ roomId: string }>();
 
   const roomId = params.roomId;
@@ -75,6 +78,7 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
     () => movexSubcribersToUserMap(movexResource?.subscribers || {}),
     [movexResource?.subscribers]
   );
+
   useEffect(() => {
     if (
       (match?.status === 'ongoing' && !activeBot) ||
@@ -87,9 +91,11 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
 
   useEffect(() => {
     async function runCheck() {
+      if (isPlayer == false) {
+        return;
+      }
       const result = await checkUser(userId);
-      console.log('Tok', result);
-
+      // console.log('Tok', result);
       if (result == false) {
         console.log('token error');
         if (
@@ -100,6 +106,7 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
           router.push('https://app.outpostchess.com/online-list');
         }
       }
+
       let room = Array(7)
         .fill(0)
         .map(() =>
@@ -137,8 +144,6 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
         title="Match Aborted"
         content={
           <>
-            {/* { (document.referrer.includes('app.outpostchess.com') || document.referrer.includes('localhost:8080') || document.referrer.includes('test-app.outpostchess.com')) && */}
-
             <div className="flex justify-center w-full">
               <Button
                 className="w-3/5 md:w-1/2  "
@@ -171,7 +176,10 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
           <div className="flex flex-col gap-4 items-center">
             <div className="flex  justify-center content-center text-center flex-col">
               <Text>
-                {match[match.winner].id.length == 16 ? (
+                {(match.winner == 'challenger' &&
+                  match.challenger.id == activeBot?.id) ||
+                (match.winner == 'challengee' &&
+                  match.challengee.id == activeBot?.id) ? (
                   <span className="capitalize">
                     {activeBot?.name}
                     {` `}Won{` `}
@@ -189,43 +197,46 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
               {(match[match.winner].id.length !== 16 ||
                 match[match.winner].id.slice(-3) === '000') && (
                 <div className="justify-center items-center flex flex-col">
-                  <Button
-                    icon="ArrowPathRoundedSquareIcon"
-                    bgColor="green"
-                    style={{
-                      marginTop: 18,
-                      minWidth: '160px',
-                    }}
-                    onClick={async () => {
-                      if (playerId) {
-                        if (!isOpponentInRoom) {
-                          try {
-                             if (!alreadyRematch) {
-                              await newRematchRequestInitiate(roomId);
-                             }
-                            setAlreadyRematch(true);
-                          } catch (error) {
-                            console.error(
-                              '❌ Error sending rematch notification:',
-                              error
-                            );
+                  {isPlayer && (
+                    <Button
+                      icon="ArrowPathRoundedSquareIcon"
+                      bgColor="green"
+                      style={{
+                        marginTop: 18,
+                        minWidth: '160px',
+                      }}
+                      onClick={async () => {
+                        if (playerId) {
+                          if (!isOpponentInRoom) {
+                            try {
+                              if (!alreadyRematch) {
+                                await newRematchRequestInitiate(roomId);
+                              }
+                              setAlreadyRematch(true);
+                            } catch (error) {
+                              console.error(
+                                '❌ Error sending rematch notification:',
+                                error
+                              );
+                            }
                           }
-                        } 
-                        dispatch((masterContext) => ({
-                          type: 'play:sendOffer',
-                          payload: {
-                            byPlayer: playerId,
-                            offerType: 'rematch',
-                            timestamp: masterContext.requestAt(),
-                          },
-                        }));
-                      }
-                    }}
-                  >
-                    Rematch
-                  </Button>
+                          dispatch((masterContext) => ({
+                            type: 'play:sendOffer',
+                            payload: {
+                              byPlayer: playerId,
+                              offerType: 'rematch',
+                              timestamp: masterContext.requestAt(),
+                            },
+                          }));
+                        }
+                      }}
+                    >
+                      Rematch
+                    </Button>
+                  )}
+
                   <Link
-                    href={`https://chess.outpostchess.com/room/new/r${room}?activity=aichess&userId=${userId}&theme=op&pgn=${roomId}&instructor=1`}
+                    href={`https://chess.outpostchess.com/room/new/r${room}?activity=review&userId=${userId}&theme=op&pgn=${roomId}`}
                   >
                     <Button
                       icon="MagnifyingGlassIcon"
@@ -240,7 +251,6 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
                       Review
                     </Button>
                   </Link>
-                  {/* { (document.referrer.includes('app.outpostchess.com') || document.referrer.includes('localhost:8080') || document.referrer.includes('test-app.outpostchess.com')) && */}
 
                   <Button
                     icon="ArrowLeftIcon"

@@ -20,7 +20,7 @@ export const PlayControlsContainer = ({
   isMobile,
 }: Props) => {
   const dispatch = usePlayActionsDispatch();
-  const { lastOffer, game, playersBySide, hasGame } =
+  const { lastOffer, game, playersBySide, hasGame, canUserPlay } =
     useCurrentOrPrevMatchPlay();
   const [lastMoveWasPromotion, setLastMoveWasPromotion] = useState(false);
 
@@ -76,6 +76,9 @@ export const PlayControlsContainer = ({
 
   if (!hasGame) {
     return <>WARN| Play Controls Container No Game</>;
+  }
+  if (!canUserPlay || !playersBySide?.home.id) {
+    return null;
   }
 
   return (

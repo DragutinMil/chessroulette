@@ -14,8 +14,9 @@ export function DragAndDrop(props: Props) {
       handleChange={props.onUpload}
       name="file"
       types={props.fileTypes}
-      children={props.children}
       classes={props.className}
-    />
+    >
+      {props.children}
+    </FileUploader>
   );
 }

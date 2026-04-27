@@ -13,6 +13,7 @@ import { Reel } from './components/Reel';
 import { FaceTime, FaceTimeProps } from '../FaceTime';
 import { MyFaceTime } from '../MyFaceTime';
 import { ReelState } from '../../types';
+import { useMatchViewState } from '../../../../modules/Match/hooks/useMatch';
 import {
   AVStreaming,
   getAVStreamingInstance,
@@ -31,6 +32,7 @@ export type MultiFaceTimeCompactProps = {
   camera?: boolean;
   cameraDisable?: () => void;
   width?: number;
+
   containerClassName?: string;
   isExpanded?: boolean;
   onToggleExpand?: () => void;
@@ -79,23 +81,37 @@ export const MultiFaceTimeCompact: React.FC<MultiFaceTimeCompactProps> = ({
     AVStreaming['activeConstraints'] | null
   >(null);
   const [videoPermission, setVideoPermission] = useState(false);
-
+  const { userAsPlayer } = useMatchViewState();
   const [isReady, setIsReady] = useState(false);
   const isMobile = window.innerWidth < 1000;
-  useEffect(() => {
-    const initial = {
-      ...avStreaminginstance.activeConstraints,
-      video: isMobile ? false : avStreaminginstance.activeConstraints.video,
-      audio: isMobile ? false : avStreaminginstance.activeConstraints.audio,
-    };
-    setMyFaceTimeConstraints(initial);
-    avStreaminginstance.updateConstraints(initial);
 
-    return avStreaminginstance.pubsy.subscribe(
-      'onUpdateConstraints',
-      setMyFaceTimeConstraints
-    );
-  }, [avStreaminginstance]);
+  useEffect(() => {
+    if (userAsPlayer) {
+      const initial = {
+        ...avStreaminginstance.activeConstraints,
+        video: isMobile ? false : avStreaminginstance.activeConstraints.video,
+        audio: isMobile ? false : avStreaminginstance.activeConstraints.audio,
+      };
+      setMyFaceTimeConstraints(initial);
+      avStreaminginstance.updateConstraints(initial);
+      return avStreaminginstance.pubsy.subscribe(
+        'onUpdateConstraints',
+        setMyFaceTimeConstraints
+      );
+    } else {
+      const initial = {
+        ...avStreaminginstance.activeConstraints,
+        video: false,
+        audio: false,
+      };
+      setMyFaceTimeConstraints(initial);
+      avStreaminginstance.updateConstraints(initial);
+      return avStreaminginstance.pubsy.subscribe(
+        'onUpdateConstraints',
+        setMyFaceTimeConstraints
+      );
+    }
+  }, [userAsPlayer]);
   //console.log('myFaceTimeConstraints',myFaceTimeConstraints)
   const onStreamConfigChange = (value: boolean) => {
     setVideoPermission(value);

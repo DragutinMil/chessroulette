@@ -13,7 +13,7 @@ import useDebouncedEffect from 'use-debounced-effect';
 
 export type ImportedInput =
   | { type: 'FEN'; val: ChessFEN }
-  | { type: 'PGN'; val: ChessPGN };
+  | { type: 'PGN'; val: ChessPGN; position?: [number, number] };
 
 export type PgnInputBoxProps = {
   onChange: (p: ImportedInput) => void;
@@ -83,8 +83,9 @@ export const PgnInputBox: React.FC<PgnInputBoxProps> = ({
           fileData.readAsText(f);
         }}
       >
-        <div className="sborder p-2 sborder-dashed rounded-md cursor-pointer text-sm">
-          Upload or Drop a PGN or FEN File
+        <div className="sborder p-2 sborder-dashed rounded-md cursor-pointer text-sm ">
+          Upload or Drop a PGN
+          {/* or FEN File */}
         </div>
       </DragAndDrop>
     );

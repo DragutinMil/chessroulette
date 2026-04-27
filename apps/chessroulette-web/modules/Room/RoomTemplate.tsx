@@ -27,12 +27,12 @@ export const RoomTemplate = (props: Props) => {
       className={`
     flex
     h-screen w-screen
-    ${props.activity === 'match' ? 'fixed top-0 left-0' : 'relative'}
+    ${props.activity === 'match' ? 'fixed top-0 left-0' : 'fixed top-0 left-0'}
   `}
       style={{
         background: isOutpost
           ? 'linear-gradient(112.99deg, #07DA63 -68.31%, #000000 23.1%, #01160A 73.92%, #06B251 154.15%)'
-          : '#161A2B',
+          : 'linear-gradient(112.99deg, #07DA63 -68.31%, #000000 23.1%, #01160A 73.92%, #06B251 154.15%)',
       }}
     >
       <div className="flex flex-col flex-1 ">
@@ -44,19 +44,22 @@ export const RoomTemplate = (props: Props) => {
            mb-0 md:mb-[max(env(safe-area-inset-right),2rem)]
            md:mt-2
            mt-0
-           flex-1 relative overflow-hidden ${props.contentClassname}`}
+           flex-1 relative overflow-hidden  ${props.contentClassname}`}
         >
           <div className="absolute inset-0">{props.children}</div>
         </div>
       </div>
       <menu
-        className={`${
-          props.activity === 'match' ||
-          props.activity === 'aichess' ||
-          props.activity === 'ailearn'
-            ? 'md:hidden'
-            : 'md:block'
-        }  hidden  bg-indigo-1300 flex-0 flex flex-col p-2 `}
+        className={`
+          ${
+            props.activity === 'match' ||
+            props.activity === 'review' ||
+            props.activity === 'puzzle' ||
+            props.activity === 'ailearn'
+              ? 'md:hidden'
+              : 'md:block'
+          } 
+         hidden  bg-indigo-1300 flex-0 flex flex-col p-2 `}
       >
         <OnboardingWidget session={props.session} />
         <div className="pb-6 border-b border-slate-500 mb-4 " />

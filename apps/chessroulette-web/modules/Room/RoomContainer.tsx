@@ -12,6 +12,7 @@ import {
   useMovexClient,
 } from 'movex-react';
 import movexConfig from '@app/movex.config';
+
 import {
   IceServerRecord,
   PeerUsersMap,
@@ -23,9 +24,8 @@ import { PeerStreamingProvider } from '@app/modules/PeerToPeer';
 import { ActivityState } from './activities/movex';
 import { LearnActivity } from './activities/Learn';
 import { LearnAiActivity } from './activities/LearnAi/LearnAiActivity';
-
-import { AichessActivity } from './activities/Aichess/AichessActivity';
-
+import { PuzzleActivity } from './activities/Puzzle/PuzzleActivity';
+import { ReviewActivity } from './activities/Review/ReviewActivity';
 import { MeetupActivity } from './activities/Meetup/MeetupActivity';
 import { MatchActivity } from './activities/Match/MatchActivity';
 import { useSearchParams } from 'next/navigation';
@@ -33,7 +33,7 @@ import { ChallengeNotification } from '@app/components/ChallengeNotification/Cha
 import socketUtil from '../../socketUtil';
 import { useState, useEffect } from 'react';
 import { ChallengeAcceptedNotification } from '@app/components/ChallengeAcceptedNotification/ChallengeAcceptedNotification';
-
+import { useMatchViewState } from '../../modules/Match/hooks/useMatch';
 type Props = {
   rid: ResourceIdentifier<'room'>;
   iceServers: IceServerRecord[];
@@ -44,6 +44,7 @@ export const RoomContainer = ({ iceServers, rid, activity }: Props) => {
   const movex = useMovex(movexConfig);
   const movexResource = useMovexBoundResourceFromRid(movexConfig, rid);
   const userId = useMovexClient(movexConfig)?.id;
+
   const participants = useMemo(
     () => movexSubcribersToUserMap(movexResource?.subscribers || {}),
     [movexResource?.subscribers]
@@ -77,6 +78,10 @@ export const RoomContainer = ({ iceServers, rid, activity }: Props) => {
     // Poveži se na socket sa statusom 'available'
 
     const handleChallengeNotification = (data: any) => {
+      if (data?.data?.ch_amount !== 0) {
+        return;
+      }
+
       const isChallengeNotification =
         data.n_type === 'challenge_initiated' ||
         data.ch_uuid ||
@@ -102,7 +107,7 @@ export const RoomContainer = ({ iceServers, rid, activity }: Props) => {
         const chUuid =
           data.data?.ch_uuid || data.ch_uuid || data.challenge_uuid;
 
-        console.log('🔍 Extracted chUuid:', chUuid);
+        // console.log('🔍 Extracted chUuid:', chUuid);
 
         if (!chUuid) {
           console.error('❌ ERROR: No ch_uuid found in notification data!');
@@ -147,14 +152,21 @@ export const RoomContainer = ({ iceServers, rid, activity }: Props) => {
       // }
     };
 
-    // Pretplati se na notifikacije
-    // console.log('📡 Subscribing to tb_notification...');
-    socketUtil.subscribe('tb_notification', handleChallengeNotification);
+    const Socketinitiation = async () => {
+      if (window.location.href.includes('review')) {
+        await socketUtil.connect('reviewing');
+      } else if (window.location.href.includes('puzzle')) {
+        await socketUtil.connect('puzzle');
+      }
 
-    // Cleanup
+      setTimeout(() => {
+        socketUtil.subscribe('tb_notification', handleChallengeNotification);
+      }, 5000);
+    };
+    Socketinitiation();
     return () => {
-      // console.log('🧹 Cleaning up socket subscription...');
       socketUtil.unsubscribe('tb_notification', handleChallengeNotification);
+      socketUtil.disconnect();
     };
   }, []);
 
@@ -174,11 +186,12 @@ export const RoomContainer = ({ iceServers, rid, activity }: Props) => {
           },
         };
 
-        // Proveri da li je korisnik u match, aichess, ili ailearn aktivnosti
         const currentActivity = movexResource?.state?.activity?.activityType;
         const shouldShowNotification =
           // currentActivity === 'match' ||
-          currentActivity === 'aichess' || currentActivity === 'ailearn';
+          currentActivity === 'ailearn' ||
+          currentActivity === 'review' ||
+          currentActivity === 'puzzle';
 
         if (shouldShowNotification && challengeAcceptedData.from_user_object) {
           setChallengeAcceptedNotification(challengeAcceptedData);
@@ -186,7 +199,9 @@ export const RoomContainer = ({ iceServers, rid, activity }: Props) => {
       }
     };
 
-    socketUtil.subscribe('tb_notification', handleChallengeAccepted);
+    setTimeout(() => {
+      socketUtil.subscribe('tb_notification', handleChallengeAccepted);
+    }, 5000);
 
     return () => {
       socketUtil.unsubscribe('tb_notification', handleChallengeAccepted);
@@ -262,9 +277,19 @@ export const RoomContainer = ({ iceServers, rid, activity }: Props) => {
         />
       );
     }
-    if (activity.activityType === 'aichess') {
+    if (activity.activityType === 'puzzle') {
       return (
-        <AichessActivity
+        <PuzzleActivity
+          {...commonActivityProps}
+          remoteState={activity.activityState}
+          dispatch={movexResource?.dispatch}
+        />
+      );
+    }
+
+    if (activity.activityType === 'review') {
+      return (
+        <ReviewActivity
           {...commonActivityProps}
           remoteState={activity.activityState}
           dispatch={movexResource?.dispatch}
@@ -324,9 +349,9 @@ export const RoomContainer = ({ iceServers, rid, activity }: Props) => {
             }}
           />
         )}
-        {/* Dodajte ChallengeAcceptedNotification za match, aichess, i ailearn */}
+        {/* Dodajte ChallengeAcceptedNotification za match, i ailearn */}
         {(activity === 'match' ||
-          activity === 'aichess' ||
+          activity === 'review' ||
           activity === 'ailearn') && (
           <ChallengeAcceptedNotification
             challenge={challengeAcceptedNotification}

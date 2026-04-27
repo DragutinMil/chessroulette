@@ -46,6 +46,7 @@ type Props = {
   onMove: (m: ShortChessMove) => void;
   onPreMove?: (m: ShortChessMove) => void;
   onValidateMove: (m: ShortChessMove) => boolean;
+  botType?: string;
   // onValidatePromoMove: (m: ShortChessMove) => boolean;
   // onValidatePreMove: (m: ShortChessMove) => boolean;
   // onSquareClickOrDrag?: () => void;
@@ -59,6 +60,7 @@ export const useMoves = ({
   onPreMove,
   onValidateMove,
   isSquareEmpty,
+  botType,
 }: // onValidatePromoMove,
 // onValidatePreMove,
 // onSquareClickOrDrag,
@@ -73,8 +75,9 @@ Props): MoveActions => {
 
   const [lastMoveWasPromotion, setLastMoveWasPromotion] = useState(false); // Dodajte ovo
 
-  const [premoveAnimationDelay] = useState(0);
-  // pre move
+   const [premoveAnimationDelay] = useState(
+  botType === 'matchFake' ? 200 : 0
+);
   const allowsPremoves = !!onPreMove;
 
   const currentPlayer = playingColor === 'w' ? 'white' : 'black';
@@ -107,6 +110,7 @@ Props): MoveActions => {
     square: Square;
     pieceSan?: PieceSan;
   }) => {
+    // console.log('clickdrag')
     const piece = pieceSan ? pieceSanToPiece(pieceSan) : undefined;
     const isMyPiece = piece?.color === playingColor;
     const currentMoves = getCurrentMoves();
@@ -202,19 +206,23 @@ Props): MoveActions => {
       // Case 4: Drag my piece to start premove
       if (!currentMoves.preMove && piece && isMyPiece) {
         setPreMove({ from: square, piece });
-
         return;
       }
 
       if (currentMoves.preMove) {
         // Cancel premove if clicking same square
 
-        if (currentMoves.preMove.from === square) {
+        if (
+          currentMoves.preMove.from === square ||
+          (currentMoves.preMove.from && currentMoves.preMove.to)
+        ) {
           setPreMove(undefined);
           return;
         }
+        // Change premove piece if clicking different piece
 
         // Case 2: Complete premove by clicking destination
+
         if (!piece || piece.color !== playingColor) {
           const completedPreMove = {
             ...currentMoves.preMove,
@@ -249,9 +257,16 @@ Props): MoveActions => {
           return;
         }
 
-        // Change premove piece if clicking different piece
+        //premove to my piece
+        // console.log(piece,isMyPiece)
         if (piece && isMyPiece) {
-          setPreMove({ from: square, piece });
+          const completedPreMove = {
+            ...currentMoves.preMove,
+            to: square,
+          };
+          setPreMove(completedPreMove);
+
+          //  setPreMove({ from: square, piece });
           return;
         }
       }
@@ -301,6 +316,7 @@ Props): MoveActions => {
 
   const onMoveIfValid = (m: ShortChessMove): Result<void, void> => {
     if (onValidateMove(m)) {
+     
       onMove(m);
       return Ok.EMPTY;
     }

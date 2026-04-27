@@ -1,10 +1,4 @@
-import React, {
-  useCallback,
-  useEffect,
-  useState,
-  useMemo,
-  useRef,
-} from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import {
   ChessFEN,
   PieceSan,
@@ -24,6 +18,7 @@ import { ChessboardDisplay, ChessboardDisplayProps } from './ChessboardDisplay';
 import { useMoves } from './hooks/useMoves';
 import StockFishEngine from '@app/modules/ChessEngine/ChessEngineBots';
 import { useMatchViewState } from '../../../modules/Match/hooks/useMatch';
+
 import { boolean } from 'zod';
 
 export type ChessboardContainerProps = Omit<
@@ -53,6 +48,8 @@ export type ChessboardContainerProps = Omit<
   containerClassName?: string;
   stopEngineMove?: boolean;
   botId?: string;
+  botType?: string;
+  userRating?: number;
   onLastMoveWasPromotionChange?: (wasPromotion: boolean) => void;
   onPieceDrop?: (from: Square, to: Square, piece?: string) => void;
   onArrowsChange?: (arrows: ArrowsMap) => void;
@@ -101,6 +98,8 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
   boardOrientation = 'w',
   stopEngineMove,
   botId,
+  botType,
+  userRating,
   onLastMoveWasPromotionChange,
   rightSideComponent,
   rightSideSizePx = 0,
@@ -121,10 +120,12 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
     null
   );
 
+  const botColor =
+    match?.gameInPlay?.players.w == botId
+      ? 'w'
+      : match?.gameInPlay?.players.b == botId && 'b';
   const arrowAndCircleColor = useArrowAndCircleColor();
   const arrows = useCustomArrows(onArrowsChange, props.arrowsMap);
-  //console.log('arrows', arrows);
-
   // useEffect(() => {
   //   setBots(
   //     match?.challengee?.id?.length === 16 ||
@@ -158,6 +159,7 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
     onMove,
     onPreMove: onMove,
     isSquareEmpty,
+    botType,
     // Event to reset the circles and arrows when any square is clicked or dragged
     // onSquareClickOrDrag: resetArrowsAndCircles,
   });
@@ -180,6 +182,7 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
       }
     }
   }, [stopEngineMove]);
+
   const engineMove = useCallback(
     (m: any) => {
       const from = m.slice(0, 2);
@@ -191,23 +194,50 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
           onMove({ from, to, promoteTo: promo });
         }, 2000);
       } else {
-        if (
-          match?.challengee.id.slice(-3) === '000' ||
-          match?.challenger.id.slice(-3) === '000'
-        ) {
-          let randomDelay;
-          if (match.gameInPlay?.timeClass.includes('blitz')) {
-            randomDelay = (min = 0, max = 4000) =>
-              Math.floor(Math.random() * (max - min + 1)) + min;
-          } else if (match.gameInPlay?.timeClass.includes('bullet')) {
-            randomDelay = (min = 0, max = 2000) =>
-              Math.floor(Math.random() * (max - min + 1)) + min;
-          } else
-            randomDelay = (min = 0, max = 5000) =>
-              Math.floor(Math.random() * (max - min + 1)) + min;
-          engineMoveTimeoutRef.current = setTimeout(() => {
-            onMove({ from, to });
-          }, randomDelay());
+        if (match && (botType == 'botelja' || botType == 'matchFake')) {
+          const getRandom = (min: number, max: number) =>
+            Math.floor(Math.random() * (max - min + 1)) + min;
+
+          if (match && (botType === 'botelja' || botType === 'matchFake')) {
+            const pgn = match.gameInPlay?.pgn || '';
+            const moveCount = pgn ? pgn.split(' ').length : 0;
+            const timeClass = match.gameInPlay?.timeClass || '';
+
+            let min = 600;
+            let max = 1300;
+            // Early game
+            if (moveCount < 20) {
+              min = 600;
+              max = 1300;
+            }
+            // Bullet
+            else if (timeClass.includes('bullet')) {
+              min = 600;
+              max = 3000;
+            }
+            // Blitz
+            else if (timeClass.includes('blitz')) {
+              min = 600;
+              max = 4500;
+            }
+            // Default
+            else {
+              min = 700;
+              max = 6000;
+            }
+
+            // Late game override
+            if (moveCount > 100 && !timeClass.includes('bullet')) {
+              min = 1500;
+              max = 5000;
+            }
+
+            const delay = getRandom(min, max);
+
+            engineMoveTimeoutRef.current = setTimeout(() => {
+              onMove({ from, to });
+            }, delay);
+          }
         } else {
           onMove({ from, to });
         }
@@ -225,8 +255,11 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
       {botId && (
         <StockFishEngine
           bot={botId}
+          userRating={userRating}
+          botType={botType}
           fen={fen}
           isMyTurn={isMyTurn}
+          botColor={botColor}
           engineMove={engineMove}
         />
       )}

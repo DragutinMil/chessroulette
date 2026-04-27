@@ -87,4 +87,5 @@ export type ActiveBot = {
   lastName: string;
   name: string;
   picture: string;
+  botType: string;
 } | null;

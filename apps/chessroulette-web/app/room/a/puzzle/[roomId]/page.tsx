@@ -4,12 +4,12 @@ import { RoomPage } from '@app/modules/Room/RoomPage';
 import { metadata as rootMetadata } from '../../../../page';
 
 export const metadata: Metadata = {
-  title: `Room | ${rootMetadata.title}`,
+  title: `Puzzle | ${rootMetadata.title}`,
 };
 
 export default async function Page(props: {
   params: StringRecord;
   searchParams: Partial<{ theme: string }>;
 }) {
-  return <RoomPage activity="aichess" {...props} />;
+  return <RoomPage activity="puzzle" {...props} />;
 }

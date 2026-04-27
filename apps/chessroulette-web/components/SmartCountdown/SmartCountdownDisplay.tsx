@@ -39,6 +39,7 @@ export const SmartCountdownDisplay = ({
         typeof window !== 'undefined' ? new Audio('/warning.mp3') : null;
       if (audio) {
         audio.currentTime = 0; // reset
+        audio.play().catch(() => {});
         hasPlayedSoundInThisCycleRef.current = true; // Označi da je zvuk reprodukovan u ovom ciklusu
       }
     }

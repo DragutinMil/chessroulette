@@ -2,7 +2,7 @@ import { MouseEvent } from 'react';
 import { Text } from '../../Text';
 import { ChessMoveSan } from '@xmatter/util-kit';
 import { VariantMenuContainer, VariantMenuProps } from './VariantMenu';
-import { isMobile } from '@app/modules/Room/activities/Aichess/util';
+import { isMobile } from '@app/modules/Room/activities/Review/util';
 
 type Props = {
   isFocused: boolean;

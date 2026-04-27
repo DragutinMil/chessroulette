@@ -24,15 +24,19 @@ export const learnActivityParamsSchema = z.object({
   // Learn Activity Settings
   instructor: truthyParam.optional(),
 });
-export const aichessActivityParamsSchema = z.object({
-  activity: z.literal('aichess'), // This will be more in the future like play or others
-  instructor: truthyParam.optional(),
-});
+
 export const learnAiActivityParamsSchema = z.object({
   activity: z.literal('ailearn'), // This will be more in the future like play or others
   instructor: truthyParam.optional(),
 });
-
+export const puzzleActivityParamsSchema = z.object({
+  activity: z.literal('puzzle'), // This will be more in the future like play or others
+  instructor: truthyParam.optional(),
+});
+export const reviewActivityParamsSchema = z.object({
+  activity: z.literal('review'), // This will be more in the future like play or others
+  instructor: truthyParam.optional(),
+});
 export type LearnActivityParamsSchema = z.TypeOf<
   typeof learnActivityParamsSchema
 >;
@@ -47,8 +51,9 @@ export const activityParamsSchema = z
     learnActivityParamsSchema,
     meetupActivityParamsSchema,
     matchActivityParamsSchema,
-    aichessActivityParamsSchema,
     learnAiActivityParamsSchema,
+    puzzleActivityParamsSchema,
+    reviewActivityParamsSchema,
   ])
   .and(generalActivityParamsSchema);
 

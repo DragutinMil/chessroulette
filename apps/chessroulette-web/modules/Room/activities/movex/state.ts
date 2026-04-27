@@ -1,8 +1,9 @@
 import { initialLearnActivityState } from '../Learn/movex';
 import { initialMatchActivityState } from '../Match/movex';
 import { initialMeetupActivityState } from '../Meetup/movex';
-import { initialAichessActivityState } from '../Aichess/movex';
 import { initialLearnAiActivityState } from '../LearnAi/movex';
+import { initialPuzzleActivityState } from '../Puzzle/movex';
+import { initialReviewActivityState } from '../Review/movex';
 import { ActivityState } from './types';
 
 export const initialNoneActivityState = {
@@ -22,6 +23,7 @@ export const initialActivityStatesByActivityType: {
   learn: initialLearnActivityState,
   meetup: initialMeetupActivityState,
   match: initialMatchActivityState,
-  aichess: initialAichessActivityState,
   ailearn: initialLearnAiActivityState,
+  puzzle: initialPuzzleActivityState,
+  review: initialReviewActivityState,
 };

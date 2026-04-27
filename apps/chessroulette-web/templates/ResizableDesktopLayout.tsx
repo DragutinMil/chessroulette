@@ -75,7 +75,7 @@ export const ResizableDesktopLayout = ({
       <PanelGroup
         autoSaveId="desktop-room-layout" // TODO should this be dyanmic?
         direction={isMobile ? 'vertical' : 'horizontal'}
-        className="relative"
+        className="relative "
       >
         {/* <div className="absolute bg-red-900 p-2" style={{ right: 0, zIndex: 999}}>{negativeMargin}</div> */}
         {isMobile ? (
