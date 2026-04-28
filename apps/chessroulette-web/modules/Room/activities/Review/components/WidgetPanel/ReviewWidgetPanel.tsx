@@ -32,7 +32,7 @@ import ConversationReview from './GameReview/ConversationReview';
 
 import { Square, Chess } from 'chess.js';
 import StockFishEngineAI from '@app/modules/ChessEngine/ChessEngineAI';
-import { analyzePGN } from '@app/modules/ChessEngine/ChessEngineReviewMatch';
+import { analyzePGN, reviewMetrics } from '@app/modules/ChessEngine/ChessEngineReviewMatch';
 import { ChaptersTabProps } from '../../chapters/ChaptersTab';
 import { useWidgetPanelTabsNavAsSearchParams } from '../useWidgetPanelTabsNav';
 
@@ -53,7 +53,6 @@ type Props = {
   chaptersMap: Record<Chapter['id'], Chapter>;
   chaptersMapIndex: number;
   currentChapterState: ChapterState;
-  onPuzzleMove: (move: MovePiece) => void;
   onMove: (move: MovePiece) => void;
   onTakeBack: FreeBoardNotationProps['onRefocus'];
   onCircleDraw: (tuple: CircleDrawTuple) => void;
@@ -108,7 +107,6 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
       onTakeBack,
       onCircleDraw,
       onArrowsChange,
-      onPuzzleMove,
       onMove,
       addChessAi,
       onMessage,
@@ -452,6 +450,7 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
     };
 
     const analizeMatch = async () => {
+      reviewMetrics()
       historyBackToStart();
       setPulseDot(true);
       const data = await analyzePGN(
@@ -497,6 +496,7 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
           },
         });
       }
+    
     };
     const handleGameEvaluation = (newScore: number) => {
       setprevScoreCP(scoreCP);

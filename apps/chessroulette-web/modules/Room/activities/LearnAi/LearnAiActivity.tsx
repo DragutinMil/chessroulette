@@ -43,7 +43,10 @@ export const LearnAiActivity = ({
   remoteState,
   dispatch: optionalDispatch,
 }: Props) => {
-  const moveSound = new Audio('/chessmove.mp3');
+  const moveSoundRef = useRef<HTMLAudioElement | null>(null);
+  if (!moveSoundRef.current) {
+  moveSoundRef.current = new Audio('/chessmove.mp3');
+}
   const dispatch = optionalDispatch || noop;
   const [cameraOff, setCameraOff] = useState(false);
   const [newReview, setNewReview] = useState(true);
@@ -161,7 +164,7 @@ export const LearnAiActivity = ({
                   )
                 }
                 onPuzzleMove={async (payload) => {
-                  moveSound.play();
+                   moveSoundRef.current?.play();
                   await enqueueMovexUpdate(() =>
                     dispatch({ type: 'loadedChapter:addPuzzleMove', payload })
                   );
@@ -196,7 +199,7 @@ export const LearnAiActivity = ({
                     });
                   }}
                   onMove={async (payload) => {
-                    moveSound.play();
+                     moveSoundRef.current?.play();
                     await enqueueMovexUpdate(() =>
                       dispatch({ type: 'loadedChapter:addMove', payload })
                     );
@@ -344,7 +347,7 @@ export const LearnAiActivity = ({
               );
             }}
             onMove={async (payload) => {
-              moveSound.play();
+               moveSoundRef.current?.play();
               await enqueueMovexUpdate(() =>
                 dispatch({ type: 'loadedChapter:addMove', payload })
               );

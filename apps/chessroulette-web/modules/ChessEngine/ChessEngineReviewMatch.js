@@ -1,5 +1,6 @@
 import { Chess } from 'chess.js';
 import { getStockfishWorker } from './stockfishWorker.js';
+import Cookies from 'js-cookie';
 export async function analyzePGN(pgn, { onProgress } = {}, isMobile) {
   // ✅ 1. Kreiramo Stockfish Web Worker
   const stockfish = getStockfishWorker();
@@ -67,6 +68,26 @@ export async function analyzePGN(pgn, { onProgress } = {}, isMobile) {
   return results;
 }
 
+
+export async function reviewMetrics() {
+  console.log('trtamiko')
+  const token = Cookies.get('sessionToken');
+  try {
+    const response = await fetch(
+      process.env.NEXT_PUBLIC_API_WEB + `review_metrics`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+           Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+  } catch (error) {
+    console.error('Fetch error', error);
+  }
+}
 /**
  * Pošalji komandu Stockfish-u
  */
