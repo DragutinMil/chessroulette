@@ -307,8 +307,11 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
         // squareRenderer={ChessboardSquare}
         // onMouseOverSquare={setHoveredSquare}
         // Arrows
-        arrowColor={arrowAndCircleColor} //sklonjeno u deo arrowOptions
+
+        // displayArrows={arrows.arrowsToRender}
+        // onArrowsChange={onArrowsChange}
         onArrowsChange={arrows.arrowsToRender}
+        arrowColor={arrowAndCircleColor} //sklonjeno u deo arrowOptions
         // circles
         // onSquareRightClick={drawCircle}
         {...props}

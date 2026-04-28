@@ -304,6 +304,86 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
     };
   }
 
+  if (action.type === 'loadedChapter:deleteHistoryMove') {
+    const prevChapter = findLoadedChapter(prev.activityState);
+
+    if (!prevChapter) {
+      console.error('No loaded chapter');
+      return prev;
+    }
+
+    const [slicedHistory, lastIndexInSlicedHistory] =
+      FreeBoardHistory.sliceHistory(
+        prevChapter.notation.history,
+        action.payload
+      );
+    const nextHistory = FreeBoardHistory.removeTrailingNonMoves(slicedHistory);
+    const nextIndex = FreeBoardHistory.findNextValidMoveIndex(
+      nextHistory,
+      FreeBoardHistory.incrementIndex(lastIndexInSlicedHistory),
+      'left'
+    );
+
+    const fenBoard = new ChessFENBoard(prevChapter.notation.startingFen);
+    nextHistory.forEach((turn) => {
+      turn.forEach((m) => {
+        if (m.isNonMove) {
+          return;
+        }
+        fenBoard.move(m);
+      });
+    });
+    const nextFen = fenBoard.fen;
+
+    const nextChapter: Chapter = {
+      ...prevChapter,
+      displayFen: nextFen,
+      circlesMap: {},
+      arrowsMap: {},
+      notation: {
+        ...prevChapter.notation,
+        history: nextHistory,
+        focusedIndex: nextIndex,
+      },
+    };
+
+    return {
+      ...prev,
+      activityState: {
+        ...prev.activityState,
+        chaptersMap: {
+          ...prev.activityState.chaptersMap,
+          [nextChapter.id]: nextChapter,
+        },
+      },
+    };
+  }
+
+  if (action.type === 'loadedChapter:setOrientation') {
+    const prevChapter = findLoadedChapter(prev.activityState);
+
+    if (!prevChapter) {
+      console.error('No loaded chapter');
+      return prev;
+    }
+
+    const nextChapter: Chapter = {
+      ...prevChapter,
+      orientation: action.payload.color,
+    };
+
+    return {
+      ...prev,
+      activityState: {
+        ...prev.activityState,
+        chaptersMap: {
+          ...prev.activityState.chaptersMap,
+          [nextChapter.id]: nextChapter,
+        },
+      },
+    };
+  }
+  
   if (action.type === 'loadedChapter:setArrows') {
     const prevChapter = findLoadedChapter(prev.activityState);
 

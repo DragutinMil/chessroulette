@@ -1,7 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Button } from '@app/components/Button';
 import { ButtonGreen } from '@app/components/Button/ButtonGreen';
 import { Message } from '../../movex';
+import {parseMessageMoves} from '../../util';
+import { FreeBoardNotationProps } from '@app/components/FreeBoardNotation';
 
 interface TypewriterTextProps {
   lastMessage: string;
@@ -10,6 +12,9 @@ interface TypewriterTextProps {
   playNext: () => void;
   hint: () => void;
   onSelectRating: (category: number) => void;
+  onSelectLearnMode?: (mode: 'opening' | 'midgame' | 'endgame') => void;
+  onHistoryNotationRefocus?: FreeBoardNotationProps['onRefocus'];
+  notationHistoryLength?: number;
 }
 const TypewriterText: React.FC<TypewriterTextProps> = ({
   lastMessage = '',
@@ -17,8 +22,10 @@ const TypewriterText: React.FC<TypewriterTextProps> = ({
   takeBack,
   playNext,
   hint,
-
   onSelectRating,
+  onSelectLearnMode,
+  onHistoryNotationRefocus,   
+  notationHistoryLength = 0,  
 }) => {
   const [displayedText, setDisplayedText] = useState('');
   const [showCursor, setShowCursor] = useState(true);
@@ -68,10 +75,39 @@ const TypewriterText: React.FC<TypewriterTextProps> = ({
     scrollToBottom();
   }, [displayedText.length]);
 
+  const segments = useMemo(() => parseMessageMoves(lastMessage), [lastMessage]);
+  const L = displayedText.length;
+
   return (
-    <div>
-      <p className="text-left whitespace-pre-wrap">
-        {displayedText.replace(/undefined/g, '')}
+  <div className="min-w-0">
+<p className="text-left whitespace-pre-wrap break-words leading-relaxed">          {segments.map((seg, i) => {
+          if (seg.end <= L) {
+            if (seg.type === 'move' && onHistoryNotationRefocus) {
+              const pairIndex = Math.min(
+                seg.moveNumber - 1,
+                Math.max(0, notationHistoryLength - 1)
+              );
+              return (
+                <button
+                  key={i}
+                  type="button"
+                  className="underline cursor-pointer hover:bg-white/10 rounded px-0.5 -mx-0.5"
+                  onClick={() => onHistoryNotationRefocus([pairIndex, seg.colorIdx] as Parameters<FreeBoardNotationProps['onRefocus']>[0])}                >
+                  {seg.value}
+                </button>
+              );
+            }
+            return <React.Fragment key={i}>{seg.value}</React.Fragment>;
+          }
+          if (seg.start < L) {
+            return (
+              <React.Fragment key={i}>
+                {displayedText.slice(seg.start, L)}
+              </React.Fragment>
+            );
+          }
+          return null;
+        })}
         {showCursor && <span className="animate-pulse">|</span>}
       </p>
 
@@ -107,7 +143,37 @@ const TypewriterText: React.FC<TypewriterTextProps> = ({
               {category.label}
             </ButtonGreen>
           ))}
+
+          
       </div>
+      {lastMessage.includes('What would you like to learn today?') &&
+  displayedText.length === lastMessage.length && (
+  <div className="flex flex-wrap items-center gap-2 mt-3">
+    <ButtonGreen
+      onClick={() => onSelectLearnMode?.('opening')}
+      size="md"
+      className="font-bold mt-2 px-3 mr-2 whitespace-nowrap"
+    >
+      Openings ✅
+    </ButtonGreen>
+    <ButtonGreen
+      size="md"
+      disabled
+      className="font-bold mt-2 px-3 mr-2 whitespace-nowrap opacity-60 cursor-not-allowed"
+      title="Coming soon"
+    >
+      Midgame 🔒
+    </ButtonGreen>
+    <ButtonGreen
+      size="md"
+      disabled
+      className="font-bold mt-2 px-3 mr-2 whitespace-nowrap opacity-60 cursor-not-allowed"
+      title="Coming soon"
+    >
+      Endgame 🔒
+    </ButtonGreen>
+  </div>
+)}
     </div>
   );
 };
