@@ -166,7 +166,7 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
   // TODO: Here we should just check the match.status
 
   if (
-    match?.winner &&
+    match?.status === 'complete' &&
     (lastOffer?.type !== 'rematch' || lastOffer?.status !== 'pending')
   ) {
     return (
@@ -176,10 +176,12 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
           <div className="flex flex-col gap-4 items-center">
             <div className="flex  justify-center content-center text-center flex-col">
               <Text>
-                {(match.winner == 'challenger' &&
-                  match.challenger.id == activeBot?.id) ||
-                (match.winner == 'challengee' &&
-                  match.challengee.id == activeBot?.id) ? (
+                {match.winner === null ? (
+                  <span className="capitalize">Match ended in a Draw! 🤝</span>
+                ) : (match.winner == 'challenger' &&
+                    match.challenger.id == activeBot?.id) ||
+                  (match.winner == 'challengee' &&
+                    match.challengee.id == activeBot?.id) ? (
                   <span className="capitalize">
                     {activeBot?.name}
                     {` `}Won{` `}
@@ -194,8 +196,7 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
                   </span>
                 )}
               </Text>
-              {(match[match.winner].id.length !== 16 ||
-                match[match.winner].id.slice(-3) === '000') && (
+              {activeBot?.botType!=='basic' && (
                 <div className="justify-center items-center flex flex-col">
                   {isPlayer && (
                     <Button
