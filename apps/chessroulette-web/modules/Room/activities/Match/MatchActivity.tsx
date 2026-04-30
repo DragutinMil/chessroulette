@@ -34,6 +34,7 @@ export const MatchActivity = ({
       dispatch={dispatch || noop}
       match={populatedMatch}
       inviteLink={joinRoomLink}
+      participants={participants}
       rightSideSizePx={RIGHT_SIDE_SIZE_PX}
       rightSideClassName="flex flex-col"
       rightSideComponent={

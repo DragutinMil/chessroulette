@@ -1,7 +1,7 @@
 import { DispatchOf, DistributivePick } from '@xmatter/util-kit';
 import { useEffect, useState, useRef } from 'react';
 import { GameNotationWidget } from '@app/modules/Game/widgets';
-import { UserId } from '@app/modules/User';
+import { UserId, UsersMap } from '@app/modules/User';
 import { ResizableDesktopLayout } from '@app/templates/ResizableDesktopLayout';
 import { PlayContainer, PlayerContainerProps } from './Play/PlayContainer';
 import { MatchActions, MatchState } from './movex';
@@ -40,6 +40,7 @@ type Props = DistributivePick<
   rightSideSizePx: NonNullable<PlayerContainerProps['rightSideSizePx']>; // re-enforcing this
   match: NonNullable<MatchState>;
   userId: UserId;
+  participants?: UsersMap;
   dispatch: DispatchOf<MatchActions>;
   inviteLink?: string;
 };
@@ -48,6 +49,7 @@ export const MatchContainer = ({
   match,
   userId,
   inviteLink,
+  participants,
   dispatch,
   ...boardProps
 }: Props) => {
@@ -60,6 +62,7 @@ export const MatchContainer = ({
         match={match}
         userId={userId}
         inviteLink={inviteLink}
+        participants={participants}
         dispatch={dispatch}
         activeWidget={activeWidget}
         setActiveWidget={setActiveWidget}
@@ -75,6 +78,7 @@ const MatchContainerInner = ({
   match,
   userId,
   inviteLink,
+  participants,
   dispatch,
   activeWidget,
   setActiveWidget,
@@ -356,6 +360,7 @@ const MatchContainerInner = ({
             <MatchStateDisplayContainer
               activeBot={activeBot?.name}
               isPlayer={isPlayer}
+              participants={participants}
             />
           </div>
         </div>
@@ -391,6 +396,8 @@ const MatchContainerInner = ({
                 <MatchStateDisplayContainer
                   activeBot={activeBot?.name}
                   isPlayer={isPlayer}
+                    participants={participants}
+               
                 />
               </div>
             </div>
@@ -502,7 +509,7 @@ const MatchContainerInner = ({
             </div>
 
             <div className="w-full pl-2 pr-2 md:pl-0 md:pr-0 pt-0 pb-0 flex flex-col md:gap-2 gap-2 md:flex-1 min-h-0 rounded-lg shadow-2xl  overflow-y-scroll no-scrollbar fixed bottom-1 left-0 right-0 md:relative md:bottom-auto md:left-auto md:right-auto ">
-              {(match.gameInPlay?.status !== 'idling' || !isMobile) && (
+              {(match.gameInPlay?.status !== 'idling' || !isMobile  ) && (
                 <div
                   style={{
                     backgroundImage:

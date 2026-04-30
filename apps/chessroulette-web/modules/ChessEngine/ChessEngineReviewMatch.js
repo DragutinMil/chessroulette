@@ -70,7 +70,7 @@ export async function analyzePGN(pgn, { onProgress } = {}, isMobile) {
 
 
 export async function reviewMetrics() {
-  console.log('trtamiko')
+ 
   const token = Cookies.get('sessionToken');
   try {
     const response = await fetch(

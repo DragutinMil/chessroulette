@@ -128,7 +128,7 @@ export const Button = React.forwardRef<HTMLButtonElement | null, ButtonProps>(
     return (
       <button
         ref={ref}
-        className={`group  relative  hover:cursor-pointer  !${classes[type]} ${
+        className={`group  relative  hover:cursor-pointer p-1  !${classes[type]} ${
           classes[size]
         } ${
           disabled
