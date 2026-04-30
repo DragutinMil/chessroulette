@@ -117,6 +117,7 @@ export type MessageMoveSegment =
     };
 
     export function buildPgnFromMessageContent(content: string): string | null {
+      console.log('buildPgnFromMessageContent',content)
       const segments = parseMessageMoves(content).filter(
   (s): s is Extract<MessageMoveSegment, { type: 'move' }> => s.type === 'move'
 );
@@ -166,6 +167,7 @@ function pgnToSanList(pgn: string): string[] {
 
 /** Replays moves with chess.js and returns a PGN string with proper SAN (disambiguated). Returns null if replay fails. */
 export function buildLoadablePgnFromIdeas(ideas: string): string | null {
+  console.log('buildLoadablePgnFromIdeas',ideas)
   const rawPgn = buildPgnFromMessageContent(ideas);
   if (!rawPgn?.trim()) return null;
   const sanList = pgnToSanList(rawPgn);
@@ -328,6 +330,7 @@ export async function getOpeningFromAiByName(
   openingName: string,
   previousMessageId: string = ''
 ): Promise<{ name: string; pgn: string; ideas: string } | null> {
+  
   if (!openingName?.trim()) return null;
   const prompt = `You are a chess coach. The user wants to learn the opening called "${openingName.trim()}".
 
@@ -338,7 +341,7 @@ Part 1 - PGN: Give only the main line of this opening in standard PGN format (e.
 Part 2 - Basic ideas: The same line with brief move-by-move comments in this exact format:
 1.e4 e5 [short comment] 2.Nf3 [short comment] ...
 Use the format: move [comment]. No other text.`;
-
+  console.log('getOpeningFromAiByName',openingName)
   const data = await ai_prompt(prompt, previousMessageId, 'gpt-5.1');
   const text = data?.answer?.text;
   if (!text?.trim()) return null;
@@ -352,10 +355,12 @@ Use the format: move [comment]. No other text.`;
   if (!pgn || !ideasPart) return null;
 
   const name = openingName.trim().replace(/\b\w/g, (c) => c.toUpperCase());
+
   return { name, pgn: `[Event "?"]\n[Site "?"]\n\n${pgn}`, ideas: ideasPart };
 }
 
 export function getOpeningByUserInput(userText: string): { name: string; pgn: string } | null {
+  console.log('getOpeningByUserInput',userText)
   const normalized = normalizeOpeningName(userText);
   if (!normalized || normalized.length < 2) return null;
   const keys = Object.keys(OPENING_IDEAS).sort((a, b) => b.length - a.length); 

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { Text } from '@app/components/Text';
 import { PlayersInfo } from '@app/modules/Match/Play/containers';
 import { MatchAbortContainer } from '../MatchAbortContainer';
@@ -9,13 +9,21 @@ import {
 import { enqueueMovexUpdatePlay } from '../../utils';
 import { useCurrentOrPrevMatchPlay } from '../../Play/hooks';
 import { isMobile } from '@app/modules/Room/activities/Review/util';
+import { UsersMap } from '@app/modules/User';
+import { ConfirmButton } from '@app/components/Button';
+
+const CLAIM_VICTORY_DELAY_MS = 30_000;
+
 type MatchStateDisplayContainerProps = {
   activeBot?: string;
   isPlayer?: any;
+  participants?: UsersMap;
 };
+
 export const MatchStateDisplayContainer = ({
   activeBot,
   isPlayer,
+  participants,
 }: MatchStateDisplayContainerProps) => {
   const { match, currentRound, drawsCount, endedGamesCount } =
     useMatchViewState();
@@ -49,21 +57,104 @@ export const MatchStateDisplayContainer = ({
   };
   const timeClass = match?.gameInPlay?.timeClass;
   const displayTime = timeClassMap[timeClass as TimeClass];
+  
+  // --- Claim Victory logic ---
+
+
+  
+  const opponentId = useMemo(() => {
+    if ( !match || !isPlayer) return undefined;
+    if (match.challenger.id === isPlayer) return match.challengee.id;
+    if (match.challengee.id === isPlayer) return match.challenger.id;
+    return undefined;
+  }, [match]);
+
+  const opponentColor = useMemo(() => {
+    if (!opponentId || !play.playersByColor) return undefined;
+    if (play.playersByColor.w?.id === opponentId) return 'w' as const;
+    if (play.playersByColor.b?.id === opponentId) return 'b' as const;
+    return undefined;
+  }, [opponentId]);
+   
+
+  // Only trust participants if we ourselves appear in it (i.e., the list is loaded)
+  const selfInParticipants = isPlayer ? !!participants?.[isPlayer] : false;
+  
+  const opponentOnline =
+    !selfInParticipants || (opponentId ? !!participants?.[opponentId] : true);
+  const gameIsOngoing =
+    match?.status === 'ongoing' && play.game?.status === 'ongoing';
+
+     
+  const [disconnectedAt, setDisconnectedAt] = useState<number | null>(null);
+  const [canClaimVictory, setCanClaimVictory] = useState(false);
+  const [secondsLeft, setSecondsLeft] = useState(30);
+
+  useEffect(() => {
+   
+    if (!gameIsOngoing || !opponentId || opponentOnline) {
+     
+      if (disconnectedAt !== null) {
+        setDisconnectedAt(null);
+        setCanClaimVictory(false);
+        setSecondsLeft(30);
+      }
+      return;
+    }
+    if (disconnectedAt === null) {
+      setDisconnectedAt(Date.now());
+      setSecondsLeft(30);
+    }
+  }, [participants,gameIsOngoing]);
+
+  useEffect(() => {
+  
+    if (disconnectedAt === null) return;
+  
+    const elapsed = Date.now() - disconnectedAt;
+    const remaining = CLAIM_VICTORY_DELAY_MS - elapsed;
+
+    if (remaining <= 0) {
+      setCanClaimVictory(true);
+      return;
+    }
+
+    setSecondsLeft(Math.ceil(remaining / 1000));
+
+    const interval = setInterval(() => {
+      setSecondsLeft((s) => Math.max(0, s - 1));
+    }, 1000);
+
+    const timeout = setTimeout(() => {
+      setCanClaimVictory(true);
+      clearInterval(interval);
+    }, remaining);
+
+    return () => {
+      clearTimeout(timeout);
+      clearInterval(interval);
+    };
+  }, [disconnectedAt]);
+
+  // --- End Claim Victory logic ---
+
   return (
     <div className="flex flex-col gap-1 md:gap-1 w-full">
-      {/* {match?.type === 'bestOf' && (
+      {match?.type === 'bestOf'  && (
         <div className="flex flex-col md:flex-row gap-2 md:mt-0 mt-0 w-full text-sm md:text-md">
-          <div>
-            <Text>Round &nbsp;</Text>
-            <Text>{`${currentRound}/${match.rounds}`},</Text>
+       
+          <div style={{ opacity: disconnectedAt==null? 1: 0 }}>
+            {/* <Text>Round &nbsp;</Text>
+            <Text>{`${currentRound}/${match.rounds}`},</Text> */}
 
             <Text> {displayTime}</Text>
-            {drawsCount > 0 && (
+            {/* {drawsCount > 0 && (
               <Text> {`(${drawsCount} games ended in draw)`}</Text>
-            )}
+            )} */}
           </div>
+         
         </div>
-      )} */}
+      )}
       <div className="flex flex-row w-full mr-0 p-0">
         {play.game && (
           <PlayersInfo
@@ -100,6 +191,51 @@ export const MatchStateDisplayContainer = ({
             completedPlaysCount={endedGamesCount}
             className="md:bg-green-500 rounded-md p-0 md:p-2 fixed bottom-16 md:relative md:bottom-0 w-[94%]  md:w-full h-8"
           />
+        )}
+
+      {gameIsOngoing &&
+        isPlayer &&
+        !activeBot &&
+        opponentColor &&
+        disconnectedAt !== null && (
+          <div className="flex gap-3  flex-row flex-1 justify-between rounded-md p-1  w-[100%] absolute bottom-[55px] md:relative md:bottom-0 w-full h-8">
+            {!canClaimVictory ? (
+              <span className="whitespace-nowrap  pt-0 relative bottom-1 md:pt-1 flex items-center text-xs font-semibold min-h-[32px]  text-yellow-500">
+                {`Opponent disconnected. Claim victory in ${secondsLeft}s`}
+              </span>
+            ) : (
+              <>
+                <span className="whitespace-nowrap items-center flex text-xs font-semibold  text-yellow-500">
+                  Opponent disconnected!
+                </span>
+                <ConfirmButton
+                  bgColor="green"
+                  size="sm"
+                  icon="TrophyIcon"
+                  iconKind="solid"
+                  confirmModalTitle="Claim Victory?"
+                  confirmWord="Yes"
+                  confirmModalContent={
+                    <div className="flex flex-row justify-center ">
+                      <div>
+                        Opponent has been disconnected. Claim the win?
+                      </div>
+                    </div>
+                  }
+                  confirmModalAgreeButtonBgColor="green"
+                  onClick={() => {
+                    dispatch({
+                      type: 'play:resignGame',
+                      payload: { color: opponentColor },
+                    });
+                  }}
+                  className="p-1 gap-2"
+                >
+                  Claim Victory
+                </ConfirmButton>
+              </>
+            )}
+          </div>
         )}
     </div>
   );
