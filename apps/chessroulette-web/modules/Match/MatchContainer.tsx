@@ -361,6 +361,7 @@ const MatchContainerInner = ({
               activeBot={activeBot?.name}
               isPlayer={isPlayer}
               participants={participants}
+              isMobile={isMobile ?? undefined}
             />
           </div>
         </div>
@@ -397,7 +398,7 @@ const MatchContainerInner = ({
                   activeBot={activeBot?.name}
                   isPlayer={isPlayer}
                     participants={participants}
-               
+                  isMobile={isMobile ?? undefined}
                 />
               </div>
             </div>

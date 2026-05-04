@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo,useRef } from 'react';
 import { Text } from '@app/components/Text';
 import { PlayersInfo } from '@app/modules/Match/Play/containers';
 import { MatchAbortContainer } from '../MatchAbortContainer';
@@ -8,7 +8,7 @@ import {
 } from '../../hooks/useMatch';
 import { enqueueMovexUpdatePlay } from '../../utils';
 import { useCurrentOrPrevMatchPlay } from '../../Play/hooks';
-import { isMobile } from '@app/modules/Room/activities/Review/util';
+// import { isMobile } from '@app/modules/Room/activities/Review/util';
 import { UsersMap } from '@app/modules/User';
 import { ConfirmButton } from '@app/components/Button';
 
@@ -18,19 +18,21 @@ type MatchStateDisplayContainerProps = {
   activeBot?: string;
   isPlayer?: any;
   participants?: UsersMap;
+  isMobile?:boolean
 };
 
 export const MatchStateDisplayContainer = ({
   activeBot,
   isPlayer,
   participants,
+  isMobile,
 }: MatchStateDisplayContainerProps) => {
   const { match, currentRound, drawsCount, endedGamesCount } =
     useMatchViewState();
   const play = useCurrentOrPrevMatchPlay();
 
   const dispatch = useMatchActionsDispatch();
-
+   const lastDisplayTimeRef = useRef<string | undefined>(undefined);
   type TimeClass =
     | 'bullet'
     | 'blitz'
@@ -55,12 +57,16 @@ export const MatchStateDisplayContainer = ({
     untimed: '∞',
     bullet2: 'Bullet 2+0',
   };
-  const timeClass = match?.gameInPlay?.timeClass;
-  const displayTime = timeClassMap[timeClass as TimeClass];
-  
-  // --- Claim Victory logic ---
+ const timeClass =
+  match?.gameInPlay?.timeClass 
 
+const displayTime = timeClass
+  ? timeClassMap[timeClass as TimeClass]
+  : lastDisplayTimeRef.current;
 
+if (timeClass) {
+  lastDisplayTimeRef.current = timeClassMap[timeClass as TimeClass];
+}
   
   const opponentId = useMemo(() => {
     if ( !match || !isPlayer) return undefined;
@@ -81,9 +87,9 @@ export const MatchStateDisplayContainer = ({
   const selfInParticipants = isPlayer ? !!participants?.[isPlayer] : false;
   
   const opponentOnline =
-    !selfInParticipants || (opponentId ? !!participants?.[opponentId] : true);
+  !selfInParticipants || (opponentId ? !!participants?.[opponentId] : true);
   const gameIsOngoing =
-    match?.status === 'ongoing' && play.game?.status === 'ongoing';
+   match?.status === 'ongoing' && play.game?.status === 'ongoing';
 
      
   const [disconnectedAt, setDisconnectedAt] = useState<number | null>(null);
@@ -135,15 +141,15 @@ export const MatchStateDisplayContainer = ({
       clearInterval(interval);
     };
   }, [disconnectedAt]);
-
+ 
   // --- End Claim Victory logic ---
-
+  
   return (
     <div className="flex flex-col gap-1 md:gap-1 w-full">
-      {match?.type === 'bestOf'  && (
+       {match?.type === 'bestOf'  && ( 
         <div className="flex flex-col md:flex-row gap-2 md:mt-0 mt-0 w-full text-sm md:text-md">
        
-          <div style={{ opacity: disconnectedAt==null? 1: 0 }}>
+          <div style={{ opacity: disconnectedAt==null || !isMobile ? 1:0 }}>
             {/* <Text>Round &nbsp;</Text>
             <Text>{`${currentRound}/${match.rounds}`},</Text> */}
 
@@ -154,7 +160,7 @@ export const MatchStateDisplayContainer = ({
           </div>
          
         </div>
-      )}
+       )} 
       <div className="flex flex-row w-full mr-0 p-0">
         {play.game && (
           <PlayersInfo
@@ -198,14 +204,14 @@ export const MatchStateDisplayContainer = ({
         !activeBot &&
         opponentColor &&
         disconnectedAt !== null && (
-          <div className="flex gap-3  flex-row flex-1 justify-between rounded-md p-1  w-[100%] absolute bottom-[55px] md:relative md:bottom-0 w-full h-8">
+          <div className="flex gap-3   flex-row flex-1 justify-between rounded-md p-1  w-[100%] fixed top-[46px] md:relative md:bottom-0 md:top-0 w-full h-2">
             {!canClaimVictory ? (
-              <span className="whitespace-nowrap  pt-0 relative bottom-1 md:pt-1 flex items-center text-xs font-semibold min-h-[32px]  text-yellow-500">
+              <span className="whitespace-nowrap  pt-0 relative bottom-1 md:pt-1 flex items-center text-sm min-h-[32px] font-semibold ">
                 {`Opponent disconnected. Claim victory in ${secondsLeft}s`}
               </span>
             ) : (
-              <>
-                <span className="whitespace-nowrap items-center flex text-xs font-semibold  text-yellow-500">
+              <div className='flex justify-center'>
+                <span  className="whitespace-nowrap hidden md:flex  pt-0 relative bottom-1 md:pt-1 text-sm flex items-center text-md font-semibold min-h-[32px] ">
                   Opponent disconnected!
                 </span>
                 <ConfirmButton
@@ -229,11 +235,11 @@ export const MatchStateDisplayContainer = ({
                       payload: { color: opponentColor },
                     });
                   }}
-                  className="p-1 gap-2"
+                  className="p-1 gap-2 h-8 relative bottom-1  left-[-5px] md:left-4"
                 >
                   Claim Victory
                 </ConfirmButton>
-              </>
+              </div>
             )}
           </div>
         )}
