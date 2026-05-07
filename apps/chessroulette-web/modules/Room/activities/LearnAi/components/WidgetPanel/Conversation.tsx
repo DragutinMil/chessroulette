@@ -74,8 +74,8 @@ const Conversation = ({
   return (
     <div
       ref={scrollRef}
-      className="min-w-0 max-w-full overflow-y-auto overflow-x-hidden rounded-lg scroll-smooth no-scrollbar h-[220px] md:h-[280px]"
-      style={{ height: smallMobile ? '120px' : undefined }}
+      className="min-w-0 max-w-full overflow-y-auto overflow-x-hidden rounded-lg scroll-smooth no-scrollbar h-[290px] md:h-full md:min-h-0 pt-2"
+      // style={{ height: smallMobile ? '140px' : undefined }}
     >
       {currentChapterState.messages.map((msg, index) => {
         const participant = msg.participantId;
@@ -96,7 +96,7 @@ const Conversation = ({
             {/* CHAT GPT TEXT */}
             {participant.includes('chatGPT123456') ? (
               <div className="flex min-w-0">
-              <div>
+                <div className="hidden md:flex">
                   {isLastFromThisParticipant ? (
                     <Image
                       src={greenLogo}
@@ -112,8 +112,9 @@ const Conversation = ({
                   )}
                 </div>
 
-                <div className="text-white text-sm px-4 flex-1 min-w-0 max-w-md break-words overflow-hidden">                {isLastMessage &&
-                  typeof lastMessage === 'string' ? (
+                <div className="text-white text-sm px-2 md:px-4  flex-1 min-w-0 max-w-md break-words overflow-hidden">
+                  {' '}
+                  {isLastMessage && typeof lastMessage === 'string' ? (
                     <div>
                       <TypewriterText
                         lastMessage={lastMessage}
@@ -140,49 +141,57 @@ const Conversation = ({
                           </ButtonGreen>
                         </div>
                       )}
-    {suggestedOpenings?.length && lastMessage?.includes('Here are some openings you could try') && (
-  <div className="min-w-0">
-      {suggestedOpenings.map((op) => (
-      <ButtonGreen
-        key={op.name}
-        onClick={() => onSelectOpening?.(op)}
-        size="md"
-        className="font-bold mt-2 px-3 mr-2 whitespace-nowrap"
-      >
-        {op.name}
-      </ButtonGreen>
-    ))}
-    <ButtonGreen
-      onClick={onSelectSomethingElse}
-      size="md"
-      className="font-bold mt-2 px-3 mr-2 whitespace-nowrap border border-dashed"
-    >
-      Something else
-    </ButtonGreen>
-  </div>
-)}
-{showColorChoice && isLastMessage && participant.includes('chatGPT123456') && (
-  <div className="min-w-0 flex flex-wrap gap-2 mt-2">
-    <ButtonGreen
-      onClick={() => onSelectColor?.('w')}
-      size="md"
-      className="font-bold px-3 mr-2 whitespace-nowrap"
-    >
-      White
-    </ButtonGreen>
-    <ButtonGreen
-      onClick={() => onSelectColor?.('b')}
-      size="md"
-      className="font-bold px-3 mr-2 whitespace-nowrap"
-    >
-      Black
-    </ButtonGreen>
-  </div>
-)}
+
+                      {suggestedOpenings?.length &&
+                        lastMessage?.includes(
+                          'Here are some openings you could try'
+                        ) && (
+                          <div className="w-full min-w-0 flex flex-wrap">
+                            {suggestedOpenings.map((op) => (
+                              <ButtonGreen
+                                key={op.name}
+                                onClick={() => onSelectOpening?.(op)}
+                                size="md"
+                                className="min-w-0 max-w-[330px] md:max-w-[380px] font-semibold mt-2 px-3 mr-2"
+                              >
+                                <span className="block truncate">
+                                  {op.name}
+                                </span>
+                              </ButtonGreen>
+                            ))}
+                            <ButtonGreen
+                              onClick={onSelectSomethingElse}
+                              size="md"
+                              className="font-semibold mt-2 px-3 mr-2 whitespace-nowrap border border-dashed"
+                            >
+                              Something else
+                            </ButtonGreen>
+                          </div>
+                        )}
+                      {showColorChoice &&
+                        isLastMessage &&
+                        participant.includes('chatGPT123456') && (
+                          <div className="min-w-0 flex flex-wrap gap-2 mt-2">
+                            <ButtonGreen
+                              onClick={() => onSelectColor?.('w')}
+                              size="md"
+                              className="font-bold px-3 mr-2 whitespace-nowrap"
+                            >
+                              White
+                            </ButtonGreen>
+                            <ButtonGreen
+                              onClick={() => onSelectColor?.('b')}
+                              size="md"
+                              className="font-bold px-3 mr-2 whitespace-nowrap"
+                            >
+                              Black
+                            </ButtonGreen>
+                          </div>
+                        )}
                     </div>
                   ) : (
                     <div>
-                      <p className="flex  items-center text-[14px]  justify-end  text-left whitespace-pre-line">
+                      <p className="flex  items-center text-[14px]    text-left ">
                         {typeof msg.content === 'string' &&
                         onHistoryNotationRefocus &&
                         notationHistoryLength > 0
@@ -197,12 +206,20 @@ const Conversation = ({
                                       seg.moveNumber - 1,
                                       Math.max(0, notationHistoryLength - 1)
                                     );
-                                    onHistoryNotationRefocus([pairIndex, seg.colorIdx] as Parameters<FreeBoardNotationProps['onRefocus']>[0]);                                  }}
+                                    onHistoryNotationRefocus([
+                                      pairIndex,
+                                      seg.colorIdx,
+                                    ] as Parameters<
+                                      FreeBoardNotationProps['onRefocus']
+                                    >[0]);
+                                  }}
                                 >
                                   {seg.value}
                                 </button>
                               ) : (
-                                <React.Fragment key={i}>{seg.value}</React.Fragment>
+                                <React.Fragment key={i}>
+                                  {seg.value}
+                                </React.Fragment>
                               )
                             )
                           : msg.content}
@@ -215,7 +232,7 @@ const Conversation = ({
               </div> */}
               </div>
             ) : (
-                <div className="flex justify-end items-center min-w-0 w-full">                
+              <div className="flex justify-end items-center min-w-0 w-full">
                 <div className="mr-4 border-conversation-100 max-w-xs min-w-0 break-words bg-[#111111]/40 text-white border shadow-green-soft  rounded-[20px]   text-sm ">
                   <p className="flex p-[14px]   justify-start  text-left whitespace-pre-line">
                     {msg.content}
@@ -257,50 +274,66 @@ const Conversation = ({
         );
       })}
 
-{suggestedMoves && suggestedMoves.length > 0 && (
-  <div className="mb-1 pt-1 text-[15px] md:pt-2 md:mb-2">
-    <div className="flex min-w-0">
-      <div>
-        <Image
-          src={greenLogo}
-          alt="outpost"
-          className="max-w-[28px] md:max-w-[36px]"
-        />
-      </div>
-      <div className="text-white text-sm px-4 flex-1 min-w-0 max-w-md break-words overflow-hidden">
-        <p className="text-slate-200 mb-2">Choose next move:</p>
-        <div className="flex flex-col gap-2 mt-2">
-          {Array.from({ length: visibleSuggestedRows }, (_, row) => (
-            <div key={row} className="flex flex-wrap gap-2">
-              {suggestedMoves.slice(row * 3, row * 3 + 3).map((m) => (
-                <ButtonGreen
-                  key={m.uci}
-                  onClick={() => onSuggestedMove?.(m.uci)}
-                  onMouseEnter={() => onSuggestedMoveHover?.(m.uci)}
-                  onMouseLeave={() => onSuggestedMoveHover?.(null)}
-                  size="md"
-                  className="font-bold font-mono px-3"
-                >
-                  {m.san}
-                </ButtonGreen>
-              ))}
+      {suggestedMoves && suggestedMoves.length > 0 && (
+        <div className="mb-1 pt-1 text-[15px] md:pt-2 md:mb-2">
+          <div className="flex min-w-0">
+            <div className="hidden md:flex">
+              <Image
+                src={greenLogo}
+                alt="outpost"
+                className="max-w-[28px] md:max-w-[36px]"
+              />
             </div>
-          ))}
-          {visibleSuggestedRows * 3 < suggestedMoves.length && (
-            <ButtonGreen
-              onClick={onOtherSuggested}
-              size="md"
-              className="font-bold px-3"
-            >
-              Other
-            </ButtonGreen>
-          )}
+            <div className="text-white text-sm px-4 flex-1 min-w-0 max-w-md break-words overflow-hidden">
+              <p className="text-slate-200 mb-2">Choose next move:</p>
+              <div className="flex flex-col gap-2 mt-2">
+                {(() => {
+                  const seenSan = new Set<string>();
+                  const uniqueMoves = suggestedMoves.filter((m) => {
+                    if (seenSan.has(m.san)) return false;
+                    seenSan.add(m.san);
+                    return true;
+                  });
+                  return (
+                    <div className="flex">
+                      {Array.from(
+                        { length: visibleSuggestedRows },
+                        (_, row) => (
+                          <div key={row} className="flex flex-wrap gap-2">
+                            {uniqueMoves
+                              .slice(row * 3, row * 3 + 3)
+                              .map((m) => (
+                                <ButtonGreen
+                                  key={m.uci}
+                                  onClick={() => onSuggestedMove?.(m.uci)}
+                                  size="md"
+                                  // onMouseEnter={() => onSuggestedMoveHover?.(m.uci)}
+                                  // onMouseLeave={() => onSuggestedMoveHover?.(null)}
+                                  className="font-bold font-mono px-3"
+                                >
+                                  {m.san}
+                                </ButtonGreen>
+                              ))}
+                          </div>
+                        )
+                      )}
+                      {visibleSuggestedRows * 3 < uniqueMoves.length && (
+                        <ButtonGreen
+                          onClick={onOtherSuggested}
+                          size="md"
+                          className="font-bold px-3 ml-2"
+                        >
+                          Other
+                        </ButtonGreen>
+                      )}
+                    </div>
+                  );
+                })()}
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
-  </div>
-)}
-
+      )}
     </div>
   );
 };

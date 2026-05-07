@@ -8,6 +8,7 @@ export type PlayerInfo = {
   id: string;
   color: ChessColor;
   displayName?: string;
+  rating?: string;
 };
 
 export type PlayerInfoWithResults = PlayerInfo & { points?: number };

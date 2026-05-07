@@ -196,7 +196,7 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
                   </span>
                 )}
               </Text>
-              {activeBot?.botType!=='basic' && (
+              {activeBot?.botType !== 'basic' && (
                 <div className="justify-center items-center flex flex-col">
                   {isPlayer && (
                     <Button

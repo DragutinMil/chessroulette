@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo,useRef } from 'react';
+import React, { useEffect, useState, useMemo, useRef } from 'react';
 import { Text } from '@app/components/Text';
 import { PlayersInfo } from '@app/modules/Match/Play/containers';
 import { MatchAbortContainer } from '../MatchAbortContainer';
@@ -12,13 +12,13 @@ import { useCurrentOrPrevMatchPlay } from '../../Play/hooks';
 import { UsersMap } from '@app/modules/User';
 import { ConfirmButton } from '@app/components/Button';
 
-const CLAIM_VICTORY_DELAY_MS = 30_000;
+const CLAIM_VICTORY_DELAY_MS = 59_000;
 
 type MatchStateDisplayContainerProps = {
   activeBot?: string;
   isPlayer?: any;
   participants?: UsersMap;
-  isMobile?:boolean
+  isMobile?: boolean;
 };
 
 export const MatchStateDisplayContainer = ({
@@ -32,7 +32,7 @@ export const MatchStateDisplayContainer = ({
   const play = useCurrentOrPrevMatchPlay();
 
   const dispatch = useMatchActionsDispatch();
-   const lastDisplayTimeRef = useRef<string | undefined>(undefined);
+  const lastDisplayTimeRef = useRef<string | undefined>(undefined);
   type TimeClass =
     | 'bullet'
     | 'blitz'
@@ -57,19 +57,18 @@ export const MatchStateDisplayContainer = ({
     untimed: '∞',
     bullet2: 'Bullet 2+0',
   };
- const timeClass =
-  match?.gameInPlay?.timeClass 
+  const timeClass = match?.gameInPlay?.timeClass;
 
-const displayTime = timeClass
-  ? timeClassMap[timeClass as TimeClass]
-  : lastDisplayTimeRef.current;
+  const displayTime = timeClass
+    ? timeClassMap[timeClass as TimeClass]
+    : lastDisplayTimeRef.current;
 
-if (timeClass) {
-  lastDisplayTimeRef.current = timeClassMap[timeClass as TimeClass];
-}
-  
+  if (timeClass) {
+    lastDisplayTimeRef.current = timeClassMap[timeClass as TimeClass];
+  }
+
   const opponentId = useMemo(() => {
-    if ( !match || !isPlayer) return undefined;
+    if (!match || !isPlayer) return undefined;
     if (match.challenger.id === isPlayer) return match.challengee.id;
     if (match.challengee.id === isPlayer) return match.challenger.id;
     return undefined;
@@ -81,25 +80,21 @@ if (timeClass) {
     if (play.playersByColor.b?.id === opponentId) return 'b' as const;
     return undefined;
   }, [opponentId]);
-   
 
   // Only trust participants if we ourselves appear in it (i.e., the list is loaded)
   const selfInParticipants = isPlayer ? !!participants?.[isPlayer] : false;
-  
-  const opponentOnline =
-  !selfInParticipants || (opponentId ? !!participants?.[opponentId] : true);
-  const gameIsOngoing =
-   match?.status === 'ongoing' && play.game?.status === 'ongoing';
 
-     
+  const opponentOnline =
+    !selfInParticipants || (opponentId ? !!participants?.[opponentId] : true);
+  const gameIsOngoing =
+    match?.status === 'ongoing' && play.game?.status === 'ongoing';
+
   const [disconnectedAt, setDisconnectedAt] = useState<number | null>(null);
   const [canClaimVictory, setCanClaimVictory] = useState(false);
   const [secondsLeft, setSecondsLeft] = useState(30);
 
   useEffect(() => {
-   
     if (!gameIsOngoing || !opponentId || opponentOnline) {
-     
       if (disconnectedAt !== null) {
         setDisconnectedAt(null);
         setCanClaimVictory(false);
@@ -111,12 +106,11 @@ if (timeClass) {
       setDisconnectedAt(Date.now());
       setSecondsLeft(30);
     }
-  }, [participants,gameIsOngoing]);
+  }, [participants, gameIsOngoing]);
 
   useEffect(() => {
-  
     if (disconnectedAt === null) return;
-  
+
     const elapsed = Date.now() - disconnectedAt;
     const remaining = CLAIM_VICTORY_DELAY_MS - elapsed;
 
@@ -141,15 +135,14 @@ if (timeClass) {
       clearInterval(interval);
     };
   }, [disconnectedAt]);
- 
+
   // --- End Claim Victory logic ---
-  
+
   return (
     <div className="flex flex-col gap-1 md:gap-1 w-full">
-       {match?.type === 'bestOf'  && ( 
+      {match?.type === 'bestOf' && (
         <div className="flex flex-col md:flex-row gap-2 md:mt-0 mt-0 w-full text-sm md:text-md">
-       
-          <div style={{ opacity: disconnectedAt==null || !isMobile ? 1:0 }}>
+          <div style={{ opacity: disconnectedAt == null || !isMobile ? 1 : 0 }}>
             {/* <Text>Round &nbsp;</Text>
             <Text>{`${currentRound}/${match.rounds}`},</Text> */}
 
@@ -158,9 +151,8 @@ if (timeClass) {
               <Text> {`(${drawsCount} games ended in draw)`}</Text>
             )} */}
           </div>
-         
         </div>
-       )} 
+      )}
       <div className="flex flex-row w-full mr-0 p-0">
         {play.game && (
           <PlayersInfo
@@ -184,7 +176,7 @@ if (timeClass) {
       </div>
       {match &&
         play.hasGame &&
-        play.game.status === 'idling' &&
+        (play.game.status === 'idling' || play.game.status === 'pending') &&
         match.endedGames.length == 0 &&
         isPlayer && (
           <MatchAbortContainer
@@ -195,7 +187,7 @@ if (timeClass) {
             timeToAbortMs={match.timeToAbortMs}
             playerId={play.userAsPlayerId}
             completedPlaysCount={endedGamesCount}
-            className="md:bg-green-500 rounded-md p-0 md:p-2 fixed bottom-16 md:relative md:bottom-0 w-[94%]  md:w-full h-8"
+            className="md:bg-green-500 rounded-md p-0 pl-2 md:p-2 fixed bottom-16 md:relative md:bottom-0 w-[94%]    md:w-full h-8"
           />
         )}
 
@@ -206,16 +198,16 @@ if (timeClass) {
         disconnectedAt !== null && (
           <div className="flex gap-3   flex-row flex-1 justify-between rounded-md p-1  w-[100%] fixed top-[46px] md:relative md:bottom-0 md:top-0 w-full h-2">
             {!canClaimVictory ? (
-              <span className="whitespace-nowrap  pt-0 relative bottom-1 md:pt-1 flex items-center text-sm min-h-[32px] font-semibold ">
+              <span className="whitespace-nowrap  pt-0 text-slate-400  relative bottom-2 md:pt-1  flex items-center text-sm min-h-[32px] font-semibold ">
                 {`Opponent disconnected. Claim victory in ${secondsLeft}s`}
               </span>
             ) : (
-              <div className='flex justify-center'>
-                <span  className="whitespace-nowrap hidden md:flex  pt-0 relative bottom-1 md:pt-1 text-sm flex items-center text-md font-semibold min-h-[32px] ">
+              <div className="flex justify-center">
+                <span className="whitespace-nowrap text-slate-400 hidden md:flex  pt-0 relative bottom-1 md:pt-1 text-sm flex items-center text-md font-semibold min-h-[32px] ">
                   Opponent disconnected!
                 </span>
                 <ConfirmButton
-                  bgColor="green"
+                  bgColor="red"
                   size="sm"
                   icon="TrophyIcon"
                   iconKind="solid"
@@ -223,12 +215,10 @@ if (timeClass) {
                   confirmWord="Yes"
                   confirmModalContent={
                     <div className="flex flex-row justify-center ">
-                      <div>
-                        Opponent has been disconnected. Claim the win?
-                      </div>
+                      <div>Opponent has been disconnected. Claim the win?</div>
                     </div>
                   }
-                  confirmModalAgreeButtonBgColor="green"
+                  confirmModalAgreeButtonBgColor="red"
                   onClick={() => {
                     dispatch({
                       type: 'play:resignGame',

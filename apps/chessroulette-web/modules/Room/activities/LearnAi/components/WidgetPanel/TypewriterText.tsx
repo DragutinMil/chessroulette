@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Button } from '@app/components/Button';
 import { ButtonGreen } from '@app/components/Button/ButtonGreen';
 import { Message } from '../../movex';
-import {parseMessageMoves} from '../../util';
+import { parseMessageMoves } from '../../util';
 import { FreeBoardNotationProps } from '@app/components/FreeBoardNotation';
 
 interface TypewriterTextProps {
@@ -24,8 +24,8 @@ const TypewriterText: React.FC<TypewriterTextProps> = ({
   hint,
   onSelectRating,
   onSelectLearnMode,
-  onHistoryNotationRefocus,   
-  notationHistoryLength = 0,  
+  onHistoryNotationRefocus,
+  notationHistoryLength = 0,
 }) => {
   const [displayedText, setDisplayedText] = useState('');
   const [showCursor, setShowCursor] = useState(true);
@@ -79,8 +79,10 @@ const TypewriterText: React.FC<TypewriterTextProps> = ({
   const L = displayedText.length;
 
   return (
-  <div className="min-w-0">
-<p className="text-left whitespace-pre-wrap break-words leading-relaxed">          {segments.map((seg, i) => {
+    <div className="min-w-0">
+      <p className="text-left break-words leading-relaxed whitespace-pre-line">
+        {' '}
+        {segments.map((seg, i) => {
           if (seg.end <= L) {
             if (seg.type === 'move' && onHistoryNotationRefocus) {
               const pairIndex = Math.min(
@@ -92,7 +94,13 @@ const TypewriterText: React.FC<TypewriterTextProps> = ({
                   key={i}
                   type="button"
                   className="underline cursor-pointer hover:bg-white/10 rounded px-0.5 -mx-0.5"
-                  onClick={() => onHistoryNotationRefocus([pairIndex, seg.colorIdx] as Parameters<FreeBoardNotationProps['onRefocus']>[0])}                >
+                  onClick={() =>
+                    onHistoryNotationRefocus([
+                      pairIndex,
+                      seg.colorIdx,
+                    ] as Parameters<FreeBoardNotationProps['onRefocus']>[0])
+                  }
+                >
                   {seg.value}
                 </button>
               );
@@ -111,20 +119,6 @@ const TypewriterText: React.FC<TypewriterTextProps> = ({
         {showCursor && <span className="animate-pulse">|</span>}
       </p>
 
-      {lastMessage.includes('Would you like a hint') &&
-        displayedText.length == lastMessage.length && (
-          <div className="flex  sitems-center gap-3 hidden md:flex mt-2">
-            <ButtonGreen
-              onClick={() => {
-                hint();
-              }}
-              size="lg"
-            >
-              {' '}
-              🔍 Hint
-            </ButtonGreen>
-          </div>
-        )}
       <div className="flex flex-wrap"></div>
       <div className="flex flex-wrap">
         {lastMessage.includes(
@@ -143,37 +137,35 @@ const TypewriterText: React.FC<TypewriterTextProps> = ({
               {category.label}
             </ButtonGreen>
           ))}
-
-          
       </div>
       {lastMessage.includes('What would you like to learn today?') &&
-  displayedText.length === lastMessage.length && (
-  <div className="flex flex-wrap items-center gap-2 mt-3">
-    <ButtonGreen
-      onClick={() => onSelectLearnMode?.('opening')}
-      size="md"
-      className="font-bold mt-2 px-3 mr-2 whitespace-nowrap"
-    >
-      Openings ✅
-    </ButtonGreen>
-    <ButtonGreen
-      size="md"
-      disabled
-      className="font-bold mt-2 px-3 mr-2 whitespace-nowrap opacity-60 cursor-not-allowed"
-      title="Coming soon"
-    >
-      Midgame 🔒
-    </ButtonGreen>
-    <ButtonGreen
-      size="md"
-      disabled
-      className="font-bold mt-2 px-3 mr-2 whitespace-nowrap opacity-60 cursor-not-allowed"
-      title="Coming soon"
-    >
-      Endgame 🔒
-    </ButtonGreen>
-  </div>
-)}
+        displayedText.length === lastMessage.length && (
+          <div className="flex flex-wrap items-center gap-2 mt-3">
+            <ButtonGreen
+              onClick={() => onSelectLearnMode?.('opening')}
+              size="md"
+              className="font-bold mt-2 px-3 mr-2 whitespace-nowrap"
+            >
+              Openings ✅
+            </ButtonGreen>
+            <ButtonGreen
+              size="md"
+              disabled
+              className="font-bold mt-2 px-3 mr-2 whitespace-nowrap opacity-60 cursor-not-allowed"
+              title="Coming soon"
+            >
+              Midgame 🔒
+            </ButtonGreen>
+            <ButtonGreen
+              size="md"
+              disabled
+              className="font-bold mt-2 px-3 mr-2 whitespace-nowrap opacity-60 cursor-not-allowed"
+              title="Coming soon"
+            >
+              Endgame 🔒
+            </ButtonGreen>
+          </div>
+        )}
     </div>
   );
 };

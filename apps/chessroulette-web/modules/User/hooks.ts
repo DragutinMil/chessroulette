@@ -34,6 +34,7 @@ export const useUser = (idIfInexistent?: string): User => {
   return {
     id: userId,
     displayName: params.get('userDisplayName') || undefined,
+    rating: params.get('rating') || undefined,
   };
 };
 
@@ -49,5 +50,6 @@ export const useSessionUserOrSetAsGuest = (session?: CustomSession): User => {
   return {
     id: userId,
     displayName: params.get('userDisplayName') || 'guest',
+    rating: params.get('rating') || undefined,
   };
 };

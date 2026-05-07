@@ -390,7 +390,9 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
   });
 
   const nextMatchStatus =
-    winner !== null || nextOngoingGame.winner === '1/2' ? 'complete' : 'ongoing';
+    winner !== null || nextOngoingGame.winner === '1/2'
+      ? 'complete'
+      : 'ongoing';
   // console.log(prev);
   return {
     ...prev,

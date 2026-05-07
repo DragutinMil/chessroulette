@@ -1072,7 +1072,7 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
                           boxShadow: '0px 0px 10px 0px #07DA6380',
                         }}
                         // className="w-full my-2 text-sm rounded-md border-slate-500 focus:border-slate-400 border border-transparent block bg-slate-600 text-white block py-1 px-2"
-                        className="w-full text-sm rounded-[20px] border  border-conversation-100 bg-[#111111]/40 text-white 
+                        className="w-full text-md rounded-[20px] border  border-conversation-100 bg-[#111111]/40 text-white 
                         placeholder-slate-400 px-4 py-2  transition-colors duration-200 focus:outline-none 
                         focus:ring-1 focus:ring-slate-400 focus:border-conversation-200 hover:border-conversation-300"
                         onChange={(e) => {

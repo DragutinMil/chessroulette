@@ -43,8 +43,8 @@ export const PuzzleActivity = ({
 }: Props) => {
   const moveSoundRef = useRef<HTMLAudioElement | null>(null);
   if (!moveSoundRef.current) {
-  moveSoundRef.current = new Audio('/chessmove.mp3');
-}
+    moveSoundRef.current = new Audio('/chessmove.mp3');
+  }
   const dispatch = optionalDispatch || noop;
   const [cameraOff, setCameraOff] = useState(false);
   const [newReview, setNewReview] = useState(true);
@@ -119,7 +119,7 @@ export const PuzzleActivity = ({
                 )
               }
               onPuzzleMove={async (payload) => {
-                  moveSoundRef.current?.play();
+                moveSoundRef.current?.play();
                 await enqueueMovexUpdate(() =>
                   dispatch({ type: 'loadedChapter:addPuzzleMove', payload })
                 );
@@ -162,7 +162,7 @@ export const PuzzleActivity = ({
                   });
                 }}
                 onMove={async (payload) => {
-                   moveSoundRef.current?.play();
+                  moveSoundRef.current?.play();
 
                   if (currentChapter.chessAiMode.mode === 'puzzle') {
                     await enqueueMovexUpdate(() =>
@@ -273,13 +273,13 @@ export const PuzzleActivity = ({
               );
             }}
             onMove={async (payload) => {
-               moveSoundRef.current?.play();
+              moveSoundRef.current?.play();
               await enqueueMovexUpdate(() =>
                 dispatch({ type: 'loadedChapter:addMove', payload })
               );
             }}
             onPuzzleMove={async (payload) => {
-               moveSoundRef.current?.play();
+              moveSoundRef.current?.play();
               await enqueueMovexUpdate(() =>
                 dispatch({ type: 'loadedChapter:addPuzzleMove', payload })
               );

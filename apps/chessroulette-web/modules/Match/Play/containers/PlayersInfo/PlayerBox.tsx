@@ -29,9 +29,11 @@ export const PlayerBox: React.FC<Props> = ({
             isActive ? 'text-white font-bold' : 'text-slate-400'
           }`}
         >
-          {playerInfo.points}
+          {playerInfo.points} &nbsp;
           {playerInfo.points !== undefined ? ' ' : ''}
-          {playerInfo.displayName || activeBot}&nbsp;({playerInfo.color})
+          {playerInfo.displayName || activeBot}
+          {playerInfo.rating ? ` ${playerInfo.rating}` : ''}&nbsp;(
+          {playerInfo.color})
         </div>
       ) : (
         <div
@@ -39,9 +41,14 @@ export const PlayerBox: React.FC<Props> = ({
             isActive ? 'text-white font-bold' : 'text-slate-400'
           }`}
         >
-          <span className="inline-block w-3">{playerInfo.points}</span>
+          <span className="inline-block w-3">{playerInfo.points}</span>&nbsp;
           {playerInfo.points !== undefined ? ' ' : ''}
-          {playerInfo.displayName || 'guest'}&nbsp;({playerInfo.color})
+          <span className="text-slate-300 font-bold">
+            {' '}
+            {playerInfo.displayName || 'guest'}{' '}
+          </span>{' '}
+          {playerInfo.rating ? ` ${playerInfo.rating}` : ''}&nbsp;(
+          {playerInfo.color})
         </div>
       )}
       {gameTimeClass !== 'untimed' && (

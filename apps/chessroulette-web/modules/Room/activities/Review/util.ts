@@ -361,6 +361,10 @@ export function enqueueMovexUpdate<T>(
   movexUpdateQueue = movexUpdateQueue
     .then(async () => {
       await updateFn();
+      // dispatch() returns void immediately but Movex does async work internally
+      // (server roundtrip + syncState). Without this delay all queued dispatches
+      // fire in the same event loop tick → "PromiseDelegate is already settled"
+      await new Promise<void>((resolve) => setTimeout(resolve, 150));
     })
     .catch((err) => console.error('Error in Movex update:', err));
 

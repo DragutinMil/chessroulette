@@ -68,9 +68,7 @@ export async function analyzePGN(pgn, { onProgress } = {}, isMobile) {
   return results;
 }
 
-
 export async function reviewMetrics() {
- 
   const token = Cookies.get('sessionToken');
   try {
     const response = await fetch(
@@ -79,11 +77,10 @@ export async function reviewMetrics() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-           Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
       }
     );
-
   } catch (error) {
     console.error('Fetch error', error);
   }
@@ -163,22 +160,7 @@ function getEvaluation(worker, fen, isMobile) {
             } else if (scoreMatch[1] === 'mate') {
               //  console.log('scoreMatch', scoreMatch[2]);
               const mateIn = parseInt(scoreMatch[2], 10);
-              // console.log('mateIn', mateIn);
-              //  if (type == 'score mate 1' || type == 'score mate 3') {
-              //   //  console.log('ide mat 1 ili 3');
-              //   const parts = fen.split(' ');
 
-              //   parts[1] === 'w'
-              //     ? addGameEvaluation(50000)
-              //     : addGameEvaluation(-50000);
-              // } else if (type === 'score mate 2') {
-              //   const parts = fen.split(' ');
-              //    console.log('ide mat 2',parts);
-              //   parts[1] === 'b'
-              //     ? addGameEvaluation(-50000)
-              //     : addGameEvaluation(50000);
-              // }
-              //ovde proveriti dal se dobro menja za mate in 1,2,3
               bestEval = mateIn > 0 ? 1000 - mateIn : -1000 - mateIn; // Mate closer = stronger eval
             }
           }

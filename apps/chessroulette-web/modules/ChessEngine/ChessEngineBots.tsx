@@ -192,7 +192,6 @@ const StockfishEngine: React.FC<StockfishEngineProps> = ({
 
       setChangeAfterMove(moveNumber);
     }
-   
   }, [score]);
 
   useEffect(() => {

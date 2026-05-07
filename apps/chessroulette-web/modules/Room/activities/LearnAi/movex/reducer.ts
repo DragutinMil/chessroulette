@@ -383,7 +383,7 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
       },
     };
   }
-  
+
   if (action.type === 'loadedChapter:setArrows') {
     const prevChapter = findLoadedChapter(prev.activityState);
 
@@ -526,6 +526,7 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
   }
 
   if (action.type === 'loadedChapter:setLearnAi') {
+    const fen = ChessFENBoard.STARTING_FEN;
     return {
       ...prev,
       activityState: {
@@ -534,7 +535,12 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
           ...prev.activityState.chaptersMap,
           [0]: {
             ...prev.activityState.chaptersMap[0],
+            displayFen: fen,
             aiLearn: action.payload,
+            notation: {
+              ...prev.activityState.chaptersMap[0].notation,
+              startingFen: fen,
+            },
           },
         },
       },
