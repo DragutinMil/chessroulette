@@ -33,10 +33,13 @@ export class ChessRouler implements SpecificChessJS {
   }
 
   fen = this.chess.fen.bind(this.chess);
-    // pgn = this.chess.pgn.bind(this.chess);
+  // pgn = this.chess.pgn.bind(this.chess);
   pgn = (...args: Parameters<Chess['pgn']>): string => {
     const full = this.chess.pgn(...args);
-    return full.replace(/^(\[[^\]]*\]\s*\n)*\n?/, '').trim().replace(/\s*\*$/, '');
+    return full
+      .replace(/^(\[[^\]]*\]\s*\n)*\n?/, '')
+      .trim()
+      .replace(/\s*\*$/, '');
   };
   turn = this.chess.turn.bind(this.chess);
   history = this.chess.history.bind(this.chess);

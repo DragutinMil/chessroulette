@@ -1,23 +1,28 @@
 # Chessroulette — Claude Instructions
 
 ## Projekat
+
 Next.js 14 full-stack šahovska platforma sa real-time multiplayer igrom, botovima (Stockfish), puzzlama, learn/review modom i video pozivima. Monorepo (NX) sa jednom web app i zasebnim Movex serverom.
 
 ## Radni opseg
+
 - Radi **isključivo** u direktorijumu `/Users/mac/Desktop/chessroulette`
 - **Ne menjaj kod** bez eksplicitnog zahteva — čitaj, analiziraj, predloži, pitaj
 - Kada se dogovorimo šta radimo, tek onda menjam fajlove
 
 ## Stil saradnje
+
 - Razgovaramo, analiziramo zajedno, pitam pre nego što dirnem išta
 - Ako vidim potencijalni problem koji nije tražen — napomenem, ne diram
 - Kratki odgovori osim kada objašnjavam nešto kompleksno
 
 ## Fajlovi
+
 - **Ne dodavaj nikakve nove fajlove** bez eksplicitnog pitanja i dozvole korisnika
 - **Ne brišaj fajlove** bez eksplicitnog zahteva
 
 ## Git & Build
+
 - **Ne pravi git commitove** bez eksplicitnog zahteva
 - **Ne push-uj** na remote bez eksplicitnog zahteva
 - **Ne pokreći** build bez zahteva
@@ -25,6 +30,7 @@ Next.js 14 full-stack šahovska platforma sa real-time multiplayer igrom, botovi
 - Type check: `yarn tsc-web`
 
 ## Stack
+
 - **Next.js 14** + React 18 + TypeScript
 - **NX monorepo** — web app živi u `apps/chessroulette-web/`
 - **Movex** (`movex`, `movex-react`, `movex-core-util`) — real-time state management; sav game state ide kroz `room` resource; **dispatch nije concurrent-safe** — nikad dva dispatcha u isto vreme na isti resource
@@ -71,12 +77,14 @@ apps/chessroulette-web/
 ```
 
 ## Movex — važno
+
 - Sav real-time state (igra, potezi, chat...) ide kroz `room` resource
 - `dispatch` je async i koristi `PromiseDelegate` interno — **nikad ne dispatchuj dok je prethodni dispatch u toku** (crash: "PromiseDelegate is already settled!")
 - `usePlayActionsDispatch()` — hook za dispatch akcija unutar Match/Play konteksta
 - Akcije: `play:move`, `play:start`, `play:resignGame`, itd.
 
 ## Bot sistem
+
 - `ChessEngineBots.tsx` (`modules/ChessEngine/`) — Stockfish Web Worker wrapper
 - Bot tipovi: `matchFake` (matchmaking), `botelja` (normalni bots), `basic`
 - Bot ID-evi su 16-char stringovi (npr. `'9yzBb59_POb9L000'`)
@@ -84,6 +92,7 @@ apps/chessroulette-web/
 - `engineMove` callback → `ChessboardContainer` → `onMove` → movex dispatch
 
 ## Premove sistem
+
 - `useMoves.ts` — sva logika za poteze i premove
 - Premove se čuva u `playerMoves[color].preMove` state-u
 - Premove se izvršava u `useEffect([isMyTurn, promoMove, playerMoves])` kada postane `isMyTurn = true`
@@ -91,17 +100,20 @@ apps/chessroulette-web/
 - **Pažnja**: nikad ne smanjivati premove delay ispod ~150ms u bot igrama zbog Movex race condition-a
 
 ## Šahovske konstante
+
 - FEN format: standardni, `parts[1]` = boja na potezu (`'w'`/`'b'`)
 - `boardOrientation` = `'w'` ili `'b'` (boja igrača)
 - `isMyTurn = boardOrientation === turn`
 
 ## Deployment
+
 - Web app → **Vercel**
 - Movex server → **Fly.io** (zasebni Docker container)
 - Skripte: `deploy-movex-preview/staging/prod` u root `package.json`
 - Env: `.env.local` za web (NextAuth secrets, DB url, itd.) — ne commitovati
 
 ## Poznate napomene (stečeno znanje)
+
 - `isMyTurn` u `ChessEngineBots.tsx` useEffect nije bio u deps arrayu (stale closure) — sada se čita kroz `isMyTurnRef`
 - `react-chessboard` je pinovan na `5.6.0` — ne upgradovati bez provere API promena
 - Movex verzija `^0.1.6` — relativno mlada library, neke edge case-ove treba ručno handlovati

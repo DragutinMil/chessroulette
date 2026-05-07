@@ -44,9 +44,23 @@ export const RoomTemplate = (props: Props) => {
            mb-0 md:mb-[max(env(safe-area-inset-right),2rem)]
            md:mt-2
            mt-0
-           flex-1 relative overflow-hidden  ${props.contentClassname}`}
+           flex-1 relative
+           ${
+             props.activity === 'review'
+               ? 'overflow-y-auto no-scrollbar md:overflow-hidden'
+               : 'overflow-hidden'
+           }
+           ${props.contentClassname}`}
         >
-          <div className="absolute inset-0">{props.children}</div>
+          <div
+            className={
+              props.activity === 'review'
+                ? 'md:absolute md:inset-0'
+                : 'absolute inset-0'
+            }
+          >
+            {props.children}
+          </div>
         </div>
       </div>
       <menu

@@ -81,13 +81,13 @@ const ConversationReview = ({
       ref={scrollRef}
       className={`
   flex-1 overflow-y-auto rounded-lg no-scrollbar scroll-smooth
-  min-h-[150px]
- md:max-h-[600px] max-h-[220px] 
+  h-[260px] md:h-[400px]
+ md:max-h-[600px] 
   md:h-[400px]
 `}
-      style={{
-        maxHeight: smallMobile ? '180px' : '',
-      }}
+      // style={{
+      //   maxHeight: smallMobile ? '180px' : '',
+      // }}
     >
       {currentChapterState.messages.map((msg, index) => {
         const participant = msg.participantId;

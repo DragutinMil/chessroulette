@@ -9,7 +9,8 @@ import { useReviewActivitySettings } from './hooks/useReviewActivitySettings';
 import { getSubscribeInfo } from './util';
 import { ReviewDialogContainer } from './DialogContainer/ReviewDialogContainer';
 import { enqueueMovexUpdate } from './util';
-
+import { IconButton } from '@app/components/Button';
+import { InstructorBoard } from './components/InstructorBoard';
 import {
   FreeBoardNotation,
   FreeBoardNotationProps,
@@ -43,8 +44,8 @@ export const ReviewActivity = ({
 }: Props) => {
   const moveSoundRef = useRef<HTMLAudioElement | null>(null);
   if (!moveSoundRef.current) {
-  moveSoundRef.current = new Audio('/chessmove.mp3');
-}
+    moveSoundRef.current = new Audio('/chessmove.mp3');
+  }
   const dispatch = optionalDispatch || noop;
   const [newReview, setNewReview] = useState(true);
   const [playerNames, setPlayerNames] = useState(Array<string>);
@@ -92,7 +93,6 @@ export const ReviewActivity = ({
     isMobile && setReviewDataToNotation(currentChapter.chessAiMode.review);
   }, [currentChapter.chessAiMode.review]);
 
-
   useEffect(() => {
     if (newReview === false) {
       return;
@@ -115,25 +115,25 @@ export const ReviewActivity = ({
 
       // Fast path: movex (open API, no auth, usually instant)
       const getMovexInfo = async (): Promise<void> => {
-        
-        if(reviewCalled.current){return}
-       
+        if (reviewCalled.current) {
+          return;
+        }
+
         const data = await getMovexRoom(rawPgn);
-        if (!data ) return;
+        if (!data) return;
         // Adjust this path to match the actual movex response envelope if needed
-        const state= data?.state[0].activity.activityState
-      
-         const lastGame = state.endedGames.length - 1;
+        const state = data?.state[0].activity.activityState;
+
+        const lastGame = state.endedGames.length - 1;
         const pgn = state.endedGames[lastGame].pgn;
         const white = state.endedGames[lastGame].players.w == userId;
         const black = state.endedGames[lastGame].players.b == userId;
 
         if (!pgn || reviewCalled.current) return;
-         const opponentColor = white ? 'black' : 'white';
-         const changeOrientation =
+        const opponentColor = white ? 'black' : 'white';
+        const changeOrientation =
           (currentChapter.orientation === 'b' && black) ||
           (currentChapter.orientation === 'w' && white);
-       
 
         reviewCalled.current = true;
         gameReview({
@@ -143,7 +143,7 @@ export const ReviewActivity = ({
           fen: pgn,
           originalPGN: pgn,
           opponentName: '',
-           opponentColor: opponentColor,
+          opponentColor: opponentColor,
           responseId: '',
           message: '',
         });
@@ -164,14 +164,14 @@ export const ReviewActivity = ({
           if (data?.results?.endedGames) break;
 
           if (attempt === 1) {
-             getMovexInfo();
-            await new Promise(res => setTimeout(res, 1000));
+            getMovexInfo();
+            await new Promise((res) => setTimeout(res, 1000));
           } else if (attempt === 2) {
-            await new Promise(res => setTimeout(res, 3000));
+            await new Promise((res) => setTimeout(res, 3000));
           } else if (attempt === 3) {
-            await new Promise(res => setTimeout(res, 5000));
+            await new Promise((res) => setTimeout(res, 5000));
           } else if (attempt === 4) {
-            await new Promise(res => setTimeout(res, 10000));
+            await new Promise((res) => setTimeout(res, 10000));
           }
         }
 
@@ -225,7 +225,6 @@ export const ReviewActivity = ({
         setNewReview(false);
       };
 
-     
       getMatchInfo();
     }
 
@@ -270,6 +269,7 @@ export const ReviewActivity = ({
 
   return (
     <ResizableDesktopLayout
+      mobileScrollable
       rightSideSize={RIGHT_SIDE_SIZE_PX}
       mainComponent={({ boardSize }) => (
         <>
@@ -278,17 +278,14 @@ export const ReviewActivity = ({
           ) : (
             <div>
               <ReviewDialogContainer currentChapter={currentChapter} />
-             
+
+              {isMobile && (
                 <div
                   style={{
                     height: '50px',
                     minHeight: '50px',
                   }}
-                  className={`
-                     
-                     md:hidden  flex
-                     overflow-x-auto md:overflow-x-hidden  rounded-lg md:mb-0   md:p-4 p-2 
-                    `}
+                  className="flex overflow-x-auto rounded-lg p-2"
                 >
                   <FreeBoardNotation
                     reviewDataToNotation={reviewDataToNotation}
@@ -302,7 +299,8 @@ export const ReviewActivity = ({
                     isFocusedInput={isFocusedInput}
                   />
                 </div>
-              
+              )}
+
               <div>
                 <ReviewBoard
                   sizePx={boardSize}
@@ -384,6 +382,26 @@ export const ReviewActivity = ({
                   rightSideClassName="flex-1"
                   rightSideComponent={
                     <>
+                      <div className="flex-1">
+                        <IconButton
+                          icon="ArrowsUpDownIcon"
+                          iconKind="outline"
+                          type="clear"
+                          size="sm"
+                          tooltip="Flip Board"
+                          tooltipPositon="left"
+                          className="mb-2"
+                          onClick={() => {
+                            dispatch({
+                              type: 'loadedChapter:setOrientation',
+                              payload: {
+                                color: swapColor(currentChapter.orientation),
+                              },
+                            });
+                          }}
+                        />
+                      </div>
+
                       <div className="relative flex flex-1 flex-col items-center justify-center">
                         <PanelResizeHandle
                           className="w-1 h-20 rounded-lg bg-slate-600"
@@ -400,7 +418,7 @@ export const ReviewActivity = ({
         </>
       )}
       rightComponent={
-        <div className="flex flex-col flex-1 min-h-0 gap-4max-h-screen ">
+        <div className="flex flex-col flex-1 min-h-0 gap-4 max-h-screen">
           {/* <div className="overflow-hidden  rounded-lg shadow-2xl mb-4">
             <img
               src="https://outpostchess.fra1.digitaloceanspaces.com/bfce3526-2133-4ac5-8b16-9c377529f0b6.jpg"
@@ -436,7 +454,6 @@ export const ReviewActivity = ({
                 dispatch({ type: 'loadedChapter:addMove', payload })
               );
             }}
-           
             addChessAi={async (payload: chessAiMode) =>
               await enqueueMovexUpdate(() =>
                 dispatch({

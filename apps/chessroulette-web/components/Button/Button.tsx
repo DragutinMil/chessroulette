@@ -128,9 +128,9 @@ export const Button = React.forwardRef<HTMLButtonElement | null, ButtonProps>(
     return (
       <button
         ref={ref}
-        className={`group  relative  hover:cursor-pointer p-1  !${classes[type]} ${
-          classes[size]
-        } ${
+        className={`group  relative  hover:cursor-pointer p-1  !${
+          classes[type]
+        } ${classes[size]} ${
           disabled
             ? 'bg-green-500 hover:bg-green-500 active:bg-green-500 hover:cursor-default opacity-30'
             : ''
@@ -165,10 +165,7 @@ export const Button = React.forwardRef<HTMLButtonElement | null, ButtonProps>(
               zIndex: 999,
             }}
           >
-            <div
-              className="bg-white text-nowrap text-xs border rounded-lg p-1 text-black font-normal"
-              style={{ boxShadow: '0 6px 13px rgba(0, 0, 0, .1)' }}
-            >
+            <div className="bg-gray-800 text-white text-nowrap text-xs rounded-lg px-2 py-1 font-normal shadow-lg">
               {tooltip}
             </div>
           </div>

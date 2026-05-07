@@ -759,7 +759,7 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
   }
 
   if (action.type === 'loadedChapter:setReview') {
-    console.log('action review',action)
+    console.log('action review', action);
     const nextFen = action.payload.fen;
     const chessAiMode = action.payload;
     if (action.payload.mode === 'review') {
@@ -781,13 +781,13 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
               },
             ]
           : [...prev.activityState.chaptersMap[0].messages];
-      
+
       const orient = action.payload.orientationChange;
-      console.log('orient',orient)
+      console.log('orient', orient);
       if (!orient) {
         if (prev.activityState.chaptersMap[0].orientation == 'b') {
           const toOrientation = 'w';
-          console.log('ako je orijentacija b , promeni na w')
+          console.log('ako je orijentacija b , promeni na w');
           return {
             ...prev,
             activityState: {
@@ -813,7 +813,7 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
           };
         } else if (prev.activityState.chaptersMap[0].orientation == 'w') {
           const toOrientation = 'b';
-          console.log('ako je orijentacija w , promeni na b')
+          console.log('ako je orijentacija w , promeni na b');
           return {
             ...prev,
             activityState: {

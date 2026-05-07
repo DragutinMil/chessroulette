@@ -1,6 +1,7 @@
 export type User = {
   id: string;
   displayName?: string;
+  rating?: string;
 };
 
 export type UserId = User['id'];

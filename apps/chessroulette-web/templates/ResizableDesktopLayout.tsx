@@ -14,12 +14,14 @@ type Props = {
   rightComponent:
     | ((p: { boardSize: number }) => React.ReactNode)
     | React.ReactNode;
+  mobileScrollable?: boolean;
 };
 
 export const ResizableDesktopLayout = ({
   rightSideSize,
   mainComponent,
   rightComponent,
+  mobileScrollable,
 }: Props) => {
   const containerRef = useRef(null);
   const [mainPanelPercentageSize, setMainPanelPercentageSize] = useState(0);
@@ -65,7 +67,9 @@ export const ResizableDesktopLayout = ({
 
   return (
     <div
-      className="flex w-full h-full align-center justify-center ml-0"
+      className={`flex w-full align-center justify-center ml-0 ${
+        mobileScrollable && isMobile ? 'overflow-y-auto' : 'h-full'
+      }`}
       ref={containerRef}
       style={{
         marginLeft: -negativeMargin,
@@ -118,7 +122,15 @@ export const ResizableDesktopLayout = ({
           minSize={33}
           maxSize={40}
           tagName="aside"
-          className="flex  flex-row space-between w-full relative h-full"
+          className="flex flex-row space-between w-full relative h-full no-scrollbar"
+          style={{
+            overflow:
+              mobileScrollable && isMobile
+                ? 'visible'
+                : isMobile
+                ? 'auto'
+                : 'hidden',
+          }}
           onResize={setRightSidePct}
         >
           {typeof rightComponent === 'function'
