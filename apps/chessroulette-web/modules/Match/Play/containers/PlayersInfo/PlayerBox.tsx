@@ -10,6 +10,7 @@ type Props = {
   gameTimeClass: GameTimeClass;
   timeLeft: number;
   activeBot?: string;
+  botRating?: number;
   onCheckTime: () => void;
 };
 
@@ -19,6 +20,7 @@ export const PlayerBox: React.FC<Props> = ({
   gameTimeClass,
   timeLeft,
   activeBot,
+  botRating,
   onCheckTime,
 }) => {
   return (
@@ -31,8 +33,10 @@ export const PlayerBox: React.FC<Props> = ({
         >
           {playerInfo.points} &nbsp;
           {playerInfo.points !== undefined ? ' ' : ''}
-          {playerInfo.displayName || activeBot}
-          {playerInfo.rating ? ` ${playerInfo.rating}` : ''}&nbsp;(
+          <span className="text-slate-300 font-bold">
+            {playerInfo.displayName || activeBot}&nbsp;
+          </span>
+          {playerInfo.rating ? ` ${playerInfo.rating}` : '' || botRating}&nbsp;(
           {playerInfo.color})
         </div>
       ) : (

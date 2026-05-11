@@ -14,13 +14,13 @@ type Props = {
 export const Dialog: React.FC<Props> = ({ modalBG = 'dark', ...props }) => {
   return (
     <div
-      className={`absolute w-full h-full top-0 left-0 z-[51] flex justify-center content-center items-center bg-opacity-30 ${
-        modalBG === 'dark' ? 'bg-black-light' : 'bg-white'
+      className={`absolute w-full h-full top-0 left-0 z-[51] flex justify-center content-center items-center px-2 md:px-12 bg-opacity-50 ${
+        modalBG === 'dark' ? 'bg-black' : 'bg-white'
       }`}
     >
       <div
-        className="flex bg-black-light rounded-lg md:px-12 px-4 py-8 shadow-2xl shadow-black w-[280px] md:w-[420px] "
-        style={{ boxShadow: '0px 0px 30px 0px #07DA6366' }}
+        className="animate-dialogIn flex bg-black-light rounded-xl md:px-8 px-2 py-4 shadow-2xl shadow-black w-full max-w-[310px] md:max-w-[420px]"
+        style={{ boxShadow: '0px 0px 40px 0px #07DA6355' }}
       >
         <div className="flex flex-col gap-4 w-full">
           {props.hasCloseButton && (
@@ -38,9 +38,12 @@ export const Dialog: React.FC<Props> = ({ modalBG = 'dark', ...props }) => {
           )}
           <div className="p-2 gap-4 flex flex-col w-full">
             {props.title && (
-              <div className="flex justify-center capitalize">
-                {props.title}
-              </div>
+              <>
+                <div className="flex justify-center capitalize text-center text-lg font-semibold tracking-wide">
+                  {props.title}
+                </div>
+                <div className="w-full h-px bg-white/10" />
+              </>
             )}
             <div className="flex flex-col gap-2">{props.content}</div>
             {props.buttons && (

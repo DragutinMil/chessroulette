@@ -179,10 +179,12 @@ const StockfishEngine: React.FC<StockfishEngineProps> = ({
       }
 
       if (Number(score) > 2000 && moveNumber > 20 && botType == 'matchFake') {
-        dispatch({
-          type: 'play:resignGame',
-          payload: { color: botColor },
-        });
+        setTimeout(() => {
+          dispatch({
+            type: 'play:resignGame',
+            payload: { color: botColor },
+          });
+        }, 1500);
       }
 
       // 👉 zaštita da ne ide ispod 0

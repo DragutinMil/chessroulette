@@ -95,6 +95,30 @@ export async function getUserInfo() {
     console.error('Fetch error', error);
   }
 }
+export async function getBotRating() {
+  const token = Cookies.get('sessionToken');
+  if (!token) {
+    return;
+  }
+  try {
+    const response = await fetch(
+      process.env.NEXT_PUBLIC_API_WEB + 'bots_data',
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    if (!response.ok) {
+      throw new Error(`Error: ${response.status}`);
+    }
+    return response.json();
+  } catch (error) {
+    console.error('Fetch error', error);
+  }
+}
 
 export const findIfBots = (challengeeId: string, challengerId: string) => {
   const idsToCheck = [challengeeId, challengerId].filter(Boolean);

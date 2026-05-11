@@ -322,9 +322,8 @@ export const reducer = (
       status: 'accepted',
     };
 
-    const newGame = getNewChessGame({
-      pgn: prev.pgn.slice(0, prev.pgn.length - 1),
-    });
+    const chessGame = getNewChessGame({ pgn: prev.pgn });
+    chessGame.undo();
 
     const takebackAt =
       prev.offers[prev.offers.length - 1].timestamp || new Date().getTime();
@@ -337,7 +336,7 @@ export const reducer = (
 
     return {
       ...prev,
-      pgn: newGame.pgn(),
+      pgn: chessGame.pgn(),
       lastMoveBy: nextTurn,
       timeLeft: {
         ...prev.timeLeft,

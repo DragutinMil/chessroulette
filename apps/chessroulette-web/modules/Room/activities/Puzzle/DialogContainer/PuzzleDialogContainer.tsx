@@ -29,6 +29,8 @@ export const PuzzleDialogContainer: React.FC<PuzzleDialogContainerProps> = ({
   onPuzzleMove,
 }) => {
   const [removePopup, setRemovePopup] = useState(false);
+  const [checkmate, setCheckmate] = useState(false);
+
   const play = async () => {
     addChessAi({
       moves: [],
@@ -47,6 +49,18 @@ export const PuzzleDialogContainer: React.FC<PuzzleDialogContainerProps> = ({
       message: '',
     });
   };
+
+  useEffect(() => {
+    const hasCheckmate = currentChapter.notation.history
+      .at(-1)
+      ?.at(-1)
+      ?.san?.includes('#');
+    if (hasCheckmate) {
+      setCheckmate(true);
+    } else if (checkmate) {
+      setCheckmate(false);
+    }
+  }, [currentChapter.notation.history]);
 
   useEffect(() => {
     if (currentChapter.chessAiMode.mode === 'popup' && !removePopup) {
@@ -98,7 +112,7 @@ export const PuzzleDialogContainer: React.FC<PuzzleDialogContainerProps> = ({
               size="lg"
               className="w-full text-[16px] h-[44px] rounded-[22px] "
               style={{ marginTop: 20 }}
-              disabled={canFreePlay == false}
+              disabled={canFreePlay == false || checkmate}
               onClick={() => {
                 play();
               }}
