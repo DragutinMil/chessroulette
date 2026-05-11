@@ -132,7 +132,7 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
         if (event.data.startsWith('info depth')) {
           if (event.data == 'info depth 0 score mate 0') {
             IsMate(true);
-            console.log('event.data', event.data);
+            // console.log('event.data', event.data);
             const parts = fen.split(' ');
             // console.log('parts',parts)
             (parts[1] === 'w' && orientation === 'w') ||
