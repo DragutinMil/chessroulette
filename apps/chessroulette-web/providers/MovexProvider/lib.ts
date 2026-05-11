@@ -13,6 +13,7 @@ export const movexSubcribersToUserMap = (
         id: nextSubscriberId,
         displayName: (subscribers[nextSubscriberId].info as MovexClientInfo)
           .displayName,
+        rating: (subscribers[nextSubscriberId].info as MovexClientInfo).rating,
       },
     }),
     {} as UsersMap

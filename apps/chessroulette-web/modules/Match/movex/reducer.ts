@@ -367,6 +367,10 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
   });
 
   const winner: NonNullable<MatchState>['winner'] = invoke(() => {
+    if (nextOngoingGame.winner === '1/2') {
+      return null;
+    }
+
     if (prevMatch.type === 'bestOf') {
       const maxRounds = Math.ceil(prevMatch.rounds / 2);
 
@@ -385,7 +389,10 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
     return null;
   });
 
-  const nextMatchStatus = winner ? 'complete' : 'ongoing';
+  const nextMatchStatus =
+    winner !== null || nextOngoingGame.winner === '1/2'
+      ? 'complete'
+      : 'ongoing';
   // console.log(prev);
   return {
     ...prev,

@@ -75,9 +75,7 @@ Props): MoveActions => {
 
   const [lastMoveWasPromotion, setLastMoveWasPromotion] = useState(false); // Dodajte ovo
 
-   const [premoveAnimationDelay] = useState(
-  botType === 'matchFake' ? 200 : 0
-);
+  const [premoveAnimationDelay] = useState(botType === 'matchFake' ? 200 : 0);
   const allowsPremoves = !!onPreMove;
 
   const currentPlayer = playingColor === 'w' ? 'white' : 'black';
@@ -316,7 +314,6 @@ Props): MoveActions => {
 
   const onMoveIfValid = (m: ShortChessMove): Result<void, void> => {
     if (onValidateMove(m)) {
-     
       onMove(m);
       return Ok.EMPTY;
     }

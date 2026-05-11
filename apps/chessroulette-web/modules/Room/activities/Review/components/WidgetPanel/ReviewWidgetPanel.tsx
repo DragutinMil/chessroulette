@@ -32,7 +32,10 @@ import ConversationReview from './GameReview/ConversationReview';
 
 import { Square, Chess } from 'chess.js';
 import StockFishEngineAI from '@app/modules/ChessEngine/ChessEngineAI';
-import { analyzePGN, reviewMetrics } from '@app/modules/ChessEngine/ChessEngineReviewMatch';
+import {
+  analyzePGN,
+  reviewMetrics,
+} from '@app/modules/ChessEngine/ChessEngineReviewMatch';
 import { ChaptersTabProps } from '../../chapters/ChaptersTab';
 import { useWidgetPanelTabsNavAsSearchParams } from '../useWidgetPanelTabsNav';
 
@@ -149,6 +152,7 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
       number | null
     >(null);
     const [stockfish, setStockfish] = useState(false);
+    const [evalVisible, setEvalVisible] = useState(true);
 
     const [percentW, setPercentW] = useState(50);
     const [percentB, setPercentB] = useState(50);
@@ -216,7 +220,7 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
           const b =
             currentChapterState.chessAiMode.opponentColor == 'white' ? 1 : 0;
           const pgn = currentChapterState.chessAiMode.originalPGN;
-          const slicePGN = slicePgn(pgn, a-1, b);
+          const slicePGN = slicePgn(pgn, a - 1, b);
           console.log('slicePGN', slicePGN);
 
           onChangePosition({
@@ -268,14 +272,9 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
       checkAnswerGPT(data);
     };
 
-    // useEffect(() => {
-    //   //  addChessAi({
-    //   //        ...currentChapterState.chessAiMode,
-    //   //         review: []
-    //   //       })
-
-    //   setReviewDataToNotation([]);
-    // }, [currentChapterState.chessAiMode.fen]);
+    useEffect(() => {
+      setEvalVisible(false);
+    }, [currentChapterState.orientation]);
 
     useEffect(() => {
       if (prevScoreCP !== 0) {
@@ -284,6 +283,7 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
             scoreCP,
             prevScoreCP
           );
+          setEvalVisible(true);
           if (currentChapterState.orientation == 'w') {
             setPercentW(ProbabilityChange.newPercentage);
             setPercentB(100 - ProbabilityChange.newPercentage);
@@ -450,7 +450,7 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
     };
 
     const analizeMatch = async () => {
-      reviewMetrics()
+      reviewMetrics();
       historyBackToStart();
       setPulseDot(true);
       const data = await analyzePGN(
@@ -496,7 +496,6 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
           },
         });
       }
-    
     };
     const handleGameEvaluation = (newScore: number) => {
       setprevScoreCP(scoreCP);
@@ -521,7 +520,7 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
         )}
 
         <Tabs
-          containerClassName=" flex flex-col flex-1 min-h-0 rounded-lg shadow-2xl "
+          containerClassName=" flex flex-col flex-1 min-h-0 rounded-lg shadow-2xl  mb-16 md:mb-0 "
           headerContainerClassName="flex gap-3"
           contentClassName="flex-1 flex min-h-0"
           currentIndex={currentTabIndex}
@@ -544,7 +543,7 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
                 // </Button>
               ),
               renderContent: () => (
-                <div className="flex flex-col flex-1 gap-2 min-h-0 overflow-scroll no-scrollbar pb-8 md:pb-0">
+                <div className="flex flex-col md:flex-1 h-[400px] md:h-auto gap-2 min-h-0 w-full overflow-hidden md:overflow-scroll no-scrollbar pb-8 md:pb-0">
                   {/* {isMobile && (
                     <div
                       style={{
@@ -580,12 +579,12 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
                     </div>
                   )} */}
                   <div
-                    className={`flex-1 justify-between flex flex-col border bg-op-widget border-conversation-100 pb-2 px-2 md:px-4 md:pb-1 rounded-lg 
-                     
-                  ${isMobile ? 'mb-2' : ''}  
+                    className={`flex-1  justify-between flex flex-col border bg-op-widget border-conversation-100 pb-2 px-2 md:px-4 md:pb-1 rounded-lg
+
+                  ${isMobile ? 'mb-2' : ''}
                   `}
                   >
-                    <div>
+                    <div className="h-[260px]  md:flex-1  min-h-0 ">
                       <ConversationReview
                         analizeMatch={analizeMatch}
                         worstMove={analizeWorstMove}
@@ -612,7 +611,7 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
                               boxShadow: '0px 0px 10px 0px #07DA6380',
                             }}
                             // className="w-full my-2 text-sm rounded-md border-slate-500 focus:border-slate-400 border border-transparent block bg-slate-600 text-white block py-1 px-2"
-                            className="w-full text-sm rounded-[20px] border  border-conversation-100 bg-[#111111]/40 text-white 
+                            className="w-full text-md rounded-[20px] border  border-conversation-100 bg-[#111111]/40 text-white 
                         placeholder-slate-400 px-4 py-2  transition-colors duration-200 focus:outline-none 
                         focus:ring-1 focus:ring-slate-400 focus:border-conversation-200 hover:border-conversation-300"
                             onChange={(e) => {
@@ -664,16 +663,19 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
                               <div className={` flex  items-center  `}>
                                 {scoreCP < 49999 &&
                                   scoreCP > -49999 &&
+                                  evalVisible &&
                                   (currentChapterState.orientation == 'b' ? (
                                     <p className={'font-bold '}>
                                       {' '}
                                       {(scoreCP / 100) * -1}
                                     </p>
                                   ) : (
-                                    <p className={'font-bold '}>
-                                      {' '}
-                                      {scoreCP / 100}
-                                    </p>
+                                    evalVisible && (
+                                      <p className={'font-bold '}>
+                                        {' '}
+                                        {scoreCP / 100}
+                                      </p>
+                                    )
                                   ))}
                                 &nbsp;&nbsp;{' '}
                                 {moveSan && (

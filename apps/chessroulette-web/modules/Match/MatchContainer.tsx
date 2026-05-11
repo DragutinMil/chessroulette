@@ -1,13 +1,13 @@
 import { DispatchOf, DistributivePick } from '@xmatter/util-kit';
 import { useEffect, useState, useRef } from 'react';
 import { GameNotationWidget } from '@app/modules/Game/widgets';
-import { UserId } from '@app/modules/User';
+import { UserId, UsersMap } from '@app/modules/User';
 import { ResizableDesktopLayout } from '@app/templates/ResizableDesktopLayout';
 import { PlayContainer, PlayerContainerProps } from './Play/PlayContainer';
 import { MatchActions, MatchState } from './movex';
 import { MatchProvider } from './providers';
 import { findIfBots } from './utils';
-import { getMakeFakeName, getUserInfo } from './utils';
+import { getMakeFakeName, getUserInfo, getBotRating } from './utils';
 import { VideoCameraIcon } from '@heroicons/react/24/solid';
 
 import {
@@ -40,6 +40,7 @@ type Props = DistributivePick<
   rightSideSizePx: NonNullable<PlayerContainerProps['rightSideSizePx']>; // re-enforcing this
   match: NonNullable<MatchState>;
   userId: UserId;
+  participants?: UsersMap;
   dispatch: DispatchOf<MatchActions>;
   inviteLink?: string;
 };
@@ -48,6 +49,7 @@ export const MatchContainer = ({
   match,
   userId,
   inviteLink,
+  participants,
   dispatch,
   ...boardProps
 }: Props) => {
@@ -60,6 +62,7 @@ export const MatchContainer = ({
         match={match}
         userId={userId}
         inviteLink={inviteLink}
+        participants={participants}
         dispatch={dispatch}
         activeWidget={activeWidget}
         setActiveWidget={setActiveWidget}
@@ -75,6 +78,7 @@ const MatchContainerInner = ({
   match,
   userId,
   inviteLink,
+  participants,
   dispatch,
   activeWidget,
   setActiveWidget,
@@ -96,7 +100,8 @@ const MatchContainerInner = ({
   const [camera, setCamera] = useState(true);
   const [cameraOnAgain, setCameraOnAgain] = useState(false);
   const [botTalkInitiated, setBotTalkInitiated] = useState(false);
-  const [userRating, setUserRating] = useState<number>();
+  const [userRating, setUserRating] = useState<number | undefined>();
+  const [botRating, setBotRating] = useState<number>();
 
   const [stopEngineMove, setStopEngineMove] = useState(false);
   const lastTakebackHandledAtRef = useRef<number>(0);
@@ -179,17 +184,34 @@ const MatchContainerInner = ({
       const bot = findIfBots(match?.challengee.id, match?.challenger.id);
 
       if (bot) {
+        if (bot.botType !== 'basic') {
+          const botData = async () => {
+            const players = await getBotRating();
+
+            const rating = Number(
+              players.find((player: any) => player.user_id === bot.id)?.rejting
+            );
+
+            setBotRating(rating);
+          };
+          botData();
+        }
+
         if (bot.id == 'TbN0mQQJy8s2-') {
           const botFakeGuest = getMakeFakeName();
           setActiveBot(botFakeGuest);
         } else {
           setActiveBot(bot);
         }
-
+       // console.log('bot', activeBot);
         if (bot.botType == 'matchFake') {
           const userData = async () => {
-            const data = await getUserInfo();
-            setUserRating(data?.rejting);
+            if (playersBySide?.home?.rating) {
+              setUserRating(Number(playersBySide?.home?.rating));
+            } else {
+              const data = await getUserInfo();
+              setUserRating(data?.rejting);
+            }
           };
           userData();
         }
@@ -355,7 +377,10 @@ const MatchContainerInner = ({
           <div className="w-full md:w-1/2 mr-0 md:mr-0">
             <MatchStateDisplayContainer
               activeBot={activeBot?.name}
+              botRating={botRating}
               isPlayer={isPlayer}
+              participants={participants}
+              isMobile={isMobile ?? undefined}
             />
           </div>
         </div>
@@ -390,7 +415,10 @@ const MatchContainerInner = ({
               <div className="hidden md:block md:w-full mr-0 md:ml-0">
                 <MatchStateDisplayContainer
                   activeBot={activeBot?.name}
+                  botRating={botRating}
                   isPlayer={isPlayer}
+                  participants={participants}
+                  isMobile={isMobile ?? undefined}
                 />
               </div>
             </div>
@@ -501,8 +529,10 @@ const MatchContainerInner = ({
               )}
             </div>
 
-            <div className="w-full pl-2 pr-2 md:pl-0 md:pr-0 pt-0 pb-0 flex flex-col md:gap-2 gap-2 md:flex-1 min-h-0 rounded-lg shadow-2xl  overflow-y-scroll no-scrollbar fixed bottom-1 left-0 right-0 md:relative md:bottom-auto md:left-auto md:right-auto ">
-              {(match.gameInPlay?.status !== 'idling' || !isMobile) && (
+            <div className="w-full pl-2 pr-2 md:pl-0 md:pr-0 pt-2 pb-0 flex flex-col md:gap-2 gap-2 md:flex-1 min-h-0 rounded-lg shadow-2xl  overflow-y-scroll no-scrollbar fixed bottom-1 left-0 right-0 md:relative md:bottom-auto md:left-auto md:right-auto ">
+              {((match.gameInPlay?.status !== 'idling' &&
+                match.gameInPlay?.status !== 'pending') ||
+                !isMobile) && (
                 <div
                   style={{
                     backgroundImage:

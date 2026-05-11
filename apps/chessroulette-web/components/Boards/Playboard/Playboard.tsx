@@ -64,7 +64,7 @@ export const Playboard = ({
       if (isReview) {
         return validateMove(move, fen, playingColor, isReview).valid;
       }
-   
+
       if (!canPlay) {
         return false;
       }

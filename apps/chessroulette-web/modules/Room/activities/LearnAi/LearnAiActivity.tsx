@@ -28,8 +28,6 @@ import { IconButton } from '@app/components/Button';
 import { FreeBoardHistory } from '@xmatter/util-kit';
 
 // import { InstructorBoard } from './components/InstructorBoard';
-import { Square } from 'chess.js';
-import { boolean } from 'zod';
 
 type Props = {
   remoteState: LearnAiActivityState['activityState'];
@@ -45,14 +43,12 @@ export const LearnAiActivity = ({
 }: Props) => {
   const moveSoundRef = useRef<HTMLAudioElement | null>(null);
   if (!moveSoundRef.current) {
-  moveSoundRef.current = new Audio('/chessmove.mp3');
-}
+    moveSoundRef.current = new Audio('/chessmove.mp3');
+  }
   const dispatch = optionalDispatch || noop;
-  const [cameraOff, setCameraOff] = useState(false);
-  const [newReview, setNewReview] = useState(true);
+
   const [playerNames, setPlayerNames] = useState(Array<string>);
   const [canFreePlay, setCanFreePlay] = useState(false);
-  const [puzzleCounter, setPuzzleCounter] = useState(0);
 
   const [userData, setUserData] = useState({
     name_first: '',
@@ -62,7 +58,7 @@ export const LearnAiActivity = ({
     product_name: '',
     user_id: '',
   });
-  // const [onChangePuzzleAnimation, setChangePuzzleAnimation] = useState(false);
+
   const settings = useLearnAiActivitySettings();
   const [inputState, dispatchInputState] = useReducer(
     inputReducer,
@@ -82,9 +78,6 @@ export const LearnAiActivity = ({
   //   };
   // }, []);
 
-  const historyBackToStart = async () => {
-    setNewReview(true);
-  };
   const getUserData = async () => {
     const data = await getSubscribeInfo();
     setUserData({
@@ -98,9 +91,6 @@ export const LearnAiActivity = ({
   };
   const onCanPlayChange = (canPlay: boolean) => {
     setCanFreePlay(canPlay);
-  };
-  const handlePuzzleRequest = () => {
-    setPuzzleCounter(puzzleCounter + 1);
   };
 
   return (
@@ -163,28 +153,12 @@ export const LearnAiActivity = ({
                     })
                   )
                 }
-                onPuzzleMove={async (payload) => {
-                   moveSoundRef.current?.play();
-                  await enqueueMovexUpdate(() =>
-                    dispatch({ type: 'loadedChapter:addPuzzleMove', payload })
-                  );
-                }}
-                // addChessAi={async (payload: chessAiMode) =>
-                //   await enqueueMovexUpdate(() =>
-                //     dispatch({
-                //       type: 'loadedChapter:setPuzzleMoves',
-                //       payload: payload as chessAiMode,
-                //     })
-                //   )
-                // }
-                newPuzzleRequest={handlePuzzleRequest}
                 canFreePlay={canFreePlay}
                 currentChapter={currentChapter}
               />
               <div>
                 <LearnAiBoard
                   sizePx={boardSize}
-                  // onChangePuzzleAnimation={onChangePuzzleAnimation}
                   {...currentChapter}
                   orientation={
                     // The instructor gets the opposite side as the student (so they can play together)
@@ -199,40 +173,10 @@ export const LearnAiActivity = ({
                     });
                   }}
                   onMove={async (payload) => {
-                     moveSoundRef.current?.play();
+                    moveSoundRef.current?.play();
                     await enqueueMovexUpdate(() =>
                       dispatch({ type: 'loadedChapter:addMove', payload })
                     );
-
-                    // if (currentChapter.chessAiMode.mode === 'puzzle') {
-                    //   await enqueueMovexUpdate(() =>
-                    //     dispatch({
-                    //       type: 'loadedChapter:addPuzzleMove',
-                    //       payload,
-                    //     })
-                    //   );
-                    // } else if (currentChapter.chessAiMode.mode === 'review') {
-                    //   await enqueueMovexUpdate(() =>
-                    //     dispatch({ type: 'loadedChapter:addMove', payload })
-                    //   );
-                    // } else if (
-                    //   (currentChapter.notation.focusedIndex[0] !==
-                    //     currentChapter.notation.history?.length - 1 ||
-                    //     currentChapter.notation.focusedIndex[1] !==
-                    //       currentChapter.notation.history[
-                    //         currentChapter.notation.history.length - 1
-                    //       ]?.length -
-                    //         1) &&
-                    //   currentChapter.notation.history.length !== 0
-                    // ) {
-                    //   return;
-                    // } else {
-                    //   await enqueueMovexUpdate(() =>
-                    //     dispatch({ type: 'loadedChapter:addMove', payload })
-                    //   );
-                    // }
-
-                    // TODO: This can be returned from a more internal component
                     return true;
                   }}
                   onArrowsChange={(payload) => {
@@ -279,7 +223,9 @@ export const LearnAiActivity = ({
                           onClick={() => {
                             dispatch({
                               type: 'loadedChapter:setOrientation',
-                              payload: { color: swapColor(currentChapter.orientation) },
+                              payload: {
+                                color: swapColor(currentChapter.orientation),
+                              },
                             });
                           }}
                         />
@@ -293,9 +239,11 @@ export const LearnAiActivity = ({
                           className="text-slate-400 hover:text-white"
                           disabled={!currentChapter.notation?.history?.length}
                           onClick={async () => {
-                            const history = currentChapter.notation?.history ?? [];
+                            const history =
+                              currentChapter.notation?.history ?? [];
                             if (history.length > 0) {
-                              const lastIndex = FreeBoardHistory.getLastIndexInHistory(history);
+                              const lastIndex =
+                                FreeBoardHistory.getLastIndexInHistory(history);
                               await enqueueMovexUpdate(() =>
                                 dispatch({
                                   type: 'loadedChapter:deleteHistoryMove',
@@ -322,7 +270,7 @@ export const LearnAiActivity = ({
         </>
       )}
       rightComponent={
-        <div className="flex flex-col flex-1 min-h-0 gap-4max-h-screen ">
+        <div className="flex flex-col gap-4 h-[360px] md:h-full mb-14 w-full h-full flex-1 md:min-h-0 ">
           {/* <div className="overflow-hidden  rounded-lg shadow-2xl mb-4">
             <img
               src="https://outpostchess.fra1.digitaloceanspaces.com/bfce3526-2133-4ac5-8b16-9c377529f0b6.jpg"
@@ -347,19 +295,11 @@ export const LearnAiActivity = ({
               );
             }}
             onMove={async (payload) => {
-               moveSoundRef.current?.play();
+              moveSoundRef.current?.play();
               await enqueueMovexUpdate(() =>
                 dispatch({ type: 'loadedChapter:addMove', payload })
               );
             }}
-            // addChessAi={async (payload: chessAiMode) =>
-            //   await enqueueMovexUpdate(() =>
-            //     dispatch({
-            //       type: 'loadedChapter:setPuzzleMoves',
-            //       payload: payload as chessAiMode,
-            //     })
-            //   )
-            // }
             onCircleDraw={async (tuple) => {
               await enqueueMovexUpdate(() =>
                 dispatch({
@@ -394,7 +334,6 @@ export const LearnAiActivity = ({
                 })
               );
             }}
-            historyBackToStart={historyBackToStart}
             userData={userData}
             playerNames={playerNames}
             currentChapterState={currentChapter}
@@ -482,10 +421,12 @@ export const LearnAiActivity = ({
               });
             }}
             onQuickImport={(input) => {
-              dispatch({
-                type: 'loadedChapter:import',
-                payload: { input },
-              });
+              enqueueMovexUpdate(() =>
+                dispatch({
+                  type: 'loadedChapter:import',
+                  payload: { input },
+                })
+              );
             }}
           />
         </div>

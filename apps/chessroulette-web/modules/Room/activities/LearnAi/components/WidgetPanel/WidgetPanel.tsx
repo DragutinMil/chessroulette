@@ -23,7 +23,6 @@ type Props = {
   chaptersMap: Record<Chapter['id'], Chapter>;
   chaptersMapIndex: number;
   currentChapterState: ChapterState;
-  historyBackToStart: () => void;
   // Board
   onImport: PgnInputBoxProps['onChange'];
   onQuickImport: PgnInputBoxProps['onChange'];
@@ -39,7 +38,7 @@ type Props = {
   onCanPlayChange: (canPlay: boolean) => void;
   playerNames: Array<string>;
   // Mode
-  isInstructor: boolean;  
+  isInstructor: boolean;
   // Engine
   showEngine?: boolean;
   engine?: EngineData;
@@ -68,7 +67,6 @@ export const WidgetPanel = React.forwardRef<TabsRef, Props>(
       showEngine,
       engine,
       isInstructor,
-      historyBackToStart,
       onImport,
       addLearnAi,
       onQuickImport,
@@ -107,7 +105,6 @@ export const WidgetPanel = React.forwardRef<TabsRef, Props>(
         onSetOrientation={onSetOrientation}
         onMove={onMove}
         onTakeBack={onTakeBack}
-        historyBackToStart={historyBackToStart}
         onImport={onImport}
         chaptersMap={chaptersMap}
         chaptersMapIndex={chaptersMapIndex}

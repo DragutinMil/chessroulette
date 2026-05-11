@@ -10,7 +10,8 @@ export type MatchPlayer = {
   points: number;
   // Maybe this needs to come only on the client? In a MatchPlayerDisplay, but not be part of movex
   displayName?: string;
-  isChatEnabled?: boolean; // Add this field
+  rating?: string;
+  isChatEnabled?: boolean;
 };
 export type GameOffer = {
   // TODO: this should not be byPlayer but byColor, since inside the Game there is no notion of player but just of color

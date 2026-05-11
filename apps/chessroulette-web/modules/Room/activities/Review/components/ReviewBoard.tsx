@@ -64,25 +64,16 @@ export const ReviewBoard = ({
       rightSideClassName={`flex flex-col ${rightSideClassName}`}
       rightSideComponent={
         <>
+          {rightSideComponent}
           <div className="flex-1">
-            {/* {settings.canFlipBoard && (
-              <FlipBoardIconButton className="mb-2" onClick={onFlip} />
-            )} */}
             {settings.isInstructor && (
               <>
-                {/* <StartPositionIconButton
-                  className="mb-2"
-                  onClick={onResetBoard}
-                /> */}
+                {/* <StartPositionIconButton className="mb-2" onClick={onResetBoard} /> */}
                 {/* <ClearBoardIconButton className="mb-2" onClick={onClearBoard} />
-                <BoardEditorIconButton
-                  className="mb-2"
-                  onClick={onBoardEditor}
-                /> */}
+                <BoardEditorIconButton className="mb-2" onClick={onBoardEditor} /> */}
               </>
             )}
           </div>
-          {rightSideComponent}
         </>
       }
     />

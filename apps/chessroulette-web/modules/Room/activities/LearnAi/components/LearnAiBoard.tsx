@@ -26,7 +26,6 @@ type Props = Required<
     onClearBoard: () => void;
     onResetBoard: () => void;
     onBoardEditor: () => void;
-    // onChangePuzzleAnimation: boolean;
   };
 
 export const LearnAiBoard = ({
@@ -43,7 +42,6 @@ export const LearnAiBoard = ({
   onClearBoard,
   onBoardEditor,
   aiLearn,
-  // onChangePuzzleAnimation,
   ...chessBoardProps
 }: Props) => {
   const settings = useLearnAiActivitySettings();
@@ -61,7 +59,6 @@ export const LearnAiBoard = ({
       playingColor={orientation}
       sizePx={sizePx}
       fen={fen}
-      // onChangePuzzleAnimation={onChangePuzzleAnimation}
       lastMove={lastMove}
       arrowsMap={arrowsMap}
       circlesMap={circlesMap}

@@ -10,7 +10,9 @@ export const Modal = ({ children }: Props) => {
         tabIndex={-1}
         aria-hidden="true"
       >
-        <div className="relative w-auto my-6 mx-auto max-w-3xl">{children}</div>
+        <div className="relative w-auto my-6 mx-auto max-w-[80%]  md:max-w-3xl">
+          {children}
+        </div>
       </div>
       <div className="opacity-30 fixed inset-0 z-40 bg-black" />
     </>

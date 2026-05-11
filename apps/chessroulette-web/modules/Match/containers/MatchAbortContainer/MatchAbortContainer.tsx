@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { ChessColor, areColorsEqual } from '@xmatter/util-kit';
 import { now } from '@app/lib/time';
-import { IdlingGame } from '@app/modules/Game';
+import { IdlingGame, PendingGame } from '@app/modules/Game';
 import { GameAbort, GameAbortViewProps } from './MatchAbort';
 import { useMatchActionsDispatch } from '../../hooks';
 import { PlayersByColor } from '../../Play';
@@ -9,7 +9,7 @@ import { PlayersByColor } from '../../Play';
 type Props = Pick<GameAbortViewProps, 'className'> & {
   playersByColor: PlayersByColor;
   timeToAbortMs: number;
-  game: IdlingGame;
+  game: IdlingGame | PendingGame;
   turn: ChessColor;
   completedPlaysCount: number;
   playerId?: string;
@@ -40,6 +40,9 @@ export const MatchAbortContainer = ({
   );
 
   const calculateTimeLeft = () => {
+    if (game.status == 'pending') {
+      return;
+    }
     // If it's white's turn there is no lastMoveAt so it needs to use game.startedAt
     const lastGameActionAt = game.lastMoveAt || game.startedAt;
 

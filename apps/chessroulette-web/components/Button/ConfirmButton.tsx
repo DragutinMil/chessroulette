@@ -8,6 +8,7 @@ export type ConfirmButtonProps = ButtonProps & {
   confirmModalTitle: string;
   confirmModalContent: string | React.ReactNode;
   confirmModalAgreeButtonBgColor?: ButtonProps['bgColor'];
+  confirmWord?: string;
 } & (
     | {
         iconButton: true;
@@ -29,6 +30,7 @@ export const ConfirmButton: React.FC<ConfirmButtonProps> = ({
   confirmModalContent,
   confirmModalAgreeButtonBgColor = 'green',
   iconButton,
+  confirmWord,
   ...props
 }) => {
   const [showModal, setShowModal] = useState(false);
@@ -59,7 +61,7 @@ export const ConfirmButton: React.FC<ConfirmButtonProps> = ({
               <div className="sborder-0 rounded-lg shadow-lg relative flex flex-col w-full bg-green-900 outline-none focus:outline-none">
                 {/*header*/}
                 <div className="flex flex-1   sitems-start justify-between p-3 rounded-t-lg text-center justify-center content-center items-center">
-                  <h3 className="text-xl font-semibold text-center text-white sbg-red-100">
+                  <h3 className="text-md md:text-xl font-semibold text-center text-white sbg-red-100 ">
                     {confirmModalTitle}
                   </h3>
                 </div>
@@ -78,13 +80,14 @@ export const ConfirmButton: React.FC<ConfirmButtonProps> = ({
                   </Button>
                   <Button
                     type="custom"
+                    className="font-bold"
                     bgColor={confirmModalAgreeButtonBgColor}
                     onClick={() => {
                       setShowModal(false);
                       onClick?.();
                     }}
                   >
-                    I'm sure
+                    {confirmWord || "I'm sure"}
                   </Button>
                 </div>
               </div>

@@ -141,6 +141,7 @@ export const JoinOrCreateRoom: React.FC<Props> = ({
               ? objectPick(updateableSearchParams.toObject(), [
                   // User
                   'userDisplayName',
+                  'rating',
 
                   // Room settings
                   'theme',
