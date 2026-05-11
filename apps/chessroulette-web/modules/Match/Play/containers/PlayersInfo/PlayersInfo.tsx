@@ -10,6 +10,7 @@ type Props = {
   playersBySide: PlayersBySideWithResults;
   turn: ChessColor;
   activeBot?: string;
+  botRating?: number;
   onCheckTime: () => void;
 };
 
@@ -18,6 +19,7 @@ export const PlayersInfo = ({
   playersBySide,
   activeBot,
   turn,
+  botRating,
   onCheckTime,
 }: Props) => {
   const isGameCountdownActive = useMemo(() => {
@@ -48,6 +50,7 @@ export const PlayersInfo = ({
             isGameCountdownActive &&
             areColorsEqual(turn, playersBySide.away.color)
           }
+          botRating={botRating}
           activeBot={activeBot}
           gameTimeClass={game.timeClass}
           timeLeft={game.timeLeft[playersBySide.away.color]}
@@ -61,6 +64,7 @@ export const PlayersInfo = ({
           isGameCountdownActive &&
           areColorsEqual(turn, playersBySide.home.color)
         }
+        botRating={botRating}
         activeBot={activeBot}
         gameTimeClass={game.timeClass}
         timeLeft={game.timeLeft[playersBySide.home.color]}

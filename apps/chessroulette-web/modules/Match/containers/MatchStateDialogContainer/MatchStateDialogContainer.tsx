@@ -5,6 +5,7 @@ import { now } from '@app/lib/time';
 import { invoke } from '@xmatter/util-kit';
 import { BetweenGamesAborter } from './components/BetweenGamesAborter';
 import { Button } from '../../../../components/Button/Button';
+import { Icon } from '@app/components/Icon/Icon';
 import { useRouter } from 'next/navigation';
 import { checkUser, sendResult } from '@app/modules/Match/utilsOutpost';
 import {
@@ -50,6 +51,8 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
 }) => {
   const { match, ...matchView } = useMatchViewState();
   const [alreadyRematch, setAlreadyRematch] = useState(false);
+  const [endGameReason, setEndGameReason] = useState<string>('');
+  const [isHidden, setIsHidden] = useState(false);
 
   // const [matchId, setMatchId] = useState('');
   const [room, setRoom] = useState('');
@@ -86,6 +89,22 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
     ) {
       // Send to grab result from chessroullette
       sendResult();
+      if (match?.status === 'complete') {
+        const reasons = [
+          'Game ended in checkmate',
+          'Match ended in a Draw! 🤝',
+          'Game ended in stalemate',
+          'Draw by insufficient material',
+          'Draw by threefold repetition',
+          'Ended by resignation',
+          'Match ended in a Draw! 🤝',
+          'Game aborted',
+          'Game ended on time',
+          'Draw by insufficient material',
+        ];
+
+        setEndGameReason(reasons[Number(match.endedGames[0].gameOverReason)]);
+      }
     }
   }, [match?.status]);
 
@@ -169,15 +188,32 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
     match?.status === 'complete' &&
     (lastOffer?.type !== 'rematch' || lastOffer?.status !== 'pending')
   ) {
+    if (isHidden) {
+      return (
+        <div className="absolute bottom-4 right-4 z-[51]">
+          <button
+            onClick={() => setIsHidden(false)}
+            className="flex items-center justify-center w-10 h-10 rounded-full bg-black-light border border-green-600/50 text-white transition-all duration-200 hover:border-green-600 hover:shadow-[0_0_14px_rgba(7,218,99,0.4)] hover:scale-110"
+            style={{ boxShadow: '0px 0px 16px 0px #07DA6330' }}
+            title="Show options"
+          >
+            <Icon name="EllipsisHorizontalIcon" className="w-5 h-5" />
+          </button>
+        </div>
+      );
+    }
+
     return (
       <Dialog
-        title="Match Completed"
+        title={`${endGameReason}`}
+        hasCloseButton
+        onClose={() => setIsHidden(true)}
         content={
           <div className="flex flex-col gap-4 items-center">
             <div className="flex  justify-center content-center text-center flex-col">
               <Text>
                 {match.winner === null ? (
-                  <span className="capitalize">Match ended in a Draw! 🤝</span>
+                  <span></span>
                 ) : (match.winner == 'challenger' &&
                     match.challenger.id == activeBot?.id) ||
                   (match.winner == 'challengee' &&
@@ -188,7 +224,6 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
                     <span>🏆</span>
                   </span>
                 ) : (
-                  // REGULAR NAME
                   <span className="capitalize">
                     {match[match.winner].displayName || match[match.winner].id}
                     {` `}Won{` `}
@@ -197,15 +232,13 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
                 )}
               </Text>
               {activeBot?.botType !== 'basic' && (
-                <div className="justify-center items-center flex flex-col">
+                <div className="justify-center items-center flex flex-col gap-3 mt-4 w-full">
                   {isPlayer && (
                     <Button
                       icon="ArrowPathRoundedSquareIcon"
                       bgColor="green"
-                      style={{
-                        marginTop: 18,
-                        minWidth: '160px',
-                      }}
+                      className="transition-all duration-200 w-full border border-green-600/30 hover:border-green-600/70 hover:scale-[1.03] hover:shadow-[0_0_12px_rgba(7,218,99,0.25)]"
+                      style={{ minWidth: '160px' }}
                       onClick={async () => {
                         if (playerId) {
                           if (!isOpponentInRoom) {
@@ -237,16 +270,14 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
                   )}
 
                   <Link
+                    className="w-full"
                     href={`https://chess.outpostchess.com/room/new/r${room}?activity=review&userId=${userId}&theme=op&pgn=${roomId}`}
                   >
                     <Button
                       icon="MagnifyingGlassIcon"
                       bgColor="green"
-                      style={{
-                        marginTop: 12,
-
-                        minWidth: '160px',
-                      }}
+                      className="transition-all text-black  duration-200 w-full border border-green-600/40 hover:border-green-600 hover:scale-[1.03] hover:shadow-[0_0_16px_rgba(7,218,99,0.35)] bg-green-600/40"
+                      style={{ minWidth: '160px' }}
                       onClick={() => {}}
                     >
                       Review
@@ -256,16 +287,15 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
                   <Button
                     icon="ArrowLeftIcon"
                     bgColor="green"
-                    style={{ marginTop: 12, minWidth: '160px' }}
+                    className="transition-all duration-200 w-full border border-green-600/30 hover:border-green-600/70 hover:scale-[1.03] hover:shadow-[0_0_12px_rgba(7,218,99,0.25)]"
+                    style={{ minWidth: '160px' }}
                     onClick={() => {
                       window.location.href =
                         'https://app.outpostchess.com/online-list';
                     }}
                   >
-                    Lobby&nbsp;&nbsp;&nbsp;
+                    Lobby
                   </Button>
-
-                  {/* } */}
                 </div>
               )}
             </div>

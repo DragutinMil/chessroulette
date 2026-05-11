@@ -83,6 +83,10 @@ module.exports = {
           '60%': { transform: 'translateX(-5px)' },
           '80%': { transform: 'translateX(5px)' },
         },
+        dialogIn: {
+          '0%': { opacity: '0', transform: 'scale(0.95)' },
+          '100%': { opacity: '1', transform: 'scale(1)' },
+        },
         //   sublevelBlink: {
         //   '0%': { transform: 'scale(1)', opacity: '1' },
         //   '30%': { transform: 'scale(1.15)', opacity: '0.6' },
@@ -100,6 +104,7 @@ module.exports = {
       animation: {
         fadeUp: 'fadeUp 1s ease-out',
         shake: 'shake 0.5s ease-in-out 6',
+        dialogIn: 'dialogIn 0.3s ease-out forwards',
         // sublevelBlink: 'sublevelBlink 0.45s ease-out'
       },
     },

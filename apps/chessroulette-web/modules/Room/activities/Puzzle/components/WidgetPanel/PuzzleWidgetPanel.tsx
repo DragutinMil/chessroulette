@@ -505,6 +505,7 @@ Unlock Unlimited Puzzles, Unlimited Game Reviews, and Unlimited AI Chat for just
     }, [currentChapterState.chessAiMode.goodMoves]);
 
     const isMate = async () => {
+      onCanPlayChange(false);
       setStockfishMovesInfo('no best moves,game is ended by checkmate');
       if (currentChapterState.chessAiMode.mode == 'play') {
         setTimeout(

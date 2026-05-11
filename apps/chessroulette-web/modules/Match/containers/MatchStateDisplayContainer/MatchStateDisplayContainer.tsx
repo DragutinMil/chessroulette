@@ -16,6 +16,7 @@ const CLAIM_VICTORY_DELAY_MS = 59_000;
 
 type MatchStateDisplayContainerProps = {
   activeBot?: string;
+  botRating?: number;
   isPlayer?: any;
   participants?: UsersMap;
   isMobile?: boolean;
@@ -24,6 +25,7 @@ type MatchStateDisplayContainerProps = {
 export const MatchStateDisplayContainer = ({
   activeBot,
   isPlayer,
+  botRating,
   participants,
   isMobile,
 }: MatchStateDisplayContainerProps) => {
@@ -159,6 +161,7 @@ export const MatchStateDisplayContainer = ({
             key={play.game.startedAt} // refresh it on each new game
             playersBySide={play.playersBySide}
             activeBot={activeBot}
+            botRating={botRating}
             game={play.game}
             turn={play.turn}
             onCheckTime={async () => {

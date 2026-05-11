@@ -7,7 +7,7 @@ import { PlayContainer, PlayerContainerProps } from './Play/PlayContainer';
 import { MatchActions, MatchState } from './movex';
 import { MatchProvider } from './providers';
 import { findIfBots } from './utils';
-import { getMakeFakeName, getUserInfo } from './utils';
+import { getMakeFakeName, getUserInfo, getBotRating } from './utils';
 import { VideoCameraIcon } from '@heroicons/react/24/solid';
 
 import {
@@ -100,7 +100,8 @@ const MatchContainerInner = ({
   const [camera, setCamera] = useState(true);
   const [cameraOnAgain, setCameraOnAgain] = useState(false);
   const [botTalkInitiated, setBotTalkInitiated] = useState(false);
-  const [userRating, setUserRating] = useState<number>();
+  const [userRating, setUserRating] = useState<number | undefined>();
+  const [botRating, setBotRating] = useState<number>();
 
   const [stopEngineMove, setStopEngineMove] = useState(false);
   const lastTakebackHandledAtRef = useRef<number>(0);
@@ -183,17 +184,34 @@ const MatchContainerInner = ({
       const bot = findIfBots(match?.challengee.id, match?.challenger.id);
 
       if (bot) {
+        if (bot.botType !== 'basic') {
+          const botData = async () => {
+            const players = await getBotRating();
+
+            const rating = Number(
+              players.find((player: any) => player.user_id === bot.id)?.rejting
+            );
+
+            setBotRating(rating);
+          };
+          botData();
+        }
+
         if (bot.id == 'TbN0mQQJy8s2-') {
           const botFakeGuest = getMakeFakeName();
           setActiveBot(botFakeGuest);
         } else {
           setActiveBot(bot);
         }
-
+        console.log('bot', activeBot);
         if (bot.botType == 'matchFake') {
           const userData = async () => {
-            const data = await getUserInfo();
-            setUserRating(data?.rejting);
+            if (playersBySide?.home?.rating) {
+              setUserRating(Number(playersBySide?.home?.rating));
+            } else {
+              const data = await getUserInfo();
+              setUserRating(data?.rejting);
+            }
           };
           userData();
         }
@@ -359,6 +377,7 @@ const MatchContainerInner = ({
           <div className="w-full md:w-1/2 mr-0 md:mr-0">
             <MatchStateDisplayContainer
               activeBot={activeBot?.name}
+              botRating={botRating}
               isPlayer={isPlayer}
               participants={participants}
               isMobile={isMobile ?? undefined}
@@ -396,6 +415,7 @@ const MatchContainerInner = ({
               <div className="hidden md:block md:w-full mr-0 md:ml-0">
                 <MatchStateDisplayContainer
                   activeBot={activeBot?.name}
+                  botRating={botRating}
                   isPlayer={isPlayer}
                   participants={participants}
                   isMobile={isMobile ?? undefined}
