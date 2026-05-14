@@ -55,31 +55,36 @@ export const HistoryMove = ({
     return <div className="flex-1" />;
   }
 
+  const isOpening = rootHistoryIndex[0] < 3;
+
   const iconicEngine =
-    bestMoves && bestMoves.length < 2 && move.san == bestMoves[0]
+    !isOpening && bestMoves && bestMoves.length < 2 && move.san == bestMoves[0]
       ? '⏹️'
-      : bestMoves && move.san == bestMoves[0]
+      : !isOpening && bestMoves && move.san == bestMoves[0]
       ? '🎯'
-      : bestMoves && move.san == bestMoves[1]
+      : !isOpening && bestMoves && move.san == bestMoves[1]
       ? '⚡⚡'
-      : bestMoves && move.san == bestMoves[2]
+      : !isOpening && bestMoves && move.san == bestMoves[2]
       ? '⚡'
       : '';
 
-  const iconic =
-    evalDiff <= -2
-      ? '❌'
-      : evalDiff <= -0.5
-      ? '⬇️'
-      : evalDiff > -0.5 && evalDiff < 0.4
-      ? ''
-      : evalDiff < 1
-      ? '✅'
-      : '✅✅';
+  const iconic = isOpening
+    ? ''
+    : evalDiff <= -2
+    ? '❌'
+    : evalDiff <= -0.5
+    ? '⬇️'
+    : evalDiff > -0.5 && evalDiff < 0.4
+    ? ''
+    : evalDiff < 1
+    ? '✅'
+    : '✅✅';
 
   let moveCoplete = '';
 
-  if (iconicEngine !== '' && bestMoves.length < 2) {
+  if (isOpening) {
+    moveCoplete = `${move.san}`;
+  } else if (iconicEngine !== '' && bestMoves.length < 2) {
     moveCoplete = `${move.san} ${iconicEngine}`;
   } else if (evalDiff < -0.5 && iconicEngine !== '') {
     moveCoplete = `${move.san} ${iconic}`;

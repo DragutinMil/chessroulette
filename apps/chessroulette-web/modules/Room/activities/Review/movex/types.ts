@@ -62,6 +62,7 @@ export type EvaluationMove = {
   eval: number;
   diff: string;
   bestMoves: string[];
+  fen?: string;
 };
 export type Message = {
   content: string;

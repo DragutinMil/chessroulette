@@ -446,7 +446,7 @@ describe('End Match when rounds number reached', () => {
     expect(actual).toEqual(expected);
   });
 
-  test('Draw game does NOT impact score', () => {
+  test('Draw game ends match as complete with no winner', () => {
     const actual = applyActionsToMatchReducer(idlingMatch, [
       {
         type: 'play:move',
@@ -470,7 +470,7 @@ describe('End Match when rounds number reached', () => {
 
     const expected: MatchState = {
       messages: [],
-      status: 'ongoing',
+      status: 'complete',
       type: 'bestOf',
       rounds: 1,
       endedGames: [

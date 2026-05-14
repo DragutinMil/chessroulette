@@ -76,6 +76,14 @@ export class ChessRouler implements SpecificChessJS {
     );
     //console.log('pieces length',allPiecesByColor.length)
     if (allPiecesByColor.length > 2) {
+      const pieces = allPiecesByColor.map((p) => p.toLowerCase());
+      // King + 2 knights cannot force mate
+      if (
+        allPiecesByColor.length === 3 &&
+        pieces.filter((p) => p === 'n').length === 2
+      ) {
+        return false;
+      }
       return true;
     }
     if (
