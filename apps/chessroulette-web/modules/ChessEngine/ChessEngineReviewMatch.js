@@ -53,6 +53,7 @@ export async function analyzePGN(pgn, { onProgress } = {}, isMobile) {
       eval: evaluation,
       diff: (evaluation - previousEval).toFixed(2),
       bestMoves: topMoves,
+      fen: fen,
     });
 
     previousEval = evaluation;

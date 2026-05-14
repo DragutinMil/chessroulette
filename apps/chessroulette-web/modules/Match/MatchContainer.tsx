@@ -203,7 +203,7 @@ const MatchContainerInner = ({
         } else {
           setActiveBot(bot);
         }
-       // console.log('bot', activeBot);
+        // console.log('bot', activeBot);
         if (bot.botType == 'matchFake') {
           const userData = async () => {
             if (playersBySide?.home?.rating) {

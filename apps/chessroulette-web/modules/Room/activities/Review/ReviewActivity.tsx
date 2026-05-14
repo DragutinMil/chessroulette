@@ -164,9 +164,9 @@ export const ReviewActivity = ({
           if (data?.results?.endedGames) break;
 
           if (attempt === 1) {
-            getMovexInfo();
             await new Promise((res) => setTimeout(res, 1000));
           } else if (attempt === 2) {
+            getMovexInfo();
             await new Promise((res) => setTimeout(res, 3000));
           } else if (attempt === 3) {
             await new Promise((res) => setTimeout(res, 5000));
