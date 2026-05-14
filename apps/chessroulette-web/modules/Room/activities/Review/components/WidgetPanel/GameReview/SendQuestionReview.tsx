@@ -8,7 +8,8 @@ export async function SendQuestionReview(
   // reviewData: EvaluationMove[],
   moveSan?: string,
   moveLan?: string,
-  scoreCP?: any
+  scoreCP?: any,
+  includeFullPgn?: boolean
 ) {
   const model = 'gpt-5.1';
   const previusMessageId =
@@ -23,8 +24,11 @@ export async function SendQuestionReview(
     currentChapterState.chessAiMode.opponentColor == 'white'
       ? 'black'
       : 'white';
-  const actualPGN = slicePgn(pgn, moveNum, submoveNum);
+  const actualPGN = moveNum === -1 ? '' : slicePgn(pgn, moveNum, submoveNum);
   const evaluation = (scoreCP / 100) * -1;
+  const opponentName =
+    currentChapterState.chessAiMode.opponentName || 'opponent';
+  const gameResult = pgn?.match(/1-0|0-1|1\/2-1\/2/)?.[0] ?? 'unknown';
   const normalizedReview = currentChapterState?.chessAiMode?.review?.map(
     (m, index, arr) => {
       const previous = arr[index - 1];
@@ -32,12 +36,14 @@ export async function SendQuestionReview(
         moveNum: m.moveNum,
         color: m.moveCalc % 2 == 0 ? 'black' : 'white',
         move: m.move,
+        evaluation: m.eval,
         diff: parseFloat(m.diff),
         // ako postoji prethodni objekat, uzmi njegov prvi bestMoves
         bestMove:
           previous && Array.isArray(previous.bestMoves)
             ? previous.bestMoves[0]
             : null,
+        fen: m.fen,
       };
     }
   );
@@ -47,9 +53,7 @@ export async function SendQuestionReview(
     prompt +
     '\n\n' +
     'CONTEXT:\n' +
-    'whole match pgn:\n ' +
-    pgn +
-    '\n' +
+    (includeFullPgn ? 'whole match pgn:\n ' + pgn + '\n' : '') +
     'pgn actual position:' +
     actualPGN +
     '\n' +
@@ -58,6 +62,12 @@ export async function SendQuestionReview(
     '\n' +
     'user pieces color:' +
     userColor +
+    '\n' +
+    'opponent name:' +
+    opponentName +
+    '\n' +
+    'game result:' +
+    gameResult +
     '\n' +
     'best move:' +
     moveSan +

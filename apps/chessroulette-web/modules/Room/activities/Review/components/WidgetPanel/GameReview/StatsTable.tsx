@@ -20,7 +20,6 @@ const getHighlightClassGood = (value: number): string => {
 
 export const StatsTable: React.FC<StatsTableProps> = ({ content, review }) => {
   const values = content.split('/').map(Number);
-  // console.log(values)
   return (
     <div className="w-[100%] justify-center">
       <div>

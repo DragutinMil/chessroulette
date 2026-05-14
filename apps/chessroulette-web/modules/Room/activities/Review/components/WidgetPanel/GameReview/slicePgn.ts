@@ -1,9 +1,14 @@
+const RESULT_TOKENS = new Set(['1-0', '0-1', '1/2-1/2', '*']);
+
 export function slicePgn(
   pgn: string,
   moveIndex: number,
   isBlack: 0 | 1
 ): string {
-  const tokens = pgn.trim().split(/\s+/);
+  const tokens = pgn
+    .trim()
+    .split(/\s+/)
+    .filter((t) => !RESULT_TOKENS.has(t));
 
   const result: string[] = [];
   let moveCount = 0;

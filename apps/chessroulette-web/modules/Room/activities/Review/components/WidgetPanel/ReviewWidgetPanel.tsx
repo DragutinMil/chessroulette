@@ -128,6 +128,7 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
   ) => {
     const widgetPanelTabsNav = useWidgetPanelTabsNavAsSearchParams();
     const [pulseDot, setPulseDot] = useState(false);
+    const [suggestions, setSuggestions] = useState<string[]>([]);
     const [hintCircle, setHintCircle] = useState(false);
     const [isFocusedInput, setIsFocusedInput] = useState(false);
     const [question, setQuestion] = useState('');
@@ -215,13 +216,13 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
           data.answer.actionType == 'toPosition' &&
           data.answer.action !== ''
         ) {
-          console.log('akcija', data.answer.action);
+          // console.log('akcija', data.answer.action);
           const a = data.answer.action;
           const b =
             currentChapterState.chessAiMode.opponentColor == 'white' ? 1 : 0;
           const pgn = currentChapterState.chessAiMode.originalPGN;
           const slicePGN = slicePgn(pgn, a - 1, b);
-          console.log('slicePGN', slicePGN);
+          // console.log('slicePGN', slicePGN);
 
           onChangePosition({
             type: 'PGN',
@@ -229,6 +230,9 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
             position: [Number(a) - 1, Number(b)],
           });
         }
+        setSuggestions(
+          Array.isArray(data.answer.suggestions) ? data.answer.suggestions : []
+        );
         onMessage({
           content: data.answer.text,
           participantId: 'chatGPT123456' + predefined,
@@ -254,6 +258,7 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
         });
       }
       setQuestion('');
+      setSuggestions([]);
       setTimeout(() => {
         setPulseDot(true);
       }, 500);
@@ -424,6 +429,11 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
         '_self';
     };
     const analizeWorstMove = async () => {
+      onMessage({
+        content: 'My bad move?',
+        participantId: 'chatGPT123456',
+        idResponse: '',
+      });
       setQuestion('');
       setTimeout(() => {
         setPulseDot(true);
@@ -436,13 +446,25 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
       checkAnswerGPT(data, 'worstMove');
     };
     const checkOpening = async () => {
+      onMessage({
+        content: 'How was my opening?',
+        participantId: 'chatGPT123456',
+        idResponse: '',
+      });
       setQuestion('');
       setTimeout(() => {
         setPulseDot(true);
       }, 500);
       const question =
-        'Analize users opening. Maybe say somethig you recognize.Pop up if there were any wrong or very good moves by the user';
-      const data = await SendQuestionReview(question, currentChapterState);
+        'Analize user opening. Maybe say somethig you recognize.Pop up if there were any wrong or very good moves by the user';
+      const data = await SendQuestionReview(
+        question,
+        currentChapterState,
+        undefined,
+        undefined,
+        undefined,
+        true
+      );
       if (data) {
         setPulseDot(false);
       }
@@ -471,6 +493,7 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
         eval: item.eval,
         diff: item.diff,
         bestMoves: item.bestMoves,
+        fen: item.fen,
       }));
 
       if (data) {
@@ -596,6 +619,8 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
                         pulseDot={pulseDot}
                         userData={userData}
                         scoreCP={scoreCP}
+                        suggestions={suggestions}
+                        onSuggestedQuestion={addQuestion}
                       />
                     </div>
                     <div>

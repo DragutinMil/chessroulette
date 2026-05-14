@@ -19,6 +19,8 @@ type Props = {
   checkOpening: () => void;
   smallMobile: boolean;
   scoreCP?: number;
+  suggestions?: string[];
+  onSuggestedQuestion?: (q: string) => void;
 };
 //console.log('currentChapterState',currentChapterState)
 
@@ -33,6 +35,8 @@ const ConversationReview = ({
   openViewSubscription,
   smallMobile,
   scoreCP,
+  suggestions,
+  onSuggestedQuestion,
 }: Props) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [disableButton, setDisableButton] = useState(false);
@@ -200,6 +204,26 @@ const ConversationReview = ({
                       </ButtonGreen>
                     </div>
                   )}
+                  {isLastMessage &&
+                    !isSales &&
+                    !pulseDot &&
+                    suggestions &&
+                    suggestions.length > 0 &&
+                    onSuggestedQuestion && (
+                      <div className="flex flex-wrap mt-2">
+                        {suggestions.map((s, i) => (
+                          <ButtonGreen
+                            key={i}
+                            onClick={() => onSuggestedQuestion(s)}
+                            size="md"
+                            className="bg-green-600 text-black font-bold mt-2 px-1 mr-2 whitespace-nowrap px-4"
+                            style={{ color: 'black' }}
+                          >
+                            {s}
+                          </ButtonGreen>
+                        ))}
+                      </div>
+                    )}
                 </div>
 
                 {/* <div className="w-8 h-8 min-w-8  flex items-center justify-center rounded-full bg-indigo-1600 text-white font-semibold text-sm">

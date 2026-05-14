@@ -69,30 +69,34 @@ export const reviewAnalitics = (moves: EvaluationMove[]) => {
   let prevBestMoves: string[] | null = null;
 
   moves.forEach((m) => {
-    const colorStats = m.moveCalc % 2 !== 0 ? stats.white : stats.black;
-    const diff = Number(m.diff);
+    const isOpening = m.moveCalc <= 6;
 
-    // Diff evaluacija
-    if (m.moveCalc % 2 !== 0) {
-      if (diff < -2) colorStats.blunders++;
-      else if (diff <= -0.5) colorStats.badMoves++;
-      else if (diff > 0.3 && diff <= 1) colorStats.goodMoves++;
-      else if (diff > 1) colorStats.excellentMoves++;
-    } else {
-      if (diff > 2) colorStats.blunders++;
-      else if (diff >= 0.5) colorStats.badMoves++;
-      else if (diff < -0.3 && diff >= -1) colorStats.goodMoves++;
-      else if (diff < -1) colorStats.excellentMoves++;
+    if (!isOpening) {
+      const colorStats = m.moveCalc % 2 !== 0 ? stats.white : stats.black;
+      const diff = Number(m.diff);
+
+      // Diff evaluacija
+      if (m.moveCalc % 2 !== 0) {
+        if (diff < -2) colorStats.blunders++;
+        else if (diff <= -0.5) colorStats.badMoves++;
+        else if (diff > 0.3 && diff <= 1) colorStats.goodMoves++;
+        else if (diff > 1) colorStats.excellentMoves++;
+      } else {
+        if (diff > 2) colorStats.blunders++;
+        else if (diff >= 0.5) colorStats.badMoves++;
+        else if (diff < -0.3 && diff >= -1) colorStats.goodMoves++;
+        else if (diff < -1) colorStats.excellentMoves++;
+      }
+
+      // Stockfish linije iz prethodnog poteza
+      if (prevBestMoves) {
+        if (m.move === prevBestMoves[0]) colorStats.firstLine++;
+        else if (m.move === prevBestMoves[1]) colorStats.secondLine++;
+        else if (m.move === prevBestMoves[2]) colorStats.thirdLine++;
+      }
     }
 
-    // Stockfish linije iz prethodnog poteza
-    if (prevBestMoves) {
-      if (m.move === prevBestMoves[0]) colorStats.firstLine++;
-      else if (m.move === prevBestMoves[1]) colorStats.secondLine++;
-      else if (m.move === prevBestMoves[2]) colorStats.thirdLine++;
-    }
-
-    // Sačuvaj trenutni bestMoves za sledeću iteraciju
+    // Sačuvaj trenutni bestMoves za sledeću iteraciju (uvek, i za opening)
     prevBestMoves = m.bestMoves;
   });
 
