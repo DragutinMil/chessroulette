@@ -237,7 +237,7 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
                     <Button
                       icon="ArrowPathRoundedSquareIcon"
                       bgColor="green"
-                      className="transition-all duration-200 w-full border border-green-600/30 hover:border-green-600/70 hover:scale-[1.03] hover:shadow-[0_0_12px_rgba(7,218,99,0.25)]"
+                      className="transition-all duration-200 w-full  hover:scale-[1.03] hover:shadow-[0_0_12px_rgba(7,218,99,0.25)]"
                       style={{ minWidth: '160px' }}
                       onClick={async () => {
                         if (playerId) {
@@ -276,8 +276,8 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
                     <Button
                       icon="MagnifyingGlassIcon"
                       bgColor="green"
-                      className="transition-all text-black  duration-200 w-full border border-green-600/40 hover:border-green-600 hover:scale-[1.03] hover:shadow-[0_0_16px_rgba(7,218,99,0.35)] bg-green-600/40"
-                      style={{ minWidth: '160px' }}
+                      className="transition-all text-black  duration-200 w-full hover:border-green-600 hover:scale-[1.03] hover:shadow-[0_0_16px_rgba(7,218,99,0.35)] bg-green-600"
+                      style={{ minWidth: '160px', color: '#000' }}
                       onClick={() => {}}
                     >
                       Review
@@ -287,7 +287,7 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
                   <Button
                     icon="ArrowLeftIcon"
                     bgColor="green"
-                    className="transition-all duration-200 w-full border border-green-600/30 hover:border-green-600/70 hover:scale-[1.03] hover:shadow-[0_0_12px_rgba(7,218,99,0.25)]"
+                    className="transition-all duration-200 w-full hover:text-black  hover:scale-[1.03] hover:shadow-[0_0_12px_rgba(7,218,99,0.25)] mb-2"
                     style={{ minWidth: '160px' }}
                     onClick={() => {
                       window.location.href =
