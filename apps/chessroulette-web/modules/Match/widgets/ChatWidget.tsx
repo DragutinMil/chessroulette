@@ -433,7 +433,7 @@ for just **€4** — and improve faster with **AI-powered analysis and training
                 ? 'Chat disabled'
                 : 'Type your message...'
             }
-            className={`w-full text-sm rounded-[20px] border transition-colors duration-200 px-4 py-2 ${
+            className={`w-full text-[16px] md:text-sm rounded-[20px] border transition-colors duration-200 px-4 py-2 ${
               disabled || !isChatEnabled
                 ? 'bg-[#111111]/20 border-[#D9D9D9]/20 text-gray-500 placeholder-gray-600'
                 : 'border-conversation-100 bg-[#111111]/40 text-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400 focus:border-conversation-200 hover:border-conversation-300'
