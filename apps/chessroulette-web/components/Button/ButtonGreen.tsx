@@ -34,7 +34,7 @@ export type ButtonProps = Omit<NativeButtonProps, 'type' | 'ref'> &
 const classes = {
   md: 'p-1 px-2 text-sm rounded-2xl bg-[#07DA63]',
   lg: 'p-1 md:px-2 text-[12px] rounded-2xl   w-24  px-4  :h-8 font-bold  whitespace-nowrap',
-  sm: 'p-1 md:px-2 text-[12px] rounded-2xl   md:w-28 w-28  px-4  md:h-8 font-bold h-7 w-18 whitespace-nowrap',
+  sm: 'p-1  text-[12px] rounded-2xl   md:w-28 w-28  px-8  md:h-8 font-bold h-7 w-18 whitespace-nowrap',
   xs: 'p-1 px-2 text-xs rounded-md',
   custom: '',
 };
@@ -72,7 +72,7 @@ export const ButtonGreen = React.forwardRef<
     return (
       <button
         ref={ref}
-        className={`group  relative bg-[#D9D9D9]/20   duration-200 
+        className={`group  relative bg-[#D9D9D9]/20   duration-200  
  } ${classes[size]} ${
           disabled
             ? 'bg-[#D9D9D9]/20 opacity-30   hover:cursor-default '

@@ -37,7 +37,7 @@ export type MovePiece = {
 };
 
 export type aiLearn = {
-  mode: 'opening' | 'midgame' | 'endgame' | 'play';
+  mode: 'opening' | 'midgame' | 'endgame' | 'test';
   name: string;
   // uci: string,
   moves: string[];

@@ -45,7 +45,15 @@ export const LearnAiActivity = ({
   if (!moveSoundRef.current) {
     moveSoundRef.current = new Audio('/chessmove.mp3');
   }
+  const wrongMoveSoundRef = useRef<HTMLAudioElement | null>(null);
+  if (!wrongMoveSoundRef.current) {
+    wrongMoveSoundRef.current = new Audio('/buzz.flac');
+    wrongMoveSoundRef.current.volume = 0.4;
+  }
   const dispatch = optionalDispatch || noop;
+
+  const [wrongSquare, setWrongSquare] = useState<string | null>(null);
+  const wrongMoveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [playerNames, setPlayerNames] = useState(Array<string>);
   const [canFreePlay, setCanFreePlay] = useState(false);
@@ -160,6 +168,21 @@ export const LearnAiActivity = ({
                 <LearnAiBoard
                   sizePx={boardSize}
                   {...currentChapter}
+                  squareRenderer={({ square, children }) => {
+                    if (wrongSquare !== square) return null as unknown as React.JSX.Element;
+                    return (
+                      <div style={{ position: 'relative',  width: '100%', height: '100%' }}>
+                        {children}
+                        <svg
+                          viewBox="0 0 100 100"
+                          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none' }}
+                        >
+                          <line x1="18" y1="18" x2="82" y2="82" stroke="#f2358d" strokeWidth="14" strokeLinecap="round" />
+                          <line x1="82" y1="18" x2="18" y2="82" stroke="#f2358d" strokeWidth="14" strokeLinecap="round" />
+                        </svg>
+                      </div>
+                    );
+                  }}
                   orientation={
                     // The instructor gets the opposite side as the student (so they can play together)
                     settings.isInstructor
@@ -173,6 +196,40 @@ export const LearnAiActivity = ({
                     });
                   }}
                   onMove={async (payload) => {
+                    const mode = currentChapter.aiLearn?.mode;
+                    const openingMoves = currentChapter.aiLearn?.moves ?? [];
+
+                    if (mode === 'opening' && openingMoves.length > 0) {
+                      const history = currentChapter.notation?.history ?? [];
+                      const playedMoves: string[] = [];
+                      (history as any[]).flat().forEach((m: any) => {
+                        if (m && !m.isNonMove) {
+                          playedMoves.push(`${m.from}${m.to}${m.promotion ?? ''}`);
+                        }
+                      });
+                      const moveCount = playedMoves.length;
+
+                      if (moveCount < 10) {
+                        const followsOpening =
+                          openingMoves.length > moveCount &&
+                          playedMoves.every((m, i) => openingMoves[i] === m);
+
+                        if (followsOpening) {
+                          const nextUci = openingMoves[moveCount];
+                          if (!nextUci || !nextUci.startsWith(`${payload.from}${payload.to}`)) {
+                            if (wrongMoveTimeoutRef.current) clearTimeout(wrongMoveTimeoutRef.current);
+                            setWrongSquare(payload.to);
+                            wrongMoveTimeoutRef.current = setTimeout(() => setWrongSquare(null), 700);
+                            if (wrongMoveSoundRef.current) {
+                              wrongMoveSoundRef.current.currentTime = 0;
+                              wrongMoveSoundRef.current.play().catch(() => {});
+                            }
+                            return;
+                          }
+                        }
+                      }
+                    }
+
                     moveSoundRef.current?.play();
                     await enqueueMovexUpdate(() =>
                       dispatch({ type: 'loadedChapter:addMove', payload })
@@ -270,7 +327,7 @@ export const LearnAiActivity = ({
         </>
       )}
       rightComponent={
-        <div className="flex flex-col gap-4 h-[360px] md:h-full mb-14 w-full h-full flex-1 md:min-h-0 ">
+        <div className="flex flex-col gap-4 h-[360px] md:h-full  w-full h-full flex-1 md:min-h-0 ">
           {/* <div className="overflow-hidden  rounded-lg shadow-2xl mb-4">
             <img
               src="https://outpostchess.fra1.digitaloceanspaces.com/bfce3526-2133-4ac5-8b16-9c377529f0b6.jpg"
@@ -309,7 +366,11 @@ export const LearnAiActivity = ({
               );
             }}
             onArrowsChange={async (payload) => {
-              // console.log('payload arr', payload);
+              if (Object.keys(payload).length === 0) {
+                dispatch({ type: 'loadedChapter:setArrows', payload });
+                return;
+              }
+              
               await enqueueMovexUpdate(() =>
                 dispatch({ type: 'loadedChapter:setArrows', payload })
               );

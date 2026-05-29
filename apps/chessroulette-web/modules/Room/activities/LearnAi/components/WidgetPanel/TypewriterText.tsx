@@ -120,7 +120,7 @@ const TypewriterText: React.FC<TypewriterTextProps> = ({
       </p>
 
       <div className="flex flex-wrap"></div>
-      <div className="flex flex-wrap">
+      {/* <div className="flex flex-wrap">
         {lastMessage.includes(
           'Which strength level would you like to play against'
         ) &&
@@ -137,7 +137,7 @@ const TypewriterText: React.FC<TypewriterTextProps> = ({
               {category.label}
             </ButtonGreen>
           ))}
-      </div>
+      </div> */}
       {lastMessage.includes('What would you like to learn today?') &&
         displayedText.length === lastMessage.length && (
           <div className="flex flex-wrap items-center gap-2 mt-3">

@@ -30,6 +30,7 @@ export type ChessboardDisplayProps = Omit<
   onCancelPromoMove: () => void;
   onSubmitPromoMove: (move: ShortChessMove) => void;
   squareStyles?: any;
+  squareRenderer?: ChessboardOptions['squareRenderer'];
   animationDurationInMs?: number;
   onSquareClick?: (square: string, piece?: string) => void;
   //onPieceClick?: (square: string, piece: string | null) => void;
@@ -69,6 +70,7 @@ export const ChessboardDisplay = ({
   boardTheme,
   lastMove,
   squareStyles,
+  squareRenderer,
   onArrowsChange,
   // displayArrows,
 
@@ -128,6 +130,7 @@ export const ChessboardDisplay = ({
               return true;
             },
             squareStyles,
+            squareRenderer,
             darkSquareStyle: {
               backgroundColor: boardTheme.darkSquare,
             },
