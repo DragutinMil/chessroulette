@@ -61,9 +61,11 @@ const Conversation = ({
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    }
+    requestAnimationFrame(() => {
+      if (scrollRef.current) {
+        scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+      }
+    });
   }, [currentChapterState.messages, pulseDot]);
 
   const scrollToBottom = () => {
@@ -74,7 +76,7 @@ const Conversation = ({
   return (
     <div
       ref={scrollRef}
-      className="min-w-0 max-w-full overflow-y-auto overflow-x-hidden rounded-lg scroll-smooth no-scrollbar h-[290px] md:h-full md:min-h-0 pt-2"
+      className="min-w-0 max-w-full overflow-y-auto overflow-x-hidden rounded-lg scroll-smooth no-scrollbar h-[490px] md:flex-1 md:min-h-0 pt-2"
       // style={{ height: smallMobile ? '140px' : undefined }}
     >
       {currentChapterState.messages.map((msg, index) => {
@@ -152,6 +154,7 @@ const Conversation = ({
                                 key={op.name}
                                 onClick={() => onSelectOpening?.(op)}
                                 size="md"
+                                title={op.name}
                                 className="min-w-0 max-w-[330px] md:max-w-[380px] font-semibold mt-2 px-3 mr-2"
                               >
                                 <span className="block truncate">
