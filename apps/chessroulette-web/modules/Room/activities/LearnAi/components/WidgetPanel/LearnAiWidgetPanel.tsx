@@ -1086,9 +1086,60 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
           val: ChessFENBoard.STARTING_FEN,
         });
       // onArrowsChange({});
-                
+
       setTimeout(() => setFreezeButton(false), 3000);
-      }
+    }
+
+    // Auto-play opponent moves in test mode
+    useEffect(() => {
+      if (currentChapterState.aiLearn.mode !== 'test') return;
+
+      const userColor = currentChapterState.orientation;
+      const currentTurnColor = currentChapterState.displayFen.split(' ')[1];
+
+      if (currentTurnColor === userColor) return;
+
+      const history = currentChapterState.notation.history;
+      const playedMoves: string[] = [];
+      (history as any[]).flat().forEach((m: any) => {
+        if (m && !m.isNonMove) {
+          playedMoves.push(`${m.from}${m.to}${m.promotion ?? ''}`);
+        }
+      });
+      const moveCount = playedMoves.length;
+      const openingMoves = currentChapterState.aiLearn.moves ?? [];
+
+      const timer = setTimeout(async () => {
+        let nextUci: string | null = null;
+
+        if (moveCount < openingMoves.length) {
+          nextUci = openingMoves[moveCount];
+        } else {
+          const uciString = playedMoves.join(' ');
+          const data = await getOutpostNextMoves(uciString);
+          if (data.length > 0) {
+            const parsed = parseOutpostResponseToSuggestions(
+              data,
+              uciString,
+              currentChapterState.displayFen
+            );
+            if (parsed.length > 0) {
+              nextUci = parsed.sort((a, b) => b.cnt - a.cnt)[0].uci;
+            }
+          }
+        }
+
+        if (!nextUci || nextUci.length < 4) return;
+
+        const from = nextUci.slice(0, 2) as Square;
+        const to = nextUci.slice(2, 4) as Square;
+        const promoChar = nextUci.length >= 5 ? (nextUci[4] as 'q' | 'r' | 'b' | 'n') : undefined;
+
+        onMove(promoChar ? { from, to, promoteTo: promoChar } : { from, to });
+      }, 700);
+
+      return () => clearTimeout(timer);
+    }, [ currentChapterState.aiLearn.mode, currentChapterState.notation.history]);
 
     return (
       <div className="flex flex-col flex-1 min-h-0 rounded-lg shadow-2xl flex-1 flex min-h-0 ">

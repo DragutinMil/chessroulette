@@ -18,7 +18,7 @@ type Props = Required<
   >
 > &
   // Optionals
-  Pick<ChessboardContainerProps, 'rightSideComponent' | 'rightSideClassName'> &
+  Pick<ChessboardContainerProps, 'rightSideComponent' | 'rightSideClassName' | 'squareRenderer'> &
   ChapterBoardState & {
     notation?: ChapterState['notation'];
     onFlip: () => void;

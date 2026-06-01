@@ -51,6 +51,8 @@ export const PuzzleActivity = ({
   const [playerNames, setPlayerNames] = useState(Array<string>);
   const [canFreePlay, setCanFreePlay] = useState(false);
   const [puzzleCounter, setPuzzleCounter] = useState(0);
+  const [wrongSquare, setWrongSquare] = useState<string | null>(null);
+  const wrongMoveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [userData, setUserData] = useState({
     name_first: '',
     name_last: '',
@@ -149,6 +151,21 @@ export const PuzzleActivity = ({
                 sizePx={boardSize}
                 // onChangePuzzleAnimation={onChangePuzzleAnimation}
                 {...currentChapter}
+                squareRenderer={({ square, children }) => {
+                  if (wrongSquare !== square) return null as unknown as React.JSX.Element;
+                  return (
+                    <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+                      {children}
+                      <svg
+                        viewBox="0 0 100 100"
+                        style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none' }}
+                      >
+                        <line x1="18" y1="18" x2="82" y2="82" stroke="#f2358d" strokeWidth="14" strokeLinecap="round" />
+                        <line x1="82" y1="18" x2="18" y2="82" stroke="#f2358d" strokeWidth="14" strokeLinecap="round" />
+                      </svg>
+                    </div>
+                  );
+                }}
                 orientation={
                   // The instructor gets the opposite side as the student (so they can play together)
                   settings.isInstructor
@@ -162,9 +179,16 @@ export const PuzzleActivity = ({
                   });
                 }}
                 onMove={async (payload) => {
-                  moveSoundRef.current?.play();
-
                   if (currentChapter.chessAiMode.mode === 'puzzle') {
+                    const move = payload.from + payload.to;
+                    const expectedMove = currentChapter.chessAiMode.moves[currentChapter.chessAiMode.goodMoves];
+                    if (!expectedMove?.includes(move)) {
+                      if (wrongMoveTimeoutRef.current) clearTimeout(wrongMoveTimeoutRef.current);
+                      setWrongSquare(payload.to);
+                      wrongMoveTimeoutRef.current = setTimeout(() => setWrongSquare(null), 700);
+                      return;
+                    }
+                    moveSoundRef.current?.play();
                     await enqueueMovexUpdate(() =>
                       dispatch({
                         type: 'loadedChapter:addPuzzleMove',
