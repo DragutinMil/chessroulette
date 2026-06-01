@@ -1,6 +1,7 @@
 import { ChapterBoardState, ChapterState, aiLearn } from '../movex';
 import { useLearnAiActivitySettings } from '../hooks/useLearnAiActivitySettings';
 import { Freeboard, Playboard } from '@app/components/Boards';
+import { type ChessboardOptions } from 'react-chessboard';
 import { FreeBoardHistory } from '@xmatter/util-kit';
 import {
   BoardEditorIconButton,
@@ -26,6 +27,7 @@ type Props = Required<
     onClearBoard: () => void;
     onResetBoard: () => void;
     onBoardEditor: () => void;
+    squareRenderer?: ChessboardOptions['squareRenderer'];
   };
 
 export const LearnAiBoard = ({
@@ -54,6 +56,7 @@ export const LearnAiBoard = ({
   const turn = orientation;
   return (
     <Board
+      isLearnAi={true}
       containerClassName={`shadow-2xl`}
       boardOrientation={orientation}
       playingColor={orientation}

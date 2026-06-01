@@ -27,6 +27,7 @@ export type PlayboardProps = DistributiveOmit<
   userRating?: number;
   canPlay?: boolean;
   isReview?: boolean;
+  isLearnAi?: boolean;
   overlayComponent?: React.ReactNode;
 };
 
@@ -49,6 +50,7 @@ export const Playboard = ({
   canPlay = false,
   turn,
   isReview,
+  isLearnAi,
   ...props
 }: PlayboardProps) => {
   const boardTheme = useBoardTheme();
@@ -61,8 +63,9 @@ export const Playboard = ({
 
   const onValidateMove = useCallback(
     (move: ShortChessMove) => {
-      if (isReview) {
-        return validateMove(move, fen, playingColor, isReview).valid;
+      console.log('klikeri',isReview,isLearnAi)
+      if (isReview || isLearnAi) {
+        return validateMove(move, fen, playingColor, isReview || isLearnAi).valid;
       }
 
       if (!canPlay) {
@@ -74,7 +77,7 @@ export const Playboard = ({
       // console.log('rok',move, fen, playingColor)
       return validateMove(move, fen, playingColor).valid;
     },
-    [canPlay, turn, fen, playingColor]
+    [canPlay, turn, fen, playingColor, isReview, isLearnAi]
   );
   const onValidatePromoMove = useCallback(
     (move: ShortChessMove) => {

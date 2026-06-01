@@ -517,7 +517,7 @@ export function getOpeningIdeas(openingName: string): string | null {
 const LICHESS_EXPLORER = 'https://explorer.lichess.ovh';
 
 const OUTPOST_NEXT_MOVES_API =
-  'https://api.outpostchess.com/api/v2/chess_next_moves';
+  process.env.NEXT_PUBLIC_API_WEB +'/chess_next_moves';
 
 export type OutpostNextMoveRaw = { next: string; opening: string; cnt: string };
 
@@ -525,6 +525,7 @@ export type OutpostNextMoveRaw = { next: string; opening: string; cnt: string };
 export async function getOutpostNextMoves(
   uciMoves: string
 ): Promise<OutpostNextMoveRaw[]> {
+  
   try {
     const encoded = encodeURIComponent(uciMoves.trim());
     const url = `${OUTPOST_NEXT_MOVES_API}?moves=${encoded}`;
@@ -664,6 +665,7 @@ export async function getLichessTopMoves(
 
 //ANALYZE MOVES AND GET FREQUENTLY USED
 export async function analyzeMovesPGN(uciMoves: string) {
+  
   try {
     const response = await fetch(
       process.env.NEXT_PUBLIC_API_WEB + `chess_next_moves?moves=${uciMoves}`,
