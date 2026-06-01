@@ -25,6 +25,7 @@ import socketUtil from '../../../../socketUtil';
 
 import { FlipBoardIconButton } from '@app/components/Chessboard';
 import { IconButton } from '@app/components/Button';
+import { ArrowsMap } from '@app/components/Chessboard/types';
 import { FreeBoardHistory } from '@xmatter/util-kit';
 
 // import { InstructorBoard } from './components/InstructorBoard';
@@ -54,6 +55,8 @@ export const LearnAiActivity = ({
 
   const [wrongSquare, setWrongSquare] = useState<string | null>(null);
   const wrongMoveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [hintArrowMap, setHintArrowMap] = useState<ArrowsMap | null>(null);
+  const hintArrowTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [playerNames, setPlayerNames] = useState(Array<string>);
   const [canFreePlay, setCanFreePlay] = useState(false);
@@ -168,6 +171,7 @@ export const LearnAiActivity = ({
                 <LearnAiBoard
                   sizePx={boardSize}
                   {...currentChapter}
+                  arrowsMap={hintArrowMap ? { ...currentChapter.arrowsMap, ...hintArrowMap } : currentChapter.arrowsMap}
                   squareRenderer={({ square, children }) => {
                     if (wrongSquare !== square) return null as unknown as React.JSX.Element;
                     return (
@@ -199,7 +203,7 @@ export const LearnAiActivity = ({
                     const mode = currentChapter.aiLearn?.mode;
                     const openingMoves = currentChapter.aiLearn?.moves ?? [];
 
-                    if (mode === 'opening' && openingMoves.length > 0) {
+                    if ((mode === 'opening' || mode === 'test') && openingMoves.length > 0) {
                       const history = currentChapter.notation?.history ?? [];
                       const playedMoves: string[] = [];
                       (history as any[]).flat().forEach((m: any) => {
@@ -209,7 +213,10 @@ export const LearnAiActivity = ({
                       });
                       const moveCount = playedMoves.length;
 
-                      if (moveCount < 10) {
+                      // opening mode only enforces the first 10 moves; test mode enforces all predefined moves
+                      const withinValidationRange = mode === 'test' ? true : moveCount < 10;
+
+                      if (withinValidationRange) {
                         const followsOpening =
                           openingMoves.length > moveCount &&
                           playedMoves.every((m, i) => openingMoves[i] === m);
@@ -223,6 +230,15 @@ export const LearnAiActivity = ({
                             if (wrongMoveSoundRef.current) {
                               wrongMoveSoundRef.current.currentTime = 0;
                               wrongMoveSoundRef.current.play().catch(() => {});
+                            }
+                            if (mode === 'test' && nextUci && nextUci.length >= 4) {
+                              const hFrom = nextUci.slice(0, 2);
+                              const hTo = nextUci.slice(2, 4);
+                              const color = '#07DA63';
+                              const id = `${hFrom}${hTo}-${color}`;
+                              if (hintArrowTimeoutRef.current) clearTimeout(hintArrowTimeoutRef.current);
+                              setHintArrowMap({ [id]: [hFrom, hTo, color] } as ArrowsMap);
+                              hintArrowTimeoutRef.current = setTimeout(() => setHintArrowMap(null), 2000);
                             }
                             return;
                           }
