@@ -57,6 +57,7 @@ export const LearnAiActivity = ({
   const wrongMoveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [hintArrowMap, setHintArrowMap] = useState<ArrowsMap | null>(null);
   const hintArrowTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const newOpeningCallbackRef = useRef<(() => void) | null>(null);
 
   const [playerNames, setPlayerNames] = useState(Array<string>);
   const [canFreePlay, setCanFreePlay] = useState(false);
@@ -166,6 +167,30 @@ export const LearnAiActivity = ({
                 }
                 canFreePlay={canFreePlay}
                 currentChapter={currentChapter}
+                showCongratulations={currentChapter.aiLearn.popup}
+                onDismissCongratulations={async () =>
+                  await enqueueMovexUpdate(() =>
+                    dispatch({
+                      type: 'loadedChapter:setLearnAi',
+                      payload: { ...currentChapter.aiLearn, popup: false } as aiLearn,
+                    })
+                  )
+                }
+                onTestAgain={async () => {
+                  await enqueueMovexUpdate(() =>
+                    dispatch({
+                      type: 'loadedChapter:setLearnAi',
+                      payload: { ...currentChapter.aiLearn, popup: false, errors: 0 } as aiLearn,
+                    })
+                  );
+                  await enqueueMovexUpdate(() =>
+                    dispatch({
+                      type: 'loadedChapter:import',
+                      payload: { input: { type: 'FEN', val: ChessFENBoard.STARTING_FEN } },
+                    })
+                  );
+                }}
+                onNewOpening={() => newOpeningCallbackRef.current?.()}
               />
               <div>
                 <LearnAiBoard
@@ -201,7 +226,9 @@ export const LearnAiActivity = ({
                   }}
                   onMove={async (payload) => {
                     const mode = currentChapter.aiLearn?.mode;
-                    const openingMoves = currentChapter.aiLearn?.moves ?? [];
+                    const openingMoves = mode === 'test'
+                      ? (currentChapter.aiLearn?.moves_test ?? [])
+                      : (currentChapter.aiLearn?.moves ?? []);
 
                     if ((mode === 'opening' || mode === 'test') && openingMoves.length > 0) {
                       const history = currentChapter.notation?.history ?? [];
@@ -214,7 +241,7 @@ export const LearnAiActivity = ({
                       const moveCount = playedMoves.length;
 
                       // opening mode only enforces the first 10 moves; test mode enforces all predefined moves
-                      const withinValidationRange = mode === 'test' ? true : moveCount < 10;
+                      const withinValidationRange = mode === 'test' ? true : moveCount < 8;
 
                       if (withinValidationRange) {
                         const followsOpening =
@@ -231,14 +258,22 @@ export const LearnAiActivity = ({
                               wrongMoveSoundRef.current.currentTime = 0;
                               wrongMoveSoundRef.current.play().catch(() => {});
                             }
-                            if (mode === 'test' && nextUci && nextUci.length >= 4) {
-                              const hFrom = nextUci.slice(0, 2);
-                              const hTo = nextUci.slice(2, 4);
-                              const color = '#07DA63';
-                              const id = `${hFrom}${hTo}-${color}`;
-                              if (hintArrowTimeoutRef.current) clearTimeout(hintArrowTimeoutRef.current);
-                              setHintArrowMap({ [id]: [hFrom, hTo, color] } as ArrowsMap);
-                              hintArrowTimeoutRef.current = setTimeout(() => setHintArrowMap(null), 2000);
+                            if (mode === 'test') {
+                              enqueueMovexUpdate(() =>
+                                dispatch({
+                                  type: 'loadedChapter:setLearnAi',
+                                  payload: { ...currentChapter.aiLearn, errors: (currentChapter.aiLearn.errors ?? 0) + 1 } as aiLearn,
+                                })
+                              );
+                              if (nextUci && nextUci.length >= 4) {
+                                const hFrom = nextUci.slice(0, 2);
+                                const hTo = nextUci.slice(2, 4);
+                                const color = '#07DA63';
+                                const id = `${hFrom}${hTo}-${color}`;
+                                if (hintArrowTimeoutRef.current) clearTimeout(hintArrowTimeoutRef.current);
+                                setHintArrowMap({ [id]: [hFrom, hTo, color] } as ArrowsMap);
+                                hintArrowTimeoutRef.current = setTimeout(() => setHintArrowMap(null), 2000);
+                              }
                             }
                             return;
                           }
@@ -250,6 +285,24 @@ export const LearnAiActivity = ({
                     await enqueueMovexUpdate(() =>
                       dispatch({ type: 'loadedChapter:addMove', payload })
                     );
+
+                    if (mode === 'test') {
+                      const movesTest = currentChapter.aiLearn?.moves_test ?? [];
+                      const history = currentChapter.notation?.history ?? [];
+                      const played: string[] = [];
+                      (history as any[]).flat().forEach((m: any) => {
+                        if (m && !m.isNonMove) played.push(`${m.from}${m.to}`);
+                      });
+                      if (movesTest.length > 0 && played.length >= movesTest.length - 2) {
+                        await enqueueMovexUpdate(() =>
+                          dispatch({
+                            type: 'loadedChapter:setLearnAi',
+                            payload: { ...currentChapter.aiLearn, popup: true } as aiLearn,
+                          })
+                        );
+                      }
+                    }
+
                     return true;
                   }}
                   onArrowsChange={(payload) => {
@@ -343,7 +396,7 @@ export const LearnAiActivity = ({
         </>
       )}
       rightComponent={
-        <div className="flex flex-col gap-4 h-[360px] md:h-full  w-full h-full flex-1 md:min-h-0 ">
+        <div className="flex flex-col gap-4 h-[360px] md:h-full  w-full h-full flex-1 md:min-h-0 pb-4 md:pb-0 ">
           {/* <div className="overflow-hidden  rounded-lg shadow-2xl mb-4">
             <img
               src="https://outpostchess.fra1.digitaloceanspaces.com/bfce3526-2133-4ac5-8b16-9c377529f0b6.jpg"
@@ -504,6 +557,9 @@ export const LearnAiActivity = ({
                   payload: { input },
                 })
               );
+            }}
+            onRegisterNewOpening={(fn) => {
+              newOpeningCallbackRef.current = fn;
             }}
           />
         </div>

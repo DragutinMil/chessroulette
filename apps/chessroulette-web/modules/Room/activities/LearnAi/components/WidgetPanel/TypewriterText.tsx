@@ -10,7 +10,6 @@ interface TypewriterTextProps {
   scrollToBottom: () => void;
   takeBack: () => void;
   playNext: () => void;
-  hint: () => void;
   onSelectRating: (category: number) => void;
   onSelectLearnMode?: (mode: 'opening' | 'midgame' | 'endgame') => void;
   onHistoryNotationRefocus?: FreeBoardNotationProps['onRefocus'];
@@ -21,7 +20,6 @@ const TypewriterText: React.FC<TypewriterTextProps> = ({
   scrollToBottom,
   takeBack,
   playNext,
-  hint,
   onSelectRating,
   onSelectLearnMode,
   onHistoryNotationRefocus,
@@ -48,28 +46,29 @@ const TypewriterText: React.FC<TypewriterTextProps> = ({
     // { label: '2400', value: '2400' },
   ];
   useEffect(() => {
-    if (!lastMessage || lastMessage.trim() === '') return;
+    setDisplayedText(lastMessage)
+    // if (!lastMessage || lastMessage.trim() === '') return;
 
-    setDisplayedText('');
-    setShowCursor(true);
+    // setDisplayedText('');
+    // setShowCursor(true);
 
-    let currentIndex = 0;
+    // let currentIndex = 0;
 
-    const interval = setInterval(() => {
-      setDisplayedText((prev) => {
-        if (currentIndex < lastMessage.length) {
-          const nextChar = lastMessage[currentIndex];
-          currentIndex++;
-          return prev + nextChar;
-        } else {
-          clearInterval(interval);
-          setShowCursor(false);
-          return prev;
-        }
-      });
-    }, 20);
+    // const interval = setInterval(() => {
+    //   setDisplayedText((prev) => {
+    //     if (currentIndex < lastMessage.length) {
+    //       const nextChar = lastMessage[currentIndex];
+    //       currentIndex++;
+    //       return prev + nextChar;
+    //     } else {
+    //       clearInterval(interval);
+    //       setShowCursor(false);
+    //       return prev;
+    //     }
+    //   });
+    // }, 20);
 
-    return () => clearInterval(interval);
+    // return () => clearInterval(interval);
   }, [lastMessage]);
   useEffect(() => {
     scrollToBottom();
@@ -140,7 +139,7 @@ const TypewriterText: React.FC<TypewriterTextProps> = ({
       </div> */}
       {lastMessage.includes('What would you like to learn today?') &&
         displayedText.length === lastMessage.length && (
-          <div className="flex flex-wrap items-center gap-2 mt-3">
+          <div className="flex flex-wrap items-center gap-2 mt-1">
             <ButtonGreen
               onClick={() => onSelectLearnMode?.('opening')}
               size="md"

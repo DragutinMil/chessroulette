@@ -41,6 +41,8 @@ export type aiLearn = {
   name: string;
   // uci: string,
   moves: string[];
+  moves_test: string[];
+  errors: number;
   orientationChange: boolean;
   popup: boolean;
 };
