@@ -46,29 +46,28 @@ const TypewriterText: React.FC<TypewriterTextProps> = ({
     // { label: '2400', value: '2400' },
   ];
   useEffect(() => {
-    setDisplayedText(lastMessage)
-    // if (!lastMessage || lastMessage.trim() === '') return;
+    if (!lastMessage || lastMessage.trim() === '') return;
 
-    // setDisplayedText('');
-    // setShowCursor(true);
+    setDisplayedText('');
+    setShowCursor(true);
 
-    // let currentIndex = 0;
+    let currentIndex = 0;
 
-    // const interval = setInterval(() => {
-    //   setDisplayedText((prev) => {
-    //     if (currentIndex < lastMessage.length) {
-    //       const nextChar = lastMessage[currentIndex];
-    //       currentIndex++;
-    //       return prev + nextChar;
-    //     } else {
-    //       clearInterval(interval);
-    //       setShowCursor(false);
-    //       return prev;
-    //     }
-    //   });
-    // }, 20);
+    const interval = setInterval(() => {
+      setDisplayedText((prev) => {
+        if (currentIndex < lastMessage.length) {
+          const nextChar = lastMessage[currentIndex];
+          currentIndex++;
+          return prev + nextChar;
+        } else {
+          clearInterval(interval);
+          setShowCursor(false);
+          return prev;
+        }
+      });
+    }, 8);
 
-    // return () => clearInterval(interval);
+    return () => clearInterval(interval);
   }, [lastMessage]);
   useEffect(() => {
     scrollToBottom();

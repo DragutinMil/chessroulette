@@ -69,7 +69,7 @@ function parseIdeasToMoveCommentsAligned(
     lastIndex = match.index + match[0].length;
     const tokens = partBeforeBracket.split(/\s+/).filter(Boolean);
     const lastToken = tokens[tokens.length - 1] || '';
-    const san = lastToken.replace(/^\d+\.\.\.?\s*/, '').trim();
+    const san = lastToken.replace(/^\d+\.{1,3}\s*/, '').trim();
     if (san) list.push({ san, comment: match[1].trim() });
   }
   let listIdx = 0;
@@ -527,7 +527,7 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
         }
       });
 
-      console.log('Auto-Fetching Wiki Title:', title);
+     // console.log('Auto-Fetching Wiki Title:', title);
       try {
         const data = await getWikibooksContent(title);
 
@@ -557,6 +557,7 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
     const prevMoveCountRef = useRef(0);
 
     useEffect(() => {
+      if (currentChapterState.aiLearn.mode !== 'opening') return;
       const moveCount = currentChapterState.notation.history
         .flat()
         .filter((m: any) => m && !m.isNonMove).length;
