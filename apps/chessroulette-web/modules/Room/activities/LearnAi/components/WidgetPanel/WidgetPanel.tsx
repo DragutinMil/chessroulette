@@ -44,6 +44,7 @@ type Props = {
   engine?: EngineData;
   onFlipBoard?: () => void;
   onSetOrientation?: (color: 'w' | 'b') => void;
+  onRegisterNewOpening?: (fn: () => void) => void;
 } & Pick<
   ChaptersTabProps,
   | 'onLoadChapter'
@@ -83,6 +84,7 @@ export const WidgetPanel = React.forwardRef<TabsRef, Props>(
 
       userData,
       onHistoryNotationRefocus,
+      onRegisterNewOpening,
       ...chaptersTabProps
     },
     tabsRef
@@ -91,6 +93,7 @@ export const WidgetPanel = React.forwardRef<TabsRef, Props>(
       <LearnAiWidgetPanel
         userData={userData}
         addLearnAi={addLearnAi}
+        onRegisterNewOpening={onRegisterNewOpening}
         playerNames={playerNames}
         onHistoryNotationDelete={onHistoryNotationDelete}
         onHistoryNotationRefocus={onHistoryNotationRefocus}

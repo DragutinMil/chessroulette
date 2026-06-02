@@ -95,12 +95,8 @@ const Conversation = ({
                         className=" max-w-[28px] md:max-w-[36px] relative top-0.5"
                       />
                     ) : (
-                      <Image
-                        src={greenLogo}
-                        className="opacity-0  max-w-[28px] md:max-w-[36px] relative top-0.5"
-                        alt="outpost"
-                      />
-                    )}
+                    <div className="min-w-[28px] md:min-w-[36px]" />
+                  )}
                   </div>
 
                   <div

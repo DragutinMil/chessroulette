@@ -19,6 +19,8 @@ export const initialChapterState: ChapterState = {
     name: '',
     // uci:'',
     moves: [],
+    moves_test: [],
+    errors: 0,
     popup: false,
     orientationChange: false,
   },
