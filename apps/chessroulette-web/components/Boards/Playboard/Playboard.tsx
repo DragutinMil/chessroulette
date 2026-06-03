@@ -63,7 +63,6 @@ export const Playboard = ({
 
   const onValidateMove = useCallback(
     (move: ShortChessMove) => {
-      console.log('klikeri',isReview,isLearnAi)
       if (isReview || isLearnAi) {
         return validateMove(move, fen, playingColor, isReview || isLearnAi).valid;
       }

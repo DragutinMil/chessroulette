@@ -512,9 +512,11 @@ export function getOpeningIdeas(openingName: string): string | null {
 return OPENING_IDEAS[normalized];
   } 
   for (const key of Object.keys(OPENING_IDEAS)) {
-    if (normalized.includes(key) || key.includes(normalized))
-      console.log('OPENING_IDEAS',OPENING_IDEAS)
+     
+    if (normalized.includes(key) || key.includes(normalized)) {
+      console.log('OPENING_IDEAS[key]',OPENING_IDEAS[key])
       return OPENING_IDEAS[key];
+    }
   }
   return null;
 }
