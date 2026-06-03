@@ -64,6 +64,7 @@ function parseIdeasToMoveCommentsAligned(
   const bracketRegex = /\[([^\]]*)\]/g;
   let match;
   let lastIndex = 0;
+  console.log('ideje',ideas)
   while ((match = bracketRegex.exec(ideas)) !== null) {
     const partBeforeBracket = ideas.slice(lastIndex, match.index).trim();
     lastIndex = match.index + match[0].length;
@@ -141,7 +142,7 @@ function buildArrowsFromUciMoves(
       map[id] = [from, to, color];
     }
   });
-  console.log('mapa',map)
+  
   return map;
 }
 
@@ -296,7 +297,6 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
       3: '',
     });
 
-    const [wikiContent, setWikiContent] = useState<string>('');
     const [isWikiLoading, setIsWikiLoading] = useState(false);
     const [suggestedOpenings, setSuggestedOpenings] = useState<Array<{
       name: string;
@@ -380,6 +380,9 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
     ) => {
       
       const intro = `Let's play the ${opening.name}. We'll start from the beginning. If you'd like to learn a different opening at any time, just tell me.`;
+      console.log('precomputedIdeas',precomputedIdeas)
+       console.log('opening',opening.name , opening.pgn)
+       
       let ideas = precomputedIdeas ?? getOpeningIdeas(opening.name);
       // if (!ideas && opening.pgn?.trim()) {
         // const lastId =
@@ -526,28 +529,40 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
           title += `/${moveNum}...${pair[1].san}`;
         }
       });
-
-     // console.log('Auto-Fetching Wiki Title:', title);
+       console.log('title',title)
+      if (fetchedWikiTitlesRef.current.has(title)) return;
+      fetchedWikiTitlesRef.current.add(title);
       try {
         const data = await getWikibooksContent(title);
-
+        console.log('datara',data)
         if (data && data.query && data.query.pages) {
           const pages = data.query.pages;
           const pageId = Object.keys(pages)[0];
-          if (pages[pageId].missing) {
-            setWikiContent(
-              'No Wikibooks article found for this exact variation.'
-            );
-          } else {
-            setWikiContent(pages[pageId].extract);
+          if (!pages[pageId].missing) {
+            const raw: string = pages[pageId].extract ?? '';
+            const stripped = raw
+              .replace(/<h[1-3][^>]*>[\s\S]*?<\/h[1-4]>/gi, '')
+              .replace(/<p[^>]*>[\s\S]*?<\/p>/i, '')
+              .replace(/<[^>]+>/g, '')
+              .replace(/\n+/g, ' ')
+              .trim();
+            // Take first 2 sentences; don't split on "5. Nc3" (digit before dot)
+            const parts = stripped.split(/(?<!\d)\.\s+(?=[A-Z])/);
+            const snippet = parts.slice(0, 2).join('. ');
+            const text = (snippet.endsWith('.') ? snippet : snippet + '.').trim();
+            if (text) {
+              onMessage({
+                content: text,
+                participantId: 'chatGPT123456',
+                idResponse: '',
+              });
+            }
           }
-        } else {
-          setWikiContent('No content available.');
         }
       } catch (e) {
         console.error('Wiki fetch error', e);
       }
-    }, []);
+    }, [onMessage]);
 
     const debouncedFetchWiki = useMemo(
       () => debounce(fetchWikiContent, 500),
@@ -555,12 +570,15 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
     );
 
     const prevMoveCountRef = useRef(0);
+    const fetchedWikiTitlesRef = useRef<Set<string>>(new Set());
 
     useEffect(() => {
       if (currentChapterState.aiLearn.mode !== 'opening') return;
+      
       const moveCount = currentChapterState.notation.history
         .flat()
         .filter((m: any) => m && !m.isNonMove).length;
+        if(moveCount >7){return}
       if (moveCount > prevMoveCountRef.current && moveCount > 0) {
         const commentIndex = moveCount - 1;
         const comment = openingMoveComments[commentIndex];
@@ -749,40 +767,24 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
         Math.min(prev + 1, Math.ceil((suggestedMoves?.length ?? 0) / 3))
       );
     }, [suggestedMoves?.length]);
-    // Effect to follow the board (PGN/History)
+    // Effect to follow the board (PGN/History) — only fires after a suggested move
     useEffect(() => {
-      if (currentChapterState?.notation?.history) {
-        const { history, focusedIndex } = currentChapterState.notation;
+      if (currentChapterState.aiLearn.mode !== 'opening') return;
+      if (currentChapterState?.notation?.history && 
+        currentChapterState?.notation?.history.length > 4
+      ) {
+        const { history } = currentChapterState.notation;
         let activeHistory: any[] = history;
-
-        if (focusedIndex && focusedIndex.length === 2) {
-          const [moveIdx, colorIdx] = focusedIndex;
-          if (moveIdx === -1) {
-            activeHistory = [];
-          } else {
-            // Slice up to the current move pair
-            activeHistory = history.slice(0, moveIdx + 1).map((pair, idx) => {
-              // If it's the last pair we are looking at, check if we should exclude black's move
-              if (idx === moveIdx && colorIdx === 0) {
-                return [pair[0], null];
-              }
-              return pair;
-            });
-          }
-        }
-
         debouncedFetchWiki(activeHistory);
       }
     }, [
-      currentChapterState.notation.history,
-      currentChapterState.notation.focusedIndex,
-      debouncedFetchWiki,
+      currentChapterState.displayFen
     ]);
 
-    const currentTabIndex = useMemo(
-      () => widgetPanelTabsNav.getCurrentTabIndex(),
-      [widgetPanelTabsNav.getCurrentTabIndex]
-    );
+    // const currentTabIndex = useMemo(
+    //   () => widgetPanelTabsNav.getCurrentTabIndex(),
+    //   [widgetPanelTabsNav.getCurrentTabIndex]
+    // );
 
     const onTabChange = useCallback(
       (p: { tabIndex: number }) => {
@@ -1199,10 +1201,9 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
                     animation: 'pulseGlow 1.4s ease-in-out infinite',
                   } : {}),
                 }}
-                disabled={
-                  (currentChapterState.aiLearn.mode === 'test' ||
-                  (currentChapterState.aiLearn.mode === 'opening'
-                    && !deviatedFromOpening))
+                disabled={(currentChapterState.notation.history.length<11 || currentChapterState.aiLearn.mode === 'test')  &&
+                 (currentChapterState.aiLearn.mode === 'test' || (currentChapterState.aiLearn.mode === 'opening'
+                    && !deviatedFromOpening) )
                 }
               >
                 <p>Opening Test</p>

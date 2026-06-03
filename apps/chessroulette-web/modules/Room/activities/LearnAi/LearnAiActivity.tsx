@@ -293,7 +293,7 @@ export const LearnAiActivity = ({
                       (history as any[]).flat().forEach((m: any) => {
                         if (m && !m.isNonMove) played.push(`${m.from}${m.to}`);
                       });
-                      if (movesTest.length > 0 && played.length >= movesTest.length - 2) {
+                      if (movesTest.length > 0 && played.length >= movesTest.length - 3) {
                         await enqueueMovexUpdate(() =>
                           dispatch({
                             type: 'loadedChapter:setLearnAi',

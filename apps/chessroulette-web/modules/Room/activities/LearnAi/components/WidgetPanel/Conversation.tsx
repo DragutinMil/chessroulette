@@ -190,7 +190,7 @@ const Conversation = ({
                     </div>
                   ) : (
                     <div>
-                      <p className="flex  items-center text-[14px]    text-left ">
+                      <p className="text-[14px] text-left break-words leading-relaxed whitespace-pre-line">
                         {typeof msg.content === 'string' &&
                         onHistoryNotationRefocus &&
                         notationHistoryLength > 0
