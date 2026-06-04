@@ -48,6 +48,7 @@ export const ReviewActivity = ({
   }
   const dispatch = optionalDispatch || noop;
   const [newReview, setNewReview] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [playerNames, setPlayerNames] = useState(Array<string>);
   const [canFreePlay, setCanFreePlay] = useState(false);
   const [isFocusedInput, setIsFocusedInput] = useState(false);
@@ -97,19 +98,12 @@ export const ReviewActivity = ({
     if (newReview === false) {
       return;
     }
-    const hasBranches = JSON.stringify(
-      currentChapter.notation.history
-    ).includes('branchedHistories');
-    const hasIlegalMoves = JSON.stringify(
-      currentChapter.notation.history
-    ).includes('isNonMove');
-
-    //console.log('setNewReview2',newReview)
     const url = new URL(window.location.href);
-    const rawPgn = url.searchParams.get('pgn');
+    const matchId = url.searchParams.get('pgn');
     const userId = url.searchParams.get('userId');
 
-    if (rawPgn) {
+    if (matchId) {
+      setIsLoading(true);
       // Shared flag — whichever path fires gameReview first sets this to true
       const reviewCalled = { current: false };
 
@@ -119,13 +113,14 @@ export const ReviewActivity = ({
           return;
         }
 
-        const data = await getMovexRoom(rawPgn);
+        const data = await getMovexRoom(matchId);
         if (!data) return;
         // Adjust this path to match the actual movex response envelope if needed
         const state = data?.state[0].activity.activityState;
 
         const lastGame = state.endedGames.length - 1;
         const pgn = state.endedGames[lastGame].pgn;
+        console.log('pgn',pgn)
         const white = state.endedGames[lastGame].players.w == userId;
         const black = state.endedGames[lastGame].players.b == userId;
 
@@ -147,6 +142,7 @@ export const ReviewActivity = ({
           responseId: '',
           message: '',
         });
+        setIsLoading(false);
         setNewReview(false);
       };
 
@@ -156,7 +152,7 @@ export const ReviewActivity = ({
 
         for (let attempt = 1; attempt <= 5; attempt++) {
           try {
-            data = await getMatch(rawPgn);
+            data = await getMatch(matchId);
           } catch (e) {
             data = null;
           }
@@ -166,7 +162,6 @@ export const ReviewActivity = ({
           if (attempt === 1) {
             await new Promise((res) => setTimeout(res, 1000));
           } else if (attempt === 2) {
-            getMovexInfo();
             await new Promise((res) => setTimeout(res, 3000));
           } else if (attempt === 3) {
             await new Promise((res) => setTimeout(res, 5000));
@@ -196,14 +191,6 @@ export const ReviewActivity = ({
         // Movex already fired gameReview — just updating player names above is enough
         if (reviewCalled.current) return;
 
-        if (
-          !hasBranches &&
-          !hasIlegalMoves &&
-          currentChapter.displayFen !== '8/8/8/8/8/8/8/8 w - - 0 1'
-        ) {
-          return;
-        }
-
         const opponentName = white ? blackPlayerName : whitePlayerName;
         const opponentColor = white ? 'black' : 'white';
         const changeOrientation =
@@ -222,10 +209,14 @@ export const ReviewActivity = ({
           responseId: '',
           message: '',
         });
+        setIsLoading(false);
         setNewReview(false);
       };
 
-      getMatchInfo();
+      // Run both concurrently; hide loader when both settle (covers the case where neither has data)
+      Promise.allSettled([getMovexInfo(), getMatchInfo()]).then(() => {
+        setIsLoading(false);
+      });
     }
 
     getUserData();
@@ -276,7 +267,12 @@ export const ReviewActivity = ({
           {settings.isInstructor && inputState.isActive ? (
             ''
           ) : (
-            <div>
+            <div className="relative">
+              {isLoading && (
+                <div className="absolute inset-0 z-10 flex items-center justify-center bg-slate-900/70 rounded-lg">
+                  <div className="w-10 h-10 border-4 border-slate-500 border-t-white rounded-full animate-spin" />
+                </div>
+              )}
               <ReviewDialogContainer currentChapter={currentChapter} />
 
               {isMobile && (
