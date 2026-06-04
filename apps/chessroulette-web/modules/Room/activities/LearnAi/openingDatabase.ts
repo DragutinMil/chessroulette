@@ -1,0 +1,1034 @@
+export type OpeningVariant = {
+  variantName: string;
+  eco: string;
+  moves: string[];           // UCI format
+  comments: (string | null)[]; // one per move, 0-indexed (null = no comment)
+};
+
+export type OpeningFamily = {
+  name: string;
+  variants: OpeningVariant[];
+};
+
+export const OPENING_DATABASE: OpeningFamily[] = [
+  // ─────────────────────────────────────────────
+  // 1. SICILIAN DEFENSE
+  // ─────────────────────────────────────────────
+  {
+    name: 'Sicilian Defense',
+    variants: [
+      {
+        variantName: 'Najdorf Variation',
+        eco: 'B90',
+        moves: ['e2e4','c7c5','g1f3','d7d6','d2d4','c5d4','f3d4','g8f6','b1c3','a7a6'],
+        comments: [
+          'White stakes a claim in the center.',
+          'The Sicilian — Black fights for control of d4 without symmetrical pawn play.',
+          'White develops the knight and prepares d4.',
+          'Black supports the e5 square and prepares to develop the bishop.',
+          'White blasts open the center.',
+          'Black trades the c-pawn to open the c-file for counterplay.',
+          'White recaptures and centralizes the knight on d4.',
+          'Black attacks e4 and develops a piece.',
+          'White defends e4 and completes minor-piece development.',
+          'The Najdorf — Black prevents Bb5+ and prepares ...b5 expansion.',
+        ],
+      },
+      {
+        variantName: 'Dragon Variation',
+        eco: 'B70',
+        moves: ['e2e4','c7c5','g1f3','d7d6','d2d4','c5d4','f3d4','g8f6','b1c3','g7g6','c1e3','f8g7','d1d2','b8c6','e1c1','e8g8'],
+        comments: [
+          'White opens the game with e4.',
+          'Sicilian Defense — Black avoids a symmetrical center.',
+          'White develops and pressures d4.',
+          'Black prepares the bishop and keeps options open.',
+          'White opens the d-file.',
+          'Black recaptures and opens the c-file.',
+          'Knight to d4, controlling the center.',
+          'Black develops and attacks e4.',
+          'White defends e4.',
+          'The Dragon — Black fianchettoes the bishop on g7, aiming at the long diagonal.',
+          'White develops the bishop and prepares queenside castling.',
+          'The Dragon bishop on g7 becomes a powerful long-range weapon.',
+          'White prepares to castle queenside and launch a kingside attack.',
+          'Black develops and challenges the center.',
+          'White castles queenside, beginning a race where both sides attack.',
+          'Black castles kingside, completing development.',
+        ],
+      },
+      {
+        variantName: 'Scheveningen Variation',
+        eco: 'B80',
+        moves: ['e2e4','c7c5','g1f3','d7d6','d2d4','c5d4','f3d4','g8f6','b1c3','e7e6'],
+        comments: [
+          null,
+          'Sicilian Defense.',
+          null,
+          'Black prepares to develop actively.',
+          null,
+          'Black opens the c-file.',
+          null,
+          'Black develops and puts pressure on e4.',
+          null,
+          'Scheveningen — Black builds a solid pawn chain on d6-e6. The queen\'s bishop is temporarily shut in but the position is very solid.',
+        ],
+      },
+      {
+        variantName: 'Classical Variation',
+        eco: 'B56',
+        moves: ['e2e4','c7c5','g1f3','d7d6','d2d4','c5d4','f3d4','g8f6','b1c3','b8c6'],
+        comments: [
+          null,
+          'Sicilian Defense.',
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          'Classical Sicilian — Black develops the knight to its most natural square, immediately pressuring d4.',
+        ],
+      },
+    ],
+  },
+
+  // ─────────────────────────────────────────────
+  // 2. FRENCH DEFENSE
+  // ─────────────────────────────────────────────
+  {
+    name: 'French Defense',
+    variants: [
+      {
+        variantName: 'Classical Variation',
+        eco: 'C11',
+        moves: ['e2e4','e7e6','d2d4','d7d5','b1c3','g8f6','c1g5','f8e7','e4e5','f6d7','g5e7','d8e7'],
+        comments: [
+          null,
+          'French Defense — Black prepares ...d5 to challenge the center.',
+          'White builds a strong center.',
+          'Black challenges immediately.',
+          'White defends e4 with the knight.',
+          'Black develops and attacks e4.',
+          'White pins the knight with Bg5, increasing central pressure.',
+          'Black unpins with Be7.',
+          'White advances, gaining space on the kingside.',
+          'Black retreats the knight; the position becomes a classic French structure.',
+          null,
+          null,
+        ],
+      },
+      {
+        variantName: 'Winawer Variation',
+        eco: 'C15',
+        moves: ['e2e4','e7e6','d2d4','d7d5','b1c3','f8b4'],
+        comments: [
+          null,
+          'French Defense.',
+          null,
+          'Black challenges the center.',
+          null,
+          'Winawer — Black pins the knight immediately, threatening to double White\'s c-pawns.',
+        ],
+      },
+      {
+        variantName: 'Advance Variation',
+        eco: 'C02',
+        moves: ['e2e4','e7e6','d2d4','d7d5','e4e5','c7c5','c2c3','b8c6','g1f3','d8b6'],
+        comments: [
+          null,
+          'French Defense.',
+          null,
+          null,
+          'Advance — White grabs space immediately. The pawn on e5 restricts Black\'s pieces.',
+          'Black immediately attacks the d4 pawn, the key weakness in White\'s center.',
+          'White solidly defends d4.',
+          'Black develops with tempo, eyeing the d4 pawn.',
+          null,
+          'Black puts immediate pressure on b2 and d4.',
+        ],
+      },
+    ],
+  },
+
+  // ─────────────────────────────────────────────
+  // 3. CARO-KANN DEFENSE
+  // ─────────────────────────────────────────────
+  {
+    name: 'Caro-Kann Defense',
+    variants: [
+      {
+        variantName: 'Classical Variation',
+        eco: 'B18',
+        moves: ['e2e4','c7c6','d2d4','d7d5','b1c3','d5e4','c3e4','c8f5','e4g3','f5g6','h2h4','h7h6','g1f3','b8d7','h4h5','g6h7','f1d3','h7d3','d1d3'],
+        comments: [
+          null,
+          'Caro-Kann — Black prepares ...d5 with c6, avoiding the weakness of the French e6 bishop.',
+          null,
+          'Black challenges the center.',
+          null,
+          'Black recaptures and develops the bishop before closing the position.',
+          'The Classical. Black keeps the good bishop outside the pawn chain.',
+          'Black develops the bishop actively to f5.',
+          'White retreats and prepares h4.',
+          'Black places the bishop on g6, keeping an eye on d3.',
+          'White attacks the bishop.',
+          'Black keeps the bishop active.',
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+        ],
+      },
+      {
+        variantName: 'Advance Variation',
+        eco: 'B12',
+        moves: ['e2e4','c7c6','d2d4','d7d5','e4e5','c8f5','g1f3','e7e6','c2c3','b8d7','f1e2','c6c5'],
+        comments: [
+          null,
+          'Caro-Kann Defense.',
+          null,
+          null,
+          'Advance — White grabs space. Black\'s position is solid but cramped.',
+          'Black develops the bishop while it can still get outside the pawn chain.',
+          null,
+          'Black prepares to challenge White\'s center.',
+          'White solidifies the center.',
+          null,
+          null,
+          'Black strikes back at the center with c5, the thematic counterplay.',
+        ],
+      },
+    ],
+  },
+
+  // ─────────────────────────────────────────────
+  // 4. ITALIAN GAME
+  // ─────────────────────────────────────────────
+  {
+    name: 'Italian Game',
+    variants: [
+      {
+        variantName: 'Giuoco Piano',
+        eco: 'C50',
+        moves: ['e2e4','e7e5','g1f3','b8c6','f1c4','f8c5','c2c3','g8f6','d2d4','e5d4','c3d4','c5b4','b1c3','b4c3','b2c3','e8g8','e1g1','d7d5'],
+        comments: [
+          null,
+          'Black mirrors the center.',
+          'White develops and attacks e5.',
+          'Black defends e5 and develops.',
+          'The Italian — White aims at f7 and controls the center diagonally.',
+          'Black mirrors the bishop, aiming at f2.',
+          'Giuoco Piano — White prepares d4 to strike the center.',
+          'Black develops and pins the c3 knight if it goes there.',
+          'White opens the center.',
+          'Black recaptures.',
+          null,
+          'Black pins the c3 knight.',
+          null,
+          null,
+          null,
+          'Black castles for safety.',
+          null,
+          'Black strikes back in the center — the game is now sharp and tactical.',
+        ],
+      },
+      {
+        variantName: 'Two Knights Defense',
+        eco: 'C55',
+        moves: ['e2e4','e7e5','g1f3','b8c6','f1c4','g8f6','f3g5','d7d5','e4d5','b8a6'],
+        comments: [
+          null,
+          null,
+          null,
+          null,
+          null,
+          'Two Knights — Black counterattacks immediately instead of the quiet Giuoco Piano.',
+          'White attacks f7 aggressively. This leads to very sharp play.',
+          'Black must counterattack with d5 to avoid a difficult defense.',
+          null,
+          'Black sacrifices a pawn for rapid development and counterplay.',
+        ],
+      },
+    ],
+  },
+
+  // ─────────────────────────────────────────────
+  // 5. RUY LÓPEZ (SPANISH)
+  // ─────────────────────────────────────────────
+  {
+    name: 'Ruy Lopez',
+    variants: [
+      {
+        variantName: 'Morphy Defense (Open Spanish)',
+        eco: 'C80',
+        moves: ['e2e4','e7e5','g1f3','b8c6','f1b5','a7a6','b5a4','g8f6','e1g1','f6e4','d2d4','b7b5','a4b3','d7d5','d4e5','c8e6'],
+        comments: [
+          null,
+          null,
+          null,
+          null,
+          'Ruy López — White pins the knight, indirectly pressuring e5.',
+          'Black pushes away the bishop.',
+          'White retreats but keeps the pin alive.',
+          'Black develops the knight naturally.',
+          'White castles, increasing the pressure on e5.',
+          'Black accepts the pawn sacrifice — the Open Spanish begins.',
+          null,
+          'Black expands on the queenside.',
+          null,
+          'Black strikes back in the center.',
+          null,
+          'Black develops the bishop actively, creating a complex position.',
+        ],
+      },
+      {
+        variantName: 'Berlin Defense',
+        eco: 'C65',
+        moves: ['e2e4','e7e5','g1f3','b8c6','f1b5','g8f6','e1g1','f6e4','d2d4','b5d7','d4e5','d7b6'],
+        comments: [
+          null,
+          null,
+          null,
+          null,
+          'Ruy López.',
+          'Berlin — Black develops the knight to f6, choosing a solid defense.',
+          'White castles.',
+          'Black captures the pawn. The Berlin endgame begins.',
+          null,
+          null,
+          null,
+          'Black retreats the bishop, heading for a simplified endgame that is very solid for Black.',
+        ],
+      },
+      {
+        variantName: 'Closed Spanish (Zaitsev)',
+        eco: 'C92',
+        moves: ['e2e4','e7e5','g1f3','b8c6','f1b5','a7a6','b5a4','g8f6','e1g1','f8e7','f1e1','b7b5','a4b3','d7d6','c2c3','e8g8','h2h3','c8b7','d2d4','f8e8'],
+        comments: [
+          null,
+          null,
+          null,
+          null,
+          'Ruy López.',
+          null,
+          null,
+          'Black develops and prepares to castle.',
+          'White castles kingside.',
+          'Black develops the bishop toward the kingside.',
+          'White reroutes the rook to e1 to support e4.',
+          'Black expands on the queenside.',
+          null,
+          'Black solidifies the center.',
+          'White prepares d4.',
+          'Black castles.',
+          'White prevents ...Ng4.',
+          'Black places the bishop on the long diagonal — the Zaitsev.',
+          'White strikes the center.',
+          'Black prepares counterplay in the center.',
+        ],
+      },
+    ],
+  },
+
+  // ─────────────────────────────────────────────
+  // 6. QUEEN'S GAMBIT
+  // ─────────────────────────────────────────────
+  {
+    name: "Queen's Gambit",
+    variants: [
+      {
+        variantName: "Queen's Gambit Accepted",
+        eco: 'D20',
+        moves: ['d2d4','d7d5','c2c4','d5c4','g1f3','g8f6','e2e3','e7e6','f1c4','c7c5','e1g1','a7a6'],
+        comments: [
+          'White opens with d4, fighting for central control.',
+          'Black mirrors the center.',
+          'The Queen\'s Gambit — White offers a pawn to gain central control.',
+          'QGA — Black accepts the gambit pawn.',
+          'White develops and prepares to recapture on c4.',
+          'Black develops the knight.',
+          'White prepares to recapture on c4.',
+          null,
+          'White recaptures the pawn and develops the bishop actively.',
+          'Black counterattacks the center immediately.',
+          'White castles for safety.',
+          'Black prevents Bb5+.',
+        ],
+      },
+      {
+        variantName: "Queen's Gambit Declined (Orthodox)",
+        eco: 'D50',
+        moves: ['d2d4','d7d5','c2c4','e7e6','b1c3','g8f6','c1g5','f8e7','e2e3','e8g8','g1f3','b8d7','f1d3','d5c4','d3c4','c7c5'],
+        comments: [
+          null,
+          null,
+          'The Queen\'s Gambit.',
+          'QGD — Black declines with e6, keeping the pawn but blocking the c8 bishop.',
+          'White develops and controls the center.',
+          'Black develops the knight.',
+          'White pins the knight, increasing pressure on d5.',
+          'Black unpins with Be7.',
+          null,
+          'Black castles.',
+          null,
+          'Black develops the knight, preparing ...c5.',
+          null,
+          'Black trades on c4 to free the position.',
+          'White recaptures, keeping the bishop active.',
+          'Black strikes the center — the game opens up.',
+        ],
+      },
+      {
+        variantName: 'Slav Defense',
+        eco: 'D10',
+        moves: ['d2d4','d7d5','c2c4','c7c6','g1f3','g8f6','b1c3','d5c4','a2a4','c8f5','e2e3','e7e6','f1c4','f8b4'],
+        comments: [
+          null,
+          null,
+          'Queen\'s Gambit.',
+          'Slav — Black supports d5 with c6, keeping the c8-h3 diagonal open for the bishop.',
+          null,
+          null,
+          null,
+          'Black accepts the gambit pawn.',
+          'White prevents ...b5 from defending the extra pawn.',
+          'Black develops the bishop outside the pawn chain before closing it with e6.',
+          null,
+          null,
+          null,
+          'Black pins the c3 knight, creating pressure.',
+        ],
+      },
+    ],
+  },
+
+  // ─────────────────────────────────────────────
+  // 7. KING'S INDIAN DEFENSE
+  // ─────────────────────────────────────────────
+  {
+    name: "King's Indian Defense",
+    variants: [
+      {
+        variantName: 'Classical Variation',
+        eco: 'E91',
+        moves: ['d2d4','g8f6','c2c4','g7g6','b1c3','f8g7','e2e4','d7d6','g1f3','e8g8','f1e2','e7e5','e1g1','b8c6','d4d5','c6e7'],
+        comments: [
+          null,
+          'Black plans to fianchetto the king\'s bishop — a hypermodern approach.',
+          null,
+          'Black continues the fianchetto plan.',
+          null,
+          'The King\'s Indian bishop on g7 becomes a powerful weapon.',
+          'White builds a large center.',
+          'Black prepares to challenge White\'s center with ...e5.',
+          null,
+          'Black castles, completing the fianchetto setup.',
+          null,
+          'Black strikes the center — the typical KID counterplay.',
+          'White castles.',
+          'Black develops the knight toward the center.',
+          'White closes the center, fixing the pawn structure.',
+          'Black reroutes the knight to g6 or f5 for kingside play.',
+        ],
+      },
+      {
+        variantName: 'Sämisch Variation',
+        eco: 'E80',
+        moves: ['d2d4','g8f6','c2c4','g7g6','b1c3','f8g7','e2e4','d7d6','f2f3','e8g8','c1e3','c7c5'],
+        comments: [
+          null,
+          null,
+          null,
+          null,
+          'White builds a large center.',
+          null,
+          'Sämisch — White plays f3, reinforcing e4 and planning a kingside attack with g4.',
+          'Black castles into the sharp position.',
+          'White develops the bishop and prepares queenside castling.',
+          'Black immediately counterattacks in the center.',
+        ],
+      },
+    ],
+  },
+
+  // ─────────────────────────────────────────────
+  // 8. NIMZO-INDIAN DEFENSE
+  // ─────────────────────────────────────────────
+  {
+    name: 'Nimzo-Indian Defense',
+    variants: [
+      {
+        variantName: 'Classical Variation',
+        eco: 'E32',
+        moves: ['d2d4','g8f6','c2c4','e7e6','b1c3','f8b4','d1c2','e8g8','a2a3','b4c3','c2c3','b7b6','c1g5','c8b7'],
+        comments: [
+          null,
+          null,
+          null,
+          null,
+          null,
+          'Nimzo-Indian — Black pins the knight, preventing White from playing e4 freely.',
+          'Classical — White defends the knight and prepares e4.',
+          'Black castles.',
+          'White forces the issue on the pin.',
+          'Black gives up the bishop pair to double White\'s c-pawns.',
+          'White gets the bishop pair but has a weakened pawn structure.',
+          'Black prepares to develop the bishop to b7.',
+          'White pins the knight.',
+          'Black develops the bishop to the long diagonal, creating a strong battery.',
+        ],
+      },
+      {
+        variantName: 'Rubinstein Variation',
+        eco: 'E40',
+        moves: ['d2d4','g8f6','c2c4','e7e6','b1c3','f8b4','e2e3','e8g8','f1d3','d7d5','g1f3','c7c5'],
+        comments: [
+          null,
+          null,
+          null,
+          null,
+          null,
+          'Nimzo-Indian Defense.',
+          'Rubinstein — White plays e3, solidly supporting d4.',
+          'Black castles.',
+          'White develops the bishop actively to d3.',
+          'Black challenges the center with d5.',
+          null,
+          'Black immediately attacks d4 — the game becomes dynamic.',
+        ],
+      },
+    ],
+  },
+
+  // ─────────────────────────────────────────────
+  // 9. ENGLISH OPENING
+  // ─────────────────────────────────────────────
+  {
+    name: 'English Opening',
+    variants: [
+      {
+        variantName: 'Symmetrical Variation',
+        eco: 'A30',
+        moves: ['c2c4','c7c5','g1f3','g8f6','b1c3','d7d5','c4d5','f6d5','d2d4','b8c6','d4c5','d5c3','b2c3','d8a5'],
+        comments: [
+          'English Opening — White controls d5 from the flank, a hypermodern approach.',
+          'Symmetrical — Black mirrors White\'s strategy.',
+          null,
+          null,
+          null,
+          'Black strikes the center.',
+          null,
+          'Black recaptures and centralizes the knight.',
+          'White opens the position.',
+          null,
+          null,
+          null,
+          null,
+          'Black regains the pawn and wins a piece.',
+        ],
+      },
+      {
+        variantName: 'Reversed Sicilian',
+        eco: 'A20',
+        moves: ['c2c4','e7e5','b1c3','g8f6','g1f3','b8c6','g2g3','d7d5','c4d5','f6d5','f1g2','d5c3','d2c3','f8e7'],
+        comments: [
+          'English Opening.',
+          'Black grabs the center.',
+          null,
+          null,
+          null,
+          null,
+          'White fianchettoes the bishop, building long-term pressure.',
+          'Black challenges the center.',
+          null,
+          'Black recaptures.',
+          'White completes the fianchetto.',
+          null,
+          null,
+          'Black develops solidly.',
+        ],
+      },
+    ],
+  },
+
+  // ─────────────────────────────────────────────
+  // 10. LONDON SYSTEM
+  // ─────────────────────────────────────────────
+  {
+    name: 'London System',
+    variants: [
+      {
+        variantName: 'Main Line',
+        eco: 'D02',
+        moves: ['d2d4','d7d5','g1f3','g8f6','c1f4','e7e6','e2e3','f8d6','f4g3','e8g8','b1d2','c7c5','c2c3','b8c6','f1d3','d6g3','h2g3'],
+        comments: [
+          null,
+          null,
+          null,
+          null,
+          'London System — White develops the bishop early to f4, building a solid setup.',
+          'Black prepares to develop the bishop.',
+          'White supports the center.',
+          'Black challenges the bishop.',
+          'White retreats to g3, keeping the structure solid.',
+          'Black castles.',
+          null,
+          'Black strikes the center.',
+          'White solidifies the center.',
+          null,
+          'Black challenges the bishop.',
+          'Black trades the bishop.',
+          'White recaptures, keeping a strong pawn structure.',
+        ],
+      },
+    ],
+  },
+
+  // ─────────────────────────────────────────────
+  // 11. SCOTCH GAME
+  // ─────────────────────────────────────────────
+  {
+    name: 'Scotch Game',
+    variants: [
+      {
+        variantName: 'Classical Variation',
+        eco: 'C45',
+        moves: ['e2e4','e7e5','g1f3','b8c6','d2d4','e5d4','f3d4','f8c5','d4b3','c5b6','b1c3','g8f6','c1g5','h7h6','g5f6','d8f6'],
+        comments: [
+          null,
+          null,
+          null,
+          null,
+          'Scotch Game — White opens the center immediately, unlike the slower Spanish.',
+          'Black recaptures.',
+          null,
+          'Black develops the bishop to the active c5 square.',
+          'White retreats the knight.',
+          'Black retreats the bishop, keeping it safe.',
+          null,
+          'Black develops and attacks e4.',
+          'White pins the knight.',
+          'Black breaks the pin.',
+          null,
+          'Black recaptures with the queen, keeping active play.',
+        ],
+      },
+      {
+        variantName: 'Scotch Gambit',
+        eco: 'C44',
+        moves: ['e2e4','e7e5','g1f3','b8c6','d2d4','e5d4','f1c4','f8c5','c2c3','d4c3','b2c3','g8f6'],
+        comments: [
+          null,
+          null,
+          null,
+          null,
+          'Scotch Gambit — White plays Bc4 instead of recapturing, entering a gambit.',
+          null,
+          'White offers another pawn to rapidly develop pieces.',
+          'Black develops the bishop actively.',
+          'White offers the c3 pawn for quick development.',
+          'Black accepts.',
+          null,
+          'Black develops with a slight disadvantage but extra material.',
+        ],
+      },
+    ],
+  },
+
+  // ─────────────────────────────────────────────
+  // 12. KING'S GAMBIT
+  // ─────────────────────────────────────────────
+  {
+    name: "King's Gambit",
+    variants: [
+      {
+        variantName: "King's Gambit Accepted",
+        eco: 'C33',
+        moves: ['e2e4','e7e5','f2f4','e5f4','g1f3','g7g5','h2h4','g5g4','f3e5','d7d6'],
+        comments: [
+          null,
+          null,
+          'The King\'s Gambit — one of the oldest and most romantic openings. White sacrifices a pawn for rapid development.',
+          'KGA — Black accepts the gambit.',
+          'White develops and prepares to recapture on f4.',
+          'Black defends the f4 pawn aggressively.',
+          'White attacks the g5 pawn.',
+          'Black pushes forward, creating complications.',
+          'White sacrifices the knight — the Kieseritzky Gambit.',
+          'Black accepts, but now faces serious development problems.',
+        ],
+      },
+      {
+        variantName: "King's Gambit Declined",
+        eco: 'C30',
+        moves: ['e2e4','e7e5','f2f4','f8c5','g1f3','d7d6','b1c3','b8c6','f1c4','g8f6'],
+        comments: [
+          null,
+          null,
+          'King\'s Gambit.',
+          'KGD — Black declines with Bc5, keeping a solid position.',
+          null,
+          'Black solidifies the center.',
+          null,
+          null,
+          null,
+          'Black completes development — a balanced game.',
+        ],
+      },
+    ],
+  },
+
+  // ─────────────────────────────────────────────
+  // 13. GRÜNFELD DEFENSE
+  // ─────────────────────────────────────────────
+  {
+    name: 'Grünfeld Defense',
+    variants: [
+      {
+        variantName: 'Exchange Variation',
+        eco: 'D85',
+        moves: ['d2d4','g8f6','c2c4','g7g6','b1c3','d7d5','c4d5','f6d5','e2e4','d5c3','b2c3','f8g7','g1f3','c7c5','f1e2','e8g8'],
+        comments: [
+          null,
+          null,
+          null,
+          'Grünfeld Defense — Black plans to fianchetto and challenge the center with d5.',
+          null,
+          'Black challenges the center.',
+          'Exchange — White captures on d5, building a large center.',
+          'Black recaptures.',
+          'White builds a huge center with e4.',
+          'Black destroys the center.',
+          null,
+          'The Grünfeld bishop on g7 attacks White\'s center from the flank.',
+          null,
+          'Black immediately attacks d4.',
+          null,
+          'Black castles and prepares to apply pressure on the center.',
+        ],
+      },
+      {
+        variantName: 'Russian System',
+        eco: 'D70',
+        moves: ['d2d4','g8f6','c2c4','g7g6','g1f3','f8g7','b1c3','d7d5','d1b3','d5c4','d8d5'],
+        comments: [
+          null,
+          null,
+          null,
+          null,
+          null,
+          'Grünfeld Defense.',
+          'Russian System — White plays Qb3, targeting d5 and b7.',
+          'Black accepts the gambit.',
+          null,
+          'Black develops and challenges the queen.',
+        ],
+      },
+    ],
+  },
+
+  // ─────────────────────────────────────────────
+  // 14. QUEEN'S INDIAN DEFENSE
+  // ─────────────────────────────────────────────
+  {
+    name: "Queen's Indian Defense",
+    variants: [
+      {
+        variantName: 'Fianchetto Variation',
+        eco: 'E15',
+        moves: ['d2d4','g8f6','c2c4','e7e6','g1f3','b7b6','g2g3','c8b7','f1g2','f8e7','e1g1','e8g8','b1c3','b8e5'],
+        comments: [
+          null,
+          null,
+          null,
+          "Queen's Indian — Black plans to fianchetto the queen's bishop on b7.",
+          null,
+          'Black places the bishop on the long diagonal.',
+          'White fianchettoes, creating a mirror structure.',
+          'Black completes the fianchetto.',
+          'White completes the fianchetto, controlling the long diagonals.',
+          'Black castles.',
+          null,
+          'Black develops the knight and challenges White\'s setup.',
+        ],
+      },
+    ],
+  },
+
+  // ─────────────────────────────────────────────
+  // 15. DUTCH DEFENSE
+  // ─────────────────────────────────────────────
+  {
+    name: 'Dutch Defense',
+    variants: [
+      {
+        variantName: 'Stonewall Variation',
+        eco: 'A92',
+        moves: ['d2d4','f7f5','g2g3','g8f6','f1g2','e7e6','g1f3','d7d5','e1g1','f8d6','c2c4','c7c6','b2b3','d8e7','c1b2','b7b6'],
+        comments: [
+          null,
+          'Dutch Defense — Black controls e4 and aims for a kingside attack.',
+          'White prepares to fianchetto.',
+          null,
+          'White fianchettoes, building long-term pressure.',
+          null,
+          'White castles.',
+          null,
+          'White opens the queenside.',
+          'Black develops the bishop to a strong diagonal.',
+          null,
+          'Stonewall — Black builds a solid pawn structure with ...e6, ...d5, ...c6, ...f5.',
+          null,
+          null,
+          null,
+          'Black develops the bishop to the long diagonal.',
+        ],
+      },
+      {
+        variantName: 'Leningrad Variation',
+        eco: 'A81',
+        moves: ['d2d4','f7f5','g2g3','g8f6','f1g2','g7g6','g1f3','f8g7','e1g1','e8g8','c2c4','d7d6'],
+        comments: [
+          null,
+          'Dutch Defense.',
+          null,
+          null,
+          null,
+          'Leningrad — Black also fianchettoes the king\'s bishop, creating a dynamic setup.',
+          null,
+          'Black completes the fianchetto.',
+          null,
+          'Black castles — both sides have mirrored fianchettos.',
+          null,
+          'Black prepares ...e5 for central counterplay.',
+        ],
+      },
+    ],
+  },
+
+  // ─────────────────────────────────────────────
+  // 16. PIRC DEFENSE
+  // ─────────────────────────────────────────────
+  {
+    name: 'Pirc Defense',
+    variants: [
+      {
+        variantName: 'Classical Variation',
+        eco: 'B07',
+        moves: ['e2e4','d7d6','d2d4','g8f6','b1c3','g7g6','g1f3','f8g7','f1e2','e8g8','e1g1','c7c5'],
+        comments: [
+          null,
+          'Pirc Defense — Black allows White to build a large center and plans to undermine it.',
+          null,
+          'Black plans to fianchetto.',
+          null,
+          null,
+          null,
+          'Black fianchettoes the bishop — now the Pirc bishop on g7 attacks the center.',
+          null,
+          'Black castles.',
+          null,
+          'Black immediately challenges the center.',
+        ],
+      },
+    ],
+  },
+
+  // ─────────────────────────────────────────────
+  // 17. VIENNA GAME
+  // ─────────────────────────────────────────────
+  {
+    name: 'Vienna Game',
+    variants: [
+      {
+        variantName: 'Vienna Gambit',
+        eco: 'C29',
+        moves: ['e2e4','e7e5','b1c3','g8f6','f2f4','d7d5','f4e5','f6e4','d1f3','f7f5'],
+        comments: [
+          null,
+          null,
+          'Vienna Game — White develops the knight before f4, avoiding some early tactics.',
+          'Black develops and attacks e4.',
+          'Vienna Gambit — White immediately plays f4, creating a double pawn center.',
+          'Black strikes back in the center.',
+          null,
+          'Black centralizes the knight.',
+          'White activates the queen.',
+          'Black defends the knight, maintaining the material.',
+        ],
+      },
+      {
+        variantName: 'Classical Variation',
+        eco: 'C25',
+        moves: ['e2e4','e7e5','b1c3','b8c6','f1c4','f8c5','d2d3','g8f6','f2f4','d7d6'],
+        comments: [
+          null,
+          null,
+          'Vienna Game.',
+          'Black mirrors the development.',
+          'White aims at f7, playing the Italian setup.',
+          null,
+          'Classical — White supports the center quietly.',
+          null,
+          'White prepares to expand.',
+          'Black solidifies the position.',
+        ],
+      },
+    ],
+  },
+
+  // ─────────────────────────────────────────────
+  // 18. ALEKHINE'S DEFENSE
+  // ─────────────────────────────────────────────
+  {
+    name: "Alekhine's Defense",
+    variants: [
+      {
+        variantName: 'Modern Variation',
+        eco: 'B04',
+        moves: ['e2e4','g8f6','e4e5','f6d5','d2d4','d7d6','g1f3','g7g6','f1e2','f8g7','e1g1','e8g8','e5d6','e7d6'],
+        comments: [
+          null,
+          "Alekhine's Defense — provocative! Black invites White to chase the knight and over-extend.",
+          'White accepts the challenge and gains space.',
+          'Black retreats — but this was the plan all along.',
+          'White builds a large center, which Black will try to undermine.',
+          null,
+          null,
+          'Black fianchettoes, building long-term pressure on the center.',
+          null,
+          null,
+          null,
+          'Black castles.',
+          'White\'s center becomes a target.',
+          'Black recaptures, leveling the pawn structure.',
+        ],
+      },
+    ],
+  },
+
+  // ─────────────────────────────────────────────
+  // 19. PETROV'S DEFENSE (Russian Game)
+  // ─────────────────────────────────────────────
+  {
+    name: "Petrov's Defense",
+    variants: [
+      {
+        variantName: 'Classical Variation',
+        eco: 'C42',
+        moves: ['e2e4','e7e5','g1f3','g8f6','f3e5','d7d6','e5f3','f6e4','d2d4','d6d5','f1d3','b8c6','e1g1','f8e7'],
+        comments: [
+          null,
+          null,
+          null,
+          "Petrov's Defense — Black mirrors White's knight move, aiming for symmetry and solidity.",
+          'White attacks e5.',
+          'Black must play d6 to avoid losing the e5 pawn after Nxf7.',
+          'White retreats.',
+          'Black recaptures the e4 pawn, restoring material equality.',
+          'White opens the center.',
+          'Black attacks e4.',
+          null,
+          null,
+          'White castles.',
+          'Black develops — the position is equal but solid for Black.',
+        ],
+      },
+    ],
+  },
+
+  // ─────────────────────────────────────────────
+  // 20. BENONI DEFENSE
+  // ─────────────────────────────────────────────
+  {
+    name: 'Benoni Defense',
+    variants: [
+      {
+        variantName: 'Modern Benoni',
+        eco: 'A70',
+        moves: ['d2d4','g8f6','c2c4','c7c5','d4d5','e7e6','b1c3','e6d5','c4d5','d7d6','e2e4','g7g6','g1f3','f8g7','f1e2','e8g8','e1g1','a7a5'],
+        comments: [
+          null,
+          null,
+          null,
+          'Benoni — Black immediately challenges d4 with c5, creating an asymmetrical pawn structure.',
+          'White advances the d-pawn, creating a passed pawn.',
+          'Black dissolves the tension.',
+          null,
+          'Black recaptures.',
+          null,
+          null,
+          'White builds a large center.',
+          'Black fianchettoes for long-term pressure on the center.',
+          null,
+          null,
+          null,
+          'Black castles.',
+          null,
+          'Black expands on the queenside — the typical Benoni counterplay.',
+        ],
+      },
+    ],
+  },
+];
+
+// ─────────────────────────────────────────────
+// LOOKUP HELPERS
+// ─────────────────────────────────────────────
+
+function normalizeForLookup(name: string): string {
+  return name.toLowerCase().replace(/[^a-z0-9 ]/g, '').trim();
+}
+
+/** Returns the best matching variant for a given opening name. */
+export function findOpeningVariant(name: string): OpeningVariant | null {
+  const q = normalizeForLookup(name);
+  // 1. Try exact family match
+  for (const family of OPENING_DATABASE) {
+    if (normalizeForLookup(family.name) === q) {
+      return family.variants[0];
+    }
+  }
+  // 2. Try variant name exact match
+  for (const family of OPENING_DATABASE) {
+    for (const v of family.variants) {
+      if (normalizeForLookup(`${family.name} ${v.variantName}`) === q) return v;
+      if (normalizeForLookup(v.variantName) === q) return v;
+    }
+  }
+  // 3. Partial family match
+  for (const family of OPENING_DATABASE) {
+    const fn = normalizeForLookup(family.name);
+    if (fn.includes(q) || q.includes(fn)) return family.variants[0];
+  }
+  // 4. Partial variant match
+  for (const family of OPENING_DATABASE) {
+    for (const v of family.variants) {
+      const vn = normalizeForLookup(v.variantName);
+      if (vn.includes(q) || q.includes(vn)) return v;
+    }
+  }
+  return null;
+}
+
+/** Returns all variants for a given family name. */
+export function findOpeningFamily(name: string): OpeningFamily | null {
+  const q = normalizeForLookup(name);
+  for (const family of OPENING_DATABASE) {
+    const fn = normalizeForLookup(family.name);
+    if (fn === q || fn.includes(q) || q.includes(fn)) return family;
+  }
+  return null;
+}
+
+/** Returns all variant names for a given family. */
+export function getVariantNames(familyName: string): string[] {
+  const family = findOpeningFamily(familyName);
+  if (!family) return [];
+  return family.variants.map((v) => `${family.name} — ${v.variantName}`);
+}
