@@ -271,7 +271,8 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
 
                   <Link
                     className="w-full"
-                    href={`https://chess.outpostchess.com/room/new/r${room}?activity=review&userId=${userId}&theme=op&pgn=${roomId}`}
+                     href={`https://chess.outpostchess.com/room/new/r${room}?activity=review&userId=${userId}&theme=op&pgn=${roomId}`}
+                    //href={`http://localhost:4200/room/new/r${room}?activity=review&userId=${userId}&theme=op&pgn=${roomId}`}
                   >
                     <Button
                       icon="MagnifyingGlassIcon"

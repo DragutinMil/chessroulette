@@ -46,7 +46,7 @@ import {
   getWikibooksContent,
   getLichessBestMove,
   getOpeningIdeas,
-  getOpeningCommentFromAi,
+  //getOpeningCommentFromAi,
   buildPgnFromMessageContent,
   getOpeningByUserInput,
   getOpeningFromAiByName,
@@ -64,12 +64,13 @@ function parseIdeasToMoveCommentsAligned(
   const bracketRegex = /\[([^\]]*)\]/g;
   let match;
   let lastIndex = 0;
+  console.log('ideje',ideas)
   while ((match = bracketRegex.exec(ideas)) !== null) {
     const partBeforeBracket = ideas.slice(lastIndex, match.index).trim();
     lastIndex = match.index + match[0].length;
     const tokens = partBeforeBracket.split(/\s+/).filter(Boolean);
     const lastToken = tokens[tokens.length - 1] || '';
-    const san = lastToken.replace(/^\d+\.\.\.?\s*/, '').trim();
+    const san = lastToken.replace(/^\d+\.{1,3}\s*/, '').trim();
     if (san) list.push({ san, comment: match[1].trim() });
   }
   let listIdx = 0;
@@ -80,6 +81,7 @@ function parseIdeasToMoveCommentsAligned(
       listIdx = j + 1;
     }
   }
+  console.log('result',result)
   return result;
 }
 
@@ -140,7 +142,7 @@ function buildArrowsFromUciMoves(
       map[id] = [from, to, color];
     }
   });
-  console.log('mapa',map)
+  
   return map;
 }
 
@@ -190,6 +192,7 @@ type Props = {
   addLearnAi: (data: aiLearn) => void;
   onFlipBoard?: () => void;
   onSetOrientation?: (color: 'w' | 'b') => void;
+  onRegisterNewOpening?: (fn: () => void) => void;
 
   // Engine
   showEngine?: boolean;
@@ -228,8 +231,9 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
       onQuickImport,
       onHistoryNotationDelete,
       onHistoryNotationRefocus,
-      onFlipBoard, // Destrakturisanje propa
+      onFlipBoard,
       onSetOrientation,
+      onRegisterNewOpening,
       userData,
       ...chaptersTabProps
     },
@@ -263,6 +267,7 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
     const [reviewData, setReviewData] = useState<EvaluationMove[]>([]);
     const [freezeButton, setFreezeButton] = useState(false);
     const [deviatedFromOpening, setDeviatedFromOpening] = useState(false);
+    const deviationMsgSentRef = useRef(false);
     const [hintActive, setHintActive] = useState(true);
     
     const [scoreCP, setScoreCP] = useState(0);
@@ -292,7 +297,6 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
       3: '',
     });
 
-    const [wikiContent, setWikiContent] = useState<string>('');
     const [isWikiLoading, setIsWikiLoading] = useState(false);
     const [suggestedOpenings, setSuggestedOpenings] = useState<Array<{
       name: string;
@@ -307,6 +311,7 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
     const [openingMoveComments, setOpeningMoveComments] = useState<
       (string | null)[]
     >([]);
+
     function parseIdeasToMoveComments(ideas: string): string[] {
       const comments: string[] = [];
       const regex = /\[([^\]]*)\]/g;
@@ -373,15 +378,19 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
       opening: { name: string; pgn: string },
       precomputedIdeas?: string
     ) => {
+      
       const intro = `Let's play the ${opening.name}. We'll start from the beginning. If you'd like to learn a different opening at any time, just tell me.`;
+      console.log('precomputedIdeas',precomputedIdeas)
+       console.log('opening',opening.name , opening.pgn)
+       
       let ideas = precomputedIdeas ?? getOpeningIdeas(opening.name);
-      if (!ideas && opening.pgn?.trim()) {
-        const lastId =
-          currentChapterState.messages[currentChapterState.messages.length - 1]
-            ?.idResponse ?? '';
-        const aiComment = await getOpeningCommentFromAi(opening.pgn, lastId);
-        if (aiComment) ideas = aiComment;
-      }
+      // if (!ideas && opening.pgn?.trim()) {
+        // const lastId =
+        //   currentChapterState.messages[currentChapterState.messages.length - 1]
+        //     ?.idResponse ?? '';
+        // const aiComment = await getOpeningCommentFromAi(opening.pgn, lastId);
+        // if (aiComment) ideas = aiComment;
+      // }
 
       setLastOpeningIntroContent(intro);
 
@@ -405,6 +414,7 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
       const chess = new Chess();
       chess.loadPgn(pgnToImport);
       const sanMoves = chess.history();
+      console.log(ideas, sanMoves)
       const moveComments = ideas
         ? parseIdeasToMoveCommentsAligned(ideas, sanMoves)
         : [];
@@ -438,13 +448,16 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
       });
     };
 
-    const formatOpeningTextForDisplay = (text: string): string => {
-      if (!text?.trim()) return text;
-      return text
-        .replace(/\]\s+/g, ']\n') // novi red posle ] (kraj komentara)
-        .replace(/\s+\[/g, '\n[') // novi red pre [ (početak komentara)
-        .replace(/\.\s+/g, '.\n'); // novi red posle tačke (rečenice)
-    };
+
+
+    // const formatOpeningTextForDisplay = (text: string): string => {
+    //   if (!text?.trim()) return text;
+    //   return text
+    //     .replace(/\]\s+/g, ']\n') // novi red posle ] (kraj komentara)
+    //     .replace(/\s+\[/g, '\n[') // novi red pre [ (početak komentara)
+    //     .replace(/\.\s+/g, '.\n'); // novi red posle tačke (rečenice)
+    // };
+
 
     const handleSelectColor = (color: 'w' | 'b') => {
       onSetOrientation?.(color);
@@ -463,18 +476,21 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
         participantId: 'chatGPT123456',
         idResponse: '',
       });
-      //visak
-      // if (lastOpeningIntroContent.trim()) {
-      //   onMessage({
-      //     content: lastOpeningIntroContent,
-      //     participantId: 'chatGPT123456',
-      //     idResponse: '',
-      //   });
-      // }
+    
       setShowColorChoice(false);
+
     };
 
     const requestAnotherOpening = async () => {
+      addLearnAi({
+        ...currentChapterState.aiLearn,
+        moves: [],
+        moves_test: [],
+        errors: 0,
+        popup: false,
+        name: '',
+        mode: 'opening',
+      });
       onMessage({
         content: 'Another opening',
         participantId: userData?.user_id || 'user',
@@ -492,6 +508,12 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
       });
     };
 
+
+
+    useEffect(() => {
+      onRegisterNewOpening?.(requestAnotherOpening);
+    }, []);
+
     // Debounced function to fetch wiki content
     const fetchWikiContent = useCallback(async (history: any[]) => {
       let title = 'Chess_Opening_Theory';
@@ -507,28 +529,40 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
           title += `/${moveNum}...${pair[1].san}`;
         }
       });
-
-      console.log('Auto-Fetching Wiki Title:', title);
+       console.log('title',title)
+      if (fetchedWikiTitlesRef.current.has(title)) return;
+      fetchedWikiTitlesRef.current.add(title);
       try {
         const data = await getWikibooksContent(title);
-
+        console.log('datara',data)
         if (data && data.query && data.query.pages) {
           const pages = data.query.pages;
           const pageId = Object.keys(pages)[0];
-          if (pages[pageId].missing) {
-            setWikiContent(
-              'No Wikibooks article found for this exact variation.'
-            );
-          } else {
-            setWikiContent(pages[pageId].extract);
+          if (!pages[pageId].missing) {
+            const raw: string = pages[pageId].extract ?? '';
+            const stripped = raw
+              .replace(/<h[1-3][^>]*>[\s\S]*?<\/h[1-4]>/gi, '')
+              .replace(/<p[^>]*>[\s\S]*?<\/p>/i, '')
+              .replace(/<[^>]+>/g, '')
+              .replace(/\n+/g, ' ')
+              .trim();
+            // Take first 2 sentences; don't split on "5. Nc3" (digit before dot)
+            const parts = stripped.split(/(?<!\d)\.\s+(?=[A-Z])/);
+            const snippet = parts.slice(0, 2).join('. ');
+            const text = (snippet.endsWith('.') ? snippet : snippet + '.').trim();
+            if (text) {
+              onMessage({
+                content: text,
+                participantId: 'chatGPT123456',
+                idResponse: '',
+              });
+            }
           }
-        } else {
-          setWikiContent('No content available.');
         }
       } catch (e) {
         console.error('Wiki fetch error', e);
       }
-    }, []);
+    }, [onMessage]);
 
     const debouncedFetchWiki = useMemo(
       () => debounce(fetchWikiContent, 500),
@@ -536,11 +570,15 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
     );
 
     const prevMoveCountRef = useRef(0);
+    const fetchedWikiTitlesRef = useRef<Set<string>>(new Set());
 
     useEffect(() => {
+      if (currentChapterState.aiLearn.mode !== 'opening') return;
+      
       const moveCount = currentChapterState.notation.history
         .flat()
         .filter((m: any) => m && !m.isNonMove).length;
+        if(moveCount >7){return}
       if (moveCount > prevMoveCountRef.current && moveCount > 0) {
         const commentIndex = moveCount - 1;
         const comment = openingMoveComments[commentIndex];
@@ -566,7 +604,6 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
       
       if (currentChapterState.aiLearn.mode !== 'opening') return;
       const fen = currentChapterState.displayFen;
-      const blue = '#11C6D1';
       const openingName = (currentChapterState.aiLearn.name ?? '').trim();
       const hasOpeningSelected = openingName.length > 0;
       
@@ -574,6 +611,7 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
       setHoveredSuggestedUci(null);
       setVisibleSuggestedRows(1);
       setDeviatedFromOpening(false);
+      deviationMsgSentRef.current = false;
       onArrowsChange({} as ArrowsMap);
 
       if (hasOpeningSelected) {
@@ -589,24 +627,25 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
           openingMoves.length > moveCount &&
           playedMoves.every((m, i) => openingMoves[i] === m);
 
-        if (moveCount < 10 && followsOpening) {
+        if (moveCount < 8 && followsOpening) {
           const nextUci = openingMoves[moveCount];
           const san = uciToSan(fen, nextUci);
-          const suggestion = [{ uci: nextUci, san }];
-          setSuggestedMoves(suggestion);
+          setSuggestedMoves([{ uci: nextUci, san }]);
           setSuggestedMainMoveUci(nextUci);
-         
-          onArrowsChange(buildArrowsFromUciMoves([nextUci], blue));
         } else {
           getOutpostNextMoves(currentUci).then((data) => {
             if (data.length === 0) {
               setDeviatedFromOpening(true);
-              onMessage({
-                content:
-                  "You've moved outside the known opening lines — there's no recorded continuation for this position. Start over to practice the full variation, then click **Play** when you're ready!",
-                participantId: 'chatGPT123456',
-                idResponse: '',
-              });
+              if (!deviationMsgSentRef.current) {
+                deviationMsgSentRef.current = true;
+              
+                onMessage({
+                  content:
+                    "You've moved outside the known opening lines — there's no recorded continuation for this position. Start over to practice the full variation, then click Opening Test when you're ready!",
+                  participantId: 'chatGPT123456',
+                  idResponse: '',
+                });
+              }
               return;
             }
             const parsed = parseOutpostResponseToSuggestions(
@@ -631,7 +670,7 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
               uci: m.uci,
               san: m.san,
             }));
-            
+
             if (asUi.length === 0 && parsed.length > 0) {
               asUi = parsed
                 .sort((a, b) => b.cnt - a.cnt)
@@ -640,17 +679,8 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
             if (asUi.length > 0) {
               setSuggestedMoves(asUi);
               setSuggestedMainMoveUci(asUi[0].uci);
-              const firstThree = asUi.slice(0, 3);
-                // console.log('krk 2',firstThree)
-              onArrowsChange(
-                buildArrowsFromUciMoves(
-                  firstThree.map((m) => m.uci),
-                  blue
-                )
-              );
             } else {
               setSuggestedMainMoveUci(null);
-              onArrowsChange({} as ArrowsMap);
               getLichessTopMoves(fen, 9).then((moves) => {
                 if (moves.length > 0) {
                   setSuggestedMoves(moves);
@@ -665,17 +695,8 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
           if (moves.length > 0) {
             setSuggestedMoves(moves);
             setSuggestedMainMoveUci(moves[0].uci);
-            const firstThree = moves.slice(0, 3);
-            console.log('krk 3',firstThree)
-            onArrowsChange(
-              buildArrowsFromUciMoves(
-                firstThree.map((m) => m.uci),
-                blue
-              )
-            );
           } else {
             setSuggestedMainMoveUci(null);
-            onArrowsChange({} as ArrowsMap);
           }
         });
       }
@@ -684,6 +705,22 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
       currentChapterState.aiLearn.mode,
       currentChapterState.aiLearn.name,
     ]);
+
+    // Sync arrows with exactly the moves visible in Conversation (SAN dedup + visibleSuggestedRows)
+    useEffect(() => {
+      if (!suggestedMoves || suggestedMoves.length === 0) {
+        onArrowsChange({} as ArrowsMap);
+        return;
+      }
+      const seenSan = new Set<string>();
+      const uniqueMoves = suggestedMoves.filter((m) => {
+        if (seenSan.has(m.san)) return false;
+        seenSan.add(m.san);
+        return true;
+      });
+      const visible = uniqueMoves.slice(0, visibleSuggestedRows * 3);
+      onArrowsChange(buildArrowsFromUciMoves(visible.map((m) => m.uci), '#11C6D1'));
+    }, [suggestedMoves, visibleSuggestedRows]);
 
     useEffect(() => {
       const lastMessage = currentChapterState?.messages?.at(-1)?.content;
@@ -730,40 +767,24 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
         Math.min(prev + 1, Math.ceil((suggestedMoves?.length ?? 0) / 3))
       );
     }, [suggestedMoves?.length]);
-    // Effect to follow the board (PGN/History)
+    // Effect to follow the board (PGN/History) — only fires after a suggested move
     useEffect(() => {
-      if (currentChapterState?.notation?.history) {
-        const { history, focusedIndex } = currentChapterState.notation;
+      if (currentChapterState.aiLearn.mode !== 'opening') return;
+      if (currentChapterState?.notation?.history && 
+        currentChapterState?.notation?.history.length > 4
+      ) {
+        const { history } = currentChapterState.notation;
         let activeHistory: any[] = history;
-
-        if (focusedIndex && focusedIndex.length === 2) {
-          const [moveIdx, colorIdx] = focusedIndex;
-          if (moveIdx === -1) {
-            activeHistory = [];
-          } else {
-            // Slice up to the current move pair
-            activeHistory = history.slice(0, moveIdx + 1).map((pair, idx) => {
-              // If it's the last pair we are looking at, check if we should exclude black's move
-              if (idx === moveIdx && colorIdx === 0) {
-                return [pair[0], null];
-              }
-              return pair;
-            });
-          }
-        }
-
         debouncedFetchWiki(activeHistory);
       }
     }, [
-      currentChapterState.notation.history,
-      currentChapterState.notation.focusedIndex,
-      debouncedFetchWiki,
+      currentChapterState.displayFen
     ]);
 
-    const currentTabIndex = useMemo(
-      () => widgetPanelTabsNav.getCurrentTabIndex(),
-      [widgetPanelTabsNav.getCurrentTabIndex]
-    );
+    // const currentTabIndex = useMemo(
+    //   () => widgetPanelTabsNav.getCurrentTabIndex(),
+    //   [widgetPanelTabsNav.getCurrentTabIndex]
+    // );
 
     const onTabChange = useCallback(
       (p: { tabIndex: number }) => {
@@ -796,16 +817,9 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
     };
 
     const addQuestion = async (question: string) => {
+      
       const trimmed = question?.trim() ?? '';
       if (!trimmed) return;
-      console.log(
-        'addQuestion',
-        trimmed,
-        'openingFromDb',
-        getOpeningByUserInput(trimmed),
-        'extracted',
-        extractOpeningNameFromPhrase(trimmed)
-      );
       var lastIdResponse =
         currentChapterState.messages[currentChapterState.messages.length - 1]
           ?.idResponse ?? '';
@@ -814,7 +828,9 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
 
       // 1) Uvek prvo proveri da li je to otvaranje iz naše baze (i za "Something else" i za običan unos)
       const openingFromDb = getOpeningByUserInput(trimmed);
+       console.log( 'trt', trimmed,userId, waitingForCustomOpeningName )
       if (openingFromDb) {
+        
         if (userId) {
           onMessage({
             content: trimmed,
@@ -830,6 +846,7 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
 
       // 2) Ako je kliknuo "Something else", tražimo naziv koji nije u bazi → pitaj OpenAI
       if (waitingForCustomOpeningName) {
+     
         setWaitingForCustomOpeningName(false);
         if (userId)
           onMessage({
@@ -1046,7 +1063,7 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
     //     onMove(payload);
     //   }, 900);
     // };
-    const hint = async () => {};
+    // const hint = async () => {};
 
     const handleSuggestedMove = useCallback(
       (uci: string) => {
@@ -1071,11 +1088,32 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
       setScoreCP(newScore);
     };
     const getHint = async () => {
+      const history = currentChapterState.notation.history;
+      const playedMoves: string[] = [];
+      (history as any[]).flat().forEach((m: any) => {
+        if (m && !m.isNonMove) {
+          playedMoves.push(`${m.from}${m.to}${m.promotion ?? ''}`);
+        }
+      });
+      const moveCount = playedMoves.length;
+      const openingMoves = currentChapterState.aiLearn.moves_test ?? [];
+      const blue = '#11C6D1';
 
+      if (moveCount < openingMoves.length) {
+        onArrowsChange(buildArrowsFromUciMoves([openingMoves[moveCount]], blue));
+      } else if (suggestedMainMoveUci) {
+        onArrowsChange(buildArrowsFromUciMoves([suggestedMainMoveUci], blue));
+      }
     }
     const testOpening = async () => {
       setFreezeButton(true);
-      addLearnAi({ ...currentChapterState.aiLearn, mode: 'test' });
+      const movesTest: string[] = [];
+      (currentChapterState.notation.history as any[]).flat().forEach((m: any) => {
+        if (m && !m.isNonMove) {
+          movesTest.push(`${m.from}${m.to}${m.promotion ?? ''}`);
+        }
+      });
+      addLearnAi({ ...currentChapterState.aiLearn, mode: 'test', moves_test: movesTest, errors: 0, popup: false });
       onMessage({
         content: 'Time to review the opening!',
         participantId: 'chatGPT123456',
@@ -1107,28 +1145,11 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
         }
       });
       const moveCount = playedMoves.length;
-      const openingMoves = currentChapterState.aiLearn.moves ?? [];
+      const openingMoves = currentChapterState.aiLearn.moves_test ?? [];
 
-      const timer = setTimeout(async () => {
-        let nextUci: string | null = null;
-
-        if (moveCount < openingMoves.length) {
-          nextUci = openingMoves[moveCount];
-        } else {
-          const uciString = playedMoves.join(' ');
-          const data = await getOutpostNextMoves(uciString);
-          if (data.length > 0) {
-            const parsed = parseOutpostResponseToSuggestions(
-              data,
-              uciString,
-              currentChapterState.displayFen
-            );
-            if (parsed.length > 0) {
-              nextUci = parsed.sort((a, b) => b.cnt - a.cnt)[0].uci;
-            }
-          }
-        }
-
+      const timer = setTimeout(() => {
+        if (moveCount >= openingMoves.length) return;
+        const nextUci = openingMoves[moveCount];
         if (!nextUci || nextUci.length < 4) return;
 
         const from = nextUci.slice(0, 2) as Square;
@@ -1161,8 +1182,56 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
             addGameEvaluation={handleGameEvaluation}
           />
         )} */}
-        <div className="flex-1 min-h-0 min-w-0 flex flex-col border bg-op-widget border-conversation-100 pb-2 px-2 md:px-4 md:pb-4 rounded-lg">
-          <div className="flex-1 min-h-0 min-w-0 flex flex-col">
+        <div className="flex-1 min-h-0 min-w-0 flex flex-col border bg-op-widget border-conversation-100 pb-2 px-2 md:px-2 md:pb-4 rounded-lg">
+          {/* Mobile: flex-col scrollable so input stays reachable; desktop: overflow-hidden with flex constraints */}
+          <div className="flex-1 min-h-0 min-w-0 flex flex-col overflow-y-auto md:overflow-hidden no-scrollbar">
+
+            {/* Buttons: order-1 on mobile (above conversation), order-2 on desktop (below conversation) */}
+            <div className="flex order-1 md:order-2 gap-3 flex-shrink-0 pt-2 pb-2 md:my-[20px] justify-around sticky top-0 z-10 bg-op-widget">
+              <ButtonGreen
+                onClick={() => {
+                  testOpening();
+                }}
+                size="sm"
+                className="md:max-w-[140px] max-w-[140px]"
+                style={{
+                  width: '140px',
+                  ...(deviatedFromOpening && currentChapterState.aiLearn.mode !== 'test' ? {
+                    boxShadow: '0 0 12px 4px rgba(7,218,99,0.75), 0 0 24px 8px rgba(7,218,99,0.35)',
+                    animation: 'pulseGlow 1.4s ease-in-out infinite',
+                  } : {}),
+                }}
+                disabled={(currentChapterState.notation.history.length<11 || currentChapterState.aiLearn.mode === 'test')  &&
+                 (currentChapterState.aiLearn.mode === 'test' || (currentChapterState.aiLearn.mode === 'opening'
+                    && !deviatedFromOpening) )
+                }
+              >
+                <p>Opening Test</p>
+              </ButtonGreen>
+              <ButtonGreen
+                onClick={() => {
+                  getHint();
+                }}
+                size="sm"
+                className="md:max-w-[100px] max-w-[100px] hidden md:flex"
+                style={{ maxWidth: smallMobile ? '68px' : '' }}
+                disabled={(currentChapterState.aiLearn.mode !== 'test' && hintActive) || !!currentChapterState.aiLearn.popup}
+              >
+                <p>Hint</p>
+              </ButtonGreen>
+              <ButtonGreen
+                onClick={requestAnotherOpening}
+                size="sm"
+                className="max-w-[160px] min-w-[132px]"
+                style={{ maxWidth: smallMobile ? '100px' : '' }}
+                disabled={currentChapterState.aiLearn.moves.length === 0}
+              >
+                <p className="pr-4 pl-4">Another Opening</p>
+              </ButtonGreen>
+            </div>
+
+            {/* Conversation: order-2 on mobile (below buttons), order-1 on desktop */}
+            <div className="order-2 md:order-1 min-w-0 md:flex-1 md:min-h-0 md:flex md:flex-col">
             <Conversation
               showColorChoice={showColorChoice}
               onSelectColor={handleSelectColor}
@@ -1187,7 +1256,6 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
               pulseDot={pulseDot}
               takeBack={takeBack}
               playNext={playNext}
-              hint={hint}
               userData={userData}
               smallMobile={smallMobile}
               onHistoryNotationRefocus={onHistoryNotationRefocus}
@@ -1199,98 +1267,20 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
               onOtherSuggested={handleOtherSuggested}
               onSuggestedMove={handleSuggestedMove}
               onSuggestedMoveHover={setHoveredSuggestedUci}
+              deviatedFromOpening={deviatedFromOpening}
             />
-
-            <div className="relative flex gap-4 flex-shrink-0 md:my-[20px] mt-3 my-[14px] justify-around">
-              <ButtonGreen
-                onClick={() => {
-                  testOpening();
-                }}
-                size="sm"
-                className=" md:max-w-[140px] max-w-[140px] "
-                style={{
-                  width:'140px'
-                  // maxWidth: smallMobile ? '105px' : '',
-                }}
-                disabled={
-                 currentChapterState.aiLearn.mode === 'test' ||
-                  (currentChapterState.aiLearn.mode === 'opening'
-                    && !deviatedFromOpening)
-                   
-                }
-              >
-                <p>Quick opening test</p>
-              </ButtonGreen>
-              <ButtonGreen
-                onClick={() => {
-                  getHint();
-                }}
-                size="sm"
-                className=" md:max-w-[100px] max-w-[100px] hidden md:flex"
-                style={{
-                  maxWidth: smallMobile ? '68px' : '',
-                }}
-                disabled={currentChapterState.aiLearn.mode!=='test' && hintActive }
-              >
-                <p>Hint</p>
-              </ButtonGreen>
-              {/* <ButtonGreen
-                onClick={() => {
-                  openings();
-                }}
-                size="sm"
-                className=" md:max-w-[100px] max-w-[100px] hidden md:flex"
-                style={{
-                  maxWidth: smallMobile ? '68px' : '',
-                }}
-              >
-                <p>Openings</p>
-              </ButtonGreen> */}
-              
-                <ButtonGreen
-                  onClick={requestAnotherOpening}
-                  size="sm"
-                  className=" max-w-[160px] min-w-[132px]"
-                  style={{ maxWidth: smallMobile ? '100px' : '' }}
-                  disabled={ currentChapterState.aiLearn.moves.length==0 }
-                >
-                  <p className="pr-4 pl-4">Another Opening</p>
-                </ButtonGreen>
-              
-
-              {/* Flip Board Button - Poziva funkciju koju si definisao */}
-
-              {/* Reset Button - Anulira PGN i resetuje tablu */}
-              {/* <ButtonGreen
-                onClick={() => {
-                  onQuickImport({
-                    type: 'FEN',
-                    val: ChessFENBoard.STARTING_FEN,
-                  });
-                  onArrowsChange({});
-                }}
-                size="sm"
-                className="md:max-w-[100px] max-w-[100px]"
-                style={{
-                  maxWidth: smallMobile ? '68px' : '',
-                }}
-                disabled={
-                  currentChapterState.displayFen == ChessFENBoard.STARTING_FEN
-                }
-              >
-                <p>Reset</p>
-              </ButtonGreen> */}
             </div>
 
-            <div className="flex flex-shrink-0 mb-2 mt-2 md:mt-0 items-center gap-2">
+            {/* Input: always last (order-3) */}
+            <div className="order-3 flex flex-shrink-0 mb-2 mt-2 px-1 md:mt-0 items-center gap-2">
               <input
                 id="title"
                 type="text"
                 name="tags"
-                placeholder="Start chessiness..."
+                placeholder="Enter opening..."
                 value={question}
                 style={{ boxShadow: '0px 0px 10px 0px #07DA6380' }}
-                className="w-full text-md rounded-[20px] border border-conversation-100 bg-[#111111]/40 text-white placeholder-slate-400 px-4 py-2 transition-colors duration-200 focus:outline-none focus:ring-1 focus:ring-slate-400 focus:border-conversation-200 hover:border-conversation-300"
+                className="w-full text-[16px]  md:text-[14px] rounded-[20px] border border-conversation-100 bg-[#111111]/40 text-white placeholder-[#FFFFFF]/25 px-4 py-1 md:py-2 transition-colors duration-200 focus:outline-none focus:ring-1 focus:ring-slate-400 focus:border-conversation-200 hover:border-conversation-300"
                 onChange={(e) => setQuestion(e.target.value)}
                 onFocus={() => setIsFocusedInput(true)}
                 onBlur={() => setIsFocusedInput(false)}
@@ -1304,7 +1294,7 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
                 className={`flex-shrink-0 p-2 rounded-full transition-colors ${
                   isListening
                     ? 'bg-red-500/80 text-white'
-                    : 'bg-[#111111]/40 text-slate-300 hover:bg-slate-600 border border-conversation-100'
+                    : 'bg-[#111111]/40 bg-[#D9D9D9]/20 opacity-30 text-slate-300 hover:bg-slate-600 border border-conversation-100'
                 }`}
                 title={isListening ? 'Stop listening' : 'Voice input'}
               >

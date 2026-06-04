@@ -150,7 +150,7 @@ export const ChessboardDisplay = ({
               secondaryColor: 'rgb(74 222 128)',
               tertiaryColor: 'rgb(74 222 128)',
               arrowLengthReducerDenominator: 4,
-              sameTargetArrowLengthReducerDenominator: 1,
+              sameTargetArrowLengthReducerDenominator: 4,
               arrowWidthDenominator: 5.2,
               activeArrowWidthMultiplier: 1.2,
               opacity: 0.8,

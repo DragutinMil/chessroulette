@@ -10,7 +10,6 @@ interface TypewriterTextProps {
   scrollToBottom: () => void;
   takeBack: () => void;
   playNext: () => void;
-  hint: () => void;
   onSelectRating: (category: number) => void;
   onSelectLearnMode?: (mode: 'opening' | 'midgame' | 'endgame') => void;
   onHistoryNotationRefocus?: FreeBoardNotationProps['onRefocus'];
@@ -21,7 +20,6 @@ const TypewriterText: React.FC<TypewriterTextProps> = ({
   scrollToBottom,
   takeBack,
   playNext,
-  hint,
   onSelectRating,
   onSelectLearnMode,
   onHistoryNotationRefocus,
@@ -67,7 +65,7 @@ const TypewriterText: React.FC<TypewriterTextProps> = ({
           return prev;
         }
       });
-    }, 20);
+    }, 8);
 
     return () => clearInterval(interval);
   }, [lastMessage]);
@@ -140,7 +138,7 @@ const TypewriterText: React.FC<TypewriterTextProps> = ({
       </div> */}
       {lastMessage.includes('What would you like to learn today?') &&
         displayedText.length === lastMessage.length && (
-          <div className="flex flex-wrap items-center gap-2 mt-3">
+          <div className="flex flex-wrap items-center gap-2 mt-1">
             <ButtonGreen
               onClick={() => onSelectLearnMode?.('opening')}
               size="md"

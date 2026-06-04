@@ -20,7 +20,6 @@ type Props = {
   smallMobile: boolean;
   takeBack: () => void;
   playNext: () => void;
-  hint: () => void;
   openViewSubscription: () => void;
   onSelectRating: (category: number) => void;
   onSelectLearnMode?: (mode: 'opening' | 'midgame' | 'endgame') => void;
@@ -31,6 +30,7 @@ type Props = {
   visibleSuggestedRows?: number;
   onOtherSuggested?: () => void;
   onSuggestedMoveHover?: (uci: string | null) => void;
+  deviatedFromOpening?: boolean;
 };
 //console.log('currentChapterState',currentChapterState)
 
@@ -47,7 +47,6 @@ const Conversation = ({
   playNext,
   smallMobile,
   openViewSubscription,
-  hint,
   onSelectRating,
   onSelectLearnMode,
   onHistoryNotationRefocus,
@@ -57,6 +56,7 @@ const Conversation = ({
   visibleSuggestedRows = 1,
   onOtherSuggested,
   onSuggestedMoveHover,
+  deviatedFromOpening,
 }: Props) => {
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -76,7 +76,7 @@ const Conversation = ({
   return (
     <div
       ref={scrollRef}
-      className="min-w-0 max-w-full overflow-y-auto overflow-x-hidden rounded-lg scroll-smooth no-scrollbar h-[490px] md:flex-1 md:min-h-0 pt-2"
+      className="min-w-0 max-w-full overflow-y-auto overflow-x-hidden rounded-lg scroll-smooth no-scrollbar h-[350px]  md:h-[560px] md:flex-1 md:min-h-0 pt-2"
       // style={{ height: smallMobile ? '140px' : undefined }}
     >
       {currentChapterState.messages.map((msg, index) => {
@@ -100,17 +100,13 @@ const Conversation = ({
               <div className="flex min-w-0">
                 <div className="hidden md:flex">
                   {isLastFromThisParticipant ? (
-                    <Image
-                      src={greenLogo}
-                      alt="outpost"
-                      className=" max-w-[28px] md:max-w-[36px]"
-                    />
+                     <Image
+                src={greenLogo}
+                alt="outpost"
+                className="max-w-[28px] md:max-w-[36px]"
+              />
                   ) : (
-                    <Image
-                      src={greenLogo}
-                      className="opacity-0  max-w-[28px] md:max-w-[36px]"
-                      alt="outpost"
-                    />
+                    <div className="min-w-[28px] md:min-w-[36px]" />
                   )}
                 </div>
 
@@ -122,7 +118,7 @@ const Conversation = ({
                         lastMessage={lastMessage}
                         onSelectRating={onSelectRating}
                         onSelectLearnMode={onSelectLearnMode}
-                        hint={hint}
+                       
                         scrollToBottom={scrollToBottom}
                         takeBack={takeBack}
                         playNext={playNext}
@@ -194,7 +190,7 @@ const Conversation = ({
                     </div>
                   ) : (
                     <div>
-                      <p className="flex  items-center text-[14px]    text-left ">
+                      <p className="text-[14px] text-left break-words leading-relaxed whitespace-pre-line">
                         {typeof msg.content === 'string' &&
                         onHistoryNotationRefocus &&
                         notationHistoryLength > 0
@@ -236,7 +232,7 @@ const Conversation = ({
               </div>
             ) : (
               <div className="flex justify-end items-center min-w-0 w-full">
-                <div className="mr-4 border-conversation-100 max-w-xs min-w-0 break-words bg-[#111111]/40 text-white border shadow-green-soft  rounded-[20px]   text-sm ">
+                <div className="mr-4 border-conversation-100 max-w-xs min-w-0 break-words bg-[#111111]/40 text-white  border shadow-green-soft  rounded-[20px]   text-sm ">
                   <p className="flex p-[14px]   justify-start  text-left whitespace-pre-line">
                     {msg.content}
                   </p>
@@ -261,7 +257,11 @@ const Conversation = ({
             {pulseDot && isLastMessage && !isSales && (
               <div className="flex justify-start items-center mt-4 ">
                 <div className="w-9 h-9 rounded-full items-center flex overflow-hidden ">
-                  <Image src={greenLogo} alt="outpost" />
+                   <Image
+                src={greenLogo}
+                alt="outpost"
+                className="max-w-[28px] md:max-w-[36px]"
+              />
                 </div>
 
                 <div className="max-w-xs  mr-4 max-w-[80%]  text-white  rounded-xl  py-2 text-sm px-4">
@@ -277,8 +277,11 @@ const Conversation = ({
         );
       })}
 
-      {suggestedMoves && suggestedMoves.length > 0 && (
-        <div className="mb-1 pt-1 text-[15px] md:pt-2 md:mb-2">
+     
+       
+           {currentChapterState.aiLearn.mode=='opening' && !deviatedFromOpening && !showColorChoice &&
+           currentChapterState.aiLearn.moves.length>0 && currentChapterState.aiLearn.moves_test.length==0 && (
+          <div className="mb-1 pt-1 text-[15px] md:pt-2  md:mb-2">
           <div className="flex min-w-0">
             <div className="hidden md:flex">
               <Image
@@ -287,9 +290,10 @@ const Conversation = ({
                 className="max-w-[28px] md:max-w-[36px]"
               />
             </div>
-            <div className="text-white text-sm px-4 flex-1 min-w-0 max-w-md break-words overflow-hidden">
-              <p className="text-slate-200 mb-2">Choose next move:</p>
-              <div className="flex flex-col gap-2 mt-2">
+            <div className="text-white text-sm px-2 md:px-4 flex flex-wrap items-center h-[52px] gap-1 flex-1 min-w-0 max-w-md break-words overflow-hidden">
+              <p className="text-slate-200 mr-2">Next move: </p>
+               {suggestedMoves && suggestedMoves.length > 0 && (
+              <div className="flex flex-col gap-2">
                 {(() => {
                   const seenSan = new Set<string>();
                   const uniqueMoves = suggestedMoves.filter((m) => {
@@ -302,7 +306,7 @@ const Conversation = ({
                       {Array.from(
                         { length: visibleSuggestedRows },
                         (_, row) => (
-                          <div key={row} className="flex flex-wrap gap-2">
+                          <div key={row} className="flex flex-wrap gap-2 mr-2">
                             {uniqueMoves
                               .slice(row * 3, row * 3 + 3)
                               .map((m) => (
@@ -333,11 +337,15 @@ const Conversation = ({
                   );
                 })()}
               </div>
+               )}
             </div>
           </div>
+          
+          </div>
+           )}
         </div>
-      )}
-    </div>
+      
+   
   );
 };
 

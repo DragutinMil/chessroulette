@@ -487,16 +487,16 @@ export function extractOpeningNameFromPhrase(text: string): string | null {
   return null;
 }
 
-export async function getOpeningCommentFromAi(
-  pgn: string,
-  previousMessageId: string = ''
-): Promise<string | null> {
-  if (!pgn?.trim()) return null;
-  const prompt = `Comment the following chess opening PGN with brief move-by-move ideas. Use the format: move [comment]. Example: 1.e4 e5 [King's pawn. Black mirrors.] 2.Nf3 [Develop knight.]. Reply only with the commented line.\n\nPGN:\n${pgn.trim()}`;
-  const data = await ai_prompt(prompt, previousMessageId, 'gpt-5.1');
-  if (!data?.answer?.text) return null;
-  return data.answer.text;
-}
+// export async function getOpeningCommentFromAi(
+//   pgn: string,
+//   previousMessageId: string = ''
+// ): Promise<string | null> {
+//   if (!pgn?.trim()) return null;
+//   const prompt = `Comment the following chess opening PGN with brief move-by-move ideas. Use the format: move [comment]. Example: 1.e4 e5 [King's pawn. Black mirrors.] 2.Nf3 [Develop knight.]. Reply only with the commented line.\n\nPGN:\n${pgn.trim()}`;
+//   const data = await ai_prompt(prompt, previousMessageId, 'gpt-5.1');
+//   if (!data?.answer?.text) return null;
+//   return data.answer.text;
+// }
 
 function normalizeOpeningName(name: string): string {
   return name.toLowerCase().replace(/\s+/g, ' ').trim();
@@ -506,10 +506,17 @@ function normalizeOpeningName(name: string): string {
 export function getOpeningIdeas(openingName: string): string | null {
   const normalized = normalizeOpeningName(openingName);
   if (!normalized) return null;
-  if (OPENING_IDEAS[normalized]) return OPENING_IDEAS[normalized];
+   
+  if (OPENING_IDEAS[normalized]){
+    console.log('OPENING_IDEAS[normalized]',OPENING_IDEAS[normalized])
+return OPENING_IDEAS[normalized];
+  } 
   for (const key of Object.keys(OPENING_IDEAS)) {
-    if (normalized.includes(key) || key.includes(normalized))
+     
+    if (normalized.includes(key) || key.includes(normalized)) {
+      console.log('OPENING_IDEAS[key]',OPENING_IDEAS[key])
       return OPENING_IDEAS[key];
+    }
   }
   return null;
 }
@@ -788,6 +795,7 @@ export function enqueueMovexUpdate<T>(
 }
 
 export async function getWikibooksContent(title: string) {
+  console.log('title',title)
   try {
     const url = `https://en.wikibooks.org/w/api.php?titles=${encodeURIComponent(
       title
