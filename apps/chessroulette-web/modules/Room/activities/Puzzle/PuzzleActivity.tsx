@@ -45,6 +45,11 @@ export const PuzzleActivity = ({
   if (!moveSoundRef.current) {
     moveSoundRef.current = new Audio('/chessmove.mp3');
   }
+  const wrongMoveSoundRef = useRef<HTMLAudioElement | null>(null);
+  if (!wrongMoveSoundRef.current) {
+    wrongMoveSoundRef.current = new Audio('/buzz.flac');
+    wrongMoveSoundRef.current.volume = 0.4;
+  }
   const dispatch = optionalDispatch || noop;
   const [cameraOff, setCameraOff] = useState(false);
   const [newReview, setNewReview] = useState(true);
@@ -186,6 +191,13 @@ export const PuzzleActivity = ({
                       if (wrongMoveTimeoutRef.current) clearTimeout(wrongMoveTimeoutRef.current);
                       setWrongSquare(payload.to);
                       wrongMoveTimeoutRef.current = setTimeout(() => setWrongSquare(null), 700);
+                      if (wrongMoveSoundRef.current) {
+                        wrongMoveSoundRef.current.currentTime = 0;
+                        wrongMoveSoundRef.current.play().catch(() => {});
+                      }
+                      await enqueueMovexUpdate(() =>
+                        dispatch({ type: 'loadedChapter:addPuzzleMove', payload })
+                      );
                       return;
                     }
                     moveSoundRef.current?.play();
