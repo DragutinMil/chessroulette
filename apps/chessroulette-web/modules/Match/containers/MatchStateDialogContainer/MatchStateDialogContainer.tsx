@@ -26,6 +26,7 @@ import { CounterActions } from '@app/modules/Room/activities/Match/counter';
 import { ActiveBot } from '@app/modules/Match/movex/types';
 
 import { newRematchRequestInitiate } from '../../utilsOutpost';
+import { GoogleAd } from '@app/components/GoogleAd/GoogleAd';
 import { useMovexBoundResourceFromRid } from 'movex-react';
 import movexConfig from '@app/movex.config';
 import { useMovexClient } from 'movex-react';
@@ -297,6 +298,7 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
                   >
                     Lobby
                   </Button>
+                  <GoogleAd />
                 </div>
               )}
             </div>
