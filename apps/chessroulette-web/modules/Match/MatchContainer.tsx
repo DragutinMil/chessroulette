@@ -189,7 +189,7 @@ const MatchContainerInner = ({
             const players = await getBotRating();
 
             const rating = Number(
-              players.find((player: any) => player.user_id === bot.id)?.rejting
+              players?.find((player: any) => player.user_id === bot.id)?.rejting
             );
 
             setBotRating(rating);

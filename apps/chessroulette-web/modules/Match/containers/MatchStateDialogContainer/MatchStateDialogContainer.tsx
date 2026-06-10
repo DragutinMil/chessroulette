@@ -166,9 +166,9 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
         title="Match Aborted"
         content={
           <>
-            <div className="flex justify-center w-full">
+            <div className="flex items-center w-full flex-col ">
               <Button
-                className="w-3/5 md:w-1/2  "
+                className="w-3/5 md:w-1/2 mb-4 "
                 icon="ArrowLeftIcon"
                 bgColor="green"
                 onClick={() => {
