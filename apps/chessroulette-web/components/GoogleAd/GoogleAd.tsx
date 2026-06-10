@@ -26,10 +26,21 @@ export const GoogleAd = ({ isMobile }: Props) => {
       }
     };
 
+    let retried = false;
+
     const mutationObserver = new MutationObserver(() => {
       const status = el.getAttribute('data-ad-status');
-      if (status === 'filled' || status === 'unfilled') {
-        setAdStatus(status);
+      if (status === 'filled') {
+        setAdStatus('filled');
+        mutationObserver.disconnect();
+      } else if (status === 'unfilled' && !retried) {
+        retried = true;
+        setTimeout(() => {
+          el.removeAttribute('data-ad-status');
+          tryPush();
+        }, 2000);
+      } else if (status === 'unfilled' && retried) {
+        setAdStatus('unfilled');
         mutationObserver.disconnect();
       }
     });
@@ -100,6 +111,7 @@ export const GoogleAd = ({ isMobile }: Props) => {
         data-ad-layout-key="-fb+5w+4e-db+86"
         data-ad-client="ca-pub-8003586277876347"
         data-ad-slot="3329429976"
+        data-full-width-responsive="true"
       />
       <style>{`
         @keyframes adSkeleton {
