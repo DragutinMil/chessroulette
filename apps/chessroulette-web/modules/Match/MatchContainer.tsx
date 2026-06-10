@@ -400,6 +400,7 @@ const MatchContainerInner = ({
                 isPlayer && (
                   <MatchStateDialogContainer
                     activeBot={activeBot}
+                    isMobile={isMobile ?? undefined}
                     inviteLink={inviteLink}
                   />
                 )
