@@ -100,11 +100,11 @@ const Conversation = ({
               <div className="flex min-w-0">
                 <div className="hidden md:flex">
                   {isLastFromThisParticipant ? (
-                     <Image
-                src={greenLogo}
-                alt="outpost"
-                className="max-w-[28px] md:max-w-[36px]"
-              />
+                    <Image
+                      src={greenLogo}
+                      alt="outpost"
+                      className="max-w-[28px] md:max-w-[36px]"
+                    />
                   ) : (
                     <div className="min-w-[28px] md:min-w-[36px]" />
                   )}
@@ -118,7 +118,6 @@ const Conversation = ({
                         lastMessage={lastMessage}
                         onSelectRating={onSelectRating}
                         onSelectLearnMode={onSelectLearnMode}
-                       
                         scrollToBottom={scrollToBottom}
                         takeBack={takeBack}
                         playNext={playNext}
@@ -257,11 +256,11 @@ const Conversation = ({
             {pulseDot && isLastMessage && !isSales && (
               <div className="flex justify-start items-center mt-4 ">
                 <div className="w-9 h-9 rounded-full items-center flex overflow-hidden ">
-                   <Image
-                src={greenLogo}
-                alt="outpost"
-                className="max-w-[28px] md:max-w-[36px]"
-              />
+                  <Image
+                    src={greenLogo}
+                    alt="outpost"
+                    className="max-w-[28px] md:max-w-[36px]"
+                  />
                 </div>
 
                 <div className="max-w-xs  mr-4 max-w-[80%]  text-white  rounded-xl  py-2 text-sm px-4">
@@ -277,75 +276,76 @@ const Conversation = ({
         );
       })}
 
-     
-       
-           {currentChapterState.aiLearn.mode=='opening' && !deviatedFromOpening && !showColorChoice &&
-           currentChapterState.aiLearn.moves.length>0 && currentChapterState.aiLearn.moves_test.length==0 && (
+      {currentChapterState.aiLearn.mode == 'opening' &&
+        !deviatedFromOpening &&
+        !showColorChoice &&
+        currentChapterState.aiLearn.moves.length > 0 &&
+        currentChapterState.aiLearn.moves_test.length == 0 && (
           <div className="mb-1 pt-1 text-[15px] md:pt-2  md:mb-2">
-          <div className="flex min-w-0">
-            <div className="hidden md:flex">
-              <Image
-                src={greenLogo}
-                alt="outpost"
-                className="max-w-[28px] md:max-w-[36px]"
-              />
-            </div>
-            <div className="text-white text-sm px-2 md:px-4 flex flex-wrap items-center h-[52px] gap-1 flex-1 min-w-0 max-w-md break-words overflow-hidden">
-              <p className="text-slate-200 mr-2">Next move: </p>
-               {suggestedMoves && suggestedMoves.length > 0 && (
-              <div className="flex flex-col gap-2">
-                {(() => {
-                  const seenSan = new Set<string>();
-                  const uniqueMoves = suggestedMoves.filter((m) => {
-                    if (seenSan.has(m.san)) return false;
-                    seenSan.add(m.san);
-                    return true;
-                  });
-                  return (
-                    <div className="flex">
-                      {Array.from(
-                        { length: visibleSuggestedRows },
-                        (_, row) => (
-                          <div key={row} className="flex flex-wrap gap-2 mr-2">
-                            {uniqueMoves
-                              .slice(row * 3, row * 3 + 3)
-                              .map((m) => (
-                                <ButtonGreen
-                                  key={m.uci}
-                                  onClick={() => onSuggestedMove?.(m.uci)}
-                                  size="md"
-                                  // onMouseEnter={() => onSuggestedMoveHover?.(m.uci)}
-                                  // onMouseLeave={() => onSuggestedMoveHover?.(null)}
-                                  className="font-bold font-mono px-3"
-                                >
-                                  {m.san}
-                                </ButtonGreen>
-                              ))}
-                          </div>
-                        )
-                      )}
-                      {visibleSuggestedRows * 3 < uniqueMoves.length && (
-                        <ButtonGreen
-                          onClick={onOtherSuggested}
-                          size="md"
-                          className="font-bold px-3 ml-2"
-                        >
-                          Other
-                        </ButtonGreen>
-                      )}
-                    </div>
-                  );
-                })()}
+            <div className="flex min-w-0">
+              <div className="hidden md:flex">
+                <Image
+                  src={greenLogo}
+                  alt="outpost"
+                  className="max-w-[28px] md:max-w-[36px]"
+                />
               </div>
-               )}
+              <div className="text-white text-sm px-2 md:px-4 flex flex-wrap items-center h-[52px] gap-1 flex-1 min-w-0 max-w-md break-words overflow-hidden">
+                <p className="text-slate-200 mr-2">Next move: </p>
+                {suggestedMoves && suggestedMoves.length > 0 && (
+                  <div className="flex flex-col gap-2">
+                    {(() => {
+                      const seenSan = new Set<string>();
+                      const uniqueMoves = suggestedMoves.filter((m) => {
+                        if (seenSan.has(m.san)) return false;
+                        seenSan.add(m.san);
+                        return true;
+                      });
+                      return (
+                        <div className="flex">
+                          {Array.from(
+                            { length: visibleSuggestedRows },
+                            (_, row) => (
+                              <div
+                                key={row}
+                                className="flex flex-wrap gap-2 mr-2"
+                              >
+                                {uniqueMoves
+                                  .slice(row * 3, row * 3 + 3)
+                                  .map((m) => (
+                                    <ButtonGreen
+                                      key={m.uci}
+                                      onClick={() => onSuggestedMove?.(m.uci)}
+                                      size="md"
+                                      // onMouseEnter={() => onSuggestedMoveHover?.(m.uci)}
+                                      // onMouseLeave={() => onSuggestedMoveHover?.(null)}
+                                      className="font-bold font-mono px-3"
+                                    >
+                                      {m.san}
+                                    </ButtonGreen>
+                                  ))}
+                              </div>
+                            )
+                          )}
+                          {visibleSuggestedRows * 3 < uniqueMoves.length && (
+                            <ButtonGreen
+                              onClick={onOtherSuggested}
+                              size="md"
+                              className="font-bold px-3 ml-2"
+                            >
+                              Other
+                            </ButtonGreen>
+                          )}
+                        </div>
+                      );
+                    })()}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
-          
-          </div>
-           )}
-        </div>
-      
-   
+        )}
+    </div>
   );
 };
 

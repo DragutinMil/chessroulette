@@ -54,9 +54,13 @@ export const LearnAiActivity = ({
   const dispatch = optionalDispatch || noop;
 
   const [wrongSquare, setWrongSquare] = useState<string | null>(null);
-  const wrongMoveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const wrongMoveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null
+  );
   const [hintArrowMap, setHintArrowMap] = useState<ArrowsMap | null>(null);
-  const hintArrowTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const hintArrowTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null
+  );
   const newOpeningCallbackRef = useRef<(() => void) | null>(null);
 
   const [playerNames, setPlayerNames] = useState(Array<string>);
@@ -172,7 +176,10 @@ export const LearnAiActivity = ({
                   await enqueueMovexUpdate(() =>
                     dispatch({
                       type: 'loadedChapter:setLearnAi',
-                      payload: { ...currentChapter.aiLearn, popup: false } as aiLearn,
+                      payload: {
+                        ...currentChapter.aiLearn,
+                        popup: false,
+                      } as aiLearn,
                     })
                   )
                 }
@@ -180,13 +187,19 @@ export const LearnAiActivity = ({
                   await enqueueMovexUpdate(() =>
                     dispatch({
                       type: 'loadedChapter:setLearnAi',
-                      payload: { ...currentChapter.aiLearn, popup: false, errors: 0 } as aiLearn,
+                      payload: {
+                        ...currentChapter.aiLearn,
+                        popup: false,
+                        errors: 0,
+                      } as aiLearn,
                     })
                   );
                   await enqueueMovexUpdate(() =>
                     dispatch({
                       type: 'loadedChapter:import',
-                      payload: { input: { type: 'FEN', val: ChessFENBoard.STARTING_FEN } },
+                      payload: {
+                        input: { type: 'FEN', val: ChessFENBoard.STARTING_FEN },
+                      },
                     })
                   );
                 }}
@@ -196,18 +209,51 @@ export const LearnAiActivity = ({
                 <LearnAiBoard
                   sizePx={boardSize}
                   {...currentChapter}
-                  arrowsMap={hintArrowMap ? { ...currentChapter.arrowsMap, ...hintArrowMap } : currentChapter.arrowsMap}
+                  arrowsMap={
+                    hintArrowMap
+                      ? { ...currentChapter.arrowsMap, ...hintArrowMap }
+                      : currentChapter.arrowsMap
+                  }
                   squareRenderer={({ square, children }) => {
-                    if (wrongSquare !== square) return null as unknown as React.JSX.Element;
+                    if (wrongSquare !== square)
+                      return null as unknown as React.JSX.Element;
                     return (
-                      <div style={{ position: 'relative',  width: '100%', height: '100%' }}>
+                      <div
+                        style={{
+                          position: 'relative',
+                          width: '100%',
+                          height: '100%',
+                        }}
+                      >
                         {children}
                         <svg
                           viewBox="0 0 100 100"
-                          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none' }}
+                          style={{
+                            position: 'absolute',
+                            inset: 0,
+                            width: '100%',
+                            height: '100%',
+                            pointerEvents: 'none',
+                          }}
                         >
-                          <line x1="18" y1="18" x2="82" y2="82" stroke="#f2358d" strokeWidth="14" strokeLinecap="round" />
-                          <line x1="82" y1="18" x2="18" y2="82" stroke="#f2358d" strokeWidth="14" strokeLinecap="round" />
+                          <line
+                            x1="18"
+                            y1="18"
+                            x2="82"
+                            y2="82"
+                            stroke="#f2358d"
+                            strokeWidth="14"
+                            strokeLinecap="round"
+                          />
+                          <line
+                            x1="82"
+                            y1="18"
+                            x2="18"
+                            y2="82"
+                            stroke="#f2358d"
+                            strokeWidth="14"
+                            strokeLinecap="round"
+                          />
                         </svg>
                       </div>
                     );
@@ -226,22 +272,29 @@ export const LearnAiActivity = ({
                   }}
                   onMove={async (payload) => {
                     const mode = currentChapter.aiLearn?.mode;
-                    const openingMoves = mode === 'test'
-                      ? (currentChapter.aiLearn?.moves_test ?? [])
-                      : (currentChapter.aiLearn?.moves ?? []);
+                    const openingMoves =
+                      mode === 'test'
+                        ? currentChapter.aiLearn?.moves_test ?? []
+                        : currentChapter.aiLearn?.moves ?? [];
 
-                    if ((mode === 'opening' || mode === 'test') && openingMoves.length > 0) {
+                    if (
+                      (mode === 'opening' || mode === 'test') &&
+                      openingMoves.length > 0
+                    ) {
                       const history = currentChapter.notation?.history ?? [];
                       const playedMoves: string[] = [];
                       (history as any[]).flat().forEach((m: any) => {
                         if (m && !m.isNonMove) {
-                          playedMoves.push(`${m.from}${m.to}${m.promotion ?? ''}`);
+                          playedMoves.push(
+                            `${m.from}${m.to}${m.promotion ?? ''}`
+                          );
                         }
                       });
                       const moveCount = playedMoves.length;
 
                       // opening mode only enforces the first 10 moves; test mode enforces all predefined moves
-                      const withinValidationRange = mode === 'test' ? true : moveCount < 8;
+                      const withinValidationRange =
+                        mode === 'test' ? true : moveCount < 8;
 
                       if (withinValidationRange) {
                         const followsOpening =
@@ -250,10 +303,17 @@ export const LearnAiActivity = ({
 
                         if (followsOpening) {
                           const nextUci = openingMoves[moveCount];
-                          if (!nextUci || !nextUci.startsWith(`${payload.from}${payload.to}`)) {
-                            if (wrongMoveTimeoutRef.current) clearTimeout(wrongMoveTimeoutRef.current);
+                          if (
+                            !nextUci ||
+                            !nextUci.startsWith(`${payload.from}${payload.to}`)
+                          ) {
+                            if (wrongMoveTimeoutRef.current)
+                              clearTimeout(wrongMoveTimeoutRef.current);
                             setWrongSquare(payload.to);
-                            wrongMoveTimeoutRef.current = setTimeout(() => setWrongSquare(null), 700);
+                            wrongMoveTimeoutRef.current = setTimeout(
+                              () => setWrongSquare(null),
+                              700
+                            );
                             if (wrongMoveSoundRef.current) {
                               wrongMoveSoundRef.current.currentTime = 0;
                               wrongMoveSoundRef.current.play().catch(() => {});
@@ -262,7 +322,11 @@ export const LearnAiActivity = ({
                               enqueueMovexUpdate(() =>
                                 dispatch({
                                   type: 'loadedChapter:setLearnAi',
-                                  payload: { ...currentChapter.aiLearn, errors: (currentChapter.aiLearn.errors ?? 0) + 1 } as aiLearn,
+                                  payload: {
+                                    ...currentChapter.aiLearn,
+                                    errors:
+                                      (currentChapter.aiLearn.errors ?? 0) + 1,
+                                  } as aiLearn,
                                 })
                               );
                               if (nextUci && nextUci.length >= 4) {
@@ -270,9 +334,15 @@ export const LearnAiActivity = ({
                                 const hTo = nextUci.slice(2, 4);
                                 const color = '#07DA63';
                                 const id = `${hFrom}${hTo}-${color}`;
-                                if (hintArrowTimeoutRef.current) clearTimeout(hintArrowTimeoutRef.current);
-                                setHintArrowMap({ [id]: [hFrom, hTo, color] } as ArrowsMap);
-                                hintArrowTimeoutRef.current = setTimeout(() => setHintArrowMap(null), 2000);
+                                if (hintArrowTimeoutRef.current)
+                                  clearTimeout(hintArrowTimeoutRef.current);
+                                setHintArrowMap({
+                                  [id]: [hFrom, hTo, color],
+                                } as ArrowsMap);
+                                hintArrowTimeoutRef.current = setTimeout(
+                                  () => setHintArrowMap(null),
+                                  2000
+                                );
                               }
                             }
                             return;
@@ -287,17 +357,24 @@ export const LearnAiActivity = ({
                     );
 
                     if (mode === 'test') {
-                      const movesTest = currentChapter.aiLearn?.moves_test ?? [];
+                      const movesTest =
+                        currentChapter.aiLearn?.moves_test ?? [];
                       const history = currentChapter.notation?.history ?? [];
                       const played: string[] = [];
                       (history as any[]).flat().forEach((m: any) => {
                         if (m && !m.isNonMove) played.push(`${m.from}${m.to}`);
                       });
-                      if (movesTest.length > 0 && played.length >= movesTest.length - 3) {
+                      if (
+                        movesTest.length > 0 &&
+                        played.length >= movesTest.length - 3
+                      ) {
                         await enqueueMovexUpdate(() =>
                           dispatch({
                             type: 'loadedChapter:setLearnAi',
-                            payload: { ...currentChapter.aiLearn, popup: true } as aiLearn,
+                            payload: {
+                              ...currentChapter.aiLearn,
+                              popup: true,
+                            } as aiLearn,
                           })
                         );
                       }
@@ -439,7 +516,7 @@ export const LearnAiActivity = ({
                 dispatch({ type: 'loadedChapter:setArrows', payload });
                 return;
               }
-              
+
               await enqueueMovexUpdate(() =>
                 dispatch({ type: 'loadedChapter:setArrows', payload })
               );

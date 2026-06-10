@@ -506,15 +506,14 @@ function normalizeOpeningName(name: string): string {
 export function getOpeningIdeas(openingName: string): string | null {
   const normalized = normalizeOpeningName(openingName);
   if (!normalized) return null;
-   
-  if (OPENING_IDEAS[normalized]){
-    console.log('OPENING_IDEAS[normalized]',OPENING_IDEAS[normalized])
-return OPENING_IDEAS[normalized];
-  } 
+
+  if (OPENING_IDEAS[normalized]) {
+    console.log('OPENING_IDEAS[normalized]', OPENING_IDEAS[normalized]);
+    return OPENING_IDEAS[normalized];
+  }
   for (const key of Object.keys(OPENING_IDEAS)) {
-     
     if (normalized.includes(key) || key.includes(normalized)) {
-      console.log('OPENING_IDEAS[key]',OPENING_IDEAS[key])
+      console.log('OPENING_IDEAS[key]', OPENING_IDEAS[key]);
       return OPENING_IDEAS[key];
     }
   }
@@ -524,7 +523,7 @@ return OPENING_IDEAS[normalized];
 const LICHESS_EXPLORER = 'https://explorer.lichess.ovh';
 
 const OUTPOST_NEXT_MOVES_API =
-  process.env.NEXT_PUBLIC_API_WEB +'/chess_next_moves';
+  process.env.NEXT_PUBLIC_API_WEB + '/chess_next_moves';
 
 export type OutpostNextMoveRaw = { next: string; opening: string; cnt: string };
 
@@ -532,7 +531,6 @@ export type OutpostNextMoveRaw = { next: string; opening: string; cnt: string };
 export async function getOutpostNextMoves(
   uciMoves: string
 ): Promise<OutpostNextMoveRaw[]> {
-  
   try {
     const encoded = encodeURIComponent(uciMoves.trim());
     const url = `${OUTPOST_NEXT_MOVES_API}?moves=${encoded}`;
@@ -672,7 +670,6 @@ export async function getLichessTopMoves(
 
 //ANALYZE MOVES AND GET FREQUENTLY USED
 export async function analyzeMovesPGN(uciMoves: string) {
-  
   try {
     const response = await fetch(
       process.env.NEXT_PUBLIC_API_WEB + `chess_next_moves?moves=${uciMoves}`,
@@ -795,7 +792,7 @@ export function enqueueMovexUpdate<T>(
 }
 
 export async function getWikibooksContent(title: string) {
-  console.log('title',title)
+  console.log('title', title);
   try {
     const url = `https://en.wikibooks.org/w/api.php?titles=${encodeURIComponent(
       title

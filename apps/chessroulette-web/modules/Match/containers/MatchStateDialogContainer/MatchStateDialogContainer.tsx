@@ -37,7 +37,7 @@ export type ActivityActions = CounterActions;
 
 type Props = PlayDialogContainerContainerProps & {
   activeBot?: ActiveBot;
-  isMobile?:boolean
+  isMobile?: boolean;
 };
 
 // export default async function Page({
@@ -178,7 +178,7 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
               >
                 Lobby&nbsp;&nbsp;&nbsp;
               </Button>
-               <GoogleAd isMobile={isMobile} />
+              <GoogleAd isMobile={isMobile} />
             </div>
           </>
         } // should there be something?
@@ -275,7 +275,7 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
 
                   <Link
                     className="w-full"
-                     href={`https://chess.outpostchess.com/room/new/r${room}?activity=review&userId=${userId}&theme=op&pgn=${roomId}`}
+                    href={`https://chess.outpostchess.com/room/new/r${room}?activity=review&userId=${userId}&theme=op&pgn=${roomId}`}
                     //href={`http://localhost:4200/room/new/r${room}?activity=review&userId=${userId}&theme=op&pgn=${roomId}`}
                   >
                     <Button
