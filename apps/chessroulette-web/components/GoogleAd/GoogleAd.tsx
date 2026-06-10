@@ -71,7 +71,7 @@ export const GoogleAd = ({ isMobile }: Props) => {
             position: 'absolute',
             inset: 0,
             borderRadius: '8px',
-            minHeight: isMobile ? '110px' : '135px',
+            minHeight: isMobile ? '120px' : '140px',
             background: 'linear-gradient(90deg, #0a2a14 25%, #0f3d1e 50%, #0a2a14 75%)',
             backgroundSize: '200% 100%',
             animation: 'adSkeleton 1.4s infinite',
