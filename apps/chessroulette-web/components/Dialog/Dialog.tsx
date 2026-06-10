@@ -14,7 +14,7 @@ type Props = {
 export const Dialog: React.FC<Props> = ({ modalBG = 'dark', ...props }) => {
   return (
     <div
-      className={`fixed inset-0 z-[51] flex justify-center content-center items-center px-2 md:px-12 bg-opacity-50 ${
+      className={`fixed inset-0 z-[101] flex justify-center content-center items-center px-2 md:px-12 bg-opacity-50 ${
         modalBG === 'dark' ? 'bg-black' : 'bg-white'
       }`}
     >

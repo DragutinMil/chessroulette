@@ -42,19 +42,36 @@ export const GoogleAd = ({ isMobile }: Props) => {
 
   return (
     <ins
-      ref={ref}
-      className="adsbygoogle"
-      style={{
+        ref={ref}
+        className="adsbygoogle"
+        style={{
         display: 'block',
         minWidth: isMobile ? '250px' : '330px',
-        minHeight: isMobile ? '60px' : '90px',
+        minHeight: isMobile ? '90px' : '100px',
         borderRadius: '8px',
         overflow: 'hidden',
       }}
-      data-ad-client="ca-pub-8003586277876347"
-      data-ad-slot="2567012649"
-      data-ad-format={isMobile ? 'horizontal' : 'auto'}
-      data-full-width-responsive="true"
+      
+        data-ad-format="fluid"
+        data-ad-layout-key="-fb+5w+4e-db+86"
+        data-ad-client="ca-pub-8003586277876347"
+        data-ad-slot="3329429976"
+        // data-ad-format={isMobile ? 'horizontal' : 'auto'}
     />
+    // <ins
+    //   ref={ref}
+    //   className="adsbygoogle"
+    //   style={{
+    //     display: 'block',
+    //     minWidth: isMobile ? '250px' : '330px',
+    //     minHeight: isMobile ? '60px' : '90px',
+    //     borderRadius: '8px',
+    //     overflow: 'hidden',
+    //   }}
+    //   data-ad-client="ca-pub-8003586277876347"
+    //   data-ad-slot="2567012649"
+    //   data-ad-format={isMobile ? 'horizontal' : 'auto'}
+    //   data-full-width-responsive="true"
+    // />
   );
 };
