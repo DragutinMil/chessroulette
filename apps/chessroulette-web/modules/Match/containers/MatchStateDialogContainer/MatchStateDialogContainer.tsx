@@ -26,6 +26,7 @@ import { CounterActions } from '@app/modules/Room/activities/Match/counter';
 import { ActiveBot } from '@app/modules/Match/movex/types';
 
 import { newRematchRequestInitiate } from '../../utilsOutpost';
+import { GoogleAd } from '@app/components/GoogleAd/GoogleAd';
 import { useMovexBoundResourceFromRid } from 'movex-react';
 import movexConfig from '@app/movex.config';
 import { useMovexClient } from 'movex-react';
@@ -36,6 +37,7 @@ export type ActivityActions = CounterActions;
 
 type Props = PlayDialogContainerContainerProps & {
   activeBot?: ActiveBot;
+  isMobile?:boolean
 };
 
 // export default async function Page({
@@ -47,6 +49,7 @@ type Props = PlayDialogContainerContainerProps & {
 // }) {
 export const MatchStateDialogContainer: React.FC<Props> = ({
   activeBot,
+  isMobile,
   ...gameStateDialogProps
 }) => {
   const { match, ...matchView } = useMatchViewState();
@@ -175,6 +178,7 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
               >
                 Lobby&nbsp;&nbsp;&nbsp;
               </Button>
+               <GoogleAd isMobile={isMobile} />
             </div>
           </>
         } // should there be something?
@@ -297,6 +301,7 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
                   >
                     Lobby
                   </Button>
+                  <GoogleAd isMobile={isMobile} />
                 </div>
               )}
             </div>

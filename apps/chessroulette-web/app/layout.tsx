@@ -1,7 +1,6 @@
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { Analytics } from '@vercel/analytics/react';
 import { Metadata } from 'next';
-import Head from 'next/head';
 import '../styles.css';
 
 export const metadata: Metadata = {
@@ -26,6 +25,11 @@ export default function RootLayout({
         <link
           href="https://fonts.googleapis.com/css2?family=Sora&display=swap"
           rel="stylesheet"
+        />
+        <script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8003586277876347"
+          crossOrigin="anonymous"
         />
       </head>
       <body>
