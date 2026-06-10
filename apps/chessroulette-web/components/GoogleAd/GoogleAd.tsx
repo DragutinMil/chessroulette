@@ -71,28 +71,15 @@ export const GoogleAd = ({ isMobile }: Props) => {
   // if (adStatus === 'unfilled') return null;
 
   return (
-    <div style={{ position: 'relative', width: '100%' }}>
-      {/* {adStatus === 'loading' && (
-        <div
-          style={{
-            position: 'absolute',
-            inset: 0,
-            borderRadius: '8px',
-            minHeight: isMobile ? '120px' : '140px',
-            background: 'linear-gradient(90deg, #0a2a14 25%, #0f3d1e 50%, #0a2a14 75%)',
-            backgroundSize: '200% 100%',
-            // animation: 'adSkeleton 1.4s infinite',
-            zIndex: 1,
-          }}
-        />
-      )} */}
+    <div >
       <ins
         ref={ref}
         className="adsbygoogle"
         style={{
           display: 'block',
-          minWidth: isMobile ? '300px' : '330px',
-          // minHeight: isMobile ? '110px' : '135px',
+          minWidth: isMobile ? '270px' : '330px',
+          maxWidth: isMobile ? '330px' : '400px' ,
+          minHeight: isMobile ? '80px' : '100px',
           borderRadius: '8px',
           overflow: 'hidden',
         }}
@@ -100,14 +87,9 @@ export const GoogleAd = ({ isMobile }: Props) => {
         data-ad-layout-key="-fb+5w+4e-db+86"
         data-ad-client="ca-pub-8003586277876347"
         data-ad-slot="3329429976"
-        
+        data-full-width-responsive="true"
       />
-      <style>{`
-        @keyframes adSkeleton {
-          0% { background-position: 200% 0; }
-          100% { background-position: -200% 0; }
-        }
-      `}</style>
+     
     </div>
   );
 };
