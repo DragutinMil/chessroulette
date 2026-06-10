@@ -19,7 +19,7 @@ export const Dialog: React.FC<Props> = ({ modalBG = 'dark', ...props }) => {
       }`}
     >
       <div
-        className={`animate-dialogIn flex bg-black-light rounded-xl md:px-8 px-2 py-4 shadow-2xl shadow-black w-full max-w-[310px] ${
+        className={`animate-dialogIn flex bg-black-light rounded-xl md:px-8 px-2 py-4 shadow-2xl shadow-black w-full max-w-[330px] ${
           props.hasCloseButton ? 'md:max-w-[480px]' : 'md:max-w-[420px]'
         }`}
         style={{ boxShadow: '0px 0px 40px 0px #07DA6355' }}
