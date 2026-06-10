@@ -64,7 +64,8 @@ export const Playboard = ({
   const onValidateMove = useCallback(
     (move: ShortChessMove) => {
       if (isReview || isLearnAi) {
-        return validateMove(move, fen, playingColor, isReview || isLearnAi).valid;
+        return validateMove(move, fen, playingColor, isReview || isLearnAi)
+          .valid;
       }
 
       if (!canPlay) {

@@ -8,7 +8,9 @@ type Props = {
 
 export const GoogleAd = ({ isMobile }: Props) => {
   const ref = useRef<HTMLModElement>(null);
-  const [adStatus, setAdStatus] = useState<'loading' | 'filled' | 'unfilled'>('loading');
+  const [adStatus, setAdStatus] = useState<'loading' | 'filled' | 'unfilled'>(
+    'loading'
+  );
 
   useEffect(() => {
     const el = ref.current;
@@ -16,7 +18,9 @@ export const GoogleAd = ({ isMobile }: Props) => {
 
     const tryPush = () => {
       try {
-        ((window as any).adsbygoogle = (window as any).adsbygoogle || []).push({});
+        ((window as any).adsbygoogle = (window as any).adsbygoogle || []).push(
+          {}
+        );
       } catch (e) {
         console.error('Adsense error', e);
       }
@@ -29,7 +33,10 @@ export const GoogleAd = ({ isMobile }: Props) => {
         mutationObserver.disconnect();
       }
     });
-    mutationObserver.observe(el, { attributes: true, attributeFilter: ['data-ad-status'] });
+    mutationObserver.observe(el, {
+      attributes: true,
+      attributeFilter: ['data-ad-status'],
+    });
 
     const pushAd = () => {
       tryPush();
@@ -61,11 +68,11 @@ export const GoogleAd = ({ isMobile }: Props) => {
     };
   }, []);
 
-  if (adStatus === 'unfilled') return null;
+  // if (adStatus === 'unfilled') return null;
 
   return (
     <div style={{ position: 'relative', width: '100%' }}>
-      {adStatus === 'loading' && (
+      {/* {adStatus === 'loading' && (
         <div
           style={{
             position: 'absolute',
@@ -74,18 +81,18 @@ export const GoogleAd = ({ isMobile }: Props) => {
             minHeight: isMobile ? '120px' : '140px',
             background: 'linear-gradient(90deg, #0a2a14 25%, #0f3d1e 50%, #0a2a14 75%)',
             backgroundSize: '200% 100%',
-            animation: 'adSkeleton 1.4s infinite',
+            // animation: 'adSkeleton 1.4s infinite',
             zIndex: 1,
           }}
         />
-      )}
+      )} */}
       <ins
         ref={ref}
         className="adsbygoogle"
         style={{
           display: 'block',
           minWidth: isMobile ? '250px' : '330px',
-          minHeight: isMobile ? '110px' : '135px',
+          // minHeight: isMobile ? '110px' : '135px',
           borderRadius: '8px',
           overflow: 'hidden',
         }}

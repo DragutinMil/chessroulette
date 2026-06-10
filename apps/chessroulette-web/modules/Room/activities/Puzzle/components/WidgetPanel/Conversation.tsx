@@ -95,8 +95,8 @@ const Conversation = ({
                         className=" max-w-[28px] md:max-w-[36px] relative top-0.5"
                       />
                     ) : (
-                    <div className="min-w-[28px] md:min-w-[36px]" />
-                  )}
+                      <div className="min-w-[28px] md:min-w-[36px]" />
+                    )}
                   </div>
 
                   <div

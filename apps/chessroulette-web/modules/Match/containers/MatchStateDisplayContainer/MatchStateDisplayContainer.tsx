@@ -12,8 +12,6 @@ import { useCurrentOrPrevMatchPlay } from '../../Play/hooks';
 import { UsersMap } from '@app/modules/User';
 import { ConfirmButton } from '@app/components/Button';
 
-const CLAIM_VICTORY_DELAY_MS = 59_000;
-
 type MatchStateDisplayContainerProps = {
   activeBot?: string;
   botRating?: number;
@@ -61,6 +59,9 @@ export const MatchStateDisplayContainer = ({
   };
   const timeClass = match?.gameInPlay?.timeClass;
 
+  const isBullet = timeClass?.startsWith('bullet');
+  const CLAIM_VICTORY_DELAY_MS = isBullet ? 29_000 : 59_000;
+
   const displayTime = timeClass
     ? timeClassMap[timeClass as TimeClass]
     : lastDisplayTimeRef.current;
@@ -94,8 +95,13 @@ export const MatchStateDisplayContainer = ({
   const [disconnectedAt, setDisconnectedAt] = useState<number | null>(null);
   const [canClaimVictory, setCanClaimVictory] = useState(false);
   const [secondsLeft, setSecondsLeft] = useState(30);
+  const wasOpponentOnlineRef = useRef(false);
 
   useEffect(() => {
+    if (opponentOnline) {
+      wasOpponentOnlineRef.current = true;
+    }
+
     if (!gameIsOngoing || !opponentId || opponentOnline) {
       if (disconnectedAt !== null) {
         setDisconnectedAt(null);
@@ -104,7 +110,8 @@ export const MatchStateDisplayContainer = ({
       }
       return;
     }
-    if (disconnectedAt === null) {
+
+    if (disconnectedAt === null && wasOpponentOnlineRef.current) {
       setDisconnectedAt(Date.now());
       setSecondsLeft(30);
     }

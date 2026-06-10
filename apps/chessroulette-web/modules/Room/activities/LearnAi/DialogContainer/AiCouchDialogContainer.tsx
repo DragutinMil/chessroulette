@@ -56,9 +56,7 @@ export const AiCouchDialogContainer: React.FC<AiCouchDialogContainerProps> = ({
     const errors: number = currentChapter?.aiLearn?.errors ?? 0;
     return (
       <Dialog
-        title={
-          <span className="text-white font-bold">Congratulations!</span>
-        }
+        title={<span className="text-white font-bold">Congratulations!</span>}
         content={
           <div className="flex flex-col px-4 py-2 items-center backgroung-[#272727]">
             <p className="text-slate-300 text-sm mt-1">
