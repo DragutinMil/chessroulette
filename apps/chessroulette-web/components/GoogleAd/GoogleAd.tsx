@@ -92,7 +92,7 @@ export const GoogleAd = ({ isMobile }: Props) => {
         style={{
           display: 'block',
           minWidth: isMobile ? '300px' : '330px',
-          // minHeight: isMobile ? '110px' : '135px',
+          minHeight: isMobile ? '80px' : '100px',
           borderRadius: '8px',
           overflow: 'hidden',
         }}
