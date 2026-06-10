@@ -2,7 +2,11 @@
 
 import { useEffect, useRef } from 'react';
 
-export const GoogleAd = () => {
+type Props = {
+  isMobile?: boolean;
+};
+
+export const GoogleAd = ({ isMobile }: Props) => {
   const ref = useRef<HTMLModElement>(null);
 
   useEffect(() => {
@@ -42,14 +46,14 @@ export const GoogleAd = () => {
       className="adsbygoogle"
       style={{
         display: 'block',
-        minWidth: '250px',
-        minHeight: '60px',
+        minWidth: isMobile ? '250px' : '330px',
+        minHeight: isMobile ? '60px' : '90px',
         borderRadius: '8px',
         overflow: 'hidden',
       }}
       data-ad-client="ca-pub-8003586277876347"
       data-ad-slot="2567012649"
-      data-ad-format="horizontal"
+      data-ad-format={isMobile ? 'horizontal' : 'auto'}
       data-full-width-responsive="true"
     />
   );

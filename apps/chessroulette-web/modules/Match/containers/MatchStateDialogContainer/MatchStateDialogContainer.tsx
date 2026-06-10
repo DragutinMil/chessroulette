@@ -37,6 +37,7 @@ export type ActivityActions = CounterActions;
 
 type Props = PlayDialogContainerContainerProps & {
   activeBot?: ActiveBot;
+  isMobile?:boolean
 };
 
 // export default async function Page({
@@ -48,6 +49,7 @@ type Props = PlayDialogContainerContainerProps & {
 // }) {
 export const MatchStateDialogContainer: React.FC<Props> = ({
   activeBot,
+  isMobile,
   ...gameStateDialogProps
 }) => {
   const { match, ...matchView } = useMatchViewState();
@@ -176,6 +178,7 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
               >
                 Lobby&nbsp;&nbsp;&nbsp;
               </Button>
+               <GoogleAd isMobile={isMobile} />
             </div>
           </>
         } // should there be something?
@@ -298,7 +301,7 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
                   >
                     Lobby
                   </Button>
-                  <GoogleAd />
+                  <GoogleAd isMobile={isMobile} />
                 </div>
               )}
             </div>
