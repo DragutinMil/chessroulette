@@ -232,6 +232,72 @@ export async function sendPuzzleUserRating(
     console.error('Fetch error', error);
   }
 }
+export async function getUserStreakPuzzle() {
+  const token = Cookies.get('sessionToken');
+  if (!token) return null;
+  try {
+    const response = await fetch(
+      process.env.NEXT_PUBLIC_API_WEB + 'user_streak_puzzle',
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    if (!response.ok) throw new Error(`Error: ${response.status}`);
+    return response.json();
+  } catch (error) {
+    console.error('Fetch error', error);
+    return null;
+  }
+}
+
+export async function getUserStreakPlay() {
+  const token = Cookies.get('sessionToken');
+  if (!token) return null;
+  try {
+    const response = await fetch(
+      process.env.NEXT_PUBLIC_API_WEB + 'user_streak_play',
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    if (!response.ok) throw new Error(`Error: ${response.status}`);
+    return response.json();
+  } catch (error) {
+    console.error('Fetch error', error);
+    return null;
+  }
+}
+
+export async function patchUserStreakPlay(data: Record<string, any>) {
+  const token = Cookies.get('sessionToken');
+  if (!token) return;
+  try {
+    const response = await fetch(
+      process.env.NEXT_PUBLIC_API_WEB + 'streak_users_data',
+      {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(data),
+      }
+    );
+    console.log('response',response)
+    if (!response.ok) throw new Error(`Error: ${response.status}`);
+  } catch (error) {
+    console.error('Fetch error', error);
+  }
+}
+
 //GET TOKEN
 export async function getToken() {
   const token = Cookies.get('sessionToken');

@@ -7,7 +7,12 @@ import { BetweenGamesAborter } from './components/BetweenGamesAborter';
 import { Button } from '../../../../components/Button/Button';
 import { Icon } from '@app/components/Icon/Icon';
 import { useRouter } from 'next/navigation';
-import { checkUser, sendResult } from '@app/modules/Match/utilsOutpost';
+import {
+  checkUser,
+  sendResult,
+  getUserStreakPlay,
+  patchUserStreakPlay,
+} from '@app/modules/Match/utilsOutpost';
 import {
   PlayDialogContainer,
   PlayDialogContainerContainerProps,
@@ -27,6 +32,8 @@ import { ActiveBot } from '@app/modules/Match/movex/types';
 
 import { newRematchRequestInitiate } from '../../utilsOutpost';
 import { GoogleAd } from '@app/components/GoogleAd/GoogleAd';
+
+let sessionMatchStreakChecked = false;
 import { useMovexBoundResourceFromRid } from 'movex-react';
 import movexConfig from '@app/movex.config';
 import { useMovexClient } from 'movex-react';
@@ -56,6 +63,11 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
   const [alreadyRematch, setAlreadyRematch] = useState(false);
   const [endGameReason, setEndGameReason] = useState<string>('');
   const [isHidden, setIsHidden] = useState(false);
+  const [streakDays, setStreakDays] = useState<number | null>(null);
+  const [animStage, setAnimStage] = useState(0);
+  const [badgeNum, setBadgeNum] = useState(0);
+  const [badgePulse, setBadgePulse] = useState(false);
+  const [matchDialogReady, setMatchDialogReady] = useState(false);
 
   // const [matchId, setMatchId] = useState('');
   const [room, setRoom] = useState('');
@@ -107,9 +119,57 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
         ];
 
         setEndGameReason(reasons[Number(match.endedGames[0].gameOverReason)]);
+
+        if (!sessionMatchStreakChecked) {
+          sessionMatchStreakChecked = true;
+          const checkStreak = async () => {
+            try {
+              const today = new Date().toISOString().split('T')[0];
+              const playResult = await getUserStreakPlay();
+              const consecutiveDays = parseInt(
+                playResult?.consecutive_days ?? '0',
+                10
+              );
+              const playCelebration = playResult?.play_celebration
+                ? new Date(playResult.play_celebration).toISOString().split('T')[0]
+                : null;
+              if (playCelebration !== today) {
+                setStreakDays(consecutiveDays);
+                patchUserStreakPlay({ play_celebration: today });
+              }
+            } finally {
+              setMatchDialogReady(true);
+            }
+          };
+          checkStreak();
+        } else {
+          setMatchDialogReady(true);
+        }
       }
     }
   }, [match?.status]);
+
+  useEffect(() => {
+    if (streakDays === null) {
+      setAnimStage(0);
+      return;
+    }
+    setBadgeNum(streakDays);
+    const t0 = setTimeout(() => setAnimStage(1), 50);
+    const t1 = setTimeout(() => setAnimStage(2), 600);
+    const t2 = setTimeout(() => setAnimStage(3), 1100);
+    const t3 = setTimeout(() => {
+      setBadgeNum(streakDays + 1);
+      setBadgePulse(true);
+      setTimeout(() => setBadgePulse(false), 400);
+    }, 1600);
+    return () => {
+      clearTimeout(t0);
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+    };
+  }, [streakDays]);
 
   useEffect(() => {
     async function runCheck() {
@@ -190,7 +250,8 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
 
   if (
     match?.status === 'complete' &&
-    (lastOffer?.type !== 'rematch' || lastOffer?.status !== 'pending')
+    (lastOffer?.type !== 'rematch' || lastOffer?.status !== 'pending') &&
+    matchDialogReady
   ) {
     if (isHidden) {
       return (
@@ -237,6 +298,52 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
               </Text>
               {activeBot?.botType !== 'basic' && (
                 <div className="justify-center items-center flex flex-col gap-3 mt-4 w-full">
+                  {streakDays !== null && (
+                    <div className="flex flex-row items-center justify-center gap-4 mb-2 w-full">
+                      <div
+                        className="relative flex-shrink-0"
+                        style={{
+                          transition: 'opacity 0.5s ease, transform 0.5s ease',
+                          opacity: animStage >= 1 ? 1 : 0,
+                          transform: animStage >= 1 ? 'scale(1)' : 'scale(0.6)',
+                        }}
+                      >
+                        <img src="/flame.webp" alt="flame" className="w-14 h-16 object-contain" />
+                        <span
+                          className="absolute bottom-1 right-1 bg-cyan-400 text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center border-2 border-[#1c1c1c]"
+                          style={{
+                            color: '#000000',
+                            transition: 'transform 0.3s ease',
+                            transform: badgePulse ? 'scale(1.5)' : 'scale(1)',
+                          }}
+                        >
+                          {badgeNum}
+                        </span>
+                      </div>
+                      <div className="flex flex-col">
+                        <span
+                          className="text-green-400 font-bold text-xs text-left uppercase tracking-widest"
+                          style={{
+                            transition: 'opacity 0.5s ease, transform 0.5s ease',
+                            opacity: animStage >= 2 ? 1 : 0,
+                            transform: animStage >= 2 ? 'translateY(0)' : 'translateY(8px)',
+                          }}
+                        >
+                          Well Played!
+                        </span>
+                        <span
+                          className="text-white font-bold text-2xl leading-tight"
+                          style={{
+                            transition: 'opacity 0.5s ease, transform 0.5s ease',
+                            opacity: animStage >= 3 ? 1 : 0,
+                            transform: animStage >= 3 ? 'translateY(0)' : 'translateY(8px)',
+                          }}
+                        >
+                          {badgeNum}-day streak!
+                        </span>
+                      </div>
+                    </div>
+                  )}
                   {isPlayer && (
                     <Button
                       icon="ArrowPathRoundedSquareIcon"
