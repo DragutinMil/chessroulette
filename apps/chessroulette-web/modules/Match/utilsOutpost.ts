@@ -89,7 +89,7 @@ export async function patchUserStreakPlay(data: Record<string, any>) {
   if (!token) return;
   try {
     const response = await fetch(
-      process.env.NEXT_PUBLIC_API_WEB + 'user_streak_play',
+      process.env.NEXT_PUBLIC_API_WEB + 'streak_users_data',
       {
         method: 'PATCH',
         headers: {
