@@ -168,7 +168,7 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
           <>
             <div className="flex items-center w-full flex-col ">
               <Button
-                className="w-3/5 md:w-1/2 mb-4 "
+                className="w-4/5 md:w-2/3 mb-4 "
                 icon="ArrowLeftIcon"
                 bgColor="green"
                 onClick={() => {
@@ -241,7 +241,7 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
                     <Button
                       icon="ArrowPathRoundedSquareIcon"
                       bgColor="green"
-                      className="transition-all duration-200 w-full  hover:scale-[1.03] hover:shadow-[0_0_12px_rgba(7,218,99,0.25)]"
+                      className=" transition-all duration-200 w-full  hover:scale-[1.03] hover:shadow-[0_0_12px_rgba(7,218,99,0.25)]"
                       style={{ minWidth: '160px' }}
                       onClick={async () => {
                         if (playerId) {
