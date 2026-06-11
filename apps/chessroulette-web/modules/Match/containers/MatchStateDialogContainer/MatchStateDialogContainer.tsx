@@ -298,8 +298,11 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
               </Text>
               {activeBot?.botType !== 'basic' && (
                 <div className="justify-center items-center flex flex-col gap-3 mt-4 w-full">
+                  <div className="flex flex-row items-center gap-4 mb-2 w-full">
+                 
+                    </div>
                   {streakDays !== null && (
-                    <div className="flex flex-row items-center justify-center gap-4 mb-2 w-full">
+                    <div className="flex flex-row relative left-4 items-center gap-4 mb-2 w-full">
                       <div
                         className="relative flex-shrink-0"
                         style={{
@@ -308,7 +311,7 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
                           transform: animStage >= 1 ? 'scale(1)' : 'scale(0.6)',
                         }}
                       >
-                        <img src="/flame.webp" alt="flame" className="w-14 h-16 object-contain" />
+                        <img src="/flame.webp" alt="flame" className="w-16 h-18 object-contain" />
                         <span
                           className="absolute bottom-1 right-1 bg-cyan-400 text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center border-2 border-[#1c1c1c]"
                           style={{
@@ -322,7 +325,7 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
                       </div>
                       <div className="flex flex-col">
                         <span
-                          className="text-green-400 font-bold text-xs text-left uppercase tracking-widest"
+                          className="text-green-400 text-left font-bold text-xs uppercase tracking-widest"
                           style={{
                             transition: 'opacity 0.5s ease, transform 0.5s ease',
                             opacity: animStage >= 2 ? 1 : 0,
@@ -343,7 +346,7 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
                         </span>
                       </div>
                     </div>
-                  )}
+                   )} 
                   {isPlayer && (
                     <Button
                       icon="ArrowPathRoundedSquareIcon"
