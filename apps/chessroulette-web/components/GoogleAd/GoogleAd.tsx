@@ -26,7 +26,7 @@ export const GoogleAd = ({ isMobile }: Props) => {
       const status = el.getAttribute('data-ad-status');
       if (status === 'filled' || status === 'unfilled') {
         setAdStatus(status);
-        mutationObserver.disconnect();
+         mutationObserver.disconnect();
       }
     });
     mutationObserver.observe(el, { attributes: true, attributeFilter: ['data-ad-status'] });
@@ -61,7 +61,7 @@ export const GoogleAd = ({ isMobile }: Props) => {
     };
   }, []);
 
-  if (adStatus === 'unfilled') return null;
+  // if (adStatus === 'unfilled') return null;
 
   return (
     <div style={{ position: 'relative', width: '100%' }}>
@@ -72,7 +72,7 @@ export const GoogleAd = ({ isMobile }: Props) => {
             inset: 0,
             borderRadius: '8px',
             minHeight: isMobile ? '120px' : '140px',
-            background: 'linear-gradient(90deg, #0a2a14 25%, #0f3d1e 50%, #0a2a14 75%)',
+             background: 'linear-gradient(90deg, #1f1f1f 25%, #323232 50%, #1f1f1f 75%)',
             backgroundSize: '200% 100%',
             animation: 'adSkeleton 1.4s infinite',
             zIndex: 1,

@@ -37,7 +37,7 @@ export type ActivityActions = CounterActions;
 
 type Props = PlayDialogContainerContainerProps & {
   activeBot?: ActiveBot;
-  isMobile?:boolean
+  isMobile?: boolean;
 };
 
 // export default async function Page({
@@ -166,9 +166,9 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
         title="Match Aborted"
         content={
           <>
-            <div className="flex justify-center w-full">
+            <div className="flex items-center w-full flex-col ">
               <Button
-                className="w-3/5 md:w-1/2  "
+                className="w-4/5 md:w-2/3 mb-4 "
                 icon="ArrowLeftIcon"
                 bgColor="green"
                 onClick={() => {
@@ -178,7 +178,7 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
               >
                 Lobby&nbsp;&nbsp;&nbsp;
               </Button>
-               <GoogleAd isMobile={isMobile} />
+              <GoogleAd isMobile={isMobile} />
             </div>
           </>
         } // should there be something?
@@ -241,7 +241,7 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
                     <Button
                       icon="ArrowPathRoundedSquareIcon"
                       bgColor="green"
-                      className="transition-all duration-200 w-full  hover:scale-[1.03] hover:shadow-[0_0_12px_rgba(7,218,99,0.25)]"
+                      className=" transition-all duration-200 w-full  hover:scale-[1.03] hover:shadow-[0_0_12px_rgba(7,218,99,0.25)]"
                       style={{ minWidth: '160px' }}
                       onClick={async () => {
                         if (playerId) {
@@ -275,7 +275,7 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
 
                   <Link
                     className="w-full"
-                     href={`https://chess.outpostchess.com/room/new/r${room}?activity=review&userId=${userId}&theme=op&pgn=${roomId}`}
+                    href={`https://chess.outpostchess.com/room/new/r${room}?activity=review&userId=${userId}&theme=op&pgn=${roomId}`}
                     //href={`http://localhost:4200/room/new/r${room}?activity=review&userId=${userId}&theme=op&pgn=${roomId}`}
                   >
                     <Button

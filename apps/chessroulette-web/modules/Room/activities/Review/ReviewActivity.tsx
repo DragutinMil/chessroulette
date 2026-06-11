@@ -120,7 +120,7 @@ export const ReviewActivity = ({
 
         const lastGame = state.endedGames.length - 1;
         const pgn = state.endedGames[lastGame].pgn;
-        console.log('pgn',pgn)
+        console.log('pgn', pgn);
         const white = state.endedGames[lastGame].players.w == userId;
         const black = state.endedGames[lastGame].players.b == userId;
 
