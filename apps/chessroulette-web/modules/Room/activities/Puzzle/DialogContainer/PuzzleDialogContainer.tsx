@@ -68,12 +68,12 @@ export const PuzzleDialogContainer: React.FC<PuzzleDialogContainerProps> = ({
       setAnimStage(0);
       return;
     }
-    setBadgeNum(streakDays);
+    setBadgeNum(Math.max(0, streakDays - 1));
     const t0 = setTimeout(() => setAnimStage(1), 50);
     const t1 = setTimeout(() => setAnimStage(2), 600);
     const t2 = setTimeout(() => setAnimStage(3), 1100);
     const t3 = setTimeout(() => {
-      setBadgeNum(streakDays + 1);
+      setBadgeNum(streakDays);
       setBadgePulse(true);
       setTimeout(() => setBadgePulse(false), 400);
     }, 1600);
