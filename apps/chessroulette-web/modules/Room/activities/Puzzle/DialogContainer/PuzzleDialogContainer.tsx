@@ -119,21 +119,23 @@ export const PuzzleDialogContainer: React.FC<PuzzleDialogContainerProps> = ({
       spread: 170,
       origin: { y: 0.6 },
     });
-    sendPuzzleUserRating(
-      currentChapter.chessAiMode.userPuzzleRating,
-      currentChapter.chessAiMode.prevUserPuzzleRating,
-      currentChapter.chessAiMode.puzzleId
-    );
+
+    const userPuzzleRating = currentChapter.chessAiMode.userPuzzleRating;
+    const prevUserPuzzleRating = currentChapter.chessAiMode.prevUserPuzzleRating;
+    const puzzleId = currentChapter.chessAiMode.puzzleId;
 
     if (!sessionStreakChecked) {
       sessionStreakChecked = true;
       const checkStreak = async () => {
         try {
           const today = new Date().toISOString().split('T')[0];
+          // Fetchujemo stare vrednosti PRIJE puzzle_result
           const [streakResult, playResult] = await Promise.all([
             getUserStreakPuzzle(),
             getUserStreakPlay(),
           ]);
+          // Tek sad šaljemo puzzle_result koji ažurira streak na serveru
+          await sendPuzzleUserRating(userPuzzleRating, prevUserPuzzleRating, puzzleId);
           const consecutiveDays = parseInt(
             streakResult?.consecutive_days ?? '0',
             10
@@ -151,6 +153,7 @@ export const PuzzleDialogContainer: React.FC<PuzzleDialogContainerProps> = ({
       };
       checkStreak();
     } else {
+      sendPuzzleUserRating(userPuzzleRating, prevUserPuzzleRating, puzzleId);
       setDialogReady(true);
     }
   }, [currentChapter.chessAiMode.mode, removePopup]);

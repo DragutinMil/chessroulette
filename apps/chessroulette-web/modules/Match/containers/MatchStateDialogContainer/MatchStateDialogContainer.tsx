@@ -302,7 +302,7 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
                  
                     </div>
                   {streakDays !== null && (
-                    <div className="flex flex-row relative left-4 items-center gap-4 mb-2 w-full">
+                    <div className="flex flex-row relative md:left-4 items-center gap-4 mb-2 w-full">
                       <div
                         className="relative flex-shrink-0"
                         style={{
