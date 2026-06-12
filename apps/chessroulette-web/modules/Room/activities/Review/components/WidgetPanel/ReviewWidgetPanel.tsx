@@ -127,6 +127,11 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
     tabsRef
   ) => {
     const widgetPanelTabsNav = useWidgetPanelTabsNavAsSearchParams();
+    const [isOutpostWebView, setIsOutpostWebView] = useState(false);
+    useEffect(() => {
+      setIsOutpostWebView(navigator.userAgent.includes('OutpostChessApp'));
+    }, []);
+
     const [pulseDot, setPulseDot] = useState(false);
     const [suggestions, setSuggestions] = useState<string[]>([]);
     const [hintCircle, setHintCircle] = useState(false);
@@ -543,7 +548,7 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
         )}
 
         <Tabs
-          containerClassName=" flex flex-col flex-1 min-h-0 rounded-lg shadow-2xl  mb-16 md:mb-0 "
+          containerClassName={`flex flex-col flex-1 min-h-0 rounded-lg shadow-2xl md:mb-0 ${isOutpostWebView ? '' : 'mb-16'}`}
           headerContainerClassName="flex gap-3"
           contentClassName="flex-1 flex min-h-0"
           currentIndex={currentTabIndex}
