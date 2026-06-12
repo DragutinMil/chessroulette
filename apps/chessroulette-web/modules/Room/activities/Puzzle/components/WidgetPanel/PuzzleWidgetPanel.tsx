@@ -96,6 +96,11 @@ export const PuzzleWidgetPanel = React.forwardRef<TabsRef, Props>(
     tabsRef
   ) => {
     const widgetPanelTabsNav = useWidgetPanelTabsNavAsSearchParams();
+    const [isOutpostWebView, setIsOutpostWebView] = useState(false);
+    useEffect(() => {
+      setIsOutpostWebView(navigator.userAgent.includes('OutpostChessApp'));
+    }, []);
+
     const [pulseDot, setPulseDot] = useState(false);
     const [hintCircle, setHintCircle] = useState(false);
     const [isFocusedInput, setIsFocusedInput] = useState(false);
@@ -915,7 +920,7 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
               renderHeader: (p) => <div></div>,
               renderContent: () => (
                 // ovde ide pb-24
-                <div className="flex flex-col flex-1 gap-2 min-h-0 overflow-scroll no-scrollbar  pb-24 md:pb-0">
+                <div className={`flex flex-col flex-1 gap-2 min-h-0 overflow-scroll no-scrollbar md:pb-0 ${isOutpostWebView ? 'pb-4' : 'pb-4'}`}>
                   <div
                     className={`flex-1 justify-between flex bg-op-widget flex-col border  border-conversation-100 pb-2 px-2 md:px-4 md:pb-4 rounded-lg 
                      
