@@ -179,7 +179,7 @@ export const PuzzleDialogContainer: React.FC<PuzzleDialogContainerProps> = ({
         content={
           <div className="flex flex-col px-4 py-2 items-center backgroung-[#272727]">
             {streakDays === null && currentChapter.chessAiMode.mode === 'popup' && (
-              <span className="text-green-400 font-bold text-lg uppercase tracking-widest mb-4">
+              <span className="text-white font-bold text-md   mb-4">
                 Puzzle Solved!
               </span>
             )}
@@ -207,7 +207,7 @@ export const PuzzleDialogContainer: React.FC<PuzzleDialogContainerProps> = ({
                 </div>
                 <div className="flex flex-col">
                   <span
-                    className="text-green-400 font-bold text-xs uppercase tracking-widest"
+                    className="text-green-400 font-bold text-xs "
                     style={{
                       transition: 'opacity 0.5s ease, transform 0.5s ease',
                       opacity: animStage >= 2 ? 1 : 0,

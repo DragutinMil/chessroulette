@@ -332,7 +332,7 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
                             transform: animStage >= 2 ? 'translateY(0)' : 'translateY(8px)',
                           }}
                         >
-                          Well Played!
+                          Interesting game!
                         </span>
                         <span
                           className="text-white font-bold text-2xl leading-tight"
