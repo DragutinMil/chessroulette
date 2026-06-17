@@ -5,6 +5,7 @@ import confetti from 'canvas-confetti';
 type Props = {
   chessAiMode: chessAiMode;
   puzzle_rating: any;
+  isTablet?: boolean;
 };
 export const puzzleRatingLevels = [
   {
@@ -126,7 +127,7 @@ export const puzzleRatingLevels = [
   },
 ];
 
-const PuzzleScore = ({ chessAiMode, puzzle_rating }: Props) => {
+const PuzzleScore = ({ chessAiMode, puzzle_rating, isTablet }: Props) => {
   const componentRef = useRef<HTMLDivElement>(null);
   const [value, setValue] = useState(puzzle_rating);
   const [flipping, setFlipping] = useState<boolean>(false);
@@ -271,23 +272,26 @@ const PuzzleScore = ({ chessAiMode, puzzle_rating }: Props) => {
       </style>
       {/* {value > 0 && ( */}
       <div
-        className={`rounded-lg  mb-1  md:mt-1 mt-2 md:px-4 md:pb-4 px-2 pb-2 pt-2 border border-conversation-100 bg-[#01210B] 
-    ${animateLabel ? 'animate-fire-pulse' : ''}
+        className={`rounded-lg  mb-1  md:mt-1 mt-4 md:px-4 md:pb-4 px-2 pb-2 pt-2 border border-conversation-100 bg-[#01210B] 
+    ${animateLabel ? 'animate-fire-pulse' : ''} 
   `}
       >
-        <div className="flex justify-between hidden md:flex">
-          <div className="text-[10px] font-bold text-[#8F8F90]  mb-1 relative">
-            {animateLabel && (
-              <span className="text-red-400 text-[16px] animate-sublevel-blink-strong absolute bottom-[-3px] left-12">
-                🔥
-              </span>
-            )}
-            RATING
+        {!isTablet && (
+          <div className="flex justify-between hidden md:flex">
+            <div className="text-[10px] font-bold text-[#8F8F90]  mb-1 relative">
+              {animateLabel && (
+                <span className="text-red-400 text-[16px] animate-sublevel-blink-strong absolute bottom-[-3px] left-12">
+                  🔥
+                </span>
+              )}
+              RATING
+            </div>
+            <div className=" text-[10px] font-bold text-[#8F8F90] mb-1   ">
+              LEVEL
+            </div>
           </div>
-          <div className=" text-[10px] font-bold text-[#8F8F90] mb-1   ">
-            LEVEL
-          </div>
-        </div>
+        )}
+
         <div
           className={`${styles.flipNumber} w-full text-white text-xl  font-bold mb-2 inline-block min-w-[40px] min-h-[24px]`}
         >

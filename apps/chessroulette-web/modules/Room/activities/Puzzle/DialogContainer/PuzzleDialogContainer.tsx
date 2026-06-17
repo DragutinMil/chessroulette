@@ -121,7 +121,8 @@ export const PuzzleDialogContainer: React.FC<PuzzleDialogContainerProps> = ({
     });
 
     const userPuzzleRating = currentChapter.chessAiMode.userPuzzleRating;
-    const prevUserPuzzleRating = currentChapter.chessAiMode.prevUserPuzzleRating;
+    const prevUserPuzzleRating =
+      currentChapter.chessAiMode.prevUserPuzzleRating;
     const puzzleId = currentChapter.chessAiMode.puzzleId;
 
     if (!sessionStreakChecked) {
@@ -135,13 +136,19 @@ export const PuzzleDialogContainer: React.FC<PuzzleDialogContainerProps> = ({
             getUserStreakPlay(),
           ]);
           // Tek sad šaljemo puzzle_result koji ažurira streak na serveru
-          await sendPuzzleUserRating(userPuzzleRating, prevUserPuzzleRating, puzzleId);
+          await sendPuzzleUserRating(
+            userPuzzleRating,
+            prevUserPuzzleRating,
+            puzzleId
+          );
           const consecutiveDays = parseInt(
             streakResult?.consecutive_days ?? '0',
             10
           );
           const puzzleCelebration = playResult?.puzzle_celebration
-            ? new Date(playResult.puzzle_celebration).toISOString().split('T')[0]
+            ? new Date(playResult.puzzle_celebration)
+                .toISOString()
+                .split('T')[0]
             : null;
           if (puzzleCelebration !== today) {
             setStreakDays(consecutiveDays);
@@ -178,11 +185,12 @@ export const PuzzleDialogContainer: React.FC<PuzzleDialogContainerProps> = ({
         }
         content={
           <div className="flex flex-col px-4 py-2 items-center backgroung-[#272727]">
-            {streakDays === null && currentChapter.chessAiMode.mode === 'popup' && (
-              <span className="text-white font-bold text-md   mb-4">
-                Puzzle Solved!
-              </span>
-            )}
+            {streakDays === null &&
+              currentChapter.chessAiMode.mode === 'popup' && (
+                <span className="text-white font-bold text-md   mb-4">
+                  Puzzle Solved!
+                </span>
+              )}
             {streakDays !== null && (
               <div className="flex flex-row items-center gap-4 mb-5 w-full">
                 <div
@@ -193,7 +201,11 @@ export const PuzzleDialogContainer: React.FC<PuzzleDialogContainerProps> = ({
                     transform: animStage >= 1 ? 'scale(1)' : 'scale(0.6)',
                   }}
                 >
-                  <img src="/flame.webp" alt="flame" className="w-18 h-22 object-contain" />
+                  <img
+                    src="/flame.webp"
+                    alt="flame"
+                    className="w-18 h-22 object-contain"
+                  />
                   <span
                     className="absolute bottom-1 right-1 bg-cyan-400 text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center border-2 border-[#1c1c1c]"
                     style={{
@@ -211,7 +223,8 @@ export const PuzzleDialogContainer: React.FC<PuzzleDialogContainerProps> = ({
                     style={{
                       transition: 'opacity 0.5s ease, transform 0.5s ease',
                       opacity: animStage >= 2 ? 1 : 0,
-                      transform: animStage >= 2 ? 'translateY(0)' : 'translateY(8px)',
+                      transform:
+                        animStage >= 2 ? 'translateY(0)' : 'translateY(8px)',
                     }}
                   >
                     Puzzle Solved!
@@ -221,7 +234,8 @@ export const PuzzleDialogContainer: React.FC<PuzzleDialogContainerProps> = ({
                     style={{
                       transition: 'opacity 0.5s ease, transform 0.5s ease',
                       opacity: animStage >= 3 ? 1 : 0,
-                      transform: animStage >= 3 ? 'translateY(0)' : 'translateY(8px)',
+                      transform:
+                        animStage >= 3 ? 'translateY(0)' : 'translateY(8px)',
                     }}
                   >
                     {badgeNum}-day streak!

@@ -88,6 +88,10 @@ export const List: React.FC<ListProps> = ({
       const [focusedTurnIndex] = focusedIndex;
 
       if (!focusedTurnIndex) {
+        const el = containerElementRef.current;
+        if (el) {
+          el.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+        }
         return;
       }
 

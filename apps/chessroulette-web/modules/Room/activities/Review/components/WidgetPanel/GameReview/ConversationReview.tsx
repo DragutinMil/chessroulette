@@ -8,6 +8,8 @@ import greenLogo from '../../../../../../../components/Logo/assets/Logo_green_sm
 import Image from 'next/image';
 import { ButtonGreen } from '@app/components/Button/ButtonGreen';
 import { StatsTable } from './StatsTable';
+import { useIsTablet } from '@app/hooks/useIsTablet';
+
 type Props = {
   currentChapterState: ChapterState;
   pulseDot: boolean;
@@ -42,7 +44,7 @@ const ConversationReview = ({
   const [disableButton, setDisableButton] = useState(false);
   const [disableWorstMoveButton, setDisableWorstMoveButton] = useState(false);
   const [disableOpeningButton, setDisableOpeningButton] = useState(false);
-
+  const { isTablet } = useIsTablet();
   useEffect(() => {
     if (currentChapterState.messages.length < 2) {
       return;
@@ -85,9 +87,13 @@ const ConversationReview = ({
       ref={scrollRef}
       className={`
   flex-1 overflow-y-auto rounded-lg no-scrollbar scroll-smooth
-  h-[260px] md:h-[400px]
- md:max-h-[600px] 
-  md:h-[400px]
+  ${
+    isTablet
+      ? 'h-full'
+      : `h-[260px] md:h-[400px]
+    md:max-h-[600px]
+  md:h-[400px]`
+  }
 `}
       // style={{
       //   maxHeight: smallMobile ? '180px' : '',
@@ -127,7 +133,9 @@ const ConversationReview = ({
                 </div>
 
                 <div
-                  className={`text-white text-sm px-1 md:px-4  w-full flex   flex-col  items-start `}
+                  className={`text-white text-sm px-1 md:px-2 ${
+                    isTablet ? 'px-0' : ''
+                  }  w-full flex   flex-col  items-start `}
                 >
                   {msg.content.includes('analyzeReview') ? (
                     <StatsTable

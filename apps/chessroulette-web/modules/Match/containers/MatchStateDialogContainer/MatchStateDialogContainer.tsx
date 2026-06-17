@@ -131,7 +131,9 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
                 10
               );
               const playCelebration = playResult?.play_celebration
-                ? new Date(playResult.play_celebration).toISOString().split('T')[0]
+                ? new Date(playResult.play_celebration)
+                    .toISOString()
+                    .split('T')[0]
                 : null;
               if (playCelebration !== today) {
                 setStreakDays(consecutiveDays);
@@ -298,9 +300,7 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
               </Text>
               {activeBot?.botType !== 'basic' && (
                 <div className="justify-center items-center flex flex-col gap-3 mt-4 w-full">
-                  <div className="flex flex-row items-center gap-4 mb-2 w-full">
-                 
-                    </div>
+                  <div className="flex flex-row items-center gap-4 mb-2 w-full"></div>
                   {streakDays !== null && (
                     <div className="flex flex-row relative md:left-4 items-center gap-4 mb-2 w-full">
                       <div
@@ -311,7 +311,11 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
                           transform: animStage >= 1 ? 'scale(1)' : 'scale(0.6)',
                         }}
                       >
-                        <img src="/flame.webp" alt="flame" className="w-16 h-18 object-contain" />
+                        <img
+                          src="/flame.webp"
+                          alt="flame"
+                          className="w-16 h-18 object-contain"
+                        />
                         <span
                           className="absolute bottom-1 right-1 bg-cyan-400 text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center border-2 border-[#1c1c1c]"
                           style={{
@@ -327,9 +331,13 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
                         <span
                           className="text-green-400 text-left font-bold text-xs uppercase tracking-widest"
                           style={{
-                            transition: 'opacity 0.5s ease, transform 0.5s ease',
+                            transition:
+                              'opacity 0.5s ease, transform 0.5s ease',
                             opacity: animStage >= 2 ? 1 : 0,
-                            transform: animStage >= 2 ? 'translateY(0)' : 'translateY(8px)',
+                            transform:
+                              animStage >= 2
+                                ? 'translateY(0)'
+                                : 'translateY(8px)',
                           }}
                         >
                           Interesting game!
@@ -337,16 +345,20 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
                         <span
                           className="text-white font-bold text-2xl leading-tight"
                           style={{
-                            transition: 'opacity 0.5s ease, transform 0.5s ease',
+                            transition:
+                              'opacity 0.5s ease, transform 0.5s ease',
                             opacity: animStage >= 3 ? 1 : 0,
-                            transform: animStage >= 3 ? 'translateY(0)' : 'translateY(8px)',
+                            transform:
+                              animStage >= 3
+                                ? 'translateY(0)'
+                                : 'translateY(8px)',
                           }}
                         >
                           {badgeNum}-day streak!
                         </span>
                       </div>
                     </div>
-                   )} 
+                  )}
                   {isPlayer && (
                     <Button
                       icon="ArrowPathRoundedSquareIcon"
