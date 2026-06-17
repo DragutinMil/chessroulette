@@ -44,6 +44,7 @@ import { CheckPiece } from './CheckPiece';
 import { ChessEngineProbabilityCalc } from '@app/modules/ChessEngine/components/ChessEngineCalculator';
 
 import { reviewAnalitics } from '../../util';
+import { useIsTablet } from '@app/hooks/useIsTablet';
 
 // import { generateGptResponse } from '../../../../../../server.js';
 type StockfishLines = {
@@ -127,9 +128,16 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
     tabsRef
   ) => {
     const widgetPanelTabsNav = useWidgetPanelTabsNavAsSearchParams();
-    const [isOutpostWebView, setIsOutpostWebView] = useState(false);
+    const [isOutpostWebViewAndroid, setIsOutpostWebViewAndroid] =
+      useState(false);
+    const [isOutpostWebViewIos, setIsOutpostWebViewIos] = useState(false);
     useEffect(() => {
-      setIsOutpostWebView(navigator.userAgent.includes('OutpostChessApp'));
+      setIsOutpostWebViewAndroid(
+        navigator.userAgent.includes('OutpostChessApp/android')
+      );
+      setIsOutpostWebViewIos(
+        navigator.userAgent.includes('OutpostChessApp/ios')
+      );
     }, []);
 
     const [pulseDot, setPulseDot] = useState(false);
@@ -150,7 +158,7 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
     const [showNames, setShowNames] = useState(true);
     const smallMobile =
       typeof window !== 'undefined' && window.innerWidth < 400;
-    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+    const { isMobile, isTablet } = useIsTablet();
     const [newRatingEngine, setRatingBotEngine] = useState(
       isMobile ? 1999 : 2099
     );
@@ -548,7 +556,13 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
         )}
 
         <Tabs
-          containerClassName={`flex flex-col flex-1 min-h-0 rounded-lg shadow-2xl md:mb-0 ${isOutpostWebView ? '' : 'mb-16'}`}
+          containerClassName={`flex flex-col flex-1 min-h-0 rounded-lg shadow-2xl md:mb-0 ${
+            isOutpostWebViewAndroid
+              ? 'mb-4'
+              : isOutpostWebViewIos
+              ? 'mb-0'
+              : 'mb-16'
+          }`}
           headerContainerClassName="flex gap-3"
           contentClassName="flex-1 flex min-h-0"
           currentIndex={currentTabIndex}
@@ -738,11 +752,13 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
                                   <label className="font-bold text-sm  text-gray-400">
                                     {/* Import */}
                                   </label>
-                                  <PgnInputBox
-                                    compact
-                                    containerClassName="flex-1"
-                                    onChange={onImport}
-                                  />
+                                  {!isTablet && (
+                                    <PgnInputBox
+                                      compact
+                                      containerClassName="flex-1"
+                                      onChange={onImport}
+                                    />
+                                  )}
                                 </div>
                               )}
                             </div>
@@ -754,7 +770,7 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
                     </div>
                   </div>
 
-                  {!isMobile && (
+                  {!isMobile && !isTablet && (
                     <div
                       style={{
                         backgroundImage:

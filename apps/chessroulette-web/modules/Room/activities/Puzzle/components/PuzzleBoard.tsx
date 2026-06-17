@@ -93,7 +93,7 @@ export const PuzzleBoard = ({
               </>
             )}
           </div>
-          {rightSideComponent}
+          {/* {rightSideComponent} */}
         </>
       }
     />

@@ -21,7 +21,7 @@ import type {
   UserData,
 } from '../../movex/types';
 import { CircleDrawTuple, ArrowsMap } from '@app/components/Chessboard/types';
-
+import { useIsTablet } from '@app/hooks/useIsTablet';
 import Conversation from './Conversation';
 import PuzzleScore from './PuzzleScore';
 import { Square, Chess } from 'chess.js';
@@ -96,9 +96,16 @@ export const PuzzleWidgetPanel = React.forwardRef<TabsRef, Props>(
     tabsRef
   ) => {
     const widgetPanelTabsNav = useWidgetPanelTabsNavAsSearchParams();
-    const [isOutpostWebView, setIsOutpostWebView] = useState(false);
+    const [isOutpostWebViewAndroid, setIsOutpostWebViewAndroid] =
+      useState(false);
+    const [isOutpostWebViewIos, setIsOutpostWebViewIos] = useState(false);
     useEffect(() => {
-      setIsOutpostWebView(navigator.userAgent.includes('OutpostChessApp'));
+      setIsOutpostWebViewAndroid(
+        navigator.userAgent.includes('OutpostChessApp/android')
+      );
+      setIsOutpostWebViewIos(
+        navigator.userAgent.includes('OutpostChessApp/ios')
+      );
     }, []);
 
     const [pulseDot, setPulseDot] = useState(false);
@@ -111,10 +118,10 @@ export const PuzzleWidgetPanel = React.forwardRef<TabsRef, Props>(
     const [scoreCP, setScoreCP] = useState(0);
     const [prevScoreCP, setprevScoreCP] = useState(0);
     const [categortyPrefered, setCategortyPrefered] = useState('');
-
+    const { isMobile, isTablet } = useIsTablet();
     const smallMobile =
       typeof window !== 'undefined' && window.innerWidth < 400;
-    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+
     const [newRatingEngine, setRatingBotEngine] = useState(
       isMobile ? 1999 : 2099
     );
@@ -920,15 +927,23 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
               renderHeader: (p) => <div></div>,
               renderContent: () => (
                 // ovde ide pb-24
-                <div className={`flex flex-col flex-1 gap-2 min-h-0 overflow-scroll no-scrollbar md:pb-0 ${isOutpostWebView ? 'pb-4' : 'pb-4'}`}>
+                <div
+                  className={`flex flex-col flex-1 gap-2 min-h-0 overflow-scroll no-scrollbar md:pb-0 ${
+                    isOutpostWebViewAndroid
+                      ? 'pb-4'
+                      : isOutpostWebViewIos
+                      ? 'pb-0'
+                      : 'pb-16'
+                  }`}
+                >
                   <div
                     className={`flex-1 justify-between flex bg-op-widget flex-col border  border-conversation-100 pb-2 px-2 md:px-4 md:pb-4 rounded-lg 
-                     
+                
                   ${isMobile ? 'mb-2' : ''}  
                   `}
                   >
                     <div className="mt-4  flex flex-col justify-between  h-full max-h-[320px] md:max-h-[380px] md:min-h-[300px] min-h-[200px] ">
-                      {!isMobile && (
+                      {!isMobile && !isTablet && (
                         <Conversation
                           currentChapterState={currentChapterState}
                           openViewSubscription={openViewSubscription}
@@ -949,8 +964,8 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
                             
                           `}
                         style={{
-                          top: isMobile ? '-12px' : '-12px',
-                          marginBottom: isMobile ? '0px' : '',
+                          top: isMobile || isTablet ? '-12px' : '-12px',
+                          marginBottom: isMobile || isTablet ? '0px' : '',
                         }}
                       >
                         <ButtonGreen
@@ -958,9 +973,13 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
                             play();
                           }}
                           size="sm"
-                          className=" md:max-w-[85px] max-w-[80px]"
+                          className={` md:max-w-[85px] max-w-[80px]  `}
                           style={{
-                            maxWidth: smallMobile ? '68px' : '',
+                            maxWidth: smallMobile
+                              ? '68px'
+                              : isTablet
+                              ? '160px'
+                              : '',
                           }}
                           disabled={
                             freezeButton ||
@@ -981,7 +1000,11 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
                           size="sm"
                           className="md:max-w-[85px] max-w-[80px] "
                           style={{
-                            maxWidth: smallMobile ? '70px' : '',
+                            maxWidth: smallMobile
+                              ? '70px'
+                              : isTablet
+                              ? '160px'
+                              : '',
                           }}
                           disabled={
                             freezeButton ||
@@ -1025,7 +1048,11 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
                             takeBakeShake ? 'animate-shake' : ''
                           } md:max-w-[92px] max-w-[81px]`}
                           style={{
-                            maxWidth: smallMobile ? '75px' : '',
+                            maxWidth: smallMobile
+                              ? '75px'
+                              : isTablet
+                              ? '160px'
+                              : '',
                           }}
                         >
                           Take Back
@@ -1037,6 +1064,9 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
                           }}
                           size="sm"
                           className=" md:max-w-[94px] max-w-[86px] px-8"
+                          style={{
+                            maxWidth: isTablet ? '160px' : '',
+                          }}
                           disabled={
                             freezeButton ||
                             currentChapterState.messages[
@@ -1048,7 +1078,7 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
                         </ButtonGreen>
                       </div>
 
-                      {isMobile && (
+                      {(isMobile || isTablet) && (
                         <div className="top-4 relative ">
                           <Conversation
                             currentChapterState={currentChapterState}
@@ -1108,13 +1138,18 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
                     </div>
                   </div>
 
-                  <div className="hidden md:block">
+                  <div
+                    className={` ${
+                      isTablet || isMobile ? 'hidden' : 'block'
+                    }  `}
+                  >
                     <PuzzleScore
                       chessAiMode={currentChapterState.chessAiMode}
                       puzzle_rating={userData.puz_rating}
                     />
                   </div>
-                  {!isMobile && (
+
+                  {!isMobile && !isTablet && (
                     <div
                       style={{
                         backgroundImage:
@@ -1126,7 +1161,7 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
                         minHeight: isMobile ? '52px' : '202px',
                       }}
                       className={`
-                    
+                   
                       
                      overflow-x-auto md:overflow-x-hidden  md:flex rounded-lg md:mb-0 mb-4 border border-conversation-100 md:p-4 p-2 overflow-scroll no-scrollbar 
                     `}

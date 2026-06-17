@@ -36,7 +36,12 @@ export const PlayerBox: React.FC<Props> = ({
           <span className="text-slate-300 font-bold">
             {playerInfo.displayName || activeBot}&nbsp;
           </span>
-          {playerInfo.rating ? ` ${playerInfo.rating}` : (botRating && Number.isFinite(botRating)) ? ` ${botRating}` : ''}&nbsp;(
+          {playerInfo.rating
+            ? ` ${playerInfo.rating}`
+            : botRating && Number.isFinite(botRating)
+            ? ` ${botRating}`
+            : ''}
+          &nbsp;(
           {playerInfo.color})
         </div>
       ) : (

@@ -10,6 +10,7 @@ import { getSubscribeInfo } from './util';
 import { PuzzleDialogContainer } from './DialogContainer/PuzzleDialogContainer';
 import { enqueueMovexUpdate } from './util';
 import PuzzleScore from './components/WidgetPanel/PuzzleScore';
+import { useIsTablet } from '@app/hooks/useIsTablet';
 import {
   PuzzleActivityState,
   findLoadedChapter,
@@ -51,12 +52,11 @@ export const PuzzleActivity = ({
     wrongMoveSoundRef.current.volume = 0.4;
   }
   const dispatch = optionalDispatch || noop;
-  const [cameraOff, setCameraOff] = useState(false);
-  const [newReview, setNewReview] = useState(true);
   const [playerNames, setPlayerNames] = useState(Array<string>);
   const [canFreePlay, setCanFreePlay] = useState(false);
   const [puzzleCounter, setPuzzleCounter] = useState(0);
   const [wrongSquare, setWrongSquare] = useState<string | null>(null);
+  const { isMobile, isTablet } = useIsTablet();
   const wrongMoveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
     null
   );
@@ -90,9 +90,7 @@ export const PuzzleActivity = ({
     };
   }, []);
 
-  const historyBackToStart = async () => {
-    setNewReview(true);
-  };
+  const historyBackToStart = async () => {};
   const getUserData = async () => {
     const data = await getSubscribeInfo();
     setUserData({
@@ -114,6 +112,7 @@ export const PuzzleActivity = ({
 
   return (
     <ResizableDesktopLayout
+      mobileScrollable={isTablet}
       rightSideSize={RIGHT_SIDE_SIZE_PX}
       mainComponent={({ boardSize }) => (
         <>
@@ -147,179 +146,191 @@ export const PuzzleActivity = ({
             />
             <div className="scroll-overflow">
               {currentChapter.chessAiMode.mode !== 'review' && (
-                <div className="block md:hidden mb-2 -mt-2">
+                <div
+                  className={`block ${
+                    !isMobile && !isTablet && 'md:hidden'
+                  } mb-2  ${!isTablet && '-mt-2'}`}
+                >
                   <PuzzleScore
+                    isTablet={isTablet}
                     chessAiMode={currentChapter.chessAiMode}
                     puzzle_rating={userData.puz_rating}
                   />
                 </div>
               )}
-              <PuzzleBoard
-                sizePx={boardSize}
-                // onChangePuzzleAnimation={onChangePuzzleAnimation}
-                {...currentChapter}
-                squareRenderer={({ square, children }) => {
-                  if (wrongSquare !== square)
-                    return null as unknown as React.JSX.Element;
-                  return (
-                    <div
-                      style={{
-                        position: 'relative',
-                        width: '100%',
-                        height: '100%',
-                      }}
-                    >
-                      {children}
-                      <svg
-                        viewBox="0 0 100 100"
+              <div
+                className={`${
+                  isTablet && 'relative  mt-4 mb-4 flex justify-center'
+                }  `}
+              >
+                <PuzzleBoard
+                  sizePx={isTablet ? boardSize + 25 : boardSize}
+                  //  sizePx={boardSize}
+                  // onChangePuzzleAnimation={onChangePuzzleAnimation}
+                  {...currentChapter}
+                  squareRenderer={({ square, children }) => {
+                    if (wrongSquare !== square)
+                      return null as unknown as React.JSX.Element;
+                    return (
+                      <div
                         style={{
-                          position: 'absolute',
-                          inset: 0,
+                          position: 'relative',
                           width: '100%',
                           height: '100%',
-                          pointerEvents: 'none',
                         }}
                       >
-                        <line
-                          x1="18"
-                          y1="18"
-                          x2="82"
-                          y2="82"
-                          stroke="#f2358d"
-                          strokeWidth="14"
-                          strokeLinecap="round"
-                        />
-                        <line
-                          x1="82"
-                          y1="18"
-                          x2="18"
-                          y2="82"
-                          stroke="#f2358d"
-                          strokeWidth="14"
-                          strokeLinecap="round"
-                        />
-                      </svg>
-                    </div>
-                  );
-                }}
-                orientation={
-                  // The instructor gets the opposite side as the student (so they can play together)
-                  settings.isInstructor
-                    ? swapColor(currentChapter.orientation)
-                    : currentChapter.orientation
-                }
-                onFlip={() => {
-                  dispatch({
-                    type: 'loadedChapter:setOrientation',
-                    payload: { color: swapColor(currentChapter.orientation) },
-                  });
-                }}
-                onMove={async (payload) => {
-                  if (currentChapter.chessAiMode.mode === 'puzzle') {
-                    const move = payload.from + payload.to;
-                    const expectedMove =
-                      currentChapter.chessAiMode.moves[
-                        currentChapter.chessAiMode.goodMoves
-                      ];
-                    if (!expectedMove?.includes(move)) {
-                      if (wrongMoveTimeoutRef.current)
-                        clearTimeout(wrongMoveTimeoutRef.current);
-                      setWrongSquare(payload.to);
-                      wrongMoveTimeoutRef.current = setTimeout(
-                        () => setWrongSquare(null),
-                        700
-                      );
-                      if (wrongMoveSoundRef.current) {
-                        wrongMoveSoundRef.current.currentTime = 0;
-                        wrongMoveSoundRef.current.play().catch(() => {});
+                        {children}
+                        <svg
+                          viewBox="0 0 100 100"
+                          style={{
+                            position: 'absolute',
+                            inset: 0,
+                            width: '100%',
+                            height: '100%',
+                            pointerEvents: 'none',
+                          }}
+                        >
+                          <line
+                            x1="18"
+                            y1="18"
+                            x2="82"
+                            y2="82"
+                            stroke="#f2358d"
+                            strokeWidth="14"
+                            strokeLinecap="round"
+                          />
+                          <line
+                            x1="82"
+                            y1="18"
+                            x2="18"
+                            y2="82"
+                            stroke="#f2358d"
+                            strokeWidth="14"
+                            strokeLinecap="round"
+                          />
+                        </svg>
+                      </div>
+                    );
+                  }}
+                  orientation={
+                    // The instructor gets the opposite side as the student (so they can play together)
+                    settings.isInstructor
+                      ? swapColor(currentChapter.orientation)
+                      : currentChapter.orientation
+                  }
+                  onFlip={() => {
+                    dispatch({
+                      type: 'loadedChapter:setOrientation',
+                      payload: { color: swapColor(currentChapter.orientation) },
+                    });
+                  }}
+                  onMove={async (payload) => {
+                    if (currentChapter.chessAiMode.mode === 'puzzle') {
+                      const move = payload.from + payload.to;
+                      const expectedMove =
+                        currentChapter.chessAiMode.moves[
+                          currentChapter.chessAiMode.goodMoves
+                        ];
+                      if (!expectedMove?.includes(move)) {
+                        if (wrongMoveTimeoutRef.current)
+                          clearTimeout(wrongMoveTimeoutRef.current);
+                        setWrongSquare(payload.to);
+                        wrongMoveTimeoutRef.current = setTimeout(
+                          () => setWrongSquare(null),
+                          700
+                        );
+                        if (wrongMoveSoundRef.current) {
+                          wrongMoveSoundRef.current.currentTime = 0;
+                          wrongMoveSoundRef.current.play().catch(() => {});
+                        }
+                        await enqueueMovexUpdate(() =>
+                          dispatch({
+                            type: 'loadedChapter:addPuzzleMove',
+                            payload,
+                          })
+                        );
+                        return;
                       }
+                      moveSoundRef.current?.play();
                       await enqueueMovexUpdate(() =>
                         dispatch({
                           type: 'loadedChapter:addPuzzleMove',
                           payload,
                         })
                       );
+                    } else if (currentChapter.chessAiMode.mode === 'review') {
+                      await enqueueMovexUpdate(() =>
+                        dispatch({ type: 'loadedChapter:addMove', payload })
+                      );
+                    } else if (
+                      (currentChapter.notation.focusedIndex[0] !==
+                        currentChapter.notation.history?.length - 1 ||
+                        currentChapter.notation.focusedIndex[1] !==
+                          currentChapter.notation.history[
+                            currentChapter.notation.history.length - 1
+                          ]?.length -
+                            1) &&
+                      currentChapter.notation.history.length !== 0
+                    ) {
                       return;
+                    } else {
+                      await enqueueMovexUpdate(() =>
+                        dispatch({ type: 'loadedChapter:addMove', payload })
+                      );
                     }
-                    moveSoundRef.current?.play();
-                    await enqueueMovexUpdate(() =>
-                      dispatch({
-                        type: 'loadedChapter:addPuzzleMove',
-                        payload,
-                      })
-                    );
-                  } else if (currentChapter.chessAiMode.mode === 'review') {
-                    await enqueueMovexUpdate(() =>
-                      dispatch({ type: 'loadedChapter:addMove', payload })
-                    );
-                  } else if (
-                    (currentChapter.notation.focusedIndex[0] !==
-                      currentChapter.notation.history?.length - 1 ||
-                      currentChapter.notation.focusedIndex[1] !==
-                        currentChapter.notation.history[
-                          currentChapter.notation.history.length - 1
-                        ]?.length -
-                          1) &&
-                    currentChapter.notation.history.length !== 0
-                  ) {
-                    return;
-                  } else {
-                    await enqueueMovexUpdate(() =>
-                      dispatch({ type: 'loadedChapter:addMove', payload })
-                    );
-                  }
 
-                  // TODO: This can be returned from a more internal component
-                  return true;
-                }}
-                onArrowsChange={(payload) => {
-                  // console.log('arrow karioka');
-                  // dispatch({ type: 'loadedChapter:setArrows', payload });
-                }}
-                onCircleDraw={(tuple) => {
-                  dispatch({
-                    type: 'loadedChapter:drawCircle',
-                    payload: tuple,
-                  });
-                }}
-                onClearCircles={() => {
-                  dispatch({ type: 'loadedChapter:clearCircles' });
-                }}
-                onClearBoard={() => {
-                  dispatch({
-                    type: 'loadedChapter:updateFen',
-                    payload: ChessFENBoard.ONLY_KINGS_FEN,
-                  });
-                }}
-                onResetBoard={() => {
-                  dispatch({
-                    type: 'loadedChapter:updateFen',
-                    payload: ChessFENBoard.STARTING_FEN,
-                  });
-                }}
-                onBoardEditor={() => {
-                  dispatchInputState({
-                    type: 'activate',
-                    payload: {
-                      isBoardEditorShown: true,
-                      chapterState: currentChapter,
-                    },
-                  });
-                  tabsRef.current?.focusByTabId('chapters', 2);
-                }}
-                rightSideClassName="flex-1"
-                rightSideComponent={
-                  <>
-                    <div className="relative flex flex-1 flex-col items-center justify-center">
-                      <PanelResizeHandle
-                        className="w-1 h-20 rounded-lg bg-slate-600"
-                        title="Resize"
-                      />
-                    </div>
-                    <div className="flex-1" />
-                  </>
-                }
-              />
+                    // TODO: This can be returned from a more internal component
+                    return true;
+                  }}
+                  onArrowsChange={(payload) => {
+                    // console.log('arrow karioka');
+                    // dispatch({ type: 'loadedChapter:setArrows', payload });
+                  }}
+                  onCircleDraw={(tuple) => {
+                    dispatch({
+                      type: 'loadedChapter:drawCircle',
+                      payload: tuple,
+                    });
+                  }}
+                  onClearCircles={() => {
+                    dispatch({ type: 'loadedChapter:clearCircles' });
+                  }}
+                  onClearBoard={() => {
+                    dispatch({
+                      type: 'loadedChapter:updateFen',
+                      payload: ChessFENBoard.ONLY_KINGS_FEN,
+                    });
+                  }}
+                  onResetBoard={() => {
+                    dispatch({
+                      type: 'loadedChapter:updateFen',
+                      payload: ChessFENBoard.STARTING_FEN,
+                    });
+                  }}
+                  onBoardEditor={() => {
+                    dispatchInputState({
+                      type: 'activate',
+                      payload: {
+                        isBoardEditorShown: true,
+                        chapterState: currentChapter,
+                      },
+                    });
+                    tabsRef.current?.focusByTabId('chapters', 2);
+                  }}
+                  rightSideClassName="flex-1"
+                  rightSideComponent={
+                    <>
+                      <div className="relative flex flex-1 flex-col items-center justify-center">
+                        <PanelResizeHandle
+                          className="w-1 h-20 rounded-lg bg-slate-600"
+                          title="Resize"
+                        />
+                      </div>
+                      <div className="flex-1" />
+                    </>
+                  }
+                />
+              </div>
             </div>
           </div>
         </>
