@@ -9,7 +9,7 @@ import { MatchProvider } from './providers';
 import { findIfBots } from './utils';
 import { getMakeFakeName, getUserInfo, getBotRating } from './utils';
 import { VideoCameraIcon } from '@heroicons/react/24/solid';
-
+import { useIsTablet } from '@app/hooks/useIsTablet';
 import {
   MatchStateDialogContainer,
   MatchStateDisplayContainer,
@@ -102,12 +102,12 @@ const MatchContainerInner = ({
   const [botTalkInitiated, setBotTalkInitiated] = useState(false);
   const [userRating, setUserRating] = useState<number | undefined>();
   const [botRating, setBotRating] = useState<number>();
-
+  const { isMobile, isTablet } = useIsTablet();
   const [stopEngineMove, setStopEngineMove] = useState(false);
   const lastTakebackHandledAtRef = useRef<number>(0);
   const lastProcessedTimestamp = useRef<number | null>(null);
   //const [offersWithChatBot, setOffersWithChatBot] = useState('');
-  const [isMobile, setIsMobile] = useState<boolean | null>(null);
+
   const [activeBot, setActiveBot] = useState<ActiveBot>();
   const [oponentColor, setOponentColor] = useState<string>();
   const { userAsPlayer } = useMatchViewState();
@@ -176,7 +176,6 @@ const MatchContainerInner = ({
   };
 
   useEffect(() => {
-    setIsMobile(window.innerWidth < 700);
     if (isMobile) {
       setCamera(false);
     }
@@ -372,9 +371,19 @@ const MatchContainerInner = ({
   const isPlayer = canUserPlay && playersBySide?.home.id;
   return (
     <>
-      <div className="flex flex-col flex-1 min-h-0 gap-4 w-full md:w-1/2 md:hidden  mt-4 relative  z-[40]">
-        <div className="flex flex-row md:flex-col w-full md:w-1/2">
-          <div className="w-full md:w-1/2 mr-0 md:mr-0">
+      <div
+        className={`flex flex-col flex-1 min-h-0 gap-4 w-full ${
+          isMobile && 'md:w-1/2'
+        }   ${!isTablet && !isMobile && 'hidden'} ${
+          isTablet && 'relative px-4 bottom-2'
+        }   ${!isTablet && 'mt-4'} relative  z-[40]`}
+      >
+        <div
+          className={`flex flex-row md:flex-col w-full ${
+            isMobile && 'md:w-1/2'
+          } `}
+        >
+          <div className={`w-full ${isMobile && 'md:w-1/2'} mr-0 md:mr-0 `}>
             <MatchStateDisplayContainer
               activeBot={activeBot?.name}
               botRating={botRating}
@@ -388,7 +397,9 @@ const MatchContainerInner = ({
 
       <ResizableDesktopLayout
         mainComponent={({ boardSize }) => (
-          <div className=" w-max[full] md:w-max[3/4] mr-0 ">
+          <div
+            className={` w-max[full] md:w-max[3/4] mr-0 ${isTablet && 'px-4'} `}
+          >
             <PlayContainer
               key={match.endedGames.length}
               botType={activeBot?.botType}
@@ -411,51 +422,53 @@ const MatchContainerInner = ({
         )}
         rightSideSize={boardProps.rightSideSizePx}
         rightComponent={
-          <div className="flex flex-col flex-1 min-h-0 gap-4 w-full ">
-            <div className="flex flex-row md:flex-col w-full">
-              <div className="hidden md:block md:w-full mr-0 md:ml-0">
-                <MatchStateDisplayContainer
-                  activeBot={activeBot?.name}
-                  botRating={botRating}
-                  isPlayer={isPlayer}
-                  participants={participants}
-                  isMobile={isMobile ?? undefined}
-                />
+          !isTablet && (
+            <div className="flex flex-col flex-1 min-h-0 gap-4 w-full ">
+              <div className="flex flex-row md:flex-col w-full">
+                <div className="hidden md:block md:w-full mr-0 md:ml-0">
+                  <MatchStateDisplayContainer
+                    activeBot={activeBot?.name}
+                    botRating={botRating}
+                    isPlayer={isPlayer}
+                    participants={participants}
+                    isMobile={isMobile ?? undefined}
+                  />
+                </div>
               </div>
-            </div>
 
-            {/* Desktop Chat Widget */}
+              {/* Desktop Chat Widget */}
 
-            <div className="w-full hidden md:flex flex-1 min-h-0 w-full relative">
-              {(activeWidget === 'chat' && activeBot) ||
-              activeBot?.botType == 'botelja' ||
-              activeBot?.botType == 'matchFake' ||
-              (!activeBot && isPlayer) ? (
-                <div className="w-full hidden md:flex flex-1 min-h-0 w-full relative">
-                  {(activeBot?.botType == 'botelja' ||
-                    activeBot?.botType == 'matchFake' ||
-                    !activeBot) &&
-                    !isMobileChatOpen &&
-                    !isMobile &&
-                    isPlayer && (
-                      <ChatWidget
-                        pgn={
-                          matchState?.gameInPlay?.pgn ||
-                          matchState?.endedGames[0]?.pgn ||
-                          ''
-                        }
-                        messages={matchState?.messages || []}
-                        currentUserId={userId}
-                        activeBot={activeBot}
-                        playerNames={playerNames}
-                        oponentColor={oponentColor}
-                        onSendMessage={handleSendMessage}
-                        otherPlayerChatEnabled={true}
-                      />
-                    )}
+              <div className="w-full hidden md:flex flex-1 min-h-0 w-full relative">
+                {(activeWidget === 'chat' && activeBot) ||
+                activeBot?.botType == 'botelja' ||
+                activeBot?.botType == 'matchFake' ||
+                (!activeBot && isPlayer) ? (
+                  <div className="w-full hidden md:flex flex-1 min-h-0 w-full relative">
+                    {(activeBot?.botType == 'botelja' ||
+                      activeBot?.botType == 'matchFake' ||
+                      !activeBot) &&
+                      !isMobileChatOpen &&
+                      !isMobile &&
+                      !isTablet &&
+                      isPlayer && (
+                        <ChatWidget
+                          pgn={
+                            matchState?.gameInPlay?.pgn ||
+                            matchState?.endedGames[0]?.pgn ||
+                            ''
+                          }
+                          messages={matchState?.messages || []}
+                          currentUserId={userId}
+                          activeBot={activeBot}
+                          playerNames={playerNames}
+                          oponentColor={oponentColor}
+                          onSendMessage={handleSendMessage}
+                          otherPlayerChatEnabled={true}
+                        />
+                      )}
 
-                  <div
-                    className={`
+                    <div
+                      className={`
                       hidden md:block absolute z-20  cursor-pointer transition-all duration-300 ease-in-out
                       rounded-lg  overflow-hidden 
                       ${
@@ -467,14 +480,14 @@ const MatchContainerInner = ({
                           : 'top-1 right-1  w-2/5'
                       }
                     `}
-                  >
-                    {activeBot?.botType !== 'botelja' &&
-                      activeBot?.botType !== 'matchFake' &&
-                      isPlayer &&
-                      !isMobile && (
-                        <div>
-                          <div
-                            className={`
+                    >
+                      {activeBot?.botType !== 'botelja' &&
+                        activeBot?.botType !== 'matchFake' &&
+                        isPlayer &&
+                        !isMobile && (
+                          <div>
+                            <div
+                              className={`
                        ${
                          camera
                            ? 'opacity-100 z-10'
@@ -482,104 +495,105 @@ const MatchContainerInner = ({
                        }
                       }
                     `}
-                          >
-                            <PeerToPeerCameraWidget
-                              cameraOnAgain={cameraOnAgain}
-                              activeBot={activeBot}
-                              onDisableCamera={() => cameraOff()}
-                              camera={camera}
-                              onToggleExpand={() =>
-                                setCameraExpanded((p) => !p)
-                              }
-                              isExpanded={cameraExpanded}
-                            />
-                          </div>
+                            >
+                              <PeerToPeerCameraWidget
+                                cameraOnAgain={cameraOnAgain}
+                                activeBot={activeBot}
+                                onDisableCamera={() => cameraOff()}
+                                camera={camera}
+                                onToggleExpand={() =>
+                                  setCameraExpanded((p) => !p)
+                                }
+                                isExpanded={cameraExpanded}
+                              />
+                            </div>
 
-                          <button
-                            onClick={() => {
-                              setCamera(true);
-                              setCameraOnAgain(true);
-                            }}
-                            className={` ${
-                              camera
-                                ? 'opacity-0 pointer-events-none -z-10'
-                                : 'opacity-100 z-10'
-                            }
+                            <button
+                              onClick={() => {
+                                setCamera(true);
+                                setCameraOnAgain(true);
+                              }}
+                              className={` ${
+                                camera
+                                  ? 'opacity-0 pointer-events-none -z-10'
+                                  : 'opacity-100 z-10'
+                              }
                                                         absolute  left-[82%] h-8  bg-black/50 text-white rounded-md p-1 hover:opacity-70
                                                         top-1   hover:rounded-xl
                                                       `}
-                          >
-                            <VideoCameraIcon className="h-5 w-5" />
-                          </button>
-                        </div>
-                      )}
+                            >
+                              <VideoCameraIcon className="h-5 w-5" />
+                            </button>
+                          </div>
+                        )}
+                    </div>
                   </div>
-                </div>
-              ) : !isPlayer ? (
-                <div>
-                  <PeerToPeerCameraWidget />
-                </div>
-              ) : (
-                // classic bot players
-                !isMobile &&
-                canUserPlay && (
-                  <div className="w-1/2  md:w-full h-full overflow-hidden  rounded-lg shadow-2xl  ">
-                    <PeerToPeerCameraWidget activeBot={activeBot} />
+                ) : !isPlayer ? (
+                  <div>
+                    <PeerToPeerCameraWidget />
                   </div>
-                )
-              )}
-            </div>
+                ) : (
+                  // classic bot players
+                  !isMobile &&
+                  canUserPlay && (
+                    <div className="w-1/2  md:w-full h-full overflow-hidden  rounded-lg shadow-2xl  ">
+                      <PeerToPeerCameraWidget activeBot={activeBot} />
+                    </div>
+                  )
+                )}
+              </div>
 
-            <div className="w-full pl-2 pr-2 md:pl-0 md:pr-0 pt-2 pb-0 flex flex-col md:gap-2 gap-2 md:flex-1 min-h-0 rounded-lg shadow-2xl  overflow-y-scroll no-scrollbar fixed bottom-1 left-0 right-0 md:relative md:bottom-auto md:left-auto md:right-auto ">
-              {((match.gameInPlay?.status !== 'idling' &&
-                match.gameInPlay?.status !== 'pending') ||
-                !isMobile) && (
-                <div
-                  style={{
-                    backgroundImage:
-                      'radial-gradient(61.84% 61.84% at 50% 131.62%, rgba(5, 135, 44, 0.2) 0%, rgb(1, 33, 11) 100%)',
-                    height: isMobile ? '52px' : isPlayer ? '290px' : '100%',
-                    minHeight: isMobile ? '52px' : '202px',
-                    width: '100%',
-                  }}
-                  className="overflow-x-auto  md:overflow-x-hidden md:flex rounded-lg md:mb-0 mb-1 border border-conversation-100 md:p-4 p-2 overflow-scroll no-scrollbar w-full"
-                >
-                  {isMobile !== null && (
-                    <FreeBoardNotation
-                      isMobile={isMobile}
-                      history={displayState.history}
-                      playersBySide={playersBySide}
-                      playerNames={[
-                        playersBySide?.home.displayName ||
-                          activeBot?.name ||
-                          'Player 1',
-                        playersBySide?.away.displayName ||
-                          activeBot?.name ||
-                          'Player 2',
-                      ]}
-                      focusedIndex={displayState.focusedIndex}
-                      onDelete={noop}
-                      onRefocus={actions.onRefocus}
-                    />
-                  )}
-                </div>
-              )}
-              {isMobile !== null && (
-                <PlayControlsContainer
-                  activeWidget={activeWidget}
-                  isMobile={isMobile}
-                  setActiveWidget={(widget) => {
-                    setActiveWidget(widget);
-                    if (widget === 'chat') setIsMobileChatOpen(true);
-                  }}
-                />
-              )}
+              <div className="w-full pl-2 pr-2 md:pl-0 md:pr-0 pt-2 pb-0 flex flex-col md:gap-2 gap-2 md:flex-1 min-h-0 rounded-lg shadow-2xl  overflow-y-scroll no-scrollbar fixed bottom-1 left-0 right-0 md:relative md:bottom-auto md:left-auto md:right-auto ">
+                {((match.gameInPlay?.status !== 'idling' &&
+                  match.gameInPlay?.status !== 'pending') ||
+                  !isMobile) && (
+                  <div
+                    style={{
+                      backgroundImage:
+                        'radial-gradient(61.84% 61.84% at 50% 131.62%, rgba(5, 135, 44, 0.2) 0%, rgb(1, 33, 11) 100%)',
+                      height: isMobile ? '52px' : isPlayer ? '290px' : '100%',
+                      minHeight: isMobile ? '52px' : '202px',
+                      width: '100%',
+                    }}
+                    className="overflow-x-auto  md:overflow-x-hidden md:flex rounded-lg md:mb-0 mb-1 border border-conversation-100 md:p-4 p-2 overflow-scroll no-scrollbar w-full"
+                  >
+                    {isMobile !== null && (
+                      <FreeBoardNotation
+                        isMobile={isMobile}
+                        history={displayState.history}
+                        playersBySide={playersBySide}
+                        playerNames={[
+                          playersBySide?.home.displayName ||
+                            activeBot?.name ||
+                            'Player 1',
+                          playersBySide?.away.displayName ||
+                            activeBot?.name ||
+                            'Player 2',
+                        ]}
+                        focusedIndex={displayState.focusedIndex}
+                        onDelete={noop}
+                        onRefocus={actions.onRefocus}
+                      />
+                    )}
+                  </div>
+                )}
+                {isMobile !== null && (
+                  <PlayControlsContainer
+                    activeWidget={activeWidget}
+                    isMobile={isMobile}
+                    setActiveWidget={(widget) => {
+                      setActiveWidget(widget);
+                      if (widget === 'chat') setIsMobileChatOpen(true);
+                    }}
+                  />
+                )}
+              </div>
             </div>
-          </div>
+          )
         }
       />
 
-      {isPlayer && isMobileChatOpen && (
+      {isPlayer && isMobileChatOpen && !isTablet && (
         <div className="md:hidden fixed inset-0 z-50 bg-[#01210b] flex flex-col">
           <div className="flex-1 overflow-hidden">
             <ChatWidget

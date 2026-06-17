@@ -5,6 +5,7 @@ import { PanelResizeHandle } from 'react-resizable-panels';
 import movexConfig from '@app/movex.config';
 import { TabsRef } from '@app/components/Tabs';
 import { ResizableDesktopLayout } from '@app/templates/ResizableDesktopLayout';
+import { useIsTablet } from '@app/hooks/useIsTablet';
 import { useReviewActivitySettings } from './hooks/useReviewActivitySettings';
 import { getSubscribeInfo } from './util';
 import { ReviewDialogContainer } from './DialogContainer/ReviewDialogContainer';
@@ -52,7 +53,7 @@ export const ReviewActivity = ({
   const [playerNames, setPlayerNames] = useState(Array<string>);
   const [canFreePlay, setCanFreePlay] = useState(false);
   const [isFocusedInput, setIsFocusedInput] = useState(false);
-  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+  const { isMobile, isTablet } = useIsTablet();
   const [reviewDataToNotation, setReviewDataToNotation] = useState<
     EvaluationMove[]
   >([]);
@@ -91,7 +92,8 @@ export const ReviewActivity = ({
     };
   }, []);
   useEffect(() => {
-    isMobile && setReviewDataToNotation(currentChapter.chessAiMode.review);
+    (isMobile || isTablet) &&
+      setReviewDataToNotation(currentChapter.chessAiMode.review);
   }, [currentChapter.chessAiMode.review]);
 
   useEffect(() => {
@@ -223,7 +225,16 @@ export const ReviewActivity = ({
   }, [newReview == true]);
 
   const historyBackToStart = async () => {
-    setNewReview(true);
+    if (!currentChapter.chessAiMode.fen) {
+      setNewReview(true);
+      return;
+    }
+    await enqueueMovexUpdate(() =>
+      dispatch({
+        type: 'loadedChapter:focusHistoryIndex',
+        payload: [0, 0],
+      })
+    );
   };
   const getUserData = async () => {
     const data = await getSubscribeInfo();
@@ -261,13 +272,14 @@ export const ReviewActivity = ({
   return (
     <ResizableDesktopLayout
       mobileScrollable
+      tabletLayout="split"
       rightSideSize={RIGHT_SIDE_SIZE_PX}
       mainComponent={({ boardSize }) => (
         <>
           {settings.isInstructor && inputState.isActive ? (
             ''
           ) : (
-            <div className="relative">
+            <div className="relative ">
               {isLoading && (
                 <div className="absolute inset-0 z-10 flex items-center justify-center bg-slate-900/70 rounded-lg">
                   <div className="w-10 h-10 border-4 border-slate-500 border-t-white rounded-full animate-spin" />
@@ -281,7 +293,7 @@ export const ReviewActivity = ({
                     height: '50px',
                     minHeight: '50px',
                   }}
-                  className="flex overflow-x-auto rounded-lg p-2"
+                  className="flex overflow-x-auto rounded-lg p-2 "
                 >
                   <FreeBoardNotation
                     reviewDataToNotation={reviewDataToNotation}
@@ -297,7 +309,7 @@ export const ReviewActivity = ({
                 </div>
               )}
 
-              <div>
+              <div className={isTablet ? 'flex flex-col gap-2' : ''}>
                 <ReviewBoard
                   sizePx={boardSize}
                   {...currentChapter}
@@ -408,6 +420,23 @@ export const ReviewActivity = ({
                     </>
                   }
                 />
+                {isTablet && (
+                  <div
+                    className="bg-op-widget overflow-y-auto rounded-lg p-4 border border-conversation-100 mt-4"
+                    style={{ height: '300px', minHeight: '180px' }}
+                  >
+                    <FreeBoardNotation
+                      reviewDataToNotation={reviewDataToNotation}
+                      isMobile={isMobile}
+                      history={currentChapter.notation?.history}
+                      isAichess={true}
+                      focusedIndex={currentChapter.notation?.focusedIndex}
+                      onDelete={onHistoryNotationDelete}
+                      onRefocus={onHistoryNotationRefocus}
+                      isFocusedInput={isFocusedInput}
+                    />
+                  </div>
+                )}
               </div>
             </div>
           )}

@@ -291,7 +291,7 @@ export async function patchUserStreakPlay(data: Record<string, any>) {
         body: JSON.stringify(data),
       }
     );
-    console.log('response',response)
+    console.log('response', response);
     if (!response.ok) throw new Error(`Error: ${response.status}`);
   } catch (error) {
     console.error('Fetch error', error);
