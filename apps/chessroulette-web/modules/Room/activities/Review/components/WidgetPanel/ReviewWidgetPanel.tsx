@@ -585,7 +585,7 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
                 // </Button>
               ),
               renderContent: () => (
-                <div className="flex flex-col md:flex-1 h-[400px] md:h-auto gap-2 min-h-0 w-full overflow-hidden md:overflow-scroll no-scrollbar pb-8 md:pb-0">
+                <div className="flex flex-col md:flex-1 h-[400px] md:h-auto gap-2 min-h-0 w-full overflow-hidden md:overflow-scroll no-scrollbar pb-0">
                   {/* {isMobile && (
                     <div
                       style={{
