@@ -1,25 +1,26 @@
-let stockfishWorker = null;
+let reviewWorker = null;
+//let aiWorker = null;
 
 export function getStockfishWorker() {
-  stockfishWorker = new Worker('/stockfish-17-single.js');
-  return stockfishWorker;
+  if(reviewWorker==null  ){
+ reviewWorker ||= new Worker('/sf16/stockfish.wasm.js');
+  }
+  return reviewWorker;
 }
+//za 16 treba povecati kriterijum za blunder i bad move
 
 export function newStockfish() {
-  stockfishWorker = new Worker('/sf16/stockfish.js');
-  return stockfishWorker;
+  reviewWorker = new Worker('/sf16/stockfish.wasm.js');
+  return reviewWorker;
 }
-// export function newStockfish() {
-//   const wasmSupported = typeof WebAssembly === 'object';
-//   stockfishWorker = new Worker(
-//     wasmSupported ? '/sf16/stockfish.wasm.js' : '/sf16/stockfish16.js'
-//   );
-//   return stockfishWorker;
-// }
 
 export function terminateStockfish() {
-  if (stockfishWorker) {
-    stockfishWorker.terminate();
-    stockfishWorker = null;
+  // if (aiWorker) {
+  //   aiWorker.terminate();
+  //   aiWorker = null;
+  // }
+  if (reviewWorker) {
+    reviewWorker.terminate();
+    reviewWorker = null;
   }
 }

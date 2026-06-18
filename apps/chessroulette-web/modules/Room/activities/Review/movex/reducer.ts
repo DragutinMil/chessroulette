@@ -420,6 +420,7 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
     const nextChapterState: ChapterState = {
       ...prevChapter,
       displayFen: fenBoard.fen,
+      arrowsMap: {},
       notation: {
         ...prevChapter.notation,
         focusedIndex: action.payload,

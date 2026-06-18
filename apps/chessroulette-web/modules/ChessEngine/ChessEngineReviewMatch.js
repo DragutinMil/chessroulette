@@ -27,21 +27,31 @@ export async function analyzePGN(pgn, { onProgress } = {}, isMobile) {
   let previousEval = 0;
 
   for (let i = 0; i < moves.length; i++) {
-    // console.log('moves[i]',moves[i])
     const move = moves[i];
     chess.move(move);
 
     const fen = chess.fen();
 
-    let {
-      eval: evaluation,
-      topMoves,
-      topMove,
-    } = await getEvaluation(stockfish, fen, isMobile);
+    let evaluation;
+    let topMoves = [];
+    let topMove = [];
 
-    const turn = chess.turn(); // 'w' ili 'b' nakon poteza
-    if (turn === 'b') {
-      evaluation = -evaluation;
+    if (chess.isGameOver()) {
+      if (chess.isCheckmate()) {
+        evaluation = chess.turn() === 'w' ? -50000 : 50000;
+      } else {
+        evaluation = 0;
+      }
+    } else {
+      const result = await getEvaluation(stockfish, fen, isMobile);
+      evaluation = result.eval;
+      topMoves = result.topMoves;
+      topMove = result.topMove;
+
+      const turn = chess.turn();
+      if (turn === 'b') {
+        evaluation = -evaluation;
+      }
     }
 
     results.push({
@@ -57,14 +67,12 @@ export async function analyzePGN(pgn, { onProgress } = {}, isMobile) {
     });
 
     previousEval = evaluation;
-    const progress = ((i + 1) / moves.length) * 100; // procenat završen
-    //  console.log(`Analiza: ${progress.toFixed(1)}%`);
+    const progress = ((i + 1) / moves.length) * 100;
 
     if (onProgress) onProgress(progress, i + 1, moves.length);
   }
 
-  // Gasimo worker kad završimo
-  stockfish.terminate();
+  sendCommand(stockfish, 'ucinewgame');
 
   return results;
 }
@@ -122,12 +130,11 @@ function getEvaluation(worker, fen, isMobile) {
       const line = event.data;
       if (line.includes('mate 0')) {
         const parts = fen.split(' ');
-
-        bestEval = 'w' ? -50000 : 50000;
+        bestEval = parts[1] === 'w' ? -50000 : 50000;
       }
       if (
-        (isMobile && line.startsWith('info depth 10')) ||
-        (!isMobile && line.startsWith('info depth 11'))
+        (isMobile && line.startsWith('info depth 9')) ||
+        (!isMobile && line.startsWith('info depth 10'))
       ) {
         const scoreMatch = line.match(/score (cp|mate) (-?\d+)/);
         const multipvMatch = line.match(/multipv (\d+) .+ pv (.+)/);
@@ -189,7 +196,7 @@ function getEvaluation(worker, fen, isMobile) {
     //worker.postMessage('ucinewgame');
     worker.postMessage(`position fen ${fen}`);
     isMobile
-      ? worker.postMessage(`go depth 10`)
-      : worker.postMessage(`go depth 11`);
+      ? worker.postMessage(`go depth 9`)
+      : worker.postMessage(`go depth 10`);
   });
 }

@@ -58,7 +58,6 @@ export const getNewChessGame = (
     //   console.log('roketi');
     //   return instance;
     // }
-    console.error('GetNewChessGame', e);
     return instance;
   }
 };
