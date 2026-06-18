@@ -126,8 +126,7 @@ export const ChessboardDisplay = ({
               const from = sourceSquare ?? '';
               const to = targetSquare ?? '';
               const pc = piece.pieceType;
-              onPieceDrop?.(from, to, pc);
-              return true;
+              return onPieceDrop?.(from, to, pc) ?? false;
             },
             squareStyles,
             squareRenderer,
