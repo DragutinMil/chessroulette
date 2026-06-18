@@ -77,14 +77,14 @@ export const reviewAnalitics = (moves: EvaluationMove[]) => {
 
       // Diff evaluacija
       if (m.moveCalc % 2 !== 0) {
-        if (diff < -2) colorStats.blunders++;
-        else if (diff <= -0.5) colorStats.badMoves++;
-        else if (diff > 0.3 && diff <= 1) colorStats.goodMoves++;
+        if (diff < -6) colorStats.blunders++;
+        else if (diff <= -1.3) colorStats.badMoves++;
+        else if (diff > 0.25 && diff <= 1) colorStats.goodMoves++;
         else if (diff > 1) colorStats.excellentMoves++;
       } else {
-        if (diff > 2) colorStats.blunders++;
-        else if (diff >= 0.5) colorStats.badMoves++;
-        else if (diff < -0.3 && diff >= -1) colorStats.goodMoves++;
+        if (diff > 6) colorStats.blunders++;
+        else if (diff >= 1.3) colorStats.badMoves++;
+        else if (diff < -0.25 && diff >= -1) colorStats.goodMoves++;
         else if (diff < -1) colorStats.excellentMoves++;
       }
 

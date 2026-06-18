@@ -9,6 +9,7 @@ import Image from 'next/image';
 import { ButtonGreen } from '@app/components/Button/ButtonGreen';
 import { StatsTable } from './StatsTable';
 import { useIsTablet } from '@app/hooks/useIsTablet';
+import { FBHIndex } from '@xmatter/util-kit';
 
 type Props = {
   currentChapterState: ChapterState;
@@ -23,6 +24,7 @@ type Props = {
   scoreCP?: number;
   suggestions?: string[];
   onSuggestedQuestion?: (q: string) => void;
+  onMoveClick?: (index: FBHIndex) => void;
 };
 //console.log('currentChapterState',currentChapterState)
 
@@ -39,6 +41,7 @@ const ConversationReview = ({
   scoreCP,
   suggestions,
   onSuggestedQuestion,
+  onMoveClick,
 }: Props) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [disableButton, setDisableButton] = useState(false);
@@ -141,6 +144,7 @@ const ConversationReview = ({
                     <StatsTable
                       content={msg.content}
                       review={currentChapterState.chessAiMode.review}
+                      onMoveClick={onMoveClick}
                     />
                   ) : (
                     <p className="flex  items-center text-[14px]  justify-start  text-left whitespace-pre-line">

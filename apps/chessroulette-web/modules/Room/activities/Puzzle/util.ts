@@ -74,15 +74,15 @@ export const reviewAnalitics = (moves: EvaluationMove[]) => {
 
     // Diff evaluacija
     if (m.moveCalc % 2 !== 0) {
-      if (diff < -2) colorStats.blunders++;
-      else if (diff <= -0.5) colorStats.badMoves++;
-      else if (diff > 0.3 && diff <= 1) colorStats.goodMoves++;
+      if (diff < -3) colorStats.blunders++;
+      else if (diff <= -0.6) colorStats.badMoves++;
+      else if (diff > 0.2 && diff <= 0.9) colorStats.goodMoves++;
       else if (diff > 1) colorStats.excellentMoves++;
     } else {
-      if (diff > 2) colorStats.blunders++;
-      else if (diff >= 0.5) colorStats.badMoves++;
-      else if (diff < -0.3 && diff >= -1) colorStats.goodMoves++;
-      else if (diff < -1) colorStats.excellentMoves++;
+      if (diff > 3) colorStats.blunders++;
+      else if (diff >= 0.6) colorStats.badMoves++;
+      else if (diff < -0.2 && diff >= -1) colorStats.goodMoves++;
+      else if (diff < -0.9) colorStats.excellentMoves++;
     }
 
     // Stockfish linije iz prethodnog poteza
