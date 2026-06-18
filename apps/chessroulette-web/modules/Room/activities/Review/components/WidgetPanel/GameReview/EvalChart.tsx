@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import { EvaluationMove } from '../../../movex';
+import { FBHIndex } from '@xmatter/util-kit';
 
 // type EvalChartProps = {
 //   review:EvaluationMove[]
@@ -98,7 +99,7 @@ export default function EvalChart({ review, onMoveClick }: any) {
     const x = e.clientX - rect.left;
     const stepX = rect.width / (review.length - 1);
     const index = Math.min(Math.round(x / stepX), review.length - 1);
-    const fbhIndex: [number, number] = [Math.floor(index / 2), index % 2];
+    const fbhIndex: FBHIndex = [Math.floor(index / 2), (index % 2) as 0 | 1];
     onMoveClick(fbhIndex);
   };
 

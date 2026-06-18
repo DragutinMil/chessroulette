@@ -1,11 +1,12 @@
 import React from 'react';
 import EvalChart from './EvalChart';
 import { EvaluationMove } from '../../../movex';
+import { FBHIndex } from '@xmatter/util-kit';
 
 type StatsTableProps = {
   content: string;
   review: EvaluationMove[];
-  onMoveClick?: (index: [number, number]) => void;
+  onMoveClick?: (index: FBHIndex) => void;
 };
 
 const getHighlightClassError = (value: number): string => {

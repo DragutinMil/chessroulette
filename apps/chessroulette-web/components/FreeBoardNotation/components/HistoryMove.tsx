@@ -70,11 +70,11 @@ export const HistoryMove = ({
 
   const iconic = isOpening
     ? ''
-    : evalDiff <= -2
+    : evalDiff <= -6
     ? '❌'
-    : evalDiff <= -0.5
+    : evalDiff <= -1.3
     ? '⬇️'
-    : evalDiff > -0.5 && evalDiff < 0.4
+    : evalDiff > -1.29 && evalDiff < 0.24
     ? ''
     : evalDiff < 1
     ? '✅'

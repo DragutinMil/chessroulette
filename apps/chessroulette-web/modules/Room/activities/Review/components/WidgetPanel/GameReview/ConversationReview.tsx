@@ -9,6 +9,7 @@ import Image from 'next/image';
 import { ButtonGreen } from '@app/components/Button/ButtonGreen';
 import { StatsTable } from './StatsTable';
 import { useIsTablet } from '@app/hooks/useIsTablet';
+import { FBHIndex } from '@xmatter/util-kit';
 
 type Props = {
   currentChapterState: ChapterState;
@@ -23,7 +24,7 @@ type Props = {
   scoreCP?: number;
   suggestions?: string[];
   onSuggestedQuestion?: (q: string) => void;
-  onMoveClick?: (index: [number, number]) => void;
+  onMoveClick?: (index: FBHIndex) => void;
 };
 //console.log('currentChapterState',currentChapterState)
 
