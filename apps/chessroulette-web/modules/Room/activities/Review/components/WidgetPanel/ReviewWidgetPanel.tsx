@@ -486,7 +486,7 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
 
     const analizeMatch = async () => {
       reviewMetrics();
-      historyBackToStart();
+      // historyBackToStart(); GUTA BRISAO
       setPulseDot(true);
       const data = await analyzePGN(
         currentChapterState.chessAiMode.fen,
