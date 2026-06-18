@@ -5,6 +5,7 @@ import { EvaluationMove } from '../../../movex';
 type StatsTableProps = {
   content: string;
   review: EvaluationMove[];
+  onMoveClick?: (index: [number, number]) => void;
 };
 
 const getHighlightClassError = (value: number): string => {
@@ -18,13 +19,13 @@ const getHighlightClassGood = (value: number): string => {
   return '';
 };
 
-export const StatsTable: React.FC<StatsTableProps> = ({ content, review }) => {
+export const StatsTable: React.FC<StatsTableProps> = ({ content, review, onMoveClick }) => {
   const values = content.split('/').map(Number);
   return (
     <div className="w-[100%] justify-center">
       <div>
         <p className="relative bottom-2">Evaluation Graph</p>
-        <EvalChart review={review} />
+        <EvalChart review={review} onMoveClick={onMoveClick} />
       </div>
       {/* Header */}
       <div className="w-[85%] justify-center mt-2">

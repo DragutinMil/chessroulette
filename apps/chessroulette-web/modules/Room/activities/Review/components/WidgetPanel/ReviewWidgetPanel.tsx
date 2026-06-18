@@ -640,6 +640,7 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
                         scoreCP={scoreCP}
                         suggestions={suggestions}
                         onSuggestedQuestion={addQuestion}
+                        onMoveClick={onHistoryNotationRefocus}
                       />
                     </div>
                     <div>

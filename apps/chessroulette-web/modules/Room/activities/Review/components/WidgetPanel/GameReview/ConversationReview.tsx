@@ -23,6 +23,7 @@ type Props = {
   scoreCP?: number;
   suggestions?: string[];
   onSuggestedQuestion?: (q: string) => void;
+  onMoveClick?: (index: [number, number]) => void;
 };
 //console.log('currentChapterState',currentChapterState)
 
@@ -39,6 +40,7 @@ const ConversationReview = ({
   scoreCP,
   suggestions,
   onSuggestedQuestion,
+  onMoveClick,
 }: Props) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [disableButton, setDisableButton] = useState(false);
@@ -141,6 +143,7 @@ const ConversationReview = ({
                     <StatsTable
                       content={msg.content}
                       review={currentChapterState.chessAiMode.review}
+                      onMoveClick={onMoveClick}
                     />
                   ) : (
                     <p className="flex  items-center text-[14px]  justify-start  text-left whitespace-pre-line">

@@ -5,7 +5,7 @@ import { EvaluationMove } from '../../../movex';
 // type EvalChartProps = {
 //   review:EvaluationMove[]
 // };
-export default function EvalChart({ review }: any) {
+export default function EvalChart({ review, onMoveClick }: any) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [hovered, setHovered] = useState<number | null>(null);
 
@@ -92,6 +92,16 @@ export default function EvalChart({ review }: any) {
     setHovered(index);
   };
 
+  const handleClick = (e: any) => {
+    if (!canvasRef.current || !onMoveClick) return;
+    const rect = canvasRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const stepX = rect.width / (review.length - 1);
+    const index = Math.min(Math.round(x / stepX), review.length - 1);
+    const fbhIndex: [number, number] = [Math.floor(index / 2), index % 2];
+    onMoveClick(fbhIndex);
+  };
+
   const hoveredItem = hovered != null ? review[hovered] : null;
 
   return (
@@ -102,7 +112,8 @@ export default function EvalChart({ review }: any) {
         height={250}
         onMouseMove={handleMove}
         onMouseLeave={() => setHovered(null)}
-        style={{ width: '100%' }}
+        onClick={handleClick}
+        style={{ width: '100%', cursor: onMoveClick ? 'pointer' : 'default' }}
       />
 
       {/* 🧠 tooltip */}
