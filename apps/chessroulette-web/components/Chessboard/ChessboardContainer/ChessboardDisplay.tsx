@@ -97,12 +97,11 @@ export const ChessboardDisplay = ({
       }}
     >
       <div
-        className={` relative  overflow-hidden rounded-lg w-full h-full ${containerClassName} transition-all duration-300 ease-in-out 
-       
-       `}
+        className={`board-no-touch-scroll relative overflow-hidden rounded-lg w-full h-full ${containerClassName} transition-all duration-300 ease-in-out`}
         style={{
           width: sizePx,
           height: sizePx,
+          touchAction: 'none',
         }}
       >
         <ReactChessboard

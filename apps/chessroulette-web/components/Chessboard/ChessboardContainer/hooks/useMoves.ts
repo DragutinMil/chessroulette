@@ -95,6 +95,7 @@ Props): MoveActions => {
   };
   // const dragHappenedRef = useRef(false); ///return click square action direct after drop
   const premoveWasDropRef = useRef(false);
+  const dropJustHappenedRef = useRef(false);
   const setPendingMove = (move: ChessBoardPendingMove | undefined) => {
     setPlayerMoves((prev) => ({
       ...prev,
@@ -111,6 +112,11 @@ Props): MoveActions => {
     square: Square;
     pieceSan?: PieceSan;
   }) => {
+    // blokira ghost click koji dolazi posle mobilnog drag-dropa
+    if (dropJustHappenedRef.current) {
+      dropJustHappenedRef.current = false;
+      return;
+    }
     // console.log('clickdrag')
     const piece = pieceSan ? pieceSanToPiece(pieceSan) : undefined;
     const isMyPiece = piece?.color === playingColor;
@@ -335,26 +341,35 @@ Props): MoveActions => {
    
     // Case 1: Complete premove by dragging to destination
     if (!isMyTurn && allowsPremoves) {
+     
       if (piece.color === playingColor) {
+         
         if (currentMoves.preMove) {
+         
           if (from !== currentMoves.preMove.from) {
+             console.log('ytt1')
             setPreMove({ from, piece });
             return false;
           }
          if(isMyTurnRef.current===true){
+           console.log('ytt2')
             premoveWasDropRef.current = true;
+             setPreMove({ ...currentMoves.preMove, to });
+          return premoveWasDropRef.current; 
          }
-       
-          // Complete existing premove
+          console.log('ytt3')
           setPreMove({ ...currentMoves.preMove, to });
-          return premoveWasDropRef.current; // true kada turn promeni tokom draga → nema snap-back animacije
+          dropJustHappenedRef.current = true; // blokira ghost click na mobilnom
+          setTimeout(() => { dropJustHappenedRef.current = false; }, 300);
         } else {
+
           setPreMove(undefined);
 
           // Start new premove
 
           //  logMove('Start premove by drag', { from, piece });
         }
+
         return false;
       }
     }
