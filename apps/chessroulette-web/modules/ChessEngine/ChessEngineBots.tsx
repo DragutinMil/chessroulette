@@ -336,6 +336,15 @@ const StockfishEngine: React.FC<StockfishEngineProps> = ({
 
       if (lastPlayedFenRef.current === currentFen) {
         console.log('⛔ already played this position');
+        setTimeout(() => {
+          lastPlayedFenRef.current = null;
+          if (!stockfishRef.current) return;
+          const retryFen = fenRef.current;
+          setBestMove('');
+          stockfishRef.current.postMessage('stop');
+          stockfishRef.current.postMessage(`position fen ${retryFen}`);
+          stockfishRef.current.postMessage(`go movetime 500`);
+        }, 5000);
         return;
       }
 
