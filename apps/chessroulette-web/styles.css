@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+.board-no-touch-scroll,
+.board-no-touch-scroll * {
+  touch-action: none;
+}
+
 @layer utilities {
   .pl-safe {
     padding-left: env(safe-area-inset-left);
