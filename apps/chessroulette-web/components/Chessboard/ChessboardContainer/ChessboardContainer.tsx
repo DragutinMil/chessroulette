@@ -155,7 +155,7 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
   const { preMove, promoMove, pendingMove, ...moveActions } = useMoves({
     playingColor: boardOrientation,
     isMyTurn,
-    premoveAnimationDelay: BOARD_ANIMATION_DELAY + 80,
+    premoveAnimationDelay: BOARD_ANIMATION_DELAY + 30,
     onValidateMove,
     onMove,
     onPreMove: onMove,
