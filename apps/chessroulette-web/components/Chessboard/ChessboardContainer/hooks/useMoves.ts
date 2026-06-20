@@ -55,7 +55,7 @@ type Props = {
 export const useMoves = ({
   isMyTurn,
   playingColor,
-  //premoveAnimationDelay = 5000,
+  premoveAnimationDelay=220,
   onMove,
   onPreMove,
   onValidateMove,
@@ -75,8 +75,11 @@ Props): MoveActions => {
 
   const [lastMoveWasPromotion, setLastMoveWasPromotion] = useState(false); // Dodajte ovo
 
-  const [premoveAnimationDelay] = useState(botType === 'matchFake' ? 200 : 0);
+
   const allowsPremoves = !!onPreMove;
+
+  const isMyTurnRef = useRef(isMyTurn);
+  isMyTurnRef.current = isMyTurn;
 
   const currentPlayer = playingColor === 'w' ? 'white' : 'black';
   const getCurrentMoves = () => playerMoves[currentPlayer];
@@ -90,7 +93,8 @@ Props): MoveActions => {
       },
     }));
   };
-  const dragHappenedRef = useRef(false); ///return click square action direct after drop
+  // const dragHappenedRef = useRef(false); ///return click square action direct after drop
+  const premoveWasDropRef = useRef(false);
   const setPendingMove = (move: ChessBoardPendingMove | undefined) => {
     setPlayerMoves((prev) => ({
       ...prev,
@@ -100,7 +104,6 @@ Props): MoveActions => {
       },
     }));
   };
-
   const onClickOrDrag = ({
     square,
     pieceSan,
@@ -270,10 +273,6 @@ Props): MoveActions => {
       }
     }
 
-    // Clear premove if it's my turn and premove is complete
-    //   if (isMyTurn && currentMoves.preMove?.to) {
-    //     setPreMove(undefined);
-    //   }
   };
 
   useEffect(() => {
@@ -282,7 +281,7 @@ Props): MoveActions => {
     if (promoMove) {
       return;
     }
-
+    
     // If we have a complete premove and it's our turn, execute it
 
     if (isMyTurn && currentMoves.preMove?.to) {
@@ -305,10 +304,12 @@ Props): MoveActions => {
         setPreMove(undefined);
         return;
       }
-      setPreMove(undefined);
+      const delay = premoveWasDropRef.current ? 0 : premoveAnimationDelay+100;
+      premoveWasDropRef.current = false;
       setTimeout(() => {
+        setPreMove(undefined);
         onMove(moveToExecute);
-      }, premoveAnimationDelay);
+      }, delay);
     }
   }, [isMyTurn, promoMove, playerMoves]);
 
@@ -331,6 +332,7 @@ Props): MoveActions => {
     const currentMoves = getCurrentMoves();
     const piece = pieceSanToPiece(pieceSan);
 
+   
     // Case 1: Complete premove by dragging to destination
     if (!isMyTurn && allowsPremoves) {
       if (piece.color === playingColor) {
@@ -339,30 +341,13 @@ Props): MoveActions => {
             setPreMove({ from, piece });
             return false;
           }
-
-          // const moveAttempt = {
-          //   from: currentMoves.preMove.from,
-          //   to,
-          //   piece: currentMoves.preMove.piece,
-          // };
-          // if (
-          //   onValidatePreMove({
-          //     from: currentMoves.preMove.from,
-          //     to: moveAttempt.to,
-          //   }) === false &&
-          //   !isPromotableMove(moveAttempt, moveAttempt.piece) &&
-          //   isSquareEmpty(to)
-          // ) {
-          //   setPreMove(undefined);
-          //   return false;
-          // }
-
-          dragHappenedRef.current = true;
-          setTimeout(() => {
-            dragHappenedRef.current = false;
-          }, 200);
+         if(isMyTurnRef.current===true){
+            premoveWasDropRef.current = true;
+         }
+       
           // Complete existing premove
           setPreMove({ ...currentMoves.preMove, to });
+          return premoveWasDropRef.current; // true kada turn promeni tokom draga → nema snap-back animacije
         } else {
           setPreMove(undefined);
 
@@ -373,13 +358,14 @@ Props): MoveActions => {
         return false;
       }
     }
-
+ 
     // Case 3 & 4: Complete premove that was started earlier
-
+    
     if (isMyTurn && currentMoves.preMove && !currentMoves.preMove.to) {
+     console.log('moj red')
       if (from !== currentMoves.preMove.from) {
         setPreMove(undefined);
-
+         
         if (isValidPromoMove({ from, to, piece })) {
           setPreMove({ from, piece, to });
           return true;
@@ -394,6 +380,7 @@ Props): MoveActions => {
       };
 
       if (isValidPromoMove(moveAttempt)) {
+         
         setPreMove({ ...currentMoves.preMove, to });
         return true;
       }
@@ -402,6 +389,7 @@ Props): MoveActions => {
       if (result.ok) {
         setPreMove(undefined);
       }
+       
       return result.ok;
     }
     // Handle regular moves during player's turn
@@ -430,9 +418,9 @@ Props): MoveActions => {
   // Fix the return object (remove ...moveActions since it doesn't exist)
   return {
     onSquareClick: (square: Square, pieceSan?: PieceSan) => {
-      if (dragHappenedRef.current) {
-        return;
-      }
+      // if (dragHappenedRef.current) {
+      //   return;
+      // }
       onClickOrDrag({ square, pieceSan });
     },
 

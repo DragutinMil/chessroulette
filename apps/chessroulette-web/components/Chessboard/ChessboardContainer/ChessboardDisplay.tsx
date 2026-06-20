@@ -56,7 +56,7 @@ export type ChessboardDisplayProps = Omit<
         rightSideClassName?: undefined;
       }
   );
-
+  
 export const ChessboardDisplay = ({
   sizePx,
   rightSideClassName,
@@ -85,6 +85,7 @@ export const ChessboardDisplay = ({
 
   ...boardProps
 }: ChessboardDisplayProps) => {
+  // console.log('animationDurationInMs',animationDurationInMs);
   return (
     <div
       className="flex"
@@ -116,7 +117,7 @@ export const ChessboardDisplay = ({
             },
             allowDragging: true,
             onPieceDrag: ({ square, piece }: PieceHandlerArgs) => {
-              console.log();
+            
               const sq = square ?? '';
               const pc = piece?.pieceType;
               onPieceDrag?.(sq, pc);
@@ -126,8 +127,8 @@ export const ChessboardDisplay = ({
               const from = sourceSquare ?? '';
               const to = targetSquare ?? '';
               const pc = piece.pieceType;
-              onPieceDrop?.(from, to, pc);
-              return true;
+             return onPieceDrop?.(from, to, pc) || false;
+              // return true;
             },
             squareStyles,
             squareRenderer,

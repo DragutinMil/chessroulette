@@ -113,9 +113,10 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
 }) => {
   const isMyTurn = boardOrientation === turn;
   const { match, ...matchView } = useMatchViewState();
-  const BOARD_ANIMATION_DELAY = useMemo(() => {
-    return match === null ? (!lastMove ? 0 : 360) : 220;
-  }, [match, lastMove]);
+  const BOARD_ANIMATION_DELAY = 200;
+  // const BOARD_ANIMATION_DELAY = useMemo(() => {
+  //   return match === null ? (!lastMove ? 0 : 300) : 220;
+  // }, [match, lastMove]);
   const engineMoveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
     null
   );
@@ -154,7 +155,7 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
   const { preMove, promoMove, pendingMove, ...moveActions } = useMoves({
     playingColor: boardOrientation,
     isMyTurn,
-    premoveAnimationDelay: BOARD_ANIMATION_DELAY + 1,
+    premoveAnimationDelay: BOARD_ANIMATION_DELAY + 30,
     onValidateMove,
     onMove,
     onPreMove: onMove,
@@ -276,13 +277,11 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
         }}
         onPieceDrop={(sourceSquare, targetSquare, piece?) => {
           if (!piece || !sourceSquare || !targetSquare) return false;
-          // console.log(piece, sourceSquare, targetSquare);
-          moveActions.onPieceDrop(
+          return moveActions.onPieceDrop(
             sourceSquare as Square,
             targetSquare as Square,
             piece as PieceSan
           );
-          return true;
         }}
         onSquareClick={(square, piece) => {
           moveActions.onSquareClick(
