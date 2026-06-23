@@ -8,6 +8,14 @@ export const DEFAULT_AV_STREAMING_CONSTRAINTS = {
   video: true,
 };
 
+const getMobileAwareConstraints = (): AVStreamingConstraints => {
+  if (typeof window === 'undefined') {
+    return DEFAULT_AV_STREAMING_CONSTRAINTS;
+  }
+  const isMobile = window.innerWidth < 1000;
+  return { audio: !isMobile, video: !isMobile };
+};
+
 // Note: As of Dec 5h, 2020, It currently doesn't seperate the Audio from Video if needed in the future!
 class AVStreamingClass {
   public pubsy = new Pubsy<{
@@ -21,7 +29,7 @@ class AVStreamingClass {
   } = {};
 
   private _activeConstraints: AVStreamingConstraints =
-    DEFAULT_AV_STREAMING_CONSTRAINTS;
+    getMobileAwareConstraints();
 
   set activeConstraints({ video, audio }: AVStreamingConstraints) {
     this._activeConstraints = {
