@@ -163,7 +163,7 @@ export const MultiFaceTimeCompact: React.FC<MultiFaceTimeCompactProps> = ({
           {...faceTimeProps}
         />
       ) : (
-        myFaceTimeConstraints && (
+        !isMobile && myFaceTimeConstraints && (
           <MyFaceTime
             streamConfigChange={onStreamConfigChange}
             {...faceTimeProps}
