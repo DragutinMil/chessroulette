@@ -43,7 +43,7 @@ import { SendQuestionReview } from './GameReview/SendQuestionReview';
 import { CheckPiece } from './CheckPiece';
 import { ChessEngineProbabilityCalc } from '@app/modules/ChessEngine/components/ChessEngineCalculator';
 
-import { reviewAnalitics } from '../../util';
+import { reviewAnalitics, getReview24h } from '../../util';
 import { useIsTablet } from '@app/hooks/useIsTablet';
 
 // import { generateGptResponse } from '../../../../../../server.js';
@@ -291,6 +291,31 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
     };
 
     useEffect(() => {
+      console.log('usercina',userData)
+      if (!userData.user_id) return;
+      
+      const hasSalesMessage = currentChapterState.messages.some((m) =>
+        m.participantId?.includes('sales')
+      );
+       console.log('hasSalesMessage',hasSalesMessage)
+      if (!hasSalesMessage) return;
+      const checkAndReset = async () => {
+        const hasSubscription = !!userData.product_name && userData.ends_at !== null;
+
+        if (hasSubscription) {
+          console.log('ide brisanje',hasSubscription)
+          resetMessages();
+          return;
+        }
+        const review24hData = await getReview24h();
+        if (!review24hData) {
+          resetMessages();
+        }
+      };
+      checkAndReset();
+    }, [userData.user_id]);
+
+    useEffect(() => {
       setEvalVisible(false);
     }, [currentChapterState.orientation]);
 
@@ -485,7 +510,19 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
     };
 
     const analizeMatch = async () => {
-      reviewMetrics();
+      const hasSubscription = !!userData.product_name && userData.ends_at !==null  ;
+      if (!hasSubscription) {
+        const review24hData = await getReview24h();
+        if (review24hData) {
+          onMessage({
+            content: `That’s your free Game Review for today! Want more? Unlock unlimited Game Reviews with Starter. 🚀`,
+            participantId: 'chatGPT123456sales',
+            idResponse: '',
+          });
+          return;
+        }
+      }
+
       // historyBackToStart(); GUTA BRISAO
       setPulseDot(true);
       const data = await analyzePGN(
@@ -520,6 +557,8 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
         !currentChapterState.messages[1]?.content.includes('analyzeReview') &&
         filtered.length > 0
       ) {
+        console.log('1',currentChapterState.messages[1]?.content)
+        console.log('2',filtered.length )
         onMatchReview({
           evaluation: filtered,
           message: {
@@ -531,6 +570,7 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
               ].idResponse,
           },
         });
+        reviewMetrics();
       }
     };
     const handleGameEvaluation = (newScore: number) => {
