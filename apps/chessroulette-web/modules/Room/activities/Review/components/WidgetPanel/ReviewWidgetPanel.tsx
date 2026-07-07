@@ -515,7 +515,7 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
         const review24hData = await getReview24h();
         if (review24hData) {
           onMessage({
-            content: `That’s your free Game Review for today! Want more? Unlock unlimited Game Reviews with Starter. 🚀`,
+            content: `That’s your free Game Review for today! Want more? Unlock unlimited Game Reviews, Unlimited Puzzles and AI Chat for just €4/Month. 🚀`,
             participantId: 'chatGPT123456sales',
             idResponse: '',
           });
