@@ -169,7 +169,7 @@ const ConversationReview = ({
                           Game Review
                         </ButtonGreen>
                       )}
-                    {index == 1 && currentChapterState.messages.length > 1 && (
+                    {index == 1 && currentChapterState.messages.length > 1 && !msg.participantId.includes('sales') && (
                       <div className="flex flex-wrap mt-2">
                         <ButtonGreen
                           onClick={() => {
@@ -204,8 +204,8 @@ const ConversationReview = ({
                         onClick={() => {
                           openViewSubscription();
                         }}
-                        size="lg"
-                        className="bg-green-600  text-black font-bold "
+                        size="md"
+                        className="bg-green-600  text-black font-bold px-3"
                         style={{ color: 'black' }}
                       >
                         Subscribe

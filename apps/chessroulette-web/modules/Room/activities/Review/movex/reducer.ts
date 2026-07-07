@@ -889,6 +889,7 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
           ...prev.activityState.chaptersMap,
           [0]: {
             ...prev.activityState.chaptersMap[0],
+            messages: [],
           },
         },
       },

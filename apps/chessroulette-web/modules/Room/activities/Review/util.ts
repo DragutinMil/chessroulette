@@ -204,6 +204,25 @@ export async function getPuzzle(category?: string) {
     };
   }
 }
+export async function getReview24h() {
+  const token = Cookies.get('sessionToken');
+  try {
+    const response = await fetch(process.env.NEXT_PUBLIC_API_WEB + 'review_24h', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    if (!response.ok) return null;
+    const text = await response.text();
+    if (!text) return null;
+    return JSON.parse(text);
+  } catch {
+    return null;
+  }
+}
+
 export async function getMatch(matchId: string) {
   try {
     const response = await fetch(

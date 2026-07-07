@@ -62,6 +62,7 @@ export const ReviewActivity = ({
     name_last: '',
     picture: '',
     is_trial: false,
+    ends_at:'',
     product_name: '',
     user_id: '',
     puz_rating: '',
@@ -243,6 +244,7 @@ export const ReviewActivity = ({
       name_last: data?.name_last,
       picture: data?.profile_image_url,
       is_trial: data?.is_trial,
+      ends_at:data?.ends_at,
       product_name: data?.product_name,
       user_id: data?.user_id,
       puz_rating: data?.puz_rating,
@@ -501,11 +503,13 @@ export const ReviewActivity = ({
                 dispatch({ type: 'loadedChapter:setArrows', payload })
               );
             }}
-            onMatchReview={(payload) =>
-              dispatch({
-                type: 'loadedChapter:addReview',
-                payload,
-              })
+            onMatchReview={async (payload) =>
+              await enqueueMovexUpdate(() =>
+                dispatch({
+                  type: 'loadedChapter:addReview',
+                  payload,
+                })
+              )
             }
             resetMessages={async () =>
               await enqueueMovexUpdate(() =>
