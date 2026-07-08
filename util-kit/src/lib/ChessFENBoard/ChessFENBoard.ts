@@ -265,15 +265,17 @@ export class ChessFENBoard {
 
     const san = invoke(() => {
       const getSuffix = () => {
-        const chessGame = getNewChessGame({ fen: this.fen });
-        if (chessGame.isGameOver()) {
-          return '#';
+        try {
+          const chessGame = getNewChessGame({ fen: this.fen });
+          if (chessGame.isGameOver()) {
+            return '#';
+          }
+          if (chessGame.inCheck()) {
+            return '+';
+          }
+        } catch {
+          // chess.js beta BigInt bug on certain positions
         }
-
-        if (chessGame.inCheck()) {
-          return '+';
-        }
-
         return '';
       };
 
