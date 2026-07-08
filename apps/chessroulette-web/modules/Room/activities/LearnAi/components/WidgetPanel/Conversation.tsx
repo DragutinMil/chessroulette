@@ -7,6 +7,7 @@ import { ButtonGreen } from '@app/components/Button/ButtonGreen';
 import { parseMessageMoves } from '../../util';
 import React from 'react';
 import { FreeBoardNotationProps } from '@app/components/FreeBoardNotation';
+import type { OpeningBranchMove } from '../../openingDatabase';
 
 type Props = {
   showColorChoice?: boolean;
@@ -26,6 +27,7 @@ type Props = {
   onHistoryNotationRefocus?: FreeBoardNotationProps['onRefocus'];
   notationHistoryLength?: number;
   suggestedMoves?: Array<{ uci: string; san: string }> | null;
+  branchMoves?: Array<OpeningBranchMove & { san: string }> | null;
   onSuggestedMove?: (uci: string) => void;
   visibleSuggestedRows?: number;
   onOtherSuggested?: () => void;
@@ -52,6 +54,7 @@ const Conversation = ({
   onHistoryNotationRefocus,
   notationHistoryLength = 0,
   suggestedMoves,
+  branchMoves,
   onSuggestedMove,
   visibleSuggestedRows = 1,
   onOtherSuggested,
@@ -280,7 +283,9 @@ const Conversation = ({
         !deviatedFromOpening &&
         !showColorChoice &&
         currentChapterState.aiLearn.moves.length > 0 &&
-        currentChapterState.aiLearn.moves_test.length == 0 && (
+        currentChapterState.aiLearn.moves_test.length == 0 &&
+        ((branchMoves && branchMoves.length > 0) ||
+          (suggestedMoves && suggestedMoves.length > 0)) && (
           <div className="mb-1 pt-1 text-[15px] md:pt-2  md:mb-2">
             <div className="flex min-w-0">
               <div className="hidden md:flex">
@@ -290,56 +295,83 @@ const Conversation = ({
                   className="max-w-[28px] md:max-w-[36px]"
                 />
               </div>
-              <div className="text-white text-sm px-2 md:px-4 flex flex-wrap items-center h-[52px] gap-1 flex-1 min-w-0 max-w-md break-words overflow-hidden">
-                <p className="text-slate-200 mr-2">Next move: </p>
-                {suggestedMoves && suggestedMoves.length > 0 && (
-                  <div className="flex flex-col gap-2">
-                    {(() => {
-                      const seenSan = new Set<string>();
-                      const uniqueMoves = suggestedMoves.filter((m) => {
-                        if (seenSan.has(m.san)) return false;
-                        seenSan.add(m.san);
-                        return true;
-                      });
-                      return (
-                        <div className="flex">
-                          {Array.from(
-                            { length: visibleSuggestedRows },
-                            (_, row) => (
-                              <div
-                                key={row}
-                                className="flex flex-wrap gap-2 mr-2"
-                              >
-                                {uniqueMoves
-                                  .slice(row * 3, row * 3 + 3)
-                                  .map((m) => (
-                                    <ButtonGreen
-                                      key={m.uci}
-                                      onClick={() => onSuggestedMove?.(m.uci)}
-                                      size="md"
-                                      // onMouseEnter={() => onSuggestedMoveHover?.(m.uci)}
-                                      // onMouseLeave={() => onSuggestedMoveHover?.(null)}
-                                      className="font-bold font-mono px-3"
-                                    >
-                                      {m.san}
-                                    </ButtonGreen>
-                                  ))}
-                              </div>
-                            )
-                          )}
-                          {visibleSuggestedRows * 3 < uniqueMoves.length && (
-                            <ButtonGreen
-                              onClick={onOtherSuggested}
-                              size="md"
-                              className="font-bold px-3 ml-2"
-                            >
-                              Other
-                            </ButtonGreen>
-                          )}
-                        </div>
-                      );
-                    })()}
+              <div className="text-white text-sm px-2 md:px-4 flex flex-wrap items-center gap-1 flex-1 min-w-0 max-w-md break-words overflow-hidden">
+                <p className="text-slate-200 mr-2">
+                  {branchMoves && branchMoves.length > 1
+                    ? 'Choose variation:'
+                    : 'Next move:'}
+                </p>
+
+                {/* Branch mode: colored buttons per variant */}
+                {branchMoves && branchMoves.length > 0 ? (
+                  <div className="flex flex-wrap gap-2">
+                    {branchMoves.map((bm) => (
+                      <button
+                        key={bm.uci}
+                        type="button"
+                        onClick={() => onSuggestedMove?.(bm.uci)}
+                        style={{ borderColor: bm.colorHex, color: bm.colorHex }}
+                        className=" font-bold px-3 py-1 rounded-2xl border  hover:opacity-80 transition-opacity"
+                        title={bm.variantName}
+                      >
+                        {bm.san}
+                        {branchMoves && branchMoves.length > 1 && (
+                          <span className="ml-1.5 text-xs font-normal opacity-60">
+                            {bm.variantName}
+                          </span>
+                        )}
+                      </button>
+                    ))}
                   </div>
+                ) : (
+                  /* Regular suggested moves */
+                  suggestedMoves && suggestedMoves.length > 0 && (
+                    <div className="flex flex-col gap-2">
+                      {(() => {
+                        const seenSan = new Set<string>();
+                        const uniqueMoves = suggestedMoves.filter((m) => {
+                          if (seenSan.has(m.san)) return false;
+                          seenSan.add(m.san);
+                          return true;
+                        });
+                        return (
+                          <div className="flex">
+                            {Array.from(
+                              { length: visibleSuggestedRows },
+                              (_, row) => (
+                                <div
+                                  key={row}
+                                  className="flex flex-wrap gap-2 mr-2"
+                                >
+                                  {uniqueMoves
+                                    .slice(row * 3, row * 3 + 3)
+                                    .map((m) => (
+                                      <ButtonGreen
+                                        key={m.uci}
+                                        onClick={() => onSuggestedMove?.(m.uci)}
+                                        size="md"
+                                        className="font-bold  px-3"
+                                      >
+                                        {m.san}
+                                      </ButtonGreen>
+                                    ))}
+                                </div>
+                              )
+                            )}
+                            {visibleSuggestedRows * 3 < uniqueMoves.length && (
+                              <ButtonGreen
+                                onClick={onOtherSuggested}
+                                size="md"
+                                className="font-bold px-3 ml-2"
+                              >
+                                Other
+                              </ButtonGreen>
+                            )}
+                          </div>
+                        );
+                      })()}
+                    </div>
+                  )
                 )}
               </div>
             </div>

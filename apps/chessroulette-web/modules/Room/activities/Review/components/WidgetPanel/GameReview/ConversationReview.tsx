@@ -114,14 +114,14 @@ const ConversationReview = ({
         const isSales =
           currentChapterState.messages[
             currentChapterState.messages.length - 1
-          ].participantId.includes('sales');
+          ].participantId?.includes('sales');
         return (
           <div
             key={index}
             className="mb-1 mt-2 pt-1 text-[15px] md:pt-2 md:mb-2"
           >
             {/* CHAT GPT TEXT */}
-            {participant.includes('chatGPT123456') ? (
+            {participant?.includes('chatGPT123456') ? (
               <div className="flex">
                 <div className=" items-start hidden">
                   {isLastFromThisParticipant ? (
@@ -140,7 +140,7 @@ const ConversationReview = ({
                     isTablet ? 'px-0' : ''
                   }  w-full flex   flex-col  items-start `}
                 >
-                  {msg.content.includes('analyzeReview') ? (
+                  {msg.content?.includes('analyzeReview') ? (
                     <StatsTable
                       content={msg.content}
                       review={currentChapterState.chessAiMode.review}

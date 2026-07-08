@@ -17,6 +17,7 @@ import {
   MovePiece,
   aiLearn,
 } from './movex';
+import { findOpeningFamily, getNextBranchMoves } from './openingDatabase';
 import { WidgetPanel } from './components/WidgetPanel';
 import { LearnAiBoard } from './components/LearnAiBoard';
 import { RIGHT_SIDE_SIZE_PX } from '../../constants';
@@ -272,6 +273,50 @@ export const LearnAiActivity = ({
                   }}
                   onMove={async (payload) => {
                     const mode = currentChapter.aiLearn?.mode;
+
+                    // Branch opening mode: validate against all family variants
+                    if (mode === 'opening') {
+                      const family = findOpeningFamily(
+                        currentChapter.aiLearn?.name ?? ''
+                      );
+                      if (family) {
+                        const history = currentChapter.notation?.history ?? [];
+                        const playedMoves: string[] = [];
+                        (history as any[]).flat().forEach((m: any) => {
+                          if (m && !m.isNonMove)
+                            playedMoves.push(
+                              `${m.from}${m.to}${m.promotion ?? ''}`
+                            );
+                        });
+                        const branches = getNextBranchMoves(family, playedMoves);
+                        if (branches.length > 0) {
+                          const isAllowed = branches.some((bm) =>
+                            bm.uci.startsWith(`${payload.from}${payload.to}`)
+                          );
+                          if (!isAllowed) {
+                            if (wrongMoveTimeoutRef.current)
+                              clearTimeout(wrongMoveTimeoutRef.current);
+                            setWrongSquare(payload.to);
+                            wrongMoveTimeoutRef.current = setTimeout(
+                              () => setWrongSquare(null),
+                              700
+                            );
+                            if (wrongMoveSoundRef.current) {
+                              wrongMoveSoundRef.current.currentTime = 0;
+                              wrongMoveSoundRef.current.play().catch(() => {});
+                            }
+                            return;
+                          }
+                        }
+                        // branches.length === 0 → all variants exhausted, free play
+                        moveSoundRef.current?.play();
+                        await enqueueMovexUpdate(() =>
+                          dispatch({ type: 'loadedChapter:addMove', payload })
+                        );
+                        return true;
+                      }
+                    }
+
                     const openingMoves =
                       mode === 'test'
                         ? currentChapter.aiLearn?.moves_test ?? []

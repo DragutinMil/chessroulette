@@ -1584,3 +1584,47 @@ export function getVariantNames(familyName: string): string[] {
   if (!family) return [];
   return family.variants.map((v) => `${family.name} — ${v.variantName}`);
 }
+
+// ─────────────────────────────────────────────
+// BRANCH EXPLORER HELPERS
+// ─────────────────────────────────────────────
+
+export type OpeningBranchMove = {
+  uci: string;
+  variantName: string;
+  colorHex: string;
+};
+
+export const BRANCH_COLORS = ['#11C6D1', '#f2a533', '#b857d4', '#07DA63'];
+
+/**
+ * Returns the unique next moves from all variants in `family` that still
+ * match the current `playedMoves` prefix. Each distinct UCI gets one color
+ * (up to 4). Returns [] when all variants are exhausted → free play allowed.
+ */
+export function getNextBranchMoves(
+  family: OpeningFamily,
+  playedMoves: string[]
+): OpeningBranchMove[] {
+  const moveIndex = playedMoves.length;
+  const colorMap = new Map<string, string>();
+  const results: OpeningBranchMove[] = [];
+  let colorIdx = 0;
+
+  for (const variant of family.variants) {
+    if (variant.moves.length <= moveIndex) continue;
+    if (!playedMoves.every((m, i) => variant.moves[i] === m)) continue;
+    const nextUci = variant.moves[moveIndex];
+    if (!colorMap.has(nextUci)) {
+      colorMap.set(nextUci, BRANCH_COLORS[colorIdx % BRANCH_COLORS.length]);
+      colorIdx++;
+      results.push({
+        uci: nextUci,
+        variantName: variant.variantName,
+        colorHex: colorMap.get(nextUci)!,
+      });
+    }
+  }
+
+  return results;
+}

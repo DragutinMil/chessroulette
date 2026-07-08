@@ -133,10 +133,10 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
     const [isOutpostWebViewIos, setIsOutpostWebViewIos] = useState(false);
     useEffect(() => {
       setIsOutpostWebViewAndroid(
-        navigator.userAgent.includes('OutpostChessApp/android')
+        navigator.userAgent?.includes('OutpostChessApp/android')
       );
       setIsOutpostWebViewIos(
-        navigator.userAgent.includes('OutpostChessApp/ios')
+        navigator.userAgent?.includes('OutpostChessApp/ios')
       );
     }, []);
 
@@ -209,7 +209,7 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
       } else if (
         currentChapterState.messages[
           currentChapterState?.messages?.length - 1
-        ]?.participantId.includes('sales')
+        ]?.participantId?.includes('sales')
       ) {
         onMessage({
           content: data.answer.text,
@@ -554,7 +554,7 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
       const analiticsReview = reviewAnalitics(data);
 
       if (
-        !currentChapterState.messages[1]?.content.includes('analyzeReview') &&
+        !currentChapterState.messages[1]?.content?.includes('analyzeReview') &&
         filtered.length > 0
       ) {
         console.log('1',currentChapterState.messages[1]?.content)

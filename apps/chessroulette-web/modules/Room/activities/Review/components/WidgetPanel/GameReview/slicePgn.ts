@@ -19,7 +19,7 @@ export function slicePgn(
     result.push(token);
 
     // preskoči "1.", "2." itd
-    if (token.includes('.')) continue;
+    if (token?.includes('.')) continue;
 
     moveCount++;
 
