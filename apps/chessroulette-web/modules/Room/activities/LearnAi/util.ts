@@ -702,7 +702,7 @@ export async function ai_prompt(
   model: string
 ) {
   const token = Cookies.get('sessionToken');
-  const body: Record<string, string> = { prompt: question, model: model };
+  const body: Record<string, string> = { prompt: question, model: model,agent_name: 'Opening' };
   if (previusMessageId?.trim()) body.previous_response_id = previusMessageId;
   try {
     //ai_prompt_v2r

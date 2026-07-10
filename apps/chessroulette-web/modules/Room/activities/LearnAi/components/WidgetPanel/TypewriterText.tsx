@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Button } from '@app/components/Button';
+// import { Button } from '@app/components/Button';
 import { ButtonGreen } from '@app/components/Button/ButtonGreen';
-import { Message } from '../../movex';
+// import { Message } from '../../movex';
 import { parseMessageMoves } from '../../util';
 import { FreeBoardNotationProps } from '@app/components/FreeBoardNotation';
 
@@ -14,57 +14,56 @@ interface TypewriterTextProps {
   onSelectLearnMode?: (mode: 'opening' | 'midgame' | 'endgame') => void;
   onHistoryNotationRefocus?: FreeBoardNotationProps['onRefocus'];
   notationHistoryLength?: number;
+  onDone?: () => void;
+  onTypingStart?: () => void;
 }
 const TypewriterText: React.FC<TypewriterTextProps> = ({
   lastMessage = '',
   scrollToBottom,
-  takeBack,
-  playNext,
-  onSelectRating,
+  // takeBack,
+  // playNext,
+  // onSelectRating,
   onSelectLearnMode,
   onHistoryNotationRefocus,
   notationHistoryLength = 0,
+  onDone,
+  onTypingStart,
 }) => {
   const [displayedText, setDisplayedText] = useState('');
   const [showCursor, setShowCursor] = useState(true);
 
-  const puzzleCategories = [
-    { label: 'Mate in 1', value: 'Check Mate in 1' },
-    { label: 'Mate in 2', value: 'Check Mate in 2' },
-    { label: 'Mate in 3', value: 'Check Mate in 3' },
-    { label: 'Check-Mate Puzzle', value: 'Check-Mate Puzzle' },
-    { label: 'Pattern Puzzle', value: 'Pattern Puzzle' },
-
-    // [{"label":"Check Mate in 1"},{"label":"Check Mate in 2"},{"label":"Check Mate in 3"},{"label":"Check Mate in 4"},{"label":"Check Mate in 5"},{"label":"Check Mate in 6"},
-    //   {"label":"Check Mate in 7"},{"label":"Check-Mate Puzzles"},{"label":"Endgame"},{"label":"Pattern Puzzles"}]
-  ];
-  const ratingBot = [
-    { label: '1300', value: 1300 },
-    { label: '1700', value: 1700 },
-    { label: '2100', value: 2100 },
-    { label: '2400', value: 2400 },
-    // { label: '2400', value: '2400' },
-  ];
+  // const puzzleCategories = [
+  //   { label: 'Mate in 1', value: 'Check Mate in 1' },
+  //   { label: 'Mate in 2', value: 'Check Mate in 2' },
+  //   { label: 'Mate in 3', value: 'Check Mate in 3' },
+  //   { label: 'Check-Mate Puzzle', value: 'Check-Mate Puzzle' },
+  //   { label: 'Pattern Puzzle', value: 'Pattern Puzzle' },
+  // ];
+  // const ratingBot = [
+  //   { label: '1300', value: 1300 },
+  //   { label: '1700', value: 1700 },
+  //   { label: '2100', value: 2100 },
+  //   { label: '2400', value: 2400 },
+  // ];
   useEffect(() => {
     if (!lastMessage || lastMessage.trim() === '') return;
 
     setDisplayedText('');
     setShowCursor(true);
+    onTypingStart?.();
 
     let currentIndex = 0;
 
     const interval = setInterval(() => {
-      setDisplayedText((prev) => {
-        if (currentIndex < lastMessage.length) {
-          const nextChar = lastMessage[currentIndex];
-          currentIndex++;
-          return prev + nextChar;
-        } else {
-          clearInterval(interval);
-          setShowCursor(false);
-          return prev;
-        }
-      });
+      if (currentIndex < lastMessage.length) {
+        const nextChar = lastMessage[currentIndex];
+        currentIndex++;
+        setDisplayedText((prev) => prev + nextChar);
+      } else {
+        clearInterval(interval);
+        setShowCursor(false);
+        onDone?.();
+      }
     }, 8);
 
     return () => clearInterval(interval);

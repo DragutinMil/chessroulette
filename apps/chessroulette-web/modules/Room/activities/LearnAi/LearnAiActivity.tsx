@@ -85,6 +85,14 @@ export const LearnAiActivity = ({
   const currentChapter =
     findLoadedChapter(remoteState) || initialDefaultChapter;
 
+  const isAtLastMove = (() => {
+    const history = currentChapter.notation?.history ?? [];
+    const focusedIndex = currentChapter.notation?.focusedIndex;
+    if (!focusedIndex || history.length === 0) return true;
+    const lastIndex = FreeBoardHistory.getLastIndexInHistory(history);
+    return focusedIndex[0] === lastIndex[0] && focusedIndex[1] === lastIndex[1];
+  })();
+
   const tabsRef = useRef<TabsRef>(null);
   // useEffect(() => {
   //   socketUtil.connect('learn');
@@ -210,8 +218,11 @@ export const LearnAiActivity = ({
                 <LearnAiBoard
                   sizePx={boardSize}
                   {...currentChapter}
+                  canPlay={isAtLastMove}
                   arrowsMap={
-                    hintArrowMap
+                    !isAtLastMove
+                      ? {}
+                      : hintArrowMap
                       ? { ...currentChapter.arrowsMap, ...hintArrowMap }
                       : currentChapter.arrowsMap
                   }
@@ -411,7 +422,8 @@ export const LearnAiActivity = ({
                       });
                       if (
                         movesTest.length > 0 &&
-                        played.length >= movesTest.length - 3
+                        played.length >= movesTest.length - 2
+                        //dialog da se pojavi ranije 3 --> 2
                       ) {
                         await enqueueMovexUpdate(() =>
                           dispatch({
