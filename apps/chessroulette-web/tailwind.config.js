@@ -87,6 +87,11 @@ module.exports = {
           '0%': { opacity: '0', transform: 'scale(0.95)' },
           '100%': { opacity: '1', transform: 'scale(1)' },
         },
+        fadeIn: {
+          // '0%': { opacity: '0', transform: 'translateY(6px)' },
+          '0%': { opacity: '0', transform: 'translateY(0)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
         //   sublevelBlink: {
         //   '0%': { transform: 'scale(1)', opacity: '1' },
         //   '30%': { transform: 'scale(1.15)', opacity: '0.6' },
@@ -98,6 +103,7 @@ module.exports = {
         'green-soft': '0px 2px 10px 0px rgba(7, 218, 99, 0.1)',
       },
       backgroundImage: {
+        'background-component':'#01210b',
         'op-widget':
           'radial-gradient(61.84% 61.84% at 50% 131.62%, rgba(5, 135, 44, 0.2) 0%, #01210B 100%)',
       },
@@ -105,6 +111,7 @@ module.exports = {
         fadeUp: 'fadeUp 1s ease-out',
         shake: 'shake 0.5s ease-in-out 6',
         dialogIn: 'dialogIn 0.3s ease-out forwards',
+        fadeIn: 'fadeIn 0.4s ease-out forwards',
         // sublevelBlink: 'sublevelBlink 0.45s ease-out'
       },
     },

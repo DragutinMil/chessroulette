@@ -28,6 +28,7 @@ type Props = Required<
     onResetBoard: () => void;
     onBoardEditor: () => void;
     squareRenderer?: ChessboardOptions['squareRenderer'];
+    canPlay?: boolean;
   };
 
 export const LearnAiBoard = ({
@@ -44,6 +45,7 @@ export const LearnAiBoard = ({
   onClearBoard,
   onBoardEditor,
   aiLearn,
+  canPlay = true,
   ...chessBoardProps
 }: Props) => {
   const settings = useLearnAiActivitySettings();
@@ -68,7 +70,7 @@ export const LearnAiBoard = ({
       {...chessBoardProps}
       turn={turn}
       rightSideSizePx={RIGHT_SIDE_SIZE_PX}
-      canPlay
+      canPlay={canPlay}
       rightSideClassName={`flex flex-col ${rightSideClassName}`}
       rightSideComponent={
         <>
