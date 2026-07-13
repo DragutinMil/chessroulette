@@ -44,7 +44,7 @@ import { useUpdateableSearchParams } from '@app/hooks/useSearchParams';
 import {
   // getOpenings, // replaced by local OPENING_DATABASE
   // getWikibooksContent,
-  getLichessBestMove,
+  //getLichessBestMove,
   // getOpeningIdeas,
   //getOpeningCommentFromAi,
   buildPgnFromMessageContent,

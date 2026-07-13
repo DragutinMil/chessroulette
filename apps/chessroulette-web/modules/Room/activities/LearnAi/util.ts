@@ -616,22 +616,22 @@ export function filterAndOrderByOpening(
 }
 
 /** Vraća UCI glavnog poteza (najpopularniji u Lichess master bazi) za dati FEN, ili null. */
-export async function getLichessBestMove(fen: string): Promise<string | null> {
-  try {
-    const encoded = encodeURIComponent(fen.trim());
-    const url = `${LICHESS_EXPLORER}/master?fen=${encoded}`;
-    const res = await fetch(url, { method: 'GET' });
-    if (!res.ok) return null;
-    const data = await res.json();
-    const moves = data?.moves;
-    if (!Array.isArray(moves) || moves.length === 0) return null;
-    const first = moves[0];
-    return typeof first?.uci === 'string' ? first.uci : null;
-  } catch (e) {
-    console.warn('Lichess explorer error', e);
-    return null;
-  }
-}
+// export async function getLichessBestMove(fen: string): Promise<string | null> {
+//   try {
+//     const encoded = encodeURIComponent(fen.trim());
+//     const url = `${LICHESS_EXPLORER}/master?fen=${encoded}`;
+//     const res = await fetch(url, { method: 'GET' });
+//     if (!res.ok) return null;
+//     const data = await res.json();
+//     const moves = data?.moves;
+//     if (!Array.isArray(moves) || moves.length === 0) return null;
+//     const first = moves[0];
+//     return typeof first?.uci === 'string' ? first.uci : null;
+//   } catch (e) {
+//     console.warn('Lichess explorer error', e);
+//     return null;
+//   }
+// }
 
 // Define type for top moves if not defined yet.
 type LichessExplorerMove = {
