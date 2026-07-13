@@ -9,6 +9,17 @@ import React from 'react';
 import { FreeBoardNotationProps } from '@app/components/FreeBoardNotation';
 import type { OpeningBranchMove } from '../../openingDatabase';
 
+function renderMarkdownInline(text: string): React.ReactNode[] {
+  const parts = text.split(/(\*\*[^*]+\*\*|\*[^*]+\*)/g);
+  return parts.map((part, i) => {
+    if (part.startsWith('**') && part.endsWith('**'))
+      return <strong key={i}>{part.slice(2, -2)}</strong>;
+    if (part.startsWith('*') && part.endsWith('*'))
+      return <em key={i}>{part.slice(1, -1)}</em>;
+    return part;
+  });
+}
+
 type Props = {
   showColorChoice?: boolean;
   onSelectColor?: (color: 'w' | 'b') => void;
@@ -266,11 +277,11 @@ const Conversation = ({
                                 </button>
                               ) : (
                                 <React.Fragment key={i}>
-                                  {seg.value}
+                                  {renderMarkdownInline(seg.value)}
                                 </React.Fragment>
                               )
                             )
-                          : msg.content}
+                          : renderMarkdownInline(msg.content as string)}
                       </p>
                    
                     </div>
