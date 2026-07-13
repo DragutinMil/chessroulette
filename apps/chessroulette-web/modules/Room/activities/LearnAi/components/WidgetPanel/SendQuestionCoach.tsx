@@ -4,11 +4,10 @@ import type { ChapterState } from '../../movex/types';
 
 const UI_CONTROLS = `
 UI CONTROLS AVAILABLE TO THE USER:
-- "Another Opening 📚" button: switches to a completely different opening. Suggest this if the user wants to practice something else entirely.
+- "Another Opening 📚" button: switches to different openings that offered on screen.
 - "Next Variation ⭐" button: appears after completing the current variation, moves to the next variation within the same opening family. Suggest this if the user wants to explore more lines of the same opening.
 - "Opening Test" button: lets the user test themselves by replaying the opening moves from memory without guidance. Suggest this when the user feels ready to practice recall after learning a variation.
 - Colored move buttons (e.g. "Nf6 (Berlin Defense)", "d6 (Classical)"): appear at branch points where multiple variations diverge. The user clicks one to choose which line to follow.
-- Notation history: the user can click any past move to review that position. The board is read-only while browsing history.
 `.trim();
 
 export async function SendQuestionCoach(

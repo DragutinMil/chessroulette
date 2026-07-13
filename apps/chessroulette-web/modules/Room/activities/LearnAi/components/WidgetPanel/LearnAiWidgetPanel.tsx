@@ -305,16 +305,13 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
     const [stockfish, setStockfish] = useState(false);
     const [playVsBot, setPlayVsBot] = useState(false);
 
-    const [startOpening, setStartOpening] = useState({});
 
-    const [preferedCategory, setPreferedCategory] = useState('');
     const [lines, setLines] = useState<StockfishLines>({
       1: '',
       2: '',
       3: '',
     });
 
-    const [isWikiLoading, setIsWikiLoading] = useState(false);
     const [suggestedOpenings, setSuggestedOpenings] = useState<Array<{
       name: string;
       pgn: string;
@@ -322,12 +319,7 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
     const [isListening, setIsListening] = useState(false);
     const recognitionRef = useRef<{ stop: () => void } | null>(null);
 
-    const [selectedOpeningFilter, setSelectedOpeningFilter] = useState<
-      string | null
-    >(null);
-    const [openingMoveComments, setOpeningMoveComments] = useState<
-      (string | null)[]
-    >([]);
+   
     const [branchMoves, setBranchMoves] = useState<
       Array<OpeningBranchMove & { san: string }> | null
     >(null);
@@ -475,6 +467,7 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
         mode: 'opening',
         name: opening.name,
         moves: uciMoves,
+        moves_test: [],
       });
       onMessage({
         content: intro + '\n\nWould you like to play as White or Black?',
@@ -746,8 +739,11 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
 
         // Branch mode: opening from local database → show arrows for all variants
         const family = findOpeningFamily(openingName);
+        console.log('family',family)
+        console.log('playedMoves',playedMoves)
         if (family) {
           const rawBranches = getNextBranchMoves(family, playedMoves);
+          console.log('rawBranches',rawBranches)
           if (rawBranches.length > 0) {
             setBranchMoves(
               rawBranches.map((bm) => ({ ...bm, san: uciToSan(fen, bm.uci) }))
@@ -964,19 +960,20 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
       currentChapterState.orientation;
 
     const checkAnswerGPT = async (data: any) => {
+      const answerText = typeof data.answer === 'string' ? data.answer : data.answer?.text;
       if (
         currentChapterState.messages[
           currentChapterState?.messages?.length - 1
         ]?.participantId.includes('sales')
       ) {
         onMessage({
-          content: data.answer.text,
+          content: answerText,
           participantId: 'chatGPT123456sales',
           idResponse: data.id,
         });
       } else {
         onMessage({
-          content: data.answer.text,
+          content: answerText,
           participantId: 'chatGPT123456',
           idResponse: data.id,
         });
@@ -1150,8 +1147,28 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
       //     setRatingBotEngine(newRating);
       //   }
       // }
-      if (data?.answer?.text) {
-        checkAnswerGPT(data);
+      const answerText = typeof data?.answer === 'string' ? data.answer : data?.answer?.text;
+      if (answerText) {
+        // Parse [[OPEN:Family Name]] tag from AI response
+        const openMatch = answerText.match(/\[\[OPEN:([^\]]+)\]\]/);
+        const cleanText = answerText.replace(/\[\[OPEN:[^\]]+\]\]/g, '').trim();
+        // Display cleaned text (without the tag)
+        checkAnswerGPT({ ...data, answer: cleanText });
+        // Trigger opening selection if AI requested it
+        if (openMatch) {
+          const openingName = openMatch[1].trim();
+          const family = findOpeningFamily(openingName);
+          if (family) {
+            const variant = family.variants[0];
+            const chess = new Chess();
+            for (const uci of variant.moves) {
+              try {
+                chess.move({ from: uci.slice(0, 2) as Square, to: uci.slice(2, 4) as Square, promotion: uci[4] as any });
+              } catch {}
+            }
+            handleSelectOpening({ name: family.name, pgn: `[Event "?"]\n[Site "?"]\n\n${chess.pgn()}` });
+          }
+        }
       } else {
         onMessage({
           content:
@@ -1495,11 +1512,11 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
               <ButtonGreen
                 onClick={requestAnotherOpening}
                 size="sm"
-                className="max-w-[180px] min-w-[125px]"
+                className="max-w-[180px] min-w-[135px] "
                 style={{ maxWidth: smallMobile ? '100px' : '' }}
                 disabled={currentChapterState.aiLearn.moves.length === 0}
               >
-                <p className="pr-4 pl-4">{isMobile ? 'New Opening' : <>Another Opening{'  '}📚</>}  </p>
+                <p >{isMobile ? 'New Opening' : <>Another Opening{'  '}📚</>}  </p>
               </ButtonGreen>
             </div>
 

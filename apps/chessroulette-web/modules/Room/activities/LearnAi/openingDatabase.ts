@@ -472,7 +472,7 @@ export const OPENING_DATABASE: OpeningFamily[] = [
         eco: 'C11',
         moves: [
           'e2e4', 'e7e6', 'd2d4', 'd7d5', 'b1c3', 'g8f6',
-          'e4e5', 'f6d7', 'f2f4', 'c7c5', 'g1f3', 'b8c6', 'c1e3', 'c5d4', 'c3d4',
+          'e4e5', 'f6d7', 'f2f4', 'c7c5', 'g1f3', 'b8c6', 'c1e3', 'c5d4', 'f3d4',
         ],
         comments: [
           null, null, null, null, null, null,
@@ -1279,7 +1279,7 @@ export const OPENING_DATABASE: OpeningFamily[] = [
         eco: 'C63',
         moves: [
           'e2e4', 'e7e5', 'g1f3', 'b8c6', 'f1b5', 'f7f5',
-          'b1c3', 'f5e4', 'c3e4', 'd7d5', 'e4e5', 'd5e4', 'e5c6', 'd8d5', 'c2c4', 'd5d6',
+          'b1c3', 'f5e4', 'c3e4', 'd7d5', 'f3e5', 'd5e4', 'e5c6', 'd8d5', 'c2c4', 'd5d6',
         ],
         comments: [
           null, null, null, null,
@@ -1520,7 +1520,7 @@ export const OPENING_DATABASE: OpeningFamily[] = [
         eco: 'D52',
         moves: [
           'd2d4', 'd7d5', 'c2c4', 'e7e6', 'b1c3', 'g8f6',
-          'c1g5', 'b8d7', 'e2e3', 'c7c6', 'g1f3', 'd8a5', 'c3d2', 'f8b4', 'd1c2', 'e8g8',
+          'c1g5', 'b8d7', 'e2e3', 'c7c6', 'g1f3', 'd8a5', 'f3d2', 'f8b4', 'd1c2', 'e8g8',
         ],
         comments: [
           null, null, null, null, null, null,
@@ -1800,7 +1800,7 @@ export const OPENING_DATABASE: OpeningFamily[] = [
         eco: 'E92',
         moves: [
           'd2d4', 'g8f6', 'c2c4', 'g7g6', 'b1c3', 'f8g7',
-          'e2e4', 'd7d6', 'g1f3', 'e8g8', 'f1e2', 'e7e5', 'c1e3', 'b8c6', 'd4e5', 'd6e5', 'f3d5', 'c6d5', 'c4d5',
+          'e2e4', 'd7d6', 'g1f3', 'e8g8', 'f1e2', 'e7e5', 'c1e3', 'b8c6', 'd4e5', 'd6e5', 'c3d5', 'f6d5', 'c4d5',
         ],
         comments: [
           null, null, null, null, null, null,
@@ -1966,7 +1966,7 @@ export const OPENING_DATABASE: OpeningFamily[] = [
           'd4d5',
           'd7d6',
           'e2e3',
-          'f8b4',
+          'e8g8',
           'f1d3',
           'b8d7',
         ],
@@ -2271,9 +2271,9 @@ export const OPENING_DATABASE: OpeningFamily[] = [
           'e5f6',
           'd4c3',
           'f6g7',
-          'c3d2',
-          'g7h8',
-          'd2c1',
+          'c3c2',
+          'g7h8q',
+          'c2d1q',
         ],
         comments: [
           'English Opening.',
@@ -2318,7 +2318,7 @@ export const OPENING_DATABASE: OpeningFamily[] = [
         eco: 'A26',
         moves: [
           'c2c4', 'e7e5', 'b1c3', 'b8c6', 'g2g3', 'g7g6',
-          'f1g2', 'f8g7', 'e2e3', 'd7d6', 'g1e2', 'c8e6', 'd2d3', 'd8d7', 'e2d5', 'c6d8',
+          'f1g2', 'f8g7', 'e2e3', 'd7d6', 'g1e2', 'c8e6', 'd2d3', 'd8d7', 'c3d5', 'c6d8',
         ],
         comments: [
           null, null, null, null,
@@ -3203,6 +3203,7 @@ export const OPENING_DATABASE: OpeningFamily[] = [
           'd7d5',
           'd1b3',
           'd5c4',
+          'b3c4',
           'd8d5',
         ],
         comments: [
@@ -3216,6 +3217,7 @@ export const OPENING_DATABASE: OpeningFamily[] = [
           'Black accepts the gambit.',
           null,
           'Black develops and challenges the queen.',
+          null,
         ],
       },
       {
@@ -3312,8 +3314,8 @@ export const OPENING_DATABASE: OpeningFamily[] = [
           'f6d5',
           'c3d5',
           'd8d5',
-          'f4b8',
-          'a8b8',
+          'f1d3',
+          'b8d7',
         ],
         comments: [
           null,
@@ -3330,8 +3332,8 @@ export const OPENING_DATABASE: OpeningFamily[] = [
           'Black recaptures the knight.',
           null,
           'Black recaptures with the queen.',
-          'White captures the rook, winning material.',
-          'Black recaptures — the position is unbalanced with material imbalances.',
+          'White develops the bishop to d3.',
+          'Black develops the knight to d7.',
         ],
       },
       {
@@ -3424,7 +3426,7 @@ export const OPENING_DATABASE: OpeningFamily[] = [
           'e1g1',
           'e8g8',
           'b1c3',
-          'b8e5',
+          'f6e4',
         ],
         comments: [
           null,
@@ -3828,8 +3830,8 @@ export const OPENING_DATABASE: OpeningFamily[] = [
           'd1e2',
           'd8e7',
           'e1c1',
-          'e4d3',
-          'f1d3',
+          'e4e3',
+          'f2e3',
         ],
         comments: [
           null,
@@ -4006,7 +4008,7 @@ export const OPENING_DATABASE: OpeningFamily[] = [
           'f2f3',
           'b8c6',
           'e1c1',
-          'd7d5',
+          'd6d5',
         ],
         comments: [
           null,
@@ -4035,7 +4037,7 @@ export const OPENING_DATABASE: OpeningFamily[] = [
           'g8f6',
           'b1c3',
           'g7g6',
-          'f1g5',
+          'c1g5',
           'f8g7',
           'd1d2',
           'b8d7',
@@ -4236,7 +4238,7 @@ export const OPENING_DATABASE: OpeningFamily[] = [
           'e5f4',
           'd2d4',
           'd8h4',
-          'e4e5',
+          'g2g3',
           'g7g5',
           'g1f3',
           'h4h5',
@@ -4250,7 +4252,7 @@ export const OPENING_DATABASE: OpeningFamily[] = [
           'Black takes the pawn.',
           'White pushes d4, building a massive center.',
           'Black brings the queen out early — a risky but active response.',
-          'White advances.',
+          'White blocks the check with g3.',
           'Black defends the f4 pawn while gaining space.',
           null,
           'Black keeps the queen active — the game is double-edged.',
@@ -4270,7 +4272,7 @@ export const OPENING_DATABASE: OpeningFamily[] = [
           'e4d6',
           'c4b3',
           'b8c6',
-          'g1b5',
+          'c3b5',
           'g7g6',
           'h5f3',
           'f7f5',
@@ -4719,11 +4721,11 @@ export const OPENING_DATABASE: OpeningFamily[] = [
           'e5f7',
           'e8f7',
           'd2d4',
-          'e5d4',
+          'f6e4',
           'b1c3',
-          'd4c3',
+          'e4c3',
           'f1c4',
-          'f7e6',
+          'f7e7',
         ],
         comments: [
           null,
@@ -5004,7 +5006,7 @@ export const OPENING_DATABASE: OpeningFamily[] = [
           'e1g1',
           'b8d7',
           'f3d2',
-          'd7c7',
+          'f6e8',
         ],
         comments: [
           null,
@@ -5024,9 +5026,9 @@ export const OPENING_DATABASE: OpeningFamily[] = [
           null,
           'Black castles.',
           null,
-          'Classical Benoni — Black develops the knight to d7 and reroutes it to c7.',
+          'Classical Benoni — Black develops the knight to d7, preparing to reroute.',
           null,
-          'Black reroutes the knight to c7 — it will go to e8 and then d6, a famous Benoni maneuver.',
+          'Black reroutes the knight to e8 — heading for d6, a famous Benoni maneuver.',
         ],
       },
       {
