@@ -200,6 +200,7 @@ type Props = {
   onFlipBoard?: () => void;
   onSetOrientation?: (color: 'w' | 'b') => void;
   onRegisterNewOpening?: (fn: () => void) => void;
+  onRegisterKeepPlaying?: (fn: () => void) => void;
 
   // Engine
   showEngine?: boolean;
@@ -241,6 +242,7 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
       onFlipBoard,
       onSetOrientation,
       onRegisterNewOpening,
+      onRegisterKeepPlaying,
       userData,
       ...chaptersTabProps
     },
@@ -392,7 +394,7 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
       // return Array.from(byName.values()).slice(0, count);
 
       const shuffled = [...OPENING_DATABASE].sort(() => Math.random() - 0.5);
-      const suggestions = shuffled.slice(0, 3).map((family) => {
+      const suggestions = shuffled.slice(0, 4).map((family) => {
         const variant = family.variants[0];
         const chess = new Chess();
         for (const uci of variant.moves) {
@@ -497,7 +499,7 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
       const others = OPENING_DATABASE.filter((f) => !shownNames.has(f.name)).sort(
         () => Math.random() - 0.5
       );
-      const picks = others.slice(0, 3).map((family) => {
+      const picks = others.slice(0, 4).map((family) => {
         const variant = family.variants[0];
         const chess = new Chess();
         for (const uci of variant.moves) {
@@ -563,6 +565,7 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
         moves: [],
         moves_test: [],
         errors: 0,
+        hints: 0,
         popup: false,
         name: '',
         mode: 'opening',
@@ -1308,7 +1311,18 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
     };
     const handleKeepPlaying = () => {
       setKeepPlaying(true);
+      addLearnAi({
+        ...currentChapterState.aiLearn,
+        mode: 'opening',
+        moves_test: [],
+        popup: false,
+      });
     };
+
+    useEffect(() => {
+      onRegisterKeepPlaying?.(handleKeepPlaying);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [onRegisterKeepPlaying]);
 
     const handleNextVariation = () => {
       const openingName = (currentChapterState.aiLearn.name ?? '').trim();
@@ -1361,6 +1375,10 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
       } else if (suggestedMainMoveUci) {
         onArrowsChange(buildArrowsFromUciMoves([suggestedMainMoveUci], blue));
       }
+      addLearnAi({
+        ...currentChapterState.aiLearn,
+        hints: (currentChapterState.aiLearn.hints ?? 0) + 1,
+      });
     };
     const testOpening = async () => {
       setFreezeButton(true);
@@ -1369,6 +1387,7 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
         mode: 'test',
     //    moves_test: currentChapterState.aiLearn.moves_test,
         errors: 0,
+        hints: 0,
         popup: false,
       });
       onMessage({

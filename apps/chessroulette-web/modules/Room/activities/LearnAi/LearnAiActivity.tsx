@@ -63,6 +63,7 @@ export const LearnAiActivity = ({
     null
   );
   const newOpeningCallbackRef = useRef<(() => void) | null>(null);
+  const keepPlayingCallbackRef = useRef<(() => void) | null>(null);
 
   const [playerNames, setPlayerNames] = useState(Array<string>);
   const [canFreePlay, setCanFreePlay] = useState(false);
@@ -170,6 +171,7 @@ export const LearnAiActivity = ({
             //  Learn Mode */}
             <div>
               <AiCouchDialogContainer
+                onPlay={() => keepPlayingCallbackRef.current?.()}
                 onMessage={async (payload) =>
                   await enqueueMovexUpdate(() =>
                     dispatch({
@@ -218,7 +220,7 @@ export const LearnAiActivity = ({
                 <LearnAiBoard
                   sizePx={boardSize}
                   {...currentChapter}
-                  canPlay={isAtLastMove}
+                  canPlay={isAtLastMove && !!currentChapter.aiLearn.name?.trim()}
                   arrowsMap={
                     !isAtLastMove
                       ? {}
@@ -711,6 +713,9 @@ export const LearnAiActivity = ({
             }}
             onRegisterNewOpening={(fn) => {
               newOpeningCallbackRef.current = fn;
+            }}
+            onRegisterKeepPlaying={(fn) => {
+              keepPlayingCallbackRef.current = fn;
             }}
           />
         </div>
