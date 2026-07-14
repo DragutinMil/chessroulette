@@ -101,7 +101,7 @@ export const AiCouchDialogContainer: React.FC<AiCouchDialogContainerProps> = ({
             <ButtonGreen
               icon="Squares2X2Icon"
               size="lg"
-              className="w-full text-[16px] h-[44px] rounded-[22px]"
+              className="w-full text-[16px] h-[44px] rounded-[22px] whitespace-nowrap"
               style={{ marginTop: 20 }}
               onClick={() => {
                 onDismissCongratulations?.();
