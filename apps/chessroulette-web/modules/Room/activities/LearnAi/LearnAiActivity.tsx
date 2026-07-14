@@ -95,14 +95,15 @@ export const LearnAiActivity = ({
   })();
 
   const tabsRef = useRef<TabsRef>(null);
-  // useEffect(() => {
+   useEffect(() => {
+    getUserData()
   //   socketUtil.connect('learn');
   //   localStorage.setItem('socket', 'learn');
 
   //   return () => {
   //     socketUtil.disconnect();
   //   };
-  // }, []);
+   }, []);
 
   const getUserData = async () => {
     const data = await getSubscribeInfo();
