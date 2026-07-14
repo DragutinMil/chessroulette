@@ -28,7 +28,7 @@ type Props = {
   onSelectSomethingElse?: () => void;
   currentChapterState: ChapterState;
   pulseDot: boolean;
-  userData: UserData;
+   userData: UserData;
   smallMobile: boolean;
   showOfferMoves:boolean;
   takeBack: () => void;
@@ -57,7 +57,7 @@ const Conversation = ({
   onSelectSomethingElse,
   currentChapterState,
   pulseDot,
-  userData,
+   userData,
   showOfferMoves,
   takeBack,
   playNext,
@@ -291,7 +291,9 @@ const Conversation = ({
                 DM
               </div> */}
               </div>
-            ) : (
+            ) 
+            : 
+            (
               <div className="flex justify-end items-center min-w-0 w-full">
                 <div className="mr-4 border-conversation-100 max-w-xs min-w-0 break-words bg-[#111111]/40 text-white  border shadow-green-soft  rounded-[20px]   text-sm ">
                   <p className="flex p-[14px]   justify-start  text-left whitespace-pre-line">
@@ -313,7 +315,8 @@ const Conversation = ({
                   </div>
                 )}
               </div>
-            )}
+            )
+            }
 
             {pulseDot && isLastMessage && !isSales && (
               <div className="flex justify-start items-center mt-4 ">
