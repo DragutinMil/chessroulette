@@ -933,7 +933,7 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
                       ? 'pb-4'
                       : isOutpostWebViewIos
                       ? 'pb-0'
-                      : 'pb-16'
+                      : 'pb-24'
                   }`}
                 >
                   <div

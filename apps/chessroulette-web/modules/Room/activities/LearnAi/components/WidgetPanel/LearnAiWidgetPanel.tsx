@@ -298,6 +298,16 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
     const smallMobile =
       typeof window !== 'undefined' && window.innerWidth < 400;
     const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+    const [isOutpostWebViewAndroid, setIsOutpostWebViewAndroid] = useState(false);
+    const [isOutpostWebViewIos, setIsOutpostWebViewIos] = useState(false);
+    useEffect(() => {
+      setIsOutpostWebViewAndroid(
+        navigator.userAgent.includes('OutpostChessApp/android')
+      );
+      setIsOutpostWebViewIos(
+        navigator.userAgent.includes('OutpostChessApp/ios')
+      );
+    }, []);
     const [newRatingEngine, setRatingBotEngine] = useState(
       isMobile ? 1999 : 2099
     );
@@ -1468,15 +1478,22 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
         )}
         <div className="flex-1 min-h-0 min-w-0 flex flex-col border  bg-op-widget  border-conversation-100 pb-2 px-2 md:px-2 md:pb-4 rounded-lg">
           {/* Mobile: flex-col scrollable so input stays reachable; desktop: overflow-hidden with flex constraints */}
-          <div className="flex-1 min-h-0 min-w-0 flex flex-col overflow-y-auto md:overflow-hidden no-scrollbar">
+          <div className={`flex-1 min-h-0 min-w-0 flex flex-col overflow-y-auto md:overflow-hidden no-scrollbar md:pb-0 ${
+              isOutpostWebViewAndroid
+                ? 'pb-4'
+                : isOutpostWebViewIos
+                ? 'pb-0'
+                : 'pb-24'
+            }`}>
             {/* Buttons: order-1 on mobile (above conversation), order-2 on desktop (below conversation) */}
             <div className="flex order-1 md:order-2 gap-3 flex-shrink-0 pt-2 pb-2 md:my-[20px] justify-around sticky top-[-4px] z-10 bg-op-widget">
               <ButtonGreen
                 onClick={() => {
                   testOpening();
                 }}
-                size="sm"
-                className="md:max-w-[140px] max-w-[140px]"
+                size="md"
+                icon="AcademicCapIcon"
+                className="md:max-w-[140px] max-w-[140px] min-w-[80px]"
                 style={{
                   ...(deviatedFromOpening &&
                   currentChapterState.aiLearn.mode !== 'test'
@@ -1493,31 +1510,34 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
                     !openingComplete)
                 }
               >
-                <p>{isMobile ? 'Test' : 'Opening Test'}&nbsp; 🧠</p>
+                <p>{isMobile ? 'Test' : 'Opening Test'}</p>
               </ButtonGreen>
               {currentChapterState.aiLearn.mode === 'opening' && openingComplete && !keepPlaying ? (
                 <ButtonGreen
+                 icon="PlayIcon"
                   onClick={handleKeepPlaying}
-                  size="sm"
-                  className="md:max-w-[160px] max-w-[160px] min-w-[120px]  px-4"
+                  size="md"
+                  className="md:max-w-[160px] max-w-[160px] min-w-[80px]  md:min-w-[120px] "
                 >
-                  <p> {isMobile ? 'Play' : 'Keep Playing'}&nbsp; ▶️</p>
+                  <p className="text-sm"> {isMobile ? 'Play' : 'Keep Playing'}</p>
                 </ButtonGreen>
               ) : currentChapterState.aiLearn.mode === 'opening' && keepPlaying ? (
                 <ButtonGreen
+    icon="SparklesIcon"
                   onClick={() => { setPlayVsBot(true); setStockfish(true); }}
-                  size="sm"
+                  size="md"
                   className="md:max-w-[160px] max-w-[160px] "
                   disabled={playVsBot}
                 >
-                  <p>{isMobile ? 'vs Bot' : 'Play vs Bot'} &nbsp; 🤖</p>
+                  <p>{isMobile ? 'vs Bot' : 'Play vs Bot'}</p>
                 </ButtonGreen>
               ) : (
                 <ButtonGreen
                   onClick={() => {
                     getHint();
                   }}
-                  size="sm"
+                  icon="LightBulbIcon"
+                  size="md"
                   className="md:max-w-[100px] max-w-[100px]  "
                   style={{ maxWidth: smallMobile ? '68px' : '' }}
                   disabled={
@@ -1525,17 +1545,18 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
                     !!currentChapterState.aiLearn.popup
                   }
                 >
-                  <p>Hint &nbsp; 💡</p>
+                  <p>Hint</p>
                 </ButtonGreen>
               )}
               <ButtonGreen
+              icon="ArrowsRightLeftIcon"
                 onClick={requestAnotherOpening}
-                size="sm"
+                size="md"
                 className="max-w-[180px] min-w-[135px] "
                 style={{ maxWidth: smallMobile ? '100px' : '' }}
                 disabled={currentChapterState.aiLearn.moves.length === 0}
               >
-                <p >{isMobile ? 'New Opening' : <>Another Opening{'  '}📚</>}  </p>
+                <p className="whitespace-nowrap">{isMobile ? 'New Opening' : 'Another Opening'}</p>
               </ButtonGreen>
             </div>
 

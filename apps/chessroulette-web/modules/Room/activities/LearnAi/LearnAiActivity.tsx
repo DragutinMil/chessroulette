@@ -108,12 +108,12 @@ export const LearnAiActivity = ({
   const getUserData = async () => {
     const data = await getSubscribeInfo();
     setUserData({
-      name_first: data.name_first,
-      name_last: data.name_last,
-      picture: data.profile_image_url,
-      is_trial: data.is_trial,
-      product_name: data.product_name,
-      user_id: data.user_id,
+      name_first: data?.name_first,
+      name_last: data?.name_last,
+      picture: data?.profile_image_url,
+      is_trial: data?.is_trial,
+      product_name: data?.product_name,
+      user_id: data?.user_id,
     });
   };
   const onCanPlayChange = (canPlay: boolean) => {
