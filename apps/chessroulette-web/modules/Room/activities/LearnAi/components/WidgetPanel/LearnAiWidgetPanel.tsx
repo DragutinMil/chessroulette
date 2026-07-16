@@ -1324,7 +1324,6 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
       addLearnAi({
         ...currentChapterState.aiLearn,
         mode: 'opening',
-        moves_test: [],
         popup: false,
       });
     };
