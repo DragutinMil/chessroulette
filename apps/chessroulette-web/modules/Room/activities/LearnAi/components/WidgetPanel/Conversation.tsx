@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { ChapterState, UserData } from '../../movex/types';
 import TypewriterText from './TypewriterText';
 import greenLogo from '../../../../../../components/Logo/assets/Logo_green_small.svg';
@@ -9,6 +9,17 @@ import React from 'react';
 import { FreeBoardNotationProps } from '@app/components/FreeBoardNotation';
 import type { OpeningBranchMove } from '../../openingDatabase';
 
+function renderMarkdownInline(text: string): React.ReactNode[] {
+  const parts = text.split(/(\*\*[^*]+\*\*|\*[^*]+\*)/g);
+  return parts.map((part, i) => {
+    if (part.startsWith('**') && part.endsWith('**'))
+      return <strong key={i}>{part.slice(2, -2)}</strong>;
+    if (part.startsWith('*') && part.endsWith('*'))
+      return <em key={i}>{part.slice(1, -1)}</em>;
+    return part;
+  });
+}
+
 type Props = {
   showColorChoice?: boolean;
   onSelectColor?: (color: 'w' | 'b') => void;
@@ -17,8 +28,9 @@ type Props = {
   onSelectSomethingElse?: () => void;
   currentChapterState: ChapterState;
   pulseDot: boolean;
-  userData: UserData;
+   userData: UserData;
   smallMobile: boolean;
+  showOfferMoves:boolean;
   takeBack: () => void;
   playNext: () => void;
   openViewSubscription: () => void;
@@ -33,6 +45,7 @@ type Props = {
   onOtherSuggested?: () => void;
   onSuggestedMoveHover?: (uci: string | null) => void;
   deviatedFromOpening?: boolean;
+  onNextVariation?: () => void;
 };
 //console.log('currentChapterState',currentChapterState)
 
@@ -44,7 +57,8 @@ const Conversation = ({
   onSelectSomethingElse,
   currentChapterState,
   pulseDot,
-  userData,
+   userData,
+  showOfferMoves,
   takeBack,
   playNext,
   smallMobile,
@@ -60,8 +74,37 @@ const Conversation = ({
   onOtherSuggested,
   onSuggestedMoveHover,
   deviatedFromOpening,
+  onNextVariation,
 }: Props) => {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const branchSectionRef = useRef<HTMLDivElement>(null);
+  const [typingDone, setTypingDone] = useState(false);
+  const restoreTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    setTypingDone(false);
+  }, [currentChapterState.messages.length]);
+
+  const handleMoveClick = (uci: string) => {
+    setTypingDone(false);
+    if (restoreTimerRef.current) clearTimeout(restoreTimerRef.current);
+    restoreTimerRef.current = setTimeout(() => setTypingDone(true), 400);
+    onSuggestedMove?.(uci);
+  };
+
+  const handleTypingStart = () => {
+    if (restoreTimerRef.current) {
+      clearTimeout(restoreTimerRef.current);
+      restoreTimerRef.current = null;
+    }
+  };
+
+  useEffect(() => {
+    if (!typingDone) return;
+    requestAnimationFrame(() => {
+      branchSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
+  }, [typingDone]);
 
   useEffect(() => {
     requestAnimationFrame(() => {
@@ -126,6 +169,8 @@ const Conversation = ({
                         playNext={playNext}
                         onHistoryNotationRefocus={onHistoryNotationRefocus}
                         notationHistoryLength={notationHistoryLength}
+                        onTypingStart={handleTypingStart}
+                        onDone={() => setTypingDone(true)}
                       />
                       {isSales && isLastMessage && (
                         <div className="flex  items-center gap-3 md:flex mt-2">
@@ -146,7 +191,7 @@ const Conversation = ({
                         lastMessage?.includes(
                           'Here are some openings you could try'
                         ) && (
-                          <div className="w-full min-w-0 flex flex-wrap">
+                          <div className="w-full min-w-0 flex flex-wrap animate-fadeIn">
                             {suggestedOpenings.map((op) => (
                               <ButtonGreen
                                 key={op.name}
@@ -169,10 +214,23 @@ const Conversation = ({
                             </ButtonGreen>
                           </div>
                         )}
+                      {lastMessage?.includes("You've completed the opening") &&
+                        currentChapterState.aiLearn.moves_test.length > 0 &&
+                        onNextVariation && (
+                          <div className="mt-2 animate-fadeIn">
+                            <ButtonGreen
+                              onClick={onNextVariation}
+                              size="md"
+                              className="font-bold px-3 whitespace-nowrap"
+                            >
+                              Next Variation
+                            </ButtonGreen>
+                          </div>
+                        )}
                       {showColorChoice &&
                         isLastMessage &&
                         participant.includes('chatGPT123456') && (
-                          <div className="min-w-0 flex flex-wrap gap-2 mt-2">
+                          <div className="min-w-0 flex flex-wrap gap-2 mt-2 animate-fadeIn">
                             <ButtonGreen
                               onClick={() => onSelectColor?.('w')}
                               size="md"
@@ -219,12 +277,13 @@ const Conversation = ({
                                 </button>
                               ) : (
                                 <React.Fragment key={i}>
-                                  {seg.value}
+                                  {renderMarkdownInline(seg.value)}
                                 </React.Fragment>
                               )
                             )
-                          : msg.content}
+                          : renderMarkdownInline(msg.content as string)}
                       </p>
+                   
                     </div>
                   )}
                 </div>
@@ -232,7 +291,9 @@ const Conversation = ({
                 DM
               </div> */}
               </div>
-            ) : (
+            ) 
+            : 
+            (
               <div className="flex justify-end items-center min-w-0 w-full">
                 <div className="mr-4 border-conversation-100 max-w-xs min-w-0 break-words bg-[#111111]/40 text-white  border shadow-green-soft  rounded-[20px]   text-sm ">
                   <p className="flex p-[14px]   justify-start  text-left whitespace-pre-line">
@@ -254,7 +315,8 @@ const Conversation = ({
                   </div>
                 )}
               </div>
-            )}
+            )
+            }
 
             {pulseDot && isLastMessage && !isSales && (
               <div className="flex justify-start items-center mt-4 ">
@@ -278,15 +340,16 @@ const Conversation = ({
           </div>
         );
       })}
-
-      {currentChapterState.aiLearn.mode == 'opening' &&
+      <div className="h-12">
+      {typingDone && showOfferMoves &&
+        currentChapterState.aiLearn.mode == 'opening' &&
         !deviatedFromOpening &&
         !showColorChoice &&
         currentChapterState.aiLearn.moves.length > 0 &&
         currentChapterState.aiLearn.moves_test.length == 0 &&
         ((branchMoves && branchMoves.length > 0) ||
           (suggestedMoves && suggestedMoves.length > 0)) && (
-          <div className="mb-1 pt-1 text-[15px] md:pt-2  md:mb-2">
+          <div ref={branchSectionRef} className="mb-1 pt-1 text-[15px] md:pt-2  md:mb-2">
             <div className="flex min-w-0">
               <div className="hidden md:flex">
                 <Image
@@ -304,12 +367,12 @@ const Conversation = ({
 
                 {/* Branch mode: colored buttons per variant */}
                 {branchMoves && branchMoves.length > 0 ? (
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-wrap gap-2 animate-fadeIn">
                     {branchMoves.map((bm) => (
                       <button
                         key={bm.uci}
                         type="button"
-                        onClick={() => onSuggestedMove?.(bm.uci)}
+                        onClick={() => handleMoveClick(bm.uci)}
                         style={{ borderColor: bm.colorHex, color: bm.colorHex }}
                         className=" font-bold px-3 py-1 rounded-2xl border  hover:opacity-80 transition-opacity"
                         title={bm.variantName}
@@ -326,7 +389,7 @@ const Conversation = ({
                 ) : (
                   /* Regular suggested moves */
                   suggestedMoves && suggestedMoves.length > 0 && (
-                    <div className="flex flex-col gap-2">
+                    <div className="flex flex-col gap-2 animate-fadeIn">
                       {(() => {
                         const seenSan = new Set<string>();
                         const uniqueMoves = suggestedMoves.filter((m) => {
@@ -348,7 +411,7 @@ const Conversation = ({
                                     .map((m) => (
                                       <ButtonGreen
                                         key={m.uci}
-                                        onClick={() => onSuggestedMove?.(m.uci)}
+                                        onClick={() => handleMoveClick(m.uci)}
                                         size="md"
                                         className="font-bold  px-3"
                                       >
@@ -377,6 +440,7 @@ const Conversation = ({
             </div>
           </div>
         )}
+        </div>
     </div>
   );
 };

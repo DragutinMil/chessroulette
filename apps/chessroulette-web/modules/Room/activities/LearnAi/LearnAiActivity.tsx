@@ -63,6 +63,7 @@ export const LearnAiActivity = ({
     null
   );
   const newOpeningCallbackRef = useRef<(() => void) | null>(null);
+  const keepPlayingCallbackRef = useRef<(() => void) | null>(null);
 
   const [playerNames, setPlayerNames] = useState(Array<string>);
   const [canFreePlay, setCanFreePlay] = useState(false);
@@ -85,25 +86,34 @@ export const LearnAiActivity = ({
   const currentChapter =
     findLoadedChapter(remoteState) || initialDefaultChapter;
 
+  const isAtLastMove = (() => {
+    const history = currentChapter.notation?.history ?? [];
+    const focusedIndex = currentChapter.notation?.focusedIndex;
+    if (!focusedIndex || history.length === 0) return true;
+    const lastIndex = FreeBoardHistory.getLastIndexInHistory(history);
+    return focusedIndex[0] === lastIndex[0] && focusedIndex[1] === lastIndex[1];
+  })();
+
   const tabsRef = useRef<TabsRef>(null);
-  // useEffect(() => {
+   useEffect(() => {
+    getUserData()
   //   socketUtil.connect('learn');
   //   localStorage.setItem('socket', 'learn');
 
   //   return () => {
   //     socketUtil.disconnect();
   //   };
-  // }, []);
+   }, []);
 
   const getUserData = async () => {
     const data = await getSubscribeInfo();
     setUserData({
-      name_first: data.name_first,
-      name_last: data.name_last,
-      picture: data.profile_image_url,
-      is_trial: data.is_trial,
-      product_name: data.product_name,
-      user_id: data.user_id,
+      name_first: data?.name_first,
+      name_last: data?.name_last,
+      picture: data?.profile_image_url,
+      is_trial: data?.is_trial,
+      product_name: data?.product_name,
+      user_id: data?.user_id,
     });
   };
   const onCanPlayChange = (canPlay: boolean) => {
@@ -162,6 +172,7 @@ export const LearnAiActivity = ({
             //  Learn Mode */}
             <div>
               <AiCouchDialogContainer
+                onPlay={() => keepPlayingCallbackRef.current?.()}
                 onMessage={async (payload) =>
                   await enqueueMovexUpdate(() =>
                     dispatch({
@@ -210,8 +221,11 @@ export const LearnAiActivity = ({
                 <LearnAiBoard
                   sizePx={boardSize}
                   {...currentChapter}
+                  canPlay={isAtLastMove && !!currentChapter.aiLearn.name?.trim()}
                   arrowsMap={
-                    hintArrowMap
+                    !isAtLastMove
+                      ? {}
+                      : hintArrowMap
                       ? { ...currentChapter.arrowsMap, ...hintArrowMap }
                       : currentChapter.arrowsMap
                   }
@@ -266,10 +280,12 @@ export const LearnAiActivity = ({
                       : currentChapter.orientation
                   }
                   onFlip={() => {
-                    dispatch({
-                      type: 'loadedChapter:setOrientation',
-                      payload: { color: swapColor(currentChapter.orientation) },
-                    });
+                    enqueueMovexUpdate(() =>
+                      dispatch({
+                        type: 'loadedChapter:setOrientation',
+                        payload: { color: swapColor(currentChapter.orientation) },
+                      })
+                    );
                   }}
                   onMove={async (payload) => {
                     const mode = currentChapter.aiLearn?.mode;
@@ -411,7 +427,8 @@ export const LearnAiActivity = ({
                       });
                       if (
                         movesTest.length > 0 &&
-                        played.length >= movesTest.length - 3
+                        played.length >= movesTest.length - 2
+                        //dialog da se pojavi ranije 3 --> 2
                       ) {
                         await enqueueMovexUpdate(() =>
                           dispatch({
@@ -431,26 +448,34 @@ export const LearnAiActivity = ({
                     // console.log('arrow karioka');
                     // dispatch({ type: 'loadedChapter:setArrows', payload });
                   }}
-                  onCircleDraw={(tuple) => {
-                    dispatch({
-                      type: 'loadedChapter:drawCircle',
-                      payload: tuple,
-                    });
+                  onCircleDraw={async (tuple) => {
+                    await enqueueMovexUpdate(() =>
+                      dispatch({
+                        type: 'loadedChapter:drawCircle',
+                        payload: tuple,
+                      })
+                    );
                   }}
-                  onClearCircles={() => {
-                    dispatch({ type: 'loadedChapter:clearCircles' });
+                  onClearCircles={async () => {
+                    await enqueueMovexUpdate(() =>
+                      dispatch({ type: 'loadedChapter:clearCircles' })
+                    );
                   }}
-                  onClearBoard={() => {
-                    dispatch({
-                      type: 'loadedChapter:updateFen',
-                      payload: ChessFENBoard.ONLY_KINGS_FEN,
-                    });
+                  onClearBoard={async () => {
+                    await enqueueMovexUpdate(() =>
+                      dispatch({
+                        type: 'loadedChapter:updateFen',
+                        payload: ChessFENBoard.ONLY_KINGS_FEN,
+                      })
+                    );
                   }}
-                  onResetBoard={() => {
-                    dispatch({
-                      type: 'loadedChapter:updateFen',
-                      payload: ChessFENBoard.STARTING_FEN,
-                    });
+                  onResetBoard={async () => {
+                    await enqueueMovexUpdate(() =>
+                      dispatch({
+                        type: 'loadedChapter:updateFen',
+                        payload: ChessFENBoard.STARTING_FEN,
+                      })
+                    );
                   }}
                   onBoardEditor={() => {
                     dispatchInputState({
@@ -468,13 +493,15 @@ export const LearnAiActivity = ({
                       <div className="flex flex-col gap-2 mb-2">
                         <FlipBoardIconButton
                           tooltipPositon="right"
-                          onClick={() => {
-                            dispatch({
-                              type: 'loadedChapter:setOrientation',
-                              payload: {
-                                color: swapColor(currentChapter.orientation),
-                              },
-                            });
+                          onClick={async () => {
+                            await enqueueMovexUpdate(() =>
+                              dispatch({
+                                type: 'loadedChapter:setOrientation',
+                                payload: {
+                                  color: swapColor(currentChapter.orientation),
+                                },
+                              })
+                            );
                           }}
                         />
                         <IconButton
@@ -557,11 +584,6 @@ export const LearnAiActivity = ({
               );
             }}
             onArrowsChange={async (payload) => {
-              if (Object.keys(payload).length === 0) {
-                dispatch({ type: 'loadedChapter:setArrows', payload });
-                return;
-              }
-
               await enqueueMovexUpdate(() =>
                 dispatch({ type: 'loadedChapter:setArrows', payload })
               );
@@ -573,10 +595,12 @@ export const LearnAiActivity = ({
             }
             onCanPlayChange={(payload) => onCanPlayChange(payload)}
             onFlipBoard={() => {
-              dispatch({
-                type: 'loadedChapter:setOrientation',
-                payload: { color: swapColor(currentChapter.orientation) },
-              });
+              enqueueMovexUpdate(() =>
+                dispatch({
+                  type: 'loadedChapter:setOrientation',
+                  payload: { color: swapColor(currentChapter.orientation) },
+                })
+              );
             }}
             onSetOrientation={(color) => {
               enqueueMovexUpdate(() =>
@@ -643,34 +667,42 @@ export const LearnAiActivity = ({
             }}
             onCreateChapter={() => {
               if (inputState.isActive) {
-                dispatch({
-                  type: 'createChapter',
-                  payload: inputState.chapterState,
-                });
+                enqueueMovexUpdate(() =>
+                  dispatch({
+                    type: 'createChapter',
+                    payload: inputState.chapterState,
+                  })
+                );
               }
             }}
             onUpdateChapter={(id) => {
               if (inputState.isActive) {
-                dispatch({
-                  type: 'updateChapter',
-                  payload: {
-                    id,
-                    state: inputState.chapterState,
-                  },
-                });
+                enqueueMovexUpdate(() =>
+                  dispatch({
+                    type: 'updateChapter',
+                    payload: {
+                      id,
+                      state: inputState.chapterState,
+                    },
+                  })
+                );
               }
             }}
             onDeleteChapter={(id) => {
-              dispatch({
-                type: 'deleteChapter',
-                payload: { id },
-              });
+              enqueueMovexUpdate(() =>
+                dispatch({
+                  type: 'deleteChapter',
+                  payload: { id },
+                })
+              );
             }}
             onLoadChapter={(id) => {
-              dispatch({
-                type: 'loadChapter',
-                payload: { id },
-              });
+              enqueueMovexUpdate(() =>
+                dispatch({
+                  type: 'loadChapter',
+                  payload: { id },
+                })
+              );
             }}
             onQuickImport={(input) => {
               enqueueMovexUpdate(() =>
@@ -682,6 +714,9 @@ export const LearnAiActivity = ({
             }}
             onRegisterNewOpening={(fn) => {
               newOpeningCallbackRef.current = fn;
+            }}
+            onRegisterKeepPlaying={(fn) => {
+              keepPlayingCallbackRef.current = fn;
             }}
           />
         </div>

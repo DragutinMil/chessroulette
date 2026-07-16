@@ -21,6 +21,7 @@ export const initialChapterState: ChapterState = {
     moves: [],
     moves_test: [],
     errors: 0,
+    hints:0,
     popup: false,
     orientationChange: false,
   },
