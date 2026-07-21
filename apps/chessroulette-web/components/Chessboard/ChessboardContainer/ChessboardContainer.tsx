@@ -113,7 +113,7 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
 }) => {
   const isMyTurn = boardOrientation === turn;
   const { match, ...matchView } = useMatchViewState();
-  //kada nema lastMove (nova tabla = novi puzzle), animacija = 0, inače 200. 
+  //kada nema lastMove (nova tabla = novi puzzle), animacija = 0, inače 200.
   const BOARD_ANIMATION_DELAY = lastMove ? 200 : 0;
   const engineMoveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
     null

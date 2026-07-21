@@ -28,9 +28,9 @@ type Props = {
   onSelectSomethingElse?: () => void;
   currentChapterState: ChapterState;
   pulseDot: boolean;
-   userData: UserData;
+  userData: UserData;
   smallMobile: boolean;
-  showOfferMoves:boolean;
+  showOfferMoves: boolean;
   takeBack: () => void;
   playNext: () => void;
   openViewSubscription: () => void;
@@ -57,7 +57,7 @@ const Conversation = ({
   onSelectSomethingElse,
   currentChapterState,
   pulseDot,
-   userData,
+  userData,
   showOfferMoves,
   takeBack,
   playNext,
@@ -102,7 +102,10 @@ const Conversation = ({
   useEffect(() => {
     if (!typingDone) return;
     requestAnimationFrame(() => {
-      branchSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      branchSectionRef.current?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest',
+      });
     });
   }, [typingDone]);
 
@@ -283,7 +286,6 @@ const Conversation = ({
                             )
                           : renderMarkdownInline(msg.content as string)}
                       </p>
-                   
                     </div>
                   )}
                 </div>
@@ -291,9 +293,7 @@ const Conversation = ({
                 DM
               </div> */}
               </div>
-            ) 
-            : 
-            (
+            ) : (
               <div className="flex justify-end items-center min-w-0 w-full">
                 <div className="mr-4 border-conversation-100 max-w-xs min-w-0 break-words bg-[#111111]/40 text-white  border shadow-green-soft  rounded-[20px]   text-sm ">
                   <p className="flex p-[14px]   justify-start  text-left whitespace-pre-line">
@@ -315,8 +315,7 @@ const Conversation = ({
                   </div>
                 )}
               </div>
-            )
-            }
+            )}
 
             {pulseDot && isLastMessage && !isSales && (
               <div className="flex justify-start items-center mt-4 ">
@@ -341,106 +340,115 @@ const Conversation = ({
         );
       })}
       <div className="h-12">
-      {typingDone && showOfferMoves &&
-        currentChapterState.aiLearn.mode == 'opening' &&
-        !deviatedFromOpening &&
-        !showColorChoice &&
-        currentChapterState.aiLearn.moves.length > 0 &&
-        currentChapterState.aiLearn.moves_test.length == 0 &&
-        ((branchMoves && branchMoves.length > 0) ||
-          (suggestedMoves && suggestedMoves.length > 0)) && (
-          <div ref={branchSectionRef} className="mb-1 pt-1 text-[15px] md:pt-2  md:mb-2">
-            <div className="flex min-w-0">
-              <div className="hidden md:flex">
-                <Image
-                  src={greenLogo}
-                  alt="outpost"
-                  className="max-w-[28px] md:max-w-[36px]"
-                />
-              </div>
-              <div className="text-white text-sm px-2 md:px-4 flex flex-wrap items-center gap-1 flex-1 min-w-0 max-w-md break-words overflow-hidden">
-                <p className="text-slate-200 mr-2">
-                  {branchMoves && branchMoves.length > 1
-                    ? 'Choose variation:'
-                    : 'Next move:'}
-                </p>
+        {typingDone &&
+          showOfferMoves &&
+          currentChapterState.aiLearn.mode == 'opening' &&
+          !deviatedFromOpening &&
+          !showColorChoice &&
+          currentChapterState.aiLearn.moves.length > 0 &&
+          currentChapterState.aiLearn.moves_test.length == 0 &&
+          ((branchMoves && branchMoves.length > 0) ||
+            (suggestedMoves && suggestedMoves.length > 0)) && (
+            <div
+              ref={branchSectionRef}
+              className="mb-1 pt-1 text-[15px] md:pt-2  md:mb-2"
+            >
+              <div className="flex min-w-0">
+                <div className="hidden md:flex">
+                  <Image
+                    src={greenLogo}
+                    alt="outpost"
+                    className="max-w-[28px] md:max-w-[36px]"
+                  />
+                </div>
+                <div className="text-white text-sm px-2 md:px-4 flex flex-wrap items-center gap-1 flex-1 min-w-0 max-w-md break-words overflow-hidden">
+                  <p className="text-slate-200 mr-2">
+                    {branchMoves && branchMoves.length > 1
+                      ? 'Choose variation:'
+                      : 'Next move:'}
+                  </p>
 
-                {/* Branch mode: colored buttons per variant */}
-                {branchMoves && branchMoves.length > 0 ? (
-                  <div className="flex flex-wrap gap-2 animate-fadeIn">
-                    {branchMoves.map((bm) => (
-                      <button
-                        key={bm.uci}
-                        type="button"
-                        onClick={() => handleMoveClick(bm.uci)}
-                        style={{ borderColor: bm.colorHex, color: bm.colorHex }}
-                        className=" font-bold px-3 py-1 rounded-2xl border  hover:opacity-80 transition-opacity"
-                        title={bm.variantName}
-                      >
-                        {bm.san}
-                        {branchMoves && branchMoves.length > 1 && (
-                          <span className="ml-1.5 text-xs font-normal opacity-60">
-                            {bm.variantName}
-                          </span>
-                        )}
-                      </button>
-                    ))}
-                  </div>
-                ) : (
-                  /* Regular suggested moves */
-                  suggestedMoves && suggestedMoves.length > 0 && (
-                    <div className="flex flex-col gap-2 animate-fadeIn">
-                      {(() => {
-                        const seenSan = new Set<string>();
-                        const uniqueMoves = suggestedMoves.filter((m) => {
-                          if (seenSan.has(m.san)) return false;
-                          seenSan.add(m.san);
-                          return true;
-                        });
-                        return (
-                          <div className="flex">
-                            {Array.from(
-                              { length: visibleSuggestedRows },
-                              (_, row) => (
-                                <div
-                                  key={row}
-                                  className="flex flex-wrap gap-2 mr-2"
-                                >
-                                  {uniqueMoves
-                                    .slice(row * 3, row * 3 + 3)
-                                    .map((m) => (
-                                      <ButtonGreen
-                                        key={m.uci}
-                                        onClick={() => handleMoveClick(m.uci)}
-                                        size="md"
-                                        className="font-bold  px-3"
-                                      >
-                                        {m.san}
-                                      </ButtonGreen>
-                                    ))}
-                                </div>
-                              )
-                            )}
-                            {visibleSuggestedRows * 3 < uniqueMoves.length && (
-                              <ButtonGreen
-                                onClick={onOtherSuggested}
-                                size="md"
-                                className="font-bold px-3 ml-2"
-                              >
-                                Other
-                              </ButtonGreen>
-                            )}
-                          </div>
-                        );
-                      })()}
+                  {/* Branch mode: colored buttons per variant */}
+                  {branchMoves && branchMoves.length > 0 ? (
+                    <div className="flex flex-wrap gap-2 animate-fadeIn">
+                      {branchMoves.map((bm) => (
+                        <button
+                          key={bm.uci}
+                          type="button"
+                          onClick={() => handleMoveClick(bm.uci)}
+                          style={{
+                            borderColor: bm.colorHex,
+                            color: bm.colorHex,
+                          }}
+                          className=" font-bold px-3 py-1 rounded-2xl border  hover:opacity-80 transition-opacity"
+                          title={bm.variantName}
+                        >
+                          {bm.san}
+                          {branchMoves && branchMoves.length > 1 && (
+                            <span className="ml-1.5 text-xs font-normal opacity-60">
+                              {bm.variantName}
+                            </span>
+                          )}
+                        </button>
+                      ))}
                     </div>
-                  )
-                )}
+                  ) : (
+                    /* Regular suggested moves */
+                    suggestedMoves &&
+                    suggestedMoves.length > 0 && (
+                      <div className="flex flex-col gap-2 animate-fadeIn">
+                        {(() => {
+                          const seenSan = new Set<string>();
+                          const uniqueMoves = suggestedMoves.filter((m) => {
+                            if (seenSan.has(m.san)) return false;
+                            seenSan.add(m.san);
+                            return true;
+                          });
+                          return (
+                            <div className="flex">
+                              {Array.from(
+                                { length: visibleSuggestedRows },
+                                (_, row) => (
+                                  <div
+                                    key={row}
+                                    className="flex flex-wrap gap-2 mr-2"
+                                  >
+                                    {uniqueMoves
+                                      .slice(row * 3, row * 3 + 3)
+                                      .map((m) => (
+                                        <ButtonGreen
+                                          key={m.uci}
+                                          onClick={() => handleMoveClick(m.uci)}
+                                          size="md"
+                                          className="font-bold  px-3"
+                                        >
+                                          {m.san}
+                                        </ButtonGreen>
+                                      ))}
+                                  </div>
+                                )
+                              )}
+                              {visibleSuggestedRows * 3 <
+                                uniqueMoves.length && (
+                                <ButtonGreen
+                                  onClick={onOtherSuggested}
+                                  size="md"
+                                  className="font-bold px-3 ml-2"
+                                >
+                                  Other
+                                </ButtonGreen>
+                              )}
+                            </div>
+                          );
+                        })()}
+                      </div>
+                    )
+                  )}
+                </div>
               </div>
             </div>
-          </div>
-        )}
-        </div>
+          )}
+      </div>
     </div>
   );
 };

@@ -43,7 +43,12 @@ import { SendQuestionReview } from './GameReview/SendQuestionReview';
 import { CheckPiece } from './CheckPiece';
 import { ChessEngineProbabilityCalc } from '@app/modules/ChessEngine/components/ChessEngineCalculator';
 
-import { reviewAnalitics, getReview24h, getCompletedGames, uciLineToSan } from '../../util';
+import {
+  reviewAnalitics,
+  getReview24h,
+  getCompletedGames,
+  uciLineToSan,
+} from '../../util';
 import type { CompletedGameItem } from '../../util';
 import { useIsTablet } from '@app/hooks/useIsTablet';
 import { ChessFENBoard } from '@xmatter/util-kit';
@@ -181,10 +186,13 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
     const [percentW, setPercentW] = useState(50);
     const [percentB, setPercentB] = useState(50);
     const [isComputingLines, setIsComputingLines] = useState(false);
-    const [displayedLineSans, setDisplayedLineSans] = useState<{ san: string; score: number }[]>([]);
-   
+    const [displayedLineSans, setDisplayedLineSans] = useState<
+      { san: string; score: number }[]
+    >([]);
 
-    const [completedGames, setCompletedGames] = useState<CompletedGameItem[]>([]);
+    const [completedGames, setCompletedGames] = useState<CompletedGameItem[]>(
+      []
+    );
     const [isLoadingGames, setIsLoadingGames] = useState(false);
     const [showMyGames, setShowMyGames] = useState(false);
 
@@ -234,13 +242,12 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
         setShowMyGames((prev) => !prev);
       }
     };
-    console.log('hasGameLoaded',hasGameLoaded)
+    console.log('hasGameLoaded', hasGameLoaded);
     const handleImportGame = (game: CompletedGameItem) => {
       const lastGame =
         game.results?.endedGames?.[game.results.endedGames.length - 1];
       if (!lastGame?.pgn) return;
-      const isChallenger =
-        game.results?.challenger?.id === userData.user_id;
+      const isChallenger = game.results?.challenger?.id === userData.user_id;
       const opponentName = isChallenger
         ? game.target_name_first || 'Opponent'
         : game.initiator_name_first || 'Opponent';
@@ -384,19 +391,18 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
     };
 
     useEffect(() => {
-     
       if (!userData.user_id) return;
-      
+
       const hasSalesMessage = currentChapterState.messages.some((m) =>
         m.participantId?.includes('sales')
       );
-      
+
       if (!hasSalesMessage) return;
       const checkAndReset = async () => {
-        const hasSubscription = !!userData.product_name && userData.ends_at !== null;
+        const hasSubscription =
+          !!userData.product_name && userData.ends_at !== null;
 
         if (hasSubscription) {
-        
           resetMessages();
           return;
         }
@@ -465,23 +471,27 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
       if (mode !== 'play' && mode !== 'review') return;
 
       const isReview = mode === 'review';
-      const colors =  ['#07da63', '#07da6388', '#07da6344'];
+      const colors = ['#07da63', '#07da6388', '#07da6344'];
       const newArrows: ArrowsMap = {};
       const newSans: { san: string; score: number }[] = [];
-      ([lines[1], lines[2], lines[3]]).forEach(({ moves, score }, idx) => {
+      [lines[1], lines[2], lines[3]].forEach(({ moves, score }, idx) => {
         if (!moves || moves.length < 4) return;
         const from = moves.slice(0, 2);
         const to = moves.slice(2, 4);
         if (!/^[a-h][1-8]$/.test(from) || !/^[a-h][1-8]$/.test(to)) return;
         const color = colors[idx];
-        newArrows[`${from}${to}-${color}`] = [from as Square, to as Square, color];
+        newArrows[`${from}${to}-${color}`] = [
+          from as Square,
+          to as Square,
+          color,
+        ];
         const san = uciLineToSan(moves, currentChapterState.displayFen);
         if (san) newSans.push({ san, score });
       });
       if (!isReview && progressReview === 0) {
         onArrowsChange(newArrows);
       }
-      
+
       if (newSans.length > 0) {
         setDisplayedLineSans(newSans);
         onLinesChange?.(newSans);
@@ -655,7 +665,8 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
     };
 
     const analizeMatch = async (pgnOverride?: string) => {
-      const hasSubscription = !!userData.product_name && userData.ends_at !==null  ;
+      const hasSubscription =
+        !!userData.product_name && userData.ends_at !== null;
       if (!hasSubscription) {
         const review24hData = await getReview24h();
         if (review24hData) {
@@ -708,8 +719,8 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
         !currentChapterState.messages[1]?.content?.includes('analyzeReview') &&
         filtered.length > 0
       ) {
-        console.log('1',currentChapterState.messages[1]?.content)
-        console.log('2',filtered.length )
+        console.log('1', currentChapterState.messages[1]?.content);
+        console.log('2', filtered.length);
         onMatchReview({
           evaluation: filtered,
           message: {
@@ -729,7 +740,7 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
       setprevScoreCP(scoreCP);
       setScoreCP(newScore);
       addGameEvaluation(newScore);
-      if (Math.abs(newScore) >= 49999 ) {
+      if (Math.abs(newScore) >= 49999) {
         setIsComputingLines(false);
         onComputingChange?.(false);
       }
@@ -754,7 +765,13 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
             engineMove={engineMove}
             addGameEvaluation={handleGameEvaluation}
             multiPV={3}
-            fixedDepth={currentChapterState.chessAiMode.mode === 'play' ? (isMobile? 11:12) : undefined}
+            fixedDepth={
+              currentChapterState.chessAiMode.mode === 'play'
+                ? isMobile
+                  ? 11
+                  : 12
+                : undefined
+            }
           />
         )}
 
@@ -829,9 +846,14 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
                   ${isMobile ? 'mb-2' : ''}
                   `}
                   >
-                    
                     {/* <div className={`${!hasGameLoaded ? 'h-auto' : currentChapterState.chessAiMode.mode=='review' ? 'h-[320px]' : 'h-[290px]'}    md:flex-1  min-h-0 `}> */}
-                                          <div className={`${ currentChapterState.chessAiMode.mode=='review' ? 'h-[320px]' : 'h-[290px]'}    md:flex-1  min-h-0 `}>
+                    <div
+                      className={`${
+                        currentChapterState.chessAiMode.mode == 'review'
+                          ? 'h-[320px]'
+                          : 'h-[290px]'
+                      }    md:flex-1  min-h-0 `}
+                    >
                       <ConversationReview
                         analizeMatch={analizeMatch}
                         worstMove={analizeWorstMove}
@@ -856,8 +878,8 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
                       />
                     </div>
                     <div>
-                   
-                       { currentChapterState.chessAiMode.mode === 'play' && currentChapterState.notation.history.length >= 9 && (
+                      {currentChapterState.chessAiMode.mode === 'play' &&
+                        currentChapterState.notation.history.length >= 9 && (
                           <ButtonGreen
                             size="sm"
                             onClick={handleGameReviewFromPlay}
@@ -866,7 +888,8 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
                             Game Review
                           </ButtonGreen>
                         )}
-                      {(currentChapterState.chessAiMode.review?.length !== 0 || currentChapterState.chessAiMode.mode === 'play') && (
+                      {(currentChapterState.chessAiMode.review?.length !== 0 ||
+                        currentChapterState.chessAiMode.mode === 'play') && (
                         <div className="flex mb-0 mt-2 md:mt-2">
                           <input
                             id="title"
@@ -908,65 +931,95 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
                         </div>
                       )}
 
-                      {(currentChapterState.chessAiMode.mode == 'review' || currentChapterState.chessAiMode.mode === 'play')  && (
-                        <div className={ 'mt-1 mb-2'}>
+                      {(currentChapterState.chessAiMode.mode == 'review' ||
+                        currentChapterState.chessAiMode.mode === 'play') && (
+                        <div className={'mt-1 mb-2'}>
                           <div className="w-full mt-1 h-5 md:flex hidden overflow-hidden rounded mt-4">
                             <div
                               className="bg-white transition-all duration-500 flex items-center justify-start pl-1"
                               style={{ width: `${percentW}%` }}
                             >
-                              {scoreCP > 0 && scoreCP < 49999 &&  !isReviewing &&  (
-                                <span className="text-[10px] font-bold leading-none whitespace-nowrap relative top-[1px]" style={{ color: '#111' }}>
-                                  +{(scoreCP / 100).toFixed(2)}
-                                </span>
-                              )}
-                             
+                              {scoreCP > 0 &&
+                                scoreCP < 49999 &&
+                                !isReviewing && (
+                                  <span
+                                    className="text-[10px] font-bold leading-none whitespace-nowrap relative top-[1px]"
+                                    style={{ color: '#111' }}
+                                  >
+                                    +{(scoreCP / 100).toFixed(2)}
+                                  </span>
+                                )}
                             </div>
                             <div
                               className="bg-[#000000] transition-all duration-500 flex items-center justify-end pr-1"
                               style={{ width: `${percentB}%` }}
                             >
-                              {scoreCP < 0 && scoreCP > -49999 && !isReviewing &&  (
-                                <span className="text-[10px] font-bold text-white leading-none whitespace-nowrap relative top-[2px]">
-                                  {(scoreCP / 100).toFixed(2)}
-                                </span>
-                              )}
-                             
+                              {scoreCP < 0 &&
+                                scoreCP > -49999 &&
+                                !isReviewing && (
+                                  <span className="text-[10px] font-bold text-white leading-none whitespace-nowrap relative top-[2px]">
+                                    {(scoreCP / 100).toFixed(2)}
+                                  </span>
+                                )}
                             </div>
                           </div>
-                         
-                          {scoreCP !== 0  ? (
 
+                          {scoreCP !== 0 ? (
                             <div
                               className={`hidden md:flex justify-between items-center relative top-2 h-[72px] ${
                                 showNames ? 'md:top-0' : 'md:top-4'
                               }`}
                             >
-                              
                               {/* {currentChapterState.chessAiMode.mode == 'play' ? ( */}
-                                <div className="relative w-full mt-4 min-h-[42px]">
-                                  
-                                  <div className={`flex flex-col gap-1 transition-opacity duration-300 ${isComputingLines ? 'opacity-25' : 'opacity-100'}`}>
-                                    {displayedLineSans.map(({ san, score }, idx) => {
-                                      const scoreLabel = Math.abs(score) >= 49999
-                                        ? `M${score > 0 ? '' : '-'}${Math.abs(score) === 50000 ? '∞' : ''}`
-                                        : `${score >= 0 ? '+' : ''}${(score / 100).toFixed(2)}`;
+                              <div className="relative w-full mt-4 min-h-[42px]">
+                                <div
+                                  className={`flex flex-col gap-1 transition-opacity duration-300 ${
+                                    isComputingLines
+                                      ? 'opacity-25'
+                                      : 'opacity-100'
+                                  }`}
+                                >
+                                  {displayedLineSans.map(
+                                    ({ san, score }, idx) => {
+                                      const scoreLabel =
+                                        Math.abs(score) >= 49999
+                                          ? `M${score > 0 ? '' : '-'}${
+                                              Math.abs(score) === 50000
+                                                ? '∞'
+                                                : ''
+                                            }`
+                                          : `${score >= 0 ? '+' : ''}${(
+                                              score / 100
+                                            ).toFixed(2)}`;
                                       return (
-                                        <p key={idx} className={`text-xs truncate flex gap-2 ${idx === 0 ? 'text-white' : idx === 1 ? 'text-gray-400' : 'text-gray-500'}`}>
-                                          <span className="font-mono shrink-0 w-10 text-left">{scoreLabel }</span>
-                                          <span className="truncate">{san}</span>
+                                        <p
+                                          key={idx}
+                                          className={`text-xs truncate flex gap-2 ${
+                                            idx === 0
+                                              ? 'text-white'
+                                              : idx === 1
+                                              ? 'text-gray-400'
+                                              : 'text-gray-500'
+                                          }`}
+                                        >
+                                          <span className="font-mono shrink-0 w-10 text-left">
+                                            {scoreLabel}
+                                          </span>
+                                          <span className="truncate">
+                                            {san}
+                                          </span>
                                         </p>
                                       );
-                                    })}
-                                  </div>
-                                  {isComputingLines && (
-                                    
-                                     <div className="absolute  inset-0 flex items-center justify-start opacity-80">
-                                      <Loader />
-                                       {/* <div className="w-3 h-3 border-2 border-green-400 border-t-transparent rounded-full animate-spin" /> */}
-                                    </div>
+                                    }
                                   )}
                                 </div>
+                                {isComputingLines && (
+                                  <div className="absolute  inset-0 flex items-center justify-start opacity-80">
+                                    <Loader />
+                                    {/* <div className="w-3 h-3 border-2 border-green-400 border-t-transparent rounded-full animate-spin" /> */}
+                                  </div>
+                                )}
+                              </div>
                               {/* ) : (
                                    <div className={` flex  items-center  `}>
                                 {scoreCP < 49999 &&
@@ -994,7 +1047,7 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
                                 )}
                               </div>
                               )} */}
-                             
+
                               {!showNames ? (
                                 <ButtonGreen
                                   icon="ArrowLeftIcon"
@@ -1009,17 +1062,19 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
                                   size="md"
                                   className="bg-green-600  text-black  font-bold  px-1 mr-2 whitespace-nowrap px-4"
                                   style={{ color: 'black' }}
-                                > 
-                                  {currentChapterState.chessAiMode.opponentName ?
-                                  (
+                                >
+                                  {currentChapterState.chessAiMode
+                                    .opponentName ? (
                                     <>
-                                  &nbsp;&nbsp; vs{' '}
-                                  {currentChapterState.chessAiMode.opponentName}
-                                  </>
-                                  ):(
+                                      &nbsp;&nbsp; vs{' '}
+                                      {
+                                        currentChapterState.chessAiMode
+                                          .opponentName
+                                      }
+                                    </>
+                                  ) : (
                                     'Back'
                                   )}
-                                
                                 </ButtonGreen>
                               ) : (
                                 <div className="md:flex hidden overflow-hidden items-center gap-3 h-[55px] shrink-0 whitespace-nowrap">
@@ -1038,16 +1093,13 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
                             </div>
                           ) : (
                             !isMobile && (
-                      <div style={{ height: '60px' }}>
-                            <Loader />
-                            </div>
+                              <div style={{ height: '60px' }}>
+                                <Loader />
+                              </div>
                             )
-                              
-                             
                           )}
                         </div>
                       )}
-
                     </div>
                   </div>
 

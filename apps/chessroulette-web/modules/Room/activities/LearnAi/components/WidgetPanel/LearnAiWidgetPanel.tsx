@@ -278,7 +278,7 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
     const [deviatedFromOpening, setDeviatedFromOpening] = useState(false);
     const deviationMsgSentRef = useRef(false);
     const [hintActive, setHintActive] = useState(true);
-    
+
     const [showOfferMoves, setShowOfferMoves] = useState(true);
 
     const isBrowsing = (() => {
@@ -286,7 +286,9 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
       const focusedIndex = currentChapterState.notation?.focusedIndex;
       if (!focusedIndex || history.length === 0) return false;
       const lastIndex = FreeBoardHistory.getLastIndexInHistory(history);
-      return focusedIndex[0] !== lastIndex[0] || focusedIndex[1] !== lastIndex[1];
+      return (
+        focusedIndex[0] !== lastIndex[0] || focusedIndex[1] !== lastIndex[1]
+      );
     })();
     const [scoreCP, setScoreCP] = useState(0);
     const [prevScoreCP, setprevScoreCP] = useState(0);
@@ -298,7 +300,8 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
     const smallMobile =
       typeof window !== 'undefined' && window.innerWidth < 400;
     const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
-    const [isOutpostWebViewAndroid, setIsOutpostWebViewAndroid] = useState(false);
+    const [isOutpostWebViewAndroid, setIsOutpostWebViewAndroid] =
+      useState(false);
     const [isOutpostWebViewIos, setIsOutpostWebViewIos] = useState(false);
     useEffect(() => {
       setIsOutpostWebViewAndroid(
@@ -317,7 +320,6 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
     const [stockfish, setStockfish] = useState(false);
     const [playVsBot, setPlayVsBot] = useState(false);
 
-
     const [lines, setLines] = useState<StockfishLines>({
       1: '',
       2: '',
@@ -331,11 +333,12 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
     const [isListening, setIsListening] = useState(false);
     const recognitionRef = useRef<{ stop: () => void } | null>(null);
 
-   
-    const [branchMoves, setBranchMoves] = useState<
-      Array<OpeningBranchMove & { san: string }> | null
-    >(null);
-    const [currentVariantName, setCurrentVariantName] = useState<string | null>(null);
+    const [branchMoves, setBranchMoves] = useState<Array<
+      OpeningBranchMove & { san: string }
+    > | null>(null);
+    const [currentVariantName, setCurrentVariantName] = useState<string | null>(
+      null
+    );
     const [openingComplete, setOpeningComplete] = useState(false);
     const [keepPlaying, setKeepPlaying] = useState(false);
     const openingCompleteMessageSentRef = useRef(false);
@@ -460,7 +463,7 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
       // }
 
       onQuickImport({ type: 'FEN', val: ChessFENBoard.STARTING_FEN });
-      setShowOfferMoves(false)
+      setShowOfferMoves(false);
       const chess = new Chess();
       chess.loadPgn(pgnToImport);
       setSuggestedOpenings(null);
@@ -473,7 +476,7 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
       const uciMoves = chess
         .history({ verbose: true })
         .map((m) => `${m.from}${m.to}${m.promotion ?? ''}`);
-     
+
       addLearnAi({
         ...currentChapterState.aiLearn,
         mode: 'opening',
@@ -486,13 +489,11 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
         participantId: 'chatGPT123456',
         idResponse: '',
       });
-      
-      
+
       setTimeout(() => {
-        setShowOfferMoves(true)
+        setShowOfferMoves(true);
         setShowColorChoice(true);
       }, 800);
-      
     };
 
     const handleSomethingElse = () => {
@@ -506,9 +507,9 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
       // });
 
       const shownNames = new Set(suggestedOpenings?.map((o) => o.name) ?? []);
-      const others = OPENING_DATABASE.filter((f) => !shownNames.has(f.name)).sort(
-        () => Math.random() - 0.5
-      );
+      const others = OPENING_DATABASE.filter(
+        (f) => !shownNames.has(f.name)
+      ).sort(() => Math.random() - 0.5);
       const picks = others.slice(0, 4).map((family) => {
         const variant = family.variants[0];
         const chess = new Chess();
@@ -544,7 +545,7 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
     // };
 
     const handleSelectColor = (color: 'w' | 'b') => {
-      setShowOfferMoves(false)
+      setShowOfferMoves(false);
       onSetOrientation?.(color);
       onMessage({
         content: color === 'w' ? 'White' : 'Black',
@@ -563,9 +564,9 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
       });
 
       setShowColorChoice(false);
-     
-       setTimeout(() => {
-          setShowOfferMoves(true)
+
+      setTimeout(() => {
+        setShowOfferMoves(true);
       }, 500);
     };
 
@@ -590,8 +591,7 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
       const list = await fetchOpeningSuggestions(4);
       setSuggestedOpenings(list);
       onMessage({
-        content:
-          'Here are some openings you could try:',
+        content: 'Here are some openings you could try:',
         participantId: 'chatGPT123456',
         idResponse: '',
       });
@@ -667,11 +667,12 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
       if (currentChapterState.aiLearn.mode !== 'opening') return;
 
       const historyMoves: string[] = [];
-      (currentChapterState.notation?.history as any[][] ?? []).forEach((pair) =>
-        (pair as any[]).forEach((m: any) => {
-          if (m && !m.isNonMove)
-            historyMoves.push(`${m.from}${m.to}${m.promotion ?? ''}`);
-        })
+      ((currentChapterState.notation?.history as any[][]) ?? []).forEach(
+        (pair) =>
+          (pair as any[]).forEach((m: any) => {
+            if (m && !m.isNonMove)
+              historyMoves.push(`${m.from}${m.to}${m.promotion ?? ''}`);
+          })
       );
       const moveCount = historyMoves.length;
 
@@ -705,7 +706,11 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
       } else {
         prevMoveCountRef.current = moveCount;
       }
-    }, [currentChapterState.notation.history, currentChapterState.aiLearn.name, onMessage]);
+    }, [
+      currentChapterState.notation.history,
+      currentChapterState.aiLearn.name,
+      onMessage,
+    ]);
 
     //const [visibleSuggestedCount, setVisibleSuggestedCount] = useState(3);
 
@@ -741,22 +746,23 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
       if (hasOpeningSelected) {
         // Read full history directly (not via focusedIndex) so refresh restores correctly
         const historyMoves: string[] = [];
-        (currentChapterState.notation?.history as any[][] ?? []).forEach((pair) =>
-          (pair as any[]).forEach((m: any) => {
-            if (m && !m.isNonMove)
-              historyMoves.push(`${m.from}${m.to}${m.promotion ?? ''}`);
-          })
+        ((currentChapterState.notation?.history as any[][]) ?? []).forEach(
+          (pair) =>
+            (pair as any[]).forEach((m: any) => {
+              if (m && !m.isNonMove)
+                historyMoves.push(`${m.from}${m.to}${m.promotion ?? ''}`);
+            })
         );
         const playedMoves = historyMoves;
         const currentUci = historyMoves.join(' ');
 
         // Branch mode: opening from local database → show arrows for all variants
         const family = findOpeningFamily(openingName);
-        console.log('family',family)
-        console.log('playedMoves',playedMoves)
+        console.log('family', family);
+        console.log('playedMoves', playedMoves);
         if (family) {
           const rawBranches = getNextBranchMoves(family, playedMoves);
-          console.log('rawBranches',rawBranches)
+          console.log('rawBranches', rawBranches);
           if (rawBranches.length > 0) {
             setBranchMoves(
               rawBranches.map((bm) => ({ ...bm, san: uciToSan(fen, bm.uci) }))
@@ -973,7 +979,8 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
       currentChapterState.orientation;
 
     const checkAnswerGPT = async (data: any) => {
-      const answerText = typeof data.answer === 'string' ? data.answer : data.answer?.text;
+      const answerText =
+        typeof data.answer === 'string' ? data.answer : data.answer?.text;
       if (
         currentChapterState.messages[
           currentChapterState?.messages?.length - 1
@@ -1106,15 +1113,22 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
 
       const uciMoves = currentChapterState.notation.history
         .flat()
-        .filter((move): move is NonNullable<typeof move> => !!move && !(move as any).isNonMove)
+        .filter(
+          (move): move is NonNullable<typeof move> =>
+            !!move && !(move as any).isNonMove
+        )
         .map((move) => `${move.from}${move.to}${(move as any).promotion ?? ''}`)
         .join(' ');
 
       let variantContext = '';
-      const openingFamily = findOpeningFamily(currentChapterState.aiLearn.name ?? '');
+      const openingFamily = findOpeningFamily(
+        currentChapterState.aiLearn.name ?? ''
+      );
       if (openingFamily) {
         const variant = currentVariantName
-          ? openingFamily.variants.find((v) => v.variantName === currentVariantName)
+          ? openingFamily.variants.find(
+              (v) => v.variantName === currentVariantName
+            )
           : openingFamily.variants[0];
         if (variant) {
           const refChess = new Chess();
@@ -1125,17 +1139,27 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
               const m = refChess.move({
                 from: uci.slice(0, 2) as Square,
                 to: uci.slice(2, 4) as Square,
-                ...(uci.length >= 5 ? { promotion: uci[4] as 'q' | 'r' | 'b' | 'n' } : {}),
+                ...(uci.length >= 5
+                  ? { promotion: uci[4] as 'q' | 'r' | 'b' | 'n' }
+                  : {}),
               });
               if (!m) return;
               const comment = variant.comments?.[i];
               const isWhite = i % 2 === 0;
               const prefix = isWhite ? `${moveNumber}.` : `${moveNumber}...`;
               if (isWhite) moveNumber++;
-              annotatedMoves.push(comment ? `${prefix} ${m.san} (${comment})` : `${prefix} ${m.san}`);
+              annotatedMoves.push(
+                comment
+                  ? `${prefix} ${m.san} (${comment})`
+                  : `${prefix} ${m.san}`
+              );
             } catch {}
           });
-          variantContext = `Opening reference — ${variant.variantName} (${variant.eco}, difficulty: ${openingFamily.category}):\n${annotatedMoves.join(' ')}`;
+          variantContext = `Opening reference — ${variant.variantName} (${
+            variant.eco
+          }, difficulty: ${openingFamily.category}):\n${annotatedMoves.join(
+            ' '
+          )}`;
         } else {
           variantContext = `Opening difficulty: ${openingFamily.category}`;
         }
@@ -1152,7 +1176,7 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
       if (data) {
         setPulseDot(false);
       }
-      //promena rejtinga 
+      //promena rejtinga
       // if (data?.answer?.messageType === 'ratingChange') {
       //   const number = data.answer.text?.match(/\d+/);
       //   if (number) {
@@ -1160,7 +1184,8 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
       //     setRatingBotEngine(newRating);
       //   }
       // }
-      const answerText = typeof data?.answer === 'string' ? data.answer : data?.answer?.text;
+      const answerText =
+        typeof data?.answer === 'string' ? data.answer : data?.answer?.text;
       if (answerText) {
         // Parse [[OPEN:Family Name]] tag from AI response
         const openMatch = answerText.match(/\[\[OPEN:([^\]]+)\]\]/);
@@ -1176,10 +1201,17 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
             const chess = new Chess();
             for (const uci of variant.moves) {
               try {
-                chess.move({ from: uci.slice(0, 2) as Square, to: uci.slice(2, 4) as Square, promotion: uci[4] as any });
+                chess.move({
+                  from: uci.slice(0, 2) as Square,
+                  to: uci.slice(2, 4) as Square,
+                  promotion: uci[4] as any,
+                });
               } catch {}
             }
-            handleSelectOpening({ name: family.name, pgn: `[Event "?"]\n[Site "?"]\n\n${chess.pgn()}` });
+            handleSelectOpening({
+              name: family.name,
+              pgn: `[Event "?"]\n[Site "?"]\n\n${chess.pgn()}`,
+            });
           }
         }
       } else {
@@ -1266,7 +1298,9 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
     const engineMove = (m: string) => {
       if (!m || m === '(none)' || m.length < 4) return;
       const isKeepPlayingMode =
-        currentChapterState.aiLearn.mode === 'opening' && keepPlaying && playVsBot;
+        currentChapterState.aiLearn.mode === 'opening' &&
+        keepPlaying &&
+        playVsBot;
       if (!isKeepPlayingMode) return;
 
       const isMyTurn =
@@ -1330,7 +1364,7 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
 
     useEffect(() => {
       onRegisterKeepPlaying?.(handleKeepPlaying);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [onRegisterKeepPlaying]);
 
     const handleNextVariation = () => {
@@ -1344,7 +1378,9 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
         chess.move({
           from: uci.slice(0, 2) as Square,
           to: uci.slice(2, 4) as Square,
-          ...(uci.length >= 5 ? { promotion: uci[4] as 'q' | 'r' | 'b' | 'n' } : {}),
+          ...(uci.length >= 5
+            ? { promotion: uci[4] as 'q' | 'r' | 'b' | 'n' }
+            : {}),
         });
       }
 
@@ -1394,7 +1430,7 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
       addLearnAi({
         ...currentChapterState.aiLearn,
         mode: 'test',
-    //    moves_test: currentChapterState.aiLearn.moves_test,
+        //    moves_test: currentChapterState.aiLearn.moves_test,
         errors: 0,
         hints: 0,
         popup: false,
@@ -1477,13 +1513,15 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
         )}
         <div className="flex-1 min-h-0 min-w-0 flex flex-col border  bg-op-widget  border-conversation-100 pb-2 px-2 md:px-2 md:pb-4 rounded-lg">
           {/* Mobile: flex-col scrollable so input stays reachable; desktop: overflow-hidden with flex constraints */}
-          <div className={`flex-1 min-h-0 min-w-0 flex flex-col overflow-y-auto md:overflow-hidden no-scrollbar md:pb-0 ${
+          <div
+            className={`flex-1 min-h-0 min-w-0 flex flex-col overflow-y-auto md:overflow-hidden no-scrollbar md:pb-0 ${
               isOutpostWebViewAndroid
                 ? 'pb-4'
                 : isOutpostWebViewIos
                 ? 'pb-0'
                 : 'pb-24'
-            }`}>
+            }`}
+          >
             {/* Buttons: order-1 on mobile (above conversation), order-2 on desktop (below conversation) */}
             <div className="flex order-1 md:order-2 gap-3 flex-shrink-0 pt-2 pb-2 md:my-[20px] justify-around sticky top-[-4px] z-10 bg-op-widget">
               <ButtonGreen
@@ -1511,19 +1549,28 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
               >
                 <p>{isMobile ? 'Test' : 'Opening Test'}</p>
               </ButtonGreen>
-              {currentChapterState.aiLearn.mode === 'opening' && openingComplete && !keepPlaying ? (
+              {currentChapterState.aiLearn.mode === 'opening' &&
+              openingComplete &&
+              !keepPlaying ? (
                 <ButtonGreen
-                 icon="PlayIcon"
+                  icon="PlayIcon"
                   onClick={handleKeepPlaying}
                   size="md"
                   className="md:max-w-[160px] max-w-[160px] min-w-[80px]  md:min-w-[120px] "
                 >
-                  <p className="text-sm"> {isMobile ? 'Play' : 'Keep Playing'}</p>
+                  <p className="text-sm">
+                    {' '}
+                    {isMobile ? 'Play' : 'Keep Playing'}
+                  </p>
                 </ButtonGreen>
-              ) : currentChapterState.aiLearn.mode === 'opening' && keepPlaying ? (
+              ) : currentChapterState.aiLearn.mode === 'opening' &&
+                keepPlaying ? (
                 <ButtonGreen
-    icon="SparklesIcon"
-                  onClick={() => { setPlayVsBot(true); setStockfish(true); }}
+                  icon="SparklesIcon"
+                  onClick={() => {
+                    setPlayVsBot(true);
+                    setStockfish(true);
+                  }}
                   size="md"
                   className="md:max-w-[160px] max-w-[160px] "
                   disabled={playVsBot}
@@ -1540,7 +1587,8 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
                   className="md:max-w-[100px] max-w-[100px]  "
                   style={{ maxWidth: smallMobile ? '68px' : '' }}
                   disabled={
-                    (currentChapterState.aiLearn.mode !== 'test' && hintActive) ||
+                    (currentChapterState.aiLearn.mode !== 'test' &&
+                      hintActive) ||
                     !!currentChapterState.aiLearn.popup
                   }
                 >
@@ -1548,14 +1596,16 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
                 </ButtonGreen>
               )}
               <ButtonGreen
-              icon="ArrowsRightLeftIcon"
+                icon="ArrowsRightLeftIcon"
                 onClick={requestAnotherOpening}
                 size="md"
                 className="max-w-[180px] min-w-[135px] "
                 style={{ maxWidth: smallMobile ? '100px' : '' }}
                 disabled={currentChapterState.aiLearn.moves.length === 0}
               >
-                <p className="whitespace-nowrap">{isMobile ? 'New Opening' : 'Another Opening'}</p>
+                <p className="whitespace-nowrap">
+                  {isMobile ? 'New Opening' : 'Another Opening'}
+                </p>
               </ButtonGreen>
             </div>
 
@@ -1576,8 +1626,7 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
                     const list = await fetchOpeningSuggestions(4);
                     setSuggestedOpenings(list);
                     onMessage({
-                      content:
-                        'Here are some openings you could try:',
+                      content: 'Here are some openings you could try:',
                       participantId: 'chatGPT123456',
                       idResponse: '',
                     });
