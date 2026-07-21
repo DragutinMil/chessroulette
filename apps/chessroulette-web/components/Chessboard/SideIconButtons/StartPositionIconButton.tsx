@@ -12,7 +12,7 @@ export const StartPositionIconButton = (props: Props) => (
     iconKind="outline"
     type="clear"
     size="sm"
-    tooltip="Start Position"
+    tooltip="Starting Position"
     tooltipPositon="left"
     confirmModalTitle="Reset to Starting Position"
     confirmModalContent="You're about to reset the board to the starting position. Are you sure?"

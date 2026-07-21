@@ -1,7 +1,4 @@
-import {
-  FreeBoardNotation,
-  FreeBoardNotationProps,
-} from '@app/components/FreeBoardNotation';
+import { FreeBoardNotationProps } from '@app/components/FreeBoardNotation';
 import { TabsRef } from '@app/components/Tabs';
 
 import {
@@ -45,6 +42,9 @@ type Props = {
   userData: UserData;
   onCanPlayChange: (canPlay: boolean) => void;
   playerNames: Array<string>;
+  onSetStartPosition: () => void;
+  onLinesChange?: (lines: { san: string; score: number }[]) => void;
+  onComputingChange?: (isComputing: boolean) => void;
   // Mode
   isInstructor: boolean;
 
@@ -92,6 +92,9 @@ export const WidgetPanel = React.forwardRef<TabsRef, Props>(
       addGameEvaluation,
       userData,
       onHistoryNotationRefocus,
+      onSetStartPosition,
+      onLinesChange,
+      onComputingChange,
       ...chaptersTabProps
     },
     tabsRef
@@ -121,6 +124,9 @@ export const WidgetPanel = React.forwardRef<TabsRef, Props>(
         chaptersMap={chaptersMap}
         chaptersMapIndex={chaptersMapIndex}
         showEngine={showEngine}
+        onSetStartPosition={onSetStartPosition}
+        onLinesChange={onLinesChange}
+        onComputingChange={onComputingChange}
         ref={tabsRef}
         {...chaptersTabProps}
       />

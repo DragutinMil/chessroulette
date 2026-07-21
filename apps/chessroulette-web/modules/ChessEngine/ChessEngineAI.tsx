@@ -16,6 +16,8 @@ type StockfishEngineAIProps = {
   engineLines: any;
   puzzleMode?: boolean;
   playMode?: boolean;
+  multiPV?: number;
+  fixedDepth?: number;
   newRatingEngine: number;
   isMobile: boolean;
   ratingEngine: any;
@@ -30,6 +32,8 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
   engineMove,
   puzzleMode,
   playMode,
+  multiPV,
+  fixedDepth,
   engineLines,
   orientation,
   isMobile,
@@ -44,6 +48,9 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
   const [lineOne, setLineOne] = useState('');
   const [lineTwo, setLinesTwo] = useState('');
   const [lineThree, setLineThree] = useState('');
+  const [lineOneScore, setLineOneScore] = useState(0);
+  const [lineTwoScore, setLineTwoScore] = useState(0);
+  const [lineThreeScore, setLineThreeScore] = useState(0);
   const [changes, setChanges] = useState(0);
   const [depth, setDepth] = useState(11);
   const [skill, setSkill] = useState(13);
@@ -141,15 +148,24 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
               : addGameEvaluation(50000);
           }
           //console.log('sta',event.data)
-          if (event.data.startsWith(`info depth ${depth}`)) {
+          if (event.data.startsWith(`info depth ${fixedDepth ?? depth}`)) {
             const pvIndex = event.data.indexOf(' pv ');
             //  console.log(`data iz stockfish depth ${depth}` ,event.data)
+            const scoreMatch = event.data.match(/score (cp|mate) (-?\d+)/);
+            const parsedScore = scoreMatch
+              ? scoreMatch[1] === 'mate'
+                ? parseInt(scoreMatch[2], 10) > 0 ? 50000 : -50000
+                : parseInt(scoreMatch[2], 10)
+              : 0;
+
             if (event.data.includes('multipv 2')) {
               setLinesTwo(event.data.slice(pvIndex + 4));
+              setLineTwoScore(parsedScore);
             }
             if (event.data.includes('multipv 1')) {
               setLineOne(event.data.slice(pvIndex + 4));
-              const match = event.data.match(/score (cp|mate) (-?\d+)/);
+              setLineOneScore(parsedScore);
+              const match = scoreMatch;
 
               // POTEZI EVALUACIJA
 
@@ -165,21 +181,19 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
                     : addGameEvaluation(-50000);
                 } else if (type.includes('mate')) {
                   const parts = fen.split(' ');
-                  //   console.log('ide mat 2', parts);
                   (parts[1] === 'w' && orientation === 'w') ||
                   (parts[1] === 'b' && orientation === 'b')
-                    ? // (parts[1] === 'w' && orientation==='b') || (parts[1] === 'b' && orientation==='w')
-                      addGameEvaluation(-50000)
+                    ? addGameEvaluation(-50000)
                     : addGameEvaluation(50000);
                 } else {
                   const score = isMyTurn ? value : -1 * value;
-
                   addGameEvaluation(score);
                 }
               }
             }
             if (event.data.includes('multipv 3')) {
               setLineThree(event.data.slice(pvIndex + 4));
+              setLineThreeScore(parsedScore);
             }
 
             setChanges((prev) => prev + 1);
@@ -194,9 +208,11 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
         setStockfishOutput('Stockfish error! Check console.');
       };
       // Send UCI command to initialize Stockfish
-
+     
+      ///ovo je za vide best moves 3
+      stockfishRef.current.postMessage(`setoption name MultiPV value ${multiPV ?? 1}`);
       stockfishRef.current.postMessage(`position fen ${fen}`);
-      stockfishRef.current.postMessage(`go depth ${depth}`);
+      stockfishRef.current.postMessage(`go depth ${fixedDepth ?? depth}`);
       stockfishRef.current.postMessage(
         `setoption name Skill Level value ${skill}`
       );
@@ -215,9 +231,9 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
 
   useEffect(() => {
     const stockfishLines = {
-      1: lineOne,
-      2: lineTwo,
-      3: lineThree,
+      1: { moves: lineOne, score: lineOneScore },
+      2: { moves: lineTwo, score: lineTwoScore },
+      3: { moves: lineThree, score: lineThreeScore },
     };
     engineLines(stockfishLines);
   }, [changes]);

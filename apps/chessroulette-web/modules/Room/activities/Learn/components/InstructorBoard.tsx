@@ -80,7 +80,7 @@ export const InstructorBoard = ({
               iconKind="outline"
               type="clear"
               size="sm"
-              tooltip="Start Position"
+              tooltip="Starting Position"
               tooltipPositon="left"
               className="mb-2"
               onClick={() => {

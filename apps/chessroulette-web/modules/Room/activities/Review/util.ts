@@ -1,4 +1,26 @@
 import Cookies from 'js-cookie';
+import { Chess } from 'chess.js';
+
+export function uciLineToSan(line: string, fen: string): string {
+  if (!line) return '';
+  try {
+    const chess = new Chess(fen);
+    const moves = line.trim().split(' ').slice(0, 6);
+    const sanMoves: string[] = [];
+    for (const uciMove of moves) {
+      if (uciMove.length < 4) break;
+      const from = uciMove.slice(0, 2);
+      const to = uciMove.slice(2, 4);
+      const promotion = uciMove[4] as any;
+      const result = chess.move({ from, to, promotion });
+      if (!result) break;
+      sanMoves.push(result.san);
+    }
+    return sanMoves.join(' ');
+  } catch {
+    return '';
+  }
+}
 export type ContainerDimensions = {
   width: number;
   height: number;
@@ -350,6 +372,42 @@ export async function getMovexRoom(roomId: string) {
   } catch (error) {
     console.error('Movex fetch error', error);
     return null;
+  }
+}
+
+export type CompletedGameItem = {
+  id: string;
+  initiator_id?: string;
+  initiator_name_first?: string;
+  target_id?: string;
+  target_name_first?: string;
+  created_at?: string;
+  results: {
+    winner: string;
+    challengee: { id: string; points: number };
+    challenger: { id: string; points: number };
+    endedGames: Array<{ pgn: string; players?: { w: string; b: string } }>;
+  };
+};
+
+export async function getCompletedGames(): Promise<CompletedGameItem[]> {
+  const token = Cookies.get('sessionToken');
+  try {
+    const response = await fetch(
+      process.env.NEXT_PUBLIC_API_WEB + 'challenge_paginated?ch_state=complete',
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    if (!response.ok) return [];
+    const data = await response.json();
+    return Array.isArray(data) ? data : (data.challenges ?? data.data ?? []);
+  } catch {
+    return [];
   }
 }
 
