@@ -195,7 +195,7 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
     const needsAutoStart =
       !hasPgnInUrl && currentChapterState.chessAiMode.mode === '';
     const autoStartPendingRef = useRef(needsAutoStart);
-    const [autoStarting, setAutoStarting] = useState(needsAutoStart);
+    // const [autoStarting, setAutoStarting] = useState(needsAutoStart);
 
     useEffect(() => {
       if (autoStartPendingRef.current) {
@@ -204,11 +204,19 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
       autoStartPendingRef.current = false;
     }, []);
 
-    useEffect(() => {
-      if (currentChapterState.chessAiMode.mode !== '') {
-        setAutoStarting(false);
-      }
-    }, [currentChapterState.chessAiMode.mode]);
+    // useEffect(() => {
+    //   if (currentChapterState.chessAiMode.mode !== '') {
+    //     setAutoStarting(false);
+    //   }
+    // }, [currentChapterState.chessAiMode.mode]);
+
+    // useEffect(() => {
+    //   if (!autoStarting) {
+    //     requestAnimationFrame(() => {
+    //       window.dispatchEvent(new Event('resize'));
+    //     });
+    //   }
+    // }, [autoStarting]);
 
     const hasGameLoaded =
       hasPgnInUrl ||
@@ -226,7 +234,7 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
         setShowMyGames((prev) => !prev);
       }
     };
-
+    console.log('hasGameLoaded',hasGameLoaded)
     const handleImportGame = (game: CompletedGameItem) => {
       const lastGame =
         game.results?.endedGames?.[game.results.endedGames.length - 1];
@@ -376,19 +384,19 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
     };
 
     useEffect(() => {
-      console.log('usercina',userData)
+     
       if (!userData.user_id) return;
       
       const hasSalesMessage = currentChapterState.messages.some((m) =>
         m.participantId?.includes('sales')
       );
-       console.log('hasSalesMessage',hasSalesMessage)
+      
       if (!hasSalesMessage) return;
       const checkAndReset = async () => {
         const hasSubscription = !!userData.product_name && userData.ends_at !== null;
 
         if (hasSubscription) {
-          console.log('ide brisanje',hasSubscription)
+        
           resetMessages();
           return;
         }
@@ -727,9 +735,9 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
       }
     };
 
-    if (autoStarting) {
-      return <div className="flex-1" />;
-    }
+    // if (autoStarting) {
+    //   return <div className="flex-1" />;
+    // }
 
     return (
       <div className="  flex flex-col flex-1 min-h-0 rounded-lg shadow-2xl flex-1 flex min-h-0 ">
@@ -822,7 +830,8 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
                   `}
                   >
                     
-                    <div className={`${currentChapterState.chessAiMode.mode=='review' ? 'h-[320px]' : 'h-[290px]'}    md:flex-1  min-h-0 `}>
+                    {/* <div className={`${!hasGameLoaded ? 'h-auto' : currentChapterState.chessAiMode.mode=='review' ? 'h-[320px]' : 'h-[290px]'}    md:flex-1  min-h-0 `}> */}
+                                          <div className={`${ currentChapterState.chessAiMode.mode=='review' ? 'h-[320px]' : 'h-[290px]'}    md:flex-1  min-h-0 `}>
                       <ConversationReview
                         analizeMatch={analizeMatch}
                         worstMove={analizeWorstMove}
