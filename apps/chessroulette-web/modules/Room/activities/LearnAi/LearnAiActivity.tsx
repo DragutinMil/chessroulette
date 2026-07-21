@@ -95,15 +95,15 @@ export const LearnAiActivity = ({
   })();
 
   const tabsRef = useRef<TabsRef>(null);
-   useEffect(() => {
-    getUserData()
-  //   socketUtil.connect('learn');
-  //   localStorage.setItem('socket', 'learn');
+  useEffect(() => {
+    getUserData();
+    //   socketUtil.connect('learn');
+    //   localStorage.setItem('socket', 'learn');
 
-  //   return () => {
-  //     socketUtil.disconnect();
-  //   };
-   }, []);
+    //   return () => {
+    //     socketUtil.disconnect();
+    //   };
+  }, []);
 
   const getUserData = async () => {
     const data = await getSubscribeInfo();
@@ -221,7 +221,9 @@ export const LearnAiActivity = ({
                 <LearnAiBoard
                   sizePx={boardSize}
                   {...currentChapter}
-                  canPlay={isAtLastMove && !!currentChapter.aiLearn.name?.trim()}
+                  canPlay={
+                    isAtLastMove && !!currentChapter.aiLearn.name?.trim()
+                  }
                   arrowsMap={
                     !isAtLastMove
                       ? {}
@@ -283,7 +285,9 @@ export const LearnAiActivity = ({
                     enqueueMovexUpdate(() =>
                       dispatch({
                         type: 'loadedChapter:setOrientation',
-                        payload: { color: swapColor(currentChapter.orientation) },
+                        payload: {
+                          color: swapColor(currentChapter.orientation),
+                        },
                       })
                     );
                   }}
@@ -304,7 +308,10 @@ export const LearnAiActivity = ({
                               `${m.from}${m.to}${m.promotion ?? ''}`
                             );
                         });
-                        const branches = getNextBranchMoves(family, playedMoves);
+                        const branches = getNextBranchMoves(
+                          family,
+                          playedMoves
+                        );
                         if (branches.length > 0) {
                           const isAllowed = branches.some((bm) =>
                             bm.uci.startsWith(`${payload.from}${payload.to}`)

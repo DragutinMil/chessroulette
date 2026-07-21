@@ -75,7 +75,7 @@ export type UserData = {
   name_last: string;
   picture: string;
   is_trial: boolean;
-  ends_at:string,
+  ends_at: string;
   product_name: string;
   user_id: string;
   puz_rating: any;

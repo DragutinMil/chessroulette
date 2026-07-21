@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import confetti from 'canvas-confetti';
 import { Dialog } from '@app/components/Dialog';
-import {  Message } from '../movex';
+import { Message } from '../movex';
 import { ButtonGreen } from '@app/components/Button/ButtonGreen';
 
 type AiCouchDialogContainerProps = {
@@ -45,8 +45,13 @@ export const AiCouchDialogContainer: React.FC<AiCouchDialogContainerProps> = ({
 
   useEffect(() => {
     const errors: number = currentChapter?.aiLearn?.errors ?? 0;
-      const hints: number = currentChapter?.aiLearn?.hints ?? 0;
-    if (currentChapter.aiLearn.popup === true && !removePopup && errors === 0 && hints === 0) {
+    const hints: number = currentChapter?.aiLearn?.hints ?? 0;
+    if (
+      currentChapter.aiLearn.popup === true &&
+      !removePopup &&
+      errors === 0 &&
+      hints === 0
+    ) {
       confetti({
         startVelocity: 50,
         particleCount: 150,
@@ -78,11 +83,18 @@ export const AiCouchDialogContainer: React.FC<AiCouchDialogContainerProps> = ({
               {errors === 0 && hints === 0 ? (
                 <>🎯&nbsp;&nbsp; Perfect score! No mistakes.</>
               ) : errors > 0 && hints === 0 ? (
-                <>❌&nbsp;&nbsp; You made {errors} mistake{errors > 1 ? 's' : ''}.</>
+                <>
+                  ❌&nbsp;&nbsp; You made {errors} mistake
+                  {errors > 1 ? 's' : ''}.
+                </>
               ) : errors === 0 && hints > 0 ? (
                 <> No mistakes, but you used {hints} 💡.</>
               ) : (
-                <>❌&nbsp;&nbsp; You made {errors} mistake{errors > 1 ? 's' : ''} and used {hints} hint{hints > 1 ? 's' : ''}.</>
+                <>
+                  ❌&nbsp;&nbsp; You made {errors} mistake
+                  {errors > 1 ? 's' : ''} and used {hints} hint
+                  {hints > 1 ? 's' : ''}.
+                </>
               )}
             </p>
             <ButtonGreen
@@ -90,12 +102,12 @@ export const AiCouchDialogContainer: React.FC<AiCouchDialogContainerProps> = ({
               size="lg"
               className="w-full text-[16px] h-[44px] rounded-[22px]"
               style={{ marginTop: 20 }}
-              disabled={errors === 0 && hints ===0}
+              disabled={errors === 0 && hints === 0}
               onClick={() => {
                 onTestAgain?.();
               }}
             >
-               &nbsp;Test Again
+              &nbsp;Test Again
             </ButtonGreen>
 
             <ButtonGreen
@@ -108,11 +120,11 @@ export const AiCouchDialogContainer: React.FC<AiCouchDialogContainerProps> = ({
                 onNewOpening?.();
               }}
             >
-               New Opening
+              New Opening
             </ButtonGreen>
 
             <ButtonGreen
-               icon="PlayIcon"
+              icon="PlayIcon"
               size="lg"
               className="w-full text-[16px] h-[44px] rounded-[22px]"
               style={{ marginTop: 20 }}
@@ -122,19 +134,20 @@ export const AiCouchDialogContainer: React.FC<AiCouchDialogContainerProps> = ({
                 onPlay?.();
               }}
             >
-               Free Play
+              Free Play
             </ButtonGreen>
 
-  <ButtonGreen
-             icon="ArrowLeftIcon"
+            <ButtonGreen
+              icon="ArrowLeftIcon"
               size="lg"
               className=" w-full text-[16px] h-[44px] rounded-[22px]"
               style={{ marginTop: 20 }}
               onClick={() => {
-                window.location.href = 'https://app.outpostchess.com/online-list';
+                window.location.href =
+                  'https://app.outpostchess.com/online-list';
               }}
             >
-                    Lobby
+              Lobby
             </ButtonGreen>
             {/* <ButtonGreen
               size="lg"

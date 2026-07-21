@@ -154,7 +154,9 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
             const scoreMatch = event.data.match(/score (cp|mate) (-?\d+)/);
             const parsedScore = scoreMatch
               ? scoreMatch[1] === 'mate'
-                ? parseInt(scoreMatch[2], 10) > 0 ? 50000 : -50000
+                ? parseInt(scoreMatch[2], 10) > 0
+                  ? 50000
+                  : -50000
                 : parseInt(scoreMatch[2], 10)
               : 0;
 
@@ -208,9 +210,11 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
         setStockfishOutput('Stockfish error! Check console.');
       };
       // Send UCI command to initialize Stockfish
-     
+
       ///ovo je za vide best moves 3
-      stockfishRef.current.postMessage(`setoption name MultiPV value ${multiPV ?? 1}`);
+      stockfishRef.current.postMessage(
+        `setoption name MultiPV value ${multiPV ?? 1}`
+      );
       stockfishRef.current.postMessage(`position fen ${fen}`);
       stockfishRef.current.postMessage(`go depth ${fixedDepth ?? depth}`);
       stockfishRef.current.postMessage(

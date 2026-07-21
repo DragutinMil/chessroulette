@@ -15,7 +15,9 @@ describe('OPENING_DATABASE — all moves are legal', () => {
               chess.move({ from, to, ...(promotion ? { promotion } : {}) });
             } catch {
               throw new Error(
-                `Move #${i + 1} "${uci}" is illegal in "${family.name} > ${variant.variantName}". FEN before move: ${chess.fen()}`
+                `Move #${i + 1} "${uci}" is illegal in "${family.name} > ${
+                  variant.variantName
+                }". FEN before move: ${chess.fen()}`
               );
             }
           });

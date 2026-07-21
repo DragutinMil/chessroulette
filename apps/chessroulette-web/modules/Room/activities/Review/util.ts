@@ -229,13 +229,16 @@ export async function getPuzzle(category?: string) {
 export async function getReview24h() {
   const token = Cookies.get('sessionToken');
   try {
-    const response = await fetch(process.env.NEXT_PUBLIC_API_WEB + 'review_24h', {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const response = await fetch(
+      process.env.NEXT_PUBLIC_API_WEB + 'review_24h',
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
     if (!response.ok) return null;
     const text = await response.text();
     if (!text) return null;
@@ -405,7 +408,7 @@ export async function getCompletedGames(): Promise<CompletedGameItem[]> {
     );
     if (!response.ok) return [];
     const data = await response.json();
-    return Array.isArray(data) ? data : (data.challenges ?? data.data ?? []);
+    return Array.isArray(data) ? data : data.challenges ?? data.data ?? [];
   } catch {
     return [];
   }
