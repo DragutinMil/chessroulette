@@ -2,8 +2,8 @@ let reviewWorker = null;
 //let aiWorker = null;
 
 export function getStockfishWorker() {
-  if(reviewWorker==null  ){
- reviewWorker ||= new Worker('/sf16/stockfish.wasm.js');
+  if (reviewWorker == null) {
+    reviewWorker ||= new Worker('/sf16/stockfish.wasm.js');
   }
   return reviewWorker;
 }

@@ -110,11 +110,10 @@ const ConversationReview = ({
             Hey! 👋 Ready to exercise?
           </p>
           <p className="text-slate-400 text-sm leading-relaxed">
-           Start from Scratch or Start from Import your completed games or drop a PGN file to start the analysis.
+            Start from Scratch or Start from Import your completed games or drop
+            a PGN file to start the analysis.
           </p>
         </div>
-
-     
 
         <div className="flex gap-4">
           {onToggleMyGames && (
@@ -123,7 +122,7 @@ const ConversationReview = ({
               onClick={onToggleMyGames}
               className="w-32 text-sm text-white py-[6px] rounded-[20px] transition-colors"
             >
-             My Games
+              My Games
             </ButtonGreen>
           )}
         </div>
@@ -199,7 +198,11 @@ const ConversationReview = ({
   ${
     isTablet
       ? 'h-full'
-      : ` ${currentChapterState.chessAiMode.mode === 'play' ? 'md:h-[340px] h-[290px]' : 'md:h-[420px] h-[320px]'}
+      : ` ${
+          currentChapterState.chessAiMode.mode === 'play'
+            ? 'md:h-[340px] h-[290px]'
+            : 'md:h-[420px] h-[320px]'
+        }
     md:max-h-[600px]`
   }
 `}
@@ -275,34 +278,36 @@ const ConversationReview = ({
                           Game Review
                         </ButtonGreen>
                       )}
-                    {index == 1 && currentChapterState.messages.length > 1 && !msg.participantId.includes('sales') && (
-                      <div className="flex flex-wrap mt-2">
-                        <ButtonGreen
-                          onClick={() => {
-                            setDisableWorstMoveButton(true);
-                            worstMove();
-                          }}
-                          disabled={disableWorstMoveButton}
-                          size="md"
-                          className="bg-green-600  text-black font-bold mt-2 px-1 mr-2 whitespace-nowrap px-4"
-                          style={{ color: 'black' }}
-                        >
-                          My bad move?
-                        </ButtonGreen>
-                        <ButtonGreen
-                          onClick={() => {
-                            setDisableOpeningButton(true);
-                            checkOpening();
-                          }}
-                          disabled={disableOpeningButton}
-                          size="md"
-                          className="bg-green-600  text-black font-bold mt-2 px-1 mr-2 whitespace-nowrap px-4"
-                          style={{ color: 'black' }}
-                        >
-                          How was my opening?
-                        </ButtonGreen>
-                      </div>
-                    )}
+                    {index == 1 &&
+                      currentChapterState.messages.length > 1 &&
+                      !msg.participantId.includes('sales') && (
+                        <div className="flex flex-wrap mt-2">
+                          <ButtonGreen
+                            onClick={() => {
+                              setDisableWorstMoveButton(true);
+                              worstMove();
+                            }}
+                            disabled={disableWorstMoveButton}
+                            size="md"
+                            className="bg-green-600  text-black font-bold mt-2 px-1 mr-2 whitespace-nowrap px-4"
+                            style={{ color: 'black' }}
+                          >
+                            My bad move?
+                          </ButtonGreen>
+                          <ButtonGreen
+                            onClick={() => {
+                              setDisableOpeningButton(true);
+                              checkOpening();
+                            }}
+                            disabled={disableOpeningButton}
+                            size="md"
+                            className="bg-green-600  text-black font-bold mt-2 px-1 mr-2 whitespace-nowrap px-4"
+                            style={{ color: 'black' }}
+                          >
+                            How was my opening?
+                          </ButtonGreen>
+                        </div>
+                      )}
                   </div>
                   {isSales && isLastMessage && (
                     <div className="flex  items-center gap-3 md:flex mt-2">

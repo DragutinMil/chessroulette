@@ -55,7 +55,7 @@ type Props = {
 export const useMoves = ({
   isMyTurn,
   playingColor,
-  premoveAnimationDelay=220,
+  premoveAnimationDelay = 220,
   onMove,
   onPreMove,
   onValidateMove,
@@ -74,7 +74,6 @@ Props): MoveActions => {
   const [isPromoFromPreMove, setIsPromoFromPreMove] = useState(false); // Dodaj ovu liniju
 
   const [lastMoveWasPromotion, setLastMoveWasPromotion] = useState(false); // Dodajte ovo
-
 
   const allowsPremoves = !!onPreMove;
 
@@ -278,7 +277,6 @@ Props): MoveActions => {
         }
       }
     }
-
   };
 
   useEffect(() => {
@@ -287,7 +285,7 @@ Props): MoveActions => {
     if (promoMove) {
       return;
     }
-    
+
     // If we have a complete premove and it's our turn, execute it
 
     if (isMyTurn && currentMoves.preMove?.to) {
@@ -310,7 +308,7 @@ Props): MoveActions => {
         setPreMove(undefined);
         return;
       }
-      const delay = premoveWasDropRef.current ? 0 : premoveAnimationDelay+100;
+      const delay = premoveWasDropRef.current ? 0 : premoveAnimationDelay + 100;
       premoveWasDropRef.current = false;
       setTimeout(() => {
         setPreMove(undefined);
@@ -338,31 +336,28 @@ Props): MoveActions => {
     const currentMoves = getCurrentMoves();
     const piece = pieceSanToPiece(pieceSan);
 
-   
     // Case 1: Complete premove by dragging to destination
     if (!isMyTurn && allowsPremoves) {
-     
       if (piece.color === playingColor) {
-         
         if (currentMoves.preMove) {
-         
           if (from !== currentMoves.preMove.from) {
-             console.log('ytt1')
+            console.log('ytt1');
             setPreMove({ from, piece });
             return false;
           }
-         if(isMyTurnRef.current===true){
-           console.log('ytt2')
+          if (isMyTurnRef.current === true) {
+            console.log('ytt2');
             premoveWasDropRef.current = true;
-             setPreMove({ ...currentMoves.preMove, to });
-          return premoveWasDropRef.current; 
-         }
-          console.log('ytt3')
+            setPreMove({ ...currentMoves.preMove, to });
+            return premoveWasDropRef.current;
+          }
+          console.log('ytt3');
           setPreMove({ ...currentMoves.preMove, to });
           dropJustHappenedRef.current = true; // blokira ghost click na mobilnom
-          setTimeout(() => { dropJustHappenedRef.current = false; }, 300);
+          setTimeout(() => {
+            dropJustHappenedRef.current = false;
+          }, 300);
         } else {
-
           setPreMove(undefined);
 
           // Start new premove
@@ -373,14 +368,14 @@ Props): MoveActions => {
         return false;
       }
     }
- 
+
     // Case 3 & 4: Complete premove that was started earlier
-    
+
     if (isMyTurn && currentMoves.preMove && !currentMoves.preMove.to) {
-     console.log('moj red')
+      console.log('moj red');
       if (from !== currentMoves.preMove.from) {
         setPreMove(undefined);
-         
+
         if (isValidPromoMove({ from, to, piece })) {
           setPreMove({ from, piece, to });
           return true;
@@ -395,7 +390,6 @@ Props): MoveActions => {
       };
 
       if (isValidPromoMove(moveAttempt)) {
-         
         setPreMove({ ...currentMoves.preMove, to });
         return true;
       }
@@ -404,7 +398,7 @@ Props): MoveActions => {
       if (result.ok) {
         setPreMove(undefined);
       }
-       
+
       return result.ok;
     }
     // Handle regular moves during player's turn

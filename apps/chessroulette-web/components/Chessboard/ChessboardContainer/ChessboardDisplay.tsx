@@ -56,7 +56,7 @@ export type ChessboardDisplayProps = Omit<
         rightSideClassName?: undefined;
       }
   );
-  
+
 export const ChessboardDisplay = ({
   sizePx,
   rightSideClassName,
@@ -116,7 +116,6 @@ export const ChessboardDisplay = ({
             },
             allowDragging: true,
             onPieceDrag: ({ square, piece }: PieceHandlerArgs) => {
-            
               const sq = square ?? '';
               const pc = piece?.pieceType;
               onPieceDrag?.(sq, pc);
@@ -126,7 +125,7 @@ export const ChessboardDisplay = ({
               const from = sourceSquare ?? '';
               const to = targetSquare ?? '';
               const pc = piece.pieceType;
-             return onPieceDrop?.(from, to, pc) || false;
+              return onPieceDrop?.(from, to, pc) || false;
               // return true;
             },
             squareStyles,

@@ -57,10 +57,14 @@ export const ReviewActivity = ({
   const [canFreePlay, setCanFreePlay] = useState(false);
   const [isFocusedInput, setIsFocusedInput] = useState(false);
   const [mobileScoreCP, setMobileScoreCP] = useState(0);
-  const [mobileLines, setMobileLines] = useState<{ san: string; score: number }[]>([]);
-  const [lastKnownMobileLines, setLastKnownMobileLines] = useState<{ san: string; score: number }[]>([]);
+  const [mobileLines, setMobileLines] = useState<
+    { san: string; score: number }[]
+  >([]);
+  const [lastKnownMobileLines, setLastKnownMobileLines] = useState<
+    { san: string; score: number }[]
+  >([]);
   const { isMobile, isTablet } = useIsTablet();
-  
+
   const [reviewDataToNotation, setReviewDataToNotation] = useState<
     EvaluationMove[]
   >([]);
@@ -69,7 +73,7 @@ export const ReviewActivity = ({
     name_last: '',
     picture: '',
     is_trial: false,
-    ends_at:'',
+    ends_at: '',
     product_name: '',
     user_id: '',
     puz_rating: '',
@@ -257,7 +261,7 @@ export const ReviewActivity = ({
       name_last: data?.name_last,
       picture: data?.profile_image_url,
       is_trial: data?.is_trial,
-      ends_at:data?.ends_at,
+      ends_at: data?.ends_at,
       product_name: data?.product_name,
       user_id: data?.user_id,
       puz_rating: data?.puz_rating,
@@ -302,107 +306,141 @@ export const ReviewActivity = ({
               )}
               <ReviewDialogContainer currentChapter={currentChapter} />
 
-             
-              
               {isMobile && (
-                 <div className='bg-op-widget border-conversation-100  border rounded-lg mb-2'>
-                <div
-                  style={{
-                    height: '50px',
-                    minHeight: '50px',
-                  }}
-                  className="flex overflow-x-auto overflow-y-hidden rounded-lg py-2 "
-                >
-                  <FreeBoardNotation
-                    reviewDataToNotation={reviewDataToNotation}
-                    isMobile={isMobile}
-                    history={currentChapter.notation?.history}
-                    // playerNames={playerNames}
-                    isAichess={true}
-                    focusedIndex={currentChapter.notation?.focusedIndex}
-                    onDelete={onHistoryNotationDelete}
-                    onRefocus={onHistoryNotationRefocus}
-                    isFocusedInput={isFocusedInput}
-                  />
-                </div>
-             
-               {(() => {
-                const k = 0.00358208;
-                const rawPct = (1 / (1 + Math.exp(-k * mobileScoreCP))) * 100;
-                const pctW = currentChapter.orientation === 'w' ? rawPct : 100 - rawPct;
-                const pctB = 100 - pctW;
-                return (
-                  <div className="w-[96%] h-[8px] flex overflow-hidden mx-2  mb-1  rounded-xl">
-                    <div className="bg-white transition-all duration-500" style={{ width: `${pctW}%` }} />
-                    <div className="bg-black-100 transition-all duration-500" style={{ width: `${pctB}%` }} />
-                  </div>
-                );
-              })()}
-
-              {/* { currentChapter.chessAiMode.mode === 'play' && ( */}
-                <div className="h-[40px] px-2 pb-1 mt-3 mb-1 flex items-center gap-2">
-                  <div className="flex-1 min-w-0 flex items-center">
-                    {(() => {
-                      const isComputingMobile = mobileLines.length === 0 && Math.abs(mobileScoreCP) < 49999;
-                      const linesToShow = isComputingMobile ? lastKnownMobileLines : mobileLines;
-                      return (
-                        <div className="relative w-full">
-                          <div className={`flex flex-col gap-[2px] w-full transition-opacity duration-300 ${isComputingMobile ? 'opacity-25' : 'opacity-100'}`}>
-                            {linesToShow.slice(0, 2).map(({ san, score }, idx) => {
-                              const scoreLabel = Math.abs(score) >= 49999
-                                ? '∞'
-                                : `${score >= 0 ? '+' : ''}${(score / 100).toFixed(2)}`;
-                              return (
-                                <p key={idx} className={`text-xs truncate flex gap-2 ${idx === 0 ? 'text-white' : 'text-gray-400'}`}>
-                                  <span className="font-mono shrink-0 w-10 text-left">{scoreLabel}</span>
-                                  <span className="truncate">{san}</span>
-                                </p>
-                              );
-                            })}
-                          </div>
-                          {isComputingMobile && (
-                            <div className="absolute inset-0 flex items-center justify-start opacity-80">
-                              <Loader />
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })()}
-                  </div>
-                  <DragAndDrop
-                    fileTypes={['PGN', 'FEN', 'TXT']}
-                    onUpload={(f: any) => {
-                      const fileData = new FileReader();
-                      fileData.onloadend = (s) => {
-                        if (s.target && typeof s.target.result === 'string') {
-                          const input = s.target.result
-                            .split('\n')
-                            .filter((line) => !line.startsWith('['))
-                            .join(' ')
-                            .trim();
-                          if (!input) return;
-                          if (ChessFENBoard.validateFenString(input).ok) {
-                            enqueueMovexUpdate(() =>
-                              dispatchInputState({ type: 'import', payload: { type: 'FEN', val: input } })
-                            );
-                          } else if (isValidPgn(input)) {
-                            enqueueMovexUpdate(() =>
-                              dispatchInputState({ type: 'import', payload: { type: 'PGN', val: input } })
-                            );
-                          }
-                        }
-                      };
-                      fileData.readAsText(f);
+                <div className="bg-op-widget border-conversation-100  border rounded-lg mb-2">
+                  <div
+                    style={{
+                      height: '50px',
+                      minHeight: '50px',
                     }}
+                    className="flex overflow-x-auto overflow-y-hidden rounded-lg py-2 "
                   >
-                    <ButtonGreen >
-                      Upload a PGN
-                    </ButtonGreen>
-                  </DragAndDrop>
+                    <FreeBoardNotation
+                      reviewDataToNotation={reviewDataToNotation}
+                      isMobile={isMobile}
+                      history={currentChapter.notation?.history}
+                      // playerNames={playerNames}
+                      isAichess={true}
+                      focusedIndex={currentChapter.notation?.focusedIndex}
+                      onDelete={onHistoryNotationDelete}
+                      onRefocus={onHistoryNotationRefocus}
+                      isFocusedInput={isFocusedInput}
+                    />
+                  </div>
+
+                  {(() => {
+                    const k = 0.00358208;
+                    const rawPct =
+                      (1 / (1 + Math.exp(-k * mobileScoreCP))) * 100;
+                    const pctW =
+                      currentChapter.orientation === 'w'
+                        ? rawPct
+                        : 100 - rawPct;
+                    const pctB = 100 - pctW;
+                    return (
+                      <div className="w-[96%] h-[8px] flex overflow-hidden mx-2  mb-1  rounded-xl">
+                        <div
+                          className="bg-white transition-all duration-500"
+                          style={{ width: `${pctW}%` }}
+                        />
+                        <div
+                          className="bg-black-100 transition-all duration-500"
+                          style={{ width: `${pctB}%` }}
+                        />
+                      </div>
+                    );
+                  })()}
+
+                  {/* { currentChapter.chessAiMode.mode === 'play' && ( */}
+                  <div className="h-[40px] px-2 pb-1 mt-3 mb-1 flex items-center gap-2">
+                    <div className="flex-1 min-w-0 flex items-center">
+                      {(() => {
+                        const isComputingMobile =
+                          mobileLines.length === 0 &&
+                          Math.abs(mobileScoreCP) < 49999;
+                        const linesToShow = isComputingMobile
+                          ? lastKnownMobileLines
+                          : mobileLines;
+                        return (
+                          <div className="relative w-full">
+                            <div
+                              className={`flex flex-col gap-[2px] w-full transition-opacity duration-300 ${
+                                isComputingMobile ? 'opacity-25' : 'opacity-100'
+                              }`}
+                            >
+                              {linesToShow
+                                .slice(0, 2)
+                                .map(({ san, score }, idx) => {
+                                  const scoreLabel =
+                                    Math.abs(score) >= 49999
+                                      ? '∞'
+                                      : `${score >= 0 ? '+' : ''}${(
+                                          score / 100
+                                        ).toFixed(2)}`;
+                                  return (
+                                    <p
+                                      key={idx}
+                                      className={`text-xs truncate flex gap-2 ${
+                                        idx === 0
+                                          ? 'text-white'
+                                          : 'text-gray-400'
+                                      }`}
+                                    >
+                                      <span className="font-mono shrink-0 w-10 text-left">
+                                        {scoreLabel}
+                                      </span>
+                                      <span className="truncate">{san}</span>
+                                    </p>
+                                  );
+                                })}
+                            </div>
+                            {isComputingMobile && (
+                              <div className="absolute inset-0 flex items-center justify-start opacity-80">
+                                <Loader />
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })()}
+                    </div>
+                    <DragAndDrop
+                      fileTypes={['PGN', 'FEN', 'TXT']}
+                      onUpload={(f: any) => {
+                        const fileData = new FileReader();
+                        fileData.onloadend = (s) => {
+                          if (s.target && typeof s.target.result === 'string') {
+                            const input = s.target.result
+                              .split('\n')
+                              .filter((line) => !line.startsWith('['))
+                              .join(' ')
+                              .trim();
+                            if (!input) return;
+                            if (ChessFENBoard.validateFenString(input).ok) {
+                              enqueueMovexUpdate(() =>
+                                dispatchInputState({
+                                  type: 'import',
+                                  payload: { type: 'FEN', val: input },
+                                })
+                              );
+                            } else if (isValidPgn(input)) {
+                              enqueueMovexUpdate(() =>
+                                dispatchInputState({
+                                  type: 'import',
+                                  payload: { type: 'PGN', val: input },
+                                })
+                              );
+                            }
+                          }
+                        };
+                        fileData.readAsText(f);
+                      }}
+                    >
+                      <ButtonGreen>Upload a PGN</ButtonGreen>
+                    </DragAndDrop>
+                  </div>
+                  {/* )} */}
                 </div>
-              {/* )} */}
-              </div>
-               )}
+              )}
               <div className={isTablet ? 'flex flex-col gap-2' : ''}>
                 <ReviewBoard
                   sizePx={boardSize}
@@ -502,26 +540,25 @@ export const ReviewActivity = ({
                             });
                           }}
                         />
-                        {currentChapter.chessAiMode.mode=='play' && (
-  <IconButton
-                        icon="ArrowPathIcon"
-                        iconKind="outline"
-                        type="clear"
-                        size="sm"
-                        tooltip="Starting Position"
-                        tooltipPositon="left"
-                        className="mb-2"
-                        onClick={async () => {
-                            await enqueueMovexUpdate(() =>
-                dispatch({
-                  type: 'loadedChapter:updateFen',
-                  payload: ChessFENBoard.STARTING_FEN,
-                })
-              );
-                          }}
-                      />
+                        {currentChapter.chessAiMode.mode == 'play' && (
+                          <IconButton
+                            icon="ArrowPathIcon"
+                            iconKind="outline"
+                            type="clear"
+                            size="sm"
+                            tooltip="Starting Position"
+                            tooltipPositon="left"
+                            className="mb-2"
+                            onClick={async () => {
+                              await enqueueMovexUpdate(() =>
+                                dispatch({
+                                  type: 'loadedChapter:updateFen',
+                                  payload: ChessFENBoard.STARTING_FEN,
+                                })
+                              );
+                            }}
+                          />
                         )}
-                       
                       </div>
 
                       <div className="relative flex flex-1 flex-col items-center justify-center">

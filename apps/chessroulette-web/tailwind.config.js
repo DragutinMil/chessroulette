@@ -32,7 +32,7 @@ module.exports = {
           600: '#11c6d1',
         },
         black: {
-          100:'#000000',
+          100: '#000000',
           light: '#272727',
         },
         yellow: {
@@ -104,7 +104,7 @@ module.exports = {
         'green-soft': '0px 2px 10px 0px rgba(7, 218, 99, 0.1)',
       },
       backgroundImage: {
-        'background-component':'#01210b',
+        'background-component': '#01210b',
         'op-widget':
           'radial-gradient(61.84% 61.84% at 50% 131.62%, rgba(5, 135, 44, 0.2) 0%, #01210B 100%)',
       },
