@@ -43,14 +43,17 @@ import { SendQuestionReview } from './GameReview/SendQuestionReview';
 import { CheckPiece } from './CheckPiece';
 import { ChessEngineProbabilityCalc } from '@app/modules/ChessEngine/components/ChessEngineCalculator';
 
-import { reviewAnalitics, getReview24h } from '../../util';
+import { reviewAnalitics, getReview24h, getCompletedGames, uciLineToSan } from '../../util';
+import type { CompletedGameItem } from '../../util';
 import { useIsTablet } from '@app/hooks/useIsTablet';
+import { ChessFENBoard } from '@xmatter/util-kit';
 
 // import { generateGptResponse } from '../../../../../../server.js';
+type StockfishLine = { moves: string; score: number };
 type StockfishLines = {
-  1: string;
-  2: string;
-  3: string;
+  1: StockfishLine;
+  2: StockfishLine;
+  3: StockfishLine;
 };
 
 type Props = {
@@ -79,7 +82,10 @@ type Props = {
   historyBackToStart: () => void;
   onCanPlayChange: (canPlay: boolean) => void;
   userData: UserData;
+  onLinesChange?: (lines: { san: string; score: number }[]) => void;
+  onComputingChange?: (isComputing: boolean) => void;
 
+  onSetStartPosition: () => void;
   // Engine
   showEngine?: boolean;
   // engine?: EngineData;
@@ -123,6 +129,9 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
       historyBackToStart,
       userData,
       onMatchReview,
+      onSetStartPosition,
+      onLinesChange,
+      onComputingChange,
       ...chaptersTabProps
     },
     tabsRef
@@ -154,6 +163,7 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
 
     const [scoreCP, setScoreCP] = useState(0);
     const [prevScoreCP, setprevScoreCP] = useState(0);
+    const [isReviewing, setIsReviewing] = useState(false);
 
     const [showNames, setShowNames] = useState(true);
     const smallMobile =
@@ -170,15 +180,90 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
 
     const [percentW, setPercentW] = useState(50);
     const [percentB, setPercentB] = useState(50);
+    const [isComputingLines, setIsComputingLines] = useState(false);
+    const [displayedLineSans, setDisplayedLineSans] = useState<{ san: string; score: number }[]>([]);
+   
+
+    const [completedGames, setCompletedGames] = useState<CompletedGameItem[]>([]);
+    const [isLoadingGames, setIsLoadingGames] = useState(false);
+    const [showMyGames, setShowMyGames] = useState(false);
+
+    const hasPgnInUrl =
+      typeof window !== 'undefined' &&
+      !!new URL(window.location.href).searchParams.get('pgn');
+
+    const needsAutoStart =
+      !hasPgnInUrl && currentChapterState.chessAiMode.mode === '';
+    const autoStartPendingRef = useRef(needsAutoStart);
+    const [autoStarting, setAutoStarting] = useState(needsAutoStart);
+
+    useEffect(() => {
+      if (autoStartPendingRef.current) {
+        onSetStartPosition();
+      }
+      autoStartPendingRef.current = false;
+    }, []);
+
+    useEffect(() => {
+      if (currentChapterState.chessAiMode.mode !== '') {
+        setAutoStarting(false);
+      }
+    }, [currentChapterState.chessAiMode.mode]);
+
+    const hasGameLoaded =
+      hasPgnInUrl ||
+      currentChapterState.messages.length > 1 ||
+      currentChapterState.chessAiMode.mode === 'review';
+
+    const toggleMyGames = async () => {
+      if (!showMyGames && completedGames.length === 0) {
+        setShowMyGames(true);
+        setIsLoadingGames(true);
+        const games = await getCompletedGames();
+        setCompletedGames(games);
+        setIsLoadingGames(false);
+      } else {
+        setShowMyGames((prev) => !prev);
+      }
+    };
+
+    const handleImportGame = (game: CompletedGameItem) => {
+      const lastGame =
+        game.results?.endedGames?.[game.results.endedGames.length - 1];
+      if (!lastGame?.pgn) return;
+      const isChallenger =
+        game.results?.challenger?.id === userData.user_id;
+      const opponentName = isChallenger
+        ? game.target_name_first || 'Opponent'
+        : game.initiator_name_first || 'Opponent';
+      let opponentColor: 'white' | 'black' = 'black';
+      if (lastGame.players) {
+        opponentColor =
+          lastGame.players.w === userData.user_id ? 'black' : 'white';
+      } else {
+        opponentColor = isChallenger ? 'black' : 'white';
+      }
+      addChessAi({
+        ...currentChapterState.chessAiMode,
+        mode: 'review',
+        fen: lastGame.pgn,
+        originalPGN: lastGame.pgn,
+        opponentName,
+        opponentColor,
+        orientationChange: false,
+        responseId: '',
+        message: '',
+      });
+    };
 
     const [moveSan, setMoveSan] = useState('');
     const [moveLan, setMoveLan] = useState('');
 
     const [stockfishMovesInfo, setStockfishMovesInfo] = useState('');
     const [lines, setLines] = useState<StockfishLines>({
-      1: '',
-      2: '',
-      3: '',
+      1: { moves: '', score: 0 },
+      2: { moves: '', score: 0 },
+      3: { moves: '', score: 0 },
     });
 
     const currentTabIndex = useMemo(
@@ -200,7 +285,7 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
       if (data == 'ai_daily_limit_reached') {
         setPulseDot(false);
         onMessage({
-          content: `You’ve hit your daily limit.
+          content: `You've hit your daily limit.
           Unlock Unlimited Puzzles, Unlimited Game Reviews, and Unlimited AI Chat for just €4/Month,  and improve faster with AI-powered analysis and training.`,
 
           participantId: 'chatGPT123456sales',
@@ -340,7 +425,11 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
     }, [scoreCP]);
 
     useEffect(() => {
-      if (currentChapterState.chessAiMode.mode == 'review' && !stockfish) {
+      if (
+        (currentChapterState.chessAiMode.mode === 'review' ||
+          currentChapterState.chessAiMode.mode === 'play') &&
+        !stockfish
+      ) {
         setTimeout(() => setStockfish(true), 1000);
       }
     }, [currentChapterState.chessAiMode.mode]);
@@ -349,30 +438,52 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
       if (
         currentChapterState.chessAiMode.review.length == 0 &&
         currentChapterState.messages[0]?.content ==
-          'Alright, let’s take a look at this one.'
+          "Alright, let's take a look at this one."
       ) {
         setShowNames(false);
       }
     }, [currentChapterState.chessAiMode.review]);
 
-    const isMate = async () => {
-      setStockfishMovesInfo('no best moves,game is ended by checkmate');
-      if (currentChapterState.chessAiMode.mode == 'play') {
-        setTimeout(
-          () =>
-            addChessAi({
-              ...currentChapterState.chessAiMode,
-              mode: 'checkmate',
-              orientationChange: false,
-              originalPGN: currentChapterState.chessAiMode.originalPGN,
-              opponentName: currentChapterState.chessAiMode.opponentName,
-              fen: currentChapterState.displayFen,
-              responseId: '',
-              message: '',
-            }),
-          1000
-        );
+    useEffect(() => {
+      const mode = currentChapterState.chessAiMode.mode;
+      if (mode !== 'play' && mode !== 'review') return;
+      setIsComputingLines(true);
+      onComputingChange?.(true);
+      onLinesChange?.([]); // reset lines so loader shows immediately in mobile
+    }, [currentChapterState.displayFen]);
+
+    useEffect(() => {
+      const mode = currentChapterState.chessAiMode.mode;
+      if (mode !== 'play' && mode !== 'review') return;
+
+      const isReview = mode === 'review';
+      const colors =  ['#07da63', '#07da6388', '#07da6344'];
+      const newArrows: ArrowsMap = {};
+      const newSans: { san: string; score: number }[] = [];
+      ([lines[1], lines[2], lines[3]]).forEach(({ moves, score }, idx) => {
+        if (!moves || moves.length < 4) return;
+        const from = moves.slice(0, 2);
+        const to = moves.slice(2, 4);
+        if (!/^[a-h][1-8]$/.test(from) || !/^[a-h][1-8]$/.test(to)) return;
+        const color = colors[idx];
+        newArrows[`${from}${to}-${color}`] = [from as Square, to as Square, color];
+        const san = uciLineToSan(moves, currentChapterState.displayFen);
+        if (san) newSans.push({ san, score });
+      });
+      if (!isReview && progressReview === 0) {
+        onArrowsChange(newArrows);
       }
+      
+      if (newSans.length > 0) {
+        setDisplayedLineSans(newSans);
+        onLinesChange?.(newSans);
+      }
+      setIsComputingLines(false);
+      onComputingChange?.(false);
+    }, [lines, currentChapterState.chessAiMode.mode]);
+
+    const isMate = async () => {
+      //nothing for now
     };
 
     const ratingEngine = (rating: number) => {
@@ -509,13 +620,39 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
       checkAnswerGPT(data, 'gameOpening');
     };
 
-    const analizeMatch = async () => {
+    const buildPgnFromHistory = (
+      history: ChapterState['notation']['history']
+    ): string => {
+      const parts: string[] = [];
+      for (let i = 0; i < history.length; i++) {
+        const turn = history[i];
+        if (!turn) break;
+        const [white, black] = turn;
+        if (white && !white.isNonMove) parts.push(`${i + 1}. ${white.san}`);
+        if (black && !black.isNonMove) parts.push(black.san);
+      }
+      return parts.join(' ');
+    };
+
+    const handleGameReviewFromPlay = async () => {
+      const pgn = buildPgnFromHistory(currentChapterState.notation.history);
+      if (!pgn) return;
+      addChessAi({
+        ...currentChapterState.chessAiMode,
+        mode: 'review',
+        fen: pgn,
+        originalPGN: pgn,
+      });
+      await analizeMatch(pgn);
+    };
+
+    const analizeMatch = async (pgnOverride?: string) => {
       const hasSubscription = !!userData.product_name && userData.ends_at !==null  ;
       if (!hasSubscription) {
         const review24hData = await getReview24h();
         if (review24hData) {
           onMessage({
-            content: `That’s your free Game Review for today! Want more? Unlock unlimited Game Reviews, Unlimited Puzzles and AI Chat for just €4/Month. 🚀`,
+            content: `That's your free Game Review for today! Want more? Unlock unlimited Game Reviews, Unlimited Puzzles and AI Chat for just €4/Month. 🚀`,
             participantId: 'chatGPT123456sales',
             idResponse: '',
           });
@@ -525,13 +662,19 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
 
       // historyBackToStart(); GUTA BRISAO
       setPulseDot(true);
-      const data = await analyzePGN(
-        currentChapterState.chessAiMode.fen,
-        {
-          onProgress: (progress: number) => setProgressReview(progress),
-        },
-        isMobile
-      );
+      setIsReviewing(true);
+      let data;
+      try {
+        data = await analyzePGN(
+          pgnOverride ?? currentChapterState.chessAiMode.fen,
+          {
+            onProgress: (progress: number) => setProgressReview(progress),
+          },
+          isMobile
+        );
+      } finally {
+        setIsReviewing(false);
+      }
       // console.log('dats', data);
 
       const filtered = data.map((item) => ({
@@ -574,9 +717,19 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
       }
     };
     const handleGameEvaluation = (newScore: number) => {
+      if (isReviewing) return;
       setprevScoreCP(scoreCP);
       setScoreCP(newScore);
+      addGameEvaluation(newScore);
+      if (Math.abs(newScore) >= 49999 ) {
+        setIsComputingLines(false);
+        onComputingChange?.(false);
+      }
     };
+
+    if (autoStarting) {
+      return <div className="flex-1" />;
+    }
 
     return (
       <div className="  flex flex-col flex-1 min-h-0 rounded-lg shadow-2xl flex-1 flex min-h-0 ">
@@ -592,6 +745,8 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
             isMyTurn={isMyTurn}
             engineMove={engineMove}
             addGameEvaluation={handleGameEvaluation}
+            multiPV={3}
+            fixedDepth={currentChapterState.chessAiMode.mode === 'play' ? (isMobile? 11:12) : undefined}
           />
         )}
 
@@ -625,7 +780,7 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
                 // </Button>
               ),
               renderContent: () => (
-                <div className="flex flex-col md:flex-1 h-[400px] md:h-auto gap-2 min-h-0 w-full overflow-hidden md:overflow-scroll no-scrollbar pb-0">
+                <div className="flex flex-col md:flex-1 h-[400px] md:h-auto gap-2 min-h-0 w-full overflow-hidden md:overflow-scroll no-scrollbar pb-0 max-width-[100%]">
                   {/* {isMobile && (
                     <div
                       style={{
@@ -666,7 +821,8 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
                   ${isMobile ? 'mb-2' : ''}
                   `}
                   >
-                    <div className="h-[260px]  md:flex-1  min-h-0 ">
+                    
+                    <div className={`${currentChapterState.chessAiMode.mode=='review' ? 'h-[320px]' : 'h-[290px]'}    md:flex-1  min-h-0 `}>
                       <ConversationReview
                         analizeMatch={analizeMatch}
                         worstMove={analizeWorstMove}
@@ -681,10 +837,27 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
                         suggestions={suggestions}
                         onSuggestedQuestion={addQuestion}
                         onMoveClick={onHistoryNotationRefocus}
+                        hasGameLoaded={hasGameLoaded}
+                        onImportGame={handleImportGame}
+                        completedGames={completedGames}
+                        isLoadingGames={isLoadingGames}
+                        showMyGames={showMyGames}
+                        onToggleMyGames={toggleMyGames}
+                        currentUserId={userData.user_id}
                       />
                     </div>
                     <div>
-                      {currentChapterState.chessAiMode.review?.length !== 0 && (
+                   
+                       { currentChapterState.chessAiMode.mode === 'play' && currentChapterState.notation.history.length >= 9 && (
+                          <ButtonGreen
+                            size="sm"
+                            onClick={handleGameReviewFromPlay}
+                            className=" mt-2 mb-4 py-2 font-bold "
+                          >
+                            Game Review
+                          </ButtonGreen>
+                        )}
+                      {(currentChapterState.chessAiMode.review?.length !== 0 || currentChapterState.chessAiMode.mode === 'play') && (
                         <div className="flex mb-0 mt-2 md:mt-2">
                           <input
                             id="title"
@@ -696,8 +869,8 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
                               boxShadow: '0px 0px 10px 0px #07DA6380',
                             }}
                             // className="w-full my-2 text-sm rounded-md border-slate-500 focus:border-slate-400 border border-transparent block bg-slate-600 text-white block py-1 px-2"
-                            className="w-full text-md rounded-[20px] border  border-conversation-100 bg-[#111111]/40 text-white 
-                        placeholder-slate-400 px-4 py-2  transition-colors duration-200 focus:outline-none 
+                            className="w-full text-base md:text-sm rounded-[20px] border  border-conversation-100 bg-[#111111]/40 text-white
+                        placeholder-slate-500  px-4 py-2  transition-colors duration-200 focus:outline-none
                         focus:ring-1 focus:ring-slate-400 focus:border-conversation-200 hover:border-conversation-300"
                             onChange={(e) => {
                               setQuestion(e.target.value);
@@ -726,26 +899,67 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
                         </div>
                       )}
 
-                      {currentChapterState.chessAiMode.mode == 'review' && (
-                        <div className="md:h-16 h-8 ">
-                          <div className="w-full mt-1 h-4 md:flex hidden overflow-hidden rounded mt-4 ">
+                      {(currentChapterState.chessAiMode.mode == 'review' || currentChapterState.chessAiMode.mode === 'play')  && (
+                        <div className={ 'mt-1 mb-2'}>
+                          <div className="w-full mt-1 h-5 md:flex hidden overflow-hidden rounded mt-4">
                             <div
-                              className={`bg-white transition-all duration-500`}
+                              className="bg-white transition-all duration-500 flex items-center justify-start pl-1"
                               style={{ width: `${percentW}%` }}
-                            ></div>
+                            >
+                              {scoreCP > 0 && scoreCP < 49999 &&  !isReviewing &&  (
+                                <span className="text-[10px] font-bold leading-none whitespace-nowrap relative top-[1px]" style={{ color: '#111' }}>
+                                  +{(scoreCP / 100).toFixed(2)}
+                                </span>
+                              )}
+                             
+                            </div>
                             <div
-                              className={`bg-[#000000] transition-all duration-500`}
+                              className="bg-[#000000] transition-all duration-500 flex items-center justify-end pr-1"
                               style={{ width: `${percentB}%` }}
-                            ></div>
+                            >
+                              {scoreCP < 0 && scoreCP > -49999 && !isReviewing &&  (
+                                <span className="text-[10px] font-bold text-white leading-none whitespace-nowrap relative top-[2px]">
+                                  {(scoreCP / 100).toFixed(2)}
+                                </span>
+                              )}
+                             
+                            </div>
                           </div>
-                          {/* <div>{scoreCP}</div> */}
-                          {scoreCP !== 0 ? (
+                         
+                          {scoreCP !== 0  ? (
+
                             <div
-                              className={`flex justify-between items-center relative top-2 ${
+                              className={`hidden md:flex justify-between items-center relative top-2 h-[72px] ${
                                 showNames ? 'md:top-0' : 'md:top-4'
                               }`}
                             >
-                              <div className={` flex  items-center  `}>
+                              
+                              {/* {currentChapterState.chessAiMode.mode == 'play' ? ( */}
+                                <div className="relative w-full mt-4 min-h-[42px]">
+                                  
+                                  <div className={`flex flex-col gap-1 transition-opacity duration-300 ${isComputingLines ? 'opacity-25' : 'opacity-100'}`}>
+                                    {displayedLineSans.map(({ san, score }, idx) => {
+                                      const scoreLabel = Math.abs(score) >= 49999
+                                        ? `M${score > 0 ? '' : '-'}${Math.abs(score) === 50000 ? '∞' : ''}`
+                                        : `${score >= 0 ? '+' : ''}${(score / 100).toFixed(2)}`;
+                                      return (
+                                        <p key={idx} className={`text-xs truncate flex gap-2 ${idx === 0 ? 'text-white' : idx === 1 ? 'text-gray-400' : 'text-gray-500'}`}>
+                                          <span className="font-mono shrink-0 w-10 text-left">{scoreLabel }</span>
+                                          <span className="truncate">{san}</span>
+                                        </p>
+                                      );
+                                    })}
+                                  </div>
+                                  {isComputingLines && (
+                                    
+                                     <div className="absolute  inset-0 flex items-center justify-start opacity-80">
+                                      <Loader />
+                                       {/* <div className="w-3 h-3 border-2 border-green-400 border-t-transparent rounded-full animate-spin" /> */}
+                                    </div>
+                                  )}
+                                </div>
+                              {/* ) : (
+                                   <div className={` flex  items-center  `}>
                                 {scoreCP < 49999 &&
                                   scoreCP > -49999 &&
                                   evalVisible &&
@@ -770,6 +984,8 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
                                   </p>
                                 )}
                               </div>
+                              )} */}
+                             
                               {!showNames ? (
                                 <ButtonGreen
                                   icon="ArrowLeftIcon"
@@ -782,14 +998,22 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
                                     });
                                   }}
                                   size="md"
-                                  className="bg-green-600  text-black font-bold  px-1 mr-2 whitespace-nowrap px-4"
+                                  className="bg-green-600  text-black  font-bold  px-1 mr-2 whitespace-nowrap px-4"
                                   style={{ color: 'black' }}
-                                >
+                                > 
+                                  {currentChapterState.chessAiMode.opponentName ?
+                                  (
+                                    <>
                                   &nbsp;&nbsp; vs{' '}
                                   {currentChapterState.chessAiMode.opponentName}
+                                  </>
+                                  ):(
+                                    'Back'
+                                  )}
+                                
                                 </ButtonGreen>
                               ) : (
-                                <div className="md:flex hidden items-center overflow-x-hidden gap-3 h-[55px] ">
+                                <div className="md:flex hidden overflow-hidden items-center gap-3 h-[55px] shrink-0 whitespace-nowrap">
                                   <label className="font-bold text-sm  text-gray-400">
                                     {/* Import */}
                                   </label>
@@ -804,10 +1028,17 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
                               )}
                             </div>
                           ) : (
+                            !isMobile && (
+                      <div style={{ height: '60px' }}>
                             <Loader />
+                            </div>
+                            )
+                              
+                             
                           )}
                         </div>
                       )}
+
                     </div>
                   </div>
 
@@ -816,7 +1047,7 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
                       style={{
                         backgroundImage:
                           'radial-gradient(61.84% 61.84% at 50% 131.62%, rgba(5, 135, 44, 0.2) 0%, #01210B 100%)',
-                        height: isMobile ? '52px' : '290px',
+                        height: isMobile ? '52px' : '260px',
                         minHeight: isMobile ? '52px' : '202px',
                       }}
                       className={`
