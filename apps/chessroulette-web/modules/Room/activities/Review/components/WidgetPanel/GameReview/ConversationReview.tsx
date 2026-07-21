@@ -199,7 +199,7 @@ const ConversationReview = ({
   ${
     isTablet
       ? 'h-full'
-      : ` ${currentChapterState.chessAiMode.mode === 'play' ? 'md:h-[340px] h-[290px]' : 'md:h-[400px] h-[320px]'}
+      : ` ${currentChapterState.chessAiMode.mode === 'play' ? 'md:h-[340px] h-[290px]' : 'md:h-[420px] h-[320px]'}
     md:max-h-[600px]`
   }
 `}
