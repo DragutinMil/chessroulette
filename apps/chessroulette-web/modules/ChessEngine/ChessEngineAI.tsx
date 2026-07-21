@@ -160,11 +160,11 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
 
             if (event.data.includes('multipv 2')) {
               setLinesTwo(event.data.slice(pvIndex + 4));
-              setLineTwoScore(parsedScore);
+              setLineTwoScore(isMyTurn ? parsedScore : -parsedScore);
             }
             if (event.data.includes('multipv 1')) {
               setLineOne(event.data.slice(pvIndex + 4));
-              setLineOneScore(parsedScore);
+              setLineOneScore(isMyTurn ? parsedScore : -parsedScore);
               const match = scoreMatch;
 
               // POTEZI EVALUACIJA
@@ -193,7 +193,7 @@ const StockfishEngineAI: React.FC<StockfishEngineAIProps> = ({
             }
             if (event.data.includes('multipv 3')) {
               setLineThree(event.data.slice(pvIndex + 4));
-              setLineThreeScore(parsedScore);
+              setLineThreeScore(isMyTurn ? parsedScore : -parsedScore);
             }
 
             setChanges((prev) => prev + 1);

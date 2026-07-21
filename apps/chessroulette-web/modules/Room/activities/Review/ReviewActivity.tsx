@@ -349,11 +349,9 @@ export const ReviewActivity = ({
                         <div className="relative w-full">
                           <div className={`flex flex-col gap-[2px] w-full transition-opacity duration-300 ${isComputingMobile ? 'opacity-25' : 'opacity-100'}`}>
                             {linesToShow.slice(0, 2).map(({ san, score }, idx) => {
-                              const turn = currentChapter.displayFen.split(' ')[1];
-                              const cpFromWhite = turn === 'b' ? -score : score;
                               const scoreLabel = Math.abs(score) >= 49999
                                 ? '∞'
-                                : `${cpFromWhite >= 0 ? '+' : ''}${(cpFromWhite / 100).toFixed(2)}`;
+                                : `${score >= 0 ? '+' : ''}${(score / 100).toFixed(2)}`;
                               return (
                                 <p key={idx} className={`text-xs truncate flex gap-2 ${idx === 0 ? 'text-white' : 'text-gray-400'}`}>
                                   <span className="font-mono shrink-0 w-10 text-left">{scoreLabel}</span>
