@@ -60,6 +60,7 @@ export const ReviewActivity = ({
   const [mobileLines, setMobileLines] = useState<{ san: string; score: number }[]>([]);
   const [lastKnownMobileLines, setLastKnownMobileLines] = useState<{ san: string; score: number }[]>([]);
   const { isMobile, isTablet } = useIsTablet();
+  
   const [reviewDataToNotation, setReviewDataToNotation] = useState<
     EvaluationMove[]
   >([]);
@@ -105,7 +106,6 @@ export const ReviewActivity = ({
 
   useEffect(() => {
     if (mobileLines.length > 0 && isMobile) {
-      console.log('trtk')
       setLastKnownMobileLines(mobileLines);
     }
   }, [mobileLines]);
@@ -311,7 +311,7 @@ export const ReviewActivity = ({
                     height: '50px',
                     minHeight: '50px',
                   }}
-                  className="flex overflow-x-auto rounded-lg py-2 "
+                  className="flex overflow-x-auto overflow-y-hidden rounded-lg py-2 "
                 >
                   <FreeBoardNotation
                     reviewDataToNotation={reviewDataToNotation}
