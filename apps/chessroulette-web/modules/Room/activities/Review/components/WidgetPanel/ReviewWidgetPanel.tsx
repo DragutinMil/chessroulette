@@ -163,6 +163,7 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
 
     const [scoreCP, setScoreCP] = useState(0);
     const [prevScoreCP, setprevScoreCP] = useState(0);
+    const [isReviewing, setIsReviewing] = useState(false);
 
     const [showNames, setShowNames] = useState(true);
     const smallMobile =
@@ -661,13 +662,19 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
 
       // historyBackToStart(); GUTA BRISAO
       setPulseDot(true);
-      const data = await analyzePGN(
-        pgnOverride ?? currentChapterState.chessAiMode.fen,
-        {
-          onProgress: (progress: number) => setProgressReview(progress),
-        },
-        isMobile
-      );
+      setIsReviewing(true);
+      let data;
+      try {
+        data = await analyzePGN(
+          pgnOverride ?? currentChapterState.chessAiMode.fen,
+          {
+            onProgress: (progress: number) => setProgressReview(progress),
+          },
+          isMobile
+        );
+      } finally {
+        setIsReviewing(false);
+      }
       // console.log('dats', data);
 
       const filtered = data.map((item) => ({
@@ -710,6 +717,7 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
       }
     };
     const handleGameEvaluation = (newScore: number) => {
+      if (isReviewing) return;
       setprevScoreCP(scoreCP);
       setScoreCP(newScore);
       addGameEvaluation(newScore);
@@ -891,14 +899,14 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
                         </div>
                       )}
 
-                      {(currentChapterState.chessAiMode.mode == 'review' || currentChapterState.chessAiMode.mode === 'play') && (
+                      {(currentChapterState.chessAiMode.mode == 'review' || currentChapterState.chessAiMode.mode === 'play')  && (
                         <div className={ 'mt-1 mb-2'}>
                           <div className="w-full mt-1 h-5 md:flex hidden overflow-hidden rounded mt-4">
                             <div
                               className="bg-white transition-all duration-500 flex items-center justify-start pl-1"
                               style={{ width: `${percentW}%` }}
                             >
-                              {scoreCP > 0 && scoreCP < 49999 && (
+                              {scoreCP > 0 && scoreCP < 49999 &&  !isReviewing &&  (
                                 <span className="text-[10px] font-bold leading-none whitespace-nowrap relative top-[1px]" style={{ color: '#111' }}>
                                   +{(scoreCP / 100).toFixed(2)}
                                 </span>
@@ -909,7 +917,7 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
                               className="bg-[#000000] transition-all duration-500 flex items-center justify-end pr-1"
                               style={{ width: `${percentB}%` }}
                             >
-                              {scoreCP < 0 && scoreCP > -49999 && (
+                              {scoreCP < 0 && scoreCP > -49999 && !isReviewing &&  (
                                 <span className="text-[10px] font-bold text-white leading-none whitespace-nowrap relative top-[2px]">
                                   {(scoreCP / 100).toFixed(2)}
                                 </span>
@@ -931,11 +939,9 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
                                   
                                   <div className={`flex flex-col gap-1 transition-opacity duration-300 ${isComputingLines ? 'opacity-25' : 'opacity-100'}`}>
                                     {displayedLineSans.map(({ san, score }, idx) => {
-                                      const turn = currentChapterState.displayFen.split(' ')[1];
-                                      const cpFromWhite = turn === 'b' ? -score : score;
                                       const scoreLabel = Math.abs(score) >= 49999
                                         ? `M${score > 0 ? '' : '-'}${Math.abs(score) === 50000 ? '∞' : ''}`
-                                        : `${cpFromWhite >= 0 ? '+' : ''}${(cpFromWhite / 100).toFixed(2)}`;
+                                        : `${score >= 0 ? '+' : ''}${(score / 100).toFixed(2)}`;
                                       return (
                                         <p key={idx} className={`text-xs truncate flex gap-2 ${idx === 0 ? 'text-white' : idx === 1 ? 'text-gray-400' : 'text-gray-500'}`}>
                                           <span className="font-mono shrink-0 w-10 text-left">{scoreLabel }</span>
@@ -1007,7 +1013,7 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
                                 
                                 </ButtonGreen>
                               ) : (
-                                <div className="md:flex hidden items-center gap-3 h-[55px] shrink-0 whitespace-nowrap">
+                                <div className="md:flex hidden overflow-hidden items-center gap-3 h-[55px] shrink-0 whitespace-nowrap">
                                   <label className="font-bold text-sm  text-gray-400">
                                     {/* Import */}
                                   </label>
