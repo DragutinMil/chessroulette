@@ -27,21 +27,21 @@ export default (props: Props) => {
       pb-0 md:pb-[1rem] 
       flex justify-between "
     >
-      <div
-        className="flex justify-center items-center"
+      <div className="flex justify-center items-center"
         onClick={() => {
-          // if (Cookies.get('sessionToken')) {
           router.push('https://app.outpostchess.com/online-list');
-          // }
         }}
       >
+
+      
         <svg
-          className="md:hidden flex relative -left-3"
+          className="md:hidden flex relative -left-3 cursor-pointer"
           xmlns="http://www.w3.org/2000/svg"
           height="24px"
           viewBox="0 -960 960 960"
           width="24px"
           fill="#FFFFFF"
+        
         >
           <path d="m313-440 224 224-57 56-320-320 320-320 57 56-224 224h487v80H313Z" />
         </svg>
