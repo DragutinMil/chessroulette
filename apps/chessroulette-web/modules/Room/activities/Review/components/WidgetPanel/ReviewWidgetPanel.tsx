@@ -42,6 +42,7 @@ import { useWidgetPanelTabsNavAsSearchParams } from '../useWidgetPanelTabsNav';
 import { SendQuestionReview } from './GameReview/SendQuestionReview';
 import { CheckPiece } from './CheckPiece';
 import { ChessEngineProbabilityCalc } from '@app/modules/ChessEngine/components/ChessEngineCalculator';
+import { EvalBar } from '@app/modules/ChessEngine/components/EvalBar';
 
 import {
   reviewAnalitics,
@@ -242,7 +243,7 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
         setShowMyGames((prev) => !prev);
       }
     };
-    console.log('hasGameLoaded', hasGameLoaded);
+    // console.log('hasGameLoaded', hasGameLoaded);
     const handleImportGame = (game: CompletedGameItem) => {
       const lastGame =
         game.results?.endedGames?.[game.results.endedGames.length - 1];
@@ -641,19 +642,32 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
     const buildPgnFromHistory = (
       history: ChapterState['notation']['history']
     ): string => {
-      const parts: string[] = [];
+      const chess = new Chess();
       for (let i = 0; i < history.length; i++) {
         const turn = history[i];
         if (!turn) break;
         const [white, black] = turn;
-        if (white && !white.isNonMove) parts.push(`${i + 1}. ${white.san}`);
-        if (black && !black.isNonMove) parts.push(black.san);
+        if (white && !white.isNonMove) {
+          chess.move({
+            from: white.from,
+            to: white.to,
+            promotion: white.promoteTo,
+          });
+        }
+        if (black && !black.isNonMove) {
+          chess.move({
+            from: black.from,
+            to: black.to,
+            promotion: black.promoteTo,
+          });
+        }
       }
-      return parts.join(' ');
+      return chess.pgn();
     };
 
     const handleGameReviewFromPlay = async () => {
       const pgn = buildPgnFromHistory(currentChapterState.notation.history);
+      console.log('pgn',pgn)
       if (!pgn) return;
       addChessAi({
         ...currentChapterState.chessAiMode,
@@ -881,9 +895,9 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
                       {currentChapterState.chessAiMode.mode === 'play' &&
                         currentChapterState.notation.history.length >= 9 && (
                           <ButtonGreen
-                            size="sm"
+                            size="md"
                             onClick={handleGameReviewFromPlay}
-                            className=" mt-2 mb-4 py-2 font-bold "
+                            className="w-32 mt-2 mb-4 py-2 font-bold "
                           >
                             Game Review
                           </ButtonGreen>
@@ -934,35 +948,12 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
                       {(currentChapterState.chessAiMode.mode == 'review' ||
                         currentChapterState.chessAiMode.mode === 'play') && (
                         <div className={'mt-1 mb-2'}>
-                          <div className="w-full mt-1 h-5 md:flex hidden overflow-hidden rounded mt-4">
-                            <div
-                              className="bg-white transition-all duration-500 flex items-center justify-start pl-1"
-                              style={{ width: `${percentW}%` }}
-                            >
-                              {scoreCP > 0 &&
-                                scoreCP < 49999 &&
-                                !isReviewing && (
-                                  <span
-                                    className="text-[10px] font-bold leading-none whitespace-nowrap relative top-[1px]"
-                                    style={{ color: '#111' }}
-                                  >
-                                    +{(scoreCP / 100).toFixed(2)}
-                                  </span>
-                                )}
-                            </div>
-                            <div
-                              className="bg-[#000000] transition-all duration-500 flex items-center justify-end pr-1"
-                              style={{ width: `${percentB}%` }}
-                            >
-                              {scoreCP < 0 &&
-                                scoreCP > -49999 &&
-                                !isReviewing && (
-                                  <span className="text-[10px] font-bold text-white leading-none whitespace-nowrap relative top-[2px]">
-                                    {(scoreCP / 100).toFixed(2)}
-                                  </span>
-                                )}
-                            </div>
-                          </div>
+                          <EvalBar
+                            percentW={percentW}
+                            percentB={percentB}
+                            scoreCP={scoreCP}
+                            hideScore={isReviewing}
+                          />
 
                           {scoreCP !== 0 ? (
                             <div

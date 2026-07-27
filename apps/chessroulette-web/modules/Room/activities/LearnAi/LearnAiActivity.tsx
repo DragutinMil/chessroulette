@@ -28,8 +28,18 @@ import { FlipBoardIconButton } from '@app/components/Chessboard';
 import { IconButton } from '@app/components/Button';
 import { ArrowsMap } from '@app/components/Chessboard/types';
 import { FreeBoardHistory } from '@xmatter/util-kit';
+import { useIsTablet } from '@app/hooks/useIsTablet';
+import { EvalBar } from '@app/modules/ChessEngine/components/EvalBar';
 
 // import { InstructorBoard } from './components/InstructorBoard';
+
+const WRONG_TEST_MOVE_MESSAGES = [
+  'Good try, but off-track. Stick strictly to the steps on the board.',
+  "Fair effort, but not our focus today. Follow the board's method.",
+  'Not bad, but that strays. Realign with the process on the board.',
+  'Decent attempt, but wrong path. Focus on the board step-by-step.',
+  "Nice try, but let's reset. Follow the exact board breakdown.",
+];
 
 type Props = {
   remoteState: LearnAiActivityState['activityState'];
@@ -67,6 +77,8 @@ export const LearnAiActivity = ({
 
   const [playerNames, setPlayerNames] = useState(Array<string>);
   const [canFreePlay, setCanFreePlay] = useState(false);
+  const [mobileScoreCP, setMobileScoreCP] = useState(0);
+  const { isMobile } = useIsTablet();
 
   const [userData, setUserData] = useState({
     name_first: '',
@@ -218,6 +230,26 @@ export const LearnAiActivity = ({
                 onNewOpening={() => newOpeningCallbackRef.current?.()}
               />
               <div>
+                {isMobile &&
+                  (() => {
+                    const k = 0.00358208;
+                    const rawPct =
+                      (1 / (1 + Math.exp(-k * mobileScoreCP))) * 100;
+                    const pctW =
+                      currentChapter.orientation === 'w'
+                        ? rawPct
+                        : 100 - rawPct;
+                    const pctB = 100 - pctW;
+                    return (
+                      <EvalBar
+                        percentW={pctW}
+                        percentB={pctB}
+                        scoreCP={0}
+                        hideScore
+                        wrapperClassName="w-[96%] h-[8px] flex overflow-hidden  mb-2 rounded-xl"
+                      />
+                    );
+                  })()}
                 <LearnAiBoard
                   sizePx={boardSize}
                   {...currentChapter}
@@ -397,6 +429,26 @@ export const LearnAiActivity = ({
                                   } as aiLearn,
                                 })
                               );
+                              const wrongMoveMessage =
+                                WRONG_TEST_MOVE_MESSAGES[
+                                  Math.floor(
+                                    Math.random() *
+                                      WRONG_TEST_MOVE_MESSAGES.length
+                                  )
+                                ];
+                              enqueueMovexUpdate(() =>
+                                dispatch({
+                                  type: 'loadedChapter:writeMessage',
+                                  payload: {
+                                    content: wrongMoveMessage,
+                                    participantId: 'chatGPT123456',
+                                    idResponse:
+                                      currentChapter.messages[
+                                        currentChapter.messages.length - 1
+                                      ]?.idResponse ?? '',
+                                  },
+                                })
+                              );
                               if (nextUci && nextUci.length >= 4) {
                                 const hFrom = nextUci.slice(0, 2);
                                 const hTo = nextUci.slice(2, 4);
@@ -568,6 +620,7 @@ export const LearnAiActivity = ({
             </div>
           )}
           <WidgetPanel
+            addGameEvaluation={async (score) => setMobileScoreCP(score)}
             onTakeBack={async (payload) => {
               await enqueueMovexUpdate(() =>
                 dispatch({
