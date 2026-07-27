@@ -46,6 +46,7 @@ type Props = {
   onSetOrientation?: (color: 'w' | 'b') => void;
   onRegisterNewOpening?: (fn: () => void) => void;
   onRegisterKeepPlaying?: (fn: () => void) => void;
+  addGameEvaluation?: (score: number) => void;
 } & Pick<
   ChaptersTabProps,
   | 'onLoadChapter'
@@ -87,6 +88,7 @@ export const WidgetPanel = React.forwardRef<TabsRef, Props>(
       onHistoryNotationRefocus,
       onRegisterNewOpening,
       onRegisterKeepPlaying,
+      addGameEvaluation,
       ...chaptersTabProps
     },
     tabsRef
@@ -97,6 +99,7 @@ export const WidgetPanel = React.forwardRef<TabsRef, Props>(
         addLearnAi={addLearnAi}
         onRegisterNewOpening={onRegisterNewOpening}
         onRegisterKeepPlaying={onRegisterKeepPlaying}
+        addGameEvaluation={addGameEvaluation}
         playerNames={playerNames}
         onHistoryNotationDelete={onHistoryNotationDelete}
         onHistoryNotationRefocus={onHistoryNotationRefocus}

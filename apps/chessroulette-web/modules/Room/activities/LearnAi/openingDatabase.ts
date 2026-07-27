@@ -1536,7 +1536,7 @@ export const OPENING_DATABASE: OpeningFamily[] = [
           null,
           'Black plays f5 — the Schliemann (Norwegian) Defense! Very sharp and aggressive.',
           null,
-          'Black takes the knight.',
+          'White developed the Knight and defended the central pawn.',
           null,
           'Black strikes in the center — d5 is the key move.',
           "White's knight attacks e4.",
