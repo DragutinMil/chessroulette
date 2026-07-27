@@ -5,6 +5,17 @@ import { ButtonGreen } from '@app/components/Button/ButtonGreen';
 import { parseMessageMoves } from '../../util';
 import { FreeBoardNotationProps } from '@app/components/FreeBoardNotation';
 
+function renderMarkdownInline(text: string): React.ReactNode[] {
+  const parts = text.split(/(\*\*[^*]+\*\*|\*[^*]+\*)/g);
+  return parts.map((part, i) => {
+    if (part.startsWith('**') && part.endsWith('**'))
+      return <strong key={i}>{part.slice(2, -2)}</strong>;
+    if (part.startsWith('*') && part.endsWith('*'))
+      return <em key={i}>{part.slice(1, -1)}</em>;
+    return part;
+  });
+}
+
 interface TypewriterTextProps {
   lastMessage: string;
   scrollToBottom: () => void;
@@ -102,12 +113,16 @@ const TypewriterText: React.FC<TypewriterTextProps> = ({
                 </button>
               );
             }
-            return <React.Fragment key={i}>{seg.value}</React.Fragment>;
+            return (
+              <React.Fragment key={i}>
+                {renderMarkdownInline(seg.value)}
+              </React.Fragment>
+            );
           }
           if (seg.start < L) {
             return (
               <React.Fragment key={i}>
-                {displayedText.slice(seg.start, L)}
+                {renderMarkdownInline(displayedText.slice(seg.start, L))}
               </React.Fragment>
             );
           }
