@@ -75,10 +75,14 @@ export const LearnAiBoard = ({
       rightSideComponent={
         <>
           <div className="flex-1">
-            {/* {settings.canFlipBoard && (
+            {settings.canFlipBoard && (
               <FlipBoardIconButton className="mb-2" onClick={onFlip} />
-            )} */}
-            {settings.isInstructor && (
+            )}
+            <StartPositionIconButton
+                  className="mb-2"
+                  onClick={onResetBoard}
+                /> 
+            {/* {settings.isInstructor && ( */}
               <>
                 {/* <StartPositionIconButton
                   className="mb-2"
@@ -90,7 +94,7 @@ export const LearnAiBoard = ({
                   onClick={onBoardEditor}
                 /> */}
               </>
-            )}
+            {/* )} */}
           </div>
           {rightSideComponent}
         </>

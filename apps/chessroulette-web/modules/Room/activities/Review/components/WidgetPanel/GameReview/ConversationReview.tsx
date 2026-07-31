@@ -120,7 +120,8 @@ const ConversationReview = ({
             <ButtonGreen
               icon={showMyGames ? 'ChevronUpIcon' : 'ChevronDownIcon'}
               onClick={onToggleMyGames}
-              className="w-32 text-sm text-white py-[6px] rounded-[20px] transition-colors"
+               className="font-bold w-32  whitespace-nowrap"
+              // className="w-32 text-sm text-white py-[6px] rounded-[20px] transition-colors"
             >
               My Games
             </ButtonGreen>

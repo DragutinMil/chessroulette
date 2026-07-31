@@ -279,37 +279,44 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
       return prev;
     }
 
-    // if (action.payload.input.type === 'FEN') {
-    //   if (!ChessFENBoard.validateFenString(action.payload.input.val).ok) {
-    //     return prev;
-    //   }
+    if (action.payload.input.type === 'FEN') {
+      if (!ChessFENBoard.validateFenString(action.payload.input.val).ok) {
+        return prev;
+      }
 
-    //   const nextFen = action.payload.input.val;
-    //   const notation = {
-    //      ...prev.activityState.chaptersMap[0].notation,
-    //     focusedIndex: FreeBoardHistory.getStartingIndex(),
-    //   };
-    //   const nextChapterState: ChapterState = {
-    //     ...prevChapter,
-    //     // arrowsMap: {},
-    //     displayFen: nextFen,
-    //     notation: notation,
-    //   };
+      const nextFen = action.payload.input.val;
+      const nextChapterState: ChapterState = {
+        ...prevChapter,
+        arrowsMap: {},
+        displayFen: nextFen,
+        chessAiMode: {
+          ...prevChapter.chessAiMode,
+          review: [],
+          fen: nextFen,
+        },
 
-    //   return {
-    //     ...prev,
-    //     activityState: {
-    //       ...prev.activityState,
-    //       chaptersMap: {
-    //         ...prev.activityState.chaptersMap,
-    //         [0]: {
-    //           ...prev.activityState.chaptersMap[0],
-    //           ...nextChapterState,
-    //         },
-    //       },
-    //     },
-    //   };
-    // }
+        // A pasted FEN has no move history, so start a fresh notation rooted at it
+        notation: {
+          startingFen: nextFen,
+          history: [],
+          focusedIndex: FreeBoardHistory.getStartingIndex(),
+        },
+      };
+
+      return {
+        ...prev,
+        activityState: {
+          ...prev.activityState,
+          chaptersMap: {
+            ...prev.activityState.chaptersMap,
+            [0]: {
+              ...prev.activityState.chaptersMap[0],
+              ...nextChapterState,
+            },
+          },
+        },
+      };
+    }
 
     if (action.payload.input.type === 'PGN') {
       if (!isValidPgn(action.payload.input.val)) {

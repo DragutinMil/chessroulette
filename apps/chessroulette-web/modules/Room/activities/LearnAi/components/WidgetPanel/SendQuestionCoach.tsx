@@ -15,7 +15,8 @@ export async function SendQuestionCoach(
   currentChapterState: ChapterState,
   uciMoves?: string,
   currentVariantName?: string | null,
-  variantContext?: string
+  variantContext?: string,
+  subscriptionContext?: string
 ) {
   const model = 'gpt-5.1';
   const previusMessageId =
@@ -40,6 +41,7 @@ console.log('piecesUserColor', piecesUserColor);
     '\nMoves played (uci): ' +
     (uciMoves ?? '') +
     (variantContext ? '\n\n' + variantContext : '') +
+    (subscriptionContext ? '\n\n' + subscriptionContext : '') +
     '\n\n' +
     UI_CONTROLS;
 

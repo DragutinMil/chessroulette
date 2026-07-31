@@ -24,10 +24,8 @@ import type {
 import { slicePgn } from './GameReview/slicePgn';
 import Loader from './Loader';
 import { CircleDrawTuple, ArrowsMap } from '@app/components/Chessboard/types';
-import {
-  PgnInputBox,
-  PgnInputBoxProps,
-} from '@app/components/PgnInputBox/PgnInputBox';
+import { PgnInputBoxProps } from '@app/components/PgnInputBox/PgnInputBox';
+import { ImportDialogContainer } from '../../DialogContainer/ImportDialogContainer';
 import ConversationReview from './GameReview/ConversationReview';
 
 import { Square, Chess } from 'chess.js';
@@ -143,6 +141,7 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
     tabsRef
   ) => {
     const widgetPanelTabsNav = useWidgetPanelTabsNavAsSearchParams();
+    const [importDialogVisible, setImportDialogVisible] = useState(false);
     const [isOutpostWebViewAndroid, setIsOutpostWebViewAndroid] =
       useState(false);
     const [isOutpostWebViewIos, setIsOutpostWebViewIos] = useState(false);
@@ -895,9 +894,9 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
                       {currentChapterState.chessAiMode.mode === 'play' &&
                         currentChapterState.notation.history.length >= 9 && (
                           <ButtonGreen
-                            size="md"
+                            
                             onClick={handleGameReviewFromPlay}
-                            className="w-32 mt-2 mb-4 py-2 font-bold "
+                           className="font-bold w-32  whitespace-nowrap mb-4"
                           >
                             Game Review
                           </ButtonGreen>
@@ -955,13 +954,12 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
                             hideScore={isReviewing}
                           />
 
-                          {scoreCP !== 0 ? (
-                            <div
-                              className={`hidden md:flex justify-between items-center relative top-2 h-[72px] ${
-                                showNames ? 'md:top-0' : 'md:top-4'
-                              }`}
-                            >
-                              {/* {currentChapterState.chessAiMode.mode == 'play' ? ( */}
+                          <div
+                            className={`hidden md:flex justify-between items-center relative top-2 h-[72px] ${
+                              showNames ? 'md:top-0' : 'md:top-4'
+                            }`}
+                          >
+                            {scoreCP !== 0 ? (
                               <div className="relative w-full mt-4 min-h-[42px]">
                                 <div
                                   className={`flex flex-col gap-1 transition-opacity duration-300 ${
@@ -1007,88 +1005,76 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
                                 {isComputingLines && (
                                   <div className="absolute  inset-0 flex items-center justify-start opacity-80">
                                     <Loader />
-                                    {/* <div className="w-3 h-3 border-2 border-green-400 border-t-transparent rounded-full animate-spin" /> */}
                                   </div>
                                 )}
                               </div>
-                              {/* ) : (
-                                   <div className={` flex  items-center  `}>
-                                {scoreCP < 49999 &&
-                                  scoreCP > -49999 &&
-                                  evalVisible &&
-                                  (currentChapterState.orientation == 'b' ? (
-                                    <p className={'font-bold '}>
-                                      {' '}
-                                      {(scoreCP / 100) * -1}
-                                    </p>
-                                  ) : (
-                                    evalVisible && (
-                                      <p className={'font-bold '}>
-                                        {' '}
-                                        {scoreCP / 100}
-                                      </p>
-                                    )
-                                  ))}
-                                &nbsp;&nbsp;{' '}
-                                {moveSan && (
-                                  <p className={'text-sm  '}>
-                                    {' '}
-                                    Best Move: {moveSan}{' '}
-                                  </p>
-                                )}
-                              </div>
-                              )} */}
-
-                              {!showNames ? (
-                                <ButtonGreen
-                                  icon="ArrowLeftIcon"
-                                  onClick={() => {
-                                    setShowNames(true);
-                                    onQuickImport({
-                                      type: 'PGN',
-                                      val: currentChapterState.chessAiMode
-                                        .originalPGN,
-                                    });
-                                  }}
-                                  size="md"
-                                  className="bg-green-600  text-black  font-bold  px-1 mr-2 whitespace-nowrap px-4"
-                                  style={{ color: 'black' }}
-                                >
-                                  {currentChapterState.chessAiMode
-                                    .opponentName ? (
-                                    <>
-                                      &nbsp;&nbsp; vs{' '}
-                                      {
-                                        currentChapterState.chessAiMode
-                                          .opponentName
-                                      }
-                                    </>
-                                  ) : (
-                                    'Back'
-                                  )}
-                                </ButtonGreen>
-                              ) : (
-                                <div className="md:flex hidden overflow-hidden items-center gap-3 h-[55px] shrink-0 whitespace-nowrap">
-                                  <label className="font-bold text-sm  text-gray-400">
-                                    {/* Import */}
-                                  </label>
-                                  {!isTablet && (
-                                    <PgnInputBox
-                                      compact
-                                      containerClassName="flex-1"
-                                      onChange={onImport}
-                                    />
-                                  )}
+                            ) : (
+                              !isMobile && (
+                                <div style={{ height: '60px' }}>
+                                  <Loader />
                                 </div>
-                              )}
-                            </div>
-                          ) : (
-                            !isMobile && (
-                              <div style={{ height: '60px' }}>
-                                <Loader />
+                              )
+                            )}
+
+                            {!showNames ? (
+                              <ButtonGreen
+                                icon="ArrowLeftIcon"
+                                onClick={() => {
+                                  setShowNames(true);
+                                  onQuickImport({
+                                    type: 'PGN',
+                                    val: currentChapterState.chessAiMode
+                                      .originalPGN,
+                                  });
+                                }}
+                                size="md"
+                                className="bg-green-600  text-black  font-bold  px-1 mr-2 whitespace-nowrap px-4"
+                                style={{ color: 'black' }}
+                              >
+                                {currentChapterState.chessAiMode
+                                  .opponentName ? (
+                                  <>
+                                    &nbsp;&nbsp; vs{' '}
+                                    {
+                                      currentChapterState.chessAiMode
+                                        .opponentName
+                                    }
+                                  </>
+                                ) : (
+                                  'Back'
+                                )}
+                              </ButtonGreen>
+                            ) : (
+                              <div className="md:flex hidden overflow-hidden items-center gap-3 h-[55px]  shrink-0 whitespace-nowrap">
+                                <label className="font-bold text-sm  text-gray-400">
+                                  {/* Import */}
+                                </label>
+                                {!isTablet &&
+                                  currentChapterState.chessAiMode.mode ===
+                                    'play' && (
+                                    <>
+                                      <ButtonGreen
+                                        
+                                       className="font-bold w-40  whitespace-nowrap"
+                                       
+                                        onClick={() =>
+                                          setImportDialogVisible(true)
+                                        }
+                                      >
+                                        Import PGN/FEN
+                                      </ButtonGreen>
+                                      <ImportDialogContainer
+                                        visible={importDialogVisible}
+                                        onClose={() =>
+                                          setImportDialogVisible(false)
+                                        }
+                                        onImport={onImport}
+                                      />
+                                    </>
+                                  )}
                               </div>
-                            )
-                          )}
+                            )}
+                          </div>
                         </div>
                       )}
                     </div>
