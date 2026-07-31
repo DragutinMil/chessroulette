@@ -1,7 +1,6 @@
 import { useReducer, useRef, useEffect, useState } from 'react';
 import { MovexBoundResourceFromConfig } from 'movex-react';
-import { ChessFENBoard, noop, swapColor, isValidPgn } from '@xmatter/util-kit';
-import { DragAndDrop } from '@app/components/PgnInputBox/DragAndDrop';
+import { ChessFENBoard, noop, swapColor } from '@xmatter/util-kit';
 import { PanelResizeHandle } from 'react-resizable-panels';
 import movexConfig from '@app/movex.config';
 import { TabsRef } from '@app/components/Tabs';
@@ -10,6 +9,7 @@ import { useIsTablet } from '@app/hooks/useIsTablet';
 import { useReviewActivitySettings } from './hooks/useReviewActivitySettings';
 import { getSubscribeInfo } from './util';
 import { ReviewDialogContainer } from './DialogContainer/ReviewDialogContainer';
+import { ImportDialogContainer } from './DialogContainer/ImportDialogContainer';
 import { enqueueMovexUpdate } from './util';
 import { IconButton } from '@app/components/Button';
 import { InstructorBoard } from './components/InstructorBoard';
@@ -56,6 +56,7 @@ export const ReviewActivity = ({
   const [playerNames, setPlayerNames] = useState(Array<string>);
   const [canFreePlay, setCanFreePlay] = useState(false);
   const [isFocusedInput, setIsFocusedInput] = useState(false);
+  const [importDialogVisible, setImportDialogVisible] = useState(false);
   const [mobileScoreCP, setMobileScoreCP] = useState(0);
   const [mobileLines, setMobileLines] = useState<
     { san: string; score: number }[]
@@ -77,6 +78,7 @@ export const ReviewActivity = ({
     product_name: '',
     user_id: '',
     puz_rating: '',
+    new_product_id:''
   });
   // const [onChangePuzzleAnimation, setChangePuzzleAnimation] = useState(false);
   const settings = useReviewActivitySettings();
@@ -265,6 +267,7 @@ export const ReviewActivity = ({
       product_name: data?.product_name,
       user_id: data?.user_id,
       puz_rating: data?.puz_rating,
+      new_product_id:data?.new_product_id
     });
   };
   const onCanPlayChange = (canPlay: boolean) => {
@@ -403,40 +406,18 @@ export const ReviewActivity = ({
                         );
                       })()}
                     </div>
-                    <DragAndDrop
-                      fileTypes={['PGN', 'FEN', 'TXT']}
-                      onUpload={(f: any) => {
-                        const fileData = new FileReader();
-                        fileData.onloadend = (s) => {
-                          if (s.target && typeof s.target.result === 'string') {
-                            const input = s.target.result
-                              .split('\n')
-                              .filter((line) => !line.startsWith('['))
-                              .join(' ')
-                              .trim();
-                            if (!input) return;
-                            if (ChessFENBoard.validateFenString(input).ok) {
-                              enqueueMovexUpdate(() =>
-                                dispatchInputState({
-                                  type: 'import',
-                                  payload: { type: 'FEN', val: input },
-                                })
-                              );
-                            } else if (isValidPgn(input)) {
-                              enqueueMovexUpdate(() =>
-                                dispatchInputState({
-                                  type: 'import',
-                                  payload: { type: 'PGN', val: input },
-                                })
-                              );
-                            }
-                          }
-                        };
-                        fileData.readAsText(f);
+                    <ButtonGreen onClick={() => setImportDialogVisible(true)}>
+                      Upload a PGN
+                    </ButtonGreen>
+                    <ImportDialogContainer
+                      visible={importDialogVisible}
+                      onClose={() => setImportDialogVisible(false)}
+                      onImport={(payload) => {
+                        enqueueMovexUpdate(() =>
+                          dispatchInputState({ type: 'import', payload })
+                        );
                       }}
-                    >
-                      <ButtonGreen>Upload a PGN</ButtonGreen>
-                    </DragAndDrop>
+                    />
                   </div>
                   {/* )} */}
                 </div>

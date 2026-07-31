@@ -8,6 +8,7 @@ import { parseMessageMoves } from '../../util';
 import React from 'react';
 import { FreeBoardNotationProps } from '@app/components/FreeBoardNotation';
 import type { OpeningBranchMove } from '../../openingDatabase';
+import { Paywall } from '@app/components/Paywall/Paywall';
 
 function renderMarkdownInline(text: string): React.ReactNode[] {
   const parts = text.split(/(\*\*[^*]+\*\*|\*[^*]+\*)/g);
@@ -23,9 +24,14 @@ function renderMarkdownInline(text: string): React.ReactNode[] {
 type Props = {
   showColorChoice?: boolean;
   onSelectColor?: (color: 'w' | 'b') => void;
-  suggestedOpenings?: Array<{ name: string; pgn: string }> | null;
+  suggestedOpenings?: Array<{
+    name: string;
+    pgn: string;
+    locked?: boolean;
+  }> | null;
   onSelectOpening?: (opening: { name: string; pgn: string }) => void;
   onSelectSomethingElse?: () => void;
+  freemiumOpenings?: Array<{ name: string; pgn: string }>;
   currentChapterState: ChapterState;
   pulseDot: boolean;
   userData: UserData;
@@ -55,6 +61,7 @@ const Conversation = ({
   suggestedOpenings,
   onSelectOpening,
   onSelectSomethingElse,
+  freemiumOpenings,
   currentChapterState,
   pulseDot,
   userData,
@@ -117,12 +124,17 @@ const Conversation = ({
     });
   }, [currentChapterState.messages, pulseDot]);
 
+  const [lockedOpeningClicked, setLockedOpeningClicked] = useState<
+    string | null
+  >(null);
+
   const scrollToBottom = () => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   };
   return (
+    <>
     <div
       ref={scrollRef}
       className="min-w-0 max-w-full overflow-y-auto overflow-x-hidden rounded-lg scroll-smooth no-scrollbar h-[350px]  md:h-[560px] md:flex-1 md:min-h-0 pt-2"
@@ -176,17 +188,30 @@ const Conversation = ({
                         onDone={() => setTypingDone(true)}
                       />
                       {isSales && isLastMessage && (
-                        <div className="flex  items-center gap-3 md:flex mt-2">
+                        <div className="flex  items-center gap-3  md:flex mt-2 flex-wrap">
                           <ButtonGreen
                             onClick={() => {
                               openViewSubscription();
                             }}
-                            size="lg"
-                            className="bg-green-600  text-black font-bold "
+                            size="md"
+                            className="bg-green-600 w-28 text-black font-semibold "
                             style={{ color: 'black' }}
                           >
                             Subscribe
                           </ButtonGreen>
+                          {freemiumOpenings?.map((op) => (
+                            <ButtonGreen
+                              key={op.name}
+                              onClick={() => onSelectOpening?.(op)}
+                              size="md"
+                              title={op.name}
+                              className="min-w-0 max-w-[330px] md:max-w-[380px] font-semibold"
+                            >
+                              <span className="block truncate">
+                                {op.name}
+                              </span>
+                            </ButtonGreen>
+                          ))}
                         </div>
                       )}
 
@@ -198,9 +223,18 @@ const Conversation = ({
                             {suggestedOpenings.map((op) => (
                               <ButtonGreen
                                 key={op.name}
-                                onClick={() => onSelectOpening?.(op)}
+                                onClick={() =>
+                                  op.locked
+                                    ? setLockedOpeningClicked(op.name)
+                                    : onSelectOpening?.(op)
+                                }
+                                icon={op.locked ? 'LockClosedIcon' : undefined}
                                 size="md"
-                                title={op.name}
+                                title={
+                                  op.locked
+                                    ? `${op.name} — subscribe to unlock`
+                                    : op.name
+                                }
                                 className="min-w-0 max-w-[330px] md:max-w-[380px] font-semibold mt-2 px-3 mr-2"
                               >
                                 <span className="block truncate">
@@ -450,6 +484,17 @@ const Conversation = ({
           )}
       </div>
     </div>
+    <Paywall
+      visible={!!lockedOpeningClicked}
+      onClose={() => setLockedOpeningClicked(null)}
+      defaultPlan="pro"
+      subtitle={
+        lockedOpeningClicked
+          ? `This opening is available with PRO plan. Subscribe to unlock unlimited Openings, Analysis Mode, Puzzles, AI Chat, and Game Reviews.`
+          : undefined
+      }
+    />
+    </>
   );
 };
 
