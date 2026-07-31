@@ -68,6 +68,7 @@ export const PuzzleActivity = ({
     product_name: '',
     user_id: '',
     puz_rating: '',
+    new_product_id:''
   });
   // const [onChangePuzzleAnimation, setChangePuzzleAnimation] = useState(false);
   const settings = usePuzzleActivitySettings();
@@ -101,6 +102,7 @@ export const PuzzleActivity = ({
       product_name: data?.product_name,
       user_id: data?.user_id,
       puz_rating: data?.puz_rating,
+      new_product_id:data?.new_product_id
     });
   };
   const onCanPlayChange = (canPlay: boolean) => {

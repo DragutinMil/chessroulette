@@ -9,8 +9,7 @@ export const useLearnAiActivitySettings = (): LearnAiActivitySettings => {
 
   return {
     isInstructor,
-    canFlipBoard:
-      isInstructor || updateableSearchParams.get('canFlipBoard') === '1',
+    canFlipBoard: true,
     isBoardFlipped:
       !isInstructor || updateableSearchParams.get('flipped') === '1',
     canEditBoard:

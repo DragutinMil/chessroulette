@@ -23,6 +23,7 @@ import { LearnAiBoard } from './components/LearnAiBoard';
 import { RIGHT_SIDE_SIZE_PX } from '../../constants';
 import inputReducer, { initialInputState } from './reducers/inputReducer';
 import socketUtil from '../../../../socketUtil';
+import { getProductLabel } from '@app/modules/User';
 
 import { FlipBoardIconButton } from '@app/components/Chessboard';
 import { IconButton } from '@app/components/Button';
@@ -85,10 +86,11 @@ export const LearnAiActivity = ({
     name_last: '',
     picture: '',
     is_trial: false,
-    product_name: '',
     user_id: '',
+    new_product_id: '',
+    subscriptionProduct: '',
   });
-
+ console.log('userData',userData)
   const settings = useLearnAiActivitySettings();
   const [inputState, dispatchInputState] = useReducer(
     inputReducer,
@@ -124,8 +126,9 @@ export const LearnAiActivity = ({
       name_last: data?.name_last,
       picture: data?.profile_image_url,
       is_trial: data?.is_trial,
-      product_name: data?.product_name,
       user_id: data?.user_id,
+      new_product_id: data?.new_product_id,
+      subscriptionProduct: getProductLabel(data ?? {}),
     });
   };
   const onCanPlayChange = (canPlay: boolean) => {
@@ -549,7 +552,7 @@ export const LearnAiActivity = ({
                   rightSideClassName="flex-1"
                   rightSideComponent={
                     <>
-                      <div className="flex flex-col gap-2 mb-2">
+                      {/* <div className="flex flex-col gap-2 mb-2">
                         <FlipBoardIconButton
                           tooltipPositon="right"
                           onClick={async () => {
@@ -562,8 +565,8 @@ export const LearnAiActivity = ({
                               })
                             );
                           }}
-                        />
-                        <IconButton
+                        /> */}
+                        {/* <IconButton
                           icon="ArrowUturnLeftIcon"
                           iconKind="outline"
                           type="clear"
@@ -586,8 +589,8 @@ export const LearnAiActivity = ({
                               );
                             }
                           }}
-                        />
-                      </div>
+                        /> 
+                      </div>*/}
                       <div className="relative flex flex-1 flex-col items-center justify-center">
                         <PanelResizeHandle
                           className="w-1 h-20 rounded-lg bg-slate-600"

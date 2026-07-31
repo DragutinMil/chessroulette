@@ -69,7 +69,8 @@ export type UserData = {
   name_last: string;
   picture: string;
   is_trial: boolean;
-  product_name: string;
+  new_product_id?: string;
+  subscriptionProduct?: string;
   user_id: string;
 };
 export type ChapterState = {

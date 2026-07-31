@@ -42,6 +42,7 @@ import { ChaptersTab, ChaptersTabProps } from '../../chapters/ChaptersTab';
 import { useWidgetPanelTabsNavAsSearchParams } from '../useWidgetPanelTabsNav';
 import { SendQuestionCoach } from './SendQuestionCoach';
 import { useUpdateableSearchParams } from '@app/hooks/useSearchParams';
+import { isProSubscription } from '@app/modules/User';
 
 import {
   // getOpenings, // replaced by local OPENING_DATABASE
@@ -63,6 +64,11 @@ import {
 } from '../../openingDatabase';
 
 const SUGGESTED_ARROW_DIM = 'rgba(242, 53, 141, 0.28)';
+
+// Openings available without a Pro subscription — everything else in
+// OPENING_DATABASE is shown locked (with a random pick) until the user
+// upgrades.
+const FREEMIUM_OPENING_NAMES = ['London System', 'Caro-Kann Defense'];
 
 // function parseIdeasToMoveCommentsAligned(
 //   ideas: string,
@@ -248,6 +254,8 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
     },
     tabsRef
   ) => {
+    const isPro = isProSubscription(userData?.subscriptionProduct);
+
     // const settings = useAichessActivitySettings();
     const [pendingOpening, setPendingOpening] = useState<{
       name: string;
@@ -390,9 +398,36 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
       setIsListening(true);
     }, [currentChapterState.messages, currentChapterState.notation.history]);
 
+    const buildOpeningPick = (family: (typeof OPENING_DATABASE)[number]) => {
+      const variant = family.variants[0];
+      const chess = new Chess();
+      for (const uci of variant.moves) {
+        try {
+          chess.move({
+            from: uci.slice(0, 2),
+            to: uci.slice(2, 4),
+            promotion: uci[4] as any,
+          });
+        } catch {}
+      }
+      return {
+        name: family.name,
+        pgn: `[Event "?"]\n[Site "?"]\n\n${chess.pgn()}`,
+      };
+    };
+
+    // Quick-access picks shown alongside the "subscribe to unlock" gate
+    // message, so the user can jump straight into a free opening instead
+    // of having to type it again.
+    const getFreemiumOpeningPicks = () =>
+      FREEMIUM_OPENING_NAMES.map((name) => findOpeningFamily(name))
+        .filter((f): f is NonNullable<typeof f> => !!f)
+        .map(buildOpeningPick);
+
     const fetchOpeningSuggestions = (
-      _count: number = 3
-    ): Promise<Array<{ name: string; pgn: string }>> => {
+      _count: number = 3,
+      excludeNames: string[] = []
+    ): Promise<Array<{ name: string; pgn: string; locked?: boolean }>> => {
       // Old API-based code (kept for reference):
       // const results = await Promise.all(
       //   Array.from({ length: count }, () => getOpenings())
@@ -404,24 +439,33 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
       // });
       // return Array.from(byName.values()).slice(0, count);
 
-      const shuffled = [...OPENING_DATABASE].sort(() => Math.random() - 0.5);
-      const suggestions = shuffled.slice(0, 4).map((family) => {
-        const variant = family.variants[0];
-        const chess = new Chess();
-        for (const uci of variant.moves) {
-          try {
-            chess.move({
-              from: uci.slice(0, 2),
-              to: uci.slice(2, 4),
-              promotion: uci[4] as any,
-            });
-          } catch {}
-        }
-        return {
-          name: family.name,
-          pgn: `[Event "?"]\n[Site "?"]\n\n${chess.pgn()}`,
-        };
-      });
+      if (!isPro) {
+        // Freemium: only the two free openings are playable, plus one
+        // random locked pick to hint at what subscribing unlocks.
+        const freeFamilies = FREEMIUM_OPENING_NAMES.map((name) =>
+          findOpeningFamily(name)
+        ).filter((f): f is NonNullable<typeof f> => !!f);
+
+        const lockedCandidates = OPENING_DATABASE.filter(
+          (f) =>
+            !FREEMIUM_OPENING_NAMES.includes(f.name) &&
+            !excludeNames.includes(f.name)
+        ).sort(() => Math.random() - 0.5);
+        const lockedPick = lockedCandidates[0];
+
+        const picks = [
+          ...freeFamilies.map((f) => ({ ...buildOpeningPick(f) })),
+          ...(lockedPick
+            ? [{ ...buildOpeningPick(lockedPick), locked: true }]
+            : []),
+        ];
+        return Promise.resolve(picks);
+      }
+
+      const shuffled = [...OPENING_DATABASE]
+        .filter((f) => !excludeNames.includes(f.name))
+        .sort(() => Math.random() - 0.5);
+      const suggestions = shuffled.slice(0, 4).map(buildOpeningPick);
       return Promise.resolve(suggestions);
     };
 
@@ -507,6 +551,15 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
 
       hasAutoOpenedFromUrlRef.current = true;
 
+      if (!isPro && !FREEMIUM_OPENING_NAMES.includes(family.name)) {
+        onMessage({
+          content: `The ${family.name} is a Pro opening. Subscribe to unlock every opening in the database — for now you can try the London System or the Caro-Kann Defense for free.`,
+          participantId: 'chatGPT123456sales',
+          idResponse: '',
+        });
+        return;
+      }
+
       const variant = family.variants[0];
       const chess = new Chess();
       for (const uci of variant.moves) {
@@ -524,7 +577,7 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
       });
     }, [currentChapterState.aiLearn.name]);
 
-    const handleSomethingElse = () => {
+    const handleSomethingElse = async () => {
       // Old: ask user to type name
       // setSuggestedOpenings(null);
       // setWaitingForCustomOpeningName(true);
@@ -534,27 +587,8 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
       //   idResponse: '',
       // });
 
-      const shownNames = new Set(suggestedOpenings?.map((o) => o.name) ?? []);
-      const others = OPENING_DATABASE.filter(
-        (f) => !shownNames.has(f.name)
-      ).sort(() => Math.random() - 0.5);
-      const picks = others.slice(0, 4).map((family) => {
-        const variant = family.variants[0];
-        const chess = new Chess();
-        for (const uci of variant.moves) {
-          try {
-            chess.move({
-              from: uci.slice(0, 2),
-              to: uci.slice(2, 4),
-              promotion: uci[4] as any,
-            });
-          } catch {}
-        }
-        return {
-          name: family.name,
-          pgn: `[Event "?"]\n[Site "?"]\n\n${chess.pgn()}`,
-        };
-      });
+      const shownNames = suggestedOpenings?.map((o) => o.name) ?? [];
+      const picks = await fetchOpeningSuggestions(4, shownNames);
       setSuggestedOpenings(picks);
       // onMessage({
       //   content:
@@ -599,6 +633,7 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
     };
 
     const requestAnotherOpening = async () => {
+      setShowColorChoice(false);
       addLearnAi({
         ...currentChapterState.aiLearn,
         moves: [],
@@ -1202,12 +1237,19 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
           : branchContext;
       }
 
+      const subscriptionContext = isPro
+        ? 'Subscription status: PRO — every opening in the database is unlocked.'
+        : `Subscription status: FREE — only these openings are unlocked: ${FREEMIUM_OPENING_NAMES.join(
+            ', '
+          )}. If the user asks for any other opening, do not emit an [[OPEN:...]] tag; instead explain it requires a Pro subscription and suggest the free openings or subscribing.`;
+
       const data = await SendQuestionCoach(
         question,
         currentChapterState,
         uciMoves,
         currentVariantName,
-        variantContext
+        variantContext,
+        subscriptionContext
       );
 
       if (data) {
@@ -1226,29 +1268,64 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
       if (answerText) {
         // Parse [[OPEN:Family Name]] tag from AI response
         const openMatch = answerText.match(/\[\[OPEN:([^\]]+)\]\]/);
-        const cleanText = answerText.replace(/\[\[OPEN:[^\]]+\]\]/g, '').trim();
-        // Display cleaned text (without the tag)
-        checkAnswerGPT({ ...data, answer: cleanText });
+        // [[SUBSCRIBE_GATE]] is emitted when the AI declines a non-free
+        // opening request — mark the message as "sales" immediately (rather
+        // than waiting for a follow-up) and surface the free openings.
+        const gateMatch = answerText.match(/\[\[SUBSCRIBE_GATE\]\]/);
+        // Fallback for when the backend prompt hasn't been updated with the
+        // tag above (or the AI just doesn't include it): a non-Pro user, no
+        // [[OPEN:...]] tag, and the reply names one of the free openings is
+        // already a reliable enough signal that this is a decline message.
+        const mentionsFreeOpeningByName =
+          !isPro &&
+          !openMatch &&
+          FREEMIUM_OPENING_NAMES.some((name) => answerText.includes(name));
+        const isGateResponse = !!gateMatch || mentionsFreeOpeningByName;
+        const cleanText = answerText
+          .replace(/\[\[OPEN:[^\]]+\]\]/g, '')
+          .replace(/\[\[SUBSCRIBE_GATE\]\]/g, '')
+          .trim();
+        // Display cleaned text (without the tags)
+        if (isGateResponse) {
+          onMessage({
+            content: cleanText,
+            participantId: 'chatGPT123456sales',
+            idResponse: data.id,
+          });
+        } else {
+          checkAnswerGPT({ ...data, answer: cleanText });
+        }
         // Trigger opening selection if AI requested it
         if (openMatch) {
           const openingName = openMatch[1].trim();
           const family = findOpeningFamily(openingName);
           if (family) {
-            const variant = family.variants[0];
-            const chess = new Chess();
-            for (const uci of variant.moves) {
-              try {
-                chess.move({
-                  from: uci.slice(0, 2) as Square,
-                  to: uci.slice(2, 4) as Square,
-                  promotion: uci[4] as any,
-                });
-              } catch {}
+            // Safety net in case the AI backend doesn't honor the
+            // subscription context — never load a non-free opening
+            // client-side for a non-Pro user.
+            if (!isPro && !FREEMIUM_OPENING_NAMES.includes(family.name)) {
+              onMessage({
+                content: `The ${family.name} is a Pro opening. Subscribe to unlock every opening in the database — for now you can try the London System or the Caro-Kann Defense for free.`,
+                participantId: 'chatGPT123456sales',
+                idResponse: '',
+              });
+            } else {
+              const variant = family.variants[0];
+              const chess = new Chess();
+              for (const uci of variant.moves) {
+                try {
+                  chess.move({
+                    from: uci.slice(0, 2) as Square,
+                    to: uci.slice(2, 4) as Square,
+                    promotion: uci[4] as any,
+                  });
+                } catch {}
+              }
+              handleSelectOpening({
+                name: family.name,
+                pgn: `[Event "?"]\n[Site "?"]\n\n${chess.pgn()}`,
+              });
             }
-            handleSelectOpening({
-              name: family.name,
-              pgn: `[Event "?"]\n[Site "?"]\n\n${chess.pgn()}`,
-            });
           }
         }
       } else {
@@ -1686,6 +1763,7 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
                 showColorChoice={showColorChoice}
                 onSelectColor={handleSelectColor}
                 suggestedOpenings={suggestedOpenings}
+                freemiumOpenings={!isPro ? getFreemiumOpeningPicks() : undefined}
                 onSelectOpening={handleSelectOpening}
                 onSelectSomethingElse={handleSomethingElse}
                 currentChapterState={currentChapterState}
@@ -1780,6 +1858,9 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
                   percentW={percentW}
                   percentB={percentB}
                   scoreCP={scoreCP}
+                  hideScore={
+                    (currentChapterState.notation?.history?.length ?? 0) === 0
+                  }
                 />
               </div>
             
