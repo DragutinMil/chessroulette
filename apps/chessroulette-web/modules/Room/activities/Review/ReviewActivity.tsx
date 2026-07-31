@@ -33,6 +33,7 @@ import { RIGHT_SIDE_SIZE_PX } from '../../constants';
 import inputReducer, { initialInputState } from './reducers/inputReducer';
 import socketUtil from '../../../../socketUtil';
 import { ButtonGreen } from '@app/components/Button/ButtonGreen';
+import type { ImportedInput } from '@app/components/PgnInputBox/PgnInputBox';
 
 type Props = {
   remoteState: ReviewActivityState['activityState'];
@@ -86,6 +87,20 @@ export const ReviewActivity = ({
     inputReducer,
     initialInputState
   );
+
+  // dispatchInputState's action type is a discriminated union keyed on
+  // payload.type, so an un-narrowed ImportedInput can't be passed directly —
+  // TS needs it narrowed to exactly FEN or exactly PGN in each branch.
+  const dispatchImport = (payload: ImportedInput) => {
+    if (payload.type === 'FEN') {
+      return enqueueMovexUpdate(() =>
+        dispatchInputState({ type: 'import', payload })
+      );
+    }
+    return enqueueMovexUpdate(() =>
+      dispatchInputState({ type: 'import', payload })
+    );
+  };
 
   const gameReview = (payload: chessAiMode) => {
     dispatch({
@@ -412,11 +427,7 @@ export const ReviewActivity = ({
                     <ImportDialogContainer
                       visible={importDialogVisible}
                       onClose={() => setImportDialogVisible(false)}
-                      onImport={(payload) => {
-                        enqueueMovexUpdate(() =>
-                          dispatchInputState({ type: 'import', payload })
-                        );
-                      }}
+                      onImport={dispatchImport}
                     />
                   </div>
                   {/* )} */}
@@ -681,18 +692,7 @@ export const ReviewActivity = ({
                 })
               );
             }}
-            onImport={async (payload) => {
-              // TODO: This is retarded - having to check and then send the exact same thing :)
-              if (payload.type === 'FEN') {
-                await enqueueMovexUpdate(() =>
-                  dispatchInputState({ type: 'import', payload })
-                );
-              } else {
-                await enqueueMovexUpdate(() =>
-                  dispatchInputState({ type: 'import', payload })
-                );
-              }
-            }}
+            onImport={dispatchImport}
             onCreateChapter={() => {
               if (inputState.isActive) {
                 dispatch({
