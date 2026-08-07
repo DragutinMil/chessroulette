@@ -73,9 +73,9 @@ export const Paywall: React.FC<PaywallProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-[200] flex items-end justify-center bg-black-100/60 md:items-center md:px-4">
-      <div
-        className="relative flex h-full w-full flex-col overflow-y-auto animate-dialogIn md:h-auto md:max-h-[90vh] md:w-full md:max-w-[420px] md:rounded-2xl md:shadow-[0_0_50px_rgba(0,0,0,0.6),0_0_30px_rgba(7,218,99,0.25)]"
+    <div className="fixed inset-0 z-[200] pt-11 md:pt-0  flex items-end justify-center bg-black-100/60 md:items-center md:px-4">
+      <div 
+        className="relative flex h-full  w-full flex-col overflow-y-auto animate-dialogIn md:h-auto md:max-h-[90vh] md:w-full md:max-w-[420px] md:rounded-2xl md:shadow-[0_0_50px_rgba(0,0,0,0.6),0_0_30px_rgba(7,218,99,0.25)]"
         style={{
           backgroundImage:
             'radial-gradient(61.84% 61.84% at 50% 0%, rgba(5,135,44,0.35) 0%, #01210B 70%)',
@@ -91,7 +91,7 @@ export const Paywall: React.FC<PaywallProps> = ({
           <Icon name="XMarkIcon" kind="outline" className="h-4 w-4" />
         </button>
  <div
-    className="absolute inset-0 h-[200px] opacity-20  bg-center bg-cover bg-no-repeat"
+    className="absolute  inset-0 h-[200px] opacity-20  bg-center bg-cover bg-no-repeat"
     style={{
       backgroundImage:
         "url('https://outpostchess.fra1.digitaloceanspaces.com/03c43c52-8180-4045-bb5e-4afd082cede0.webp')",

@@ -1869,7 +1869,6 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
               icon="MicrophoneIcon"
               iconClassName="text-green-800"
               iconKind="outline"
-                type="button"
                 onClick={startVoiceInput}
                 className={`flex-shrink-0 p-2 rounded-full transition-colors ${
                   isListening
