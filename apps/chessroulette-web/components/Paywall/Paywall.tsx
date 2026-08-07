@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Icon } from '../Icon/Icon';
 
 type Plan = 'starter' | 'pro';
@@ -49,6 +49,15 @@ export const Paywall: React.FC<PaywallProps> = ({
   const [plan, setPlan] = useState<Plan>(defaultPlan);
   const [billing, setBilling] = useState<Billing>('yearly');
 
+  // The component stays mounted (visible just toggles its own render), so
+  // the useState initializer above only runs once — re-sync the selected
+  // plan to whatever defaultPlan the caller passes each time it's opened.
+  useEffect(() => {
+    if (visible) {
+      setPlan(defaultPlan);
+    }
+  }, [visible, defaultPlan]);
+
   if (!visible) return null;
 
   const pricing = PLAN_PRICING[plan];
@@ -64,9 +73,9 @@ export const Paywall: React.FC<PaywallProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-[200] flex items-end justify-center md:items-center md:bg-black/60 md:px-4">
-      <div
-        className="relative flex h-full w-full flex-col overflow-y-auto md:h-auto md:max-h-[90vh] md:w-full md:max-w-[420px] md:animate-dialogIn md:rounded-2xl md:shadow-[0_0_50px_rgba(0,0,0,0.6),0_0_30px_rgba(7,218,99,0.25)]"
+    <div className="fixed inset-0 z-[200] pt-11 md:pt-0  flex items-end justify-center bg-black-100/60 md:items-center md:px-4">
+      <div 
+        className="relative flex h-full  w-full flex-col overflow-y-auto animate-dialogIn md:h-auto md:max-h-[90vh] md:w-full md:max-w-[420px] md:rounded-2xl md:shadow-[0_0_50px_rgba(0,0,0,0.6),0_0_30px_rgba(7,218,99,0.25)]"
         style={{
           backgroundImage:
             'radial-gradient(61.84% 61.84% at 50% 0%, rgba(5,135,44,0.35) 0%, #01210B 70%)',
@@ -77,17 +86,24 @@ export const Paywall: React.FC<PaywallProps> = ({
           type="button"
           onClick={onClose}
           aria-label="Close"
-          className="absolute right-4 top-4 z-10 rounded-full bg-black/30 p-1.5 text-white hover:bg-black/50"
+          className="absolute right-4 top-4 z-10 rounded-full bg-black-100/30 p-1.5 text-white hover:bg-black-100/50"
         >
-          <Icon name="XMarkIcon" kind="outline" className="h-5 w-5" />
+          <Icon name="XMarkIcon" kind="outline" className="h-4 w-4" />
         </button>
-
+ <div
+    className="absolute  inset-0 h-[200px] opacity-20  bg-center bg-cover bg-no-repeat"
+    style={{
+      backgroundImage:
+        "url('https://outpostchess.fra1.digitaloceanspaces.com/03c43c52-8180-4045-bb5e-4afd082cede0.webp')",
+    }}
+  />
+  
         <div className="flex flex-col gap-5 px-6 pb-8 pt-14 md:pt-10">
           <div className="text-center">
             <h2 className="text-2xl font-bold text-white">{title}</h2>
             <p className="mt-1 text-sm text-white/70">{subtitle}</p>
           </div>
-
+        
           <div className="relative flex justify-center">
             <div className="pointer-events-none absolute left-1/2 top-1/2 h-[44px] w-[72%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-blue-600 opacity-20" />
             <div className="relative flex ">

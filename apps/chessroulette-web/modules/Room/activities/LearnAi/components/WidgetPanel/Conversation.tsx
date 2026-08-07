@@ -266,6 +266,8 @@ const Conversation = ({
                         )}
                       {showColorChoice &&
                         isLastMessage &&
+                        currentChapterState.notation.history.length < 1  &&
+                        currentChapterState.aiLearn.moves_test.length==0  &&
                         participant.includes('chatGPT123456') && (
                           <div className="min-w-0 flex flex-wrap gap-2 mt-2 animate-fadeIn">
                             <ButtonGreen
@@ -378,7 +380,6 @@ const Conversation = ({
           showOfferMoves &&
           currentChapterState.aiLearn.mode == 'opening' &&
           !deviatedFromOpening &&
-          !showColorChoice &&
           currentChapterState.aiLearn.moves.length > 0 &&
           currentChapterState.aiLearn.moves_test.length == 0 &&
           ((branchMoves && branchMoves.length > 0) ||
@@ -488,9 +489,10 @@ const Conversation = ({
       visible={!!lockedOpeningClicked}
       onClose={() => setLockedOpeningClicked(null)}
       defaultPlan="pro"
+      title={`Know your first 10 moves, ${userData.name_first}`}
       subtitle={
         lockedOpeningClicked
-          ? `This opening is available with PRO plan. Subscribe to unlock unlimited Openings, Analysis Mode, Puzzles, AI Chat, and Game Reviews.`
+          ? `Master openings and start every game ahead`
           : undefined
       }
     />

@@ -31,6 +31,7 @@ import { SendQuestionPuzzle } from './SendQuestionPuzzle';
 import { CheckPiece } from './CheckPiece';
 import { ChessEngineProbabilityCalc } from '@app/modules/ChessEngine/components/ChessEngineCalculator';
 import { getPuzzle } from '../../util';
+import { Paywall } from '@app/components/Paywall/Paywall';
 
 // import { generateGptResponse } from '../../../../../../server.js';
 type StockfishLines = {
@@ -118,6 +119,7 @@ export const PuzzleWidgetPanel = React.forwardRef<TabsRef, Props>(
     const [scoreCP, setScoreCP] = useState(0);
     const [prevScoreCP, setprevScoreCP] = useState(0);
     const [categortyPrefered, setCategortyPrefered] = useState('');
+    const [puzzlePaywallVisible, setPuzzlePaywallVisible] = useState(false);
     const { isMobile, isTablet } = useIsTablet();
     const smallMobile =
       typeof window !== 'undefined' && window.innerWidth < 400;
@@ -452,38 +454,7 @@ Unlock Unlimited Puzzles, Unlimited Game Reviews, and Unlimited AI Chat for just
         setTimeoutEnginePlay(true);
       }
     }, [currentChapterState.chessAiMode.mode]);
-    // useEffect(() => {
-    //   if (
-    //     currentChapterState.chessAiMode.puzzleId == -1 &&
-    //     !currentChapterState.messages[
-    //       currentChapterState.messages.length - 1
-    //     ].participantId.includes('sales')
-    //   ) {
-    //     setPulseDot(true);
-
-    //     const limitQuestion = async () => {
-    //       const question =
-    //         'Daily limit reached. Explane what to do to continue play puzzle';
-    //       const data = await SendQuestionPuzzle(
-    //         question,
-    //         scoreCP,
-    //         currentChapterState,
-    //         stockfishMovesInfo,
-    //         lines[1],
-    //         currentRatingEngine
-    //       );
-    //       if (data) {
-    //         setPulseDot(false);
-    //       }
-    //       onMessage({
-    //         content: data.answer.text,
-    //         participantId: 'chatGPT123456sales',
-    //         idResponse: data.id,
-    //       });
-    //     };
-    //     limitQuestion();
-    //   }
-    // }, [currentChapterState.chessAiMode.puzzleId]);
+    
 
     useEffect(() => {
       if (
@@ -710,6 +681,7 @@ Unlock Unlimited Puzzles, Unlimited Game Reviews, and Unlimited AI Chat for just
 
       const data = await getPuzzle(category);
       if (data && !data.fen && data.message == 'puzzle_daily_limit_reached') {
+        setPuzzlePaywallVisible(true);
         if (
           !currentChapterState.messages[
             currentChapterState.messages.length - 1
@@ -741,7 +713,7 @@ Unlock Unlimited Puzzles, Unlimited Game Reviews, and Unlimited AI Chat for just
           if (data == 'ai_daily_limit_reached') {
             onMessage({
               content: `You’ve reached today’s puzzle limit! ♟️
-But your next great move is just one click away — start your 7-day free trial today (cancel anytime).
+But your next great move is just one click away.
 
 With Starter, you’ll unlock Game Review, unlimited AI puzzles, free play, and an interactive chat with your personal chess trainer.
 
@@ -751,6 +723,7 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
               participantId: 'chatGPT123456sales',
               idResponse: '',
             });
+            
           } else if (data?.answer?.text) {
             onMessage({
               content: data.answer.text,
@@ -897,6 +870,13 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
 
     return (
       <div className="  flex flex-col flex-1 min-h-0 rounded-lg shadow-2xl flex-1 flex min-h-0 ">
+        <Paywall
+          visible={puzzlePaywallVisible}
+          onClose={() => setPuzzlePaywallVisible(false)}
+          defaultPlan="starter"
+          title={`Don't stop solving now, ${userData.name_first}`}
+          subtitle="Unlimited puzzles with AI review, every day"
+        />
         {stockfish && (
           <StockFishEngineAI
             ratingEngine={ratingEngine}

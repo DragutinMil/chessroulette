@@ -6,6 +6,7 @@ import React, {
   useRef,
 } from 'react';
 import { ButtonGreen } from '@app/components/Button/ButtonGreen';
+import { Icon } from '@app/components/Icon/Icon';
 
 import {
   FreeBoardNotation,
@@ -26,6 +27,7 @@ import Loader from './Loader';
 import { CircleDrawTuple, ArrowsMap } from '@app/components/Chessboard/types';
 import { PgnInputBoxProps } from '@app/components/PgnInputBox/PgnInputBox';
 import { ImportDialogContainer } from '../../DialogContainer/ImportDialogContainer';
+import { Paywall } from '@app/components/Paywall/Paywall';
 import ConversationReview from './GameReview/ConversationReview';
 
 import { Square, Chess } from 'chess.js';
@@ -142,6 +144,17 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
   ) => {
     const widgetPanelTabsNav = useWidgetPanelTabsNavAsSearchParams();
     const [importDialogVisible, setImportDialogVisible] = useState(false);
+    const [gameReviewPaywallVisible, setGameReviewPaywallVisible] =
+      useState(false);
+    const [gameReviewPaywallConfig, setGameReviewPaywallConfig] = useState<{
+      defaultPlan: 'starter' | 'pro';
+      title?: string;
+      subtitle: string;
+    }>({
+      defaultPlan: 'pro',
+      subtitle:
+        "That's your free Game Review for today! Want more? Unlock unlimited Analysis mode",
+    });
     const [isOutpostWebViewAndroid, setIsOutpostWebViewAndroid] =
       useState(false);
     const [isOutpostWebViewIos, setIsOutpostWebViewIos] = useState(false);
@@ -153,6 +166,15 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
         navigator.userAgent?.includes('OutpostChessApp/ios')
       );
     }, []);
+
+    // Mobile (app WebView or regular mobile web): the chat input starts
+    // hidden behind a floating bubble button (bottom-right) and is
+    // shown/hidden on demand instead of always occupying the footer.
+    const [showMobileChatInput, setShowMobileChatInput] = useState(false);
+    // On mobile the conversation no longer scrolls in its own box (see
+    // ConversationReview's h-auto) — this outer tab wrapper is the real
+    // scroll container now, so it needs its own scroll-to-bottom.
+    const mobileScrollRef = useRef<HTMLDivElement>(null);
 
     const [pulseDot, setPulseDot] = useState(false);
     const [suggestions, setSuggestions] = useState<string[]>([]);
@@ -174,6 +196,23 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
     const smallMobile =
       typeof window !== 'undefined' && window.innerWidth < 400;
     const { isMobile, isTablet } = useIsTablet();
+
+    // Mobile's real scroll container is now mobileScrollRef, not
+    // ConversationReview's own box — mirror its scroll-to-bottom here.
+    useEffect(() => {
+      if (!isMobile || !mobileScrollRef.current) return;
+      const el = mobileScrollRef.current;
+      // scrollHeight - clientHeight is the true max scrollTop; scrollHeight
+      // alone overshoots it, which on touch devices shows as an elastic
+      // bounce past the end before snapping back.
+      const scrollToBottom = () => {
+        el.scrollTop = el.scrollHeight - el.clientHeight;
+      };
+      scrollToBottom();
+      const raf = requestAnimationFrame(scrollToBottom);
+      return () => cancelAnimationFrame(raf);
+    }, [isMobile, currentChapterState.messages, pulseDot]);
+
     const [newRatingEngine, setRatingBotEngine] = useState(
       isMobile ? 1999 : 2099
     );
@@ -419,7 +458,11 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
     }, [currentChapterState.orientation]);
 
     useEffect(() => {
-      if (prevScoreCP !== 0) {
+      // newPercentage only depends on scoreCP (prevScoreCP is just extra
+      // metadata in ChessEngineProbabilityCalc), so gate on scoreCP alone —
+      // gating on prevScoreCP skipped the very first real score, since
+      // prevScoreCP only becomes non-zero AFTER that first update lands.
+      if (scoreCP !== 0) {
         const probability = async () => {
           const ProbabilityChange = await ChessEngineProbabilityCalc(
             scoreCP,
@@ -436,6 +479,12 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
         };
         probability();
       }
+      if (autoGameReviewTriggeredRef.current) return;
+      if (currentChapterState.chessAiMode.mode !== 'review') return;
+       if (currentChapterState.chessAiMode.review.length > 0) return;
+      if (scoreCP === 0) return;
+      autoGameReviewTriggeredRef.current = true;
+      analizeMatch();
     }, [scoreCP]);
 
     useEffect(() => {
@@ -458,6 +507,11 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
       }
     }, [currentChapterState.chessAiMode.review]);
 
+    // Latest blue top-3-lines arrows — written by the lines effect below,
+    // read (and merged with any blunder-correction) by engineMove, which is
+    // the single place that actually calls onArrowsChange.
+    const blueArrowsRef = useRef<ArrowsMap>({});
+
     useEffect(() => {
       const mode = currentChapterState.chessAiMode.mode;
       if (mode !== 'play' && mode !== 'review') return;
@@ -471,7 +525,7 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
       if (mode !== 'play' && mode !== 'review') return;
 
       const isReview = mode === 'review';
-      const colors = ['#07da63', '#07da6388', '#07da6344'];
+      const colors = ['#11c6d1', '#11c6d188', '#11c6d144'];
       const newArrows: ArrowsMap = {};
       const newSans: { san: string; score: number }[] = [];
       [lines[1], lines[2], lines[3]].forEach(({ moves, score }, idx) => {
@@ -488,9 +542,7 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
         const san = uciLineToSan(moves, currentChapterState.displayFen);
         if (san) newSans.push({ san, score });
       });
-      if (!isReview && progressReview === 0) {
-        onArrowsChange(newArrows);
-      }
+      blueArrowsRef.current = !isReview && progressReview === 0 ? newArrows : {};
 
       if (newSans.length > 0) {
         setDisplayedLineSans(newSans);
@@ -529,8 +581,24 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
           if (move) {
             setMoveSan(move.san);
             setMoveLan(move.lan);
+
+            // Single send point for arrows: start from the blue top-3-lines
+            // (kept in sync by the lines effect above), and merge in the
+            // blunder-correction pair on top when this position calls for
+            // one — never two independent onArrowsChange calls fighting.
+            let finalArrows: ArrowsMap = blueArrowsRef.current;
+
+            // reviewData is indexed against the ORIGINAL game's moves — a
+            // focusedIndex with a 3rd (recursive) entry means we're inside
+            // a branched sub-variant, where that indexing no longer lines
+            // up with what's actually being played. Skip the blunder
+            // correction there; it'll resume once back on the main line.
+            const isInSubVariant =
+              currentChapterState.notation.focusedIndex.length > 2 &&
+              currentChapterState.notation.focusedIndex[2] != null;
+
             const reviewData = currentChapterState.chessAiMode.review;
-            if (reviewData.length > 0) {
+            if (reviewData.length > 0 && !isInSubVariant) {
               const index =
                 currentChapterState.notation.focusedIndex[0] * 2 +
                 currentChapterState.notation.focusedIndex[1] -
@@ -551,17 +619,18 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
                 const arrowId = `${from}${to}-${color}`;
                 const arrowIdBlunder = `${fromBlunder}${toBlunder}-${colorBlunder}`;
 
-                onArrowsChange({
+                finalArrows = {
+                  ...blueArrowsRef.current,
                   [arrowId]: [from as Square, to as Square],
                   [arrowIdBlunder]: [
                     fromBlunder as Square,
                     toBlunder as Square,
                   ],
-                });
-              } else if (currentChapterState.arrowsMap) {
-                onArrowsChange({});
+                };
               }
             }
+
+            onArrowsChange(finalArrows);
           }
         } catch (e) {
           // Potez nije validan, ne radi ništa
@@ -670,7 +739,6 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
       if (!pgn) return;
       addChessAi({
         ...currentChapterState.chessAiMode,
-        mode: 'review',
         fen: pgn,
         originalPGN: pgn,
       });
@@ -682,12 +750,24 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
         !!userData.product_name && userData.ends_at !== null;
       if (!hasSubscription) {
         const review24hData = await getReview24h();
+        console.log('pgnOverride',pgnOverride)
         if (review24hData) {
-          onMessage({
-            content: `That's your free Game Review for today! Want more? Unlock unlimited Game Reviews, Unlimited Puzzles and AI Chat for just €4/Month. 🚀`,
-            participantId: 'chatGPT123456sales',
-            idResponse: '',
-          });
+          // pgnOverride is only passed by handleGameReviewFromPlay — the
+          // Conversation "Game Review" button calls analizeMatch() bare.
+          setGameReviewPaywallConfig(
+            pgnOverride
+              ? {
+                  defaultPlan: 'pro',
+                  title:"Understand what the engine sees",
+                  subtitle:"Analyze any position, move by move",
+                }
+              : {
+                  defaultPlan: 'starter',
+                  title:"Game Review limit",
+                  subtitle: "Unlimited reviews, every mistake explained",
+                }
+          );
+          setGameReviewPaywallVisible(true);
           return;
         }
       }
@@ -698,7 +778,7 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
       let data;
       try {
         data = await analyzePGN(
-          pgnOverride ?? currentChapterState.chessAiMode.fen,
+           currentChapterState.chessAiMode.fen,
           {
             onProgress: (progress: number) => setProgressReview(progress),
           },
@@ -748,6 +828,13 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
         reviewMetrics();
       }
     };
+    // When the room is opened with ?pgn=... and lands directly in 'review'
+    // mode, auto-start the Game Review instead of waiting for the user to
+    // click the button in Conversation — same eligibility as that button
+    // (messages.length===1, fen set, engine's first eval already in).
+    const autoGameReviewTriggeredRef = useRef(false);
+   
+
     const handleGameEvaluation = (newScore: number) => {
       if (isReviewing) return;
       setprevScoreCP(scoreCP);
@@ -765,6 +852,13 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
 
     return (
       <div className="  flex flex-col flex-1 min-h-0 rounded-lg shadow-2xl flex-1 flex min-h-0 ">
+        <Paywall
+          visible={gameReviewPaywallVisible}
+          onClose={() => setGameReviewPaywallVisible(false)}
+          defaultPlan={gameReviewPaywallConfig.defaultPlan}
+          title={gameReviewPaywallConfig.title}
+          subtitle={gameReviewPaywallConfig.subtitle}
+        />
         {stockfish && (
           <StockFishEngineAI
             ratingEngine={ratingEngine}
@@ -794,7 +888,7 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
               ? 'mb-4'
               : isOutpostWebViewIos
               ? 'mb-0'
-              : 'mb-16'
+              : 'mb-24'
           }`}
           headerContainerClassName="flex gap-3"
           contentClassName="flex-1 flex min-h-0"
@@ -818,7 +912,17 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
                 // </Button>
               ),
               renderContent: () => (
-                <div className="flex flex-col md:flex-1 h-[400px] md:h-auto gap-2 min-h-0 w-full overflow-hidden md:overflow-scroll no-scrollbar pb-0 max-width-[100%]">
+                // Mobile: flex-col scrollable so nothing gets clipped; desktop: overflow-scroll with flex constraints
+                <div
+                  ref={mobileScrollRef}
+                  className={`flex flex-col md:flex-1 gap-2 min-h-0 w-full overflow-y-auto md:overflow-scroll no-scrollbar md:pb-0 max-width-[100%] ${
+                    isOutpostWebViewAndroid
+                      ? 'pb-4'
+                      : isOutpostWebViewIos
+                      ? 'pb-0'
+                      : 'pb-0'
+                  }`}
+                >
                   {/* {isMobile && (
                     <div
                       style={{
@@ -854,7 +958,7 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
                     </div>
                   )} */}
                   <div
-                    className={`flex-1  justify-between flex flex-col border bg-op-widget border-conversation-100 pb-2 px-2 md:px-4 md:pb-1 rounded-lg
+                    className={`flex-1 justify-between flex flex-col border bg-op-widget border-conversation-100 pb-2 px-2 md:px-4 md:pb-1 rounded-lg
 
                   ${isMobile ? 'mb-2' : ''}
                   `}
@@ -862,9 +966,9 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
                     {/* <div className={`${!hasGameLoaded ? 'h-auto' : currentChapterState.chessAiMode.mode=='review' ? 'h-[320px]' : 'h-[290px]'}    md:flex-1  min-h-0 `}> */}
                     <div
                       className={`${
-                        currentChapterState.chessAiMode.mode == 'review'
-                          ? 'h-[320px]'
-                          : 'h-[290px]'
+                        isMobile
+                          ? 'h-auto'
+                          : 'h-[320px]'
                       }    md:flex-1  min-h-0 `}
                     >
                       <ConversationReview
@@ -878,6 +982,7 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
                         pulseDot={pulseDot}
                         userData={userData}
                         scoreCP={scoreCP}
+                        isMobile={isMobile}
                         suggestions={suggestions}
                         onSuggestedQuestion={addQuestion}
                         onMoveClick={onHistoryNotationRefocus}
@@ -890,58 +995,122 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
                         currentUserId={userData.user_id}
                       />
                     </div>
-                    <div>
-                      {currentChapterState.chessAiMode.mode === 'play' &&
+                    <div
+                      style={{
+                        paddingBottom:
+                          isMobile && showMobileChatInput ? '68px' : undefined,
+                      }}
+                    >
+                      {currentChapterState.chessAiMode.mode === 'play' && currentChapterState.chessAiMode.review.length==0 &&
                         currentChapterState.notation.history.length >= 9 && (
-                          <ButtonGreen
-                            
-                            onClick={handleGameReviewFromPlay}
-                           className="font-bold w-32  whitespace-nowrap mb-4"
-                          >
-                            Game Review
-                          </ButtonGreen>
+                          isReviewing ? (
+                            <div className="flex items-center gap-2 mb-4">
+                        
+                              <p className="text-sm text-white/70 font-bold ">
+                                Analyzing{' '}
+                                {progressReview > 0
+                                  ? `${progressReview.toFixed(0)}%`
+                                  : '...'}
+                              </p>
+                            </div>
+                          ) : (
+                            <ButtonGreen
+                              onClick={handleGameReviewFromPlay}
+                              className="font-bold w-32  whitespace-nowrap mb-4"
+                            >
+                              Game Review
+                            </ButtonGreen>
+                          )
                         )}
                       {(currentChapterState.chessAiMode.review?.length !== 0 ||
                         currentChapterState.chessAiMode.mode === 'play') && (
-                        <div className="flex mb-0 mt-2 md:mt-2">
-                          <input
-                            id="title"
-                            type="text"
-                            name="tags"
-                            placeholder="Start chessiness..."
-                            value={question}
-                            style={{
-                              boxShadow: '0px 0px 10px 0px #07DA6380',
-                            }}
-                            // className="w-full my-2 text-sm rounded-md border-slate-500 focus:border-slate-400 border border-transparent block bg-slate-600 text-white block py-1 px-2"
-                            className="w-full text-base md:text-sm rounded-[20px] border  border-conversation-100 bg-[#111111]/40 text-white
+                        <>
+                          {(!isMobile || showMobileChatInput) && (
+                            <div
+                              className={
+                                isMobile
+                                  ? 'flex fixed bottom-0 left-0 right-0 z-30 bg-op-widget border-t border-conversation-100 px-2 pt-2 pb-[max(env(safe-area-inset-bottom),0.5rem)]'
+                                  : 'flex mb-0 mt-2 md:mt-2'
+                              }
+                            >
+                              <input
+                                id="title"
+                                type="text"
+                                name="tags"
+                                placeholder="Start chessiness..."
+                                value={question}
+                                autoFocus={isMobile}
+                                style={{
+                                  boxShadow: '0px 0px 10px 0px #07DA6380',
+                                }}
+                                // className="w-full my-2 text-sm rounded-md border-slate-500 focus:border-slate-400 border border-transparent block bg-slate-600 text-white block py-1 px-2"
+                                className="w-full text-base md:text-sm rounded-[20px] border  border-conversation-100 bg-[#111111]/40 text-white
                         placeholder-slate-500  px-4 py-2  transition-colors duration-200 focus:outline-none
                         focus:ring-1 focus:ring-slate-400 focus:border-conversation-200 hover:border-conversation-300"
-                            onChange={(e) => {
-                              setQuestion(e.target.value);
-                            }}
-                            onFocus={() => setIsFocusedInput(true)}
-                            onBlur={() => setIsFocusedInput(false)}
-                            onKeyDown={(e) => {
-                              if (e.key === 'Enter' && !e.shiftKey) {
-                                //e.preventDefault(); // sprečava novi red ako koristiš textarea
-                                addQuestion(question);
-                              }
-                            }}
-                          />
-                          <ButtonGreen
-                            size="md"
-                            onClick={() => {
-                              if (question.trim() !== '') {
-                                addQuestion(question);
-                              }
-                            }}
-                            disabled={question.trim() == ''}
-                            icon="PaperAirplaneIcon"
-                            className="ml-2 px-4 py-2 
+                                onChange={(e) => {
+                                  setQuestion(e.target.value);
+                                }}
+                                onFocus={() => setIsFocusedInput(true)}
+                                onBlur={() => setIsFocusedInput(false)}
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter' && !e.shiftKey) {
+                                    //e.preventDefault(); // sprečava novi red ako koristiš textarea
+                                    addQuestion(question);
+                                    if (isMobile) {
+                                      setShowMobileChatInput(false);
+                                    }
+                                  }
+                                }}
+                              />
+                              <ButtonGreen
+                                size="md"
+                                onClick={() => {
+                                  const isEmpty = question.trim() === '';
+                                  if (isMobile && isEmpty) {
+                                    // Nothing typed — treat as a close action
+                                    setShowMobileChatInput(false);
+                                    return;
+                                  }
+                                  if (!isEmpty) {
+                                    addQuestion(question);
+                                    if (isMobile) {
+                                      setShowMobileChatInput(false);
+                                    }
+                                  }
+                                }}
+                                disabled={
+                                  isMobile ? false : question.trim() == ''
+                                }
+                                icon={
+                                  isMobile && question.trim() === ''
+                                    ? 'XMarkIcon'
+                                    : 'PaperAirplaneIcon'
+                                }
+                                iconKind={
+                                  isMobile && question.trim() === ''
+                                    ? 'outline'
+                                    : undefined
+                                }
+                                className="ml-2 px-4 py-2
                           duration-200"
-                          ></ButtonGreen>
-                        </div>
+                              ></ButtonGreen>
+                            </div>
+                          )}
+                          {isMobile && !showMobileChatInput && (
+                              <button
+                                type="button"
+                                onClick={() => setShowMobileChatInput(true)}
+                                aria-label="Open chat"
+                                className="fixed bottom-4 right-4 z-30 flex items-center justify-center h-12 w-12 rounded-full bg-[#07DA63] shadow-lg active:scale-95 transition-transform"
+                              >
+                                <Icon
+                                  name="ChatBubbleOvalLeftEllipsisIcon"
+                                  kind="outline"
+                                  className="h-7 w-7 text-black-100"
+                                />
+                              </button>
+                            )}
+                        </>
                       )}
 
                       {(currentChapterState.chessAiMode.mode == 'review' ||
@@ -950,7 +1119,11 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
                           <EvalBar
                             percentW={percentW}
                             percentB={percentB}
-                            scoreCP={scoreCP}
+                            scoreCP={
+                              currentChapterState.orientation === 'w'
+                                ? scoreCP
+                                : -scoreCP
+                            }
                             hideScore={isReviewing}
                           />
 
@@ -970,15 +1143,23 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
                                 >
                                   {displayedLineSans.map(
                                     ({ san, score }, idx) => {
+                                      // `score` is relative to board orientation
+                                      // (positive = the oriented side is ahead);
+                                      // the label's sign must be White-relative,
+                                      // same as the EvalBar's scoreCP above.
+                                      const whiteScore =
+                                        currentChapterState.orientation === 'w'
+                                          ? score
+                                          : -score;
                                       const scoreLabel =
-                                        Math.abs(score) >= 49999
-                                          ? `M${score > 0 ? '' : '-'}${
-                                              Math.abs(score) === 50000
+                                        Math.abs(whiteScore) >= 49999
+                                          ? `M${whiteScore > 0 ? '' : '-'}${
+                                              Math.abs(whiteScore) === 50000
                                                 ? '∞'
                                                 : ''
                                             }`
-                                          : `${score >= 0 ? '+' : ''}${(
-                                              score / 100
+                                          : `${whiteScore >= 0 ? '+' : ''}${(
+                                              whiteScore / 100
                                             ).toFixed(2)}`;
                                       return (
                                         <p
@@ -1055,7 +1236,7 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
                                     <>
                                       <ButtonGreen
                                         
-                                       className="font-bold w-40  whitespace-nowrap"
+                                       className="font-bold w-34  whitespace-nowrap"
                                        
                                         onClick={() =>
                                           setImportDialogVisible(true)

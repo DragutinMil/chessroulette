@@ -1039,6 +1039,9 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
     const isMyTurn =
       currentChapterState.displayFen.split(' ')[1] ===
       currentChapterState.orientation;
+    const openingTestDisabled =
+      currentChapterState.aiLearn.mode === 'test' ||
+      (currentChapterState.aiLearn.mode === 'opening' && !openingComplete);
 
     const checkAnswerGPT = async (data: any) => {
       const answerText =
@@ -1403,39 +1406,77 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
       }
     };
     const playNext = async () => {};
+
+    // Stockfish only recomputes bestMove when displayFen changes (see its
+    // own [fen] effect) — it doesn't know/care that playVsBot just got
+    // flipped on. If the bot's move for the current position was already
+    // computed earlier (while playVsBot was still off), engineMove below
+    // would have bailed out on isKeepPlayingMode and never applied it, and
+    // nothing re-triggers it since bestMove itself never changes again for
+    // that same position. Track the latest computed move regardless, so it
+    // can be applied on demand once playVsBot turns on (see the effect
+    // below), instead of waiting for the user's own move to prompt a fresh
+    // engine search.
+    const lastEngineMoveRef = useRef<string>('');
+
+    const playEngineMove = useCallback(
+      (m: string) => {
+        if (!m || m === '(none)' || m.length < 4) return;
+
+        const isMyTurn =
+          currentChapterState.displayFen.split(' ')[1] ===
+          currentChapterState.orientation;
+        if (isMyTurn) return;
+
+        const fromChess = m.slice(0, 2) as Square;
+        const toChess = m.slice(2, 4) as Square;
+        const promoChar = m.length === 5 ? m[4] : undefined;
+        const promotion =
+          promoChar === 'q' ||
+          promoChar === 'r' ||
+          promoChar === 'b' ||
+          promoChar === 'n'
+            ? promoChar
+            : undefined;
+
+        const payload =
+          promotion != null
+            ? { from: fromChess, to: toChess, promotion }
+            : { from: fromChess, to: toChess };
+
+        setTimeout(() => {
+          onMove(payload);
+        }, 900);
+      },
+      [
+        currentChapterState.displayFen,
+        currentChapterState.orientation,
+        onMove,
+      ]
+    );
+
     const engineMove = (m: string) => {
       if (!m || m === '(none)' || m.length < 4) return;
+      lastEngineMoveRef.current = m;
+
       const isKeepPlayingMode =
         currentChapterState.aiLearn.mode === 'opening' &&
         keepPlaying &&
         playVsBot;
       if (!isKeepPlayingMode) return;
 
-      const isMyTurn =
-        currentChapterState.displayFen.split(' ')[1] ===
-        currentChapterState.orientation;
-      if (isMyTurn) return;
-
-      const fromChess = m.slice(0, 2) as Square;
-      const toChess = m.slice(2, 4) as Square;
-      const promoChar = m.length === 5 ? m[4] : undefined;
-      const promotion =
-        promoChar === 'q' ||
-        promoChar === 'r' ||
-        promoChar === 'b' ||
-        promoChar === 'n'
-          ? promoChar
-          : undefined;
-
-      const payload =
-        promotion != null
-          ? { from: fromChess, to: toChess, promotion }
-          : { from: fromChess, to: toChess };
-
-      setTimeout(() => {
-        onMove(payload);
-      }, 900);
+      playEngineMove(m);
     };
+
+    // Play immediately if Play vs Bot is turned on while it's already the
+    // bot's turn, using whatever move the engine last computed for this
+    // position instead of waiting for the next fresh engine callback.
+    useEffect(() => {
+      if (currentChapterState.aiLearn.mode !== 'opening') return;
+      if (!keepPlaying || !playVsBot) return;
+      playEngineMove(lastEngineMoveRef.current);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [playVsBot, keepPlaying]);
 
     const handleSuggestedMove = useCallback(
       (uci: string) => {
@@ -1665,10 +1706,12 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
                   onClick={goToMainLine}
                   size="md"
                   icon="ArrowUturnLeftIcon"
+                  iconKind="outline"
+                  
                   className="md:max-w-[175px] max-w-[175px] min-w-[80px]"
                 >
                   <p className="whitespace-nowrap">
-                    {isMobile ? 'Main Line' : 'Back to Main Line'}
+                    {isMobile ? 'Main Line' : 'Main Line'}
                   </p>
                 </ButtonGreen>
               ) : (
@@ -1677,25 +1720,22 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
                     testOpening();
                   }}
                   size="md"
-                  icon="AcademicCapIcon"
+                  icon="BeakerIcon"
+                  iconKind="outline"
+                  iconClassName={
+                    !openingTestDisabled ? 'text-black' : ''
+                  }
                   className="md:max-w-[140px] max-w-[140px] min-w-[80px]"
                   style={{
-                    ...(deviatedFromOpening &&
-                    currentChapterState.aiLearn.mode !== 'test'
-                      ? {
-                          boxShadow:
-                            '0 0 12px 4px rgba(7,218,99,0.75), 0 0 24px 8px rgba(7,218,99,0.35)',
-                          animation: 'pulseGlow 1.4s ease-in-out infinite',
-                        }
+                    ...(!openingTestDisabled
+                      ? { backgroundColor: 'rgba(7, 218, 99)',color:'#000000'}
                       : {}),
                   }}
-                  disabled={
-                    currentChapterState.aiLearn.mode === 'test' ||
-                    (currentChapterState.aiLearn.mode === 'opening' &&
-                      !openingComplete)
-                  }
+                  disabled={openingTestDisabled}
                 >
-                  <p>{isMobile ? 'Test' : 'Opening Test'}</p>
+                  <p className="whitespace-nowrap">
+                    {isMobile ? 'Test' : 'Opening Test'}
+                  </p>
                 </ButtonGreen>
               )}
               {currentChapterState.aiLearn.mode === 'opening' &&
@@ -1703,11 +1743,13 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
               !keepPlaying ? (
                 <ButtonGreen
                   icon="PlayIcon"
+                  iconKind="outline"
+                  
                   onClick={handleKeepPlaying}
                   size="md"
                   className="md:max-w-[160px] max-w-[160px] min-w-[80px]  md:min-w-[120px] "
                 >
-                  <p className="text-sm">
+                  <p className="text-sm whitespace-nowrap">
                     {' '}
                     {isMobile ? 'Play' : 'Keep Playing'}
                   </p>
@@ -1716,6 +1758,7 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
                 keepPlaying ? (
                 <ButtonGreen
                   icon="SparklesIcon"
+                  iconKind="outline"
                   onClick={() => {
                     setPlayVsBot(true);
                   }}
@@ -1731,6 +1774,8 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
                     getHint();
                   }}
                   icon="LightBulbIcon"
+                  iconKind="outline"
+               
                   size="md"
                   className="md:max-w-[100px] max-w-[100px]  "
                   style={{ maxWidth: smallMobile ? '68px' : '' }}
@@ -1745,6 +1790,8 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
               )}
               <ButtonGreen
                 icon="ArrowsRightLeftIcon"
+                iconKind="outline"
+               
                 onClick={requestAnotherOpening}
                 size="md"
                 className="max-w-[180px] min-w-[135px] "
@@ -1790,8 +1837,8 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
                 notationHistoryLength={
                   currentChapterState.notation?.history?.length ?? 0
                 }
-                suggestedMoves={showColorChoice ? null : suggestedMoves}
-                branchMoves={showColorChoice ? null : branchMoves}
+                suggestedMoves={suggestedMoves}
+                branchMoves={branchMoves}
                 visibleSuggestedRows={visibleSuggestedRows}
                 onOtherSuggested={handleOtherSuggested}
                 onSuggestedMove={handleSuggestedMove}
@@ -1818,8 +1865,10 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
                   if (e.key === 'Enter' && !e.shiftKey) addQuestion(question);
                 }}
               />
-              <button
-                type="button"
+              <ButtonGreen
+              icon="MicrophoneIcon"
+              iconClassName="text-green-800"
+              iconKind="outline"
                 onClick={startVoiceInput}
                 className={`flex-shrink-0 p-2 rounded-full transition-colors ${
                   isListening
@@ -1828,7 +1877,7 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
                 }`}
                 title={isListening ? 'Stop listening' : 'Voice input'}
               >
-                <svg
+                {/* <svg
                   xmlns="http://www.w3.org/2000/svg"
                   className="h-5 w-5"
                   viewBox="0 0 20 20"
@@ -1839,8 +1888,8 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
                     d="M7 4a3 3 0 016 0v4a3 3 0 11-6 0V4zm4 10.93A7.001 7.001 0 0017 8a1 1 0 10-2 0A5 5 0 015 8a1 1 0 00-2 0 7.001 7.001 0 006 6.93V17H6a1 1 0 100 2h8a1 1 0 100-2h-3v-2.07z"
                     clipRule="evenodd"
                   />
-                </svg>
-              </button>
+                </svg> */}
+              </ButtonGreen>
               <ButtonGreen
                 size="md"
                 onClick={() => {
@@ -1848,6 +1897,8 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
                 }}
                 disabled={question.trim() == ''}
                 icon="PaperAirplaneIcon"
+                iconKind="outline"
+                iconClassName="text-green-800"
                 className="flex-shrink-0 px-4 py-2 duration-200"
               />
             </div>
