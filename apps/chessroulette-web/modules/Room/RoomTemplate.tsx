@@ -46,17 +46,21 @@ export const RoomTemplate = (props: Props) => {
            mt-0
            flex-1 relative
            ${
-             props.activity === 'review'
-               ? 'overflow-y-auto no-scrollbar md:overflow-hidden'
-               : 'overflow-hidden'
+             // Whole-screen scroll for review on mobile — disabled for now,
+             // still deciding on the best approach (see ReviewActivity.tsx).
+             // props.activity === 'review'
+             //   ? 'overflow-y-auto no-scrollbar md:overflow-hidden'
+             //   : 'overflow-hidden'
+             'overflow-hidden'
            }
            ${props.contentClassname}`}
         >
           <div
             className={
-              props.activity === 'review'
-                ? 'md:absolute md:inset-0'
-                : 'absolute inset-0'
+              // props.activity === 'review'
+              //   ? 'md:absolute md:inset-0'
+              //   : 'absolute inset-0'
+              'absolute inset-0'
             }
           >
             {props.children}

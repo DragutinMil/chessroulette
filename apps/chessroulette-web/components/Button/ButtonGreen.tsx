@@ -25,6 +25,7 @@ export type ButtonProps = Omit<NativeButtonProps, 'type' | 'ref'> &
     size?: 'xs' | 'sm' | 'md' | 'lg';
     icon?: IconProps['name'];
     iconKind?: IconProps['kind'];
+    iconClassName?: string;
 
     tooltip?: string;
     tooltipPositon?: 'left' | 'top' | 'right' | 'bottom';
@@ -60,6 +61,7 @@ export const ButtonGreen = React.forwardRef<
       size = 'md',
       icon,
       iconKind,
+      iconClassName,
 
       tooltip,
       tooltipPositon = 'left',
@@ -86,7 +88,7 @@ export const ButtonGreen = React.forwardRef<
           <Icon
             kind={iconKind}
             name={icon}
-            className={buttonIconClasses[size]}
+            className={`${buttonIconClasses[size]} ${iconClassName ?? ''}`}
           />
         )}
 

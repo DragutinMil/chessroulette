@@ -154,27 +154,33 @@ const TypewriterText: React.FC<TypewriterTextProps> = ({
         displayedText.length === lastMessage.length && (
           <div className="flex flex-wrap items-center gap-2 mt-1">
             <ButtonGreen
+              icon='CheckIcon'
+               iconKind="outline"
               onClick={() => onSelectLearnMode?.('opening')}
               size="md"
               className="font-bold mt-2 px-3 mr-2 whitespace-nowrap"
             >
-              Openings ✅
+              Openings
             </ButtonGreen>
             <ButtonGreen
+            icon='LockClosedIcon'
+             iconKind="outline"
               size="md"
               disabled
               className="font-bold mt-2 px-3 mr-2 whitespace-nowrap opacity-60 cursor-not-allowed"
               title="Coming soon"
             >
-              Midgame 🔒
+              Midgame
             </ButtonGreen>
             <ButtonGreen
+            icon='LockClosedIcon'
+             iconKind="outline"
               size="md"
               disabled
               className="font-bold mt-2 px-3 mr-2 whitespace-nowrap opacity-60 cursor-not-allowed"
               title="Coming soon"
             >
-              Endgame 🔒
+              Endgame
             </ButtonGreen>
           </div>
         )}

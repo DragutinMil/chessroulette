@@ -12,7 +12,9 @@ import {
   sendResult,
   getUserStreakPlay,
   patchUserStreakPlay,
+  getUserStreak,
 } from '@app/modules/Match/utilsOutpost';
+import { Paywall } from '@app/components/Paywall/Paywall';
 import {
   PlayDialogContainer,
   PlayDialogContainerContainerProps,
@@ -34,6 +36,7 @@ import { newRematchRequestInitiate } from '../../utilsOutpost';
 import { GoogleAd } from '@app/components/GoogleAd/GoogleAd';
 
 let sessionMatchStreakChecked = false;
+let sessionLossStreakChecked = false;
 import { useMovexBoundResourceFromRid } from 'movex-react';
 import movexConfig from '@app/movex.config';
 import { useMovexClient } from 'movex-react';
@@ -68,6 +71,12 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
   const [badgeNum, setBadgeNum] = useState(0);
   const [badgePulse, setBadgePulse] = useState(false);
   const [matchDialogReady, setMatchDialogReady] = useState(false);
+  const [lossStreakPaywallVisible, setLossStreakPaywallVisible] =
+    useState(false);
+  const [lossStreakPaywallCopy, setLossStreakPaywallCopy] = useState({
+    title: '',
+    subtitle: '',
+  });
 
   // const [matchId, setMatchId] = useState('');
   const [room, setRoom] = useState('');
@@ -81,6 +90,17 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
     !!userId &&
     !!match &&
     (userId === match.challenger.id || userId === match.challengee.id);
+  const myRole =
+    userId === match?.challenger.id
+      ? 'challenger'
+      : userId === match?.challengee.id
+        ? 'challengee'
+        : null;
+  const iLostMatch =
+    !!myRole && !!match?.winner && match.winner !== myRole;
+  const myDisplayName = myRole
+    ? match?.[myRole]?.displayName || match?.[myRole]?.id || ''
+    : '';
 
   const params = useParams<{ roomId: string }>();
 
@@ -119,6 +139,37 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
         ];
 
         setEndGameReason(reasons[Number(match.endedGames[0].gameOverReason)]);
+
+        if (iLostMatch && !sessionLossStreakChecked) {
+          sessionLossStreakChecked = true;
+          setTimeout(async () => {
+            const streakResult = await getUserStreak();
+            const streakCount = Number(streakResult?.streak_count);
+            if (
+              streakResult?.streak_type === 'L' &&
+              [1, 2, 4].includes(streakCount)
+            ) {
+              const name = myDisplayName;
+              if (streakCount === 4) {
+                setLossStreakPaywallCopy({
+                  title: `Five losses in a row ${name}`,
+                  subtitle: 'Your AI coach knows exactly why. Ask it.',
+                });
+              } else if (streakCount === 2) {
+                setLossStreakPaywallCopy({
+                  title: `Same mistake ${name}, third time`,
+                  subtitle: 'Review your games and stop repeating mistakes',
+                });
+              } else {
+                setLossStreakPaywallCopy({
+                  title: `Every loss is a lesson ${name}`,
+                  subtitle: 'Let Outposty show you what went wrong',
+                });
+              }
+              setLossStreakPaywallVisible(true);
+            }
+          }, 1000);
+        }
 
         if (!sessionMatchStreakChecked) {
           sessionMatchStreakChecked = true;
@@ -257,20 +308,30 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
   ) {
     if (isHidden) {
       return (
-        <div className="absolute bottom-4 right-4 z-[51]">
-          <button
-            onClick={() => setIsHidden(false)}
-            className="flex items-center justify-center w-10 h-10 rounded-full bg-black-light border border-green-600/50 text-white transition-all duration-200 hover:border-green-600 hover:shadow-[0_0_14px_rgba(7,218,99,0.4)] hover:scale-110"
-            style={{ boxShadow: '0px 0px 16px 0px #07DA6330' }}
-            title="Show options"
-          >
-            <Icon name="EllipsisHorizontalIcon" className="w-5 h-5" />
-          </button>
-        </div>
+        <>
+          <div className="absolute bottom-4 right-4 z-[51]">
+            <button
+              onClick={() => setIsHidden(false)}
+              className="flex items-center justify-center w-10 h-10 rounded-full bg-black-light border border-green-600/50 text-white transition-all duration-200 hover:border-green-600 hover:shadow-[0_0_14px_rgba(7,218,99,0.4)] hover:scale-110"
+              style={{ boxShadow: '0px 0px 16px 0px #07DA6330' }}
+              title="Show options"
+            >
+              <Icon name="EllipsisHorizontalIcon" className="w-5 h-5" />
+            </button>
+          </div>
+          <Paywall
+            visible={lossStreakPaywallVisible}
+            onClose={() => setLossStreakPaywallVisible(false)}
+            defaultPlan="starter"
+            title={lossStreakPaywallCopy.title}
+            subtitle={lossStreakPaywallCopy.subtitle}
+          />
+        </>
       );
     }
 
     return (
+      <>
       <Dialog
         title={`${endGameReason}`}
         hasCloseButton
@@ -430,6 +491,14 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
           </div>
         }
       />
+      <Paywall
+        visible={lossStreakPaywallVisible}
+        onClose={() => setLossStreakPaywallVisible(false)}
+        defaultPlan="starter"
+        title={lossStreakPaywallCopy.title}
+        subtitle={lossStreakPaywallCopy.subtitle}
+      />
+      </>
     );
   }
 
