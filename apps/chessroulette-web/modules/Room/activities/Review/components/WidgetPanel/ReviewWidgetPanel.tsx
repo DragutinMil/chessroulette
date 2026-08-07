@@ -148,6 +148,7 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
       useState(false);
     const [gameReviewPaywallConfig, setGameReviewPaywallConfig] = useState<{
       defaultPlan: 'starter' | 'pro';
+      title?: string;
       subtitle: string;
     }>({
       defaultPlan: 'pro',
