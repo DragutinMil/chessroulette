@@ -33,6 +33,7 @@ type Props = {
   completedGames?: CompletedGameItem[];
   isLoadingGames?: boolean;
   showMyGames?: boolean;
+  isMobile?:boolean;
   onToggleMyGames?: () => void;
   currentUserId?: string;
 };
@@ -56,6 +57,7 @@ const ConversationReview = ({
   onImportGame,
   completedGames,
   isLoadingGames,
+  isMobile,
   showMyGames,
   onToggleMyGames,
   currentUserId,
@@ -86,10 +88,19 @@ const ConversationReview = ({
       }
     }
   }, []);
-  useEffect(() => {
+  const scrollToBottom = () => {
     if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+      // scrollHeight - clientHeight is the true max scrollTop; scrollHeight
+      // alone overshoots it, which on touch devices shows as an elastic
+      // bounce past the end before snapping back.
+      scrollRef.current.scrollTop =
+        scrollRef.current.scrollHeight - scrollRef.current.clientHeight;
     }
+  };
+  useEffect(() => {
+    scrollToBottom();
+    const raf = requestAnimationFrame(scrollToBottom);
+    return () => cancelAnimationFrame(raf);
   }, [currentChapterState.messages, pulseDot]);
   useEffect(() => {
     if (currentChapterState.chessAiMode.review.length == 0) {
@@ -97,11 +108,6 @@ const ConversationReview = ({
     }
     setDisableButton(false);
   }, [currentChapterState.chessAiMode.review]);
-  const scrollToBottom = () => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    }
-  };
   if (!hasGameLoaded) {
     return (
       <div className="flex flex-col gap-3 py-1">
@@ -199,6 +205,8 @@ const ConversationReview = ({
   ${
     isTablet
       ? 'h-full'
+      : isMobile
+      ? 'h-auto'
       : ` ${
           currentChapterState.chessAiMode.mode === 'play'
             ? 'md:h-[340px] h-[290px]'
@@ -271,7 +279,7 @@ const ConversationReview = ({
                             setDisableButton(true);
                             analizeMatch();
                           }}
-                          disabled={disableButton || scoreCP == 0}
+                          disabled={disableButton || scoreCP == 0 || pulseDot}
                           size="md"
                           className="bg-green-600  text-black font-bold mt-2 px-1 mr-2 whitespace-nowrap px-4"
                           style={{ color: 'black' }}
@@ -305,7 +313,7 @@ const ConversationReview = ({
                             className="bg-green-600  text-black font-bold mt-2 px-1 mr-2 whitespace-nowrap px-4"
                             style={{ color: 'black' }}
                           >
-                            How was my opening?
+                             {isMobile ? 'My opening?' : 'How was my opening?'}
                           </ButtonGreen>
                         </div>
                       )}

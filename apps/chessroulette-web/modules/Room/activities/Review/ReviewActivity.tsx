@@ -308,7 +308,9 @@ export const ReviewActivity = ({
 
   return (
     <ResizableDesktopLayout
-      mobileScrollable
+      // mobileScrollable — disabled: was an experiment to let the whole
+      // screen (board included) scroll on mobile; still deciding on the
+      // best approach, see RoomTemplate.tsx for the matching commented-out half.
       tabletLayout="split"
       rightSideSize={RIGHT_SIDE_SIZE_PX}
       mainComponent={({ boardSize }) => (
@@ -356,7 +358,7 @@ export const ReviewActivity = ({
                         : 100 - rawPct;
                     const pctB = 100 - pctW;
                     return (
-                      <div className="w-[96%] h-[8px] flex overflow-hidden mx-2  mb-1  rounded-xl">
+                      <div className="w-[96%] h-[10px] flex overflow-hidden mx-2  mb-1  rounded-xl">
                         <div
                           className="bg-white transition-all duration-500"
                           style={{ width: `${pctW}%` }}
@@ -369,7 +371,7 @@ export const ReviewActivity = ({
                     );
                   })()}
 
-                  {/* { currentChapter.chessAiMode.mode === 'play' && ( */}
+                 { currentChapter.chessAiMode.mode === 'play' && ( 
                   <div className="h-[40px] px-2 pb-1 mt-3 mb-1 flex items-center gap-2">
                     <div className="flex-1 min-w-0 flex items-center">
                       {(() => {
@@ -389,11 +391,17 @@ export const ReviewActivity = ({
                               {linesToShow
                                 .slice(0, 2)
                                 .map(({ san, score }, idx) => {
+                                  // `score` is relative to board orientation;
+                                  // flip to White-relative before signing it.
+                                  const whiteScore =
+                                    currentChapter.orientation === 'w'
+                                      ? score
+                                      : -score;
                                   const scoreLabel =
-                                    Math.abs(score) >= 49999
+                                    Math.abs(whiteScore) >= 49999
                                       ? '∞'
-                                      : `${score >= 0 ? '+' : ''}${(
-                                          score / 100
+                                      : `${whiteScore >= 0 ? '+' : ''}${(
+                                          whiteScore / 100
                                         ).toFixed(2)}`;
                                   return (
                                     <p
@@ -421,16 +429,20 @@ export const ReviewActivity = ({
                         );
                       })()}
                     </div>
+                    {currentChapter.chessAiMode.mode === 'play' && (
                     <ButtonGreen onClick={() => setImportDialogVisible(true)}>
                       Upload a PGN
                     </ButtonGreen>
+                    )
+                    }
+                    
                     <ImportDialogContainer
                       visible={importDialogVisible}
                       onClose={() => setImportDialogVisible(false)}
                       onImport={dispatchImport}
                     />
                   </div>
-                  {/* )} */}
+                 )} 
                 </div>
               )}
               <div className={isTablet ? 'flex flex-col gap-2' : ''}>
@@ -452,7 +464,10 @@ export const ReviewActivity = ({
                   onMove={async (payload) => {
                     moveSoundRef.current?.play();
 
-                    if (currentChapter.chessAiMode.mode === 'review') {
+                    if (
+                      currentChapter.chessAiMode.mode === 'review' ||
+                      currentChapter.chessAiMode.mode === 'play'
+                    ) {
                       await enqueueMovexUpdate(() =>
                         dispatch({ type: 'loadedChapter:addMove', payload })
                       );
