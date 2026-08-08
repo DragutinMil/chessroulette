@@ -110,6 +110,8 @@ export const PuzzleWidgetPanel = React.forwardRef<TabsRef, Props>(
     }, []);
 
     const [pulseDot, setPulseDot] = useState(false);
+    // Mobile chat bubble → footer input (same pattern as Review)
+    const [showMobileChatInput, setShowMobileChatInput] = useState(false);
     const [hintCircle, setHintCircle] = useState(false);
     const [isFocusedInput, setIsFocusedInput] = useState(false);
     const [question, setQuestion] = useState('');
@@ -908,7 +910,7 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
               renderContent: () => (
                 // ovde ide pb-24
                 <div
-                  className={`flex flex-col flex-1 gap-2 min-h-0 overflow-scroll no-scrollbar md:pb-0 ${
+                  className={`flex flex-col flex-1 gap-2 min-h-0 overflow-hidden md:overflow-scroll no-scrollbar md:pb-0 ${
                     isOutpostWebViewAndroid
                       ? 'pb-4'
                       : isOutpostWebViewIos
@@ -917,12 +919,12 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
                   }`}
                 >
                   <div
-                    className={`flex-1 justify-between flex bg-op-widget flex-col border  border-conversation-100 pb-2 px-2 md:px-4 md:pb-4 rounded-lg 
-                
-                  ${isMobile ? 'mb-2' : ''}  
+                    className={`flex-1 min-h-0 justify-between flex bg-op-widget flex-col border  border-conversation-100 pb-2 px-2 md:px-4 md:pb-4 rounded-lg
+
+                  ${isMobile ? 'mb-2' : ''}
                   `}
                   >
-                    <div className="mt-4  flex flex-col justify-between  h-full max-h-[320px] md:max-h-[380px] md:min-h-[300px] min-h-[200px] ">
+                    <div className="mt-4  flex flex-col justify-between  h-full flex-1 min-h-0 md:flex-none md:max-h-[380px] md:min-h-[300px] ">
                       {!isMobile && !isTablet && (
                         <Conversation
                           currentChapterState={currentChapterState}
@@ -1059,7 +1061,7 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
                       </div>
 
                       {(isMobile || isTablet) && (
-                        <div className="top-4 relative ">
+                        <div className="top-4 relative flex-1 min-h-0 flex flex-col">
                           <Conversation
                             currentChapterState={currentChapterState}
                             openViewSubscription={openViewSubscription}
@@ -1077,44 +1079,83 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
                       )}
                     </div>
 
-                    <div className="flex mb-2 md:mb-0 mt-2 md:mt-0">
-                      <input
-                        id="title"
-                        type="text"
-                        name="tags"
-                        placeholder="Start chessiness..."
-                        value={question}
-                        style={{
-                          boxShadow: '0px 0px 10px 0px #07DA6380',
-                        }}
-                        // className="w-full my-2 text-sm rounded-md border-slate-500 focus:border-slate-400 border border-transparent block bg-slate-600 text-white block py-1 px-2"
-                        className="w-full text-md rounded-[20px] border  border-conversation-100 bg-[#111111]/40 text-white 
-                        placeholder-slate-400 px-4 py-2  transition-colors duration-200 focus:outline-none 
+                    <div
+                      style={{
+                        paddingBottom:
+                          isMobile && showMobileChatInput ? '68px' : undefined,
+                      }}
+                    >
+                      {(!isMobile || showMobileChatInput) && (
+                        <div
+                          className={
+                            isMobile
+                              ? 'flex fixed bottom-0 left-0 right-0 z-30 bg-op-widget border-t border-conversation-100 px-2 pt-2 pb-[max(env(safe-area-inset-bottom),0.5rem)]'
+                              : 'flex mb-2 md:mb-0 mt-2 md:mt-0'
+                          }
+                        >
+                          <input
+                            id="title"
+                            type="text"
+                            name="tags"
+                            placeholder="Start chessiness..."
+                            value={question}
+                            autoFocus={isMobile}
+                            style={{
+                              boxShadow: '0px 0px 10px 0px #07DA6380',
+                            }}
+                            // className="w-full my-2 text-sm rounded-md border-slate-500 focus:border-slate-400 border border-transparent block bg-slate-600 text-white block py-1 px-2"
+                            className="w-full text-md rounded-[20px] border  border-conversation-100 bg-[#111111]/40 text-white
+                        placeholder-slate-400 px-4 py-2  transition-colors duration-200 focus:outline-none
                         focus:ring-1 focus:ring-slate-400 focus:border-conversation-200 hover:border-conversation-300"
-                        onChange={(e) => {
-                          setQuestion(e.target.value);
-                        }}
-                        onFocus={() => setIsFocusedInput(true)}
-                        onBlur={() => setIsFocusedInput(false)}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter' && !e.shiftKey) {
-                            //e.preventDefault(); // sprečava novi red ako koristiš textarea
-                            addQuestion(question);
-                          }
-                        }}
-                      />
-                      <ButtonGreen
-                        size="md"
-                        onClick={() => {
-                          if (question.trim() !== '') {
-                            addQuestion(question);
-                          }
-                        }}
-                        disabled={question.trim() == ''}
-                        icon="PaperAirplaneIcon"
-                        className="ml-2 px-4 py-2 
+                            onChange={(e) => {
+                              setQuestion(e.target.value);
+                            }}
+                            onFocus={() => setIsFocusedInput(true)}
+                            onBlur={() => setIsFocusedInput(false)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter' && !e.shiftKey) {
+                                //e.preventDefault(); // sprečava novi red ako koristiš textarea
+                                addQuestion(question);
+                                if (isMobile) setShowMobileChatInput(false);
+                              }
+                            }}
+                          />
+                          <ButtonGreen
+                            size="md"
+                            onClick={() => {
+                              const isEmpty = question.trim() === '';
+                              if (isMobile && isEmpty) {
+                                setShowMobileChatInput(false);
+                                return;
+                              }
+                              if (!isEmpty) {
+                                addQuestion(question);
+                                if (isMobile) setShowMobileChatInput(false);
+                              }
+                            }}
+                            disabled={isMobile ? false : question.trim() == ''}
+                            icon={
+                              isMobile && question.trim() === ''
+                                ? 'XMarkIcon'
+                                : 'PaperAirplaneIcon'
+                            }
+                            iconKind="outline"
+                            className="ml-2 px-4 py-2
                           duration-200"
-                      ></ButtonGreen>
+                          ></ButtonGreen>
+                        </div>
+                      )}
+                      {isMobile && !showMobileChatInput && (
+                        <ButtonGreen
+                          onClick={() => setShowMobileChatInput(true)}
+                          aria-label="Open chat"
+                          size="lg"
+                          icon="ChatBubbleOvalLeftEllipsisIcon"
+                          iconKind="outline"
+                          iconClassName="!h-7 !w-7 text-black"
+                          className="!fixed !bottom-4 !right-4 !z-30 !h-14 !w-14 !rounded-full !bg-[#07DA63] shadow-lg active:scale-95 transition-transform"
+                        />
+                      )}
                     </div>
                   </div>
 
