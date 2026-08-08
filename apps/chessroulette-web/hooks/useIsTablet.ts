@@ -18,9 +18,16 @@ const getBreakpoints = () => {
 };
 
 export const useIsTablet = () => {
-  const [breakpoints, setBreakpoints] = useState(getBreakpoints);
+  // Starts at the SSR-safe default on both server and the client's first
+  // render (avoids a hydration mismatch), then syncs to the real breakpoint
+  // right after mount.
+  const [breakpoints, setBreakpoints] = useState({
+    isMobile: false,
+    isTablet: false,
+  });
 
   useEffect(() => {
+    setBreakpoints(getBreakpoints());
     const onResize = debounce(() => setBreakpoints(getBreakpoints()), 250);
 
     window.addEventListener('resize', onResize);

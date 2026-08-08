@@ -47,21 +47,13 @@ const Conversation = ({
     }
   };
   return (
-    <div className="flex-1">
+    <div className="flex-1 min-h-0 flex flex-col">
       <div
         ref={scrollRef}
-        className={`
-  overflow-y-auto rounded-lg no-scrollbar scroll-smooth
-  min-h-[150px]  overflow-scroll 
-  ${
-    currentChapterState.chessAiMode.mode === 'puzzle'
-      ? 'h-full'
-      : 'max-h-[300px]'
-  }
-  md:h-[316px]
-`}
+        // Fills whatever space its flex parent gives it on mobile instead
+        // of a fixed px cap; desktop keeps its fixed height.
+        className="overflow-y-auto rounded-lg no-scrollbar scroll-smooth h-full min-h-0 md:h-[316px]"
         style={{
-          maxHeight: smallMobile ? '160px' : isMobile ? '220px' : '',
           marginTop: isMobile ? '15px' : '',
           marginBottom: isMobile ? '15px' : '',
         }}
@@ -162,7 +154,7 @@ const Conversation = ({
                       />
                     </div>
                   ) : (
-                    <div className="w-9 h-9 min-w-8  flex items-center justify-center rounded-full bg-indigo-1600 text-white font-semibold text-sm">
+                    <div className="w-9 h-9 min-w-8  flex items-center justify-center rounded-full bg-green-500 text-white font-semibold text-sm">
                       {userData.name_first?.slice(0, 1)}
                       {userData.name_last?.slice(0, 1)}
                     </div>

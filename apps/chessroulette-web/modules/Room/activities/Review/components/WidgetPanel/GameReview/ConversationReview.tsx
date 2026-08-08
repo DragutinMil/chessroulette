@@ -374,7 +374,7 @@ const ConversationReview = ({
                     />
                   </div>
                 ) : (
-                  <div className="w-9 h-9 min-w-8  flex items-center justify-center rounded-full bg-indigo-1600 text-white font-semibold text-sm">
+                  <div className="w-9 h-9 min-w-8  flex items-center justify-center rounded-full bg-green-500 text-white font-semibold text-sm">
                     {userData.name_first?.slice(0, 1)}
                     {userData.name_last?.slice(0, 1)}
                   </div>
