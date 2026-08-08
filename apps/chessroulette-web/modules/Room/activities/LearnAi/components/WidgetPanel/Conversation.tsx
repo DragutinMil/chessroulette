@@ -36,6 +36,7 @@ type Props = {
   pulseDot: boolean;
   userData: UserData;
   smallMobile: boolean;
+  isMobile?: boolean;
   showOfferMoves: boolean;
   takeBack: () => void;
   playNext: () => void;
@@ -69,6 +70,7 @@ const Conversation = ({
   takeBack,
   playNext,
   smallMobile,
+  isMobile,
   openViewSubscription,
   onSelectRating,
   onSelectLearnMode,
@@ -137,8 +139,10 @@ const Conversation = ({
     <>
     <div
       ref={scrollRef}
-      className="min-w-0 max-w-full overflow-y-auto overflow-x-hidden rounded-lg scroll-smooth no-scrollbar h-[350px]  md:h-[560px] md:flex-1 md:min-h-0 pt-2"
-      // style={{ height: smallMobile ? '140px' : undefined }}
+      // Fills whatever space its flex parent gives it (mobile: the rest of
+      // the screen below the buttons row; desktop: fixed height) and
+      // scrolls internally — the parent no longer scrolls as a page.
+      className="min-w-0 max-w-full overflow-y-auto overflow-x-hidden rounded-lg scroll-smooth no-scrollbar h-full min-h-0 md:h-[560px] md:flex-1 pt-2"
     >
       {currentChapterState.messages.map((msg, index) => {
         const participant = msg.participantId;
@@ -345,7 +349,7 @@ const Conversation = ({
                     />
                   </div>
                 ) : (
-                  <div className="w-9 h-9 min-w-8  flex items-center justify-center rounded-full bg-indigo-1600 text-white font-semibold text-sm">
+                  <div className="w-9 h-9 min-w-8  flex items-center justify-center rounded-full bg-green-500 text-white font-semibold text-sm">
                     {userData.name_first?.slice(0, 1)}
                     {userData.name_last?.slice(0, 1)}
                   </div>

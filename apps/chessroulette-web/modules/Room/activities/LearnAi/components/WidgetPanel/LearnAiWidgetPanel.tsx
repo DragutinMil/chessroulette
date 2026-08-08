@@ -277,6 +277,8 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
     const widgetPanelTabsNav = useWidgetPanelTabsNavAsSearchParams();
 
     const updateableSearchParams = useUpdateableSearchParams();
+    // Mobile chat bubble → footer input (same pattern as Review/Puzzle)
+    const [showMobileChatInput, setShowMobileChatInput] = useState(false);
     const [pulseDot, setPulseDot] = useState(false);
     const [isFocusedInput, setIsFocusedInput] = useState(false);
     const [question, setQuestion] = useState('');
@@ -307,9 +309,14 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
       useState<string>('');
     // const [waitingForCustomOpeningName, setWaitingForCustomOpeningName] =
     //   useState(false);
-    const smallMobile =
-      typeof window !== 'undefined' && window.innerWidth < 400;
-    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+    // Starts false on both server and the client's first render (avoids a
+    // hydration mismatch), then syncs to the real width right after mount.
+    const [smallMobile, setSmallMobile] = useState(false);
+    const [isMobile, setIsMobile] = useState(false);
+    useEffect(() => {
+      setSmallMobile(window.innerWidth < 400);
+      setIsMobile(window.innerWidth < 768);
+    }, []);
     const [isOutpostWebViewAndroid, setIsOutpostWebViewAndroid] =
       useState(false);
     const [isOutpostWebViewIos, setIsOutpostWebViewIos] = useState(false);
@@ -1688,9 +1695,11 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
           />
         
         <div className="flex-1 min-h-0 min-w-0 flex flex-col border  bg-op-widget  border-conversation-100 pb-2 px-2 md:px-2 md:pb-4 rounded-lg">
-          {/* Mobile: flex-col scrollable so input stays reachable; desktop: overflow-hidden with flex constraints */}
+          {/* Conversation (order-2) fills the space below the buttons and
+              scrolls internally — this container no longer scrolls as a
+              page, it just reserves bottom safe-area room per platform. */}
           <div
-            className={`flex-1 min-h-0 min-w-0 flex flex-col overflow-y-auto md:overflow-hidden no-scrollbar md:pb-0 ${
+            className={`flex-1 min-h-0 min-w-0 flex flex-col overflow-hidden no-scrollbar md:pb-0 ${
               isOutpostWebViewAndroid
                 ? 'pb-4'
                 : isOutpostWebViewIos
@@ -1805,7 +1814,7 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
             </div>
 
             {/* Conversation: order-2 on mobile (below buttons), order-1 on desktop */}
-            <div className="order-2 md:order-1 min-w-0 md:flex-1 md:min-h-0 md:flex md:flex-col">
+            <div className="order-2 md:order-1 min-w-0 flex-1 min-h-0 flex flex-col">
               <Conversation
                 showColorChoice={showColorChoice}
                 onSelectColor={handleSelectColor}
@@ -1833,6 +1842,7 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
                 playNext={playNext}
                 userData={userData}
                 smallMobile={smallMobile}
+                isMobile={isMobile}
                 onHistoryNotationRefocus={onHistoryNotationRefocus}
                 notationHistoryLength={
                   currentChapterState.notation?.history?.length ?? 0
@@ -1849,58 +1859,88 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
             </div>
 
             {/* Input: always last (order-3) */}
-            <div className="order-3 flex flex-shrink-0 mb-2 mt-2 px-1 md:mt-0 items-center gap-2">
-              <input
-                id="title"
-                type="text"
-                name="tags"
-                placeholder="Type here..."
-                value={question}
-                style={{ boxShadow: '0px 0px 10px 0px #07DA6380' }}
-                className="w-full text-[16px]  md:text-[14px] rounded-[20px] border border-conversation-100 bg-[#111111]/40 text-white placeholder-[#FFFFFF]/25 px-4 py-1 md:py-2 transition-colors duration-200 focus:outline-none focus:ring-1 focus:ring-slate-400 focus:border-conversation-200 hover:border-conversation-300"
-                onChange={(e) => setQuestion(e.target.value)}
-                onFocus={() => setIsFocusedInput(true)}
-                onBlur={() => setIsFocusedInput(false)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && !e.shiftKey) addQuestion(question);
-                }}
-              />
-              <ButtonGreen
-              icon="MicrophoneIcon"
-              iconClassName="text-green-800"
-              iconKind="outline"
-                onClick={startVoiceInput}
-                className={`flex-shrink-0 p-2 rounded-full transition-colors ${
-                  isListening
-                    ? 'bg-red-500/80 text-white'
-                    : 'bg-[#111111]/40 bg-[#D9D9D9]/20 opacity-30 text-slate-300 hover:bg-slate-600 border border-conversation-100'
-                }`}
-                title={isListening ? 'Stop listening' : 'Voice input'}
-              >
-                {/* <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
+            <div
+              className="order-3"
+              style={{
+                paddingBottom:
+                  isMobile && showMobileChatInput ? '68px' : undefined,
+              }}
+            >
+              {(!isMobile || showMobileChatInput) && (
+                <div
+                  className={
+                    isMobile
+                      ? 'flex fixed bottom-0 left-0 right-0 z-30 bg-op-widget border-t border-conversation-100 px-2 pt-2 pb-[max(env(safe-area-inset-bottom),0.5rem)] items-center gap-2'
+                      : 'flex flex-shrink-0 mb-2 mt-2 px-1 md:mt-0 items-center gap-2'
+                  }
                 >
-                  <path
-                    fillRule="evenodd"
-                    d="M7 4a3 3 0 016 0v4a3 3 0 11-6 0V4zm4 10.93A7.001 7.001 0 0017 8a1 1 0 10-2 0A5 5 0 015 8a1 1 0 00-2 0 7.001 7.001 0 006 6.93V17H6a1 1 0 100 2h8a1 1 0 100-2h-3v-2.07z"
-                    clipRule="evenodd"
+                  <input
+                    id="title"
+                    type="text"
+                    name="tags"
+                    placeholder="Type here..."
+                    value={question}
+                    autoFocus={isMobile}
+                    style={{ boxShadow: '0px 0px 10px 0px #07DA6380' }}
+                    className="w-full text-[16px]  md:text-[14px] rounded-[20px] border border-conversation-100 bg-[#111111]/40 text-white placeholder-[#FFFFFF]/25 px-4 py-1 md:py-2 transition-colors duration-200 focus:outline-none focus:ring-1 focus:ring-slate-400 focus:border-conversation-200 hover:border-conversation-300"
+                    onChange={(e) => setQuestion(e.target.value)}
+                    onFocus={() => setIsFocusedInput(true)}
+                    onBlur={() => setIsFocusedInput(false)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        addQuestion(question);
+                        if (isMobile) setShowMobileChatInput(false);
+                      }
+                    }}
                   />
-                </svg> */}
-              </ButtonGreen>
-              <ButtonGreen
-                size="md"
-                onClick={() => {
-                  if (question.trim() !== '') addQuestion(question);
-                }}
-                disabled={question.trim() == ''}
-                icon="PaperAirplaneIcon"
-                iconKind="outline"
-                iconClassName="text-green-800"
-                className="flex-shrink-0 px-4 py-2 duration-200"
-              />
+                  <ButtonGreen
+                    icon="MicrophoneIcon"
+                    iconClassName="text-green-800"
+                    iconKind="outline"
+                    onClick={startVoiceInput}
+                    className={`flex-shrink-0 p-2 rounded-full transition-colors ${
+                      isListening
+                        ? 'bg-red-500/80 text-white'
+                        : 'bg-[#111111]/40 bg-[#D9D9D9]/20 opacity-30 text-slate-300 hover:bg-slate-600 border border-conversation-100'
+                    }`}
+                    title={isListening ? 'Stop listening' : 'Voice input'}
+                  />
+                  <ButtonGreen
+                    size="md"
+                    onClick={() => {
+                      const isEmpty = question.trim() === '';
+                      if (isMobile && isEmpty) {
+                        setShowMobileChatInput(false);
+                        return;
+                      }
+                      if (!isEmpty) {
+                        addQuestion(question);
+                        if (isMobile) setShowMobileChatInput(false);
+                      }
+                    }}
+                    disabled={isMobile ? false : question.trim() == ''}
+                    icon={
+                      isMobile && question.trim() === ''
+                        ? 'XMarkIcon'
+                        : 'PaperAirplaneIcon'
+                    }
+                    iconKind="outline"
+                    iconClassName="text-green-800"
+                    className="flex-shrink-0 px-4 py-2 duration-200"
+                  />
+                </div>
+              )}
+              {isMobile && !showMobileChatInput && (
+                <ButtonGreen
+                  onClick={() => setShowMobileChatInput(true)}
+                  aria-label="Open chat"
+                  size="lg"
+                  icon="ChatBubbleOvalLeftEllipsisIcon"
+                  iconKind="outline"
+                  iconClassName="!h-7 !w-7 text-black"
+                  className="!fixed !bottom-4 !right-4 !z-30 !h-14 !w-14 !rounded-full !bg-[#07DA63] shadow-lg active:scale-95 transition-transform"
+                />
+              )}
             </div>
 
         
