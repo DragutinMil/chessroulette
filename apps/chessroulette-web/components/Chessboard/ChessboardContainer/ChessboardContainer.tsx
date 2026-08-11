@@ -208,11 +208,7 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
       // latestFenRef.current by the time the delayed dispatch below fires,
       // the position has moved on and this move would just get rejected.
       const fenAtCompute = fen;
-      const dispatchIfStillCurrent = (payload: {
-        from: string;
-        to: string;
-        promoteTo?: string;
-      }) => {
+      const dispatchIfStillCurrent = (payload: ShortChessMove) => {
         if (latestFenRef.current !== fenAtCompute) return;
         onMove(payload);
       };
