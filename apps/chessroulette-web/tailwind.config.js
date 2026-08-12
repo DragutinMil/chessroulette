@@ -32,8 +32,13 @@ module.exports = {
           600: '#11c6d1',
         },
         black: {
+          DEFAULT: '#000000',
           100: '#000000',
           light: '#272727',
+        },
+        white: {
+          DEFAULT: '#ffffff',
+          200: '#DADADA',
         },
         yellow: {
           ...colors.yellow,
