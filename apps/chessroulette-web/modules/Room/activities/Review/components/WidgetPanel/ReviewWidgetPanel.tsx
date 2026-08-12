@@ -338,6 +338,12 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
     const checkAnswerGPT = async (data: any, predefined?: string) => {
       if (data == 'ai_daily_limit_reached') {
         setPulseDot(false);
+        setGameReviewPaywallConfig({
+          defaultPlan: 'starter',
+          title: 'Outposty has more to say',
+          subtitle: 'Unlock unlimited chat with your AI coach',
+        });
+        setGameReviewPaywallVisible(true);
         onMessage({
           content: `You've hit your daily limit.
           Unlock Unlimited Puzzles, Unlimited Game Reviews, and Unlimited AI Chat for just €4/Month,  and improve faster with AI-powered analysis and training.`,

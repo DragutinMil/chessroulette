@@ -53,6 +53,8 @@ type Props = {
   onSuggestedMoveHover?: (uci: string | null) => void;
   deviatedFromOpening?: boolean;
   onNextVariation?: () => void;
+  chatLimitPaywallVisible?: boolean;
+  onCloseChatLimitPaywall?: () => void;
 };
 //console.log('currentChapterState',currentChapterState)
 
@@ -84,6 +86,8 @@ const Conversation = ({
   onSuggestedMoveHover,
   deviatedFromOpening,
   onNextVariation,
+  chatLimitPaywallVisible,
+  onCloseChatLimitPaywall,
 }: Props) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const branchSectionRef = useRef<HTMLDivElement>(null);
@@ -499,6 +503,13 @@ const Conversation = ({
           ? `Master openings and start every game ahead`
           : undefined
       }
+    />
+    <Paywall
+      visible={!!chatLimitPaywallVisible}
+      onClose={() => onCloseChatLimitPaywall?.()}
+      defaultPlan="starter"
+      title="Outposty has more to say"
+      subtitle="Unlock unlimited chat with your AI coach"
     />
     </>
   );
