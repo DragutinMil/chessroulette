@@ -5,6 +5,7 @@ import {
   GameBoardContainer,
   GameBoardContainerProps,
 } from '@app/modules/Game/GameBoardContainer';
+import { enqueueMovexUpdatePlay } from '../utils';
 
 const lastMoveWasPromotionCallbacks = new Set<(value: boolean) => void>();
 export type PlayerContainerProps = DistributiveOmit<
@@ -48,17 +49,19 @@ export const PlayContainer = (
       const random = Math.floor(Math.random() * 1000) + 1;
       setTimeout(
         () =>
-          dispatch((masterContext) => ({
-            type: 'play:start',
-            payload: {
-              at: masterContext.requestAt(),
-              // TODO: here might need to use challenger|challengee but for now it's ok
-              players: {
-                w: play.playersByColor.w.id,
-                b: play.playersByColor.b.id,
+          enqueueMovexUpdatePlay(() =>
+            dispatch((masterContext) => ({
+              type: 'play:start',
+              payload: {
+                at: masterContext.requestAt(),
+                // TODO: here might need to use challenger|challengee but for now it's ok
+                players: {
+                  w: play.playersByColor.w.id,
+                  b: play.playersByColor.b.id,
+                },
               },
-            },
-          })),
+            }))
+          ),
 
         random
       );
@@ -93,13 +96,18 @@ export const PlayContainer = (
             turn: 'b',
           })}
       onMove={(move) => {
-        dispatch((masterContext) => ({
-          type: 'play:move',
-          payload: {
-            ...move,
-            moveAt: masterContext.requestAt(),
-          },
-        }));
+        // Queued (not fired immediately) so it can never land in the same
+        // event loop tick as another pending dispatch (e.g. a bot move and
+        // a human move arriving close together) — see enqueueMovexUpdatePlay.
+        enqueueMovexUpdatePlay(() =>
+          dispatch((masterContext) => ({
+            type: 'play:move',
+            payload: {
+              ...move,
+              moveAt: masterContext.requestAt(),
+            },
+          }))
+        );
 
         // TODO: This can be returned from a more internal component
         return true;

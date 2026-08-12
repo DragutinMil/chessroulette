@@ -32,6 +32,10 @@ export function enqueueMovexUpdatePlay<T>(
   movexUpdateQueue = movexUpdateQueue
     .then(async () => {
       await updateFn();
+      // dispatch() returns void immediately but Movex does async work internally
+      // (server roundtrip + syncState). Without this delay all queued dispatches
+      // fire in the same event loop tick → "PromiseDelegate is already settled"
+      await new Promise<void>((resolve) => setTimeout(resolve, 150));
     })
     .catch((err) => console.error('Error in Movex update:', err));
 
@@ -193,7 +197,7 @@ export const chatBotList = [
     name: 'Botsworth',
     lastName: 'Smith',
     picture:
-      'https://outpostchess.fra1.digitaloceanspaces.com/1cbac9bd-fd34-4931-9a08-32f6487afc2d.png',
+      'https://outpostchess.fra1.digitaloceanspaces.com/24c74ef4-7788-472c-b4b7-f1fbadb91418.webp',
     botType: 'basic',
   },
   {
@@ -201,7 +205,7 @@ export const chatBotList = [
     name: 'Botvik',
     lastName: 'Johansen',
     picture:
-      'https://outpostchess.fra1.digitaloceanspaces.com/96124b0e-0775-48e2-8017-59904373276f.png',
+      'https://outpostchess.fra1.digitaloceanspaces.com/c48b09df-d50f-4c5c-a0ce-359fa8a0b21a.webp',
     botType: 'basic',
   },
   {
@@ -209,7 +213,7 @@ export const chatBotList = [
     name: 'Botelia',
     lastName: 'Fernandez',
     picture:
-      'https://outpostchess.fra1.digitaloceanspaces.com/fa245412-a7e2-4d29-b9d6-34f471df8d08.png',
+      'https://outpostchess.fra1.digitaloceanspaces.com/9210a0dc-7a72-48fd-8b94-473661402d44.webp',
     botType: 'basic',
   },
   {
@@ -217,7 +221,7 @@ export const chatBotList = [
     name: 'Botaraj',
     lastName: 'Singh',
     picture:
-      'https://outpostchess.fra1.digitaloceanspaces.com/805cf0d7-e73f-4135-9837-733b31fa3e49.png',
+      'https://outpostchess.fra1.digitaloceanspaces.com/75c36151-6a8a-4e02-ac7e-fc97e07d27b5.webp',
     botType: 'basic',
   },
   {
@@ -225,7 +229,7 @@ export const chatBotList = [
     name: 'Botxiang',
     lastName: 'Li',
     picture:
-      'https://outpostchess.fra1.digitaloceanspaces.com/4e5cf95f-e232-45cb-9c09-74354791db10.png',
+      'https://outpostchess.fra1.digitaloceanspaces.com/4d76d0f2-879d-4763-8928-fca49ffe04f3.webp',
     botType: 'basic',
   },
   {

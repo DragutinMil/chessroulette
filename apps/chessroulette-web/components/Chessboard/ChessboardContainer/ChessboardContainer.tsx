@@ -118,6 +118,15 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
   const engineMoveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
     null
   );
+  // Tracks the current fen so a delayed bot move (up to several seconds,
+  // see engineMove below) can tell if the position it was computed for is
+  // still current by the time it actually fires — dispatching a move for a
+  // position that's since moved on gets rejected server-side, which is
+  // what shows up as the move "playing then snapping back".
+  const latestFenRef = useRef(fen);
+  useEffect(() => {
+    latestFenRef.current = fen;
+  }, [fen]);
 
   const botColor =
     match?.gameInPlay?.players.w == botId
@@ -184,13 +193,29 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
 
   const engineMove = useCallback(
     (m: any) => {
+      // A previous call's delayed dispatch (below) may still be pending —
+      // cancel it so we never end up with two scheduled bot moves for the
+      // same turn racing each other.
+      if (engineMoveTimeoutRef.current) {
+        clearTimeout(engineMoveTimeoutRef.current);
+        engineMoveTimeoutRef.current = null;
+      }
+
       const from = m.slice(0, 2);
       const to = m.slice(2, 4);
       const promo = m[4];
+      // The position this move was computed for — if it no longer matches
+      // latestFenRef.current by the time the delayed dispatch below fires,
+      // the position has moved on and this move would just get rejected.
+      const fenAtCompute = fen;
+      const dispatchIfStillCurrent = (payload: ShortChessMove) => {
+        if (latestFenRef.current !== fenAtCompute) return;
+        onMove(payload);
+      };
 
       if (promo === 'q') {
         engineMoveTimeoutRef.current = setTimeout(() => {
-          onMove({ from, to, promoteTo: promo });
+          dispatchIfStillCurrent({ from, to, promoteTo: promo });
         }, 2000);
       } else {
         if (match && (botType == 'botelja' || botType == 'matchFake')) {
@@ -234,7 +259,7 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
             const delay = getRandom(min, max);
 
             engineMoveTimeoutRef.current = setTimeout(() => {
-              onMove({ from, to });
+              dispatchIfStillCurrent({ from, to });
             }, delay);
           }
         } else {
@@ -242,7 +267,7 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
         }
       }
     },
-    [onMove]
+    [onMove, fen]
   );
 
   if (sizePx === 0) {
