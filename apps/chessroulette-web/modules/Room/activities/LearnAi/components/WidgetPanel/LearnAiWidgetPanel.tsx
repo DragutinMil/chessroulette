@@ -280,6 +280,8 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
     // Mobile chat bubble → footer input (same pattern as Review/Puzzle)
     const [showMobileChatInput, setShowMobileChatInput] = useState(false);
     const [pulseDot, setPulseDot] = useState(false);
+    const [chatLimitPaywallVisible, setChatLimitPaywallVisible] =
+      useState(false);
     const [isFocusedInput, setIsFocusedInput] = useState(false);
     const [question, setQuestion] = useState('');
 
@@ -1265,6 +1267,16 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
       if (data) {
         setPulseDot(false);
       }
+      if (data === 'ai_daily_limit_reached') {
+        setChatLimitPaywallVisible(true);
+        onMessage({
+          content: `You've hit your daily limit.
+Unlock Unlimited Puzzles, Unlimited Game Reviews, and Unlimited AI Chat for just €4/Month,  and improve faster with AI-powered analysis and training.`,
+          participantId: 'chatGPT123456sales',
+          idResponse: '',
+        });
+        return;
+      }
       //promena rejtinga
       // if (data?.answer?.messageType === 'ratingChange') {
       //   const number = data.answer.text?.match(/\d+/);
@@ -1855,6 +1867,10 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
                 onSuggestedMoveHover={setHoveredSuggestedUci}
                 deviatedFromOpening={deviatedFromOpening}
                 onNextVariation={handleNextVariation}
+                chatLimitPaywallVisible={chatLimitPaywallVisible}
+                onCloseChatLimitPaywall={() =>
+                  setChatLimitPaywallVisible(false)
+                }
               />
             </div>
 
