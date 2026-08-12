@@ -209,8 +209,8 @@ const ConversationReview = ({
       ? 'h-auto'
       : ` ${
           currentChapterState.chessAiMode.mode === 'play'
-            ? 'md:h-[340px] h-[290px]'
-            : 'md:h-[420px] h-[320px]'
+            ? 'md:h-[330px] h-[290px]'
+            : 'md:h-[360px] h-[320px]'
         }
     md:max-h-[600px]`
   }

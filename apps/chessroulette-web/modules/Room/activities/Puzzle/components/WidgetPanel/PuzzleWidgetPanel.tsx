@@ -938,7 +938,7 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
                   ${isMobile ? 'mb-2' : ''}
                   `}
                   >
-                    <div className="mt-4  flex flex-col justify-between  h-full flex-1 min-h-0 md:flex-none md:max-h-[380px] md:min-h-[300px] ">
+                    <div className="mt-4  flex flex-col justify-between  h-full flex-1 min-h-0 md:flex-none md:max-h-[355px] md:min-h-[240px] ">
                       {!isMobile && !isTablet && (
                         <Conversation
                           currentChapterState={currentChapterState}
