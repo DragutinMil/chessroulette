@@ -226,15 +226,15 @@ export const Paywall: React.FC<PaywallProps> = ({
           </button>
 
           <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-xs text-white-200">
-            <span className="flex items-center gap-1">
+            <span className="flex items-center gap-1 text-white">
               <Icon name="CheckIcon" className="h-3.5 w-3.5 text-green-800" />
               No ads
             </span>
-            <span className="flex items-center gap-1">
+            <span className="flex items-center gap-1 text-white">
               <Icon name="CheckIcon" className="h-3.5 w-3.5 text-green-800" />
               Cancel anytime
             </span>
-            <span className="flex items-center gap-1">
+            <span className="flex items-center gap-1 text-white">
               <Icon name="CheckIcon" className="h-3.5 w-3.5 text-green-800" />
               Secure payment
             </span>
