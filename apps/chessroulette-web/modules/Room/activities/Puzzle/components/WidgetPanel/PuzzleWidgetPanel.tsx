@@ -126,7 +126,9 @@ export const PuzzleWidgetPanel = React.forwardRef<TabsRef, Props>(
       title: string;
       subtitle: string;
     }>({
-      title: `Don't stop solving now, ${userData.name_first}`,
+      title: userData.name_first
+        ? `Don't stop solving now, ${userData.name_first}`
+        : `Don't stop solving now`,
       subtitle: 'Unlimited puzzles with AI review, every day',
     });
     const { isMobile, isTablet } = useIsTablet();
