@@ -145,12 +145,18 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
           setTimeout(async () => {
             const streakResult = await getUserStreak();
             const streakCount = Number(streakResult?.streak_count);
-            if (
+            const isFirstLossEver = streakResult?.has_losses === false;
+            const isLossStreakMilestone =
               streakResult?.streak_type === 'L' &&
-              [1, 2, 4].includes(streakCount)
-            ) {
+              [2, 4].includes(streakCount);
+            if (isFirstLossEver || isLossStreakMilestone) {
               const name = myDisplayName;
-              if (streakCount === 4) {
+              if (isFirstLossEver) {
+                setLossStreakPaywallCopy({
+                  title: `Every loss is a lesson ${name}`,
+                  subtitle: 'Let Outposty show you what went wrong',
+                });
+              } else if (streakCount === 4) {
                 setLossStreakPaywallCopy({
                   title: `Five losses in a row ${name}`,
                   subtitle: 'Your AI coach knows exactly why. Ask it.',
@@ -159,11 +165,6 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
                 setLossStreakPaywallCopy({
                   title: `Same mistake ${name}, third time`,
                   subtitle: 'Review your games and stop repeating mistakes',
-                });
-              } else {
-                setLossStreakPaywallCopy({
-                  title: `Every loss is a lesson ${name}`,
-                  subtitle: 'Let Outposty show you what went wrong',
                 });
               }
               setLossStreakPaywallVisible(true);
@@ -323,8 +324,6 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
             visible={lossStreakPaywallVisible}
             onClose={() => setLossStreakPaywallVisible(false)}
             defaultPlan="starter"
-            title={lossStreakPaywallCopy.title}
-            subtitle={lossStreakPaywallCopy.subtitle}
           />
         </>
       );

@@ -122,6 +122,13 @@ export const PuzzleWidgetPanel = React.forwardRef<TabsRef, Props>(
     const [prevScoreCP, setprevScoreCP] = useState(0);
     const [categortyPrefered, setCategortyPrefered] = useState('');
     const [puzzlePaywallVisible, setPuzzlePaywallVisible] = useState(false);
+    const [puzzlePaywallCopy, setPuzzlePaywallCopy] = useState<{
+      title: string;
+      subtitle: string;
+    }>({
+      title: `Don't stop solving now, ${userData.name_first}`,
+      subtitle: 'Unlimited puzzles with AI review, every day',
+    });
     const { isMobile, isTablet } = useIsTablet();
     const smallMobile =
       typeof window !== 'undefined' && window.innerWidth < 400;
@@ -242,6 +249,11 @@ export const PuzzleWidgetPanel = React.forwardRef<TabsRef, Props>(
           });
         } else if (data == 'ai_daily_limit_reached') {
           setPulseDot(false);
+          setPuzzlePaywallCopy({
+            title: 'Outposty has more to say',
+            subtitle: 'Unlock unlimited chat with your AI coach',
+          });
+          setPuzzlePaywallVisible(true);
           onMessage({
             content: `You’ve hit your daily limit.
 Unlock Unlimited Puzzles, Unlimited Game Reviews, and Unlimited AI Chat for just €4/Month,  and improve faster with AI-powered analysis and training.`,
@@ -876,8 +888,8 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
           visible={puzzlePaywallVisible}
           onClose={() => setPuzzlePaywallVisible(false)}
           defaultPlan="starter"
-          title={`Don't stop solving now, ${userData.name_first}`}
-          subtitle="Unlimited puzzles with AI review, every day"
+          title={puzzlePaywallCopy.title}
+          subtitle={puzzlePaywallCopy.subtitle}
         />
         {stockfish && (
           <StockFishEngineAI
