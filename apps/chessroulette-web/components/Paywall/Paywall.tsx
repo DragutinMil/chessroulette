@@ -73,7 +73,7 @@ export const Paywall: React.FC<PaywallProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-[200] pt-11 md:pt-0  flex items-end justify-center bg-black-100/60 md:items-center md:px-4">
+    <div className="fixed inset-0 z-[200] pt-11 md:pt-0  flex items-end justify-center bg-black-100/80 md:items-center md:px-4">
       <div 
         className="relative flex h-full  w-full flex-col overflow-y-auto animate-dialogIn md:h-auto md:max-h-[90vh] md:w-full md:max-w-[420px] md:rounded-2xl md:shadow-[0_0_50px_rgba(0,0,0,0.6),0_0_30px_rgba(7,218,99,0.25)]"
         style={{
@@ -90,37 +90,40 @@ export const Paywall: React.FC<PaywallProps> = ({
         >
           <Icon name="XMarkIcon" kind="outline" className="h-4 w-4" />
         </button>
- <div
-    className="absolute  inset-0 h-[200px] opacity-20  bg-center bg-cover bg-no-repeat"
-    style={{
-      backgroundImage:
-        "url('https://outpostchess.fra1.digitaloceanspaces.com/03c43c52-8180-4045-bb5e-4afd082cede0.webp')",
-    }}
-  />
-  
         <div className="flex flex-col gap-5 px-6 pb-8 pt-14 md:pt-10">
-          <div className="text-center">
-            <h2 className="text-2xl font-bold text-white">{title}</h2>
-            <p className="mt-1 text-sm text-white/70">{subtitle}</p>
-          </div>
-        
-          <div className="relative flex justify-center">
-            <div className="pointer-events-none absolute left-1/2 top-1/2 h-[44px] w-[72%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-blue-600 opacity-20" />
-            <div className="relative flex ">
-              {(['starter', 'pro'] as Plan[]).map((p) => (
-                <button
-                  key={p}
-                  type="button"
-                  onClick={() => setPlan(p)}
-                  className={`w-[130px] rounded-full py-2.5 text-sm font-semibold capitalize transition-colors ${
-                    plan === p
-                      ? 'bg-blue-600 text-black'
-                      : ' text-white'
-                  }`}
-                >
-                  {p}
-                </button>
-              ))}
+          <div className="relative -mx-6 -mt-14 px-6 pb-3 pt-14 md:-mt-10 md:pt-10">
+            <div
+              className="absolute inset-0 opacity-20 bg-center bg-cover bg-no-repeat"
+              style={{
+                backgroundImage:
+                  "url('https://outpostchess.fra1.digitaloceanspaces.com/03c43c52-8180-4045-bb5e-4afd082cede0.webp')",
+              }}
+            />
+            <div className="relative flex flex-col gap-5">
+              <div className="text-center">
+                <h2 className="text-2xl font-bold text-white">{title}</h2>
+                <p className="mt-1 text-sm text-white-200">{subtitle}</p>
+              </div>
+
+              <div className="relative flex justify-center">
+                <div className="pointer-events-none absolute inset-0 m-auto h-full w-[260px] rounded-full bg-blue-600 opacity-20" />
+                <div className="relative flex ">
+                  {(['starter', 'pro'] as Plan[]).map((p) => (
+                    <button
+                      key={p}
+                      type="button"
+                      onClick={() => setPlan(p)}
+                      className={`w-[130px] rounded-full py-2.5 text-sm font-semibold capitalize transition-colors ${
+                        plan === p
+                          ? 'bg-blue-600 text-black'
+                          : ' text-white'
+                      }`}
+                    >
+                      {p}
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
 
@@ -128,12 +131,15 @@ export const Paywall: React.FC<PaywallProps> = ({
             {FEATURES[plan].map((feature) => (
               <li
                 key={feature}
-                className="flex items-center gap-2 text-sm text-white/90"
+                className="flex items-center gap-2 text-sm text-white"
               >
-                <Icon
-                  name="CheckCircleIcon"
-                  className="h-4 w-4 shrink-0 text-red-500"
-                />
+                <span className="relative inline-flex h-4 w-4 shrink-0 items-center justify-center">
+                  <span className="absolute inset-0.5 rounded-full bg-white" />
+                  <Icon
+                    name="CheckCircleIcon"
+                    className="relative h-4 w-4 text-red-500"
+                  />
+                </span>
                 {feature}
               </li>
             ))}
@@ -152,26 +158,26 @@ export const Paywall: React.FC<PaywallProps> = ({
               <span className="absolute -top-2.5 left-3 rounded-full bg-green-800 px-2 py-0.5 text-[10px] font-bold text-black">
                 SAVE {savePercent}%
               </span>
-              <span
-                className={`absolute right-3 top-3 flex h-[18px] w-[18px] items-center justify-center rounded-full border ${
-                  billing === 'yearly'
-                    ? 'border-green-800 bg-green-800'
-                    : 'border-white/40'
-                }`}
-              >
+             <span
+  className={`absolute right-3 top-3 flex h-[18px] w-[18px] items-center justify-center rounded-full border ${
+    billing === 'yearly'
+      ? 'border-white/50 bg-green-800'
+      : 'border-white/50 bg-[#8F8F90]'
+  }`}
+>
                 {billing === 'yearly' && (
-                  <Icon name="CheckIcon" className="h-3 w-3 text-black" />
+                  <Icon name="CheckIcon" className="h-3 w-3" />
                 )}
               </span>
-              <p className="mt-1 font-bold text-white">Yearly</p>
+              <p className="mt-1 font-bold text-white-200">Yearly</p>
               <p
-                className={`text-base font-bold ${
+                className={`text-lg font-bold ${
                   billing === 'yearly' ? 'text-green-800' : 'text-white'
                 }`}
               >
                 €{(pricing.yearly / 12).toFixed(2)} / month
               </p>
-              <p className="text-xs text-white/50">
+              <p className="text-xs text-white-200">
                 Billed annually €{pricing.yearly.toFixed(2)}
               </p>
             </button>
@@ -182,29 +188,29 @@ export const Paywall: React.FC<PaywallProps> = ({
               className={`relative flex-1 rounded-xl border p-3 text-left ${
                 billing === 'monthly'
                   ? 'border-green-800 bg-green-800/10'
-                  : 'border-white/15 bg-white/5'
+                  : 'border-white/15 bg-white/10'
               }`}
             >
               <span
                 className={`absolute right-3 top-3 flex h-[18px] w-[18px] items-center justify-center rounded-full border ${
                   billing === 'monthly'
                     ? 'border-green-800 bg-green-800'
-                    : 'border-white/40'
+                    : 'border-white/40 bg-[#8F8F90]'
                 }`}
               >
                 {billing === 'monthly' && (
                   <Icon name="CheckIcon" className="h-3 w-3 text-black" />
                 )}
               </span>
-              <p className="mt-1 font-bold text-white">Monthly</p>
+              <p className="mt-1 font-bold text-white-200">Monthly</p>
               <p
-                className={`text-base font-bold ${
-                  billing === 'monthly' ? 'text-green-800' : 'text-white'
+                className={`text-lg font-bold ${
+                  billing === 'monthly' ? 'text-green-800' : 'text-white '
                 }`}
               >
                 €{pricing.monthly.toFixed(2)} / month
               </p>
-              <p className="text-xs text-white/50">
+              <p className="text-xs text-white-200">
                 Billed monthly €{pricing.monthly.toFixed(2)}
               </p>
             </button>
@@ -219,7 +225,7 @@ export const Paywall: React.FC<PaywallProps> = ({
             Continue
           </button>
 
-          <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-xs text-white/80">
+          <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-xs text-white-200">
             <span className="flex items-center gap-1">
               <Icon name="CheckIcon" className="h-3.5 w-3.5 text-green-800" />
               No ads
@@ -237,7 +243,7 @@ export const Paywall: React.FC<PaywallProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="text-center text-xs text-white/40 underline-offset-2 hover:underline"
+            className="text-center text-xs text-white-200 transition-opacity hover:opacity-70"
           >
             Maybe later
           </button>
