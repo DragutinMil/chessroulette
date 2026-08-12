@@ -153,17 +153,23 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
               const name = myDisplayName;
               if (isFirstLossEver) {
                 setLossStreakPaywallCopy({
-                  title: `Every loss is a lesson ${name}`,
+                  title: name
+                    ? `Every loss is a lesson ${name}`
+                    : `Every loss is a lesson`,
                   subtitle: 'Let Outposty show you what went wrong',
                 });
               } else if (streakCount === 4) {
                 setLossStreakPaywallCopy({
-                  title: `Five losses in a row ${name}`,
+                  title: name
+                    ? `Five losses in a row ${name}`
+                    : `Five losses in a row`,
                   subtitle: 'Your AI coach knows exactly why. Ask it.',
                 });
               } else if (streakCount === 2) {
                 setLossStreakPaywallCopy({
-                  title: `Same mistake ${name}, third time`,
+                  title: name
+                    ? `Same mistake ${name}, third time`
+                    : `Same mistake, third time`,
                   subtitle: 'Review your games and stop repeating mistakes',
                 });
               }

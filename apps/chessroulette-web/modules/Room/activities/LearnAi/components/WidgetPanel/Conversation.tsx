@@ -497,7 +497,11 @@ const Conversation = ({
       visible={!!lockedOpeningClicked}
       onClose={() => setLockedOpeningClicked(null)}
       defaultPlan="pro"
-      title={`Know your first 10 moves, ${userData.name_first}`}
+      title={
+        userData.name_first
+          ? `Know your first 10 moves, ${userData.name_first}`
+          : `Know your first 10 moves`
+      }
       subtitle={
         lockedOpeningClicked
           ? `Master openings and start every game ahead`
