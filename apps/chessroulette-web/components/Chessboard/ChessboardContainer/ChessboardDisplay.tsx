@@ -153,6 +153,20 @@ export const ChessboardDisplay = ({
               color: boardTheme.arrowColors[1],
               secondaryColor: 'rgb(74 222 128)',
               tertiaryColor: 'rgb(74 222 128)',
+              // The `colors` map is what the library actually reads now
+              // (color/secondaryColor/tertiaryColor above are just the
+              // deprecated fallback it also still honors) — its type is
+              // required, not optional, so this has to be here or the
+              // build fails. Mapped 1:1 to the legacy colors above; alt/meta
+              // are new modifier combos we don't use yet, so they just
+              // reuse the default color (no behavior change).
+              colors: {
+                default: boardTheme.arrowColors[1],
+                shift: 'rgb(74 222 128)',
+                ctrl: 'rgb(74 222 128)',
+                alt: boardTheme.arrowColors[1],
+                meta: boardTheme.arrowColors[1],
+              },
               arrowLengthReducerDenominator: 4,
               sameTargetArrowLengthReducerDenominator: 4,
               arrowWidthDenominator: 5.2,
