@@ -548,7 +548,7 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
       const playerDisplay =
         match[winnerByRole].displayName || match[winnerByRole].id;
 
-      return <Text className="capitalize">{playerDisplay} Won!</Text>;
+      return <Text className="capitalize font-semibold">{playerDisplay} Won!</Text>;
     });
 
     return (

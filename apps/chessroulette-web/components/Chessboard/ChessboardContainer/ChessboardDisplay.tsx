@@ -35,6 +35,7 @@ export type ChessboardDisplayProps = Omit<
   onSquareClick?: (square: string, piece?: string) => void;
   //onPieceClick?: (square: string, piece: string | null) => void;
   onPieceDrag?: (square: string | null, piece: string) => void;
+  onPieceDragCancel?: () => void;
   onPieceDrop?: (from: string, to: string, piece?: string | null) => void;
   onArrowsChange: any;
   // displayArrows?: any;
@@ -78,6 +79,7 @@ export const ChessboardDisplay = ({
   onCancelPromoMove,
   onSubmitPromoMove,
   onPieceDrag,
+  onPieceDragCancel,
   onPieceDrop,
   onSquareClick,
   animationDurationInMs,
@@ -97,7 +99,7 @@ export const ChessboardDisplay = ({
       }}
     >
       <div
-        className={`board-no-touch-scroll relative overflow-hidden rounded-lg w-full h-full ${containerClassName} transition-all duration-300 ease-in-out`}
+        className={`board-no-touch-scroll relative overflow-hidden rounded-lg w-full h-full ${containerClassName} transition-colors duration-300 ease-in-out`}
         style={{
           width: sizePx,
           height: sizePx,
@@ -119,6 +121,9 @@ export const ChessboardDisplay = ({
               const sq = square ?? '';
               const pc = piece?.pieceType;
               onPieceDrag?.(sq, pc);
+            },
+            onPieceDragCancel: () => {
+              onPieceDragCancel?.();
             },
 
             onPieceDrop: ({ piece, sourceSquare, targetSquare }) => {
@@ -154,6 +159,13 @@ export const ChessboardDisplay = ({
               activeArrowWidthMultiplier: 1.2,
               opacity: 0.8,
               activeOpacity: 1,
+              // Since we pass a custom arrowOptions object it fully replaces
+              // react-chessboard's defaultArrowOptions (no merge) — any new
+              // field the library adds must be listed here too, or it's
+              // `undefined` and breaks the arrow math (NaN path → invisible
+              // arrow). arrowStartOffset was added in 5.9.0; 0 matches the
+              // library's own default (arrow starts at square center).
+              arrowStartOffset: 0,
             },
             animationDurationInMs: animationDurationInMs,
           }}
