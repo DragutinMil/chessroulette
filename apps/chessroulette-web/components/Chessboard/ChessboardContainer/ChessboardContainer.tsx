@@ -298,6 +298,7 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
           if (!piece || !square) return;
           moveActions.onPieceDrag(square as Square, piece as PieceSan);
         }}
+        onPieceDragCancel={moveActions.onPieceDragCancel}
         onPieceDrop={(sourceSquare, targetSquare, piece?) => {
           if (!piece || !sourceSquare || !targetSquare) return false;
           return moveActions.onPieceDrop(

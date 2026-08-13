@@ -44,12 +44,13 @@ export const RoomContainer = ({ iceServers, rid, activity }: Props) => {
   const movex = useMovex(movexConfig);
   const movexResource = useMovexBoundResourceFromRid(movexConfig, rid);
   const userId = useMovexClient(movexConfig)?.id;
-
+  
   const participants = useMemo(
     () => movexSubcribersToUserMap(movexResource?.subscribers || {}),
     [movexResource?.subscribers]
   );
-
+  console.log('krokot',movex.status)
+  console.log('krokot2',movexResource)
   const [challengeNotification, setChallengeNotification] = useState<{
     ch_uuid: string;
     challenger_name?: string;
@@ -110,7 +111,6 @@ export const RoomContainer = ({ iceServers, rid, activity }: Props) => {
         // console.log('🔍 Extracted chUuid:', chUuid);
 
         if (!chUuid) {
-          console.error('❌ ERROR: No ch_uuid found in notification data!');
           console.error('❌ Available keys:', Object.keys(data));
           if (data.data) {
             console.error('❌ data.data keys:', Object.keys(data.data));
@@ -237,18 +237,15 @@ export const RoomContainer = ({ iceServers, rid, activity }: Props) => {
     return restOfPeers;
   }, [userId, participants]);
 
-  const activityRender = invoke(() => {
-    // This shouldn't really happen
-    if (!userId) {
-      // TODO: show an invalid page
-      return null;
-    }
+  const loadingScreen = (
+    <div className="flex flex-1 items-center justify-center h-screen w-screen text-lg  divide-x animate-pulse">
+      <span className="text-2xl pr-2 md:pb-24 pb-16">Loading...</span>
+    </div>
+  );
 
-    if (!movexResource) {
-      // TODO: This shows nothing on the server render but it could show an empty default page with activity none?
-      // Or show a suspense or something,
-      // But just for Server Renndering I shouldn't make it much harder on the Activity side to work with dispatch and other things
-      return null;
+  const activityRender = invoke(() => {
+    if (!userId || !movexResource || movex.status !== 'connected') {
+      return loadingScreen;
     }
     const { activity } = movexResource.state;
     const commonActivityProps = {
@@ -319,8 +316,10 @@ export const RoomContainer = ({ iceServers, rid, activity }: Props) => {
   });
 
   if (!userId) {
-    // TODO: show an invalid page
-    return null;
+    // Same disconnect/connectionError reset as in activityRender above —
+    // PeerStreamingProvider below requires a real userId, so this can't
+    // render that tree, but it should still show Loading, not go blank.
+    return loadingScreen;
   }
 
   return (

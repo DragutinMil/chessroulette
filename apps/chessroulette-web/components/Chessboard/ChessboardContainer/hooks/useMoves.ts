@@ -17,6 +17,7 @@ import { Err, Ok, Result } from 'ts-results';
 type MoveActions = {
   onSquareClick: (square: Square, pieceSan?: PieceSan) => void;
   onPieceDrag: (square: Square, pieceSan: PieceSan) => void;
+  onPieceDragCancel: () => void;
   onPieceDrop: (from: Square, to: Square, pieceSan: PieceSan) => boolean;
   onClearPromoMove: () => void;
   onPromoSubmit: (move: ShortChessMove) => void; // Add this line
@@ -435,6 +436,13 @@ Props): MoveActions => {
 
     onPieceDrag: (square: Square, pieceSan: PieceSan) =>
       onClickOrDrag({ square, pieceSan }),
+    // react-chessboard 5.12 can now cancel a drag mid-gesture (e.g.
+    // right-click while dragging). onPieceDrag already selected the piece
+    // (set pendingMove) as if it were a click — without this, a cancelled
+    // drag leaves that piece looking "stuck" selected until a second click.
+    onPieceDragCancel: () => {
+      setPendingMove(undefined);
+    },
     onPieceDrop,
     onPromoSubmit: (move: ShortChessMove) => {
       // Kada korisnik izabere figuru, prosleđujemo move sa promoteTo
