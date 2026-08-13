@@ -55,6 +55,7 @@ export type ChessboardContainerProps = Omit<
   onArrowsChange?: (arrows: ArrowsMap) => void;
   onCircleDraw?: (circleTuple: CircleDrawTuple) => void;
   onClearCircles?: () => void;
+  disableAnimations?: boolean;
 
   overlayComponent?: React.ReactNode;
 } & (
@@ -109,12 +110,13 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
   turn,
   // onChangePuzzleAnimation,
   overlayComponent,
+  disableAnimations,
   ...props
 }) => {
   const isMyTurn = boardOrientation === turn;
   const { match, ...matchView } = useMatchViewState();
   //kada nema lastMove (nova tabla = novi puzzle), animacija = 0, inače 200.
-  const BOARD_ANIMATION_DELAY = lastMove ? 200 : 0;
+  const BOARD_ANIMATION_DELAY = disableAnimations ? 0 : lastMove ? 200 : 0;
   const engineMoveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
     null
   );
@@ -162,7 +164,7 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
   const { preMove, promoMove, pendingMove, ...moveActions } = useMoves({
     playingColor: boardOrientation,
     isMyTurn,
-    premoveAnimationDelay: BOARD_ANIMATION_DELAY + 30,
+    premoveAnimationDelay: disableAnimations ? 0 : BOARD_ANIMATION_DELAY + 30,
     onValidateMove,
     onMove,
     onPreMove: onMove,
