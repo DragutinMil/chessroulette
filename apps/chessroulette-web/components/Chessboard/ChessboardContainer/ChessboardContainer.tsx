@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ChessFEN,
   PieceSan,
@@ -116,10 +116,11 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
   const isMyTurn = boardOrientation === turn;
   const { match, ...matchView } = useMatchViewState();
   //kada nema lastMove (nova tabla = novi puzzle), animacija = 0, inače 200.
-  const BOARD_ANIMATION_DELAY = disableAnimations ? 0 : lastMove ? 200 : 0;
+  const BOARD_ANIMATION_DELAY = disableAnimations ? 0 : lastMove ? 150 : 0;
   const engineMoveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
     null
   );
+  
   // Tracks the current fen so a delayed bot move (up to several seconds,
   // see engineMove below) can tell if the position it was computed for is
   // still current by the time it actually fires — dispatching a move for a
@@ -173,6 +174,18 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
     // Event to reset the circles and arrows when any square is clicked or dragged
     // onSquareClickOrDrag: resetArrowsAndCircles,
   });
+
+  const [premoveJustExecuted, setPremoveJustExecuted] = useState(false);
+  const hadCompletePremoveRef = useRef(false);
+  useEffect(() => {
+    if (hadCompletePremoveRef.current && !preMove?.to) {
+      setPremoveJustExecuted(true);
+    }
+    hadCompletePremoveRef.current = !!preMove?.to;
+  }, [preMove]);
+  useEffect(() => {
+    setPremoveJustExecuted(false);
+  }, [fen]);
 
   const customStyles = useCustomStyles({
     boardTheme,
@@ -275,7 +288,7 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
   if (sizePx === 0) {
     return null;
   }
-
+  console.log(isMyTurn, preMove)
   return (
     <div>
       {botId && (
@@ -340,7 +353,7 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
         // circles
         // onSquareRightClick={drawCircle}
         {...props}
-        animationDurationInMs={BOARD_ANIMATION_DELAY}
+        animationDurationInMs={premoveJustExecuted ? 0 : BOARD_ANIMATION_DELAY}
       />
     </div>
   );

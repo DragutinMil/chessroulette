@@ -56,7 +56,7 @@ type Props = {
 export const useMoves = ({
   isMyTurn,
   playingColor,
-  premoveAnimationDelay = 220,
+  premoveAnimationDelay = 80,
   onMove,
   onPreMove,
   onValidateMove,
@@ -310,9 +310,9 @@ Props): MoveActions => {
         return;
       }
       const delay =
-        premoveWasDropRef.current || premoveAnimationDelay === 0
+        premoveWasDropRef.current 
           ? 0
-          : premoveAnimationDelay + 100;
+          : premoveAnimationDelay;
       premoveWasDropRef.current = false;
       setTimeout(() => {
         setPreMove(undefined);
@@ -345,17 +345,14 @@ Props): MoveActions => {
       if (piece.color === playingColor) {
         if (currentMoves.preMove) {
           if (from !== currentMoves.preMove.from) {
-            console.log('ytt1');
             setPreMove({ from, piece });
             return false;
           }
           if (isMyTurnRef.current === true) {
-            console.log('ytt2');
             premoveWasDropRef.current = true;
             setPreMove({ ...currentMoves.preMove, to });
             return premoveWasDropRef.current;
           }
-          console.log('ytt3');
           setPreMove({ ...currentMoves.preMove, to });
           dropJustHappenedRef.current = true; // blokira ghost click na mobilnom
           setTimeout(() => {

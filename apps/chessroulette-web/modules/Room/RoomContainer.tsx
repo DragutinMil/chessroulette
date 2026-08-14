@@ -49,8 +49,7 @@ export const RoomContainer = ({ iceServers, rid, activity }: Props) => {
     () => movexSubcribersToUserMap(movexResource?.subscribers || {}),
     [movexResource?.subscribers]
   );
-  console.log('krokot',movex.status)
-  console.log('krokot2',movexResource)
+  
   const [challengeNotification, setChallengeNotification] = useState<{
     ch_uuid: string;
     challenger_name?: string;

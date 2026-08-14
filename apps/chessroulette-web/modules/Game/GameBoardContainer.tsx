@@ -20,6 +20,7 @@ export type GameBoardContainerProps = DistributivePick<
 const isBulletTimeClass = (timeClass?: string) =>
   !!timeClass && timeClass.startsWith('bullet');
 
+
 export const GameBoardContainer = (
   boardProps: GameBoardContainerProps,
   stopEngineMove?: boolean,
@@ -29,7 +30,7 @@ export const GameBoardContainer = (
 ) => {
   const { displayState, committedState } = useGame();
   const disableAnimations = isBulletTimeClass(committedState.game.timeClass);
-
+  
   return (
     <Playboard
       fen={displayState.fen}
