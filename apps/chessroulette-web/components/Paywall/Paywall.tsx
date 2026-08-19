@@ -31,6 +31,10 @@ const PLAN_PRICING: Record<Plan, { monthly: number; yearly: number }> = {
 //const SUBSCRIBE_URL = 'http://localhost:8080/subscribe';
 const SUBSCRIBE_URL = 'https://app.outpostchess.com/subscribe';
 
+// Round prices show as "10", non-round ones keep 2 decimals ("6.67").
+const formatPrice = (n: number) =>
+  Number.isInteger(n) ? n.toString() : n.toFixed(2);
+
 export type PaywallProps = {
   visible: boolean;
   onClose: () => void;
@@ -90,8 +94,8 @@ export const Paywall: React.FC<PaywallProps> = ({
         >
           <Icon name="XMarkIcon" kind="outline" className="h-4 w-4" />
         </button>
-        <div className="flex flex-col gap-5 px-6 pb-8 pt-14 md:pt-10">
-          <div className="relative -mx-6 -mt-14 px-6 pb-3 pt-14 md:-mt-10 md:pt-10">
+        <div className="flex flex-1 flex-col justify-between gap-5 px-4 pb-8 pt-14 md:pt-10">
+          <div className="relative -mx-6 -mt-14 min-h-[28vh] px-4 pb-5 pt-14 md:-mt-10 md:min-h-0 md:pt-10">
             <div
               className="absolute inset-0 opacity-20 bg-center bg-cover bg-no-repeat"
               style={{
@@ -105,7 +109,7 @@ export const Paywall: React.FC<PaywallProps> = ({
                 <p className="mt-1 text-sm text-white-200">{subtitle}</p>
               </div>
 
-              <div className="relative flex justify-center">
+              <div className="relative flex justify-center h-12">
                 <div className="pointer-events-none absolute inset-0 m-auto h-full w-[260px] rounded-full bg-blue-600 opacity-20" />
                 <div className="relative flex ">
                   {(['starter', 'pro'] as Plan[]).map((p) => (
@@ -113,7 +117,7 @@ export const Paywall: React.FC<PaywallProps> = ({
                       key={p}
                       type="button"
                       onClick={() => setPlan(p)}
-                      className={`w-[130px] rounded-full py-2.5 text-sm font-semibold capitalize transition-colors ${
+                      className={`w-[130px] rounded-full py-2.5 text-md font-bold capitalize transition-colors ${
                         plan === p
                           ? 'bg-blue-600 text-black'
                           : ' text-white'
@@ -127,17 +131,17 @@ export const Paywall: React.FC<PaywallProps> = ({
             </div>
           </div>
 
-          <ul className="flex flex-col gap-2 h-36">
+          <ul className="flex flex-col gap-2 min-h-36">
             {FEATURES[plan].map((feature) => (
               <li
                 key={feature}
                 className="flex items-center gap-2 text-sm text-white"
               >
-                <span className="relative inline-flex h-4 w-4 shrink-0 items-center justify-center">
+                <span className="relative inline-flex h-5 w-5 shrink-0 items-center justify-center">
                   <span className="absolute inset-0.5 rounded-full bg-white" />
                   <Icon
                     name="CheckCircleIcon"
-                    className="relative h-4 w-4 text-red-500"
+                    className="relative h-5 w-5 text-red-500"
                   />
                 </span>
                 {feature}
@@ -155,63 +159,63 @@ export const Paywall: React.FC<PaywallProps> = ({
                   : 'border-white/15 bg-white/5'
               }`}
             >
-              <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 rounded-full bg-green-800 px-2 py-0.5 text-[10px] font-bold text-black">
+              <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 rounded-full bg-green-800 px-2 py-0.5 text-[11px] font-bold text-black">
                 SAVE {savePercent}%
               </span>
              <span
-  className={`absolute right-3 top-3 flex h-[18px] w-[18px] items-center justify-center rounded-full border ${
+  className={`absolute right-3 top-3 flex h-[22px] w-[22px] items-center justify-center rounded-full border ${
     billing === 'yearly'
       ? 'border-white/50 bg-green-800'
       : 'border-white/50 bg-[#8F8F90]'
   }`}
 >
                 {billing === 'yearly' && (
-                  <Icon name="CheckIcon" className="h-3 w-3" />
+                  <Icon name="CheckIcon" className="h-5 w-5" />
                 )}
               </span>
-              <p className="mt-1 font-bold text-white-200">Yearly</p>
+              <p className="mt-1 font-bold text-lg text-white-200">Yearly</p>
               <p
-                className={`text-lg font-bold ${
+                className={`whitespace-nowrap text-xl font-bold ${
                   billing === 'yearly' ? 'text-green-800' : 'text-white'
                 }`}
               >
-                €{(pricing.yearly / 12).toFixed(2)} / month
+                €{formatPrice(pricing.yearly / 12)} / month
               </p>
               <p className="text-xs text-white-200">
-                Billed annually €{pricing.yearly.toFixed(2)}
+                Billed annually €{formatPrice(pricing.yearly)}
               </p>
             </button>
 
             <button
               type="button"
               onClick={() => setBilling('monthly')}
-              className={`relative flex-1 rounded-xl border p-3 text-left ${
+              className={`relative flex-1 rounded-xl border px-3 py-5 text-left ${
                 billing === 'monthly'
                   ? 'border-green-800 bg-green-800/10'
                   : 'border-white/15 bg-white/10'
               }`}
             >
               <span
-                className={`absolute right-3 top-3 flex h-[18px] w-[18px] items-center justify-center rounded-full border ${
+                className={`absolute right-3 top-3 flex h-[22px] w-[22px] items-center justify-center rounded-full border ${
                   billing === 'monthly'
-                    ? 'border-green-800 bg-green-800'
-                    : 'border-white/40 bg-[#8F8F90]'
+                   ? 'border-white/50 bg-green-800'
+      : 'border-white/50 bg-[#8F8F90]'
                 }`}
               >
                 {billing === 'monthly' && (
-                  <Icon name="CheckIcon" className="h-3 w-3 text-black" />
+                  <Icon name="CheckIcon" className="h-5 w-5 text-white" />
                 )}
               </span>
-              <p className="mt-1 font-bold text-white-200">Monthly</p>
+              <p className="mt-1 font-bold text-lg text-white-200">Monthly</p>
               <p
-                className={`text-lg font-bold ${
+                className={`whitespace-nowrap text-xl font-bold ${
                   billing === 'monthly' ? 'text-green-800' : 'text-white '
                 }`}
               >
-                €{pricing.monthly.toFixed(2)} / month
+                €{formatPrice(pricing.monthly)} / month
               </p>
               <p className="text-xs text-white-200">
-                Billed monthly €{pricing.monthly.toFixed(2)}
+                Billed monthly €{formatPrice(pricing.monthly)}
               </p>
             </button>
           </div>
@@ -220,22 +224,22 @@ export const Paywall: React.FC<PaywallProps> = ({
             type="button"
             onClick={handleContinue}
             style={{color:'black'}}
-            className="w-full rounded-full bg-green-800 py-3.5 text-base font-bold text-black transition-opacity hover:opacity-90"
+            className=" rounded-full ml-[12%] bg-green-800  text-base w-[76%] h-[44px] font-bold text-black transition-opacity hover:opacity-90"
           >
             Continue
           </button>
 
           <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-xs text-white-200">
             <span className="flex items-center gap-1 text-white font-bold">
-              <Icon name="CheckIcon" className="h-3.5 w-3.5 text-green-800" />
+              <Icon name="CheckIcon" className="h-5 w-5 text-green-800" />
               No ads
             </span>
             <span className="flex items-center gap-1 text-white font-bold">
-              <Icon name="CheckIcon" className="h-3.5 w-3.5 text-green-800" />
+              <Icon name="CheckIcon" className="h-5 w-5 text-green-800" />
               Cancel anytime
             </span>
             <span className="flex items-center gap-1 text-white font-bold">
-              <Icon name="CheckIcon" className="h-3.5 w-3.5 text-green-800" />
+              <Icon name="CheckIcon" className="h-5 w-5 text-green-800" />
               Secure payment
             </span>
           </div>
