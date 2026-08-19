@@ -17,6 +17,7 @@ import { Err, Ok, Result } from 'ts-results';
 type MoveActions = {
   onSquareClick: (square: Square, pieceSan?: PieceSan) => void;
   onPieceDrag: (square: Square, pieceSan: PieceSan) => void;
+  onPieceDragCancel: () => void;
   onPieceDrop: (from: Square, to: Square, pieceSan: PieceSan) => boolean;
   onClearPromoMove: () => void;
   onPromoSubmit: (move: ShortChessMove) => void; // Add this line
@@ -55,7 +56,7 @@ type Props = {
 export const useMoves = ({
   isMyTurn,
   playingColor,
-  premoveAnimationDelay = 220,
+  premoveAnimationDelay = 80,
   onMove,
   onPreMove,
   onValidateMove,
@@ -308,7 +309,10 @@ Props): MoveActions => {
         setPreMove(undefined);
         return;
       }
-      const delay = premoveWasDropRef.current ? 0 : premoveAnimationDelay + 100;
+      const delay =
+        premoveWasDropRef.current 
+          ? 0
+          : premoveAnimationDelay;
       premoveWasDropRef.current = false;
       setTimeout(() => {
         setPreMove(undefined);
@@ -341,17 +345,14 @@ Props): MoveActions => {
       if (piece.color === playingColor) {
         if (currentMoves.preMove) {
           if (from !== currentMoves.preMove.from) {
-            console.log('ytt1');
             setPreMove({ from, piece });
             return false;
           }
           if (isMyTurnRef.current === true) {
-            console.log('ytt2');
             premoveWasDropRef.current = true;
             setPreMove({ ...currentMoves.preMove, to });
             return premoveWasDropRef.current;
           }
-          console.log('ytt3');
           setPreMove({ ...currentMoves.preMove, to });
           dropJustHappenedRef.current = true; // blokira ghost click na mobilnom
           setTimeout(() => {
@@ -435,6 +436,13 @@ Props): MoveActions => {
 
     onPieceDrag: (square: Square, pieceSan: PieceSan) =>
       onClickOrDrag({ square, pieceSan }),
+    // react-chessboard 5.12 can now cancel a drag mid-gesture (e.g.
+    // right-click while dragging). onPieceDrag already selected the piece
+    // (set pendingMove) as if it were a click — without this, a cancelled
+    // drag leaves that piece looking "stuck" selected until a second click.
+    onPieceDragCancel: () => {
+      setPendingMove(undefined);
+    },
     onPieceDrop,
     onPromoSubmit: (move: ShortChessMove) => {
       // Kada korisnik izabere figuru, prosleđujemo move sa promoteTo

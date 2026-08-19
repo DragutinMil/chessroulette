@@ -97,8 +97,8 @@ export const GoogleAd = ({ isMobile }: Props) => {
           borderRadius: '8px',
           overflow: 'hidden',
         }}
-        data-ad-format="fluid"
-        data-ad-layout-key="-fb+5w+4e-db+86"
+        data-ad-format="auto"
+        data-full-width-responsive="true"
         data-ad-client="ca-pub-8003586277876347"
         data-ad-slot="3329429976"
       />

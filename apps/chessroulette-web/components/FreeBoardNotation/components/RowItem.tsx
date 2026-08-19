@@ -31,7 +31,7 @@ export const RowItem = ({
     onContextMenu={onContextMenu}
   >
     <span className="relative group inline-block">
-      <Text className={`text-[14px] font-bold inline-block whitespace-nowrap `}>
+      <Text className={`text-[14px] font-semibold inline-block whitespace-nowrap `}>
         {san}
       </Text>
       {tooltip && (

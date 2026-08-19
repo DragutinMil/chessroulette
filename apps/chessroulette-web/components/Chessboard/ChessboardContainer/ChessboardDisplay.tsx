@@ -35,6 +35,7 @@ export type ChessboardDisplayProps = Omit<
   onSquareClick?: (square: string, piece?: string) => void;
   //onPieceClick?: (square: string, piece: string | null) => void;
   onPieceDrag?: (square: string | null, piece: string) => void;
+  onPieceDragCancel?: () => void;
   onPieceDrop?: (from: string, to: string, piece?: string | null) => void;
   onArrowsChange: any;
   // displayArrows?: any;
@@ -78,6 +79,7 @@ export const ChessboardDisplay = ({
   onCancelPromoMove,
   onSubmitPromoMove,
   onPieceDrag,
+  onPieceDragCancel,
   onPieceDrop,
   onSquareClick,
   animationDurationInMs,
@@ -97,7 +99,7 @@ export const ChessboardDisplay = ({
       }}
     >
       <div
-        className={`board-no-touch-scroll relative overflow-hidden rounded-lg w-full h-full ${containerClassName} transition-all duration-300 ease-in-out`}
+        className={`board-no-touch-scroll relative overflow-hidden rounded-lg w-full h-full ${containerClassName} transition-colors duration-300 ease-in-out`}
         style={{
           width: sizePx,
           height: sizePx,
@@ -119,6 +121,9 @@ export const ChessboardDisplay = ({
               const sq = square ?? '';
               const pc = piece?.pieceType;
               onPieceDrag?.(sq, pc);
+            },
+            onPieceDragCancel: () => {
+              onPieceDragCancel?.();
             },
 
             onPieceDrop: ({ piece, sourceSquare, targetSquare }) => {
@@ -148,12 +153,33 @@ export const ChessboardDisplay = ({
               color: boardTheme.arrowColors[1],
               secondaryColor: 'rgb(74 222 128)',
               tertiaryColor: 'rgb(74 222 128)',
+              // The `colors` map is what the library actually reads now
+              // (color/secondaryColor/tertiaryColor above are just the
+              // deprecated fallback it also still honors) — its type is
+              // required, not optional, so this has to be here or the
+              // build fails. Mapped 1:1 to the legacy colors above; alt/meta
+              // are new modifier combos we don't use yet, so they just
+              // reuse the default color (no behavior change).
+              colors: {
+                default: boardTheme.arrowColors[1],
+                shift: 'rgb(74 222 128)',
+                ctrl: 'rgb(74 222 128)',
+                alt: boardTheme.arrowColors[1],
+                meta: boardTheme.arrowColors[1],
+              },
               arrowLengthReducerDenominator: 4,
               sameTargetArrowLengthReducerDenominator: 4,
               arrowWidthDenominator: 5.2,
               activeArrowWidthMultiplier: 1.2,
               opacity: 0.8,
               activeOpacity: 1,
+              // Since we pass a custom arrowOptions object it fully replaces
+              // react-chessboard's defaultArrowOptions (no merge) — any new
+              // field the library adds must be listed here too, or it's
+              // `undefined` and breaks the arrow math (NaN path → invisible
+              // arrow). arrowStartOffset was added in 5.9.0; 0 matches the
+              // library's own default (arrow starts at square center).
+              arrowStartOffset: 0,
             },
             animationDurationInMs: animationDurationInMs,
           }}
