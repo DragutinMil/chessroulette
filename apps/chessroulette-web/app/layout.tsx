@@ -1,27 +1,13 @@
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { Analytics } from '@vercel/analytics/react';
 import { Metadata } from 'next';
-import { headers } from 'next/headers';
+import { AdsScript } from '../components/AdsScript';
 import '../styles.css';
 
 export const metadata: Metadata = {
   title: 'Home | Chessroulette',
   description: '',
 };
-
-// EEA + UK + Switzerland — countries where Google's "European regulations"
-// consent message applies. Ads are skipped entirely for these visitors so the
-// adsbygoogle script (and the CMP/consent popups that come bundled with it)
-// never loads for them. Vercel sets `x-vercel-ip-country` automatically on
-// every request, no middleware needed.
-const EEA_COUNTRY_CODES = new Set([
-  'AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR', 'DE', 'GR',
-  'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'PL', 'PT', 'RO', 'SK',
-  'SI', 'ES', 'SE', // EU
-  'IS', 'LI', 'NO', // EEA (non-EU)
-  'GB', // UK
-  'CH', // Switzerland
-]);
 
 export default function RootLayout({
   // Layouts must accept a children prop.
@@ -30,9 +16,6 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const country = headers().get('x-vercel-ip-country');
-  const isEEA = !!country && EEA_COUNTRY_CODES.has(country);
-
   return (
     <html lang="en">
       <head>
@@ -44,13 +27,7 @@ export default function RootLayout({
           href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&display=swap"
           rel="stylesheet"
         />
-        {!isEEA && (
-          <script
-            async
-            src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8003586277876347"
-            crossOrigin="anonymous"
-          />
-        )}
+        <AdsScript />
       </head>
       <body>
         <noscript>
