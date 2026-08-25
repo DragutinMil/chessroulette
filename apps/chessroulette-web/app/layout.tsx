@@ -1,8 +1,16 @@
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { Analytics } from '@vercel/analytics/react';
 import { Metadata } from 'next';
+import { Sora } from 'next/font/google';
 import { AdsScript } from '../components/AdsScript';
 import '../styles.css';
+
+// next/font self-hosta fond i racuna fallback metrike (size-adjust) - eliminise FOUT skok
+const sora = Sora({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700', '800'],
+  variable: '--font-sora',
+});
 
 export const metadata: Metadata = {
   title: 'Home | Chessroulette',
@@ -17,15 +25,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" className={sora.variable}>
       <head>
         <meta
           name="viewport"
           content="width=device-width,initial-scale=1.0,maximum-scale=1.0"
-        />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&display=swap"
-          rel="stylesheet"
         />
         <AdsScript />
       </head>
