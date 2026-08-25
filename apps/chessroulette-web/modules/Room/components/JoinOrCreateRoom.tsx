@@ -133,28 +133,28 @@ export const JoinOrCreateRoom: React.FC<Props> = ({
         });
     })
       .map((r) => {
-        router.replace(
-          links.getRoomLink({
-            // TODO: This needs to be done in a better, more generic way
-            // But right now the most important thing is that the match doesn't get extra params
-            ...(r.state.activity.activityType === 'match'
-              ? objectPick(updateableSearchParams.toObject(), [
-                  // User
-                  'userDisplayName',
-                  'rating',
+        const link = links.getRoomLink({
+          // TODO: This needs to be done in a better, more generic way
+          // But right now the most important thing is that the match doesn't get extra params
+          ...(r.state.activity.activityType === 'match'
+            ? objectPick(updateableSearchParams.toObject(), [
+                // User
+                'userDisplayName',
+                'rating',
 
-                  // Room settings
-                  'theme',
+                // Room settings
+                'theme',
 
-                  //activity settings
-                  // 'flipped',
-                ])
-              : updateableSearchParams.toObject()),
-            id: toResourceIdentifierObj(r.rid).resourceId,
-            activity: activityParams.activity,
-            userId: updateableSearchParams.get('userId') || generateUserId(),
-          })
-        );
+                //activity settings
+                // 'flipped',
+              ])
+            : updateableSearchParams.toObject()),
+          id: toResourceIdentifierObj(r.rid).resourceId,
+          activity: activityParams.activity,
+          userId: updateableSearchParams.get('userId') || generateUserId(),
+        });
+
+        router.replace(link);
       })
       .mapErr((e) => {
         // TODO: support the other reasons it might fail

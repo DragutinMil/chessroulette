@@ -44,7 +44,20 @@ export const RoomContainer = ({ iceServers, rid, activity }: Props) => {
   const movex = useMovex(movexConfig);
   const movexResource = useMovexBoundResourceFromRid(movexConfig, rid);
   const userId = useMovexClient(movexConfig)?.id;
-  
+
+  // Loading se prikazuje samo ako binding potraje duze od 200ms - sprecava
+  // da zatreperi "Loading..." kad dolazimo iz JoinOrCreateRoom (resurs je vec skoro spreman)
+  const isReady = !!userId && !!movexResource;
+  const [showLoading, setShowLoading] = useState(false);
+  useEffect(() => {
+    if (isReady) {
+      setShowLoading(false);
+      return;
+    }
+    const t = setTimeout(() => setShowLoading(true), 200);
+    return () => clearTimeout(t);
+  }, [isReady]);
+
   const participants = useMemo(
     () => movexSubcribersToUserMap(movexResource?.subscribers || {}),
     [movexResource?.subscribers]
@@ -237,14 +250,19 @@ export const RoomContainer = ({ iceServers, rid, activity }: Props) => {
   }, [userId, participants]);
 
   const loadingScreen = (
-    <div className="flex flex-1 items-center justify-center h-screen w-screen text-lg  divide-x animate-pulse">
-      <span className="text-2xl pr-2 md:pb-24 pb-16">Loading...</span>
+    <div className="flex flex-1 items-center justify-center h-full w-full text-lg  divide-x animate-pulse">
+      <span className="text-2xl pr-2">Loading...</span>
     </div>
   );
 
   const activityRender = invoke(() => {
-    if (!userId || !movexResource || movex.status !== 'connected') {
-      return loadingScreen;
+    // This shouldn't really happen
+    if (!userId) {
+      return showLoading ? loadingScreen : null;
+    }
+
+    if (!movexResource) {
+      return showLoading ? loadingScreen : null;
     }
     const { activity } = movexResource.state;
     const commonActivityProps = {
@@ -315,10 +333,7 @@ export const RoomContainer = ({ iceServers, rid, activity }: Props) => {
   });
 
   if (!userId) {
-    // Same disconnect/connectionError reset as in activityRender above —
-    // PeerStreamingProvider below requires a real userId, so this can't
-    // render that tree, but it should still show Loading, not go blank.
-    return loadingScreen;
+    return showLoading ? loadingScreen : null;
   }
 
   return (
