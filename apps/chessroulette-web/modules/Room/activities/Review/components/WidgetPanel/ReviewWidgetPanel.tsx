@@ -487,7 +487,7 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
       }
       if (autoGameReviewTriggeredRef.current) return;
       if (currentChapterState.chessAiMode.mode !== 'review') return;
-       if (currentChapterState.chessAiMode.review.length > 0) return;
+      if (currentChapterState.chessAiMode.review.length > 0) return;
       if (scoreCP === 0) return;
       autoGameReviewTriggeredRef.current = true;
       analizeMatch();
@@ -548,7 +548,8 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
         const san = uciLineToSan(moves, currentChapterState.displayFen);
         if (san) newSans.push({ san, score });
       });
-      blueArrowsRef.current = !isReview && progressReview === 0 ? newArrows : {};
+      blueArrowsRef.current =
+        !isReview && progressReview === 0 ? newArrows : {};
 
       if (newSans.length > 0) {
         setDisplayedLineSans(newSans);
@@ -741,7 +742,7 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
 
     const handleGameReviewFromPlay = async () => {
       const pgn = buildPgnFromHistory(currentChapterState.notation.history);
-      console.log('pgn',pgn)
+      console.log('pgn', pgn);
       if (!pgn) return;
       addChessAi({
         ...currentChapterState.chessAiMode,
@@ -756,7 +757,7 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
         !!userData.product_name && userData.ends_at !== null;
       if (!hasSubscription) {
         const review24hData = await getReview24h();
-        console.log('pgnOverride',pgnOverride)
+        console.log('pgnOverride', pgnOverride);
         if (review24hData) {
           // pgnOverride is only passed by handleGameReviewFromPlay — the
           // Conversation "Game Review" button calls analizeMatch() bare.
@@ -764,13 +765,13 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
             pgnOverride
               ? {
                   defaultPlan: 'pro',
-                  title:"Understand what the engine sees",
-                  subtitle:"Analyze any position, move by move",
+                  title: 'Understand what the engine sees',
+                  subtitle: 'Analyze any position, move by move',
                 }
               : {
                   defaultPlan: 'starter',
-                  title:"Game Review limit",
-                  subtitle: "Unlimited reviews, every mistake explained",
+                  title: 'Game Review limit',
+                  subtitle: 'Unlimited reviews, every mistake explained',
                 }
           );
           setGameReviewPaywallVisible(true);
@@ -784,7 +785,7 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
       let data;
       try {
         data = await analyzePGN(
-           currentChapterState.chessAiMode.fen,
+          currentChapterState.chessAiMode.fen,
           {
             onProgress: (progress: number) => setProgressReview(progress),
           },
@@ -839,7 +840,6 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
     // click the button in Conversation — same eligibility as that button
     // (messages.length===1, fen set, engine's first eval already in).
     const autoGameReviewTriggeredRef = useRef(false);
-   
 
     const handleGameEvaluation = (newScore: number) => {
       if (isReviewing) return;
@@ -972,9 +972,7 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
                     {/* <div className={`${!hasGameLoaded ? 'h-auto' : currentChapterState.chessAiMode.mode=='review' ? 'h-[320px]' : 'h-[290px]'}    md:flex-1  min-h-0 `}> */}
                     <div
                       className={`${
-                        isMobile
-                          ? 'h-auto'
-                          : 'h-[320px]'
+                        isMobile ? 'h-auto' : 'h-[320px]'
                       }    md:flex-1  min-h-0 `}
                     >
                       <ConversationReview
@@ -1007,27 +1005,26 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
                           isMobile && showMobileChatInput ? '68px' : undefined,
                       }}
                     >
-                      {currentChapterState.chessAiMode.mode === 'play' && currentChapterState.chessAiMode.review.length==0 &&
-                        currentChapterState.notation.history.length >= 9 && (
-                          isReviewing ? (
-                            <div className="flex items-center gap-2 mb-4">
-                        
-                              <p className="text-sm text-white/70 font-bold ">
-                                Analyzing{' '}
-                                {progressReview > 0
-                                  ? `${progressReview.toFixed(0)}%`
-                                  : '...'}
-                              </p>
-                            </div>
-                          ) : (
-                            <ButtonGreen
-                              onClick={handleGameReviewFromPlay}
-                              className="font-bold w-32  whitespace-nowrap mb-4"
-                            >
-                              Game Review
-                            </ButtonGreen>
-                          )
-                        )}
+                      {currentChapterState.chessAiMode.mode === 'play' &&
+                        currentChapterState.chessAiMode.review.length == 0 &&
+                        currentChapterState.notation.history.length >= 9 &&
+                        (isReviewing ? (
+                          <div className="flex items-center gap-2 mb-4">
+                            <p className="text-sm text-white/70 font-bold ">
+                              Analyzing{' '}
+                              {progressReview > 0
+                                ? `${progressReview.toFixed(0)}%`
+                                : '...'}
+                            </p>
+                          </div>
+                        ) : (
+                          <ButtonGreen
+                            onClick={handleGameReviewFromPlay}
+                            className="font-bold w-32  whitespace-nowrap mb-4"
+                          >
+                            Game Review
+                          </ButtonGreen>
+                        ))}
                       {(currentChapterState.chessAiMode.review?.length !== 0 ||
                         currentChapterState.chessAiMode.mode === 'play') && (
                         <>
@@ -1103,19 +1100,19 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
                             </div>
                           )}
                           {isMobile && !showMobileChatInput && (
-                              <button
-                                type="button"
-                                onClick={() => setShowMobileChatInput(true)}
-                                aria-label="Open chat"
-                                className="fixed bottom-4 right-4 z-30 flex items-center justify-center h-12 w-12 rounded-full bg-[#07DA63] shadow-lg active:scale-95 transition-transform"
-                              >
-                                <Icon
-                                  name="ChatBubbleOvalLeftEllipsisIcon"
-                                  kind="outline"
-                                  className="h-7 w-7 text-black-100"
-                                />
-                              </button>
-                            )}
+                            <button
+                              type="button"
+                              onClick={() => setShowMobileChatInput(true)}
+                              aria-label="Open chat"
+                              className="fixed bottom-4 right-4 z-30 flex items-center justify-center h-12 w-12 rounded-full bg-[#07DA63] shadow-lg active:scale-95 transition-transform"
+                            >
+                              <Icon
+                                name="ChatBubbleOvalLeftEllipsisIcon"
+                                kind="outline"
+                                className="h-7 w-7 text-black-100"
+                              />
+                            </button>
+                          )}
                         </>
                       )}
 
@@ -1241,9 +1238,7 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
                                     'play' && (
                                     <>
                                       <ButtonGreen
-                                        
-                                       className="font-bold w-34  whitespace-nowrap"
-                                       
+                                        className="font-bold w-34  whitespace-nowrap"
                                         onClick={() =>
                                           setImportDialogVisible(true)
                                         }

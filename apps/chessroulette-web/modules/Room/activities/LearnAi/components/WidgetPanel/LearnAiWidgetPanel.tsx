@@ -181,7 +181,6 @@ function buildArrowsFromUciMoves(
 
 // import { generateGptResponse } from '../../../../../../server.js';
 
-
 type Props = {
   chaptersMap: Record<Chapter['id'], Chapter>;
   chaptersMapIndex: number;
@@ -336,10 +335,8 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
     const [currentRatingEngine, setCurrentRatingEngine] = useState<
       number | null
     >(null);
-  
-    const [playVsBot, setPlayVsBot] = useState(false);
 
-   
+    const [playVsBot, setPlayVsBot] = useState(false);
 
     const [suggestedOpenings, setSuggestedOpenings] = useState<Array<{
       name: string;
@@ -1360,8 +1357,6 @@ Unlock Unlimited Puzzles, Unlimited Game Reviews, and Unlimited AI Chat for just
       }
     };
 
-  
-
     const isMate = async () => {
       console.log('MAT');
     };
@@ -1370,9 +1365,7 @@ Unlock Unlimited Puzzles, Unlimited Game Reviews, and Unlimited AI Chat for just
       setCurrentRatingEngine(rating);
     };
 
-    const engineLines = () => {
-    
-    };
+    const engineLines = () => {};
 
     const openViewSubscription = async () => {
       (window.location.href = 'https://app.outpostchess.com/subscribe'),
@@ -1467,11 +1460,7 @@ Unlock Unlimited Puzzles, Unlimited Game Reviews, and Unlimited AI Chat for just
           onMove(payload);
         }, 900);
       },
-      [
-        currentChapterState.displayFen,
-        currentChapterState.orientation,
-        onMove,
-      ]
+      [currentChapterState.displayFen, currentChapterState.orientation, onMove]
     );
 
     const engineMove = (m: string) => {
@@ -1687,25 +1676,25 @@ Unlock Unlimited Puzzles, Unlimited Game Reviews, and Unlimited AI Chat for just
 
     return (
       <div className="flex flex-col flex-1 min-h-0 rounded-lg shadow-2xl flex-1 flex min-h-0 ">
-       {/* keepPlaying && playVsBot && */}
-        
-          <StockFishEngineAI
-            fen={currentChapterState.displayFen}
-            orientation={currentChapterState.orientation}
-            playMode={true}
-            isMyTurn={
-              currentChapterState.displayFen.split(' ')[1] ===
-              currentChapterState.orientation
-            }
-            engineMove={engineMove}
-            engineLines={engineLines}
-            IsMate={isMate}
-            isMobile={isMobile ?? false}
-            newRatingEngine={newRatingEngine}
-            ratingEngine={ratingEngine}
-            addGameEvaluation={handleGameEvaluation}
-          />
-        
+        {/* keepPlaying && playVsBot && */}
+
+        <StockFishEngineAI
+          fen={currentChapterState.displayFen}
+          orientation={currentChapterState.orientation}
+          playMode={true}
+          isMyTurn={
+            currentChapterState.displayFen.split(' ')[1] ===
+            currentChapterState.orientation
+          }
+          engineMove={engineMove}
+          engineLines={engineLines}
+          IsMate={isMate}
+          isMobile={isMobile ?? false}
+          newRatingEngine={newRatingEngine}
+          ratingEngine={ratingEngine}
+          addGameEvaluation={handleGameEvaluation}
+        />
+
         <div className="flex-1 min-h-0 min-w-0 flex flex-col border  bg-op-widget  border-conversation-100 pb-2 px-2 md:px-2 md:pb-4 rounded-lg">
           {/* Conversation (order-2) fills the space below the buttons and
               scrolls internally — this container no longer scrolls as a
@@ -1721,14 +1710,12 @@ Unlock Unlimited Puzzles, Unlimited Game Reviews, and Unlimited AI Chat for just
           >
             {/* Buttons: order-1 on mobile (above conversation), order-2 on desktop (below conversation) */}
             <div className="flex order-1 md:order-2 gap-3 flex-shrink-0 pt-2 pb-2 md:my-[20px] justify-around sticky top-[-4px] z-10 bg-op-widget">
-              {currentChapterState.aiLearn.mode === 'opening' &&
-              isBrowsing ? (
+              {currentChapterState.aiLearn.mode === 'opening' && isBrowsing ? (
                 <ButtonGreen
                   onClick={goToMainLine}
                   size="md"
                   icon="ArrowUturnLeftIcon"
                   iconKind="outline"
-                  
                   className="md:max-w-[175px] max-w-[175px] min-w-[80px]"
                 >
                   <p className="whitespace-nowrap">
@@ -1743,13 +1730,14 @@ Unlock Unlimited Puzzles, Unlimited Game Reviews, and Unlimited AI Chat for just
                   size="md"
                   icon="BeakerIcon"
                   iconKind="outline"
-                  iconClassName={
-                    !openingTestDisabled ? 'text-black' : ''
-                  }
+                  iconClassName={!openingTestDisabled ? 'text-black' : ''}
                   className="md:max-w-[140px] max-w-[140px] min-w-[80px]"
                   style={{
                     ...(!openingTestDisabled
-                      ? { backgroundColor: 'rgba(7, 218, 99)',color:'#000000'}
+                      ? {
+                          backgroundColor: 'rgba(7, 218, 99)',
+                          color: '#000000',
+                        }
                       : {}),
                   }}
                   disabled={openingTestDisabled}
@@ -1765,7 +1753,6 @@ Unlock Unlimited Puzzles, Unlimited Game Reviews, and Unlimited AI Chat for just
                 <ButtonGreen
                   icon="PlayIcon"
                   iconKind="outline"
-                  
                   onClick={handleKeepPlaying}
                   size="md"
                   className="md:max-w-[160px] max-w-[160px] min-w-[80px]  md:min-w-[120px] "
@@ -1796,7 +1783,6 @@ Unlock Unlimited Puzzles, Unlimited Game Reviews, and Unlimited AI Chat for just
                   }}
                   icon="LightBulbIcon"
                   iconKind="outline"
-               
                   size="md"
                   className="md:max-w-[100px] max-w-[100px]  "
                   style={{ maxWidth: smallMobile ? '68px' : '' }}
@@ -1812,7 +1798,6 @@ Unlock Unlimited Puzzles, Unlimited Game Reviews, and Unlimited AI Chat for just
               <ButtonGreen
                 icon="ArrowsRightLeftIcon"
                 iconKind="outline"
-               
                 onClick={requestAnotherOpening}
                 size="md"
                 className="max-w-[180px] min-w-[135px] "
@@ -1831,7 +1816,9 @@ Unlock Unlimited Puzzles, Unlimited Game Reviews, and Unlimited AI Chat for just
                 showColorChoice={showColorChoice}
                 onSelectColor={handleSelectColor}
                 suggestedOpenings={suggestedOpenings}
-                freemiumOpenings={!isPro ? getFreemiumOpeningPicks() : undefined}
+                freemiumOpenings={
+                  !isPro ? getFreemiumOpeningPicks() : undefined
+                }
                 onSelectOpening={handleSelectOpening}
                 onSelectSomethingElse={handleSomethingElse}
                 currentChapterState={currentChapterState}
@@ -1959,18 +1946,17 @@ Unlock Unlimited Puzzles, Unlimited Game Reviews, and Unlimited AI Chat for just
               )}
             </div>
 
-        
-              <div className="order-4">
-                <EvalBar
-                  percentW={percentW}
-                  percentB={percentB}
-                  scoreCP={scoreCP}
-                  hideScore={
-                    (currentChapterState.notation?.history?.length ?? 0) === 0
-                  }
-                />
-              </div>
-            
+            <div className="order-4">
+              <EvalBar
+                percentW={percentW}
+                percentB={percentB}
+                scoreCP={scoreCP}
+                hideScore={
+                  (currentChapterState.notation?.history?.length ?? 0) === 0
+                }
+              />
+            </div>
+
             {/* <div className="mt-2 flex flex-wrap items-center gap-1 text-sm text-slate-300 min-w-0 max-h-20 overflow-y-auto overflow-x-hidden">
               {' '}
               {currentChapterState.notation?.history?.map((pair, moveIdx) => (

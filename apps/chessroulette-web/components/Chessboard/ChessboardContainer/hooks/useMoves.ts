@@ -309,10 +309,7 @@ Props): MoveActions => {
         setPreMove(undefined);
         return;
       }
-      const delay =
-        premoveWasDropRef.current 
-          ? 0
-          : premoveAnimationDelay;
+      const delay = premoveWasDropRef.current ? 0 : premoveAnimationDelay;
       premoveWasDropRef.current = false;
       setTimeout(() => {
         setPreMove(undefined);

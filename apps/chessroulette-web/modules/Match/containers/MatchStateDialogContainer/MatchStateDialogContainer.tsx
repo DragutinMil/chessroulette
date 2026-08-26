@@ -94,10 +94,9 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
     userId === match?.challenger.id
       ? 'challenger'
       : userId === match?.challengee.id
-        ? 'challengee'
-        : null;
-  const iLostMatch =
-    !!myRole && !!match?.winner && match.winner !== myRole;
+      ? 'challengee'
+      : null;
+  const iLostMatch = !!myRole && !!match?.winner && match.winner !== myRole;
   const myDisplayName = myRole
     ? match?.[myRole]?.displayName || match?.[myRole]?.id || ''
     : '';
@@ -147,8 +146,7 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
             const streakCount = Number(streakResult?.streak_count);
             const isFirstLossEver = streakResult?.has_losses === false;
             const isLossStreakMilestone =
-              streakResult?.streak_type === 'L' &&
-              [2, 4].includes(streakCount);
+              streakResult?.streak_type === 'L' && [2, 4].includes(streakCount);
             if (isFirstLossEver || isLossStreakMilestone) {
               const name = myDisplayName;
               if (isFirstLossEver) {
@@ -337,172 +335,175 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
 
     return (
       <>
-      <Dialog
-        title={`${endGameReason}`}
-        hasCloseButton
-        onClose={() => setIsHidden(true)}
-        content={
-          <div className="flex flex-col gap-4 items-center">
-            <div className="flex  justify-center content-center text-center flex-col">
-              <Text>
-                {match.winner === null ? (
-                  <span></span>
-                ) : (match.winner == 'challenger' &&
-                    match.challenger.id == activeBot?.id) ||
-                  (match.winner == 'challengee' &&
-                    match.challengee.id == activeBot?.id) ? (
-                  <span className="capitalize">
-                    {activeBot?.name}
-                    {` `}Won{` `}
-                    <span>🏆</span>
-                  </span>
-                ) : (
-                  <span className="capitalize">
-                    {match[match.winner].displayName || match[match.winner].id}
-                    {` `}Won{` `}
-                    <span>🏆</span>
-                  </span>
-                )}
-              </Text>
-              {activeBot?.botType !== 'basic' && (
-                <div className="justify-center items-center flex flex-col gap-3 mt-4 w-full">
-                  <div className="flex flex-row items-center gap-4 mb-2 w-full"></div>
-                  {streakDays !== null && (
-                    <div className="flex flex-row relative md:left-4 items-center gap-4 mb-2 w-full">
-                      <div
-                        className="relative flex-shrink-0"
-                        style={{
-                          transition: 'opacity 0.5s ease, transform 0.5s ease',
-                          opacity: animStage >= 1 ? 1 : 0,
-                          transform: animStage >= 1 ? 'scale(1)' : 'scale(0.6)',
+        <Dialog
+          title={`${endGameReason}`}
+          hasCloseButton
+          onClose={() => setIsHidden(true)}
+          content={
+            <div className="flex flex-col gap-4 items-center">
+              <div className="flex  justify-center content-center text-center flex-col">
+                <Text>
+                  {match.winner === null ? (
+                    <span></span>
+                  ) : (match.winner == 'challenger' &&
+                      match.challenger.id == activeBot?.id) ||
+                    (match.winner == 'challengee' &&
+                      match.challengee.id == activeBot?.id) ? (
+                    <span className="capitalize">
+                      {activeBot?.name}
+                      {` `}Won{` `}
+                      <span>🏆</span>
+                    </span>
+                  ) : (
+                    <span className="capitalize">
+                      {match[match.winner].displayName ||
+                        match[match.winner].id}
+                      {` `}Won{` `}
+                      <span>🏆</span>
+                    </span>
+                  )}
+                </Text>
+                {activeBot?.botType !== 'basic' && (
+                  <div className="justify-center items-center flex flex-col gap-3 mt-4 w-full">
+                    <div className="flex flex-row items-center gap-4 mb-2 w-full"></div>
+                    {streakDays !== null && (
+                      <div className="flex flex-row relative md:left-4 items-center gap-4 mb-2 w-full">
+                        <div
+                          className="relative flex-shrink-0"
+                          style={{
+                            transition:
+                              'opacity 0.5s ease, transform 0.5s ease',
+                            opacity: animStage >= 1 ? 1 : 0,
+                            transform:
+                              animStage >= 1 ? 'scale(1)' : 'scale(0.6)',
+                          }}
+                        >
+                          <img
+                            src="/flame.webp"
+                            alt="flame"
+                            className="w-16 h-18 object-contain"
+                          />
+                          <span
+                            className="absolute bottom-1 right-1 bg-cyan-400 text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center border-2 border-[#1c1c1c]"
+                            style={{
+                              color: '#000000',
+                              transition: 'transform 0.3s ease',
+                              transform: badgePulse ? 'scale(1.5)' : 'scale(1)',
+                            }}
+                          >
+                            {badgeNum}
+                          </span>
+                        </div>
+                        <div className="flex flex-col">
+                          <span
+                            className="text-green-400 text-left font-bold text-xs uppercase tracking-widest"
+                            style={{
+                              transition:
+                                'opacity 0.5s ease, transform 0.5s ease',
+                              opacity: animStage >= 2 ? 1 : 0,
+                              transform:
+                                animStage >= 2
+                                  ? 'translateY(0)'
+                                  : 'translateY(8px)',
+                            }}
+                          >
+                            Interesting game!
+                          </span>
+                          <span
+                            className="text-white font-bold text-2xl leading-tight"
+                            style={{
+                              transition:
+                                'opacity 0.5s ease, transform 0.5s ease',
+                              opacity: animStage >= 3 ? 1 : 0,
+                              transform:
+                                animStage >= 3
+                                  ? 'translateY(0)'
+                                  : 'translateY(8px)',
+                            }}
+                          >
+                            {badgeNum}-day streak!
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                    {isPlayer && (
+                      <Button
+                        icon="ArrowPathRoundedSquareIcon"
+                        bgColor="green"
+                        className=" transition-all duration-200 w-full  hover:scale-[1.03] hover:shadow-[0_0_12px_rgba(7,218,99,0.25)]"
+                        style={{ minWidth: '160px' }}
+                        onClick={async () => {
+                          if (playerId) {
+                            if (!isOpponentInRoom) {
+                              try {
+                                if (!alreadyRematch) {
+                                  await newRematchRequestInitiate(roomId);
+                                }
+                                setAlreadyRematch(true);
+                              } catch (error) {
+                                console.error(
+                                  '❌ Error sending rematch notification:',
+                                  error
+                                );
+                              }
+                            }
+                            dispatch((masterContext) => ({
+                              type: 'play:sendOffer',
+                              payload: {
+                                byPlayer: playerId,
+                                offerType: 'rematch',
+                                timestamp: masterContext.requestAt(),
+                              },
+                            }));
+                          }
                         }}
                       >
-                        <img
-                          src="/flame.webp"
-                          alt="flame"
-                          className="w-16 h-18 object-contain"
-                        />
-                        <span
-                          className="absolute bottom-1 right-1 bg-cyan-400 text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center border-2 border-[#1c1c1c]"
-                          style={{
-                            color: '#000000',
-                            transition: 'transform 0.3s ease',
-                            transform: badgePulse ? 'scale(1.5)' : 'scale(1)',
-                          }}
-                        >
-                          {badgeNum}
-                        </span>
-                      </div>
-                      <div className="flex flex-col">
-                        <span
-                          className="text-green-400 text-left font-bold text-xs uppercase tracking-widest"
-                          style={{
-                            transition:
-                              'opacity 0.5s ease, transform 0.5s ease',
-                            opacity: animStage >= 2 ? 1 : 0,
-                            transform:
-                              animStage >= 2
-                                ? 'translateY(0)'
-                                : 'translateY(8px)',
-                          }}
-                        >
-                          Interesting game!
-                        </span>
-                        <span
-                          className="text-white font-bold text-2xl leading-tight"
-                          style={{
-                            transition:
-                              'opacity 0.5s ease, transform 0.5s ease',
-                            opacity: animStage >= 3 ? 1 : 0,
-                            transform:
-                              animStage >= 3
-                                ? 'translateY(0)'
-                                : 'translateY(8px)',
-                          }}
-                        >
-                          {badgeNum}-day streak!
-                        </span>
-                      </div>
-                    </div>
-                  )}
-                  {isPlayer && (
+                        Rematch
+                      </Button>
+                    )}
+
+                    <Link
+                      className="w-full"
+                      href={`https://chess.outpostchess.com/room/new/r${room}?activity=review&userId=${userId}&theme=op&pgn=${roomId}`}
+                      //href={`http://localhost:4200/room/new/r${room}?activity=review&userId=${userId}&theme=op&pgn=${roomId}`}
+                    >
+                      <Button
+                        icon="MagnifyingGlassIcon"
+                        bgColor="green"
+                        className="transition-all text-black  duration-200 w-full hover:border-green-600 hover:scale-[1.03] hover:shadow-[0_0_16px_rgba(7,218,99,0.35)] bg-green-600"
+                        style={{ minWidth: '160px', color: '#000' }}
+                        onClick={() => {}}
+                      >
+                        Review
+                      </Button>
+                    </Link>
+
                     <Button
-                      icon="ArrowPathRoundedSquareIcon"
+                      icon="ArrowLeftIcon"
                       bgColor="green"
-                      className=" transition-all duration-200 w-full  hover:scale-[1.03] hover:shadow-[0_0_12px_rgba(7,218,99,0.25)]"
+                      className="transition-all duration-200 w-full hover:text-black  hover:scale-[1.03] hover:shadow-[0_0_12px_rgba(7,218,99,0.25)] mb-2"
                       style={{ minWidth: '160px' }}
-                      onClick={async () => {
-                        if (playerId) {
-                          if (!isOpponentInRoom) {
-                            try {
-                              if (!alreadyRematch) {
-                                await newRematchRequestInitiate(roomId);
-                              }
-                              setAlreadyRematch(true);
-                            } catch (error) {
-                              console.error(
-                                '❌ Error sending rematch notification:',
-                                error
-                              );
-                            }
-                          }
-                          dispatch((masterContext) => ({
-                            type: 'play:sendOffer',
-                            payload: {
-                              byPlayer: playerId,
-                              offerType: 'rematch',
-                              timestamp: masterContext.requestAt(),
-                            },
-                          }));
-                        }
+                      onClick={() => {
+                        window.location.href =
+                          'https://app.outpostchess.com/online-list';
                       }}
                     >
-                      Rematch
+                      Lobby
                     </Button>
-                  )}
-
-                  <Link
-                    className="w-full"
-                    href={`https://chess.outpostchess.com/room/new/r${room}?activity=review&userId=${userId}&theme=op&pgn=${roomId}`}
-                    //href={`http://localhost:4200/room/new/r${room}?activity=review&userId=${userId}&theme=op&pgn=${roomId}`}
-                  >
-                    <Button
-                      icon="MagnifyingGlassIcon"
-                      bgColor="green"
-                      className="transition-all text-black  duration-200 w-full hover:border-green-600 hover:scale-[1.03] hover:shadow-[0_0_16px_rgba(7,218,99,0.35)] bg-green-600"
-                      style={{ minWidth: '160px', color: '#000' }}
-                      onClick={() => {}}
-                    >
-                      Review
-                    </Button>
-                  </Link>
-
-                  <Button
-                    icon="ArrowLeftIcon"
-                    bgColor="green"
-                    className="transition-all duration-200 w-full hover:text-black  hover:scale-[1.03] hover:shadow-[0_0_12px_rgba(7,218,99,0.25)] mb-2"
-                    style={{ minWidth: '160px' }}
-                    onClick={() => {
-                      window.location.href =
-                        'https://app.outpostchess.com/online-list';
-                    }}
-                  >
-                    Lobby
-                  </Button>
-                  <GoogleAd isMobile={isMobile} />
-                </div>
-              )}
+                    <GoogleAd isMobile={isMobile} />
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
-        }
-      />
-      <Paywall
-        visible={lossStreakPaywallVisible}
-        onClose={() => setLossStreakPaywallVisible(false)}
-        defaultPlan="starter"
-        title={lossStreakPaywallCopy.title}
-        subtitle={lossStreakPaywallCopy.subtitle}
-      />
+          }
+        />
+        <Paywall
+          visible={lossStreakPaywallVisible}
+          onClose={() => setLossStreakPaywallVisible(false)}
+          defaultPlan="starter"
+          title={lossStreakPaywallCopy.title}
+          subtitle={lossStreakPaywallCopy.subtitle}
+        />
       </>
     );
   }
@@ -548,7 +549,9 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
       const playerDisplay =
         match[winnerByRole].displayName || match[winnerByRole].id;
 
-      return <Text className="capitalize font-semibold">{playerDisplay} Won!</Text>;
+      return (
+        <Text className="capitalize font-semibold">{playerDisplay} Won!</Text>
+      );
     });
 
     return (

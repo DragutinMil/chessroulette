@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import {
   ChessFEN,
   PieceSan,
@@ -288,7 +294,7 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
   if (sizePx === 0) {
     return null;
   }
-  console.log(isMyTurn, preMove)
+  console.log(isMyTurn, preMove);
   return (
     <div>
       {botId && (

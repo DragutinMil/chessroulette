@@ -154,8 +154,8 @@ const TypewriterText: React.FC<TypewriterTextProps> = ({
         displayedText.length === lastMessage.length && (
           <div className="flex flex-wrap items-center gap-2 mt-1">
             <ButtonGreen
-              icon='CheckIcon'
-               iconKind="outline"
+              icon="CheckIcon"
+              iconKind="outline"
               onClick={() => onSelectLearnMode?.('opening')}
               size="md"
               className="font-bold mt-2 px-3 mr-2 whitespace-nowrap"
@@ -163,8 +163,8 @@ const TypewriterText: React.FC<TypewriterTextProps> = ({
               Openings
             </ButtonGreen>
             <ButtonGreen
-            icon='LockClosedIcon'
-             iconKind="outline"
+              icon="LockClosedIcon"
+              iconKind="outline"
               size="md"
               disabled
               className="font-bold mt-2 px-3 mr-2 whitespace-nowrap opacity-60 cursor-not-allowed"
@@ -173,8 +173,8 @@ const TypewriterText: React.FC<TypewriterTextProps> = ({
               Midgame
             </ButtonGreen>
             <ButtonGreen
-            icon='LockClosedIcon'
-             iconKind="outline"
+              icon="LockClosedIcon"
+              iconKind="outline"
               size="md"
               disabled
               className="font-bold mt-2 px-3 mr-2 whitespace-nowrap opacity-60 cursor-not-allowed"
