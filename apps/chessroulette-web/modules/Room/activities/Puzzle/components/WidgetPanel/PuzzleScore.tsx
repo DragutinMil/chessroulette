@@ -304,7 +304,7 @@ const PuzzleScore = ({ chessAiMode, puzzle_rating, isTablet }: Props) => {
                 {value}
               </span>
 
-              {showChange &&
+              {/* {showChange &&
                 change !== 0 &&
                 (change > 0 ? (
                   <span className="absolute -bottom-1  ml-1 text-green-400 text-[18px] font-bold animate-fadeUp">
@@ -314,7 +314,7 @@ const PuzzleScore = ({ chessAiMode, puzzle_rating, isTablet }: Props) => {
                   <span className="absolute -top-4  ml-1 text-red-500 text-[18px] font-bold animate-fadeUp">
                     {change}
                   </span>
-                ))}
+                ))} */}
             </div>
             <span
               className={`flex items-center justify-center font-bold text-green-400 md:text-lg text-base  
