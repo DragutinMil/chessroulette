@@ -115,12 +115,24 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
 }) => {
   const isMyTurn = boardOrientation === turn;
   const { match, ...matchView } = useMatchViewState();
-  //kada nema lastMove (nova tabla = novi puzzle), animacija = 0, inače 200.
-  const BOARD_ANIMATION_DELAY = disableAnimations ? 0 : lastMove ? 150 : 0;
+
+  // Prati da li se fen stvarno promenio od proslog render-a - cosmetic re-renderi
+  // (hint circle/arrow, wrong-move X overlay...) ne smeju da okinu animaciju,
+  // samo stvarni potezi. Bez ovoga svaki re-render dok je lastMove postavljen
+  // je dobijao 150ms animacije, pa su figure vidljivo "drmale" na hint/wrong move.
+  const prevFenForAnimationRef = useRef(fen);
+  const fenChangedSinceLastRender = prevFenForAnimationRef.current !== fen;
+  useEffect(() => {
+    prevFenForAnimationRef.current = fen;
+  }, [fen]);
+
+  //kada nema lastMove (nova tabla = novi puzzle), animacija = 0, inače 150.
+  const BOARD_ANIMATION_DELAY =
+    disableAnimations || !lastMove || !fenChangedSinceLastRender ? 0 : 150;
   const engineMoveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
     null
   );
-  
+
   // Tracks the current fen so a delayed bot move (up to several seconds,
   // see engineMove below) can tell if the position it was computed for is
   // still current by the time it actually fires — dispatching a move for a
