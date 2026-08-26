@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import {
   ChessFEN,
   PieceSan,
@@ -120,7 +126,7 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
   const engineMoveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
     null
   );
-  
+
   // Tracks the current fen so a delayed bot move (up to several seconds,
   // see engineMove below) can tell if the position it was computed for is
   // still current by the time it actually fires — dispatching a move for a
@@ -288,7 +294,7 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
   if (sizePx === 0) {
     return null;
   }
-  console.log(isMyTurn, preMove)
+  console.log(isMyTurn, preMove);
   return (
     <div>
       {botId && (

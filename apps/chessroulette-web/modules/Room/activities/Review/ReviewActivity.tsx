@@ -79,7 +79,7 @@ export const ReviewActivity = ({
     product_name: '',
     user_id: '',
     puz_rating: '',
-    new_product_id:''
+    new_product_id: '',
   });
   // const [onChangePuzzleAnimation, setChangePuzzleAnimation] = useState(false);
   const settings = useReviewActivitySettings();
@@ -282,7 +282,7 @@ export const ReviewActivity = ({
       product_name: data?.product_name,
       user_id: data?.user_id,
       puz_rating: data?.puz_rating,
-      new_product_id:data?.new_product_id
+      new_product_id: data?.new_product_id,
     });
   };
   const onCanPlayChange = (canPlay: boolean) => {
@@ -371,78 +371,81 @@ export const ReviewActivity = ({
                     );
                   })()}
 
-                 { currentChapter.chessAiMode.mode === 'play' && ( 
-                  <div className="h-[40px] px-2 pb-1 mt-3 mb-1 flex items-center gap-2">
-                    <div className="flex-1 min-w-0 flex items-center">
-                      {(() => {
-                        const isComputingMobile =
-                          mobileLines.length === 0 &&
-                          Math.abs(mobileScoreCP) < 49999;
-                        const linesToShow = isComputingMobile
-                          ? lastKnownMobileLines
-                          : mobileLines;
-                        return (
-                          <div className="relative w-full">
-                            <div
-                              className={`flex flex-col gap-[2px] w-full transition-opacity duration-300 ${
-                                isComputingMobile ? 'opacity-25' : 'opacity-100'
-                              }`}
-                            >
-                              {linesToShow
-                                .slice(0, 2)
-                                .map(({ san, score }, idx) => {
-                                  // `score` is relative to board orientation;
-                                  // flip to White-relative before signing it.
-                                  const whiteScore =
-                                    currentChapter.orientation === 'w'
-                                      ? score
-                                      : -score;
-                                  const scoreLabel =
-                                    Math.abs(whiteScore) >= 49999
-                                      ? '∞'
-                                      : `${whiteScore >= 0 ? '+' : ''}${(
-                                          whiteScore / 100
-                                        ).toFixed(2)}`;
-                                  return (
-                                    <p
-                                      key={idx}
-                                      className={`text-xs truncate flex gap-2 ${
-                                        idx === 0
-                                          ? 'text-white'
-                                          : 'text-gray-400'
-                                      }`}
-                                    >
-                                      <span className="font-mono shrink-0 w-10 text-left">
-                                        {scoreLabel}
-                                      </span>
-                                      <span className="truncate">{san}</span>
-                                    </p>
-                                  );
-                                })}
-                            </div>
-                            {isComputingMobile && (
-                              <div className="absolute inset-0 flex items-center justify-start opacity-80">
-                                <Loader />
+                  {currentChapter.chessAiMode.mode === 'play' && (
+                    <div className="h-[40px] px-2 pb-1 mt-3 mb-1 flex items-center gap-2">
+                      <div className="flex-1 min-w-0 flex items-center">
+                        {(() => {
+                          const isComputingMobile =
+                            mobileLines.length === 0 &&
+                            Math.abs(mobileScoreCP) < 49999;
+                          const linesToShow = isComputingMobile
+                            ? lastKnownMobileLines
+                            : mobileLines;
+                          return (
+                            <div className="relative w-full">
+                              <div
+                                className={`flex flex-col gap-[2px] w-full transition-opacity duration-300 ${
+                                  isComputingMobile
+                                    ? 'opacity-25'
+                                    : 'opacity-100'
+                                }`}
+                              >
+                                {linesToShow
+                                  .slice(0, 2)
+                                  .map(({ san, score }, idx) => {
+                                    // `score` is relative to board orientation;
+                                    // flip to White-relative before signing it.
+                                    const whiteScore =
+                                      currentChapter.orientation === 'w'
+                                        ? score
+                                        : -score;
+                                    const scoreLabel =
+                                      Math.abs(whiteScore) >= 49999
+                                        ? '∞'
+                                        : `${whiteScore >= 0 ? '+' : ''}${(
+                                            whiteScore / 100
+                                          ).toFixed(2)}`;
+                                    return (
+                                      <p
+                                        key={idx}
+                                        className={`text-xs truncate flex gap-2 ${
+                                          idx === 0
+                                            ? 'text-white'
+                                            : 'text-gray-400'
+                                        }`}
+                                      >
+                                        <span className="font-mono shrink-0 w-10 text-left">
+                                          {scoreLabel}
+                                        </span>
+                                        <span className="truncate">{san}</span>
+                                      </p>
+                                    );
+                                  })}
                               </div>
-                            )}
-                          </div>
-                        );
-                      })()}
+                              {isComputingMobile && (
+                                <div className="absolute inset-0 flex items-center justify-start opacity-80">
+                                  <Loader />
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })()}
+                      </div>
+                      {currentChapter.chessAiMode.mode === 'play' && (
+                        <ButtonGreen
+                          onClick={() => setImportDialogVisible(true)}
+                        >
+                          Upload a PGN
+                        </ButtonGreen>
+                      )}
+
+                      <ImportDialogContainer
+                        visible={importDialogVisible}
+                        onClose={() => setImportDialogVisible(false)}
+                        onImport={dispatchImport}
+                      />
                     </div>
-                    {currentChapter.chessAiMode.mode === 'play' && (
-                    <ButtonGreen onClick={() => setImportDialogVisible(true)}>
-                      Upload a PGN
-                    </ButtonGreen>
-                    )
-                    }
-                    
-                    <ImportDialogContainer
-                      visible={importDialogVisible}
-                      onClose={() => setImportDialogVisible(false)}
-                      onImport={dispatchImport}
-                    />
-                  </div>
-                 )} 
+                  )}
                 </div>
               )}
               <div className={isTablet ? 'flex flex-col gap-2' : ''}>

@@ -68,7 +68,7 @@ export const PuzzleActivity = ({
     product_name: '',
     user_id: '',
     puz_rating: '',
-    new_product_id:''
+    new_product_id: '',
   });
   // const [onChangePuzzleAnimation, setChangePuzzleAnimation] = useState(false);
   const settings = usePuzzleActivitySettings();
@@ -102,7 +102,7 @@ export const PuzzleActivity = ({
       product_name: data?.product_name,
       user_id: data?.user_id,
       puz_rating: data?.puz_rating,
-      new_product_id:data?.new_product_id
+      new_product_id: data?.new_product_id,
     });
   };
   const onCanPlayChange = (canPlay: boolean) => {
@@ -161,9 +161,13 @@ export const PuzzleActivity = ({
                 </div>
               )}
               <div
+                // key menja se tacno kad tabla prvi put dobije stvarnu velicinu (0 -> merena
+                // vrednost), sto forsira svez DOM mount i pusta animate-fadeIn bas u tom trenutku
+                // - umesto da se tabla naglo "pojavi"/poskoci kad ResizableDesktopLayout izmeri kontejner
+                key={boardSize > 0 ? 'puzzle-board-ready' : 'puzzle-board-loading'}
                 className={`${
                   isTablet && 'relative  mt-4 mb-4 flex justify-center'
-                }  `}
+                } ${boardSize > 0 ? 'animate-fadeIn' : ''} `}
               >
                 <PuzzleBoard
                   sizePx={isTablet ? boardSize + 25 : boardSize}

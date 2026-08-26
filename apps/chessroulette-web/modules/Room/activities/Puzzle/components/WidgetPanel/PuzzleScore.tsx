@@ -272,8 +272,8 @@ const PuzzleScore = ({ chessAiMode, puzzle_rating, isTablet }: Props) => {
       </style>
       {/* {value > 0 && ( */}
       <div
-        className={`rounded-lg  mb-1  md:mt-1 mt-2 md:px-4 md:pb-4 px-2 pb-2 pt-2 border border-conversation-100 bg-[#01210B] 
-    ${animateLabel ? 'animate-fire-pulse' : ''} 
+        className={`rounded-lg  mb-1  md:mt-1 mt-2 md:px-4 md:pb-4 px-2 pb-2 pt-2 border border-conversation-100 bg-[#01210B] overflow-hidden
+    ${animateLabel ? 'animate-fire-pulse' : ''}
   `}
       >
         {!isTablet && (
@@ -296,7 +296,7 @@ const PuzzleScore = ({ chessAiMode, puzzle_rating, isTablet }: Props) => {
           className={`${styles.flipNumber} w-full text-white text-xl  font-bold mb-2 inline-block min-w-[40px] min-h-[24px]`}
         >
           <div className="flex justify-between align-center">
-            <div>
+            <div className="relative">
               <span
                 key={value}
                 className={`${styles.flipInner} ${flipping ? styles.flip : ''}`}

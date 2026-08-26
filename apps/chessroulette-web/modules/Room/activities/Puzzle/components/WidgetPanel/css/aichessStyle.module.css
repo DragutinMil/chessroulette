@@ -1,5 +1,4 @@
 .flipNumber {
-  perspective: 1000px;
   display: inline-block;
   font-size: 28px;
   font-weight: 700;
@@ -10,14 +9,14 @@
   }
 }
 
+/* 2D scale-pop umesto 3D rotateX flip - isti "broj se promenio" osecaj, bez
+   preserve-3d/backface-visibility koji su na iOS Safariju znali da naduvaju
+   visinu flex reda (align-items: stretch) i "protresu" sve ispod. */
 .flipInner {
   display: inline-block;
-  backface-visibility: hidden;
-  transform-style: preserve-3d;
-  transition: transform 0.6s ease-in-out;
-  will-change: transform;
+  transition: transform 0.15s ease-out;
 }
 
 .flip {
-  transform: rotateX(360deg);
+  transform: scale(1.12);
 }

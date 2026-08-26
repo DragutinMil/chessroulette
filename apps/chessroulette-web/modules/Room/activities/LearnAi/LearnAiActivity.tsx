@@ -90,7 +90,7 @@ export const LearnAiActivity = ({
     new_product_id: '',
     subscriptionProduct: '',
   });
- console.log('userData',userData)
+  console.log('userData', userData);
   const settings = useLearnAiActivitySettings();
   const [inputState, dispatchInputState] = useReducer(
     inputReducer,
@@ -566,7 +566,7 @@ export const LearnAiActivity = ({
                             );
                           }}
                         /> */}
-                        {/* <IconButton
+                      {/* <IconButton
                           icon="ArrowUturnLeftIcon"
                           iconKind="outline"
                           type="clear"

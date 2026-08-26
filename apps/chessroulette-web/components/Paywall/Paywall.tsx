@@ -78,7 +78,7 @@ export const Paywall: React.FC<PaywallProps> = ({
 
   return (
     <div className="fixed inset-0 z-[200] pt-11 md:pt-0  flex items-end justify-center bg-black-100/80 md:items-center md:px-4">
-      <div 
+      <div
         className="relative flex h-full  w-full flex-col overflow-y-auto animate-dialogIn md:h-auto md:max-h-[90vh] md:w-full md:max-w-[420px] md:rounded-2xl md:shadow-[0_0_50px_rgba(0,0,0,0.6),0_0_30px_rgba(7,218,99,0.25)]"
         style={{
           backgroundImage:
@@ -118,9 +118,7 @@ export const Paywall: React.FC<PaywallProps> = ({
                       type="button"
                       onClick={() => setPlan(p)}
                       className={`w-[130px] rounded-full py-2.5 text-md font-bold capitalize transition-colors ${
-                        plan === p
-                          ? 'bg-blue-600 text-black'
-                          : ' text-white'
+                        plan === p ? 'bg-blue-600 text-black' : ' text-white'
                       }`}
                     >
                       {p}
@@ -162,13 +160,13 @@ export const Paywall: React.FC<PaywallProps> = ({
               <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 rounded-full bg-green-800 px-2 py-0.5 text-[11px] font-bold text-black">
                 SAVE {savePercent}%
               </span>
-             <span
-  className={`absolute right-3 top-3 flex h-[22px] w-[22px] items-center justify-center rounded-full border ${
-    billing === 'yearly'
-      ? 'border-white/50 bg-green-800'
-      : 'border-white/50 bg-[#8F8F90]'
-  }`}
->
+              <span
+                className={`absolute right-3 top-3 flex h-[22px] w-[22px] items-center justify-center rounded-full border ${
+                  billing === 'yearly'
+                    ? 'border-white/50 bg-green-800'
+                    : 'border-white/50 bg-[#8F8F90]'
+                }`}
+              >
                 {billing === 'yearly' && (
                   <Icon name="CheckIcon" className="h-5 w-5" />
                 )}
@@ -198,8 +196,8 @@ export const Paywall: React.FC<PaywallProps> = ({
               <span
                 className={`absolute right-3 top-3 flex h-[22px] w-[22px] items-center justify-center rounded-full border ${
                   billing === 'monthly'
-                   ? 'border-white/50 bg-green-800'
-      : 'border-white/50 bg-[#8F8F90]'
+                    ? 'border-white/50 bg-green-800'
+                    : 'border-white/50 bg-[#8F8F90]'
                 }`}
               >
                 {billing === 'monthly' && (
@@ -223,7 +221,7 @@ export const Paywall: React.FC<PaywallProps> = ({
           <button
             type="button"
             onClick={handleContinue}
-            style={{color:'black'}}
+            style={{ color: 'black' }}
             className=" rounded-full ml-[12%] bg-green-800  text-base w-[76%] h-[44px] font-bold text-black transition-opacity hover:opacity-90"
           >
             Continue
