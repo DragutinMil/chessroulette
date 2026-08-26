@@ -33,7 +33,7 @@ type Props = {
   completedGames?: CompletedGameItem[];
   isLoadingGames?: boolean;
   showMyGames?: boolean;
-  isMobile?:boolean;
+  isMobile?: boolean;
   onToggleMyGames?: () => void;
   currentUserId?: string;
 };
@@ -126,7 +126,7 @@ const ConversationReview = ({
             <ButtonGreen
               icon={showMyGames ? 'ChevronUpIcon' : 'ChevronDownIcon'}
               onClick={onToggleMyGames}
-               className="font-bold w-32  whitespace-nowrap"
+              className="font-bold w-32  whitespace-nowrap"
               // className="w-32 text-sm text-white py-[6px] rounded-[20px] transition-colors"
             >
               My Games
@@ -313,7 +313,7 @@ const ConversationReview = ({
                             className="bg-green-600  text-black font-bold mt-2 px-1 mr-2 whitespace-nowrap px-4"
                             style={{ color: 'black' }}
                           >
-                             {isMobile ? 'My opening?' : 'How was my opening?'}
+                            {isMobile ? 'My opening?' : 'How was my opening?'}
                           </ButtonGreen>
                         </div>
                       )}

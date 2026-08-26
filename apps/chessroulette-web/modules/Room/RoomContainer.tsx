@@ -62,7 +62,7 @@ export const RoomContainer = ({ iceServers, rid, activity }: Props) => {
     () => movexSubcribersToUserMap(movexResource?.subscribers || {}),
     [movexResource?.subscribers]
   );
-  
+
   const [challengeNotification, setChallengeNotification] = useState<{
     ch_uuid: string;
     challenger_name?: string;

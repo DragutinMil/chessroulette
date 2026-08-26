@@ -3,10 +3,36 @@ import { NextRequest, NextResponse } from 'next/server';
 // EEA + UK + Switzerland — countries where Google's "European regulations"
 // consent message applies. Ads are skipped entirely for these visitors.
 const EEA_COUNTRY_CODES = new Set([
-  'AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR', 'DE', 'GR',
-  'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'PL', 'PT', 'RO', 'SK',
-  'SI', 'ES', 'SE', // EU
-  'IS', 'LI', 'NO', // EEA (non-EU)
+  'AT',
+  'BE',
+  'BG',
+  'HR',
+  'CY',
+  'CZ',
+  'DK',
+  'EE',
+  'FI',
+  'FR',
+  'DE',
+  'GR',
+  'HU',
+  'IE',
+  'IT',
+  'LV',
+  'LT',
+  'LU',
+  'MT',
+  'NL',
+  'PL',
+  'PT',
+  'RO',
+  'SK',
+  'SI',
+  'ES',
+  'SE', // EU
+  'IS',
+  'LI',
+  'NO', // EEA (non-EU)
   'GB', // UK
   'CH', // Switzerland
 ]);

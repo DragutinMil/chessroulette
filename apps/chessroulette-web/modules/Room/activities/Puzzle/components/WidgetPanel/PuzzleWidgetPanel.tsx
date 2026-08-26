@@ -470,7 +470,6 @@ Unlock Unlimited Puzzles, Unlimited Game Reviews, and Unlimited AI Chat for just
         setTimeoutEnginePlay(true);
       }
     }, [currentChapterState.chessAiMode.mode]);
-    
 
     useEffect(() => {
       if (
@@ -739,7 +738,6 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
               participantId: 'chatGPT123456sales',
               idResponse: '',
             });
-            
           } else if (data?.answer?.text) {
             onMessage({
               content: data.answer.text,

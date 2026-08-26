@@ -299,7 +299,7 @@ const PuzzleScore = ({ chessAiMode, puzzle_rating, isTablet }: Props) => {
             <div className="relative">
               <span
                 key={value}
-                // className={`${styles.flipInner} ${flipping ? styles.flip : ''}`}
+                className={`${styles.flipInner} ${flipping ? styles.flip : ''}`}
               >
                 {value}
               </span>

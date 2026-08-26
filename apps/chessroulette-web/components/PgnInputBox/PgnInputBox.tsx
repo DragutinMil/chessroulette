@@ -165,7 +165,7 @@ export const PgnInputBox: React.FC<PgnInputBoxProps> = ({
           }}
         >
           <div className="border border-dashed border-slate-600 rounded-md cursor-pointer text-sm px-2 py-3 text-center text-gray-300">
-            Upload or drop a PGN  file
+            Upload or drop a PGN file
           </div>
         </DragAndDrop>
       </div>

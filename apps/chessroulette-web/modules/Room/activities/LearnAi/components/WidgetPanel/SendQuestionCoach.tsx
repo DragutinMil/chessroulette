@@ -25,7 +25,7 @@ export async function SendQuestionCoach(
 
   const piecesUserColor =
     currentChapterState.orientation == 'w' ? 'white' : 'black';
-console.log('piecesUserColor', piecesUserColor);
+  console.log('piecesUserColor', piecesUserColor);
   const question =
     'QUESTION:\n' +
     prompt +
