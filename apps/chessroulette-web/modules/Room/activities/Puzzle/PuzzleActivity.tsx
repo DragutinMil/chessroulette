@@ -147,7 +147,7 @@ export const PuzzleActivity = ({
               currentChapter={currentChapter}
             />
             <div className="scroll-overflow">
-              {currentChapter.chessAiMode.mode !== 'review' && (
+              {/* {currentChapter.chessAiMode.mode !== 'review' && (
                 <div
                   className={`block ${
                     !isMobile && !isTablet && 'md:hidden'
@@ -159,7 +159,7 @@ export const PuzzleActivity = ({
                     puzzle_rating={userData.puz_rating}
                   />
                 </div>
-              )}
+              )} */}
               <div
                 className={`${
                   isTablet && 'relative  mt-4 mb-4 flex justify-center'
