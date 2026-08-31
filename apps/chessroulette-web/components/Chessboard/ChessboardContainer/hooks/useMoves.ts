@@ -130,7 +130,8 @@ Props): MoveActions => {
       // If no pending move exists
 
       if (!currentMoves.pendingMove?.from) {
-        if (!isMyPiece) {
+        // prazno polje ne moze da pokrene potez, cak ni kad canMoveOpponentPieces dozvoljava tudju figuru
+        if (!piece || !isMyPiece) {
           return;
         }
 
