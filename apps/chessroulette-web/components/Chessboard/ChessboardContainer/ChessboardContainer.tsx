@@ -62,6 +62,8 @@ export type ChessboardContainerProps = Omit<
   onCircleDraw?: (circleTuple: CircleDrawTuple) => void;
   onClearCircles?: () => void;
   disableAnimations?: boolean;
+  // Dozvoljava klik-selekciju i tudje figure (review i ailearn) - drag&drop je to vec dozvoljavao preko onValidateMove
+  canMoveOpponentPieces?: boolean;
 
   overlayComponent?: React.ReactNode;
 } & (
@@ -117,6 +119,7 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
   // onChangePuzzleAnimation,
   overlayComponent,
   disableAnimations,
+  canMoveOpponentPieces,
   ...props
 }) => {
   const isMyTurn = boardOrientation === turn;
@@ -177,6 +180,7 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
     onPreMove: onMove,
     isSquareEmpty,
     botType,
+    canMoveOpponentPieces,
     // Event to reset the circles and arrows when any square is clicked or dragged
     // onSquareClickOrDrag: resetArrowsAndCircles,
   });
@@ -294,7 +298,7 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
   if (sizePx === 0) {
     return null;
   }
-  console.log(isMyTurn, preMove);
+ // console.log(isMyTurn, preMove);
   return (
     <div>
       {botId && (

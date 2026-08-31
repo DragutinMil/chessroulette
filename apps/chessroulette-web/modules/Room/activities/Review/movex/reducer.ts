@@ -791,7 +791,7 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
           : [...prev.activityState.chaptersMap[0].messages];
 
       const orient = action.payload.orientationChange;
-      console.log('orient', orient);
+      //console.log('orient', orient);
       if (!orient) {
         if (prev.activityState.chaptersMap[0].orientation == 'b') {
           const toOrientation = 'w';
