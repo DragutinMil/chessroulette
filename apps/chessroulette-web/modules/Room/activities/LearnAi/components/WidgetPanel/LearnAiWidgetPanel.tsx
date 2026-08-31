@@ -161,25 +161,6 @@ function buildArrowsFromUciMoves(
   return map;
 }
 
-// function buildArrowsFromFen(fen: string, count: number = 3): ArrowsMap {
-//   const map: ArrowsMap = {} as ArrowsMap;
-//   try {
-//     const chess = new Chess(fen);
-//     if (chess.isGameOver()) return map;
-//     const moves = chess.moves({ verbose: true }).slice(0, count);
-//     moves.forEach((m: { from: string; to: string }) => {
-//       const from = m.from as Square;
-//       const to = m.to as Square;
-//       const id = `${from}${to}-#07DA6380` as keyof ArrowsMap;
-//       map[id] = [from, to, '#07DA6380'];
-//     });
-//   } catch {
-//     // invalid FEN
-//   }
-//   return map;
-// }
-
-// import { generateGptResponse } from '../../../../../../server.js';
 
 type Props = {
   chaptersMap: Record<Chapter['id'], Chapter>;
@@ -1419,16 +1400,6 @@ Unlock Unlimited Puzzles, Unlimited Game Reviews, and Unlimited AI Chat for just
     };
     const playNext = async () => {};
 
-    // Stockfish only recomputes bestMove when displayFen changes (see its
-    // own [fen] effect) — it doesn't know/care that playVsBot just got
-    // flipped on. If the bot's move for the current position was already
-    // computed earlier (while playVsBot was still off), engineMove below
-    // would have bailed out on isKeepPlayingMode and never applied it, and
-    // nothing re-triggers it since bestMove itself never changes again for
-    // that same position. Track the latest computed move regardless, so it
-    // can be applied on demand once playVsBot turns on (see the effect
-    // below), instead of waiting for the user's own move to prompt a fresh
-    // engine search.
     const lastEngineMoveRef = useRef<string>('');
 
     const playEngineMove = useCallback(

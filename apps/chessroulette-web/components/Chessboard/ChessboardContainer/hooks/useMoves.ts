@@ -48,6 +48,8 @@ type Props = {
   onPreMove?: (m: ShortChessMove) => void;
   onValidateMove: (m: ShortChessMove) => boolean;
   botType?: string;
+  // dozvoljava klik-selekciju i tudje figure (review i ailearn), isto kao sto drag&drop vec radi preko onValidateMove
+  canMoveOpponentPieces?: boolean;
   // onValidatePromoMove: (m: ShortChessMove) => boolean;
   // onValidatePreMove: (m: ShortChessMove) => boolean;
   // onSquareClickOrDrag?: () => void;
@@ -62,6 +64,7 @@ export const useMoves = ({
   onValidateMove,
   isSquareEmpty,
   botType,
+  canMoveOpponentPieces,
 }: // onValidatePromoMove,
 // onValidatePreMove,
 // onSquareClickOrDrag,
@@ -119,7 +122,8 @@ Props): MoveActions => {
     }
     // console.log('clickdrag')
     const piece = pieceSan ? pieceSanToPiece(pieceSan) : undefined;
-    const isMyPiece = piece?.color === playingColor;
+    // u review/ailearn-u sme da se klikne i selektuje i tudja figura (isto kao drag&drop)
+    const isMyPiece = canMoveOpponentPieces || piece?.color === playingColor;
     const currentMoves = getCurrentMoves();
     // Handle regular moves during my turn
     if (isMyTurn && !currentMoves.preMove) {
