@@ -92,7 +92,7 @@ export const Playboard = ({
     },
     [canPlay, turn, fen, playingColor]
   );
-
+ 
   return (
     <ChessboardContainer
       {...props}
@@ -102,6 +102,7 @@ export const Playboard = ({
       fen={fen}
       boardOrientation={boardOrientation}
       boardTheme={boardTheme}
+      canMoveOpponentPieces={isReview || isLearnAi}
       onValidateMove={onValidateMove}
       // onValidatePromoMove={onValidatePromoMove}
       //  onValidatePreMove={onValidatePreMove}
