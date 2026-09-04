@@ -37,12 +37,16 @@ export async function checkUser(userId: string | undefined) {
   }
 }
 
-export async function sendResult() {
+export async function sendResult(userId?: string) {
   const parts = window.location.pathname.split('/');
   const match_id = parts[parts.length - 1];
+  const endpoint =
+    userId === 'czeKS1Q0JDSXJ' || userId === '8UWCweKl1Gvoi'
+      ? 'fetch_roulette_match_result_v2'
+      : 'fetch_roulette_match_result';
   try {
     const response = await fetch(
-      process.env.NEXT_PUBLIC_API_WEB + 'fetch_roulette_match_result',
+      process.env.NEXT_PUBLIC_API_WEB + endpoint,
       {
         method: 'POST',
         headers: {
