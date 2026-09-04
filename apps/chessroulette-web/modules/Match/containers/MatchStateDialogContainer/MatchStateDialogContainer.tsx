@@ -122,7 +122,7 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
       match?.status === 'complete'
     ) {
       // Send to grab result from chessroullette
-      sendResult();
+      sendResult(userId);
       if (match?.status === 'complete') {
         const reasons = [
           'Game ended in checkmate',
