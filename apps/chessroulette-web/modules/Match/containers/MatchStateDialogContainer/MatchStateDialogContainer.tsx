@@ -119,7 +119,8 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
   useEffect(() => {
     if (
       (match?.status === 'ongoing' && !activeBot) ||
-      match?.status === 'complete'
+      match?.status === 'complete' ||
+      match?.status === 'aborted'
     ) {
       // Send to grab result from chessroullette
       sendResult(userId);
