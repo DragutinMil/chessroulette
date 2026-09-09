@@ -76,6 +76,7 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
   const [lossStreakPaywallCopy, setLossStreakPaywallCopy] = useState({
     title: '',
     subtitle: '',
+    subtitlePro: '',
   });
 
   // const [matchId, setMatchId] = useState('');
@@ -119,7 +120,8 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
   useEffect(() => {
     if (
       (match?.status === 'ongoing' && !activeBot) ||
-      match?.status === 'complete'
+      match?.status === 'complete' ||
+      match?.status === 'aborted'
     ) {
       // Send to grab result from chessroullette
       sendResult(userId);
@@ -155,6 +157,7 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
                     ? `Every loss is a lesson ${name}`
                     : `Every loss is a lesson`,
                   subtitle: 'Let Outposty show you what went wrong',
+                  subtitlePro: '',
                 });
               } else if (streakCount === 4) {
                 setLossStreakPaywallCopy({
@@ -162,6 +165,7 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
                     ? `Five losses in a row ${name}`
                     : `Five losses in a row`,
                   subtitle: 'Your AI coach knows exactly why. Ask it.',
+                  subtitlePro: '',
                 });
               } else if (streakCount === 2) {
                 setLossStreakPaywallCopy({
@@ -169,6 +173,8 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
                     ? `Same mistake ${name}, third time`
                     : `Same mistake, third time`,
                   subtitle: 'Review your games and stop repeating mistakes',
+                  subtitlePro:
+                    'Learn openings and start your games with confidence',
                 });
               }
               setLossStreakPaywallVisible(true);
@@ -503,6 +509,7 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
           defaultPlan="starter"
           title={lossStreakPaywallCopy.title}
           subtitle={lossStreakPaywallCopy.subtitle}
+          subtitlePro={lossStreakPaywallCopy.subtitlePro}
         />
       </>
     );

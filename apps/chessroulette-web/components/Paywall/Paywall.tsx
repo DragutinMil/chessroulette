@@ -40,6 +40,7 @@ export type PaywallProps = {
   onClose: () => void;
   title?: string;
   subtitle?: string;
+  subtitlePro?: string;
   defaultPlan?: Plan;
 };
 
@@ -48,6 +49,7 @@ export const Paywall: React.FC<PaywallProps> = ({
   onClose,
   title = 'Start winning today',
   subtitle = 'Subscribe and learn new tricks now',
+  subtitlePro,
   defaultPlan = 'starter',
 }) => {
   const [plan, setPlan] = useState<Plan>(defaultPlan);
@@ -63,6 +65,8 @@ export const Paywall: React.FC<PaywallProps> = ({
   }, [visible, defaultPlan]);
 
   if (!visible) return null;
+
+  const displaySubtitle = plan === 'pro' && subtitlePro ? subtitlePro : subtitle;
 
   const pricing = PLAN_PRICING[plan];
   const savePercent = Math.round(
@@ -106,7 +110,7 @@ export const Paywall: React.FC<PaywallProps> = ({
             <div className="relative flex flex-col gap-5">
               <div className="text-center">
                 <h2 className="text-2xl font-bold text-white">{title}</h2>
-                <p className="mt-1 text-sm text-white-200">{subtitle}</p>
+                <p className="mt-1 text-sm text-white-200">{displaySubtitle}</p>
               </div>
 
               <div className="relative flex justify-center h-12">
