@@ -22,6 +22,7 @@ import type {
 } from '../../movex/types';
 import { CircleDrawTuple, ArrowsMap } from '@app/components/Chessboard/types';
 import { useIsTablet } from '@app/hooks/useIsTablet';
+import { useExtraBottomGap } from '@app/hooks/useExtraBottomGap';
 import Conversation from './Conversation';
 import PuzzleScore from './PuzzleScore';
 import { Square, Chess } from 'chess.js';
@@ -108,6 +109,8 @@ export const PuzzleWidgetPanel = React.forwardRef<TabsRef, Props>(
         navigator.userAgent.includes('OutpostChessApp/ios')
       );
     }, []);
+
+    const extraBottomGap = useExtraBottomGap();
 
     const [pulseDot, setPulseDot] = useState(false);
     // Mobile chat bubble → footer input (same pattern as Review)
@@ -920,15 +923,21 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
               id: 'notation',
               renderHeader: (p) => <div></div>,
               renderContent: () => (
-                // ovde ide pb-24
                 <div
                   className={`flex flex-col flex-1 gap-2 min-h-0 overflow-hidden md:overflow-scroll no-scrollbar md:pb-0 ${
                     isOutpostWebViewAndroid
                       ? 'pb-4'
                       : isOutpostWebViewIos
                       ? 'pb-0'
-                      : 'pb-24'
+                      : ''
                   }`}
+                  style={
+                    isMobile &&
+                    !isOutpostWebViewAndroid &&
+                    !isOutpostWebViewIos
+                      ? { paddingBottom:  extraBottomGap }
+                      : undefined
+                  }
                 >
                   <div
                     className={`flex-1 min-h-0 justify-between flex bg-op-widget flex-col border  border-conversation-100 pb-2 px-2 md:px-4 md:pb-4 rounded-lg

@@ -52,6 +52,7 @@ import {
 } from '../../util';
 import type { CompletedGameItem } from '../../util';
 import { useIsTablet } from '@app/hooks/useIsTablet';
+import { useExtraBottomGap } from '@app/hooks/useExtraBottomGap';
 import { ChessFENBoard } from '@xmatter/util-kit';
 
 // import { generateGptResponse } from '../../../../../../server.js';
@@ -196,6 +197,7 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
     const smallMobile =
       typeof window !== 'undefined' && window.innerWidth < 400;
     const { isMobile, isTablet } = useIsTablet();
+    const extraBottomGap = useExtraBottomGap();
 
     // Mobile's real scroll container is now mobileScrollRef, not
     // ConversationReview's own box — mirror its scroll-to-bottom here.
@@ -894,7 +896,7 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
               ? 'mb-4'
               : isOutpostWebViewIos
               ? 'mb-0'
-              : 'mb-24'
+              : ''
           }`}
           headerContainerClassName="flex gap-3"
           contentClassName="flex-1 flex min-h-0"
@@ -926,8 +928,15 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
                       ? 'pb-4'
                       : isOutpostWebViewIos
                       ? 'pb-0'
-                      : 'pb-0'
+                      : ''
                   }`}
+                  style={
+                    isMobile &&
+                    !isOutpostWebViewAndroid &&
+                    !isOutpostWebViewIos
+                      ? { paddingBottom: extraBottomGap }
+                      : undefined
+                  }
                 >
                   {/* {isMobile && (
                     <div

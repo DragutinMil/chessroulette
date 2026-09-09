@@ -42,6 +42,7 @@ import { ChaptersTab, ChaptersTabProps } from '../../chapters/ChaptersTab';
 import { useWidgetPanelTabsNavAsSearchParams } from '../useWidgetPanelTabsNav';
 import { SendQuestionCoach } from './SendQuestionCoach';
 import { useUpdateableSearchParams } from '@app/hooks/useSearchParams';
+import { useExtraBottomGap } from '@app/hooks/useExtraBottomGap';
 import { isProSubscription } from '@app/modules/User';
 
 import {
@@ -299,6 +300,7 @@ export const LearnAiWidgetPanel = React.forwardRef<TabsRef, Props>(
       setSmallMobile(window.innerWidth < 400);
       setIsMobile(window.innerWidth < 768);
     }, []);
+    const extraBottomGap = useExtraBottomGap();
     const [isOutpostWebViewAndroid, setIsOutpostWebViewAndroid] =
       useState(false);
     const [isOutpostWebViewIos, setIsOutpostWebViewIos] = useState(false);
@@ -1676,8 +1678,13 @@ Unlock Unlimited Puzzles, Unlimited Game Reviews, and Unlimited AI Chat for just
                 ? 'pb-4'
                 : isOutpostWebViewIos
                 ? 'pb-0'
-                : 'pb-24'
+                : ''
             }`}
+            style={
+              isMobile && !isOutpostWebViewAndroid && !isOutpostWebViewIos
+                ? { paddingBottom: extraBottomGap }
+                : undefined
+            }
           >
             {/* Buttons: order-1 on mobile (above conversation), order-2 on desktop (below conversation) */}
             <div className="flex order-1 md:order-2 gap-3 flex-shrink-0 pt-2 pb-2 md:my-[20px] justify-around sticky top-[-4px] z-10 bg-op-widget">
