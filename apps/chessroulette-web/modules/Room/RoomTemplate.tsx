@@ -76,7 +76,7 @@ export const RoomTemplate = (props: Props) => {
             props.activity === 'ailearn'
               ? 'md:hidden'
               : 'md:block'
-          } 
+          }
          hidden  bg-indigo-1300 flex-0 flex flex-col p-2 `}
       >
         <OnboardingWidget session={props.session} />
