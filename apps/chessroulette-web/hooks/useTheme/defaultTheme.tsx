@@ -87,13 +87,13 @@ const outpostTheme: Theme = {
 
     lightSquare: 'rgb(240, 217, 181)',
     arrowColors: ['#11c6d1', '#f2358d', '#6f7381'],
-    lastMoveToSquare: 'rgba(95, 15, 15, .6)',
-    lastMoveFromSquare: 'rgba(95, 15, 15, .6)',
+    lastMoveToSquare: 'rgba(155, 199, 0, .41)',
+    lastMoveFromSquare: 'rgba(155, 199, 0, .41)',
     preMoveFromSquare: 'rgba(21, 183, 155, .5)',
     preMoveToSquare: 'rgba(21, 183, 155, .5)',
     hoveredSquare: 'rgb(216,181,143)',
     // hoveredSquare: 'rgba(134, 583, 255, .5)', //malo tamnija rgba(225, 195, 170, 1)
-    clickedPieceSquare: 'rgba(134, 583, 255, .5)',
+    clickedPieceSquare: 'rgba(134, 255, 255, .5)',
     renderPiece: regularPieceTheme.renderPiece,
     // customPieces: regularPieceTheme.getCustomPieces(),
   },
