@@ -10,6 +10,7 @@ import {
 import { RowItem } from './RowItem';
 import { IconProps, Icon } from '../../Icon/Icon';
 import { MouseEvent } from 'react';
+import { MOVE_THRESHOLDS } from '@app/modules/Room/activities/Review/util';
 
 type Props = {
   rootHistoryIndex: FBHIndex;
@@ -68,15 +69,16 @@ export const HistoryMove = ({
       ? '⚡'
       : '';
 
+  // isti pragovi koje koristi i statistika partije (reviewAnalitics)
   const iconic = isOpening
     ? ''
-    : evalDiff <= -6
+    : evalDiff <= -MOVE_THRESHOLDS.blunder
     ? '❌'
-    : evalDiff <= -1.3
+    : evalDiff <= -MOVE_THRESHOLDS.badMove
     ? '⬇️'
-    : evalDiff > -1.29 && evalDiff < 0.24
+    : evalDiff < MOVE_THRESHOLDS.goodMoveMin
     ? ''
-    : evalDiff < 1
+    : evalDiff <= MOVE_THRESHOLDS.goodMoveMax
     ? '✅'
     : '✅✅';
 
@@ -86,7 +88,7 @@ export const HistoryMove = ({
     moveCoplete = `${move.san}`;
   } else if (iconicEngine !== '' && bestMoves.length < 2) {
     moveCoplete = `${move.san} ${iconicEngine}`;
-  } else if (evalDiff < -0.5 && iconicEngine !== '') {
+  } else if (evalDiff < -MOVE_THRESHOLDS.hideEngineIcon && iconicEngine !== '') {
     moveCoplete = `${move.san} ${iconic}`;
   } else if (evalDiff && iconicEngine !== '') {
     moveCoplete = `${move.san} ${iconic} ${iconicEngine}`;

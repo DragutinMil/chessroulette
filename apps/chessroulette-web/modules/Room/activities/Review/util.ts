@@ -66,6 +66,23 @@ export const normalizeRatios = (r: Ratios): Ratios => {
 
 // GAME REVIEW
 
+// Pragovi za klasifikaciju poteza, u pešacima (promena ocene između dve pozicije).
+// Snizeni na 70% od prvobitnih (6 / 1.3 / 0.25 / 1) jer Stockfish 18 daje drugacije
+// ocene od 16 - ista promena na tabli sada nosi manji broj.
+// Koristi ih i HistoryMove.tsx za ikonice uz poteze - jedno mesto, da statistika
+// i notacija ne mogu da se raziđu.
+export const MOVE_THRESHOLDS = {
+  blunder: 4.0,
+  badMove: 0.9,
+  goodMoveMin: 0.18,
+  goodMoveMax: 0.7,
+  // ispod ovog pada uz potez stoji samo oznaka kvaliteta, bez oznake engine linije
+  hideEngineIcon: 0.35,
+};
+
+// prvih 6 poluporeza (otvaranje) se ne ocenjuje
+const OPENING_PLIES = 6;
+
 export const reviewAnalitics = (moves: EvaluationMove[]) => {
   const stats = {
     white: {
@@ -91,24 +108,23 @@ export const reviewAnalitics = (moves: EvaluationMove[]) => {
   let prevBestMoves: string[] | null = null;
 
   moves.forEach((m) => {
-    const isOpening = m.moveCalc <= 6;
+    const isOpening = m.moveCalc <= OPENING_PLIES;
 
     if (!isOpening) {
-      const colorStats = m.moveCalc % 2 !== 0 ? stats.white : stats.black;
-      const diff = Number(m.diff);
+      const isWhite = m.moveCalc % 2 !== 0;
+      const colorStats = isWhite ? stats.white : stats.black;
 
-      // Diff evaluacija
-      if (m.moveCalc % 2 !== 0) {
-        if (diff < -6) colorStats.blunders++;
-        else if (diff <= -1.3) colorStats.badMoves++;
-        else if (diff > 0.25 && diff <= 1) colorStats.goodMoves++;
-        else if (diff > 1) colorStats.excellentMoves++;
-      } else {
-        if (diff > 6) colorStats.blunders++;
-        else if (diff >= 1.3) colorStats.badMoves++;
-        else if (diff < -0.25 && diff >= -1) colorStats.goodMoves++;
-        else if (diff < -1) colorStats.excellentMoves++;
-      }
+      // diff je iz ugla belog - za crnog se okrene, pa pragovi ostaju isti za obe boje
+      const diff = isWhite ? Number(m.diff) : -Number(m.diff);
+
+      if (diff < -MOVE_THRESHOLDS.blunder) colorStats.blunders++;
+      else if (diff <= -MOVE_THRESHOLDS.badMove) colorStats.badMoves++;
+      else if (
+        diff > MOVE_THRESHOLDS.goodMoveMin &&
+        diff <= MOVE_THRESHOLDS.goodMoveMax
+      )
+        colorStats.goodMoves++;
+      else if (diff > MOVE_THRESHOLDS.goodMoveMax) colorStats.excellentMoves++;
 
       // Stockfish linije iz prethodnog poteza
       if (prevBestMoves) {

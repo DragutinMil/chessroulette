@@ -132,10 +132,10 @@ function getEvaluation(worker, fen, isMobile) {
         const parts = fen.split(' ');
         bestEval = parts[1] === 'w' ? -50000 : 50000;
       }
-      if (
-        (isMobile && line.startsWith('info depth 9')) ||
-        (!isMobile && line.startsWith('info depth 10'))
-      ) {
+      // ne cekamo tacan broj dubine (bio je zakucan na go depth 9/10 i pucao cim se
+      // go depth promeni na npr. 12/15 bez rucnog usklajivanja ovde) - hvatamo svaki
+      // scored info red, najdublji koji stigne pre bestmove je taj koji ostaje
+      if (line.startsWith('info depth') && line.includes('score')) {
         const scoreMatch = line.match(/score (cp|mate) (-?\d+)/);
         const multipvMatch = line.match(/multipv (\d+) .+ pv (.+)/);
 
@@ -196,7 +196,7 @@ function getEvaluation(worker, fen, isMobile) {
     //worker.postMessage('ucinewgame');
     worker.postMessage(`position fen ${fen}`);
     isMobile
-      ? worker.postMessage(`go depth 9`)
-      : worker.postMessage(`go depth 10`);
+      ? worker.postMessage(`go depth 10`)
+      : worker.postMessage(`go depth 11`);
   });
 }
