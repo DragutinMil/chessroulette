@@ -92,7 +92,7 @@ export const Playboard = ({
     },
     [canPlay, turn, fen, playingColor]
   );
- 
+
   return (
     <ChessboardContainer
       {...props}

@@ -3,6 +3,7 @@ import * as LearnActivity from '../Learn/movex';
 import * as MeetupActivity from '../Meetup/movex';
 import * as MatchActivity from '../Match/movex';
 import * as LearnAiActivity from '../LearnAi/movex';
+import * as DailyLessonActivity from '../DailyLesson/movex';
 import * as PuzzleActivity from '../Puzzle/movex';
 import * as ReviewActivity from '../Review/movex';
 
@@ -11,6 +12,7 @@ export const roomActivityReducer = composeReducers(
   MeetupActivity.reducer,
   MatchActivity.reducer,
   LearnAiActivity.reducer,
+  DailyLessonActivity.reducer,
   PuzzleActivity.reducer,
   ReviewActivity.reducer
 );

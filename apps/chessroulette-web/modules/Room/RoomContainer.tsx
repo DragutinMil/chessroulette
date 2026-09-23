@@ -24,6 +24,7 @@ import { PeerStreamingProvider } from '@app/modules/PeerToPeer';
 import { ActivityState } from './activities/movex';
 import { LearnActivity } from './activities/Learn';
 import { LearnAiActivity } from './activities/LearnAi/LearnAiActivity';
+import { DailyLessonActivity } from './activities/DailyLesson/DailyLessonActivity';
 import { PuzzleActivity } from './activities/Puzzle/PuzzleActivity';
 import { ReviewActivity } from './activities/Review/ReviewActivity';
 import { MeetupActivity } from './activities/Meetup/MeetupActivity';
@@ -285,6 +286,15 @@ export const RoomContainer = ({ iceServers, rid, activity }: Props) => {
     if (activity.activityType === 'ailearn') {
       return (
         <LearnAiActivity
+          {...commonActivityProps}
+          remoteState={activity.activityState}
+          dispatch={movexResource?.dispatch}
+        />
+      );
+    }
+    if (activity.activityType === 'dailylesson') {
+      return (
+        <DailyLessonActivity
           {...commonActivityProps}
           remoteState={activity.activityState}
           dispatch={movexResource?.dispatch}

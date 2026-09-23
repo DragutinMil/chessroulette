@@ -932,10 +932,8 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
                       : ''
                   }`}
                   style={
-                    isMobile &&
-                    !isOutpostWebViewAndroid &&
-                    !isOutpostWebViewIos
-                      ? { paddingBottom:  extraBottomGap }
+                    isMobile && !isOutpostWebViewAndroid && !isOutpostWebViewIos
+                      ? { paddingBottom: extraBottomGap }
                       : undefined
                   }
                 >

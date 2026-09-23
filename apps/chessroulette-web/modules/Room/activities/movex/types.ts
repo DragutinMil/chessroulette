@@ -1,5 +1,9 @@
 import type { LearnActivityState, LearnActivityActions } from '../Learn/movex';
 import { LearnAiActivityState, LearnAiActivityActions } from '../LearnAi/movex';
+import {
+  DailyLessonActivityState,
+  DailyLessonActivityActions,
+} from '../DailyLesson/movex';
 import { PuzzleActivityState, PuzzleActivityActions } from '../Puzzle/movex';
 import { ReviewActivityState, ReviewActivityActions } from '../Review/movex';
 import type {
@@ -19,6 +23,7 @@ export type ActivityState =
   | NoneActivityState
   | MatchActivityState
   | LearnAiActivityState
+  | DailyLessonActivityState
   | ReviewActivityState
   | PuzzleActivityState;
 
@@ -28,4 +33,5 @@ export type ActivityActions =
   | MatchActivityActions
   | ReviewActivityActions
   | LearnAiActivityActions
+  | DailyLessonActivityActions
   | PuzzleActivityActions;
