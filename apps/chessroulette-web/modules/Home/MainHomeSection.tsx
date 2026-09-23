@@ -80,6 +80,11 @@ export const MainHomeSection: React.FC<Props> = ({ className }) => {
                 AI
               </Button>
             </Link>
+            <Link href="/lessons">
+              <Button type="primary" className="font-bold w-full">
+                Lessons
+              </Button>
+            </Link>
           </div>
         </div>
         <Image

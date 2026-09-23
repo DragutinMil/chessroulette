@@ -162,7 +162,6 @@ function buildArrowsFromUciMoves(
   return map;
 }
 
-
 type Props = {
   chaptersMap: Record<Chapter['id'], Chapter>;
   chaptersMapIndex: number;

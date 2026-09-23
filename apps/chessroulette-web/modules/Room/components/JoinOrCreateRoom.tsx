@@ -14,6 +14,7 @@ import { generateUserId, getRandomStr } from '@app/util';
 import { useUpdateableSearchParams } from '@app/hooks/useSearchParams';
 import { logsy } from '@app/lib/Logsy';
 import { createMatchState } from '@app/modules/Match/movex';
+import { createDailyLessonActivityState } from '../activities/DailyLesson/movex';
 import { RoomState, initialRoomState } from '../movex';
 import { links } from '../links';
 import { initialActivityStatesByActivityType } from '../activities/movex';
@@ -87,6 +88,12 @@ export const JoinOrCreateRoom: React.FC<Props> = ({
               activityType: 'match',
               activityState: createMatchState(activityParams),
             },
+          };
+        }
+        if (activityParams.activity === 'dailylesson') {
+          return {
+            ...initialRoomState,
+            activity: createDailyLessonActivityState(activityParams.lessonId),
           };
         }
         if (activityParams.activity === 'meetup') {

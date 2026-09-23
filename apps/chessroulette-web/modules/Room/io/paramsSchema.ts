@@ -29,6 +29,13 @@ export const learnAiActivityParamsSchema = z.object({
   activity: z.literal('ailearn'), // This will be more in the future like play or others
   instructor: truthyParam.optional(),
 });
+export const dailyLessonActivityParamsSchema = z.object({
+  activity: z.literal('dailylesson'),
+  instructor: truthyParam.optional(),
+  // Koji lesson iz LESSON_DATABASE da se ucita pri kreiranju sobe - videti
+  // createDailyLessonActivityState u DailyLesson/movex/state.ts
+  lessonId: z.string().optional(),
+});
 export const puzzleActivityParamsSchema = z.object({
   activity: z.literal('puzzle'), // This will be more in the future like play or others
   instructor: truthyParam.optional(),
@@ -52,6 +59,7 @@ export const activityParamsSchema = z
     meetupActivityParamsSchema,
     matchActivityParamsSchema,
     learnAiActivityParamsSchema,
+    dailyLessonActivityParamsSchema,
     puzzleActivityParamsSchema,
     reviewActivityParamsSchema,
   ])

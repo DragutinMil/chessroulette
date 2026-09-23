@@ -88,7 +88,10 @@ export const HistoryMove = ({
     moveCoplete = `${move.san}`;
   } else if (iconicEngine !== '' && bestMoves.length < 2) {
     moveCoplete = `${move.san} ${iconicEngine}`;
-  } else if (evalDiff < -MOVE_THRESHOLDS.hideEngineIcon && iconicEngine !== '') {
+  } else if (
+    evalDiff < -MOVE_THRESHOLDS.hideEngineIcon &&
+    iconicEngine !== ''
+  ) {
     moveCoplete = `${move.san} ${iconic}`;
   } else if (evalDiff && iconicEngine !== '') {
     moveCoplete = `${move.san} ${iconic} ${iconicEngine}`;

@@ -2,6 +2,7 @@ import { initialLearnActivityState } from '../Learn/movex';
 import { initialMatchActivityState } from '../Match/movex';
 import { initialMeetupActivityState } from '../Meetup/movex';
 import { initialLearnAiActivityState } from '../LearnAi/movex';
+import { initialDailyLessonActivityState } from '../DailyLesson/movex';
 import { initialPuzzleActivityState } from '../Puzzle/movex';
 import { initialReviewActivityState } from '../Review/movex';
 import { ActivityState } from './types';
@@ -24,6 +25,7 @@ export const initialActivityStatesByActivityType: {
   meetup: initialMeetupActivityState,
   match: initialMatchActivityState,
   ailearn: initialLearnAiActivityState,
+  dailylesson: initialDailyLessonActivityState,
   puzzle: initialPuzzleActivityState,
   review: initialReviewActivityState,
 };

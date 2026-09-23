@@ -55,7 +55,10 @@ export function GET(request: NextRequest) {
     });
   }
 
-  if (activityParams.activity === 'ailearn') {
+  if (
+    activityParams.activity === 'ailearn' ||
+    activityParams.activity === 'dailylesson'
+  ) {
     const instructor = links.getOnDemandRoomCreationLink(
       {
         ...objectOmit(activityParams, ['client']),
