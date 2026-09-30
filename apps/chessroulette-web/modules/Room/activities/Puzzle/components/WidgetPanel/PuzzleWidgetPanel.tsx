@@ -924,7 +924,7 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
               renderHeader: (p) => <div></div>,
               renderContent: () => (
                 <div
-                  className={`flex flex-col flex-1 gap-2 min-h-0 overflow-hidden md:overflow-scroll no-scrollbar md:pb-0 ${
+                  className={`flex flex-col flex-1 gap-2 min-h-0 overflow-hidden no-scrollbar md:pb-0 ${
                     isOutpostWebViewAndroid
                       ? 'pb-4'
                       : isOutpostWebViewIos
@@ -932,20 +932,18 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
                       : ''
                   }`}
                   style={
-                    isMobile &&
-                    !isOutpostWebViewAndroid &&
-                    !isOutpostWebViewIos
-                      ? { paddingBottom:  extraBottomGap }
+                    isMobile && !isOutpostWebViewAndroid && !isOutpostWebViewIos
+                      ? { paddingBottom: extraBottomGap }
                       : undefined
                   }
                 >
                   <div
-                    className={`flex-1 min-h-0 justify-between flex bg-op-widget flex-col border  border-conversation-100 pb-2 px-2 md:px-4 md:pb-4 rounded-lg
+                    className={`flex-1 min-h-0  md:flex-[3] justify-between flex bg-op-widget flex-col border  border-conversation-100 pb-2 px-2 md:px-4 md:pb-4 rounded-lg
 
                   ${isMobile ? 'mb-2' : ''}
                   `}
                   >
-                    <div className="mt-4  flex flex-col justify-between  h-full flex-1 min-h-0 md:flex-none md:max-h-[355px] md:min-h-[240px] ">
+                    <div className="mt-4  flex flex-col justify-between  h-full flex-1 min-h-0 md:flex-1 ">
                       {!isMobile && !isTablet && (
                         <Conversation
                           currentChapterState={currentChapterState}
@@ -1196,16 +1194,11 @@ Your opening move to mastering chess begins now — make it count! 🚀`,
                       style={{
                         backgroundImage:
                           'radial-gradient(61.84% 61.84% at 50% 131.62%, rgba(5, 135, 44, 0.2) 0%, #01210B 100%)',
-                        height: isMobile
-                          ? 'calc(100% - 600px)'
-                          : 'calc(100% - 570px)',
-
-                        minHeight: isMobile ? '52px' : '202px',
                       }}
                       className={`
-                   
-                      
-                     overflow-x-auto md:overflow-x-hidden  md:flex rounded-lg md:mb-0 mb-4 border border-conversation-100 md:p-4 p-2 overflow-scroll no-scrollbar 
+                   flex-[2] min-h-[90px]
+
+                     overflow-x-auto md:overflow-x-hidden  md:flex rounded-lg md:mb-0 mb-4 border border-conversation-100 md:p-4 p-2 overflow-scroll no-scrollbar
                     `}
                     >
                       <FreeBoardNotation

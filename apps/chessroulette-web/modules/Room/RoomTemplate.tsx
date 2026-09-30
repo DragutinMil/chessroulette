@@ -73,7 +73,8 @@ export const RoomTemplate = (props: Props) => {
             props.activity === 'match' ||
             props.activity === 'review' ||
             props.activity === 'puzzle' ||
-            props.activity === 'ailearn'
+            props.activity === 'ailearn' ||
+            props.activity === 'dailylesson'
               ? 'md:hidden'
               : 'md:block'
           }

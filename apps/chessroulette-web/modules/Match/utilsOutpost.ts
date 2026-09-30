@@ -45,18 +45,15 @@ export async function sendResult(userId?: string) {
       ? 'fetch_roulette_match_result_v2'
       : 'fetch_roulette_match_result';
   try {
-    const response = await fetch(
-      process.env.NEXT_PUBLIC_API_WEB + endpoint,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          match_id: match_id, //match_id
-        }),
-      }
-    );
+    const response = await fetch(process.env.NEXT_PUBLIC_API_WEB + endpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        match_id: match_id, //match_id
+      }),
+    });
     if (!response.ok) {
       throw new Error(`Error: ${response.status}`);
     }

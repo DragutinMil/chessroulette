@@ -164,7 +164,9 @@ export const PuzzleActivity = ({
                 // key menja se tacno kad tabla prvi put dobije stvarnu velicinu (0 -> merena
                 // vrednost), sto forsira svez DOM mount i pusta animate-fadeIn bas u tom trenutku
                 // - umesto da se tabla naglo "pojavi"/poskoci kad ResizableDesktopLayout izmeri kontejner
-                key={boardSize > 0 ? 'puzzle-board-ready' : 'puzzle-board-loading'}
+                key={
+                  boardSize > 0 ? 'puzzle-board-ready' : 'puzzle-board-loading'
+                }
                 className={`${
                   isTablet && 'relative  mt-4 mb-4 flex justify-center'
                 } ${boardSize > 0 ? 'animate-fadeIn' : ''} `}

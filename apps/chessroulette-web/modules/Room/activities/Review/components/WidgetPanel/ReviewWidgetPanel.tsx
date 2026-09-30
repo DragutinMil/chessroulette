@@ -892,11 +892,7 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
 
         <Tabs
           containerClassName={`flex flex-col flex-1 min-h-0 rounded-lg shadow-2xl md:mb-0 ${
-            isOutpostWebViewAndroid
-              ? 'mb-4'
-              : isOutpostWebViewIos
-              ? 'mb-0'
-              : ''
+            isOutpostWebViewAndroid ? 'mb-4' : isOutpostWebViewIos ? 'mb-0' : ''
           }`}
           headerContainerClassName="flex gap-3"
           contentClassName="flex-1 flex min-h-0"
@@ -931,9 +927,7 @@ export const ReviewWidgetPanel = React.forwardRef<TabsRef, Props>(
                       : ''
                   }`}
                   style={
-                    isMobile &&
-                    !isOutpostWebViewAndroid &&
-                    !isOutpostWebViewIos
+                    isMobile && !isOutpostWebViewAndroid && !isOutpostWebViewIos
                       ? { paddingBottom: extraBottomGap }
                       : undefined
                   }

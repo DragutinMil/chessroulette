@@ -64,6 +64,11 @@ export type ChessboardContainerProps = Omit<
   disableAnimations?: boolean;
   // Dozvoljava klik-selekciju i tudje figure (review i ailearn) - drag&drop je to vec dozvoljavao preko onValidateMove
   canMoveOpponentPieces?: boolean;
+  // Mala tackica na sredini polja - npr. "ovde ova figura moze da ode" hint
+  // (DailyLesson koristi za "kako se krece ova figura" umesto strelica)
+  hintSquares?: Square[];
+  // Blagi highlight na polju figure na koju se hint odnosi - "ovu figuru pomeri"
+  hintFromSquare?: Square;
 
   overlayComponent?: React.ReactNode;
 } & (
@@ -120,6 +125,8 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
   overlayComponent,
   disableAnimations,
   canMoveOpponentPieces,
+  hintSquares,
+  hintFromSquare,
   ...props
 }) => {
   const isMyTurn = boardOrientation === turn;
@@ -205,6 +212,8 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
     preMove,
     circlesMap,
     isMyTurn,
+    hintSquares,
+    hintFromSquare,
     ...props,
   });
   useEffect(() => {
@@ -259,7 +268,12 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
               min = 600;
               max = 1300;
             }
-            // Bullet
+            // 1+0 i 1+1 - samo 60s ukupno, pa bot pada na vreme sa sporijim bullet delayom
+            else if (timeClass === 'bullet' || timeClass === 'bulletplus1') {
+              min = 600;
+              max = 1300;
+            }
+            // Bullet (2+0, 2+1)
             else if (timeClass.includes('bullet')) {
               min = 600;
               max = 3000;
@@ -298,7 +312,7 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
   if (sizePx === 0) {
     return null;
   }
- // console.log(isMyTurn, preMove);
+  // console.log(isMyTurn, preMove);
   return (
     <div>
       {botId && (

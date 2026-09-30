@@ -5,6 +5,7 @@ import { useLearnActivitySettings } from '../activities/Learn';
 import { usePuzzleActivitySettings } from '../activities/Puzzle';
 import { useReviewActivitySettings } from '../activities/Review';
 import { useLearnAiActivitySettings } from '../activities/LearnAi';
+import { useDailyLessonActivitySettings } from '../activities/DailyLesson';
 import { ActivityState } from '../activities/movex';
 import { invoke } from '@xmatter/util-kit';
 import { useMeetupActivitySettings } from '../activities/Meetup/useMeetupActivitySettings';
@@ -26,6 +27,7 @@ export const useRoomSettings = (
   const learnActivitySettings = useLearnActivitySettings();
   const meetupActivitySettings = useMeetupActivitySettings();
   const learnAiActivitySettings = useLearnAiActivitySettings();
+  const dailyLessonActivitySettings = useDailyLessonActivitySettings();
   const puzzleActivitySettings = usePuzzleActivitySettings();
   const reviewActivitySettings = useReviewActivitySettings();
 
@@ -36,6 +38,9 @@ export const useRoomSettings = (
 
     if (activity === 'ailearn') {
       return learnAiActivitySettings;
+    }
+    if (activity === 'dailylesson') {
+      return dailyLessonActivitySettings;
     }
     if (activity === 'puzzle') {
       return puzzleActivitySettings;

@@ -66,7 +66,8 @@ export const Paywall: React.FC<PaywallProps> = ({
 
   if (!visible) return null;
 
-  const displaySubtitle = plan === 'pro' && subtitlePro ? subtitlePro : subtitle;
+  const displaySubtitle =
+    plan === 'pro' && subtitlePro ? subtitlePro : subtitle;
 
   const pricing = PLAN_PRICING[plan];
   const savePercent = Math.round(

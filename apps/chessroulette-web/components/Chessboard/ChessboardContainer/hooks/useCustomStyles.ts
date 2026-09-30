@@ -21,6 +21,8 @@ export const useCustomStyles = ({
   circlesMap,
   isMyTurn,
   hoveredSquare,
+  hintSquares,
+  hintFromSquare,
 }: {
   boardTheme: BoardTheme;
   fen: ChessFEN;
@@ -30,6 +32,8 @@ export const useCustomStyles = ({
   circlesMap?: CirclesMap;
   isMyTurn?: boolean;
   hoveredSquare?: Square;
+  hintSquares?: Square[];
+  hintFromSquare?: Square;
 }) => {
   const inCheckSquares = useMemo(() => getInCheckSquareMap(fen), [fen]);
 
@@ -114,6 +118,26 @@ export const useCustomStyles = ({
       }),
     };
 
+    // Mala tackica na sredini polja - "ovde ova figura moze da ode" (npr.
+    // DailyLesson-ov "wrong move" hint, umesto strelica).
+    const hintDotStyles = hintSquares?.length
+      ? toDictIndexedBy(
+          hintSquares,
+          (sq) => sq,
+          () => ({
+            backgroundImage:
+              'radial-gradient(circle, rgba(7,218,99,0.65) 22%, transparent 23%)',
+          })
+        )
+      : {};
+
+    // Blagi highlight na polju figure na koju se hint odnosi - "ovu figuru pomeri".
+    const hintFromStyles = hintFromSquare && {
+      [hintFromSquare]: {
+        background: 'rgba(7,218,99,0.28)',
+      },
+    };
+
     return deepmerge(
       lastMoveStyles || {},
       circledStyles || {},
@@ -121,7 +145,9 @@ export const useCustomStyles = ({
 
       pendingStyles || {},
       hoveredStyles || {},
-      premoveStyles || {}
+      premoveStyles || {},
+      hintFromStyles || {},
+      hintDotStyles
     );
   }, [
     lastMove,
@@ -132,6 +158,8 @@ export const useCustomStyles = ({
     pendingMove?.from,
     isMyTurn,
     preMove,
+    hintSquares,
+    hintFromSquare,
   ]);
 
   return useMemo(
