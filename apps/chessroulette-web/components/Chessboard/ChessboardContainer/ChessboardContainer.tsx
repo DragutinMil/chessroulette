@@ -268,7 +268,12 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
               min = 600;
               max = 1300;
             }
-            // Bullet
+            // 1+0 i 1+1 - samo 60s ukupno, pa bot pada na vreme sa sporijim bullet delayom
+            else if (timeClass === 'bullet' || timeClass === 'bulletplus1') {
+              min = 600;
+              max = 1300;
+            }
+            // Bullet (2+0, 2+1)
             else if (timeClass.includes('bullet')) {
               min = 600;
               max = 3000;
