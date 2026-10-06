@@ -77,20 +77,20 @@ const StockfishEngine: React.FC<StockfishEngineProps> = ({
           baseContempt = 0;
         } else if (bot == '9aEXYS0xwZS21000') {
           baseDepth = 3;
-          baseSkill = 6;
+          baseSkill = 5;
           baseContempt = 5;
         } else if (bot == 'fH0667J9nJ1Ez000') {
           baseDepth = 4;
           baseSkill = 3;
           baseContempt = 4;
         } else if (bot == '-BihTlRZ-SKTL000') {
-          baseDepth = 6;
+          baseDepth = 5;
           baseSkill = 6;
           baseContempt = 8;
         } else if (bot == 'Pjdw8gu5kpiRk000') {
           baseDepth = 6;
-          baseSkill = 9;
-          baseContempt = 9;
+          baseSkill = 8;
+          baseContempt = 6;
         }
         getFinalSkill(baseDepth, baseSkill, baseContempt);
       }
@@ -211,15 +211,15 @@ const StockfishEngine: React.FC<StockfishEngineProps> = ({
       baseDepth = 7;
       baseSkill = 8;
       baseContempt = 10;
-    } else if (userRating > 1300) {
+    } else if (userRating > 1500) {
       baseDepth = 3;
       baseSkill = 5;
       baseContempt = 5;
-    } else if (userRating > 1200) {
+    } else if (userRating > 1400) {
       baseDepth = 2;
       baseSkill = 3;
       baseContempt = 5;
-    } else if (userRating > 1100) {
+    } else if (userRating > 1300) {
       baseDepth = 0;
       baseSkill = 1;
       baseContempt = 4;
@@ -237,7 +237,10 @@ const StockfishEngine: React.FC<StockfishEngineProps> = ({
     baseContempt: number
   ) => {
     const randomize = (value: number, delta = 2, min = 0, max = 20) => {
-      const rnd = Math.floor(Math.random() * (delta * 2 + 1)) - delta; // -delta .. +delta
+      const magnitude = Math.floor(Math.random() * delta) + 1; // 1 .. delta
+      const roll = Math.random();
+      // cesce smanjuje nego sto povecava: ~60% nadole, ~25% isto, ~15% nagore
+      const rnd = roll < 0.6 ? -magnitude : roll < 0.85 ? 0 : magnitude;
       const v = value + rnd;
       return Math.max(min, Math.min(max, v));
     };
