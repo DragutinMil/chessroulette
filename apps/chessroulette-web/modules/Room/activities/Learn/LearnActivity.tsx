@@ -182,11 +182,13 @@ export const LearnActivity = ({
               <PeerToPeerCameraWidget/>
             </div>
           )} */}
+          {/* kamera privremeno iskljucena - vidi config.CAMERA_ON
           {!cameraOff && (
             <div className="overflow-hidden rounded-lg shadow-2xl">
               <PeerToPeerCameraWidget />
             </div>
           )}
+          */}
           {inputState.isActive ? (
             <div className="flex gap-2">
               <span className="capitalize">Editing</span>

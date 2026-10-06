@@ -467,10 +467,22 @@ const MatchContainerInner = ({
                         />
                       )}
 
+                    {/* slika bota - ostaje i dok je kamera iskljucena */}
+                    {!!activeBot &&
+                      activeBot?.botType !== 'botelja' &&
+                      activeBot?.botType !== 'matchFake' &&
+                      isPlayer &&
+                      !isMobile && (
+                        <div className="hidden md:block absolute z-20 inset-0 w-full h-full z-[51] rounded-lg overflow-hidden">
+                          <PeerToPeerCameraWidget activeBot={activeBot} />
+                        </div>
+                      )}
+
+                    {/* kamera igraca privremeno iskljucena - vidi config.CAMERA_ON
                     <div
                       className={`
                       hidden md:block absolute z-20  cursor-pointer transition-all duration-300 ease-in-out
-                      rounded-lg  overflow-hidden 
+                      rounded-lg  overflow-hidden
                       ${
                         cameraExpanded ||
                         (activeBot &&
@@ -527,10 +539,12 @@ const MatchContainerInner = ({
                           </div>
                         )}
                     </div>
+                    */}
                   </div>
                 ) : !isPlayer ? (
                   <div>
-                    <PeerToPeerCameraWidget />
+                    {/* kamera gledaoca privremeno iskljucena - vidi config.CAMERA_ON */}
+                    {/* <PeerToPeerCameraWidget /> */}
                   </div>
                 ) : (
                   // classic bot players

@@ -22,7 +22,9 @@ const ENGINE_URL = process.env.NEXT_PUBLIC_ENGINE_URL as string;
 const SENTRY_DSN = process.env.NEXT_PUBLIC_SENTRY_DSN as string | undefined;
 
 // App
-const CAMERA_ON = process.env.NEXT_PUBLIC_CAMERA_ON === 'true' || !DEBUG_MODE;
+// kamera privremeno iskljucena - gasi PeerToPeerProvider, signaling i getUserMedia
+const CAMERA_ON = false;
+// const CAMERA_ON = process.env.NEXT_PUBLIC_CAMERA_ON === 'true' || !DEBUG_MODE;
 
 const RELEASE_VERSION =
   (process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA || '').slice(0, 7) || '';
