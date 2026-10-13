@@ -106,6 +106,11 @@ const MatchContainerInner = ({
   const [stopEngineMove, setStopEngineMove] = useState(false);
   const lastTakebackHandledAtRef = useRef<number>(0);
   const lastProcessedTimestamp = useRef<number | null>(null);
+  // jedno bot prihvatanje rematcha po sobi - inace svaka nova ponuda pravi jos jedan challenge
+  const rematchAcceptInFlightRef = useRef(false);
+  // svez offer za proveru u trenutku slanja (bot prihvata posle delay-a i HTTP poziva)
+  const latestRematchOfferRef = useRef(match?.endedGames[0]?.offers[0]);
+  latestRematchOfferRef.current = match?.endedGames[0]?.offers[0];
   //const [offersWithChatBot, setOffersWithChatBot] = useState('');
 
   const [activeBot, setActiveBot] = useState<ActiveBot>();
@@ -362,8 +367,21 @@ const MatchContainerInner = ({
       }
 
       if (offer.status === 'pending' && offer.type === 'rematch') {
+        if (rematchAcceptInFlightRef.current) return;
+        rematchAcceptInFlightRef.current = true;
+        const offerTimestamp = offer.timestamp;
         console.log('prihvata rematch');
-        botAcceptRematchOffer(dispatch, 1000);
+        botAcceptRematchOffer(
+          dispatch,
+          1000,
+          () =>
+            latestRematchOfferRef.current?.status === 'pending' &&
+            latestRematchOfferRef.current?.timestamp === offerTimestamp,
+          (accepted) => {
+            // ako nije prihvaceno (ponuda povucena), nova ponuda sme ponovo da se obradi
+            if (!accepted) rematchAcceptInFlightRef.current = false;
+          }
+        );
       }
     }
   }, [match.endedGames[0]?.offers]);

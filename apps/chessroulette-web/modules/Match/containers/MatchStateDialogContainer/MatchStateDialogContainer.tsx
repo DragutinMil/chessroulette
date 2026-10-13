@@ -314,7 +314,11 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
 
   if (
     match?.status === 'complete' &&
-    (lastOffer?.type !== 'rematch' || lastOffer?.status !== 'pending') &&
+    // i posle 'accepted' sakriveno - redirect u novu sobu jos traje, a novi klik bi pravio jos jedan rematch
+    !(
+      lastOffer?.type === 'rematch' &&
+      (lastOffer?.status === 'pending' || lastOffer?.status === 'accepted')
+    ) &&
     matchDialogReady
   ) {
     if (isHidden) {
