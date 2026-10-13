@@ -141,6 +141,10 @@ export const reducer: MovexReducer<MatchState, MatchActions> = (
     const { initiator_url } = action.payload;
     const lastIndex = prev.endedGames.length - 1;
     const lastGame = prev.endedGames[lastIndex];
+    // isto kao kod deny/cancel - zakasneli ili dupli klik ne sme da obori Movex server
+    if (!lastGame || !lastGame.offers || lastGame.offers.length === 0) {
+      return prev;
+    }
 
     const lastOffer: GameOffer = {
       ...lastGame.offers[prev.endedGames[lastIndex].offers.length - 1],
