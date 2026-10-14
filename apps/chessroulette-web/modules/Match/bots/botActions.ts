@@ -155,17 +155,20 @@ export const botRejectDrawOffer = (
 export const onTakeBackOfferBot = (
   dispatch: DispatchOf<MatchActions>,
   delay = 1000,
-  accepting: boolean
+  accepting: boolean,
+  // proverava se pre dispatch-a - zakasneli odgovor ne sme u promenjenu sobu
+  isStillPending: () => boolean = () => true
 ) => {
-  if (accepting) {
-    setTimeout(() => {
+  setTimeout(() => {
+    if (!isStillPending()) {
+      return;
+    }
+    if (accepting) {
       dispatch({ type: 'play:acceptTakeBack' });
-    }, delay);
-  } else {
-    setTimeout(() => {
+    } else {
       dispatch({ type: 'play:denyOffer' });
-    }, delay);
-  }
+    }
+  }, delay);
 };
 
 export const botTalkInitiation = (

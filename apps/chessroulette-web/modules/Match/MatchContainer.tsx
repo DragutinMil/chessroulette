@@ -111,6 +111,17 @@ const MatchContainerInner = ({
   // svez offer za proveru u trenutku slanja (bot prihvata posle delay-a i HTTP poziva)
   const latestRematchOfferRef = useRef(match?.endedGames[0]?.offers[0]);
   latestRematchOfferRef.current = match?.endedGames[0]?.offers[0];
+  // svez offer tekuce partije za proveru pre bot odgovora na takeback
+  const latestGameOfferRef = useRef(match?.gameInPlay?.offers.at(-1));
+  latestGameOfferRef.current = match?.gameInPlay?.offers.at(-1);
+  const isSameTakebackPending = (offer: { timestamp?: number }) => () => {
+    const current = latestGameOfferRef.current;
+    return (
+      current?.type === 'takeback' &&
+      current.status === 'pending' &&
+      current.timestamp === offer.timestamp
+    );
+  };
   //const [offersWithChatBot, setOffersWithChatBot] = useState('');
 
   const [activeBot, setActiveBot] = useState<ActiveBot>();
@@ -298,7 +309,7 @@ const MatchContainerInner = ({
         return;
       }
       lastTakebackHandledAtRef.current = now;
-      onTakeBackOfferBot(dispatch, 1500, true);
+      onTakeBackOfferBot(dispatch, 1500, true, isSameTakebackPending(offer));
       setStopEngineMove(true);
       setTimeout(() => {
         setStopEngineMove(false);
@@ -321,7 +332,7 @@ const MatchContainerInner = ({
     const offer = match?.gameInPlay?.offers.at(-1);
     if (offer?.type === 'takeback' && offer.status === 'pending') {
       console.log('activeBot?.botType trtrr', activeBot?.botType);
-      onTakeBackOfferBot(dispatch, 1000, false);
+      onTakeBackOfferBot(dispatch, 1000, false, isSameTakebackPending(offer));
     }
     if (
       offer?.type === 'draw' &&
