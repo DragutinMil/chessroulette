@@ -163,7 +163,11 @@ export const onTakeBackOfferBot = (
     if (!isStillPending()) {
       return;
     }
-    dispatch({ type: accepting ? 'play:acceptTakeBack' : 'play:denyOffer' });
+    if (accepting) {
+      dispatch({ type: 'play:acceptTakeBack' });
+    } else {
+      dispatch({ type: 'play:denyOffer' });
+    }
   }, delay);
 };
 
