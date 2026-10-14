@@ -11,6 +11,12 @@ processes = []
 
 [env]
 
+# bez ovoga radi na default 256MB; stanje svih soba je u memoriji (MemoryMovexStore)
+[[vm]]
+  memory = "1gb"
+  cpu_kind = "shared"
+  cpus = 1
+
 [experimental]
   auto_rollback = true
 
@@ -20,9 +26,10 @@ processes = []
   processes = ["app"]
   protocol = "tcp"
   script_checks = []
+  # 25/20 je bio Fly default; svaka /room stranica (puzzle, bot, review...) drzi jednu konekciju
   [services.concurrency]
-    hard_limit = 25
-    soft_limit = 20
+    hard_limit = 2000
+    soft_limit = 1500
     type = "connections"
 
   [[services.ports]]
