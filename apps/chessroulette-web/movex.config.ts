@@ -1,13 +1,16 @@
 import { reducer as roomReducer } from '@app/modules/Room/movex';
 import { config } from './config';
-import { reducerLogger } from './lib/util';
+import { reducerLogger, safeReducer } from './lib/util';
 
 export default {
   resources: {
     // room: roomReducer,
     // room: reducerLogger(roomReducer, 'Room Movex'),//
-    room: config.DEBUG_MODE
-      ? reducerLogger(roomReducer, 'Room Movex')
-      : roomReducer,
+    room: safeReducer(
+      config.DEBUG_MODE
+        ? reducerLogger(roomReducer, 'Room Movex')
+        : roomReducer,
+      'Room Movex'
+    ),
   },
 };

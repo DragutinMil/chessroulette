@@ -295,8 +295,18 @@ export const reducer = (
       return prev;
     }
 
+    // zakasnelo prihvatanje (nema ponude ili vise nije pending) ne sme da obori Movex server
+    const pendingOffer = prev.offers[prev.offers.length - 1];
+    if (
+      !pendingOffer ||
+      pendingOffer.type !== 'draw' ||
+      pendingOffer.status !== 'pending'
+    ) {
+      return prev;
+    }
+
     const lastOffer: GameOffer = {
-      ...prev.offers[prev.offers.length - 1],
+      ...pendingOffer,
       status: 'accepted',
     };
 
@@ -317,16 +327,25 @@ export const reducer = (
       return prev;
     }
 
+    // zakasnelo prihvatanje (nema ponude ili vise nije pending) ne sme da obori Movex server
+    const pendingOffer = prev.offers[prev.offers.length - 1];
+    if (
+      !pendingOffer ||
+      pendingOffer.type !== 'takeback' ||
+      pendingOffer.status !== 'pending'
+    ) {
+      return prev;
+    }
+
     const lastOffer: GameOffer = {
-      ...prev.offers[prev.offers.length - 1],
+      ...pendingOffer,
       status: 'accepted',
     };
 
     const chessGame = getNewChessGame({ pgn: prev.pgn });
     chessGame.undo();
 
-    const takebackAt =
-      prev.offers[prev.offers.length - 1].timestamp || new Date().getTime();
+    const takebackAt = pendingOffer.timestamp || new Date().getTime();
 
     const elapsedTime = takebackAt - prev.lastMoveAt;
     const nextTimeLeft = prev.timeLeft[prev.lastMoveBy] - elapsedTime;
