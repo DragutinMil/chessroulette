@@ -11,6 +11,7 @@ import { Game, GameOffer } from '@app/modules/Game';
 import { useMatchViewState } from '../../../../../modules/Match/hooks/useMatch';
 import { ButtonGreen } from '@app/components/Button/ButtonGreen';
 import { calculateOfferCounters } from '../../../../../modules/Match/movex/reducer'; // Add this import
+import { findIfBots } from '../../../../../modules/Match/utils';
 
 import { useRouter } from 'next/navigation';
 type Props = {
@@ -144,6 +145,12 @@ export const PlayControls: React.FC<Props> = ({
       offerAlreadySent.current = false;
     }
   }, []);
+
+  // protiv Botelja nema vracanja poteza
+  const isBoteljaPlay = match
+    ? findIfBots(match.challengee.id, match.challenger.id)?.botType ===
+      'botelja'
+    : false;
 
   const takebackCount = offerCounters?.takeback?.[playerId] ?? 0;
   const drawCount = offerCounters?.draw?.[playerId] ?? 0;
@@ -413,7 +420,12 @@ export const PlayControls: React.FC<Props> = ({
           setOfferSent();
           onTakebackOffer();
         }}
-        disabled={game.status !== 'ongoing' || !allowTakeback || isBotPlay}
+        disabled={
+          game.status !== 'ongoing' ||
+          !allowTakeback ||
+          isBotPlay ||
+          isBoteljaPlay
+        }
       >
         <TakebackIcon></TakebackIcon>
       </QuickConfirmButton>

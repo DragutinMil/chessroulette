@@ -61,6 +61,26 @@ export const wrapReducer = <S, A extends AnyAction>(
   return fn;
 };
 
+// greska u reducer-u ne sme da obori Movex server - akcija se odbija i loguje, stanje ostaje isto
+export const safeReducer = <S, A extends AnyAction>(
+  original: MovexReducer<S, A>,
+  name = ''
+): MovexReducer<S, A> => {
+  const fn: MovexReducer<S, A> = (prev, action) => {
+    try {
+      return original(prev, action);
+    } catch (e) {
+      console.error(`${name} Reducer crashed on action:`, action.type, e);
+      return prev;
+    }
+  };
+
+  fn.$canReconcileState = original.$canReconcileState;
+  fn.$transformState = original.$transformState;
+
+  return fn;
+};
+
 // export const mapReducer = <S, A extends AnyAction, R>(
 //   reducer: MovexReducer<S, A>,
 //   transform: (prev: S) => R
