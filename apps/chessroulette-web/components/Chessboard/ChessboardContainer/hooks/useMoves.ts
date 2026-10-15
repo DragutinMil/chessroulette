@@ -47,6 +47,8 @@ type Props = {
   onMove: (m: ShortChessMove) => void;
   onPreMove?: (m: ShortChessMove) => void;
   onValidateMove: (m: ShortChessMove) => boolean;
+  // poziva se kad tabla odbije potez (npr. Puzzle prikaze "Illegal move" + tackice)
+  onIllegalMove?: (m: ShortChessMove) => void;
   botType?: string;
   // dozvoljava klik-selekciju i tudje figure (review i ailearn), isto kao sto drag&drop vec radi preko onValidateMove
   canMoveOpponentPieces?: boolean;
@@ -62,6 +64,7 @@ export const useMoves = ({
   onMove,
   onPreMove,
   onValidateMove,
+  onIllegalMove,
   isSquareEmpty,
   botType,
   canMoveOpponentPieces,
@@ -327,6 +330,9 @@ Props): MoveActions => {
     if (onValidateMove(m)) {
       onMove(m);
       return Ok.EMPTY;
+    }
+    if (m.from !== m.to) {
+      onIllegalMove?.(m);
     }
     return Err.EMPTY;
   };
