@@ -71,6 +71,11 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
   const [badgeNum, setBadgeNum] = useState(0);
   const [badgePulse, setBadgePulse] = useState(false);
   const [matchDialogReady, setMatchDialogReady] = useState(false);
+  // Novi rejting posle meca i razlika u odnosu na rejting sa kojim je usao u mec
+  const [ratingResult, setRatingResult] = useState<{
+    newRating: number;
+    diff: number | null;
+  } | null>(null);
   const [lossStreakPaywallVisible, setLossStreakPaywallVisible] =
     useState(false);
   const [lossStreakPaywallCopy, setLossStreakPaywallCopy] = useState({
@@ -124,7 +129,20 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
       match?.status === 'aborted'
     ) {
       // Send to grab result from chessroullette
-      sendResult(userId);
+      sendResult(userId).then((ratings) => {
+        if (match?.status !== 'complete' || !myRole || !match.winner) return;
+        const newRating =
+          match.winner === myRole
+            ? ratings?.winner_rejting
+            : ratings?.loser_rejting;
+        if (newRating === null || newRating === undefined) return;
+        const roundedNew = Math.round(Number(newRating));
+        const oldRating = Number(match[myRole].rating);
+        setRatingResult({
+          newRating: roundedNew,
+          diff: oldRating ? roundedNew - Math.round(oldRating) : null,
+        });
+      });
       if (match?.status === 'complete') {
         const reasons = [
           'Game ended in checkmate',
@@ -373,6 +391,26 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
                     </span>
                   )}
                 </Text>
+                {ratingResult && (
+                  <div className="flex items-center justify-center gap-2 mt-2 text-sm">
+                    <span className="text-slate-400">Rating</span>
+                    <span className="font-bold text-white">
+                      {ratingResult.newRating}
+                    </span>
+                    {ratingResult.diff !== null && (
+                      <span
+                        className={`font-bold ${
+                          ratingResult.diff >= 0
+                            ? 'text-green-400'
+                            : 'text-red-400'
+                        }`}
+                      >
+                        ({ratingResult.diff >= 0 ? '+' : ''}
+                        {ratingResult.diff})
+                      </span>
+                    )}
+                  </div>
+                )}
                 {activeBot?.botType !== 'basic' && (
                   <div className="justify-center items-center flex flex-col gap-3 mt-4 w-full">
                     <div className="flex flex-row items-center gap-4 mb-2 w-full"></div>

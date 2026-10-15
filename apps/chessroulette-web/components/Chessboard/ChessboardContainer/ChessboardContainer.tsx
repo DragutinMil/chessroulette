@@ -45,6 +45,8 @@ export type ChessboardContainerProps = Omit<
   onValidateMove?: (m: ShortChessMove) => boolean;
   //onValidatePromoMove?: (m: ShortChessMove) => boolean;
   onMove: (m: ShortChessMove) => void;
+  // Poziva se kad onValidateMove odbije potez
+  onIllegalMove?: (m: ShortChessMove) => void;
   // onChangePuzzleAnimation?: boolean;
   arrowsMap?: ArrowsMap;
   circlesMap?: CirclesMap;
@@ -105,6 +107,7 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
   onClearCircles = noop,
   onPieceDrop,
   onMove,
+  onIllegalMove,
   // onValidatePreMove = () => true,
   isSquareEmpty = () => true,
   // onValidatePromoMove= () => true,
@@ -184,6 +187,7 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
     premoveAnimationDelay: disableAnimations ? 0 : BOARD_ANIMATION_DELAY + 30,
     onValidateMove,
     onMove,
+    onIllegalMove,
     onPreMove: onMove,
     isSquareEmpty,
     botType,
