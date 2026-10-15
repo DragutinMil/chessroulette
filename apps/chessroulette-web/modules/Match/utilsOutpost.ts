@@ -37,7 +37,15 @@ export async function checkUser(userId: string | undefined) {
   }
 }
 
-export async function sendResult(userId?: string) {
+// Novi rejtinzi posle meca (result2 iz _v2 endpointa) - null za remi, bota ili dok nije obradjeno
+export type MatchResultRatings = {
+  winner_rejting: number | null;
+  loser_rejting: number | null;
+};
+
+export async function sendResult(
+  userId?: string
+): Promise<MatchResultRatings | null> {
   const parts = window.location.pathname.split('/');
   const match_id = parts[parts.length - 1];
   const endpoint =
@@ -59,8 +67,10 @@ export async function sendResult(userId?: string) {
     }
 
     const data = await response.json();
+    return data?.result2?.[0] ?? null;
   } catch (error) {
     console.error('Fetch error', error);
+    return null;
   }
 }
 export async function getUserStreakPlay() {

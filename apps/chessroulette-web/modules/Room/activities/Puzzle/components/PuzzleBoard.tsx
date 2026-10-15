@@ -20,7 +20,12 @@ type Props = Required<
   // Optionals
   Pick<
     ChessboardContainerProps,
-    'rightSideComponent' | 'rightSideClassName' | 'squareRenderer'
+    | 'rightSideComponent'
+    | 'rightSideClassName'
+    | 'squareRenderer'
+    | 'onIllegalMove'
+    | 'hintSquares'
+    | 'hintFromSquare'
   > &
   ChapterBoardState & {
     notation?: ChapterState['notation'];
