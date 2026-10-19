@@ -591,6 +591,9 @@ Unlock Unlimited Puzzles, Unlimited Game Reviews, and Unlimited AI Chat for just
       //if engine dont have move, play mod is disabled
       if (m === '(none)') {
         onCanPlayChange(false);
+        // nema legalnog poteza (mat/pat) - ne slati '(n'/'on' kao potez
+        setStockfishMovesInfo(m);
+        return;
       } else {
         onCanPlayChange(true);
       }

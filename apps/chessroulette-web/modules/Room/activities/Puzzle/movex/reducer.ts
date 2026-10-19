@@ -215,6 +215,15 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
   if (action.type === 'loadedChapter:addPuzzleMove') {
     if (prev.activityState.chaptersMap[0].chessAiMode.mode == 'puzzle') {
       const move = action.payload.from.concat(action.payload.to);
+      // potez posle kraja puzzle (moves[goodMoves] ne postoji) - ignorisi umesto da obori server
+      if (
+        !prev.activityState.chaptersMap[0].chessAiMode.moves?.[
+          prev.activityState.chaptersMap[0].chessAiMode.goodMoves
+        ]
+      ) {
+        console.error('addPuzzleMove: no expected move at goodMoves', action);
+        return prev;
+      }
       if (
         !prev.activityState.chaptersMap[0].chessAiMode.moves[
           prev.activityState.chaptersMap[0].chessAiMode.goodMoves
