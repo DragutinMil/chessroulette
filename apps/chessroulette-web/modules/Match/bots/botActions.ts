@@ -8,14 +8,33 @@ import { newRematchRequest } from '../utilsOutpost';
 
 export const botAcceptRematchOffer = (
   dispatch: DispatchOf<MatchActions>,
-  delay = 1000
+  delay = 1000,
+  // proverava se pre HTTP poziva i pre dispatch-a - zakasnelo prihvatanje ne sme u promenjenu sobu
+  isStillPending: () => boolean = () => true,
+  onFinish?: (accepted: boolean) => void
 ) => {
   const pathParts = window.location.pathname.split('/');
   const matchId = pathParts[pathParts.length - 1];
   setTimeout(() => {
     const handleRematch = async () => {
-      const data = await newRematchRequest(matchId);
+      if (!isStillPending()) {
+        onFinish?.(false);
+        return;
+      }
+      let data;
+      try {
+        data = await newRematchRequest(matchId);
+      } catch (e) {
+        console.error('Rematch request failed', e);
+        onFinish?.(false);
+        return;
+      }
+      if (!isStillPending()) {
+        onFinish?.(false);
+        return;
+      }
 
+      onFinish?.(true);
       dispatch({
         type: 'play:acceptOfferRematch',
         payload: {
@@ -136,17 +155,20 @@ export const botRejectDrawOffer = (
 export const onTakeBackOfferBot = (
   dispatch: DispatchOf<MatchActions>,
   delay = 1000,
-  accepting: boolean
+  accepting: boolean,
+  // proverava se pre dispatch-a - zakasneli odgovor ne sme u promenjenu sobu
+  isStillPending: () => boolean = () => true
 ) => {
-  if (accepting) {
-    setTimeout(() => {
+  setTimeout(() => {
+    if (!isStillPending()) {
+      return;
+    }
+    if (accepting) {
       dispatch({ type: 'play:acceptTakeBack' });
-    }, delay);
-  } else {
-    setTimeout(() => {
+    } else {
       dispatch({ type: 'play:denyOffer' });
-    }, delay);
-  }
+    }
+  }, delay);
 };
 
 export const botTalkInitiation = (

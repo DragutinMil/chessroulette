@@ -45,6 +45,86 @@ import { useParams } from 'next/navigation';
 
 export type ActivityActions = CounterActions;
 
+const RATING_COUNT_DELAY_MS = 250;
+const RATING_COUNT_MS = 900;
+
+// Rejting "odbrojava" od starog do novog, pa iskoci bedz sa razlikom
+const RatingChange = ({
+  newRating,
+  diff,
+}: {
+  newRating: number;
+  diff: number | null;
+}) => {
+  const oldRating = diff === null ? newRating : newRating - diff;
+  const [shownRating, setShownRating] = useState(oldRating);
+  const [countDone, setCountDone] = useState(false);
+
+  useEffect(() => {
+    if (!diff) {
+      setShownRating(newRating);
+      setCountDone(true);
+      return;
+    }
+    let raf = 0;
+    const timeout = setTimeout(() => {
+      const start = performance.now();
+      const tick = (now: number) => {
+        const progress = Math.min((now - start) / RATING_COUNT_MS, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        setShownRating(Math.round(oldRating + diff * eased));
+        if (progress < 1) {
+          raf = requestAnimationFrame(tick);
+        } else {
+          setCountDone(true);
+        }
+      };
+      raf = requestAnimationFrame(tick);
+    }, RATING_COUNT_DELAY_MS);
+    return () => {
+      clearTimeout(timeout);
+      cancelAnimationFrame(raf);
+    };
+  }, [newRating, diff]);
+
+  const badgeColor =
+    diff === null || diff === 0
+      ? 'bg-slate-500/20 text-slate-300'
+      : diff > 0
+      ? 'bg-green-500/15 text-green-400'
+      : 'bg-red-500/15 text-red-400';
+  const badgeText =
+    diff === null
+      ? ''
+      : diff === 0
+      ? '±0'
+      : `${diff > 0 ? '▲' : '▼'} ${Math.abs(diff)}`;
+
+  return (
+    <div className="flex items-center gap-3 animate-fadeIn">
+      <span className="text-slate-400 text-xs font-bold uppercase tracking-widest">
+        Rating
+      </span>
+      <span className="text-white font-bold text-2xl tabular-nums">
+        {shownRating}
+      </span>
+      {diff !== null && (
+        <span
+          className={`rounded-full px-2.5 py-0.5 text-sm font-bold tabular-nums ${badgeColor}`}
+          style={{
+            transition: 'opacity 0.35s ease, transform 0.35s',
+            transitionTimingFunction: 'cubic-bezier(0.34, 1.56, 0.64, 1)',
+            opacity: countDone ? 1 : 0,
+            transform: countDone ? 'scale(1)' : 'scale(0.4)',
+          }}
+        >
+          {badgeText}
+        </span>
+      )}
+    </div>
+  );
+};
+
 type Props = PlayDialogContainerContainerProps & {
   activeBot?: ActiveBot;
   isMobile?: boolean;
@@ -71,6 +151,11 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
   const [badgeNum, setBadgeNum] = useState(0);
   const [badgePulse, setBadgePulse] = useState(false);
   const [matchDialogReady, setMatchDialogReady] = useState(false);
+  // Novi rejting posle meca i razlika u odnosu na rejting sa kojim je usao u mec
+  const [ratingResult, setRatingResult] = useState<{
+    newRating: number;
+    diff: number | null;
+  } | null>(null);
   const [lossStreakPaywallVisible, setLossStreakPaywallVisible] =
     useState(false);
   const [lossStreakPaywallCopy, setLossStreakPaywallCopy] = useState({
@@ -124,7 +209,20 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
       match?.status === 'aborted'
     ) {
       // Send to grab result from chessroullette
-      sendResult(userId);
+      sendResult(userId).then((ratings) => {
+        if (match?.status !== 'complete' || !myRole || !match.winner) return;
+        const newRating =
+          match.winner === myRole
+            ? ratings?.winner_rejting
+            : ratings?.loser_rejting;
+        if (newRating === null || newRating === undefined) return;
+        const roundedNew = Math.round(Number(newRating));
+        const oldRating = Number(match[myRole].rating);
+        setRatingResult({
+          newRating: roundedNew,
+          diff: oldRating ? roundedNew - Math.round(oldRating) : null,
+        });
+      });
       if (match?.status === 'complete') {
         const reasons = [
           'Game ended in checkmate',
@@ -314,7 +412,11 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
 
   if (
     match?.status === 'complete' &&
-    (lastOffer?.type !== 'rematch' || lastOffer?.status !== 'pending') &&
+    // i posle 'accepted' sakriveno - redirect u novu sobu jos traje, a novi klik bi pravio jos jedan rematch
+    !(
+      lastOffer?.type === 'rematch' &&
+      (lastOffer?.status === 'pending' || lastOffer?.status === 'accepted')
+    ) &&
     matchDialogReady
   ) {
     if (isHidden) {
@@ -348,7 +450,7 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
           content={
             <div className="flex flex-col gap-4 items-center">
               <div className="flex  justify-center content-center text-center flex-col">
-                <Text>
+                <Text className="text-xl font-semibold">
                   {match.winner === null ? (
                     <span></span>
                   ) : (match.winner == 'challenger' &&
@@ -370,8 +472,18 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
                   )}
                 </Text>
                 {activeBot?.botType !== 'basic' && (
-                  <div className="justify-center items-center flex flex-col gap-3 mt-4 w-full">
-                    <div className="flex flex-row items-center gap-4 mb-2 w-full"></div>
+                  // Fiksna visina - mesto je rezervisano pa dugmici ne skacu kad rejting stigne
+                  <div className="h-10 mt-2 flex items-center justify-center">
+                    {ratingResult && (
+                      <RatingChange
+                        newRating={ratingResult.newRating}
+                        diff={ratingResult.diff}
+                      />
+                    )}
+                  </div>
+                )}
+                {activeBot?.botType !== 'basic' && (
+                  <div className="justify-center items-center flex flex-col gap-3 mt-3 w-full">
                     {streakDays !== null && (
                       <div className="flex flex-row relative md:left-4 items-center gap-4 mb-2 w-full">
                         <div

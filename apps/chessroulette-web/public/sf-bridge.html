@@ -1,0 +1,153 @@
+<!doctype html>
+<meta charset="utf-8" />
+<title>sf-bridge</title>
+<!--
+  Most izmedju React Native WebView-a i Stockfish worker-a.
+
+  Staticka stranica namerno, ne Next ruta: ne ulazi u bundle i ne zavisi od
+  app koda. Koristi isti engine asset kao Review (/sf18/), ali BEZ MultiPV -
+  izvestaju treba samo ocena pozicije, ne tri najbolje linije, pa je ovako
+  osetno brze.
+
+  Protokol (JSON stringovi u oba smera):
+    RN  -> page : { "id": 1, "fen": "...", "depth": 11 }
+    page -> RN  : { "type": "ready" }
+                  { "id": 1, "cp": 34, "mate": null, "bestMove": "e2e4", "ms": 180 }
+                  { "id": 1, "error": "..." }
+
+  Ugovor odgovora je isti kao StockfishEngine.evaluatePosition() na webu,
+  da ownMatchAnalysis.js moze da se koristi neizmenjen.
+-->
+<body style="margin: 0; background: #01210b"></body>
+<script>
+  var ENGINE_URL = '/sf18/stockfish-18-lite-single.js'
+  var MOVE_TIMEOUT_MS = 15000
+
+  var worker = new Worker(ENGINE_URL)
+  var queue = Promise.resolve()
+  var ready = false
+
+  function toRN(obj) {
+    if (window.ReactNativeWebView) {
+      window.ReactNativeWebView.postMessage(JSON.stringify(obj))
+    }
+  }
+
+  function parseScore(line) {
+    var cp = line.match(/\bscore cp (-?\d+)/)
+    if (cp) return { cp: Number(cp[1]), mate: null }
+    var mate = line.match(/\bscore mate (-?\d+)/)
+    if (mate) return { cp: null, mate: Number(mate[1]) }
+    return null
+  }
+
+  // ceka odredjeni red od engine-a (uciok, readyok)
+  function waitFor(token) {
+    return new Promise(function (resolve) {
+      function onMessage(e) {
+        var line = typeof e.data === 'string' ? e.data : ''
+        if (line.indexOf(token) === 0) {
+          worker.removeEventListener('message', onMessage)
+          resolve()
+        }
+      }
+      worker.addEventListener('message', onMessage)
+    })
+  }
+
+  function init() {
+    worker.postMessage('uci')
+    return waitFor('uciok')
+      .then(function () {
+        worker.postMessage('isready')
+        return waitFor('readyok')
+      })
+      .then(function () {
+        ready = true
+        toRN({ type: 'ready' })
+      })
+  }
+
+  // jedna pozicija - pozicije nikad ne idu paralelno, engine je jedan
+  function runGo(fen, depth) {
+    return new Promise(function (resolve, reject) {
+      var lastScore = null
+      var lastDepth = 0
+      var settled = false
+      var startedAt = Date.now()
+
+      var timeoutId = setTimeout(function () {
+        if (settled) return
+        settled = true
+        worker.removeEventListener('message', onMessage)
+        reject(new Error('timeout ' + MOVE_TIMEOUT_MS + 'ms: ' + fen))
+      }, MOVE_TIMEOUT_MS)
+
+      function onMessage(e) {
+        var line = typeof e.data === 'string' ? e.data : ''
+
+        if (line.indexOf('info') === 0 && line.indexOf('score') !== -1) {
+          var score = parseScore(line)
+          if (score) lastScore = score
+          var d = line.match(/\binfo depth (\d+)/)
+          if (d) lastDepth = Number(d[1])
+          return
+        }
+
+        if (line.indexOf('bestmove') === 0) {
+          if (settled) return
+          settled = true
+          clearTimeout(timeoutId)
+          worker.removeEventListener('message', onMessage)
+
+          var best = line.split(' ')[1] || null
+          resolve({
+            cp: lastScore ? lastScore.cp : null,
+            mate: lastScore ? lastScore.mate : null,
+            bestMove: best === '(none)' ? null : best,
+            depth: lastDepth,
+            ms: Date.now() - startedAt,
+          })
+        }
+      }
+
+      worker.addEventListener('message', onMessage)
+      worker.postMessage('position fen ' + fen)
+      worker.postMessage('go depth ' + depth)
+    })
+  }
+
+  function handle(raw) {
+    var req
+    try {
+      req = JSON.parse(raw)
+    } catch (e) {
+      return
+    }
+    if (!req || typeof req.fen !== 'string') return
+
+    queue = queue
+      .then(function () {
+        return runGo(req.fen, req.depth || 11)
+      })
+      .then(function (res) {
+        res.id = req.id
+        toRN(res)
+      })
+      .catch(function (err) {
+        toRN({ id: req.id, error: String((err && err.message) || err) })
+      })
+  }
+
+  // iOS salje na window, Android na document - slusamo oba
+  window.addEventListener('message', function (e) {
+    handle(e.data)
+  })
+  document.addEventListener('message', function (e) {
+    handle(e.data)
+  })
+
+  init().catch(function (err) {
+    toRN({ type: 'error', error: String((err && err.message) || err) })
+  })
+</script>

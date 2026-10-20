@@ -45,6 +45,8 @@ export type ChessboardContainerProps = Omit<
   onValidateMove?: (m: ShortChessMove) => boolean;
   //onValidatePromoMove?: (m: ShortChessMove) => boolean;
   onMove: (m: ShortChessMove) => void;
+  // Poziva se kad onValidateMove odbije potez
+  onIllegalMove?: (m: ShortChessMove) => void;
   // onChangePuzzleAnimation?: boolean;
   arrowsMap?: ArrowsMap;
   circlesMap?: CirclesMap;
@@ -119,6 +121,7 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
   onClearCircles = noop,
   onPieceDrop,
   onMove,
+  onIllegalMove,
   // onValidatePreMove = () => true,
   isSquareEmpty = () => true,
   // onValidatePromoMove= () => true,
@@ -201,6 +204,7 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
     onValidateMove,
     onMove,
     onPreMove: allowPremoves ? onMove : undefined,
+    onIllegalMove,
     isSquareEmpty,
     botType,
     canMoveOpponentPieces,
@@ -285,7 +289,12 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
               min = 600;
               max = 1300;
             }
-            // Bullet
+            // 1+0 i 1+1 - samo 60s ukupno, pa bot pada na vreme sa sporijim bullet delayom
+            else if (timeClass === 'bullet' || timeClass === 'bulletplus1') {
+              min = 600;
+              max = 1300;
+            }
+            // Bullet (2+0, 2+1)
             else if (timeClass.includes('bullet')) {
               min = 600;
               max = 3000;

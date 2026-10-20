@@ -50,9 +50,10 @@ const Conversation = ({
     <div className="flex-1 min-h-0 flex flex-col">
       <div
         ref={scrollRef}
-        // Fills whatever space its flex parent gives it on mobile instead
-        // of a fixed px cap; desktop keeps its fixed height.
-        className="overflow-y-auto rounded-lg no-scrollbar scroll-smooth h-full min-h-0 md:h-[316px]"
+        // Fills whatever space its flex parent gives it, on every
+        // breakpoint, instead of a fixed px cap that could starve the
+        // input below it on shorter desktop screens.
+        className="overflow-y-auto rounded-lg no-scrollbar scroll-smooth h-full min-h-0"
         style={{
           marginTop: isMobile ? '15px' : '',
           marginBottom: isMobile ? '15px' : '',

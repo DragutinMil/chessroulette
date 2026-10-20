@@ -95,8 +95,9 @@ module.exports = {
         },
         fadeIn: {
           // '0%': { opacity: '0', transform: 'translateY(6px)' },
-          '0%': { opacity: '0', transform: 'translateY(0)' },
-          '100%': { opacity: '1', transform: 'translateY(0)' },
+          // bez transform-a — ostaje na tabli (forwards) i iOS-u pomera figure pri drag-u
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' },
         },
         attentionPulse: {
           '0%, 100%': {

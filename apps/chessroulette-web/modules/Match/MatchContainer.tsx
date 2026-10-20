@@ -106,6 +106,22 @@ const MatchContainerInner = ({
   const [stopEngineMove, setStopEngineMove] = useState(false);
   const lastTakebackHandledAtRef = useRef<number>(0);
   const lastProcessedTimestamp = useRef<number | null>(null);
+  // jedno bot prihvatanje rematcha po sobi - inace svaka nova ponuda pravi jos jedan challenge
+  const rematchAcceptInFlightRef = useRef(false);
+  // svez offer za proveru u trenutku slanja (bot prihvata posle delay-a i HTTP poziva)
+  const latestRematchOfferRef = useRef(match?.endedGames[0]?.offers[0]);
+  latestRematchOfferRef.current = match?.endedGames[0]?.offers[0];
+  // svez offer tekuce partije za proveru pre bot odgovora na takeback
+  const latestGameOfferRef = useRef(match?.gameInPlay?.offers.at(-1));
+  latestGameOfferRef.current = match?.gameInPlay?.offers.at(-1);
+  const isSameTakebackPending = (offer: { timestamp?: number }) => () => {
+    const current = latestGameOfferRef.current;
+    return (
+      current?.type === 'takeback' &&
+      current.status === 'pending' &&
+      current.timestamp === offer.timestamp
+    );
+  };
   //const [offersWithChatBot, setOffersWithChatBot] = useState('');
 
   const [activeBot, setActiveBot] = useState<ActiveBot>();
@@ -293,7 +309,7 @@ const MatchContainerInner = ({
         return;
       }
       lastTakebackHandledAtRef.current = now;
-      onTakeBackOfferBot(dispatch, 1500, true);
+      onTakeBackOfferBot(dispatch, 1500, true, isSameTakebackPending(offer));
       setStopEngineMove(true);
       setTimeout(() => {
         setStopEngineMove(false);
@@ -316,7 +332,7 @@ const MatchContainerInner = ({
     const offer = match?.gameInPlay?.offers.at(-1);
     if (offer?.type === 'takeback' && offer.status === 'pending') {
       console.log('activeBot?.botType trtrr', activeBot?.botType);
-      onTakeBackOfferBot(dispatch, 1000, false);
+      onTakeBackOfferBot(dispatch, 1000, false, isSameTakebackPending(offer));
     }
     if (
       offer?.type === 'draw' &&
@@ -362,8 +378,21 @@ const MatchContainerInner = ({
       }
 
       if (offer.status === 'pending' && offer.type === 'rematch') {
+        if (rematchAcceptInFlightRef.current) return;
+        rematchAcceptInFlightRef.current = true;
+        const offerTimestamp = offer.timestamp;
         console.log('prihvata rematch');
-        botAcceptRematchOffer(dispatch, 1000);
+        botAcceptRematchOffer(
+          dispatch,
+          1000,
+          () =>
+            latestRematchOfferRef.current?.status === 'pending' &&
+            latestRematchOfferRef.current?.timestamp === offerTimestamp,
+          (accepted) => {
+            // ako nije prihvaceno (ponuda povucena), nova ponuda sme ponovo da se obradi
+            if (!accepted) rematchAcceptInFlightRef.current = false;
+          }
+        );
       }
     }
   }, [match.endedGames[0]?.offers]);
@@ -467,10 +496,22 @@ const MatchContainerInner = ({
                         />
                       )}
 
+                    {/* slika bota - ostaje i dok je kamera iskljucena */}
+                    {!!activeBot &&
+                      activeBot?.botType !== 'botelja' &&
+                      activeBot?.botType !== 'matchFake' &&
+                      isPlayer &&
+                      !isMobile && (
+                        <div className="hidden md:block absolute z-20 inset-0 w-full h-full z-[51] rounded-lg overflow-hidden">
+                          <PeerToPeerCameraWidget activeBot={activeBot} />
+                        </div>
+                      )}
+
+                    {/* kamera igraca privremeno iskljucena - vidi config.CAMERA_ON
                     <div
                       className={`
                       hidden md:block absolute z-20  cursor-pointer transition-all duration-300 ease-in-out
-                      rounded-lg  overflow-hidden 
+                      rounded-lg  overflow-hidden
                       ${
                         cameraExpanded ||
                         (activeBot &&
@@ -527,10 +568,12 @@ const MatchContainerInner = ({
                           </div>
                         )}
                     </div>
+                    */}
                   </div>
                 ) : !isPlayer ? (
                   <div>
-                    <PeerToPeerCameraWidget />
+                    {/* kamera gledaoca privremeno iskljucena - vidi config.CAMERA_ON */}
+                    {/* <PeerToPeerCameraWidget /> */}
                   </div>
                 ) : (
                   // classic bot players

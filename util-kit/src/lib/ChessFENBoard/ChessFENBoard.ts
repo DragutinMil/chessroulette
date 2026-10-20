@@ -333,6 +333,14 @@ export class ChessFENBoard {
 
     // white
     if (piece === 'K') {
+      // A king landing on g1/c1 only counts as castling if it's actually
+      // coming from e1 - otherwise a king that wandered back onto g1/c1
+      // after a non-castling move gets mistaken for O-O and drags the
+      // untouched rook along with it.
+      if (from !== 'e1') {
+        return null;
+      }
+
       if (!isOneOf(to, ['g1', 'c1'])) {
         return null;
       }
@@ -375,6 +383,11 @@ export class ChessFENBoard {
 
     // black
     if (piece === 'k') {
+      // Same guard as the white king above - only e8 is a valid castling origin.
+      if (from !== 'e8') {
+        return null;
+      }
+
       if (!isOneOf(to, ['g8', 'c8'])) {
         return null;
       }

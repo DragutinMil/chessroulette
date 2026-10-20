@@ -1,6 +1,12 @@
 import { useReducer, useRef, useEffect, useState } from 'react';
 import { MovexBoundResourceFromConfig } from 'movex-react';
-import { ChessFENBoard, noop, swapColor } from '@xmatter/util-kit';
+import {
+  ChessFENBoard,
+  ShortChessMove,
+  getNewChessGame,
+  noop,
+  swapColor,
+} from '@xmatter/util-kit';
 import { PanelResizeHandle } from 'react-resizable-panels';
 import movexConfig from '@app/movex.config';
 import { TabsRef } from '@app/components/Tabs';
@@ -60,6 +66,14 @@ export const PuzzleActivity = ({
   const wrongMoveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
     null
   );
+  // Nelegalan potez - tackice na poljima gde pomerena figura stvarno sme da ode
+  const [illegalMoveHint, setIllegalMoveHint] = useState<{
+    from: Square;
+    targets: Square[];
+  } | null>(null);
+  const illegalMoveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null
+  );
   const [userData, setUserData] = useState({
     name_first: '',
     name_last: '',
@@ -110,6 +124,37 @@ export const PuzzleActivity = ({
   };
   const handlePuzzleRequest = () => {
     setPuzzleCounter(puzzleCounter + 1);
+  };
+
+  const clearIllegalMoveHint = () => {
+    if (illegalMoveTimeoutRef.current)
+      clearTimeout(illegalMoveTimeoutRef.current);
+    setIllegalMoveHint(null);
+  };
+
+  const onIllegalMove = (move: ShortChessMove) => {
+    const chess = getNewChessGame({ fen: currentChapter.displayFen });
+    const piece = chess.get(move.from);
+    const playerColor = settings.isInstructor
+      ? swapColor(currentChapter.orientation)
+      : currentChapter.orientation;
+    // Samo za igraceve figure i kad je on na potezu - tudje figure ne dobijaju hint
+    if (!piece || piece.color !== playerColor || chess.turn() !== playerColor)
+      return;
+
+    clearIllegalMoveHint();
+    const targets = chess
+      .moves({ square: move.from, verbose: true })
+      .map((m) => m.to);
+    setIllegalMoveHint({ from: move.from, targets });
+    illegalMoveTimeoutRef.current = setTimeout(
+      () => setIllegalMoveHint(null),
+      2500
+    );
+    if (wrongMoveSoundRef.current) {
+      wrongMoveSoundRef.current.currentTime = 0;
+      wrongMoveSoundRef.current.play().catch(() => {});
+    }
   };
 
   return (
@@ -232,7 +277,11 @@ export const PuzzleActivity = ({
                       payload: { color: swapColor(currentChapter.orientation) },
                     });
                   }}
+                  onIllegalMove={onIllegalMove}
+                  hintSquares={illegalMoveHint?.targets}
+                  hintFromSquare={illegalMoveHint?.from}
                   onMove={async (payload) => {
+                    clearIllegalMoveHint();
                     if (currentChapter.chessAiMode.mode === 'puzzle') {
                       const move = payload.from + payload.to;
                       const expectedMove =
