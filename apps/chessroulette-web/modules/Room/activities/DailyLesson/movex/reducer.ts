@@ -5,8 +5,14 @@ import {
   localChessMoveToChessLibraryMove,
   isValidPgn,
   FBHHistory,
+  type FenBoardPromotionalPieceSymbol,
 } from '@xmatter/util-kit';
-import { Chapter, ChapterState, DailyLessonActivityState } from './types';
+import {
+  Chapter,
+  ChapterState,
+  DailyLessonActivityState,
+  Message,
+} from './types';
 //import { FBHIndexMovePosition,FBHRecursiveIndexes } from 'util-kit/src/lib/FreeBoardHistory/types';
 
 import { initialChapterState, initialDefaultChapter } from './state';
@@ -44,12 +50,43 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
       const { move, forceTurn, lesson } = action.payload;
 
       const fenBoard = new ChessFENBoard(prevChapter.displayFen);
-      if (!fenBoard.piece(move.from)) {
+      const movingPiece = fenBoard.piece(move.from);
+      if (!movingPiece) {
         console.error('No piece at', move.from);
         return prev;
       }
 
-      const nextMove = fenBoard.move(move);
+      // Odbrambena mreza protiv "Invalid FEN: some pawns are on the edge
+      // rows" rusenja cele stranice. ChessFENBoard.move() BEZ promoteTo
+      // prosto pomeri pesaka na poslednji red kao pesaka (ne promovise ga),
+      // sto validateFenString odmah odbija - neuhvacen izuzetak, cela
+      // stranica puca. Dva razloga zasto promoteTo moze stici pogresno:
+      // (1) uopste nije prosledjen, (2) prosledjen je ali u POGRESNOM
+      // velikom/malom slovu - ChessFENBoard.move() koristi `promoteTo`
+      // DIREKTNO kao figuru koja se postavlja (vidi `const piece = promoteTo
+      // || this.piece(from)` u ChessFENBoard.ts), pa 'q' (malo) za BELOG
+      // pesaka postavi CRNU damu umesto bele. Skriptovani protivnikov potez
+      // (lessonDatabase.ts UCI string, npr. 'h7h8q') uvek nosi MALO slovo
+      // bez obzira na boju - ispravno samo za crnog. Ovde se promoteTo
+      // UVEK prinudno normalizuje na tacno slovo za boju figure koja se
+      // STVARNO pomera (`movingPiece`, sirovi FEN znak 'P'/'p'), cuvajuci
+      // zahtevanu figuru (Q/R/B/N) ako je data, inace podrazumevano dama.
+      const isPawn = movingPiece.toLowerCase() === 'p';
+      const landsOnBackRank =
+        (movingPiece === 'P' && move.to[1] === '8') ||
+        (movingPiece === 'p' && move.to[1] === '1');
+      const promoteToType = (move.promoteTo || 'q').toLowerCase();
+      const safeMove =
+        isPawn && landsOnBackRank
+          ? {
+              ...move,
+              promoteTo: (movingPiece === 'P'
+                ? promoteToType.toUpperCase()
+                : promoteToType) as FenBoardPromotionalPieceSymbol,
+            }
+          : move;
+
+      const nextMove = fenBoard.move(safeMove);
 
       // Koraci tipa 'teach' su uzastopni potezi iste boje, pa posle poteza
       // vracamo potez korisniku - inace bi chess.js odbio sledeci potez.
@@ -607,6 +644,7 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
   }
 
   if (action.type === 'loadedChapter:writeMessage') {
+    const payload = action.payload as Message;
     return {
       ...prev,
       activityState: {
@@ -618,10 +656,10 @@ export const reducer: MovexReducer<ActivityState, ActivityActions> = (
             messages: [
               ...(prev.activityState.chaptersMap[0].messages ?? []),
               {
-                content: action.payload.content,
-                participantId: action.payload.participantId,
-
-                idResponse: action.payload.idResponse,
+                content: payload.content,
+                participantId: payload.participantId,
+                idResponse: payload.idResponse,
+                kind: payload.kind,
               },
             ],
           },

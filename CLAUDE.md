@@ -10,6 +10,13 @@ Next.js 14 full-stack šahovska platforma sa real-time multiplayer igrom, botovi
 - **Ne menjaj kod** bez eksplicitnog zahteva — čitaj, analiziraj, predloži, pitaj
 - Kada se dogovorimo šta radimo, tek onda menjam fajlove
 
+## Trenutni fokus: Daily Lesson
+
+- Trenutno se radi **isključivo** na `DailyLesson` aktivnosti (`modules/Room/activities/DailyLesson/`, `app/room/a/dailyLesson/`)
+- Izmene **ne smeju uticati** na ostale aktivnosti (Match, Learn, LearnAi, Puzzle, Review, Meetup) niti na kretanje figura/logiku poteza u njima
+- Deljeni fajlovi (`RoomContainer.tsx`, `modules/Room/activities/movex/*`, `modules/Room/io/paramsSchema.ts`, `modules/Room/hooks/useRoomSettings.ts`, `modules/Room/RoomTemplate.tsx` i sl.) diraj **samo da registruješ `dailyLesson` kao novi tip aktivnosti** (novi if-blok, novi entry u mapi/union-u) — nikad menjaj postojeću granu/logiku za druge aktivnosti u tim fajlovima
+- Ako popravka nekog bug-a zahteva izmenu deljenog koda koji utiče na druge aktivnosti (npr. `useMoves.ts`, `ChessboardContainer`, `movex.ts`) — **stani i pitaj pre izmene**, to izlazi iz trenutnog obima
+
 ## Stil saradnje
 
 - Razgovaramo, analiziramo zajedno, pitam pre nego što dirnem išta

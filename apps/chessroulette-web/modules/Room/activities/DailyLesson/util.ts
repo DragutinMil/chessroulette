@@ -1,4 +1,5 @@
 import Cookies from 'js-cookie';
+import type { IllegalMoveReason } from './lessonEngine';
 
 export type MessageMoveSegment =
   | { type: 'text'; value: string; start: number; end: number }
@@ -173,4 +174,114 @@ export function enqueueMovexUpdate<T>(
     .catch((err) => console.error('Error in Movex update:', err));
 
   return movexUpdateQueue;
+}
+
+/** Kratke, opste podrzavajuce poruke za tacan potez - fallback kad treba variacija. */
+const GENERIC_SUCCESS_VARIANTS = [
+  'Nice — keep going!',
+  'Good move!',
+  "That's it!",
+  'Keep it up!',
+  'Well played!',
+  'Sharp!',
+];
+
+/** Kratke, opste poruke za pogresan potez - fallback kad treba variacija. */
+const GENERIC_WRONG_MOVE_VARIANTS = [
+  'Not quite — try again.',
+  "Close, but that's not it.",
+  'Give it another shot.',
+  'Not this time — look again.',
+  "Almost — that's not the square.",
+];
+
+/** Kratke, podrzavajuce poruke uz Hint dugme - korisnik je zatrazio pomoc, ne pogresio. */
+const GENERIC_HINT_HELP_VARIANTS = [
+  "Here's some help — take a look at the board!",
+  "I've marked the move for you — check the board!",
+  'Look at the board, I highlighted it for you.',
+  'Here you go — follow the arrow!',
+  "Take a peek — I've shown you the way.",
+];
+
+/**
+ * Bira poruku razlicitu od poslednje poslate, da se dva ista kratka komentara
+ * ne nadju za redom. `primary` je uobicajena poruka za ovaj trenutak (npr.
+ * step.successText ili step.hintText); ako se poklapa sa poslednjom porukom,
+ * izabere se neka druga iz zadatog fonda umesto nje.
+ */
+export function pickVariedMessage(
+  primary: string,
+  lastContent?: string,
+  variants: string[] = GENERIC_SUCCESS_VARIANTS
+): string {
+  const pool = [primary, ...variants];
+  const candidates = pool.filter((text) => text !== lastContent);
+  const options = candidates.length > 0 ? candidates : pool;
+  return options[Math.floor(Math.random() * options.length)];
+}
+
+/** Isto kao pickVariedMessage, ali sa fondom prilagodjenim pogresnom potezu. */
+export function pickVariedWrongMoveMessage(
+  primary: string,
+  lastContent?: string
+): string {
+  return pickVariedMessage(primary, lastContent, GENERIC_WRONG_MOVE_VARIANTS);
+}
+
+/**
+ * Za klik na Hint dugme - korisnik je zatrazio pomoc (ne pogresio potez), pa
+ * poruka treba da bude podrzavajuca, ne korektivna. Tabla vec pokazuje strelicu
+ * i figuru - tekst samo upucuje korisnika na to.
+ */
+export function pickHintHelpMessage(lastContent?: string): string {
+  const candidates = GENERIC_HINT_HELP_VARIANTS.filter(
+    (text) => text !== lastContent
+  );
+  const options = candidates.length > 0 ? candidates : GENERIC_HINT_HELP_VARIANTS;
+  return options[Math.floor(Math.random() * options.length)];
+}
+
+const PIECE_NAMES: Record<string, string> = {
+  p: 'Pawn',
+  n: 'Knight',
+  b: 'Bishop',
+  r: 'Rook',
+  q: 'Queen',
+  k: 'King',
+};
+
+/** kind:'freePlay' - objasnjenje nelegalnog poteza u chatu (vidi illegalMoveReason). */
+export function illegalMoveMessage(
+  reason: IllegalMoveReason,
+  pieceType: string,
+  to: string,
+  hasLegalTargets: boolean
+): string {
+  const name = PIECE_NAMES[pieceType] ?? 'piece';
+  const text: Record<IllegalMoveReason, string> = {
+    ownPiece: `Your own piece is already on ${to}. No capturing your own team.`,
+    castling:
+      "No castling here. King and Rook can't have moved, the squares between them must be empty, and the King can't pass through check.",
+    inCheck:
+      'Your King is in check. Fix that first: move the King, block, or capture the attacker.',
+    kingIntoCheck: `${to} is under attack. Your King can't walk into check.`,
+    pinned: `That ${name} is pinned. Move it and your King is open to attack.`,
+    blocked: `Something's in the way. The ${name} can't jump. Only Knights get to do that.`,
+    pawnCaptureEmpty: `Pawns go diagonal only to capture. ${to} is empty.`,
+    pawnBlocked: `Pawns can't capture straight ahead. The path to ${to} is blocked.`,
+    pawnDoubleStep: '2 squares only works on a Pawn\'s first move.',
+    pawnBackward: 'Pawns only go forward. No retreats.',
+    pieceShape:
+      {
+        p: 'Pawns move 1 square forward. 2 on their first move.',
+        n: 'Knights move in an L. 2 squares one way, then 1 to the side.',
+        b: 'Bishops stay on diagonals. No straight lines.',
+        r: 'Rooks move in straight lines. Up, down, left, right. No diagonals.',
+        q: "The Queen goes straight or diagonal. The L belongs to the Knight.",
+        k: 'The King moves 1 square at a time. Any direction.',
+      }[pieceType] ?? "That piece doesn't move like that.",
+  };
+  const dots = hasLegalTargets ? ' The dots show where it can go.' : '';
+  return `${text[reason]}${dots}`;
 }

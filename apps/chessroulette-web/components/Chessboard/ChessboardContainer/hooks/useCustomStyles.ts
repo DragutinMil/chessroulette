@@ -23,6 +23,7 @@ export const useCustomStyles = ({
   hoveredSquare,
   hintSquares,
   hintFromSquare,
+  glowSquare,
 }: {
   boardTheme: BoardTheme;
   fen: ChessFEN;
@@ -34,6 +35,7 @@ export const useCustomStyles = ({
   hoveredSquare?: Square;
   hintSquares?: Square[];
   hintFromSquare?: Square;
+  glowSquare?: Square;
 }) => {
   const inCheckSquares = useMemo(() => getInCheckSquareMap(fen), [fen]);
 
@@ -131,10 +133,21 @@ export const useCustomStyles = ({
         )
       : {};
 
-    // Blagi highlight na polju figure na koju se hint odnosi - "ovu figuru pomeri".
+    // Okvir (ne fil) oko figure na koju se hint odnosi - "ovu figuru pomeri".
+    // Plava (#11c6d1, ista kao strelice) namerno, ne zelena - da se ne stopi
+    // sa zelenim "last move" highlight-om kad je bas ta figura upravo odigrana.
     const hintFromStyles = hintFromSquare && {
       [hintFromSquare]: {
-        background: 'rgba(7,218,99,0.28)',
+        boxShadow: 'inset 0 0 0 3px #11c6d1',
+      },
+    };
+
+    // Kratak zlatni "glow" - DailyLesson-ov skakac koji preskace figuru
+    // (Knight lekcija, "jump over" primer) - vidno se razlikuje od plavog
+    // hinta i zelenog last-move highlight-a.
+    const glowStyles = glowSquare && {
+      [glowSquare]: {
+        boxShadow: '0 0 0 3px #FFD700, 0 0 14px 4px rgba(255,215,0,0.75) inset',
       },
     };
 
@@ -147,6 +160,7 @@ export const useCustomStyles = ({
       hoveredStyles || {},
       premoveStyles || {},
       hintFromStyles || {},
+      glowStyles || {},
       hintDotStyles
     );
   }, [
@@ -160,6 +174,7 @@ export const useCustomStyles = ({
     preMove,
     hintSquares,
     hintFromSquare,
+    glowSquare,
   ]);
 
   return useMemo(

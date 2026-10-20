@@ -69,6 +69,20 @@ export type ChessboardContainerProps = Omit<
   hintSquares?: Square[];
   // Blagi highlight na polju figure na koju se hint odnosi - "ovu figuru pomeri"
   hintFromSquare?: Square;
+  // Kratak "gold glow" na polju - npr. DailyLesson-ov skakac koji preskace
+  // figuru (Knight lekcija, Primer 2 "Jump over pieces").
+  glowSquare?: Square;
+  /**
+   * Default true (nepromenjeno ponasanje svuda). Postavi na false da
+   * ONEMOGUCIS premove (potez odigran dok NIJE korisnikov red se tiho
+   * "naoruza" i sam opali cim red dodje) - DailyLesson Day 14 "Your First
+   * Game" (freePlay protiv Pawny-ja): Pawny-jevo razmisljanje traje 1-3s,
+   * dovoljno dugo da korisnik pokusa JOS jedan potez misleci da prvi nije
+   * prosao (vizuelno se "vrati") - taj naoruzan premove bi se onda OPALIO
+   * cim Pawny odigra, zajedno sa korisnikovim sledecim rucnim potezom -
+   * izgleda kao da je korisnikov potez "dupliran".
+   */
+  allowPremoves?: boolean;
 
   overlayComponent?: React.ReactNode;
 } & (
@@ -127,6 +141,8 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
   canMoveOpponentPieces,
   hintSquares,
   hintFromSquare,
+  glowSquare,
+  allowPremoves = true,
   ...props
 }) => {
   const isMyTurn = boardOrientation === turn;
@@ -184,7 +200,7 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
     premoveAnimationDelay: disableAnimations ? 0 : BOARD_ANIMATION_DELAY + 30,
     onValidateMove,
     onMove,
-    onPreMove: onMove,
+    onPreMove: allowPremoves ? onMove : undefined,
     isSquareEmpty,
     botType,
     canMoveOpponentPieces,
@@ -214,6 +230,7 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
     isMyTurn,
     hintSquares,
     hintFromSquare,
+    glowSquare,
     ...props,
   });
   useEffect(() => {

@@ -1,22 +1,418 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import confetti from 'canvas-confetti';
+import Image from 'next/image';
 import { Dialog } from '@app/components/Dialog';
 import { ButtonGreen } from '@app/components/Button/ButtonGreen';
 import { Icon } from '@app/components/Icon/Icon';
 import { dailyLesson } from '../movex';
 import { Lesson, LessonStep } from '../lessonDatabase';
 
+// Popup-ovi (ovaj fajl) naglasavaju **bold** ZELENOM bojom umesto obicnog
+// bold-a - za razliku od Conversation.tsx (AI chat) gde ostaje cist bold.
+// Isti **...** autorski zapis u lessonDatabase.ts, samo drugaciji render
+// po kontekstu (puno teksta na popup-u, treba jace da iskoci).
+function renderMarkdownInline(text: string): React.ReactNode[] {
+  const parts = text.split(/(\*\*[^*]+\*\*|\*[^*]+\*)/g);
+  return parts.map((part, i) => {
+    if (part.startsWith('**') && part.endsWith('**'))
+      return (
+        <strong key={i} className="text-[#07DA63]">
+          {part.slice(2, -2)}
+        </strong>
+      );
+    if (part.startsWith('*') && part.endsWith('*'))
+      return <em key={i}>{part.slice(1, -1)}</em>;
+    return part;
+  });
+}
+
+const KNIGHT_GRID = 5;
+const KNIGHT_CELL = 32;
+
+/**
+ * Skakac fizicki skace iz centra 5x5 mini table na svako od 8 polja redom
+ * (sporo, da se jasno vidi svaki skok) pa se vraca u centar pre sledeceg -
+ * isti princip kao King-ova intro animacija, samo L-skokovi umesto susednih polja.
+ */
+const KnightIntroAnimation = ({ glyph }: { glyph: string }) => (
+  <div
+    className="relative mx-auto my-3 rounded-md overflow-hidden"
+    style={{ width: KNIGHT_GRID * KNIGHT_CELL, height: KNIGHT_GRID * KNIGHT_CELL }}
+  >
+    <div className="grid grid-cols-5 grid-rows-5 h-full w-full">
+      {Array.from({ length: KNIGHT_GRID * KNIGHT_GRID }, (_, i) => {
+        const row = Math.floor(i / KNIGHT_GRID);
+        const col = i % KNIGHT_GRID;
+        const isLight = (row + col) % 2 === 0;
+        return (
+          <div
+            key={i}
+            style={{
+              background: isLight ? 'rgb(240, 217, 181)' : 'rgb(181, 136, 99)',
+            }}
+          />
+        );
+      })}
+    </div>
+    <div
+      className="dl-piece-knight absolute h-8 w-8 flex items-center justify-center text-[30px] leading-none text-[#14181F]"
+      style={{
+        left: 2 * KNIGHT_CELL,
+        top: 2 * KNIGHT_CELL,
+        textShadow: '0 1px 2px rgba(255,255,255,0.45)',
+      }}
+    >
+      {glyph}
+    </div>
+    <style>{`
+      /*
+        Svaki od 8 pravaca ide u DVE faze tamo - prvo DUZA noga (2 polja), pa
+        KRACA (1 polje u stranu) - i ISTIM putem nazad (skida kracu nogu, pa
+        duzu) do centra, umesto da dijagonalno "odleti" pravo nazad. Svaka
+        faza se zadrzi na trenutak da amater stigne da je uoci.
+      */
+      @keyframes dl-piece-knight {
+        0%       { transform: translate(0, 0); }
+        2.5%     { transform: translate(0, 64px); }     /* 2 dole */
+        3.75%    { transform: translate(0, 64px); }
+        5.625%   { transform: translate(32px, 64px); }  /* +1 desno */
+        6.875%   { transform: translate(32px, 64px); }
+        8.75%    { transform: translate(0, 64px); }     /* -1 nazad */
+        10%      { transform: translate(0, 64px); }
+        12.5%    { transform: translate(0, 0); }         /* 2 nazad */
+
+        15%      { transform: translate(0, -64px); }    /* 2 gore */
+        16.25%   { transform: translate(0, -64px); }
+        18.125%  { transform: translate(32px, -64px); } /* +1 desno */
+        19.375%  { transform: translate(32px, -64px); }
+        21.25%   { transform: translate(0, -64px); }
+        22.5%    { transform: translate(0, -64px); }
+        25%      { transform: translate(0, 0); }
+
+        27.5%    { transform: translate(0, 64px); }     /* 2 dole */
+        28.75%   { transform: translate(0, 64px); }
+        30.625%  { transform: translate(-32px, 64px); } /* +1 levo */
+        31.875%  { transform: translate(-32px, 64px); }
+        33.75%   { transform: translate(0, 64px); }
+        35%      { transform: translate(0, 64px); }
+        37.5%    { transform: translate(0, 0); }
+
+        40%      { transform: translate(0, -64px); }    /* 2 gore */
+        41.25%   { transform: translate(0, -64px); }
+        43.125%  { transform: translate(-32px, -64px); } /* +1 levo */
+        44.375%  { transform: translate(-32px, -64px); }
+        46.25%   { transform: translate(0, -64px); }
+        47.5%    { transform: translate(0, -64px); }
+        50%      { transform: translate(0, 0); }
+
+        52.5%    { transform: translate(64px, 0); }     /* 2 desno */
+        53.75%   { transform: translate(64px, 0); }
+        55.625%  { transform: translate(64px, 32px); }  /* +1 dole */
+        56.875%  { transform: translate(64px, 32px); }
+        58.75%   { transform: translate(64px, 0); }
+        60%      { transform: translate(64px, 0); }
+        62.5%    { transform: translate(0, 0); }
+
+        65%      { transform: translate(64px, 0); }     /* 2 desno */
+        66.25%   { transform: translate(64px, 0); }
+        68.125%  { transform: translate(64px, -32px); } /* +1 gore */
+        69.375%  { transform: translate(64px, -32px); }
+        71.25%   { transform: translate(64px, 0); }
+        72.5%    { transform: translate(64px, 0); }
+        75%      { transform: translate(0, 0); }
+
+        77.5%    { transform: translate(-64px, 0); }    /* 2 levo */
+        78.75%   { transform: translate(-64px, 0); }
+        80.625%  { transform: translate(-64px, 32px); } /* +1 dole */
+        81.875%  { transform: translate(-64px, 32px); }
+        83.75%   { transform: translate(-64px, 0); }
+        85%      { transform: translate(-64px, 0); }
+        87.5%    { transform: translate(0, 0); }
+
+        90%      { transform: translate(-64px, 0); }    /* 2 levo */
+        91.25%   { transform: translate(-64px, 0); }
+        93.125%  { transform: translate(-64px, -32px); } /* +1 gore */
+        94.375%  { transform: translate(-64px, -32px); }
+        96.25%   { transform: translate(-64px, 0); }
+        97.5%    { transform: translate(-64px, 0); }
+        100%     { transform: translate(0, 0); }
+      }
+      .dl-piece-knight { animation: dl-piece-knight 16s ease-in-out infinite; }
+      @media (prefers-reduced-motion: reduce) {
+        .dl-piece-knight { animation: none; }
+      }
+    `}</style>
+  </div>
+);
+
+const QUEEN_GRID = 5;
+const QUEEN_CELL = 32;
+
+/**
+ * Dama klizi PRAVO (N/S/E/W, kao top) pa DIJAGONALNO (kao lovac) do ivice
+ * 5x5 mini table i vraca se u centar pre sledeceg pravca - za razliku od
+ * skakaca, ravna linija je ovde sahovski tacna (dama STVARNO ide pravolinijski).
+ */
+const QueenIntroAnimation = ({ glyph }: { glyph: string }) => (
+  <div
+    className="relative mx-auto my-3 rounded-md overflow-hidden"
+    style={{ width: QUEEN_GRID * QUEEN_CELL, height: QUEEN_GRID * QUEEN_CELL }}
+  >
+    <div className="grid grid-cols-5 grid-rows-5 h-full w-full">
+      {Array.from({ length: QUEEN_GRID * QUEEN_GRID }, (_, i) => {
+        const row = Math.floor(i / QUEEN_GRID);
+        const col = i % QUEEN_GRID;
+        const isLight = (row + col) % 2 === 0;
+        return (
+          <div
+            key={i}
+            style={{
+              background: isLight ? 'rgb(240, 217, 181)' : 'rgb(181, 136, 99)',
+            }}
+          />
+        );
+      })}
+    </div>
+    <div
+      className="dl-piece-queen absolute h-8 w-8 flex items-center justify-center text-[30px] leading-none text-[#14181F]"
+      style={{
+        left: 2 * QUEEN_CELL,
+        top: 2 * QUEEN_CELL,
+        textShadow: '0 1px 2px rgba(255,255,255,0.45)',
+      }}
+    >
+      {glyph}
+    </div>
+    <style>{`
+      @keyframes dl-piece-queen {
+        0%      { transform: translate(0, 0); }
+        4%      { transform: translate(0, -64px); }    /* N */
+        8.5%    { transform: translate(0, -64px); }
+        12.5%   { transform: translate(0, 0); }
+
+        16.5%   { transform: translate(0, 64px); }      /* S */
+        21%     { transform: translate(0, 64px); }
+        25%     { transform: translate(0, 0); }
+
+        29%     { transform: translate(64px, 0); }      /* E */
+        33.5%   { transform: translate(64px, 0); }
+        37.5%   { transform: translate(0, 0); }
+
+        41.5%   { transform: translate(-64px, 0); }     /* W */
+        46%     { transform: translate(-64px, 0); }
+        50%     { transform: translate(0, 0); }
+
+        54%     { transform: translate(64px, -64px); }  /* NE */
+        58.5%   { transform: translate(64px, -64px); }
+        62.5%   { transform: translate(0, 0); }
+
+        66.5%   { transform: translate(64px, 64px); }   /* SE */
+        71%     { transform: translate(64px, 64px); }
+        75%     { transform: translate(0, 0); }
+
+        79%     { transform: translate(-64px, 64px); }  /* SW */
+        83.5%   { transform: translate(-64px, 64px); }
+        87.5%   { transform: translate(0, 0); }
+
+        91.5%   { transform: translate(-64px, -64px); } /* NW */
+        96%     { transform: translate(-64px, -64px); }
+        100%    { transform: translate(0, 0); }
+      }
+      .dl-piece-queen { animation: dl-piece-queen 14s ease-in-out infinite; }
+      @media (prefers-reduced-motion: reduce) {
+        .dl-piece-queen { animation: none; }
+      }
+    `}</style>
+  </div>
+);
+
+/**
+ * Za lekcije koje nisu o kretanju figure (npr. istorija saha, vrednosti
+ * figura) - nema table uopste, samo naslovna "kartica" sa ikonicom koja
+ * blago pulsira. Generican - glyph i tekst dolaze iz Lesson.piece, ne
+ * hardkodovan za jednu lekciju.
+ */
+const StaticIntroBanner = ({
+  glyph,
+  bannerText,
+}: {
+  glyph: string;
+  bannerText: string;
+}) => (
+  <div className="relative mx-auto my-3 w-full max-w-[220px] rounded-xl overflow-hidden border border-[#07DA63]/40 bg-gradient-to-b from-[#07DA63]/[0.12] to-transparent px-4 py-5 flex flex-col items-center gap-2">
+    <div className="dl-static-icon text-[40px] leading-none">{glyph}</div>
+    <p className="text-white font-bold text-sm tracking-wide uppercase text-center">
+      {bannerText}
+    </p>
+    <style>{`
+      @keyframes dl-static-glow {
+        0%, 100% { filter: drop-shadow(0 0 0px rgba(7,218,99,0)); transform: scale(1); }
+        50%      { filter: drop-shadow(0 0 10px rgba(7,218,99,0.7)); transform: scale(1.08); }
+      }
+      .dl-static-icon { animation: dl-static-glow 2.5s ease-in-out infinite; }
+      @media (prefers-reduced-motion: reduce) {
+        .dl-static-icon { animation: none; }
+      }
+    `}</style>
+  </div>
+);
+
+/**
+ * Day 14 "Your First Game" - stvarna Pawny maskota (ne generican glif kao
+ * ostale "static" lekcije, i ne Outposty - Pawny je PROTIVNIK, ne trener) na
+ * "Meet Pawny" pop-upu, pun vizual + blagi bob. Outposty (postojeca zelena
+ * maskota) ostaje trener/brend identitet svuda drugde (AI chat objasnjenja,
+ * popup-ovi koji "vise odozgo") - ovde se namerno NE koristi.
+ */
+const MascotIntroBanner = ({
+  bannerText,
+  subBannerText,
+  mascotSrc = '/pawny/pawny.png',
+}: {
+  bannerText: string;
+  subBannerText?: string;
+  /** Lesson.pawnyAvatar (Day 18 "Pawny 2.0") - isti princip kao chat avatar. */
+  mascotSrc?: string;
+}) => (
+  <div className="relative mx-auto my-3 w-full max-w-[220px] rounded-xl overflow-hidden border border-[#07DA63]/40 bg-gradient-to-b from-[#07DA63]/[0.12] to-transparent px-4 py-5 flex flex-col items-center gap-2">
+    <div className="dl-mascot-bob relative h-[120px] w-[120px]">
+      <Image src={mascotSrc} alt="Pawny" fill className="object-contain" />
+    </div>
+    <p className="text-white font-bold text-sm tracking-wide uppercase text-center">
+      {bannerText}
+    </p>
+    {subBannerText && (
+      <p className="text-[#07DA63] text-xs font-semibold tracking-wide text-center -mt-1">
+        {subBannerText}
+      </p>
+    )}
+    <style>{`
+      @keyframes dl-mascot-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+      .dl-mascot-bob { animation: dl-mascot-bob 1.6s ease-in-out infinite; }
+      @media (prefers-reduced-motion: reduce) {
+        .dl-mascot-bob { animation: none; }
+      }
+    `}</style>
+  </div>
+);
+
+// Puni (ne suplji) glifovi - isti kao glyph polje svih ostalih lekcija
+// (Rook ♜, Bishop ♝, King ♚, Knight ♞, Queen ♛, Pawn ♟) - suplji bi na
+// svetloj pozadini nestao.
+const PIECE_VALUE_CHIPS: [string, string][] = [
+  ['♟', '1'],
+  ['♞', '3'],
+  ['♝', '3'],
+  ['♜', '5'],
+  ['♛', '9'],
+  ['♚', '∞'],
+];
+
+/**
+ * Za Piece Values lekciju - umesto table, figura+vrednost "cipovi" iskacu
+ * jedan po jedan (redom 1,3,3,5,9,∞), svaki na svoj tempo (animation-delay).
+ * Broj ima SOPSTVENU animaciju (malo kasni za figurom i "uskoci" sa
+ * odskokom) da se jasno vidi da je broj POVEZAN sa upravo tom figurom, ne
+ * samo da je sve zajedno jedna mrlja koja se pali/gasi.
+ */
+const PieceValuesIntroAnimation = () => (
+  <div className="relative mx-auto my-3 w-full max-w-[260px] rounded-xl overflow-hidden border border-[#07DA63]/40 bg-gradient-to-b from-[#07DA63]/[0.12] to-transparent px-4 py-5">
+    <div className="grid grid-cols-3 gap-3">
+      {PIECE_VALUE_CHIPS.map(([glyph, value], i) => (
+        <div
+          key={i}
+          className="flex flex-col items-center gap-0.5"
+          style={{ animationDelay: `${i * 0.4}s` }}
+        >
+          <span
+            className="dl-value-piece text-[28px] leading-none text-white"
+            style={{
+              animationDelay: `${i * 0.4}s`,
+              textShadow: '0 1px 2px rgba(0,0,0,0.6)',
+            }}
+          >
+            {glyph}
+          </span>
+          <span
+            className="dl-value-number text-[#07DA63] font-black text-lg leading-none"
+            style={{ animationDelay: `${i * 0.4}s` }}
+          >
+            {value}
+          </span>
+        </div>
+      ))}
+    </div>
+    <style>{`
+      @keyframes dl-value-piece-pop {
+        0%, 15%   { opacity: 0; transform: scale(0.4); }
+        25%, 75%  { opacity: 1; transform: scale(1); }
+        90%, 100% { opacity: 0; transform: scale(0.4); }
+      }
+      /* Kasni malo za figurom (18% umesto 15%) i "preskoci" preko 1 pre nego
+         sto se smiri - osecaj da broj broji/uskace POSLE figure, ne zajedno. */
+      @keyframes dl-value-number-pop {
+        0%, 18%   { opacity: 0; transform: scale(0.2) translateY(4px); }
+        28%       { opacity: 1; transform: scale(1.35) translateY(0); }
+        36%, 75%  { opacity: 1; transform: scale(1) translateY(0); }
+        90%, 100% { opacity: 0; transform: scale(0.2) translateY(4px); }
+      }
+      .dl-value-piece { display: inline-block; animation: dl-value-piece-pop 6s ease-in-out infinite; }
+      .dl-value-number { display: inline-block; animation: dl-value-number-pop 6s ease-in-out infinite; }
+      @media (prefers-reduced-motion: reduce) {
+        .dl-value-piece, .dl-value-number { animation: none; opacity: 1; transform: scale(1); }
+      }
+    `}</style>
+  </div>
+);
+
 /**
  * Mini tabla na kojoj figura klizi po tabli - samo za uvod. `movement`
- * bira putanju: 'straight' (top - ivice table) ili 'diagonal' (lovac).
+ * bira putanju: 'straight' (top - ivice table), 'diagonal' (lovac) ili
+ * 'king' (jedno polje u svih 8 pravaca, redom, iz centra).
  */
 const PieceIntroAnimation = ({
   glyph,
   movement,
+  bannerText,
+  subBannerText,
+  mascotSrc,
 }: {
   glyph: string;
-  movement: 'straight' | 'diagonal';
-}) => (
+  movement:
+    | 'straight'
+    | 'diagonal'
+    | 'king'
+    | 'knight'
+    | 'queen'
+    | 'pawn'
+    | 'static'
+    | 'numbers'
+    | 'mascot';
+  /** Samo za movement:'static'/'mascot' - tekst na uvodnoj kartici. */
+  bannerText?: string;
+  /** Samo za movement:'mascot' - manji podnaslov ispod bannerText. */
+  subBannerText?: string;
+  /** Samo za movement:'mascot' - vidi MascotIntroBanner. */
+  mascotSrc?: string;
+}) => {
+  if (movement === 'knight') return <KnightIntroAnimation glyph={glyph} />;
+  if (movement === 'queen') return <QueenIntroAnimation glyph={glyph} />;
+  if (movement === 'numbers') return <PieceValuesIntroAnimation />;
+  // Day 14 "Your First Game" - prava Pawny slika, ne generican glif.
+  if (movement === 'mascot')
+    return (
+      <MascotIntroBanner
+        bannerText={bannerText ?? 'Meet Pawny'}
+        subBannerText={subBannerText}
+        mascotSrc={mascotSrc}
+      />
+    );
+  if (movement === 'static')
+    return (
+      <StaticIntroBanner glyph={glyph} bannerText={bannerText ?? 'Time!'} />
+    );
+
+  return (
   <div className="relative mx-auto my-3 h-[128px] w-[128px] rounded-md overflow-hidden">
     <div className="grid grid-cols-4 grid-rows-4 h-full w-full">
       {Array.from({ length: 16 }, (_, i) => {
@@ -24,16 +420,33 @@ const PieceIntroAnimation = ({
         const col = i % 4;
         const isLight = (row + col) % 2 === 0;
         return (
-          <div key={i} className={isLight ? 'bg-[#E8EDF9]' : 'bg-[#7C93B1]'} />
+          <div
+            key={i}
+            style={{
+              background: isLight ? 'rgb(240, 217, 181)' : 'rgb(181, 136, 99)',
+            }}
+          />
         );
       })}
     </div>
     {/*
       Pun glif (npr. ♜/♝), ne suplji (♖/♗) - suplji je beo i nestaje na
       svetlim poljima. Svetli obris drzi kontrast i na tamnim poljima.
+      'king' krece iz centralnog polja (32,32) da bi svih 8 suseda ostalo
+      unutar 4x4 mreze - 'straight'/'diagonal' i dalje krecu iz gornjeg levog.
+      'pawn' krece sa reda ispred krajnjeg (top-16, ne bas na ivici mreze) i
+      ide NAGORE (negativan translate) - to je "napred" za belog; da krene sa
+      vrha i ide nadole izgledalo bi kao da pesak ide unazad.
+      ('static' se vraca ranije, kao HistoryIntroBanner - nikad ne stize ovde.)
     */}
     <div
-      className={`dl-piece-${movement} absolute left-0 top-0 h-8 w-8 flex items-center justify-center text-[30px] leading-none text-[#14181F]`}
+      className={`dl-piece-${movement} absolute ${
+        movement === 'king'
+          ? 'left-8 top-8'
+          : movement === 'pawn'
+            ? 'left-0 top-16'
+            : 'left-0 top-0'
+      } h-8 w-8 flex items-center justify-center text-[30px] leading-none text-[#14181F]`}
       style={{ textShadow: '0 1px 2px rgba(255,255,255,0.45)' }}
     >
       {glyph}
@@ -51,14 +464,117 @@ const PieceIntroAnimation = ({
         50%  { transform: translate(96px, 96px); }
         100% { transform: translate(0, 0); }
       }
+      @keyframes dl-piece-king {
+        0%      { transform: translate(0, 0); }
+        6.25%   { transform: translate(0, -32px); }     /* N */
+        12.5%   { transform: translate(0, 0); }
+        18.75%  { transform: translate(32px, -32px); }  /* NE */
+        25%     { transform: translate(0, 0); }
+        31.25%  { transform: translate(32px, 0); }      /* E */
+        37.5%   { transform: translate(0, 0); }
+        43.75%  { transform: translate(32px, 32px); }   /* SE */
+        50%     { transform: translate(0, 0); }
+        56.25%  { transform: translate(0, 32px); }      /* S */
+        62.5%   { transform: translate(0, 0); }
+        68.75%  { transform: translate(-32px, 32px); }  /* SW */
+        75%     { transform: translate(0, 0); }
+        81.25%  { transform: translate(-32px, 0); }     /* W */
+        87.5%   { transform: translate(0, 0); }
+        93.75%  { transform: translate(-32px, -32px); } /* NW */
+        100%    { transform: translate(0, 0); }
+      }
+      @keyframes dl-piece-pawn {
+        0%, 28%   { transform: translate(0, 0); }         /* pocetno polje */
+        35%, 55%  { transform: translate(0, -32px); }      /* prvo: jedno polje NAPRED */
+        62%       { transform: translate(0, 0); }
+        70%, 90%  { transform: translate(0, -64px); }       /* zatim: dva polja NAPRED (bonus) */
+        100%      { transform: translate(0, 0); }
+      }
       .dl-piece-straight { animation: dl-piece-straight 4s ease-in-out infinite; }
       .dl-piece-diagonal { animation: dl-piece-diagonal 3s ease-in-out infinite; }
+      .dl-piece-king { animation: dl-piece-king 8s ease-in-out infinite; }
+      .dl-piece-pawn { animation: dl-piece-pawn 8s ease-in-out infinite; }
       @media (prefers-reduced-motion: reduce) {
-        .dl-piece-straight, .dl-piece-diagonal { animation: none; }
+        .dl-piece-straight, .dl-piece-diagonal, .dl-piece-king, .dl-piece-pawn { animation: none; }
       }
     `}</style>
   </div>
-);
+  );
+};
+
+const CASTLE_LAYOUTS = {
+  // indeksi polja u nizu (e1..h1 / a1..e1), 0 = najlevlje polje u traci
+  'castle-kingside': { squares: 4, kingStart: 0, kingEnd: 2, rookStart: 3, rookEnd: 1 },
+  'castle-queenside': { squares: 5, kingStart: 4, kingEnd: 2, rookStart: 0, rookEnd: 3 },
+} as const;
+
+const CASTLE_CELL = 32;
+
+/**
+ * Mini traka polja (samo prvi red, e1-h1 ili a1-e1) na kojoj kralj i top
+ * animirano odigraju rokadu - isti vizuelni jezik kao PieceIntroAnimation
+ * iznad, samo horizontalna traka umesto 4x4 table jer rokada zivi na jednom redu.
+ */
+const CastlingDiagram = ({
+  side,
+}: {
+  side: 'castle-kingside' | 'castle-queenside';
+}) => {
+  const { squares, kingStart, kingEnd, rookStart, rookEnd } =
+    CASTLE_LAYOUTS[side];
+  const width = squares * CASTLE_CELL;
+  const kingAnim = `dl-castle-king-${side}`;
+  const rookAnim = `dl-castle-rook-${side}`;
+
+  return (
+    <div
+      className="relative mx-auto my-3 rounded-md overflow-hidden"
+      style={{ width, height: CASTLE_CELL }}
+    >
+      <div className="flex h-full w-full">
+        {Array.from({ length: squares }, (_, i) => (
+          <div
+            key={i}
+            style={{
+              width: CASTLE_CELL,
+              height: CASTLE_CELL,
+              background: i % 2 === 0 ? 'rgb(240, 217, 181)' : 'rgb(181, 136, 99)',
+            }}
+          />
+        ))}
+      </div>
+      <div
+        className={`${kingAnim} absolute top-0 left-0 h-8 w-8 flex items-center justify-center text-[26px] leading-none text-[#14181F]`}
+        style={{ textShadow: '0 1px 2px rgba(255,255,255,0.45)' }}
+      >
+        ♔
+      </div>
+      <div
+        className={`${rookAnim} absolute top-0 left-0 h-8 w-8 flex items-center justify-center text-[26px] leading-none text-[#14181F]`}
+        style={{ textShadow: '0 1px 2px rgba(255,255,255,0.45)' }}
+      >
+        ♖
+      </div>
+      <style>{`
+        @keyframes ${kingAnim} {
+          0%, 20%   { transform: translateX(${kingStart * CASTLE_CELL}px); }
+          50%, 85%  { transform: translateX(${kingEnd * CASTLE_CELL}px); }
+          100%      { transform: translateX(${kingStart * CASTLE_CELL}px); }
+        }
+        @keyframes ${rookAnim} {
+          0%, 20%   { transform: translateX(${rookStart * CASTLE_CELL}px); }
+          50%, 85%  { transform: translateX(${rookEnd * CASTLE_CELL}px); }
+          100%      { transform: translateX(${rookStart * CASTLE_CELL}px); }
+        }
+        .${kingAnim} { animation: ${kingAnim} 4s ease-in-out infinite; }
+        .${rookAnim} { animation: ${rookAnim} 4s ease-in-out infinite; }
+        @media (prefers-reduced-motion: reduce) {
+          .${kingAnim}, .${rookAnim} { animation: none; }
+        }
+      `}</style>
+    </div>
+  );
+};
 
 export type DailyLessonDialogContainerProps = {
   lesson: Lesson | null;
@@ -70,6 +586,15 @@ export type DailyLessonDialogContainerProps = {
   onDismissCelebration: () => void;
   onRepeatLesson: () => void;
   onNextStep: () => void;
+  /** Vodi na sledecu lekciju u nizu (npr. Rook -> Bishop). Undefined ako je ovo poslednja za sad. */
+  onNextLesson?: () => void;
+  /** endScreenButtons action:'review' (Day 14) - otvara Game Review sa PGN-om odigrane partije. */
+  onGameReview?: () => void;
+  /** Popup pre koraka koji uvodi novu pod-temu (npr. rokada) - null ako trenutni korak nema jedan. */
+  preStepIntro: LessonStep['preStepIntro'] | null;
+  onDismissPreStepIntro: () => void;
+  /** Indeksi kviz koraka odgovorenih netacno - koristi se za lesson.scoreSummary na kraju. */
+  wrongQuizSteps?: Set<number>;
 };
 
 export const DailyLessonDialogContainer = ({
@@ -82,12 +607,25 @@ export const DailyLessonDialogContainer = ({
   onDismissCelebration,
   onRepeatLesson,
   onNextStep,
+  onNextLesson,
+  onGameReview,
+  preStepIntro,
+  onDismissPreStepIntro,
+  wrongQuizSteps,
 }: DailyLessonDialogContainerProps) => {
   const firedForRef = useRef<string | null>(null);
+  // Visestepeni uvodni popup (lesson.introSteps) - lokalni UI-only indeks,
+  // resetuje se na 0 svaki put kad se showIntro ponovo prikaze (npr. Repeat).
+  const [introStepIndex, setIntroStepIndex] = useState(0);
+  useEffect(() => {
+    if (showIntro) setIntroStepIndex(0);
+  }, [showIntro]);
 
   useEffect(() => {
-    if (!lessonState.popup || !step) return;
-    // Konfeti puca jednom po koraku, ne na svaki re-render dok je popup otvoren.
+    // Konfeti ide SAMO na kraju cele lekcije (End Screen), ne na pojedinacne
+    // "celebrate" korake usred lekcije (npr. mat u primeru 4) - tamo vise
+    // nema ni popup-a, pa ni konfeta ne treba da bude.
+    if (!lessonState.popup || !step || !lessonState.completed) return;
     if (firedForRef.current === step.id) return;
     firedForRef.current = step.id;
 
@@ -97,13 +635,20 @@ export const DailyLessonDialogContainer = ({
       spread: 170,
       origin: { y: 0.6 },
     });
-  }, [lessonState.popup, step]);
+  }, [lessonState.popup, lessonState.completed, step]);
 
   useEffect(() => {
     if (!lessonState.popup) firedForRef.current = null;
   }, [lessonState.popup]);
 
   if (showIntro && lesson) {
+    // Visestepeni uvod (lesson.introSteps, npr. Next -> Got it -> Start) -
+    // isti Dialog/naslov/animacija kroz sve ekrane, samo tekst i dugme se
+    // menjaju po lokalnom indeksu. Bez introSteps, ponasanje je nepromenjeno
+    // (jedan ekran, "Let's start").
+    const introStep = lesson.introSteps?.[introStepIndex];
+    const isLastIntroStep =
+      !lesson.introSteps || introStepIndex >= lesson.introSteps.length - 1;
     return (
       <Dialog
         title={
@@ -114,9 +659,12 @@ export const DailyLessonDialogContainer = ({
             <PieceIntroAnimation
               glyph={lesson.piece.glyph}
               movement={lesson.piece.movement}
+              bannerText={lesson.piece.bannerText}
+              subBannerText={lesson.piece.subBannerText}
+              mascotSrc={lesson.pawnyAvatar}
             />
             <p className="text-slate-300 text-sm text-center leading-relaxed">
-              {lesson.intro.text}
+              {renderMarkdownInline(introStep?.text ?? lesson.intro.text)}
             </p>
             <ButtonGreen
               size="lg"
@@ -124,9 +672,15 @@ export const DailyLessonDialogContainer = ({
               iconKind="outline"
               className="w-full text-[16px] h-[44px] rounded-[22px]"
               style={{ marginTop: 20 }}
-              onClick={onStartLesson}
+              onClick={() => {
+                if (isLastIntroStep) {
+                  onStartLesson();
+                } else {
+                  setIntroStepIndex((i) => i + 1);
+                }
+              }}
             >
-              &nbsp;Let's start
+              &nbsp;{introStep?.buttonText ?? "Let's start"}
             </ButtonGreen>
           </div>
         }
@@ -134,13 +688,74 @@ export const DailyLessonDialogContainer = ({
     );
   }
 
-  if (lessonState.popup && step) {
-    const isLessonDone = lessonState.completed;
+  // Generican "nova pod-tema" popup (npr. rokada) - jedini treci popup u
+  // lekciji, ne krsi pravilo "samo intro + zavrsni", jer je opt-in po koraku
+  // (preStepIntro), ne prikazuje se izmedju SVAKOG primera.
+  if (preStepIntro) {
+    return (
+      <Dialog
+        title={
+          <span className="text-white font-bold">{preStepIntro.title}</span>
+        }
+        content={
+          <div className="flex flex-col px-4 py-2 items-center">
+            {preStepIntro.diagram && (
+              <CastlingDiagram side={preStepIntro.diagram} />
+            )}
+            <p className="text-slate-300 text-sm text-center leading-relaxed">
+              {renderMarkdownInline(preStepIntro.text)}
+            </p>
+            {preStepIntro.bullets && preStepIntro.bullets.length > 0 && (
+              <ul className="mt-3 w-full text-slate-300 text-sm space-y-1.5">
+                {preStepIntro.bullets.map((bullet, i) => (
+                  <li key={i} className="flex items-start gap-2">
+                    <span className="text-[#07DA63] mt-0.5">•</span>
+                    <span>{renderMarkdownInline(bullet)}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+            <ButtonGreen
+              size="lg"
+              icon="PlayIcon"
+              iconKind="outline"
+              className="w-full text-[16px] h-[44px] rounded-[22px]"
+              style={{ marginTop: 20 }}
+              onClick={onDismissPreStepIntro}
+            >
+              &nbsp;{preStepIntro.buttonText ?? "Let's go!"}
+            </ButtonGreen>
+          </div>
+        }
+      />
+    );
+  }
+
+  // lesson.scoreSummary (npr. Piece Values "6/6 correct!") - racuna se SAMO
+  // od koraka navedenih u stepIds (npr. samo Faza 1), ne svih kviz koraka.
+  // tiers su poredjani opadajuce po min, prvi koji odgovara pobedjuje.
+  const scoreTier = (() => {
+    if (!lesson?.scoreSummary) return null;
+    const { stepIds, tiers } = lesson.scoreSummary;
+    const stepIndices = stepIds
+      .map((id) => lesson.steps.findIndex((s) => s.id === id))
+      .filter((i) => i >= 0);
+    const correctCount =
+      stepIndices.length -
+      stepIndices.filter((i) => wrongQuizSteps?.has(i)).length;
+    const tier = tiers.find((t) => correctCount >= t.min);
+    return tier ? { ...tier, correctCount, total: stepIndices.length } : null;
+  })();
+
+  // Popup se prikazuje SAMO na pocetku (intro, iznad) i na samom kraju cele
+  // lekcije - medjukoraci (i pojedinacni mat u primeru) vise nemaju
+  // prekidajuci popup, samo konfeti (efekat ispod) + inline "Next" u chatu.
+  if (lessonState.popup && step && lessonState.completed) {
     return (
       <Dialog
         title={
           <span className="text-[#07DA63] font-bold animate-pulse">
-            {isLessonDone ? 'Lesson complete! 🎉' : 'Checkmate! 🎉'}
+            {lesson?.endScreenTitle ?? 'Lesson complete! 🎉'}
           </span>
         }
         content={
@@ -148,44 +763,114 @@ export const DailyLessonDialogContainer = ({
             <p className="text-slate-300 text-sm text-center leading-relaxed">
               {step.doneText}
             </p>
+            {scoreTier && (
+              <div className="mt-3 w-full border border-[#07DA63]/30 bg-[#07DA63]/[0.07] rounded-xl px-3 py-2.5 text-center">
+                <p className="text-[#07DA63] text-xs font-bold tracking-wide uppercase">
+                  {scoreTier.correctCount}/{scoreTier.total} correct —{' '}
+                  {scoreTier.title}
+                </p>
+                <p className="text-slate-300 text-xs mt-1">
+                  {scoreTier.text}
+                </p>
+              </div>
+            )}
             <div className="mt-3 flex items-center gap-4 text-xs text-slate-400">
               <span className="flex items-center gap-1">
                 <Icon name="LightBulbIcon" kind="outline" className="h-4 w-4" />
-                {lessonState.hints} hint
-                {lessonState.hints !== 1 ? 's' : ''}
+                {lessonState.totalHints} hint
+                {lessonState.totalHints !== 1 ? 's' : ''}
               </span>
               <span className="flex items-center gap-1">
                 <Icon name="XMarkIcon" kind="outline" className="h-4 w-4" />
-                {lessonState.errors} error
-                {lessonState.errors !== 1 ? 's' : ''}
+                {lessonState.totalErrors} error
+                {lessonState.totalErrors !== 1 ? 's' : ''}
               </span>
             </div>
-
-            {isLessonDone ? (
-              <>
-                <p className="text-slate-400 text-xs text-center mt-3">
-                  You mastered the {lesson?.piece.name ?? 'piece'} today. Come
-                  back tomorrow for the next lesson!
-                </p>
+            <p className="text-slate-400 text-xs text-center mt-3">
+              You mastered the {lesson?.piece.name ?? 'piece'} today. Come
+              back tomorrow for the next lesson!
+            </p>
+            {/* Neke lekcije (npr. Day 13 Openings) zamenjuju standardni red
+                dugmadi svojim - vidi Lesson.endScreenButtons. */}
+            {lesson?.endScreenButtons ? (
+              lesson.endScreenButtons.map((btn, i) => (
                 <ButtonGreen
-                  icon="PlayIcon"
+                  key={btn.label}
+                  icon={
+                    btn.action === 'repeat'
+                      ? 'ArrowPathIcon'
+                      : btn.action === 'done'
+                        ? 'CheckIcon'
+                        : btn.action === 'review'
+                          ? 'ChartBarIcon'
+                          : btn.action === 'play'
+                            ? 'PlayIcon'
+                            : 'LightBulbIcon'
+                  }
                   iconKind="outline"
                   size="lg"
                   className="w-full text-[16px] h-[44px] rounded-[22px]"
-                  style={{ marginTop: 20 }}
-                  onClick={() => {
-                    window.location.href =
-                      'https://app.outpostchess.com/online-list';
-                  }}
+                  style={{ marginTop: i === 0 ? 20 : 12 }}
+                  disabled={btn.action === 'placeholder'}
+                  tooltip={
+                    btn.action === 'placeholder'
+                      ? btn.tooltip ?? 'Coming soon'
+                      : undefined
+                  }
+                  onClick={
+                    btn.action === 'repeat'
+                      ? () => {
+                          onDismissCelebration();
+                          onRepeatLesson();
+                        }
+                      : btn.action === 'done'
+                        ? () => {
+                            window.location.href = '/lessons';
+                          }
+                        : btn.action === 'review'
+                          ? onGameReview
+                          : btn.action === 'play'
+                            ? () => {
+                                // Vodi na Play (matchmaking) stranicu glavne
+                                // web-app, isto kao postojece "Home" dugme u
+                                // Puzzle aktivnosti (puzzleAi), samo druga ruta.
+                                window.location.href =
+                                  'https://app.outpostchess.com/intsearch';
+                              }
+                            : undefined
+                  }
                 >
-                  &nbsp;Play
+                  &nbsp;{btn.label}
+                </ButtonGreen>
+              ))
+            ) : (
+              <>
+                {/* Next Lesson ostaje uvek u End Screen-u, i kad sledeca
+                    lekcija jos ne postoji u bazi - samo se ugasi dok se ne
+                    doda (Path 1, 31 lekcija ukupno), ne zeli se da se ceo red
+                    dugmadi pomera. */}
+                <ButtonGreen
+                  icon="ArrowRightIcon"
+                  iconKind="outline"
+                  size="lg"
+                  className="w-full text-[16px] h-[44px] rounded-[22px] transition-[filter,transform] duration-150 hover:brightness-110 hover:scale-[1.02] active:scale-[0.98]"
+                  style={
+                    onNextLesson
+                      ? { marginTop: 20, backgroundColor: 'rgba(7, 218, 99)', color: '#000000' }
+                      : { marginTop: 20 }
+                  }
+                  disabled={!onNextLesson}
+                  tooltip={onNextLesson ? undefined : 'More lessons coming soon'}
+                  onClick={onNextLesson}
+                >
+                  &nbsp;Next Lesson
                 </ButtonGreen>
                 <ButtonGreen
                   icon="ArrowPathIcon"
                   iconKind="outline"
                   size="lg"
                   className="w-full text-[16px] h-[44px] rounded-[22px]"
-                  style={{ marginTop: 12 }}
+                  style={{ marginTop: onNextLesson ? 12 : 20 }}
                   onClick={() => {
                     onDismissCelebration();
                     onRepeatLesson();
@@ -193,22 +878,19 @@ export const DailyLessonDialogContainer = ({
                 >
                   &nbsp;Repeat
                 </ButtonGreen>
+                <ButtonGreen
+                  icon="CheckIcon"
+                  iconKind="outline"
+                  size="lg"
+                  className="w-full text-[16px] h-[44px] rounded-[22px]"
+                  style={{ marginTop: 12 }}
+                  onClick={() => {
+                    window.location.href = '/lessons';
+                  }}
+                >
+                  &nbsp;Done
+                </ButtonGreen>
               </>
-            ) : (
-              <ButtonGreen
-                icon="ArrowRightIcon"
-                iconKind="outline"
-                size="lg"
-                className="w-full text-[16px] h-[44px] rounded-[22px]"
-                style={{ marginTop: 20 }}
-                disabled={isLastStep}
-                onClick={() => {
-                  onDismissCelebration();
-                  onNextStep();
-                }}
-              >
-                &nbsp;Next
-              </ButtonGreen>
             )}
           </div>
         }

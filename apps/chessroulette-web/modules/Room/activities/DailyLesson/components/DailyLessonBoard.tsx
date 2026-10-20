@@ -18,11 +18,22 @@ type Props = Required<
     | 'rightSideClassName'
     | 'hintSquares'
     | 'hintFromSquare'
+    | 'glowSquare'
+    | 'allowPremoves'
+    | 'disableAnimations'
   > &
   ChapterBoardState & {
     notation?: ChapterState['notation'];
     squareRenderer?: ChessboardOptions['squareRenderer'];
     canPlay?: boolean;
+    /**
+     * kind:'quiz' - tabla je cist ambijent, nista se stvarno ne igra, pa
+     * nema koncept "moje/protivnikove figure" uopste. Bez ovoga, vucenje
+     * CRNE figure (ili bilo koje "tudje" po orientation) bi i dalje bilo
+     * tiho odbijeno pre nego sto stigne do onMove - korisnik nikad ne bi
+     * video objasnjenje "ovo je statican primer" ako bas nju povuce.
+     */
+    anyPieceDraggable?: boolean;
   };
 
 export const DailyLessonBoard = ({
@@ -35,6 +46,7 @@ export const DailyLessonBoard = ({
   rightSideComponent,
   rightSideClassName,
   canPlay = true,
+  anyPieceDraggable = false,
   ...chessBoardProps
 }: Props) => {
   const lm =
@@ -57,6 +69,7 @@ export const DailyLessonBoard = ({
    */
   const onValidateMove = (move: ShortChessMove) => {
     if (!canPlay) return false;
+    if (anyPieceDraggable) return true;
     const piece = pieceAt(fen, move.from);
     return !!piece && piece.color === orientation;
   };

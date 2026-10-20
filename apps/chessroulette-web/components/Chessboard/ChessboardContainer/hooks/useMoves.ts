@@ -316,10 +316,20 @@ Props): MoveActions => {
       }
       const delay = premoveWasDropRef.current ? 0 : premoveAnimationDelay;
       premoveWasDropRef.current = false;
-      setTimeout(() => {
+      const timeoutId = setTimeout(() => {
         setPreMove(undefined);
         onMove(moveToExecute);
       }, delay);
+      // KLJUCNO: ciscenje pending timeout-a. `setPreMove(undefined)` gore je
+      // ASINHRONO (unutar setTimeout) - ako ovaj effect ponovo odradi PRE
+      // nego sto taj timeout opali (npr. playerMoves se promeni iz drugog
+      // razloga dok je isti preMove.to JOS UVEK postavljen), bez ovog return-a
+      // bi se zakazao DRUGI identican setTimeout za ISTI potez. Prvi bi
+      // uspesno odigrao (figura napusti `from`), drugi bi malo kasnije
+      // pokusao da odigra ISTI potez opet - "Move Error: the from square was
+      // empty" (figura vec odigrala, polje prazno). Bez cleanup-a, efekat je
+      // bio podlozan ovome svuda gde se premove koristi, ne samo DailyLesson.
+      return () => clearTimeout(timeoutId);
     }
   }, [isMyTurn, promoMove, playerMoves]);
 
