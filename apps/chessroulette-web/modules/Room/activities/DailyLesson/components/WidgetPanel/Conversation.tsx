@@ -1,21 +1,35 @@
 import { useEffect, useRef, useState } from 'react';
 import type { ChapterState, UserData } from '../../movex/types';
+import type { LessonStep } from '../../lessonDatabase';
 import TypewriterText from './TypewriterText';
-import greenLogo from '../../../../../../components/Logo/assets/Logo_green_small.svg';
 import Image from 'next/image';
-import { parseMessageMoves } from '../../util';
 import React from 'react';
-import { FreeBoardNotationProps } from '@app/components/FreeBoardNotation';
 import { Paywall } from '@app/components/Paywall/Paywall';
 
+// Naglasak u AI chat-u: bold + nasa plava (#11C6D1) za kljucne reci unutar
+// teksta. IZUZETAK - naslov taska (prompt+introText poruka, uvek pocinje
+// bas sa '**...**' na samom pocetku stringa) ostaje BELI bold, nikad plav -
+// to je naslov oblacica, ne naglasena rec unutar njega.
 function renderMarkdownInline(text: string): React.ReactNode[] {
   const markers = text.match(/\*\*/g)?.length ?? 0;
   const safe =
     markers % 2 === 1 ? text.replace(/\*\*(?![\s\S]*\*\*)/, '') : text;
   const parts = safe.split(/(\*\*[^*]+\*\*|\*[^*]+\*)/g);
+  const isTitleMessage = safe.startsWith('**');
+  let seenFirstBold = false;
   return parts.map((part, i) => {
-    if (part.startsWith('**') && part.endsWith('**'))
-      return <strong key={i}>{part.slice(2, -2)}</strong>;
+    if (part.startsWith('**') && part.endsWith('**')) {
+      const isTitle = isTitleMessage && !seenFirstBold;
+      seenFirstBold = true;
+      return (
+        <strong
+          key={i}
+          className={isTitle ? 'text-white' : 'text-[#11C6D1]'}
+        >
+          {part.slice(2, -2)}
+        </strong>
+      );
+    }
     if (part.startsWith('*') && part.endsWith('*'))
       return <em key={i}>{part.slice(1, -1)}</em>;
     return part;
@@ -28,10 +42,23 @@ type Props = {
   userData: UserData;
   smallMobile: boolean;
   isMobile?: boolean;
-  onHistoryNotationRefocus?: FreeBoardNotationProps['onRefocus'];
-  notationHistoryLength?: number;
   chatLimitPaywallVisible?: boolean;
   onCloseChatLimitPaywall?: () => void;
+  /** Next je spreman - tabla je zatamnjena iza dugmeta. Poslednja poruka mora
+   * da ostane iznad tog zatamnjenja, inace se stisne tacno kad se pojavi. */
+  nextReady?: boolean;
+  /** Kviz pitanje (kind:'quiz') - dugmad idu ODMAH POSLE pitanja, u istom
+   * skrolujucem toku, umesto u odvojenom bloku van chata. */
+  step?: LessonStep | null;
+  quizSelectedIndex?: number | null;
+  onSelectQuizAnswer?: (index: number) => void;
+  /** step.suggestedMove (Day 17) - klikabilno dugme sa potezom, ista pozicija
+   * u skrolujucem toku kao quizOptions dugmad gore. */
+  suggestedMovePlayed?: boolean;
+  onPlaySuggestedMove?: (uci: string) => void;
+  /** Lesson.pawnyAvatar (Day 18 "Pawny 2.0") - zamenjuje podrazumevani
+   * `/pawny/pawny.png` kroz celu lekciju. */
+  pawnyAvatarSrc?: string;
 };
 
 const Conversation = ({
@@ -40,10 +67,15 @@ const Conversation = ({
   userData,
   smallMobile,
   isMobile,
-  onHistoryNotationRefocus,
-  notationHistoryLength = 0,
   chatLimitPaywallVisible,
   onCloseChatLimitPaywall,
+  nextReady,
+  step,
+  quizSelectedIndex,
+  onSelectQuizAnswer,
+  suggestedMovePlayed,
+  onPlaySuggestedMove,
+  pawnyAvatarSrc = '/pawny/pawny.png',
 }: Props) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [typingDone, setTypingDone] = useState(false);
@@ -73,8 +105,40 @@ const Conversation = ({
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   };
+
+  // Kviz pitanje SA ponudjenim odgovorima (zadnja 'task' poruka) ostaje
+  // ZALEPLJENO gore dok se skroluje kroz odgovore/objasnjenje - sve dok ne
+  // stigne sledece pitanje. SAMO za quizOptions - "watch & learn" koraci
+  // (bez pitanja, npr. Day 15 "Got it!" primeri) nemaju nista ispod cemu bi
+  // sticky sluzio, a sticky + poluprovidna pozadina je gurao/skrivao novu
+  // poruku (npr. "ovo je statican primer") koja stigne POSLE ove - vidljiva
+  // samo kao bled duh iza kartice umesto normalno ispod nje.
+  // step.suggestedMove (Day 17) dugme ide odmah ispod task oblacica, isto
+  // kao quizOptions - treba i njemu lastTaskMessageIndex, ali BEZ sticky
+  // tretmana (vidi isStickyQuizQuestion ispod) - ovi su kratki jednopotezni
+  // demo koraci, sticky + poluprovidna pozadina bi sakrila doneText poruku
+  // koja stize odmah posle klika (ista zamka kao ranije kod watch koraka).
+  let lastTaskMessageIndex = -1;
+  if ((step?.kind === 'quiz' && step.quizOptions) || step?.suggestedMove) {
+    for (let i = currentChapterState.messages.length - 1; i >= 0; i--) {
+      if (currentChapterState.messages[i].kind === 'task') {
+        lastTaskMessageIndex = i;
+        break;
+      }
+    }
+  }
+
   return (
     <>
+      {/* Oba avatara "pricaju" blagim bob pokretom dok kucaju - samo na
+          poslednjoj (zivoj) poruci, istorijski mirni. Outposty (trener/brend,
+          SVUDA u AI chat-u) sporiji/smireniji ritam - Pawny (PROTIVNIK, samo
+          Day 14 flavor poruke) brzi/zivlji, da se oseti razlika u "licnosti". */}
+      <style>{`
+        @keyframes pawnyBob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
+        .pawny-talking { animation: pawnyBob 1s ease-in-out infinite; }
+        .outposty-talking { animation: pawnyBob 1.8s ease-in-out infinite; }
+      `}</style>
       <div
         ref={scrollRef}
         // Fills whatever space its flex parent gives it (mobile: the rest of
@@ -98,18 +162,64 @@ const Conversation = ({
               currentChapterState.messages.length - 1
             ].participantId.includes('sales');
 
+          const isTask = msg.kind === 'task';
+          // suggestedMove koraci NAMERNO ne lepe oblacic (vidi komentar uz
+          // lastTaskMessageIndex) - sticky je samo za pravo kviz pitanje.
+          const isStickyQuizQuestion =
+            step?.kind === 'quiz' &&
+            !!step.quizOptions &&
+            index === lastTaskMessageIndex;
+          // Day 14 "Your First Game" - Pawny-jeve poruke (vidi
+          // sendPawnyMessage u DailyLessonActivity.tsx) idu u ISTOJ "bot"
+          // bubbli kao Coach, samo sa sopstvenim avatarom/animacijom.
+          const isPawny = participant.includes('pawny-bot');
+
           return (
-            <div key={index} className="mb-1 pt-1 text-[15px] md:pt-2 md:mb-2 ">
+            <React.Fragment key={index}>
+            <div
+              className={`mb-1 pt-1 text-[15px] md:pt-2 md:mb-2 ${
+                isStickyQuizQuestion
+                  ? 'sticky top-0 z-20 bg-op-widget pb-2'
+                  : isLastMessage && nextReady
+                    ? 'relative z-[95]'
+                    : ''
+              }`}
+            >
               {/* CHAT GPT TEXT */}
-              {participant.includes('chatGPT123456') ? (
-                <div className="flex min-w-0">
-                  <div className="hidden md:flex">
+              {participant.includes('chatGPT123456') || isPawny ? (
+                <div className="flex min-w-0 items-start">
+                  {/* Pawny avatar vidljiv i na mobilnom - novi, namerno
+                      istaknut lik, za razliku od Coach loga koji ostaje
+                      samo desktop (postojece ponasanje, nepromenjeno). */}
+                  <div className={isPawny ? 'flex' : 'hidden md:flex'}>
                     {isLastFromThisParticipant ? (
-                      <Image
-                        src={greenLogo}
-                        alt="outpost"
-                        className="max-w-[28px] md:max-w-[36px]"
-                      />
+                      isPawny ? (
+                        <div
+                          className={`relative w-[28px] h-[28px] md:w-[36px] md:h-[36px] mt-1 ${
+                            isLastMessage ? 'pawny-talking' : ''
+                          }`}
+                        >
+                          <Image
+                            src={pawnyAvatarSrc}
+                            alt="Pawny"
+                            fill
+                            className="object-contain"
+                          />
+                        </div>
+                      ) : (
+                        <div
+                          className={`relative w-[28px] h-[28px] md:w-[36px] md:h-[36px] mt-1 ${
+                            isLastMessage ? 'outposty-talking' : ''
+                          }`}
+                        >
+                          <Image
+                            src="/outposty/outposty.png"
+                            alt="Outposty"
+                            fill
+                            className="object-contain"
+                          />
+                        </div>
+                      )
                     ) : (
                       <div className="min-w-[28px] md:min-w-[36px]" />
                     )}
@@ -117,54 +227,32 @@ const Conversation = ({
 
                   <div className="text-white text-sm px-2 md:px-4  flex-1 min-w-0 max-w-md break-words overflow-hidden">
                     {' '}
-                    {isLastMessage && typeof lastMessage === 'string' ? (
-                      <div>
+                    <div
+                      className={
+                        isTask
+                          ? 'border border-[#07DA63]/30 bg-[#07DA63]/[0.07] rounded-xl px-3 py-2.5'
+                          : isPawny
+                            ? // Pawny-jeve poruke idu u pravi "govorni oblacic" (nasa
+                              // brend plava #11C6D1) - razlikuje se od Outposty-jevog
+                              // cistog teksta bez pozadine (trener/podrska nepromenjeni).
+                              'relative bg-[#11C6D1]/[0.1] border border-[#11C6D1]/30 rounded-2xl rounded-tl-sm px-3 py-2.5'
+                            : undefined
+                      }
+                    >
+                      {isLastMessage && typeof lastMessage === 'string' ? (
                         <TypewriterText
                           lastMessage={lastMessage}
                           scrollToBottom={scrollToBottom}
-                          onHistoryNotationRefocus={onHistoryNotationRefocus}
-                          notationHistoryLength={notationHistoryLength}
                           onTypingStart={handleTypingStart}
                           onDone={() => setTypingDone(true)}
                         />
-                      </div>
-                    ) : (
-                      <div>
+                      ) : (
                         <p className="text-[14px] text-left break-words leading-relaxed whitespace-pre-line">
                           {typeof msg.content === 'string' &&
-                          onHistoryNotationRefocus &&
-                          notationHistoryLength > 0
-                            ? parseMessageMoves(msg.content).map((seg, i) =>
-                                seg.type === 'move' ? (
-                                  <button
-                                    key={i}
-                                    type="button"
-                                    className="underline cursor-pointer hover:bg-white/10 rounded px-0.5 -mx-0.5"
-                                    onClick={() => {
-                                      const pairIndex = Math.min(
-                                        seg.moveNumber - 1,
-                                        Math.max(0, notationHistoryLength - 1)
-                                      );
-                                      onHistoryNotationRefocus([
-                                        pairIndex,
-                                        seg.colorIdx,
-                                      ] as Parameters<
-                                        FreeBoardNotationProps['onRefocus']
-                                      >[0]);
-                                    }}
-                                  >
-                                    {seg.value}
-                                  </button>
-                                ) : (
-                                  <React.Fragment key={i}>
-                                    {renderMarkdownInline(seg.value)}
-                                  </React.Fragment>
-                                )
-                              )
-                            : renderMarkdownInline(msg.content as string)}
+                            renderMarkdownInline(msg.content)}
                         </p>
-                      </div>
-                    )}
+                      )}
+                    </div>
                   </div>
                   {/* <div className="w-8 h-8 min-w-8  flex items-center justify-center rounded-full bg-indigo-1600 text-white font-semibold text-sm">
                 DM
@@ -196,11 +284,12 @@ const Conversation = ({
 
               {pulseDot && isLastMessage && !isSales && (
                 <div className="flex justify-start items-center mt-4 ">
-                  <div className="w-9 h-9 rounded-full items-center flex overflow-hidden ">
+                  <div className="outposty-talking relative w-9 h-9 rounded-full overflow-hidden">
                     <Image
-                      src={greenLogo}
-                      alt="outpost"
-                      className="max-w-[28px] md:max-w-[36px]"
+                      src="/outposty/outposty.png"
+                      alt="Outposty"
+                      fill
+                      className="object-contain"
                     />
                   </div>
 
@@ -214,6 +303,40 @@ const Conversation = ({
                 </div>
               )}
             </div>
+            {step?.kind === 'quiz' &&
+              step.quizOptions &&
+              quizSelectedIndex == null &&
+              index === lastTaskMessageIndex && (
+                <div className="grid grid-cols-2 gap-2 px-2 md:px-4 mt-1 mb-2">
+                  {step.quizOptions.map((option, i) => (
+                    <button
+                      key={i}
+                      type="button"
+                      onClick={() => onSelectQuizAnswer?.(i)}
+                      className="text-left text-xs sm:text-sm px-3 py-2 rounded-xl border transition-colors duration-150 border-conversation-100 text-white hover:border-[#07DA63] hover:bg-[#07DA63]/[0.06] cursor-pointer"
+                    >
+                      <span className="text-[#07DA63] font-bold">
+                        {String.fromCharCode(65 + i)})
+                      </span>{' '}
+                      {option}
+                    </button>
+                  ))}
+                </div>
+              )}
+            {step?.suggestedMove &&
+              !suggestedMovePlayed &&
+              index === lastTaskMessageIndex && (
+                <div className="px-2 md:px-4 mt-1 mb-2">
+                  <button
+                    type="button"
+                    onClick={() => onPlaySuggestedMove?.(step.suggestedMove!.uci)}
+                    className="inline-flex items-center gap-2 text-sm font-bold px-4 py-2 rounded-xl border border-[#07DA63] text-[#07DA63] hover:bg-[#07DA63]/[0.08] transition-colors duration-150 cursor-pointer"
+                  >
+                    ♜ Play {step.suggestedMove.label}
+                  </button>
+                </div>
+              )}
+            </React.Fragment>
           );
         })}
         <div className="h-12" />

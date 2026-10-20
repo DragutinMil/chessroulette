@@ -5,6 +5,10 @@ import { ButtonGreen } from '@app/components/Button/ButtonGreen';
 import { parseMessageMoves } from '../../util';
 import { FreeBoardNotationProps } from '@app/components/FreeBoardNotation';
 
+// Naglasak u AI chat-u: bold + nasa plava (#11C6D1) za kljucne reci - isto
+// pravilo kao u Conversation.tsx (ovaj fajl ima sopstvenu kopiju jer
+// Typewriter otkriva tekst slovo po slovo, drugaciji parsing potreban).
+// IZUZETAK - naslov taska (string koji pocinje bas sa '**') ostaje BELI.
 function renderMarkdownInline(text: string): React.ReactNode[] {
   // Typewriter otkriva tekst slovo po slovo, pa se otvoreni '**' vidi jos pre
   // nego sto stigne zatvarajuci par - sakrivamo nesparen marker.
@@ -12,9 +16,21 @@ function renderMarkdownInline(text: string): React.ReactNode[] {
   const safe =
     markers % 2 === 1 ? text.replace(/\*\*(?![\s\S]*\*\*)/, '') : text;
   const parts = safe.split(/(\*\*[^*]+\*\*|\*[^*]+\*)/g);
+  const isTitleMessage = safe.startsWith('**');
+  let seenFirstBold = false;
   return parts.map((part, i) => {
-    if (part.startsWith('**') && part.endsWith('**'))
-      return <strong key={i}>{part.slice(2, -2)}</strong>;
+    if (part.startsWith('**') && part.endsWith('**')) {
+      const isTitle = isTitleMessage && !seenFirstBold;
+      seenFirstBold = true;
+      return (
+        <strong
+          key={i}
+          className={isTitle ? 'text-white' : 'text-[#11C6D1]'}
+        >
+          {part.slice(2, -2)}
+        </strong>
+      );
+    }
     if (part.startsWith('*') && part.endsWith('*'))
       return <em key={i}>{part.slice(1, -1)}</em>;
     return part;

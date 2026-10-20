@@ -43,8 +43,12 @@ export type dailyLesson = {
   stepIndex: number;
   /** Koliko je poteza iz solution niza vec odigrano u tekucem koraku. */
   progress: number;
+  /** Po koraku - resetuje se na svaki Next (limit od 2 hinta po FEN-u). */
   errors: number;
   hints: number;
+  /** Kroz celu lekciju - NE resetuje se na Next, samo na Repeat. Za summary na kraju. */
+  totalErrors: number;
+  totalHints: number;
   /** Cela lekcija je zavrsena - krije se Next, ostaju Play i Repeat. */
   completed: boolean;
   /** Celebration overlay je otvoren. */
@@ -65,6 +69,8 @@ export type Message = {
   content: string;
   participantId: string;
   idResponse: string;
+  /** 'task' = zadatak koraka, prikazuje se u istaknutom oblacicu umesto kao obican chat tekst. */
+  kind?: 'task';
 };
 
 export type UserData = {

@@ -99,6 +99,26 @@ module.exports = {
           '0%': { opacity: '0' },
           '100%': { opacity: '1' },
         },
+        attentionPulse: {
+          '0%, 100%': {
+            transform: 'scale(1)',
+            boxShadow: '0 0 0 0 rgba(7,218,99,0.6)',
+          },
+          '50%': {
+            transform: 'scale(1.1)',
+            boxShadow: '0 0 22px 8px rgba(7,218,99,0.75)',
+          },
+        },
+        progressPop: {
+          '0%, 100%': {
+            transform: 'scaleY(1)',
+            boxShadow: '0 0 6px 1px rgba(7,218,99,0.5)',
+          },
+          '50%': {
+            transform: 'scaleY(2.4)',
+            boxShadow: '0 0 24px 8px rgba(7,218,99,0.95)',
+          },
+        },
         //   sublevelBlink: {
         //   '0%': { transform: 'scale(1)', opacity: '1' },
         //   '30%': { transform: 'scale(1.15)', opacity: '0.6' },
@@ -119,6 +139,8 @@ module.exports = {
         shake: 'shake 0.5s ease-in-out 6',
         dialogIn: 'dialogIn 0.3s ease-out forwards',
         fadeIn: 'fadeIn 0.4s ease-out forwards',
+        attentionPulse: 'attentionPulse 1.2s ease-in-out infinite',
+        progressPop: 'progressPop 1.2s ease-in-out infinite',
         // sublevelBlink: 'sublevelBlink 0.45s ease-out'
       },
     },

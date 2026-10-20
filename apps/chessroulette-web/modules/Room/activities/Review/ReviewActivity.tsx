@@ -139,6 +139,26 @@ export const ReviewActivity = ({
     const matchId = url.searchParams.get('pgn');
     const userId = url.searchParams.get('userId');
 
+    // Direktan PGN (ne matchId za lookup) - npr. Day 14 DailyLesson "Game
+    // Review" dugme, partija odigrana lokalno protiv Pawny-ja, bez pravog
+    // Match sobe/endedGames zapisa da bi `pgn` (gore) mogao da je nadje.
+    // Potpuno odvojen parametar i kod put - ne dira postojecu matchId granu.
+    const startingPgn = url.searchParams.get('startingPgn');
+    if (startingPgn) {
+      gameReview({
+        ...currentChapter.chessAiMode,
+        mode: 'review',
+        fen: startingPgn,
+        originalPGN: startingPgn,
+        opponentName: url.searchParams.get('opponentName') ?? '',
+        opponentColor: 'black',
+        responseId: '',
+        message: '',
+      });
+      setNewReview(false);
+      return;
+    }
+
     if (matchId) {
       setIsLoading(true);
       // Shared flag — whichever path fires gameReview first sets this to true
