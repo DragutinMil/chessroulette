@@ -7,6 +7,7 @@ import {
   // promotionalPieceSanToFenBoardPromotionalPieceSymbol,
   // toLongChessColor,
 } from '@xmatter/util-kit';
+import { Chess } from 'chess.js';
 
 type StockfishEngineProps = {
   fen: ChessFEN;
@@ -43,6 +44,8 @@ const StockfishEngine: React.FC<StockfishEngineProps> = ({
   const [contempt, setContempt] = useState('');
   const stockfishRef = useRef<Worker | null>(null);
   const dispatch = usePlayActionsDispatch();
+  // Maximilian - najslabiji botelja, slabiji od Viole
+  const isMaximilian = bot == 'zldVhT0HMLRc1000';
 
   useEffect(() => {
     if (typeof window === 'undefined') return; // Ensure it's client-side
@@ -51,7 +54,7 @@ const StockfishEngine: React.FC<StockfishEngineProps> = ({
       let baseSkill = 1;
       let baseContempt = 10;
       if (skill === '' && bot) {
-        if (bot.slice(-2) == 'vpHH6Jf7rYKwN010') {
+        if (bot == 'vpHH6Jf7rYKwN010') {
           baseDepth = 6;
           baseSkill = 12;
           baseContempt = 22;
@@ -71,6 +74,10 @@ const StockfishEngine: React.FC<StockfishEngineProps> = ({
           baseDepth = 4;
           baseSkill = 0;
           baseContempt = 12;
+        } else if (isMaximilian) {
+          baseDepth = 1;
+          baseSkill = 0;
+          baseContempt = 0;
         } else if (bot == '9yzBb59_POb9L000') {
           baseDepth = 1;
           baseSkill = 0;
@@ -140,6 +147,10 @@ const StockfishEngine: React.FC<StockfishEngineProps> = ({
 
   useEffect(() => {
     if (!isMyTurn) {
+      return;
+    }
+    // Maximilian ne jaca kad vodi
+    if (isMaximilian) {
       return;
     }
 
@@ -353,7 +364,16 @@ const StockfishEngine: React.FC<StockfishEngineProps> = ({
 
       if (!isMyTurnRef.current) {
         lastPlayedFenRef.current = currentFen;
-        engineMove(bestMove);
+        let move = bestMove;
+        // Maximilian u 35% slucajeva igra nasumican legalan potez
+        if (isMaximilian && Math.random() < 0.35) {
+          const legalMoves = new Chess(currentFen).moves({ verbose: true });
+          if (legalMoves.length > 0) {
+            const m = legalMoves[Math.floor(Math.random() * legalMoves.length)];
+            move = m.from + m.to + (m.promotion ?? '');
+          }
+        }
+        engineMove(move);
       }
     }, 500);
 

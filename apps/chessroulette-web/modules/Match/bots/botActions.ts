@@ -77,13 +77,13 @@ export const botSendRematchOffer = (
         'That was interesting… I’d like to continue.',
         'If you’ve got time, let’s play again.😄',
       ];
-    } else if (byPlayerId == '9aEXYS0xwZS21000') {
+    } else if (byPlayerId == 'fH0667J9nJ1Ez000') {
       contentList = [
         'What’s this, leaving already? Yeah, right.',
         'Come on, one more. I promise I’ll be nice this time… maybe. 😄',
         'Okay, okay… let me hit rematch so I can bother you a bit more.',
       ];
-    } else if (byPlayerId == '9aEXYS0xwZS21000') {
+    } else if (byPlayerId == '-BihTlRZ-SKTL000') {
       contentList = [
         'I really enjoyed that game. Shall we play another?',
         'Let’s continue — I feel the next one will be even better. 😄',

@@ -263,6 +263,10 @@ const MatchContainerInner = ({
     if (activeBot?.botType !== 'botelja') {
       return;
     }
+    // Maximilian ne zapocinje razgovor, odgovara samo kad mu neko pise
+    if (activeBot.id == 'zldVhT0HMLRc1000') {
+      return;
+    }
 
     if (
       isPlayer &&
