@@ -190,14 +190,14 @@ const MatchContainerInner = ({
       setCameraOnAgain(false);
     }, 200);
   };
-
+  
   useEffect(() => {
     if (isMobile) {
       setCamera(false);
     }
     if (match) {
       const bot = findIfBots(match?.challengee.id, match?.challenger.id);
-
+      
       if (bot) {
         if (bot.botType !== 'basic') {
           const botData = async () => {
