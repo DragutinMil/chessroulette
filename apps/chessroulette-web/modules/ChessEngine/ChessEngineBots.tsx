@@ -44,8 +44,8 @@ const StockfishEngine: React.FC<StockfishEngineProps> = ({
   const [contempt, setContempt] = useState('');
   const stockfishRef = useRef<Worker | null>(null);
   const dispatch = usePlayActionsDispatch();
-  // Maximilian - najslabiji botelja, slabiji od Viole
-  const isMaximilian = bot == 'zldVhT0HMLRc1000';
+  // Yuki - najslabiji botelja, slabiji od Viole
+  const isYuki = bot == 'zldVhT0HMLRc1000';
 
   useEffect(() => {
     if (typeof window === 'undefined') return; // Ensure it's client-side
@@ -74,7 +74,7 @@ const StockfishEngine: React.FC<StockfishEngineProps> = ({
           baseDepth = 4;
           baseSkill = 0;
           baseContempt = 12;
-        } else if (isMaximilian) {
+        } else if (isYuki) {
           baseDepth = 1;
           baseSkill = 0;
           baseContempt = 0;
@@ -149,8 +149,8 @@ const StockfishEngine: React.FC<StockfishEngineProps> = ({
     if (!isMyTurn) {
       return;
     }
-    // Maximilian ne jaca kad vodi
-    if (isMaximilian) {
+    // Yuki ne jaca kad vodi
+    if (isYuki) {
       return;
     }
 
@@ -365,8 +365,8 @@ const StockfishEngine: React.FC<StockfishEngineProps> = ({
       if (!isMyTurnRef.current) {
         lastPlayedFenRef.current = currentFen;
         let move = bestMove;
-        // Maximilian u 35% slucajeva igra nasumican legalan potez
-        if (isMaximilian && Math.random() < 0.35) {
+        // Yuki u 35% slucajeva igra nasumican legalan potez
+        if (isYuki && Math.random() < 0.35) {
           const legalMoves = new Chess(currentFen).moves({ verbose: true });
           if (legalMoves.length > 0) {
             const m = legalMoves[Math.floor(Math.random() * legalMoves.length)];
