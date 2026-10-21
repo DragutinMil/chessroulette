@@ -190,14 +190,14 @@ const MatchContainerInner = ({
       setCameraOnAgain(false);
     }, 200);
   };
-
+  
   useEffect(() => {
     if (isMobile) {
       setCamera(false);
     }
     if (match) {
       const bot = findIfBots(match?.challengee.id, match?.challenger.id);
-
+      
       if (bot) {
         if (bot.botType !== 'basic') {
           const botData = async () => {
@@ -261,6 +261,10 @@ const MatchContainerInner = ({
       return;
     }
     if (activeBot?.botType !== 'botelja') {
+      return;
+    }
+    // Yuki ne zapocinje razgovor, odgovara samo kad mu neko pise
+    if (activeBot.id == 'zldVhT0HMLRc1000') {
       return;
     }
 

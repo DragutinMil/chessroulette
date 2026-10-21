@@ -26,3 +26,24 @@ export function terminateStockfish() {
     reviewWorker = null;
   }
 }
+
+let stockfishQueue = Promise.resolve();
+
+// Deljeni worker ima SAMO JEDNU "position/go" pretragu u svakom trenutku -
+// PawnyEngine, MateDefenseEngine i Hint box-method upiti (checkmateTechnique.ts)
+// su sva tri nezavisna potrosaca istog singletona, i bez ovoga su im se
+// stop/position/go pozivi i 'message' listeneri preplitali (jedan bi svojim
+// 'stop' prekinuo pretragu u toku kod drugog, ili bi mu neko tudje 'bestmove'
+// bio "pojeden" od pogresnog listenera) - to je stvaran uzrok bug-a gde crni
+// (MateDefenseEngine) ostane bez odgovora. Sad SVAKI pristup worker-u mora
+// kroz ovaj red: `task(worker)` dobija worker i MORA sam resiti svoj Promise
+// kad zavrsi (bestmove ili sopstveni timeout) - tek tad sledeci na redu krece.
+export function withStockfishLock(task) {
+  const run = () => task(getStockfishWorker());
+  const result = stockfishQueue.then(run, run);
+  stockfishQueue = result.then(
+    () => undefined,
+    () => undefined
+  );
+  return result;
+}
