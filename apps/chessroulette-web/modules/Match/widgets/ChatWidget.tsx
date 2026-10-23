@@ -6,6 +6,11 @@ import { ChatBotWidget } from './ChatBotWidget';
 import { botVoiceSpeak } from './chatBotSpeak';
 import { ButtonGreen } from '@app/components/Button/ButtonGreen';
 import Markdown from 'markdown-to-jsx';
+import {
+  QuickChatChips,
+  QUICK_MESSAGES_GAME,
+  isQuickMessage,
+} from './QuickChat';
 type Props = {
   messages: ChatMessage[];
   currentUserId: User['id'];
@@ -98,6 +103,10 @@ export const ChatWidget: React.FC<Props> = ({
         }
 
         const lastMessage = messages.at(-1)?.content ?? '';
+        // Bot ne odgovara na predefinisane poruke
+        if (isQuickMessage(lastMessage)) {
+          return;
+        }
         // console.log('proxim 2')
         try {
           const answer = await ChatBotWidget(
@@ -217,6 +226,16 @@ for just **€4** — and improve faster with **AI-powered analysis and training
       onSendMessage(inputValue.trim(), responseId);
       setInputValue('');
     }
+  };
+
+  // responseId se prenosi da bot ne izgubi AI istoriju posle quick poruke
+  const handleSendQuickMessage = (content: string) => {
+    if (disabled || !isChatEnabled) return;
+    const responseId =
+      activeBot?.id && messages.length > 1
+        ? messages.at(-1)?.responseId
+        : undefined;
+    onSendMessage(content, responseId);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -418,8 +437,17 @@ for just **€4** — and improve faster with **AI-powered analysis and training
         <div ref={messagesEndRef} />
       </div>
       {/* border-t border-[rgb(217_217_217/0.1)] */}
-      <div className="p-3 md:p-3 z-[50]">
-        <div className="flex mb-2 mt-2 md:mt-0">
+      <div className="p-3 md:p-3 gap-2 z-[50]">
+        {isChatEnabled && !disabled && (
+          <QuickChatChips
+            options={QUICK_MESSAGES_GAME}
+            messages={messages}
+            currentUserId={currentUserId}
+            onSend={handleSendQuickMessage}
+            className="overflow-x-auto scrollbar-hide pb-1 mb-2"
+          />
+        )}
+        <div className="flex  mt-4 md:mt-0">
           <input
             type="text"
             value={inputValue}

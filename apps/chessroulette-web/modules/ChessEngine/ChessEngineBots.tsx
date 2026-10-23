@@ -46,6 +46,8 @@ const StockfishEngine: React.FC<StockfishEngineProps> = ({
   const dispatch = usePlayActionsDispatch();
   // Yuki - najslabiji botelja, slabiji od Viole
   const isYuki = bot == 'zldVhT0HMLRc1000';
+  // const isAmara = bot == '_TjQM58i13jmm000';
+  
 
   useEffect(() => {
     if (typeof window === 'undefined') return; // Ensure it's client-side

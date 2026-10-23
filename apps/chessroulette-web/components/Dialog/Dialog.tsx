@@ -9,6 +9,8 @@ type Props = {
   onClose?: () => void;
   hasCloseButton?: boolean;
   modalBG?: 'dark' | 'light';
+  // X ne zauzima svoj red i naslov je manji - za dijaloge kojima treba prostor
+  compactHeader?: boolean;
 };
 
 export const Dialog: React.FC<Props> = ({ modalBG = 'dark', ...props }) => {
@@ -19,14 +21,20 @@ export const Dialog: React.FC<Props> = ({ modalBG = 'dark', ...props }) => {
       }`}
     >
       <div
-        className={`animate-dialogIn flex bg-black-light rounded-xl md:px-8 px-2 py-4 shadow-2xl shadow-black w-full max-w-[330px] ${
+        className={`animate-dialogIn flex bg-black-light rounded-xl md:px-8 px-2 shadow-2xl shadow-black w-full max-w-[330px] max-h-[calc(100dvh-1rem)] overflow-y-auto scrollbar-hide ${
           props.hasCloseButton ? 'md:max-w-[480px]' : 'md:max-w-[420px]'
-        }`}
+        } ${props.compactHeader ? 'relative pt-6 pb-4' : 'py-4'}`}
         style={{ boxShadow: '0px 0px 40px 0px #07DA6355' }}
       >
         <div className="flex flex-col gap-4 w-full">
           {props.hasCloseButton && (
-            <div className="flex flex-row justify-end w-full ">
+            <div
+              className={
+                props.compactHeader
+                  ? 'absolute top-7 right-4 z-10'
+                  : 'flex flex-row justify-end w-full '
+              }
+            >
               <div
                 onClick={() => props.onClose && props.onClose()}
                 className="flex group hover:cursor-pointer"
@@ -38,10 +46,14 @@ export const Dialog: React.FC<Props> = ({ modalBG = 'dark', ...props }) => {
               </div>
             </div>
           )}
-          <div className="p-2 gap-4 flex flex-col w-full">
+          <div className="p-2 gap-4 flex flex-col w-full pt-0">
             {props.title && (
               <>
-                <div className="flex justify-center capitalize text-center text-lg font-semibold tracking-wide">
+                <div
+                  className={`flex justify-center capitalize text-center font-semibold tracking-wide ${
+                    props.compactHeader ? 'text-base px-6' : 'text-lg'
+                  }`}
+                >
                   {props.title}
                 </div>
                 <div className="w-full h-px bg-white/10" />

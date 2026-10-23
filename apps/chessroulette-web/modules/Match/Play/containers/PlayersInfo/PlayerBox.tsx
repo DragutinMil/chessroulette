@@ -11,6 +11,7 @@ type Props = {
   timeLeft: number;
   activeBot?: string;
   botRating?: number;
+  materialAdvantage?: React.ReactNode;
   onCheckTime: () => void;
 };
 
@@ -21,45 +22,49 @@ export const PlayerBox: React.FC<Props> = ({
   timeLeft,
   activeBot,
   botRating,
+  materialAdvantage,
   onCheckTime,
 }) => {
   return (
     <div className="flex flex-1 gap-3 items-center justify-between mr-0 pr-0 w-full">
-      {activeBot && activeBot?.length > 0 ? (
-        <div
-          className={`capitalize text-sm md:text-lg ${
-            isActive ? 'text-white font-bold' : 'text-slate-400'
-          }`}
-        >
-          {playerInfo.points} &nbsp;
-          {playerInfo.points !== undefined ? ' ' : ''}
-          <span className="text-slate-300 font-bold">
-            {playerInfo.displayName || activeBot}&nbsp;
-          </span>
-          {playerInfo.rating
-            ? ` ${playerInfo.rating}`
-            : botRating && Number.isFinite(botRating)
-            ? ` ${botRating}`
-            : ''}
-          &nbsp;(
-          {playerInfo.color})
-        </div>
-      ) : (
-        <div
-          className={`capitalize text-sm md:text-lg ${
-            isActive ? 'text-white font-bold' : 'text-slate-400'
-          }`}
-        >
-          <span className="inline-block w-3">{playerInfo.points}</span>&nbsp;
-          {playerInfo.points !== undefined ? ' ' : ''}
-          <span className="text-slate-300 font-bold">
-            {' '}
-            {playerInfo.displayName || 'guest'}{' '}
-          </span>{' '}
-          {playerInfo.rating ? ` ${playerInfo.rating}` : ''}&nbsp;(
-          {playerInfo.color})
-        </div>
-      )}
+      <div className="flex items-center gap-2 min-w-0">
+        {activeBot && activeBot?.length > 0 ? (
+          <div
+            className={`capitalize text-sm md:text-lg ${
+              isActive ? 'text-white font-bold' : 'text-slate-400'
+            }`}
+          >
+            {playerInfo.points} &nbsp;
+            {playerInfo.points !== undefined ? ' ' : ''}
+            <span className="text-slate-300 font-bold">
+              {playerInfo.displayName || activeBot}&nbsp;
+            </span>
+            {playerInfo.rating
+              ? ` ${playerInfo.rating}`
+              : botRating && Number.isFinite(botRating)
+              ? ` ${botRating}`
+              : ''}
+            &nbsp;(
+            {playerInfo.color})
+          </div>
+        ) : (
+          <div
+            className={`capitalize text-sm md:text-lg ${
+              isActive ? 'text-white font-bold' : 'text-slate-400'
+            }`}
+          >
+            <span className="inline-block w-3">{playerInfo.points}</span>&nbsp;
+            {playerInfo.points !== undefined ? ' ' : ''}
+            <span className="text-slate-300 font-bold">
+              {' '}
+              {playerInfo.displayName || 'guest'}{' '}
+            </span>{' '}
+            {playerInfo.rating ? ` ${playerInfo.rating}` : ''}&nbsp;(
+            {playerInfo.color})
+          </div>
+        )}
+        {materialAdvantage}
+      </div>
       {gameTimeClass !== 'untimed' && (
         <SmartCountdown
           isActive={isActive}

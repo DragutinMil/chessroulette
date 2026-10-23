@@ -117,6 +117,25 @@ export async function getUserStreak() {
   }
 }
 
+export type LossPaywallKind = 'firstLoss' | 'threeInRow' | 'fiveInRow';
+
+// jedan poziv po ucitavanju sobe - dele ga dijalog (prikaz paywall-a) i bot (da ne nudi rematch preko paywall-a)
+let lossPaywallKindPromise: Promise<LossPaywallKind | null> | null = null;
+
+export function getLossPaywallKind() {
+  if (!lossPaywallKindPromise) {
+    lossPaywallKindPromise = getUserStreak().then((streakResult) => {
+      const streakCount = Number(streakResult?.streak_count);
+      const isLossStreak = streakResult?.streak_type === 'L';
+      if (streakResult?.has_losses === false) return 'firstLoss';
+      if (isLossStreak && streakCount === 4) return 'fiveInRow';
+      if (isLossStreak && streakCount === 2) return 'threeInRow';
+      return null;
+    });
+  }
+  return lossPaywallKindPromise;
+}
+
 export async function patchUserStreakPlay(data: Record<string, any>) {
   const token = Cookies.get('sessionToken');
   if (!token) return;
