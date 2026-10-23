@@ -3,11 +3,13 @@ import {
   ChessFEN,
   ChessPGN,
   DetailedChessMove,
+  ShortChessMove,
   getNewChessGame,
   isWhiteColor,
 } from '../ChessRouler';
 import {
   ChessFENBoard,
+  FenBoardPromotionalPieceSymbol,
   detailedChessMoveToFreeBoardDetailedChessMove,
   swapColor,
 } from '../ChessFENBoard';
@@ -723,13 +725,33 @@ export namespace FreeBoardHistory {
     startingFen = ChessFENBoard.STARTING_FEN
   ): ChessFEN => {
     const fenBoard = new ChessFENBoard(startingFen);
+
+    // Potezi iz pgnToHistory nose chess.js `promotion` ('q'), a ChessFENBoard.move cita
+    //  `promoteTo` kao FEN simbol po boji ('Q'/'q') - bez ovoga pesak ostaje na ivici i FEN puca
+    const toFenBoardMove = <M extends ShortChessMove & { color: ChessColor }>(
+      m: M
+    ): M => {
+      const promotion = (m as M & { promotion?: string }).promotion;
+
+      if (!promotion || m.promoteTo) {
+        return m;
+      }
+
+      return {
+        ...m,
+        promoteTo: (m.color === 'w'
+          ? promotion.toUpperCase()
+          : promotion.toLowerCase()) as FenBoardPromotionalPieceSymbol,
+      };
+    };
+
     h.forEach(([wM, bM]) => {
       if (!wM.isNonMove) {
-        fenBoard.move(wM);
+        fenBoard.move(toFenBoardMove(wM));
       }
 
       if (bM && !bM.isNonMove) {
-        fenBoard.move(bM);
+        fenBoard.move(toFenBoardMove(bM));
       }
     });
 

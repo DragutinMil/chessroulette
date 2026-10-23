@@ -153,6 +153,13 @@ export const getMakeFakeName = () => {
 
 export const chatBotList = [
   {
+    id: '_TjQM58i13jmm000',
+    name: 'Amara',
+    lastName: 'Okafor',
+    picture: '',
+    botType: 'botelja',
+  },
+  {
     id: 'zldVhT0HMLRc1000',
     name: 'Yuki',
     lastName: 'Nakata',

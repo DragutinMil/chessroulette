@@ -32,6 +32,7 @@ import {
 } from './bots/botActions';
 import { noop } from '@xmatter/util-kit';
 import { useGame } from '../Game/hooks';
+import { getLossPaywallKind } from './utilsOutpost';
 
 type Props = DistributivePick<
   PlayerContainerProps,
@@ -171,7 +172,8 @@ const MatchContainerInner = ({
       return;
     }
     localStorage.setItem('chessroulette-active-widget', activeWidget);
-  }, [activeWidget, isMobileChatOpen]);
+    // isMobile je false na prvom renderu (useIsTablet), bez njega u deps mobile ostaje na 'chat' i badge nepročitanih ne radi
+  }, [activeWidget, isMobileChatOpen, isMobile]);
 
   useEffect(() => {
     localStorage.setItem(
@@ -264,7 +266,7 @@ const MatchContainerInner = ({
       return;
     }
     // Yuki ne zapocinje razgovor, odgovara samo kad mu neko pise
-    if (activeBot.id == 'zldVhT0HMLRc1000') {
+    if (activeBot.id == 'zldVhT0HMLRc1000' || activeBot.id == '_TjQM58i13jmm000') {
       return;
     }
 
@@ -320,12 +322,26 @@ const MatchContainerInner = ({
       }, 2000);
     }
     if (match.status === 'complete' && isPlayer) {
-      botSendRematchOffer(
-        dispatch,
-        activeBot.id,
-        1000,
-        match?.messages[match.messages.length - 1]?.responseId
-      );
+      const sendRematchOffer = () =>
+        botSendRematchOffer(
+          dispatch,
+          activeBot.id,
+          1000,
+          match?.messages[match.messages.length - 1]?.responseId
+        );
+      const myRole =
+        userId === match.challenger.id ? 'challenger' : 'challengee';
+      const iLostMatch = !!match.winner && match.winner !== myRole;
+      if (!iLostMatch) {
+        sendRematchOffer();
+      } else {
+        // ako posle poraza ide paywall, bot ne nudi rematch - inace iskaču jedan preko drugog
+        getLossPaywallKind().then((lossPaywallKind) => {
+          if (!lossPaywallKind) {
+            sendRematchOffer();
+          }
+        });
+      }
     }
   }, [match.gameInPlay?.offers, match.status]);
 
