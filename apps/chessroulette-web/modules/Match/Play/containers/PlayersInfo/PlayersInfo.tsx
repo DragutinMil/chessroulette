@@ -1,7 +1,12 @@
 import { useMemo } from 'react';
 import { getMovesDetailsFromPGN } from '@app/modules/Match/utils';
-import { ChessColor, areColorsEqual } from '@xmatter/util-kit';
+import {
+  ChessColor,
+  areColorsEqual,
+  toShortChessColor,
+} from '@xmatter/util-kit';
 import { PlayerBox } from './PlayerBox';
+import { MaterialAdvantage, getMaterialAdvantage } from './MaterialAdvantage';
 import { PlayersBySideWithResults } from '../../types';
 import { Game } from '@app/modules/Game';
 
@@ -40,6 +45,11 @@ export const PlayersInfo = ({
     );
   }, [game]);
 
+  const materialAdvantage = useMemo(
+    () => getMaterialAdvantage(game.pgn),
+    [game.pgn]
+  );
+
   return (
     <div className="flex flex-1 gap-0 md:gap-1 flex-col mb-2 md:mb-0">
       <div className="mb-1">
@@ -54,6 +64,11 @@ export const PlayersInfo = ({
           activeBot={activeBot}
           gameTimeClass={game.timeClass}
           timeLeft={game.timeLeft[playersBySide.away.color]}
+          materialAdvantage={
+            <MaterialAdvantage
+              {...materialAdvantage[toShortChessColor(playersBySide.away.color)]}
+            />
+          }
           onCheckTime={onCheckTime}
         />
       </div>
@@ -68,6 +83,11 @@ export const PlayersInfo = ({
         activeBot={activeBot}
         gameTimeClass={game.timeClass}
         timeLeft={game.timeLeft[playersBySide.home.color]}
+        materialAdvantage={
+          <MaterialAdvantage
+            {...materialAdvantage[toShortChessColor(playersBySide.home.color)]}
+          />
+        }
         onCheckTime={onCheckTime}
       />
     </div>

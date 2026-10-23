@@ -12,7 +12,7 @@ import {
   sendResult,
   getUserStreakPlay,
   patchUserStreakPlay,
-  getUserStreak,
+  getLossPaywallKind,
 } from '@app/modules/Match/utilsOutpost';
 import { Paywall } from '@app/components/Paywall/Paywall';
 import {
@@ -34,6 +34,7 @@ import { ActiveBot } from '@app/modules/Match/movex/types';
 
 import { newRematchRequestInitiate } from '../../utilsOutpost';
 import { GoogleAd } from '@app/components/GoogleAd/GoogleAd';
+import { EndGameQuickChat } from '../../widgets/QuickChat';
 
 let sessionMatchStreakChecked = false;
 let sessionLossStreakChecked = false;
@@ -91,7 +92,7 @@ const RatingChange = ({
     diff === null || diff === 0
       ? 'bg-slate-500/20 text-slate-300'
       : diff > 0
-      ? 'bg-green-500/15 text-green-400'
+      ? 'bg-[#07da63]/15 text-[#07da63]'
       : 'bg-red-500/15 text-red-400';
   const badgeText =
     diff === null
@@ -156,6 +157,8 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
     newRating: number;
     diff: number | null;
   } | null>(null);
+  // Dok quick poruka putuje kroz movex, rematch ne sme da dispatchuje
+  const [quickMessageSending, setQuickMessageSending] = useState(false);
   const [lossStreakPaywallVisible, setLossStreakPaywallVisible] =
     useState(false);
   const [lossStreakPaywallCopy, setLossStreakPaywallCopy] = useState({
@@ -242,14 +245,10 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
         if (iLostMatch && !sessionLossStreakChecked) {
           sessionLossStreakChecked = true;
           setTimeout(async () => {
-            const streakResult = await getUserStreak();
-            const streakCount = Number(streakResult?.streak_count);
-            const isFirstLossEver = streakResult?.has_losses === false;
-            const isLossStreakMilestone =
-              streakResult?.streak_type === 'L' && [2, 4].includes(streakCount);
-            if (isFirstLossEver || isLossStreakMilestone) {
+            const lossPaywallKind = await getLossPaywallKind();
+            if (lossPaywallKind) {
               const name = myDisplayName;
-              if (isFirstLossEver) {
+              if (lossPaywallKind === 'firstLoss') {
                 setLossStreakPaywallCopy({
                   title: name
                     ? `Every loss is a lesson ${name}`
@@ -257,7 +256,7 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
                   subtitle: 'Let Outposty show you what went wrong',
                   subtitlePro: '',
                 });
-              } else if (streakCount === 4) {
+              } else if (lossPaywallKind === 'fiveInRow') {
                 setLossStreakPaywallCopy({
                   title: name
                     ? `Five losses in a row ${name}`
@@ -265,7 +264,7 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
                   subtitle: 'Your AI coach knows exactly why. Ask it.',
                   subtitlePro: '',
                 });
-              } else if (streakCount === 2) {
+              } else if (lossPaywallKind === 'threeInRow') {
                 setLossStreakPaywallCopy({
                   title: name
                     ? `Same mistake ${name}, third time`
@@ -364,6 +363,46 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
     runCheck();
   }, []);
 
+  // Isti uslovi kao za ChatWidget u MatchContainer + lokalni chat toggle
+  const hasMatchChat =
+    !activeBot ||
+    activeBot.botType === 'botelja' ||
+    activeBot.botType === 'matchFake';
+  const isChatEnabledLocally = invoke(() => {
+    try {
+      return (
+        localStorage.getItem(`chessroulette-chat-enabled-${userId}`) !==
+        'false'
+      );
+    } catch {
+      return true;
+    }
+  });
+  const showQuickChat = isPlayer && hasMatchChat && isChatEnabledLocally;
+
+  const handleSendQuickMessage = (content: string) => {
+    if (!userId) return;
+    const messages = match?.messages || [];
+    dispatch({
+      type: 'play:sendMessage',
+      payload: {
+        senderId: userId,
+        content,
+        timestamp: Date.now(),
+        responseId:
+          activeBot?.id && messages.length > 1
+            ? messages.at(-1)?.responseId
+            : undefined,
+      },
+    });
+  };
+
+  const getSenderName = (senderId: string) => {
+    const player =
+      senderId === match?.challenger.id ? match?.challenger : match?.challengee;
+    return player?.displayName || activeBot?.name || 'Opponent';
+  };
+
   const isOpponentInRoom = useMemo(() => {
     // Rana provera - ako nemamo osnovne podatke, oba igrača nisu u sobi
 
@@ -446,10 +485,11 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
         <Dialog
           title={`${endGameReason}`}
           hasCloseButton
+          compactHeader
           onClose={() => setIsHidden(true)}
           content={
             <div className="flex flex-col gap-4 items-center">
-              <div className="flex  justify-center content-center text-center flex-col">
+              <div className="flex w-full justify-center content-center text-center flex-col">
                 <Text className="text-xl font-semibold">
                   {match.winner === null ? (
                     <span></span>
@@ -484,8 +524,85 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
                 )}
                 {activeBot?.botType !== 'basic' && (
                   <div className="justify-center items-center flex flex-col gap-3 mt-3 w-full">
+                    {isPlayer && (
+                      <Button
+                        icon="ArrowPathRoundedSquareIcon"
+                        bgColor="green"
+                        className=" transition-all duration-200 w-[85%]  hover hover:shadow-[0_0_12px_rgba(7,218,99,0.25)]"
+                        style={{ minWidth: '160px' }}
+                        onClick={async () => {
+                          if (quickMessageSending) return;
+                          if (playerId) {
+                            if (!isOpponentInRoom) {
+                              try {
+                                if (!alreadyRematch) {
+                                  await newRematchRequestInitiate(roomId);
+                                }
+                                setAlreadyRematch(true);
+                              } catch (error) {
+                                console.error(
+                                  '❌ Error sending rematch notification:',
+                                  error
+                                );
+                              }
+                            }
+                            dispatch((masterContext) => ({
+                              type: 'play:sendOffer',
+                              payload: {
+                                byPlayer: playerId,
+                                offerType: 'rematch',
+                                timestamp: masterContext.requestAt(),
+                              },
+                            }));
+                          }
+                        }}
+                      >
+                        Rematch
+                      </Button>
+                    )}
+
+                    <Link
+                      className="w-[85%]"
+                      href={`https://chess.outpostchess.com/room/new/r${room}?activity=review&userId=${userId}&theme=op&pgn=${roomId}`}
+                      //href={`http://localhost:4200/room/new/r${room}?activity=review&userId=${userId}&theme=op&pgn=${roomId}`}
+                    >
+                      <Button
+                        icon="MagnifyingGlassIcon"
+                        bgColor="green"
+                        className="transition-all text-black  duration-200 w-full hover:border-green-600 hover:scale-[1.0] hover:shadow-[0_0_16px_rgba(7,218,99,0.35)] bg-green-600"
+                        style={{ minWidth: '160px', color: '#000' }}
+                        onClick={() => {}}
+                      >
+                        Review
+                      </Button>
+                    </Link>
+
+                    <Button
+                      icon="ArrowLeftIcon"
+                      bgColor="green"
+                      className="transition-all duration-200 w-[85%] hover:text-black  hover:scale-[1.0] hover:shadow-[0_0_12px_rgba(7,218,99,0.25)] mb-2"
+                      style={{ minWidth: '160px' }}
+                      onClick={() => {
+                        window.location.href =
+                          'https://app.outpostchess.com/online-list';
+                      }}
+                    >
+                      Lobby
+                    </Button>
+                    {showQuickChat && userId && (
+                      // w-0 + min-w-full: red cipova ne siri dijalog, skroluje samo on
+                      <div className="allow-touch-scroll-x w-0 min-w-full">
+                        <EndGameQuickChat
+                          messages={match.messages || []}
+                          currentUserId={userId}
+                          getSenderName={getSenderName}
+                          onSend={handleSendQuickMessage}
+                          onCooldownChange={setQuickMessageSending}
+                        />
+                      </div>
+                    )}
                     {streakDays !== null && (
-                      <div className="flex flex-row relative md:left-4 items-center gap-4 mb-2 w-full">
+                      <div className="flex flex-row justify-center items-center gap-4 mt-2 relative right-4 w-full">
                         <div
                           className="relative flex-shrink-0"
                           style={{
@@ -544,70 +661,6 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
                         </div>
                       </div>
                     )}
-                    {isPlayer && (
-                      <Button
-                        icon="ArrowPathRoundedSquareIcon"
-                        bgColor="green"
-                        className=" transition-all duration-200 w-full  hover:scale-[1.03] hover:shadow-[0_0_12px_rgba(7,218,99,0.25)]"
-                        style={{ minWidth: '160px' }}
-                        onClick={async () => {
-                          if (playerId) {
-                            if (!isOpponentInRoom) {
-                              try {
-                                if (!alreadyRematch) {
-                                  await newRematchRequestInitiate(roomId);
-                                }
-                                setAlreadyRematch(true);
-                              } catch (error) {
-                                console.error(
-                                  '❌ Error sending rematch notification:',
-                                  error
-                                );
-                              }
-                            }
-                            dispatch((masterContext) => ({
-                              type: 'play:sendOffer',
-                              payload: {
-                                byPlayer: playerId,
-                                offerType: 'rematch',
-                                timestamp: masterContext.requestAt(),
-                              },
-                            }));
-                          }
-                        }}
-                      >
-                        Rematch
-                      </Button>
-                    )}
-
-                    <Link
-                      className="w-full"
-                      href={`https://chess.outpostchess.com/room/new/r${room}?activity=review&userId=${userId}&theme=op&pgn=${roomId}`}
-                      //href={`http://localhost:4200/room/new/r${room}?activity=review&userId=${userId}&theme=op&pgn=${roomId}`}
-                    >
-                      <Button
-                        icon="MagnifyingGlassIcon"
-                        bgColor="green"
-                        className="transition-all text-black  duration-200 w-full hover:border-green-600 hover:scale-[1.03] hover:shadow-[0_0_16px_rgba(7,218,99,0.35)] bg-green-600"
-                        style={{ minWidth: '160px', color: '#000' }}
-                        onClick={() => {}}
-                      >
-                        Review
-                      </Button>
-                    </Link>
-
-                    <Button
-                      icon="ArrowLeftIcon"
-                      bgColor="green"
-                      className="transition-all duration-200 w-full hover:text-black  hover:scale-[1.03] hover:shadow-[0_0_12px_rgba(7,218,99,0.25)] mb-2"
-                      style={{ minWidth: '160px' }}
-                      onClick={() => {
-                        window.location.href =
-                          'https://app.outpostchess.com/online-list';
-                      }}
-                    >
-                      Lobby
-                    </Button>
                     <GoogleAd isMobile={isMobile} />
                   </div>
                 )}
