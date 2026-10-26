@@ -281,6 +281,34 @@ export function buildSolutionArrow(
 }
 
 /**
+ * Day 31 "Graduation Test 2" (Q13/Q14) - dve "crosshair" strelice koje se
+ * sastaju na ciljnom polju: jedna duz FAJLA (odozgo ili odozdo), jedna duz
+ * REDA (sa leva ili desna) - korisnik vizuelno vidi gde se linije seku, isto
+ * ucenje kao Day 27 "Chess Notation" animacija, samo strelicama umesto
+ * animiranih oblacica. UVEK krece sa SUPROTNE ivice od ciljnog polja (npr.
+ * cilj na redu 1 -> fajl-strelica krece sa reda 8, ne reda 1) da se izbegne
+ * strelica duzine nula na rubnim poljima - isti bag kao raniji (uklonjeni)
+ * pokusaj za Day 27, ovde izbegnut od pocetka.
+ */
+export function buildCrosshairArrows(
+  targetSquare: string,
+  colorHex = '#11C6D1'
+): ArrowsMap {
+  const file = targetSquare[0];
+  const rank = targetSquare[1];
+  const fileEdgeRank = rank === '8' ? '1' : '8';
+  const rankEdgeFile = file === 'a' ? 'h' : 'a';
+  const fileFrom = `${file}${fileEdgeRank}`;
+  const rankFrom = `${rankEdgeFile}${rank}`;
+  const fileId = `${fileFrom}${targetSquare}-${colorHex}` as keyof ArrowsMap;
+  const rankId = `${rankFrom}${targetSquare}-${colorHex}` as keyof ArrowsMap;
+  return {
+    [fileId]: [fileFrom, targetSquare, colorHex],
+    [rankId]: [rankFrom, targetSquare, colorHex],
+  } as ArrowsMap;
+}
+
+/**
  * Bira protivnicki odgovor. Za skriptovane poteze vraca zadati UCI, a za
  * ANY_LEGAL_REPLY nasumican legalan potez (puzzle 5 - "kralj gde god").
  */
@@ -458,4 +486,131 @@ export function illegalMoveReason(
 export function hasMoreUserMoves(step: LessonStep, index: number): boolean {
   if (step.kind === 'teach') return index + 1 < step.solution.length;
   return index + 2 < step.solution.length;
+}
+
+/**
+ * LessonStep.requireLegalCheck (Day 26 "Perpetual Check") - nalazi JEDAN
+ * sigurno-bezbedan sah za Hint strelicu: ne bilo koji legalan sah (neki
+ * mogu da "zaglave" kralja tako da posle NAREDNOG bekstva vise nema
+ * bezbednog nastavka, vidi komentar u lessonDatabase.ts), nego potez koji
+ * PROVERENO garantuje jos `roundsRemaining` ciklusa (sah -> kraljevo
+ * bekstvo), BEZ OBZIRA koje legalno bekstvo kralj odabere - pravi (mali,
+ * lokalan) minimax, ne Stockfish (stanje je premalo za to, i treba
+ * garancija protiv SVAKOG odgovora, ne samo "najbolja procena").
+ *
+ * Memoizovano preko modulskog Map-a (fen+rounds -> rezultat) koji se NIKAD
+ * ne cisti - stanje je sitno (par stotina pozicija po primeru, 3 primera
+ * ukupno), pa je bezbedno drzati ga kroz ceo zivot stranice. Prvi poziv za
+ * datu poziciju/broj-rundi moze potrajati (puna pretraga), ali SVAKA
+ * pozicija koju STVARNA partija kasnije stvarno dosegne vec je u tom istom
+ * stablu (minimax je vec morao da je istrazi da bi dokazao da je koren
+ * bezbedan), pa su svi sledeci pozivi u ISTOM pokusaju koraka prakticno
+ * trenutni (cist lookup).
+ */
+const perpetualCheckMemo = new Map<
+  string,
+  { uci: string; san: string } | null
+>();
+
+function perpetualCheckKey(fen: string, roundsRemaining: number): string {
+  return `${fen.split(' ').slice(0, 2).join(' ')}|${roundsRemaining}`;
+}
+
+/**
+ * Posle VEC odigranog poteza koji daje sah (c2 = pozicija POSLE tog poteza,
+ * protivnik na potezu, `checkToSquare` = polje na koje je upravo stigla
+ * dama) - da li je ovo ZAISTA bezbedan potez? DVE stvari se proveravaju, na
+ * SVAKOM nivou, ukljucujuci i POSLEDNJI potrebni sah (ranije je bas tu bio
+ * bag - "poslednji sah ne mora da bude bezbedan jer vise ne treba sledeci",
+ * sto je NETACNO: i poslednji sah ne sme da obesi damu):
+ *   1. NIJEDAN legalan odgovor ne sme da UZME damu (r.to === checkToSquare)
+ *      - bez ovoga algoritam zna da "nadje" sah koji tehnicki daje sah, ali
+ *      ga protivnik odmah pojede sledecim potezom - to JESTE legalan sah,
+ *      ali ocigledno los, ne nesto sto bismo ikad trebali da predlozimo.
+ *   2. Ako treba JOS ciklusa (`roundsRemaining > 1`), SVAKO (ne-hvatajuce)
+ *      bekstvo kralja mora da ostavi jos bezbednih ciklusa.
+ */
+function allRepliesStaySafe(
+  fenAfterCheck: string,
+  checkToSquare: string,
+  roundsRemaining: number
+): boolean {
+  const c2 = new Chess(fenAfterCheck);
+  const replies = c2.moves({ verbose: true });
+  if (replies.length === 0) return false; // mat/pat posle ovog poteza
+
+  // 1. Dama ne sme biti hvatljiva SLEDECIM potezom, bez obzira na
+  // roundsRemaining - ovo je bio bag (preskakano za roundsRemaining===1).
+  if (replies.some((r) => r.to === checkToSquare)) return false;
+
+  // 2. Dublja garancija samo ako JOS treba ciklusa.
+  if (roundsRemaining <= 1) return true;
+  for (const r of replies) {
+    const c3 = new Chess(fenAfterCheck);
+    const repliedMove = c3.move({
+      from: r.from,
+      to: r.to,
+      promotion: r.promotion,
+    });
+    if (!repliedMove) continue;
+    if (!findSafeCheckMove(c3.fen(), roundsRemaining - 1)) return false;
+  }
+  return true;
+}
+
+export function findSafeCheckMove(
+  fen: string,
+  roundsRemaining: number
+): { uci: string; san: string } | null {
+  if (roundsRemaining <= 0) return null;
+  const k = perpetualCheckKey(fen, roundsRemaining);
+  if (perpetualCheckMemo.has(k)) return perpetualCheckMemo.get(k)!;
+  // Privremeno "nema resenja" dok se racuna - sprecava beskonacnu rekurziju
+  // ako se ista (pozicija, broj-rundi) ikad pojavi opet u istom stablu
+  // (ciklus bi inace znacio da taj put NIJE siguran svakako).
+  perpetualCheckMemo.set(k, null);
+
+  const chess = new Chess(fen);
+  const moves = chess.moves({ verbose: true });
+  for (const m of moves) {
+    const c2 = new Chess(fen);
+    const played = c2.move({ from: m.from, to: m.to, promotion: m.promotion });
+    if (!played) continue;
+    if (!c2.inCheck() || c2.isCheckmate()) continue; // mora da bude SAH, NE mat
+
+    if (allRepliesStaySafe(c2.fen(), m.to, roundsRemaining)) {
+      const result = { uci: m.from + m.to, san: m.san };
+      perpetualCheckMemo.set(k, result);
+      return result;
+    }
+  }
+  perpetualCheckMemo.set(k, null);
+  return null;
+}
+
+/**
+ * LessonStep.requireLegalCheck - da li je BAS OVAJ potez (uci, vec legalan i
+ * jeste sah - to onMove.tsx proverava odvojeno) deo "bezbedne" strategije,
+ * ne samo bilo koji sah? Npr. korisnik moze da da tehnicki legalan sah koji
+ * gura damu na polje odakle kralj ima bekstvo u poziciju bez daljeg
+ * bezbednog saha (ili gde dama postaje hvatljiva) - to JESTE sah, ali NIJE
+ * "dobar" sah za ovu vezbu (korisnicin zahtev - "samo oni koje engine
+ * potvrdjuje kao ispravne"). Isti algoritam kao findSafeCheckMove, samo za
+ * JEDAN konkretan kandidat umesto trazenja prvog koji prolazi.
+ */
+export function isSafeCheckMove(
+  fen: string,
+  uci: string,
+  roundsRemaining: number
+): boolean {
+  if (roundsRemaining <= 0) return false;
+  const chess = new Chess(fen);
+  const played = chess.move({
+    from: uci.slice(0, 2),
+    to: uci.slice(2, 4),
+    promotion: uci.slice(4, 5) || undefined,
+  });
+  if (!played) return false;
+  if (!chess.inCheck() || chess.isCheckmate()) return false;
+  return allRepliesStaySafe(chess.fen(), uci.slice(2, 4), roundsRemaining);
 }

@@ -10,7 +10,28 @@ import { Paywall } from '@app/components/Paywall/Paywall';
 // teksta. IZUZETAK - naslov taska (prompt+introText poruka, uvek pocinje
 // bas sa '**...**' na samom pocetku stringa) ostaje BELI bold, nikad plav -
 // to je naslov oblacica, ne naglasena rec unutar njega.
-function renderMarkdownInline(text: string): React.ReactNode[] {
+// kind:'wrongQuizAnswer' (netacan kviz odgovor) - FIKSNA, UVEK-negativna
+// roze oznaka (#f2358d, ista kao pogresan potez na tabli) ispred poruke,
+// ostatak (cela autorova poruka) ostaje normalan tekst (belo + plavi bold
+// za **). NIJE prva recenica POSTOJECE poruke - probala sam to, ali neke
+// poruke POCINJU ohrabrujuce ("Good try."), pa bi ohrabrenje ispalo roze
+// (= "pogresno" obojeno pozitivno, nema smisla). Fiksna oznaka garantuje da
+// roze UVEK znaci isto, bez obzira kako autor zapocne svoju poruku.
+const WRONG_ANSWER_LABEL = 'Not quite right.';
+
+function renderMarkdownInline(
+  text: string,
+  kind?: 'task' | 'wrongQuizAnswer'
+): React.ReactNode[] {
+  if (kind === 'wrongQuizAnswer') {
+    return [
+      <strong key="wrong-lead" className="text-[#f2358d]">
+        {WRONG_ANSWER_LABEL}
+      </strong>,
+      ' ',
+      ...renderMarkdownInline(text),
+    ];
+  }
   const markers = text.match(/\*\*/g)?.length ?? 0;
   const safe =
     markers % 2 === 1 ? text.replace(/\*\*(?![\s\S]*\*\*)/, '') : text;
@@ -52,6 +73,9 @@ type Props = {
   step?: LessonStep | null;
   quizSelectedIndex?: number | null;
   onSelectQuizAnswer?: (index: number) => void;
+  /** LessonStep.quizMultiSelect (Day 31) - indeksi trenutno izabranih (toggle) opcija. */
+  quizMultiSelected?: number[];
+  onToggleMultiOption?: (index: number) => void;
   /** step.suggestedMove (Day 17) - klikabilno dugme sa potezom, ista pozicija
    * u skrolujucem toku kao quizOptions dugmad gore. */
   suggestedMovePlayed?: boolean;
@@ -59,6 +83,16 @@ type Props = {
   /** Lesson.pawnyAvatar (Day 18 "Pawny 2.0") - zamenjuje podrazumevani
    * `/pawny/pawny.png` kroz celu lekciju. */
   pawnyAvatarSrc?: string;
+  /**
+   * Lesson.graduationTest (Day 31 "Graduation Test 2") - iskljucuje "sticky"
+   * zalepljen-za-vrh tretman kviz pitanja (vidi isStickyQuizQuestion ispod).
+   * Sticky postoji da pitanje ostane vidljivo dok se SKROLUJE kroz duzi
+   * odgovor/objasnjenje - kod testova sa autoAdvanceOnCorrect i kratkim
+   * objasnjenjima, pitanja se smenjuju prebrzo da bi sticky ikad bio
+   * potreban, a svako ponovno "lepljenje" pri svakom novom pitanju je
+   * izazivalo vidljiv "skok" sadrzaja (korisnicin prijavljen bag).
+   */
+  disableStickyQuizQuestion?: boolean;
 };
 
 const Conversation = ({
@@ -73,9 +107,12 @@ const Conversation = ({
   step,
   quizSelectedIndex,
   onSelectQuizAnswer,
+  quizMultiSelected = [],
+  onToggleMultiOption,
   suggestedMovePlayed,
   onPlaySuggestedMove,
   pawnyAvatarSrc = '/pawny/pawny.png',
+  disableStickyQuizQuestion,
 }: Props) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [typingDone, setTypingDone] = useState(false);
@@ -168,6 +205,7 @@ const Conversation = ({
           const isStickyQuizQuestion =
             step?.kind === 'quiz' &&
             !!step.quizOptions &&
+            !disableStickyQuizQuestion &&
             index === lastTaskMessageIndex;
           // Day 14 "Your First Game" - Pawny-jeve poruke (vidi
           // sendPawnyMessage u DailyLessonActivity.tsx) idu u ISTOJ "bot"
@@ -242,6 +280,7 @@ const Conversation = ({
                       {isLastMessage && typeof lastMessage === 'string' ? (
                         <TypewriterText
                           lastMessage={lastMessage}
+                          kind={msg.kind}
                           scrollToBottom={scrollToBottom}
                           onTypingStart={handleTypingStart}
                           onDone={() => setTypingDone(true)}
@@ -249,7 +288,7 @@ const Conversation = ({
                       ) : (
                         <p className="text-[14px] text-left break-words leading-relaxed whitespace-pre-line">
                           {typeof msg.content === 'string' &&
-                            renderMarkdownInline(msg.content)}
+                            renderMarkdownInline(msg.content, msg.kind)}
                         </p>
                       )}
                     </div>
@@ -305,6 +344,7 @@ const Conversation = ({
             </div>
             {step?.kind === 'quiz' &&
               step.quizOptions &&
+              !step.quizMultiSelect &&
               quizSelectedIndex == null &&
               index === lastTaskMessageIndex && (
                 <div className="grid grid-cols-2 gap-2 px-2 md:px-4 mt-1 mb-2">
@@ -323,6 +363,43 @@ const Conversation = ({
                   ))}
                 </div>
               )}
+            {/* LessonStep.quizMultiSelect (Day 31 Q2/Q3) - dugmad se TOGGLE-
+                uju (ne zakljucavaju na prvi klik) - izabrane ostaju vidljivo
+                oznacene dok se ne dostigne trazen broj, kad se automatski
+                salje na ocenjivanje (vidi handleToggleMultiOption). */}
+            {step?.kind === 'quiz' &&
+              step.quizOptions &&
+              step.quizMultiSelect &&
+              index === lastTaskMessageIndex &&
+              (() => {
+                const needed = step.quizCorrectIndices?.length ?? 2;
+                const locked = quizMultiSelected.length >= needed;
+                return (
+                  <div className="grid grid-cols-2 gap-2 px-2 md:px-4 mt-1 mb-2">
+                    {step.quizOptions.map((option, i) => {
+                      const isSelected = quizMultiSelected.includes(i);
+                      return (
+                        <button
+                          key={i}
+                          type="button"
+                          disabled={locked}
+                          onClick={() => onToggleMultiOption?.(i)}
+                          className={`text-left text-xs sm:text-sm px-3 py-2 rounded-xl border transition-colors duration-150 cursor-pointer ${
+                            isSelected
+                              ? 'border-[#07DA63] bg-[#07DA63]/[0.1] text-white'
+                              : 'border-conversation-100 text-white hover:border-[#07DA63] hover:bg-[#07DA63]/[0.06]'
+                          }`}
+                        >
+                          <span className="text-[#07DA63] font-bold">
+                            {String.fromCharCode(65 + i)})
+                          </span>{' '}
+                          {option}
+                        </button>
+                      );
+                    })}
+                  </div>
+                );
+              })()}
             {step?.suggestedMove &&
               !suggestedMovePlayed &&
               index === lastTaskMessageIndex && (
