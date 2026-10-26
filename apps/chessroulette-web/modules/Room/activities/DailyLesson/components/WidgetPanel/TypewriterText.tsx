@@ -9,6 +9,13 @@ import { FreeBoardNotationProps } from '@app/components/FreeBoardNotation';
 // pravilo kao u Conversation.tsx (ovaj fajl ima sopstvenu kopiju jer
 // Typewriter otkriva tekst slovo po slovo, drugaciji parsing potreban).
 // IZUZETAK - naslov taska (string koji pocinje bas sa '**') ostaje BELI.
+// kind:'wrongQuizAnswer' - za razliku od Conversation.tsx (gde je cela
+// poruka vec dostupna odjednom), ovde se poruka otkriva slovo po slovo i
+// renderMarkdownInline se poziva PO SEGMENTU (vise puta po poruci) - fiksna
+// roze oznaka zato NIJE ovde (dupliral bi se po segmentu), vec kao poseban,
+// UVEK potpuno vidljiv prefiks u return JSX-u ispod (WRONG_ANSWER_LABEL).
+const WRONG_ANSWER_LABEL = 'Not quite right.';
+
 function renderMarkdownInline(text: string): React.ReactNode[] {
   // Typewriter otkriva tekst slovo po slovo, pa se otvoreni '**' vidi jos pre
   // nego sto stigne zatvarajuci par - sakrivamo nesparen marker.
@@ -39,6 +46,7 @@ function renderMarkdownInline(text: string): React.ReactNode[] {
 
 interface TypewriterTextProps {
   lastMessage: string;
+  kind?: 'task' | 'wrongQuizAnswer';
   scrollToBottom: () => void;
   onHistoryNotationRefocus?: FreeBoardNotationProps['onRefocus'];
   notationHistoryLength?: number;
@@ -47,6 +55,7 @@ interface TypewriterTextProps {
 }
 const TypewriterText: React.FC<TypewriterTextProps> = ({
   lastMessage = '',
+  kind,
   scrollToBottom,
   onHistoryNotationRefocus,
   notationHistoryLength = 0,
@@ -103,6 +112,11 @@ const TypewriterText: React.FC<TypewriterTextProps> = ({
     <div className="min-w-0">
       <p className="text-left break-words leading-relaxed whitespace-pre-line">
         {' '}
+        {kind === 'wrongQuizAnswer' && (
+          <>
+            <strong className="text-[#f2358d]">{WRONG_ANSWER_LABEL}</strong>{' '}
+          </>
+        )}
         {segments.map((seg, i) => {
           if (seg.end <= L) {
             if (seg.type === 'move' && onHistoryNotationRefocus) {

@@ -40,6 +40,8 @@ export type DailyLessonWidgetPanelProps = {
   onHistoryNotationRefocus: FreeBoardNotationProps['onRefocus'];
   /** Kviz pitanje (kind:'quiz') - korisnik bira jedno od 4 ponudjena dugmeta. */
   onSelectQuizAnswer: (index: number) => void;
+  /** LessonStep.quizMultiSelect (Day 31) - poziva se TEK kad je izabrano tacno onoliko opcija koliko quizCorrectIndices trazi. */
+  onSelectMultiQuizAnswer?: (indices: number[]) => void;
   /** step.suggestedMove (Day 17) - klik na potez u chatu, umesto prevlacenja. */
   onPlaySuggestedMove: (uci: string) => void;
   /** kind:'freePlay' (Day 14) - zamenjuju Next dugme, vidi FreePlayControls. */
@@ -67,6 +69,7 @@ export const DailyLessonWidgetPanel = ({
   onMessage,
   onHistoryNotationRefocus,
   onSelectQuizAnswer,
+  onSelectMultiQuizAnswer,
   onPlaySuggestedMove,
   onDrawOffer,
   onTakeBack,
@@ -87,14 +90,44 @@ export const DailyLessonWidgetPanel = ({
       if (quizSelectedIndex !== null) return;
       setQuizSelectedIndex(index);
       onSelectQuizAnswer(index);
-      // Day 15 Position 6 "Yes/No" trik - netacan odgovor ne zavrsava korak
-      // (quizRetryOnWrong), pa dugmad vracamo posle kratke pauze (dovoljno
-      // da se nagovestaj procita) da korisnik moze da proba ponovo.
-      if (step?.quizRetryOnWrong && index !== step?.quizCorrectIndex) {
+      // Day 15 Position 6 "Yes/No" trik (quizRetryOnWrong) i Day 31 Q14
+      // (quizScoredRetry) - netacan odgovor ne zavrsava korak, pa dugmad
+      // vracamo posle kratke pauze (dovoljno da se nagovestaj procita) da
+      // korisnik moze da proba ponovo.
+      if (
+        (step?.quizRetryOnWrong || step?.quizScoredRetry) &&
+        index !== step?.quizCorrectIndex
+      ) {
         setTimeout(() => setQuizSelectedIndex(null), 1600);
       }
     },
     [quizSelectedIndex, onSelectQuizAnswer, step]
+  );
+  // LessonStep.quizMultiSelect (Day 31 Q2/Q3) - TOGGLE selekcija (ne
+  // zakljucava na prvi klik kao standardan kviz) - cim je izabrano tacno
+  // `quizCorrectIndices.length` opcija, automatski se salje na ocenjivanje.
+  const [multiSelected, setMultiSelected] = useState<number[]>([]);
+  const [multiSubmitted, setMultiSubmitted] = useState(false);
+  useEffect(() => {
+    setMultiSelected([]);
+    setMultiSubmitted(false);
+  }, [step?.id]);
+  const handleToggleMultiOption = useCallback(
+    (index: number) => {
+      if (multiSubmitted) return;
+      const needed = step?.quizCorrectIndices?.length ?? 2;
+      setMultiSelected((prev) => {
+        const next = prev.includes(index)
+          ? prev.filter((i) => i !== index)
+          : [...prev, index];
+        if (next.length >= needed) {
+          setMultiSubmitted(true);
+          onSelectMultiQuizAnswer?.(next);
+        }
+        return next;
+      });
+    },
+    [multiSubmitted, step, onSelectMultiQuizAnswer]
   );
   // step.suggestedMove (Day 17) dugme - sakriva se ODMAH na klik (lokalno),
   // ne ceka se async dispatch/isStepComplete krug (isti princip kao
@@ -398,9 +431,12 @@ export const DailyLessonWidgetPanel = ({
               step={step}
               quizSelectedIndex={quizSelectedIndex}
               onSelectQuizAnswer={handleQuizAnswer}
+              quizMultiSelected={multiSelected}
+              onToggleMultiOption={handleToggleMultiOption}
               suggestedMovePlayed={suggestedMovePlayed}
               onPlaySuggestedMove={handlePlaySuggestedMove}
               pawnyAvatarSrc={lesson?.pawnyAvatar}
+              disableStickyQuizQuestion={!!lesson?.graduationTest}
             />
           </div>
 

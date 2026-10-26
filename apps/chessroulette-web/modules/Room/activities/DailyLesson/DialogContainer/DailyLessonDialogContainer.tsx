@@ -590,6 +590,12 @@ export type DailyLessonDialogContainerProps = {
   onNextLesson?: () => void;
   /** endScreenButtons action:'review' (Day 14) - otvara Game Review sa PGN-om odigrane partije. */
   onGameReview?: () => void;
+  /**
+   * endScreenButtons action:'testOpening' (Day 28 "My First Opening with
+   * White — London") - skace DIREKTNO na Lesson.testStepId korak (BEZ
+   * ponovnog prolaska kroz vodjeni deo), resetujuci brojace kao Repeat.
+   */
+  onTestOpening?: () => void;
   /** Popup pre koraka koji uvodi novu pod-temu (npr. rokada) - null ako trenutni korak nema jedan. */
   preStepIntro: LessonStep['preStepIntro'] | null;
   onDismissPreStepIntro: () => void;
@@ -609,6 +615,7 @@ export const DailyLessonDialogContainer = ({
   onNextStep,
   onNextLesson,
   onGameReview,
+  onTestOpening,
   preStepIntro,
   onDismissPreStepIntro,
   wrongQuizSteps,
@@ -652,7 +659,9 @@ export const DailyLessonDialogContainer = ({
     return (
       <Dialog
         title={
-          <span className="text-white font-bold">{lesson.intro.title}</span>
+          <span className="text-white font-bold">
+            {introStep?.title ?? lesson.intro.title}
+          </span>
         }
         content={
           <div className="flex flex-col px-4 py-2 items-center">
@@ -666,6 +675,16 @@ export const DailyLessonDialogContainer = ({
             <p className="text-slate-300 text-sm text-center leading-relaxed">
               {renderMarkdownInline(introStep?.text ?? lesson.intro.text)}
             </p>
+            {introStep?.bullets && introStep.bullets.length > 0 && (
+              <ul className="mt-3 w-full text-slate-300 text-sm space-y-1.5">
+                {introStep.bullets.map((bullet, i) => (
+                  <li key={i} className="flex items-start gap-2">
+                    <span className="text-[#07DA63] mt-0.5">•</span>
+                    <span>{renderMarkdownInline(bullet)}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
             <ButtonGreen
               size="lg"
               icon="PlayIcon"
@@ -747,6 +766,54 @@ export const DailyLessonDialogContainer = ({
     return tier ? { ...tier, correctCount, total: stepIndices.length } : null;
   })();
 
+  // Broj gresaka na zavrsnom ekranu - za lekcije bez scoreSummary, svaki
+  // kviz/markSquares korak je TACNO jedan pokusaj (Day 27 "Chess Notation" i
+  // dalje), pa `wrongQuizSteps.size` (isti Set koji boji roze segmente na
+  // traci) uvek TACNO odgovara broju roze segmenata - korisnica prijavila
+  // da se `lessonState.totalErrors` (persistira kroz Movex, PREZIVI reload)
+  // vidi rastao mimo ovog lokalnog Set-a (resetuje se na svaki remount),
+  // pa su se brojevi razilazili. Lekcije SA scoreSummary (npr. Day 23
+  // "Piece Values") zadrzavaju totalErrors - tamo vise pokusaja po koraku
+  // JESU dozvoljeni, pa su "koliko si puta pogresio" i "koliko pitanja je
+  // ikad bilo pogresno" namerno razliciti brojevi.
+  const errorCount =
+    lesson?.flatProgressSegments && !lesson?.scoreSummary
+      ? (wrongQuizSteps?.size ?? 0)
+      : lessonState.totalErrors;
+
+  // Lesson.graduationTest (Day 30/31 "Graduation Test") - zavrsni ekran ima
+  // DVE do TRI varijante (naslov/tekst/dugmad) zavisno od lessonState.score
+  // i (za finalScreen) da li se stiglo preko "Start Test 2" sa vec polozenog
+  // Day 30 - racuna se OVDE, na svaki render, iz trenutnog skora + URL-a (ne
+  // cuva se "passed" negde posebno). Generican mehanizam.
+  const graduationResult = lesson?.graduationTest
+    ? (() => {
+        const gt = lesson.graduationTest;
+        const passed = lessonState.score >= gt.maxScore * gt.passThreshold;
+        // Day 31 finalScreen - LAGANA, URL-bazirana potvrda da je prethodni
+        // test vec polozen (vidi napomenu uz finalScreen u lessonDatabase.ts)
+        const arrivedFromPriorPass =
+          typeof window !== 'undefined' &&
+          gt.finalScreen &&
+          new URLSearchParams(window.location.search).get('fromLessonId') ===
+            gt.finalScreen.requiresPriorPassLessonId;
+        if (passed && arrivedFromPriorPass && gt.finalScreen) {
+          return {
+            passed: true,
+            title: gt.finalScreen.title,
+            body: gt.finalScreen.body,
+            buttons: gt.finalScreen.buttons,
+          };
+        }
+        return {
+          passed,
+          title: passed ? gt.passTitle : gt.failTitle,
+          body: passed ? gt.passBody : gt.failBody,
+          buttons: passed ? gt.passButtons : gt.failButtons,
+        };
+      })()
+    : null;
+
   // Popup se prikazuje SAMO na pocetku (intro, iznad) i na samom kraju cele
   // lekcije - medjukoraci (i pojedinacni mat u primeru) vise nemaju
   // prekidajuci popup, samo konfeti (efekat ispod) + inline "Next" u chatu.
@@ -754,14 +821,24 @@ export const DailyLessonDialogContainer = ({
     return (
       <Dialog
         title={
-          <span className="text-[#07DA63] font-bold animate-pulse">
-            {lesson?.endScreenTitle ?? 'Lesson complete! 🎉'}
+          <span
+            className={`font-bold animate-pulse ${
+              graduationResult && !graduationResult.passed
+                ? 'text-[#f2358d]'
+                : 'text-[#07DA63]'
+            }`}
+          >
+            {graduationResult
+              ? graduationResult.title
+              : (lesson?.endScreenTitle ?? 'Lesson complete! 🎉')}
           </span>
         }
         content={
           <div className="flex flex-col px-4 py-2 items-center">
             <p className="text-slate-300 text-sm text-center leading-relaxed">
-              {step.doneText}
+              {renderMarkdownInline(
+                graduationResult ? graduationResult.body : step.doneText
+              )}
             </p>
             {scoreTier && (
               <div className="mt-3 w-full border border-[#07DA63]/30 bg-[#07DA63]/[0.07] rounded-xl px-3 py-2.5 text-center">
@@ -774,6 +851,14 @@ export const DailyLessonDialogContainer = ({
                 </p>
               </div>
             )}
+            {graduationResult && (
+              <div className="mt-3 w-full border border-[#07DA63]/30 bg-[#07DA63]/[0.07] rounded-xl px-3 py-2.5 text-center">
+                <p className="text-[#07DA63] text-xs font-bold tracking-wide uppercase">
+                  {Math.round(lessonState.score * 100) / 100} /{' '}
+                  {lesson?.graduationTest?.maxScore} points
+                </p>
+              </div>
+            )}
             <div className="mt-3 flex items-center gap-4 text-xs text-slate-400">
               <span className="flex items-center gap-1">
                 <Icon name="LightBulbIcon" kind="outline" className="h-4 w-4" />
@@ -782,18 +867,31 @@ export const DailyLessonDialogContainer = ({
               </span>
               <span className="flex items-center gap-1">
                 <Icon name="XMarkIcon" kind="outline" className="h-4 w-4" />
-                {lessonState.totalErrors} error
-                {lessonState.totalErrors !== 1 ? 's' : ''}
+                {errorCount} error
+                {errorCount !== 1 ? 's' : ''}
               </span>
             </div>
-            <p className="text-slate-400 text-xs text-center mt-3">
-              You mastered the {lesson?.piece.name ?? 'piece'} today. Come
-              back tomorrow for the next lesson!
-            </p>
+            {/* "Mastered ... today" tagline ne odgovara jednom ocenjenom
+                testu (graduationTest) - preskace se tamo. */}
+            {!graduationResult && (
+              <p className="text-slate-400 text-xs text-center mt-3">
+                You mastered the {lesson?.piece.name ?? 'piece'} today. Come
+                back tomorrow for the next lesson!
+              </p>
+            )}
             {/* Neke lekcije (npr. Day 13 Openings) zamenjuju standardni red
-                dugmadi svojim - vidi Lesson.endScreenButtons. */}
-            {lesson?.endScreenButtons ? (
-              lesson.endScreenButtons.map((btn, i) => (
+                dugmadi svojim - vidi Lesson.endScreenButtons. Lesson.
+                graduationTest (Day 30) ide JOS ispred toga - pass/fail
+                varijanta bira SOPSTVENI red dugmadi, nezavisno od
+                endScreenButtons (test obicno i nema to polje postavljeno). */}
+            {(graduationResult
+              ? graduationResult.buttons
+              : lesson?.endScreenButtons
+            ) ? (
+              (graduationResult
+                ? graduationResult.buttons
+                : lesson!.endScreenButtons!
+              ).map((btn, i) => (
                 <ButtonGreen
                   key={btn.label}
                   icon={
@@ -805,17 +903,26 @@ export const DailyLessonDialogContainer = ({
                           ? 'ChartBarIcon'
                           : btn.action === 'play'
                             ? 'PlayIcon'
-                            : 'LightBulbIcon'
+                            : btn.action === 'testOpening'
+                              ? 'AcademicCapIcon'
+                              : btn.action === 'nextLesson'
+                                ? 'ArrowRightIcon'
+                                : 'LightBulbIcon'
                   }
                   iconKind="outline"
                   size="lg"
                   className="w-full text-[16px] h-[44px] rounded-[22px]"
                   style={{ marginTop: i === 0 ? 20 : 12 }}
-                  disabled={btn.action === 'placeholder'}
+                  disabled={
+                    btn.action === 'placeholder' ||
+                    (btn.action === 'nextLesson' && !onNextLesson)
+                  }
                   tooltip={
                     btn.action === 'placeholder'
-                      ? btn.tooltip ?? 'Coming soon'
-                      : undefined
+                      ? (btn as { tooltip?: string }).tooltip ?? 'Coming soon'
+                      : btn.action === 'nextLesson' && !onNextLesson
+                        ? 'More lessons coming soon'
+                        : undefined
                   }
                   onClick={
                     btn.action === 'repeat'
@@ -837,7 +944,14 @@ export const DailyLessonDialogContainer = ({
                                 window.location.href =
                                   'https://app.outpostchess.com/intsearch';
                               }
-                            : undefined
+                            : btn.action === 'testOpening'
+                              ? () => {
+                                  onDismissCelebration();
+                                  onTestOpening?.();
+                                }
+                              : btn.action === 'nextLesson'
+                                ? onNextLesson
+                                : undefined
                   }
                 >
                   &nbsp;{btn.label}

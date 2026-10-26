@@ -205,6 +205,23 @@ const GENERIC_HINT_HELP_VARIANTS = [
 ];
 
 /**
+ * Lesson.shuffleStepsFrom (Day 22 "Material") - vraca NOVI niz: koraci PRE
+ * `fromIndex` ostaju u originalnom redosledu, koraci OD `fromIndex` nadalje
+ * se nasumicno premestaju (Fisher-Yates). Original niz se ne menja. Kad je
+ * `fromIndex` undefined, vraca isti niz nepromenjen (bez kopiranja).
+ */
+export function shuffleFrom<T>(items: T[], fromIndex?: number): T[] {
+  if (fromIndex == null) return items;
+  const fixed = items.slice(0, fromIndex);
+  const rest = items.slice(fromIndex);
+  for (let i = rest.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [rest[i], rest[j]] = [rest[j], rest[i]];
+  }
+  return [...fixed, ...rest];
+}
+
+/**
  * Bira poruku razlicitu od poslednje poslate, da se dva ista kratka komentara
  * ne nadju za redom. `primary` je uobicajena poruka za ovaj trenutak (npr.
  * step.successText ili step.hintText); ako se poklapa sa poslednjom porukom,

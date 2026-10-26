@@ -1,4 +1,13 @@
 import { ChessColor, ChessFEN } from '@xmatter/util-kit';
+// Day 28 "My First Opening with White - London" - potezi (UCI) se citaju
+// odavde (LearnAi-jeva baza otvaranja, jedini izvor istine za "London
+// System" liniju), NE prekucavaju se rucno - vidi DAY_28_FIRST_OPENING ispod.
+// Prozni opisi po potezu su ipak NASI, ne kopirani iz te baze - njeni
+// komentari idu uz NJEN moves-indeks koji ne mapira 1:1 na nas
+// moveExplanations mehanizam (koji okida samo posle KORISNIKOVOG - belog -
+// poteza, posle automatskog crnog odgovora), pa su prepisani/verifikovani
+// rucno da tacno opisuju poziciju u tom trenutku.
+import { OPENING_DATABASE } from '../LearnAi/openingDatabase';
 
 /**
  * 'teach' - korisnik igra vise uzastopnih poteza svojom bojom (bez protivnika).
@@ -26,6 +35,15 @@ export type LessonStepKind =
 
 /** Protivnicki odgovor koji nije skriptovan - engine bira bilo koji legalan potez. */
 export const ANY_LEGAL_REPLY = '*';
+
+/**
+ * Korisnikov potez koji nije skriptovan na JEDNO ocekivano polje - bilo koji
+ * legalan potez koji daje SAH se prihvata (npr. Day 26 "Perpetual Check" -
+ * "koji god sah da se da u redu je"). Koristi se u `solution` na KORISNIKOVIM
+ * indeksima (par sa ANY_LEGAL_REPLY na protivnikovim), umesto fiksnog UCI-ja.
+ * Vidi LessonStep.requireLegalCheck.
+ */
+export const ANY_LEGAL_CHECK = '+';
 
 /** Koliko puta korisnik moze da trazi hint po koraku, pre nego sto se dugme ugasi. */
 export const MAX_HINTS_PER_STEP = 2;
@@ -229,10 +247,75 @@ export type LessonStep = {
    * vise razlicitih poteza validno zavrsava taj deo zadatka.
    */
   altMoves?: Record<number, string[]>;
+  /**
+   * Samo kind:'puzzle' (npr. Day 26 "Perpetual Check") - korisnikovi indeksi
+   * u `solution` su ANY_LEGAL_CHECK (ne fiksan UCI): potez je tacan SAMO ako
+   * (1) daje sah I (2) je "bezbedan" - PROVERENO (isSafeCheckMove u
+   * lessonEngine.ts, pravi minimax, ne samo "da li je sah") da i dalje vodi
+   * ka remiju bez obzira koje legalno bekstvo kralj kasnije odabere. Legalan
+   * sah koji NIJE bezbedan (npr. gura damu na polje odakle kralj moze da
+   * pobegne u poziciju bez daljeg saha, ili gde dama postaje hvatljiva) NIJE
+   * tacan ovde - korisnicin eksplicitan zahtev, "ne sahiramo na najgluplja
+   * moguca polja". Vidi `unsafeCheckText` za poruku u tom slucaju.
+   * Protivnikovi indeksi ostaju ANY_LEGAL_REPLY (engine bira bilo koji
+   * legalan potez - obicno jedini legalan je da kralj pobegne, pozicija je
+   * tako postavljena). Hint ovde ide kroz ISTI standardni dvostepeni sistem
+   * kao svuda drugde (1. klik oznaci damu, 2./poslednji klik doda strelicu)
+   * - "figura" (dama) se trazi na trenutnoj tabli na 1. klik (jeftino), ali
+   * STVARAN potez na 2. klik mora biti UZIVO izracunat (findSafeCheckMove,
+   * lokalan minimax, ne Stockfish) jer se tacna "bezbedna" sledeca sah-polja
+   * menjaju zavisno od toga gde je kralj STVARNO pobegao. Generican
+   * mehanizam, ne Day26-specifican.
+   */
+  requireLegalCheck?: boolean;
+  /**
+   * Samo uz `requireLegalCheck` - poruka kad je korisnikov potez TEHNICKI
+   * sah (legalan, daje sah), ali NIJE deo bezbedne strategije (vidi gore) -
+   * razlicita od standardnog `hintText` (koji je za poteze koji uopste NISU
+   * sah). Crveni X se prikazuje u oba slucaja (isti standardni pogresan-potez
+   * vizuelni jezik), samo je poruka druga.
+   */
+  unsafeCheckText?: string;
+  /**
+   * Potez koji NIJE step.solution[indeks] (ne prolazi korak dalje), ali je
+   * PREPOZNAT kao svoja sopstvena kategorija vredna POSEBNE poruke, razlicite
+   * od generickog `hintText` - npr. Day 21 "Opposition": kad se trazi
+   * paralelna opozicija a korisnik odigra dijagonalnu (JESTE opozicija, samo
+   * pogresna vrsta), ili potez koji ne spada u ono sto lekcija uci ali je
+   * (provereno) objektivno i dalje dobijajuci (ne zelimo da mu kazemo da je
+   * partija izgubljena kad nije). Kljuc je indeks u `solution` nizu (isto kao
+   * `altMoves`), vrednost niz prepoznatih poteza + njihova poruka. Potez se
+   * NE primenjuje (isto ponasanje kao standardan pogresan potez - crveni X,
+   * zvuk, hint tacke za pravu figuru - samo je poruka druga, salje se TACNO
+   * kako je napisana, bez variranja). Generican mehanizam, nije Day21-specifican.
+   */
+  otherTypeMoves?: Record<number, { uci: string; message: string }[]>;
   /** Kviz odgovori (samo kind:'quiz') - obicno 4 teksta (Yes/No kviz moze imati 2), prikazuju se kao dugmad. */
   quizOptions?: string[];
-  /** Indeks tacnog odgovora u quizOptions (0-3), samo kind:'quiz'. */
+  /** Indeks tacnog odgovora u quizOptions (0-3), samo kind:'quiz'. Ignorise se kad je zadato `quizMultiSelect`. */
   quizCorrectIndex?: number;
+  /**
+   * Samo kind:'quiz' (Day 31 "Graduation Test 2" Q2/Q3) - umesto jednog
+   * tacnog odgovora, korisnik BIRA TACNO `quizCorrectIndices.length` opcija
+   * (dugmad se TOGGLE-uju, ne zakljucavaju na prvi klik) - cim je taj broj
+   * izabran, automatski se ocenjuje: TACNO samo ako izabrani skup TACNO
+   * odgovara `quizCorrectIndices` (sve-ili-nista, nema delimicnih poena).
+   * Jedan pokusaj, bez retry-ja (isto kao standardan kviz). Generican
+   * mehanizam.
+   */
+  quizMultiSelect?: boolean;
+  /** Samo uz `quizMultiSelect` - indeksi SVIH tacnih opcija (npr. [0,1] za "biraju se 2"). */
+  quizCorrectIndices?: number[];
+  /**
+   * Samo kind:'quiz' (Day 31 Q14) - netacan odgovor NE zavrsava korak (kao
+   * `quizRetryOnWrong`), ALI umesto binarnog ishoda, svaki netacan pokusaj
+   * oduzima poene (isti princip kao `anyLegalMoveStreak`/`exactMoveUci` -
+   * vidi scoreDeduction, floor 0.25) i automatski prikazuje "crosshair"
+   * strelice (fajl + red do tacnog polja, citano iz zavrsetka tacne
+   * quizOptions opcije, npr. 'g5') da korisnik vidi KAKO se koordinata cita.
+   * Samo za lekcije sa `Lesson.graduationTest`. Generican mehanizam.
+   */
+  quizScoredRetry?: boolean;
   /**
    * Kratko objasnjenje/prica koje se salje kao trenerova poruka ODMAH posle
    * izbora odgovora - kviz je "jedan pokusaj", ne trazi ponovni pokusaj kao
@@ -246,6 +329,23 @@ export type LessonStep = {
    * zadato, pada nazad na `quizExplanation` za oba ishoda.
    */
   quizExplanationWrong?: string;
+  /**
+   * Umesto FIKSNOG `quizExplanation` na TACAN odgovor, bira NASUMICAN tekst
+   * iz ovog fonda (isti princip kao pickVariedMessage - ne ponavlja
+   * poslednji poslati) - npr. Day 23 "Bridge" kviz: "That's it."/"Right."/
+   * "That's the one.", generican fond za svih 10 pitanja, ne fiksna poruka
+   * po pitanju. Ako je zadato, ima prednost nad `quizExplanation`.
+   */
+  quizCorrectFeedbackPool?: string[];
+  /**
+   * Umesto autorovanog `quizExplanationWrong`, automatski generise "Not
+   * quite. The right answer: {tacan odgovor}." gde je {tacan odgovor} TEKST
+   * iz `quizOptions[quizCorrectIndex]` - npr. Day 23 "Bridge" kviz, gde je
+   * ovo ISTA generička poruka za svih 10 pitanja, bez potrebe da se tacan
+   * odgovor rucno prepisuje u svaku. Ignorise `quizExplanationWrong` kad je
+   * zadato oba (ovo ima prednost).
+   */
+  quizShowCorrectAnswerOnWrong?: boolean;
   /**
    * Netacan odgovor NE zavrsava korak (Day 15 Position 6 "Yes/No" trik) -
    * posalje se `quizExplanationWrong` kao kratak nagovestaj, pa se dugmad
@@ -298,6 +398,16 @@ export type LessonStep = {
     | 'denyCastleKingside'
     | 'denyCastleQueenside';
   /**
+   * Samo kind:'quiz' SA quizOptions i extraHintText - Hint dugme normalno
+   * salje extraHintText SAMO JEDNOM po koraku (dalji klikovi ne radi nista,
+   * npr. Day 9 Checkmate/Stalemate - hint tu otkriva resenje, nema smisla
+   * dvaput). Kad je ovo true, isti generican extraHintText se salje na SVAKI
+   * klik, bez ogranicenja (npr. Day 22 "Material" - hint je samo podsetnik na
+   * vrednosti figura, ne otkriva odgovor, logicno da radi uvek). Generican
+   * mehanizam, ne Day22-specifican.
+   */
+  unlimitedQuizHint?: boolean;
+  /**
    * Hint poruka - za kind:'quiz' korake (nema figure/poteza na tabli uopste)
    * ovo je CELOKUPAN hint, jedan klik, cisto tekstualan. Za kind:'puzzle'
    * korake ovo je tekst koji prati standardni dvostepeni hint (1. hint oznaci
@@ -346,7 +456,23 @@ export type LessonStep = {
    */
   quizBoardHighlight?: {
     arrows?: { from: string; to: string; color: string }[];
-    squares?: { square: string; color: string }[];
+    /**
+     * `fill` (opciono, podrazumevano false/outline) - puna obojena pozadina
+     * polja umesto tankog 3px okvira (npr. Day 27 "Chess Notation" Part A -
+     * outline se slabo video na praznoj tabli, korisnica trazila "puno
+     * obojeno"). Isti vizuelni jezik kao LessonStep.highlightRookRanks (Day
+     * 17), samo po polju umesto po celom redu. `dot` (opciono) dodaje i
+     * nasu plavu tackicu na sredini (isti vizuelni jezik kao markSquares
+     * korisnikova sopstvena oznaka) - jos jedan sloj kontrasta preko `fill`,
+     * korisnica trazila kad ni sama puna boja nije bila dovoljno jasna.
+     * Generican, ne Day27-specifican.
+     */
+    squares?: {
+      square: string;
+      color: string;
+      fill?: boolean;
+      dot?: boolean;
+    }[];
   };
   /**
    * Samo za kind:'puzzle' sa `goalCondition` koji ima VISE ispravnih poteza
@@ -431,6 +557,38 @@ export type LessonStep = {
    */
   retryPromptText?: string;
   /**
+   * Samo kind:'markSquares' - objasnjenje na PRVI (jos uvek otvoren) promasaj,
+   * razlicito od `retryPromptText` (npr. Day 27 "Chess Notation" Part B -
+   * "nadji i obelezi polje X"). I prvi i svaki sledeci netacan pokusaj
+   * ODMAH zavrsava korak (korisnik mora moci da klikne Next, ne sme ostati
+   * zakljucan dok ne pogodi) - ovo je samo tekst, ne gate na zavrsetak.
+   * Bez ovoga pada nazad na `retryPromptText`.
+   */
+  firstMissText?: string;
+  /** Rezervisano za buduce koriscenje (board highlight uz `firstMissText`) - trenutno se ne koristi, obelezavanje pogresnog polja ide kroz `wrongMarkedSquare` u DailyLessonActivity.tsx. */
+  firstMissHighlight?: {
+    arrows?: { from: string; to: string; color: string }[];
+    squares?: { square: string; color: string }[];
+  };
+  /**
+   * Samo kind:'markSquares' (Day 31 "Graduation Test 2" Q13) - netacan klik
+   * NE zavrsava korak: oduzima poene (isti princip kao `exactMoveUci` -
+   * scoreDeduction, floor 0.25) i automatski prikazuje "crosshair" strelice
+   * (fajl + red do tacnog polja) da korisnik vidi kako se koordinata cita,
+   * pa pusta da proba ponovo - nema fiksnog broja pokusaja. Zamenjuje
+   * standardno markSquares ponasanje ("1 pokusaj, otkrij i idi dalje") SAMO
+   * kad je `Lesson.graduationTest` zadato. Generican mehanizam.
+   */
+  scoredMarkSquares?: boolean;
+  /**
+   * Iskljucuje ovaj korak iz brojanja na progress traci (Lesson.
+   * flatProgressSegments) - za kratke "watch & learn" prelazne poruke
+   * izmedju tematskih celina (npr. Day 27 "Chess Notation" - 4 uvodna/
+   * prelazna chat-balona sa sopstvenim dugmetom, ne racunaju se u "16/16").
+   * Generican mehanizam, ne Day27-specifican.
+   */
+  excludeFromProgress?: boolean;
+  /**
    * Samo kind:'teach'/'puzzle': strelica do resenja (step.solution[progress])
    * se crta ODMAH pri ucitavanju koraka, pre bilo kog pokusaja - za korake
    * gde je vodjenje namerno "ovde tacno igras" (npr. Day 12 "Bring It On!"
@@ -454,6 +612,35 @@ export type LessonStep = {
    * (npr. Day 12 Move 1 - "kralju ostaje TACNO jedno polje, ne nula").
    */
   noAutoAdvance?: boolean;
+  /**
+   * Samo kind:'quiz' - na TACAN odgovor, sledeci korak se ucitava sam posle
+   * kratke pauze, BEZ rucnog Next klika (npr. Day 30 "Graduation Checkpoint
+   * 1" Part B - "immediate advance" na tacan odgovor). Na NETACAN odgovor
+   * ovo se ne primenjuje - uvek ceka rucni Next (user treba vremena da
+   * procita objasnjenje). Opt-in PO KORAKU - npr. Day 27 ga namerno ne
+   * koristi nigde (korisnica tada trazila iskljucivo rucni Next kroz celu
+   * tu lekciju). Generican mehanizam.
+   */
+  autoAdvanceOnCorrect?: boolean;
+  /**
+   * Samo kind:'quiz' (quizOptions) i kind:'markSquares' (Day 27 "Chess
+   * Notation") - posle odgovora (tacnog ILI netacnog), slovo (file) i broj
+   * (rank) tacnog polja ulete iz svoje linije/reda i sretnu se na tom polju,
+   * da korisnik vizuelno nauci KAKO se koordinata cita. Ciljno polje se cita
+   * iz `solution[0]` (markSquares) ili iz zavrsnog dela tacne quizOptions
+   * stringa (kviz, regex `[a-h][1-8]$`) - vidi triggerRevealAnimation u
+   * DailyLessonActivity.tsx. Generican mehanizam, ne Day27-specifican.
+   */
+  revealSquareAnimation?: boolean;
+  /**
+   * Samo kind:'quiz' (Day 27 "Chess Notation" Part C "napisi potez") - UCI
+   * potez (npr. 'g1f3') koji se ODIGRA NA TABLI cim se korak ucita, pre bilo
+   * kog odgovora - `fen` je POLAZNA pozicija (figura na polaznom polju), ne
+   * gotova pozicija na odredistu. Korisnica trazila da vidi STVARAN potez
+   * (npr. konj Ng1-f3), ne samo vec-odigranu poziciju. Generican mehanizam,
+   * ne Day27-specifican - vidi beginStep u DailyLessonActivity.tsx.
+   */
+  playMoveOnLoad?: string;
   /**
    * Samo kind:'teach'/'puzzle' (npr. Day 17 "Two Rooks Checkmate") - posle
    * SVAKOG tacnog poteza (ne samo poslednjeg), CEO red (rank) na kom stoji
@@ -479,6 +666,57 @@ export type LessonStep = {
     arrows: { from: string; to: string }[];
     squares: string[];
   };
+  /**
+   * Samo kind:'teach' (Day 30 "Graduation Checkpoint 1" Part A, Q1-5) -
+   * "pokazi mi N legalnih poteza" umesto tacno odredjenog niza u `solution`.
+   * Prihvata SVAKI sahovski legalan potez figure na `drillPieceSquare`
+   * (chess.js provera na trenutnoj poziciji, ne poredjenje sa unapred
+   * zapisanim potezom) - potez se stvarno odigra, figura nastavlja odatle
+   * za sledeci pokusaj. Korak je gotov cim korisnik odigra OVOLIKO LEGALNIH
+   * poteza UKUPNO - pogresan/ilegalan pokusaj NE resetuje ovaj brojac
+   * (korisnica eksplicitno trazila "3 u totalu, cak i pored greske"), samo
+   * kosta poene (vidi scoreDeduction). Nezavisno od `solution`, koji ovde
+   * ostaje prazan placeholder (progress/isStepComplete mehanizam i dalje
+   * racuna preko njegove duzine, vidi engine). Generican mehanizam.
+   */
+  anyLegalMoveStreak?: number;
+  /**
+   * Samo uz `anyLegalMoveStreak`/`exactMoveUci`/`raceSolution` - polazno
+   * polje figure koja se testira. Potezi sa BILO KOG DRUGOG polja (npr.
+   * dummy kralj dodat samo zbog FEN validacije) se TIHO ignorisu, ne broje
+   * se niti kao tacni niti kao pogresni - nisu deo ovog zadatka.
+   */
+  drillPieceSquare?: string;
+  /**
+   * Samo kind:'teach' (Day 30 Q6/Q7, Day 31 Q5/Q6) - TACNO ODREDJEN potez
+   * (UCI) zavrsava korak odmah; jedan string ili VISE prihvatljivih (npr.
+   * Day 31 Q5 - Qa8# ILI Qg7#, oba su mat). Promocija se poredi TACNO
+   * (movesMatch sa requireExactPromotion) kad UCI nosi peto slovo - Day 31
+   * Q6 trazi bas damu, underpromocija se odbija. SVAKI drugi potez sa
+   * `drillPieceSquare` (legalan ili ne) se tretira kao pogresan pokusaj -
+   * isti penal kao kod `anyLegalMoveStreak`, ali korak se NE zavrsava dok se
+   * ne odigra jedan od ovih poteza (streak koncept ne postoji ovde).
+   */
+  exactMoveUci?: string | string[];
+  /**
+   * Samo kind:'teach' (Day 30 Q8 "promotion race") - TACNA, unapred zadata
+   * sekvenca poteza (UCI niz, npr. dvopoljni skok pa niz jednopoljnih
+   * guranja do promocije). Svaki potez se poredi sa
+   * `raceSolution[drillMovesPlayedRef.current]` (movesMatch, zahteva TACNU
+   * promociju - obicno dama) - SVAKO odstupanje (spor prvi potez umesto
+   * dvopoljnog skoka, pogresna figura pri promociji, bilo koji drugi potez)
+   * se ODBIJA: ne primenjuje se, penal (vidi scoreDeduction), korisnik mora
+   * da odigra TACNO taj potez da bi napredovao. Korisnicin eksplicitan
+   * zahtev - prvobitna verzija ("bilo koji legalan potez, penal na kraju za
+   * spori put") je bila previse popustljiva.
+   */
+  raceSolution?: string[];
+  /**
+   * Samo uz `anyLegalMoveStreak`/`exactMoveUci`/`raceSolution` - frakcioni
+   * penal po pogresnom/ilegalnom pokusaju (Day 30 formula: 1.0 start, -0.25
+   * po pokusaju, floor 0.25). Default 0.25 ako nije zadato.
+   */
+  scoreDeduction?: number;
 };
 
 export type Lesson = {
@@ -522,14 +760,29 @@ export type Lesson = {
   };
   /**
    * Visestepeni uvodni popup (npr. Next -> Got it -> Start) umesto
-   * standardnog jednog ekrana. Kad je zadat, `intro.title` ostaje isti kroz
-   * sve ekrane (samo tekst/dugme se menjaju); `intro.text` ostaje kao
-   * fallback (jednak prvom koraku) za bilo koji kod koji eventualno cita
-   * samo `intro.text` direktno. Klik na dugme POSLEDNJEG koraka otvara
-   * tablu (isto kao standardni "Let's start"). Generican, ne
-   * lekcija-specifican.
+   * standardnog jednog ekrana. `intro.title` ostaje fallback TITLE kad neki
+   * ekran nema sopstveni `title` (vidi nize) - `intro.text` je isto fallback
+   * TEXT (jednak prvom koraku) za bilo koji kod koji eventualno cita
+   * `intro.text` direktno. Klik na dugme POSLEDNJEG koraka otvara tablu
+   * (isto kao standardni "Let's start"). Generican, ne lekcija-specifican.
    */
-  introSteps?: { text: string; buttonText: string }[];
+  introSteps?: {
+    text: string;
+    buttonText: string;
+    /**
+     * Sopstveni naslov za OVAJ ekran (npr. Day 23 "Bridge" - 8 kartica, SVAKA
+     * sa drugim naslovom: "Rule number 1", "Where chess began"...). Bez
+     * ovoga pada nazad na `intro.title` (postojece ponasanje, nepromenjeno -
+     * npr. Day 20/22, gde SVI ekrani deli isti naslov).
+     */
+    title?: string;
+    /**
+     * Isti bullet-lista mehanizam kao `preStepIntro.bullets` (npr. Day 23
+     * kartica 3 "Quick refresher" - vrednosti figura, isti sadrzaj kao Day
+     * 22). Bez ovoga, ekran prikazuje samo `text` (postojece ponasanje).
+     */
+    bullets?: string[];
+  }[];
   /**
    * Default: trailing niz kind:'puzzle' koraka na KRAJU lekcije (npr. 5
    * "vezbaj" puzli posle Rook primera) grupise se u JEDAN segment na progress
@@ -555,12 +808,32 @@ export type Lesson = {
      * 'review' (Day 14) - otvara postojecu Game Review aktivnost sa PGN-om
      * ove partije, u novoj sobi. 'play' (Day 16) - vodi na Play (matchmaking)
      * stranicu glavne web-app (app.outpostchess.com/intsearch), isti princip
-     * kao postojece "Home"/"Free Play" dugme u Puzzle aktivnosti.
+     * kao postojece "Home"/"Free Play" dugme u Puzzle aktivnosti. 'testOpening'
+     * (Day 28 "My First Opening with White — London") - skace direktno na
+     * Lesson.testStepId korak, resetujuci brojace (isti princip kao Repeat,
+     * ali BEZ ponovnog vodjenog dela) - vidi onTestOpening u DailyLessonActivity.tsx.
+     * 'nextLesson' (Day 30 "Graduation Checkpoint 1", "Start Test 2") - isti
+     * prelazak kao podrazumevano "Next Lesson" dugme (sledeca lekcija po
+     * `day` redosledu), samo sa svojim labelom ovde - onemogucen/sivo dok
+     * sledeca lekcija ne postoji u bazi, isti princip kao podrazumevani tok.
      */
-    action: 'repeat' | 'done' | 'review' | 'play' | 'placeholder';
+    action:
+      | 'repeat'
+      | 'done'
+      | 'review'
+      | 'play'
+      | 'testOpening'
+      | 'nextLesson'
+      | 'placeholder';
     /** Samo za action:'placeholder' - objasnjava zasto je dugme neaktivno. */
     tooltip?: string;
   }[];
+  /**
+   * Samo uz endScreenButtons action:'testOpening' (Day 28) - ID koraka na
+   * koji se skace (loadStep po indeksu nadjenom preko ovog ID-a), BEZ
+   * ponovnog ucenja/vodjenja - "testiraj me opet" na istoj liniji.
+   */
+  testStepId?: string;
   /**
    * Zamenjuje standardni naslov "Lesson complete! 🎉" na zavrsnom popup-u
    * (npr. Day 14 "Your first game is complete!" - to JESTE partija, ne
@@ -574,6 +847,68 @@ export type Lesson = {
    * `public/`, isti format kao postojeci. Kad nije zadato, ostaje original.
    */
   pawnyAvatar?: string;
+  /**
+   * Indeks od kog se SVI sledeci koraci u `steps` nasumicno premestaju
+   * (redosled), JEDNOM po pokretanju lekcije (i na svaki Repeat) - npr. Day
+   * 22 "Material": 4 fiksna warm-up primera, pa 5 glavnih primera u random
+   * redosledu, svaki tacno jednom. Koraci PRE ovog indeksa ostaju u
+   * autorovanom redosledu. Generican mehanizam, ne Day22-specifican.
+   */
+  shuffleStepsFrom?: number;
+  /**
+   * "Bridge" lekcija bez sahovske table uopste (npr. Day 23 - istorija,
+   * geometrija table, faze partije... + kviz, nista od toga ne treba
+   * konkretnu poziciju). Standardni split-layout (tabla levo, chat/kviz
+   * desno) postaje PUN-EKRAN kviz/chat kartica preko dekorativne, NE-
+   * interaktivne pozadine (vidi DailyLessonActivity.tsx) - LessonStep.fen
+   * i dalje mora postojati (tip to zahteva), ali se nikad stvarno ne
+   * prikazuje kao tabla. Generican mehanizam, ne Day23-specifican.
+   */
+  boardless?: boolean;
+  /**
+   * Day 30 "Graduation Checkpoint 1" (i buduci "Test 2") - oznacava lekciju
+   * kao OCENJEN test: svaki kind:'quiz' korak (tacan=1/netacno=0) i svaki
+   * `anyLegalMoveStreak`/`exactMoveUci`/`raceSolution` korak (frakcioni
+   * poeni) sabira se u lessonState.score. Zavrsni ekran, kad je ovo polje
+   * zadato, IGNORISE standardni endScreenTitle/step.doneText/endScreenButtons
+   * i umesto toga bira pass/fail varijantu po pragu - vidi
+   * DailyLessonDialogContainer.tsx. Generican mehanizam, ne Day30-specifican.
+   */
+  graduationTest?: {
+    /** Maksimalan mogu broj poena (zbir svih bodovanih koraka, npr. 16). */
+    maxScore: number;
+    /** Razlomak potreban za prolaz (0.6 = 60%). */
+    passThreshold: number;
+    passTitle: string;
+    passBody: string;
+    /** Akcioni red dugmadi SAMO za prolaz - npr. Done + "Start Test 2". */
+    passButtons: { label: string; action: 'done' | 'nextLesson' | 'play' }[];
+    failTitle: string;
+    failBody: string;
+    /** Akcioni red dugmadi SAMO za pad - npr. samo Repeat, bez Done. */
+    failButtons: { label: string; action: 'repeat' }[];
+    /**
+     * Day 31 "Graduation Test 2" - ako je zadato, zamenjuje passTitle/
+     * passBody/passButtons kad korisnik prodje OVAJ test I se na njega
+     * stiglo preko "Next Lesson"/"Start Test X" dugmeta SA prethodno
+     * polozenog `requiresPriorPassLessonId` (vidi onNextLesson - dodaje
+     * `?fromLessonId=` u URL). NAPOMENA: ovo je lagana, URL-bazirana
+     * provera (nema backend/cross-session cuvanje napretka u ovom repou,
+     * vidi ranije ustanovljeno ogranicenje) - pouzdana za normalan tok
+     * (klik kroz testove redom), ne i protiv namernog direktnog otvaranja
+     * URL-a. Bez ove potvrde, prolaz i dalje prikazuje standardni passTitle/
+     * passBody/passButtons (npr. "Test 2 passed"), ne finalni ekran.
+     */
+    finalScreen?: {
+      requiresPriorPassLessonId: string;
+      title: string;
+      body: string;
+      buttons: {
+        label: string;
+        action: 'done' | 'nextLesson' | 'play' | 'repeat';
+      }[];
+    };
+  };
 };
 
 const DAY_1_ROOK: Lesson = {
@@ -2121,7 +2456,7 @@ const DAY_9_CHECKMATE_VS_STALEMATE: Lesson = {
       quizExplanation:
         "Exactly! Black's king can hop to d8 — it's not stuck, and it's not in check either. Just a normal, ongoing position.",
       quizExplanationWrong:
-        'Not quite — take another look. Is the black king actually in check? Does it have anywhere to go?',
+        'Take another look. Is the black king actually in check? Does it have anywhere to go?',
       extraHintText: 'Check the d8 square.',
       doneText: "That's Neither — just a normal, ongoing position.",
       hintText: '',
@@ -3136,7 +3471,7 @@ const DAY_14_FIRST_GAME: Lesson = {
   id: 'l1-d14-first-game',
   level: 1,
   day: 14,
-  title: 'Your First Game',
+  title: 'Game 1.0',
   endScreenTitle: 'Your first game is complete! 🎉',
   piece: {
     name: 'first game',
@@ -3411,7 +3746,7 @@ const DAY_15_CASTLING_RULES: Lesson = {
       quizCorrectIndex: 0,
       quizRetryOnWrong: true,
       quizExplanationWrong:
-        'Not quite — check which squares the king actually touches.',
+        'Check which squares the king actually touches.',
       quizExplanation:
         "YES! It's possible! It looks like it isn't, but it's absolutely legal :) The queen attacks b8 — a square the king **never crosses or lands on** — so it changes nothing. Only e8, d8, and c8 matter here.",
       quizAutoPlayMove: 'e8c8',
@@ -3827,7 +4162,7 @@ const DAY_18_SECOND_GAME: Lesson = {
   id: 'l1-d18-second-game',
   level: 1,
   day: 18,
-  title: 'Your Second Game',
+  title: 'Game 2.0',
   endScreenTitle: 'Second game complete.',
   // Pawny slika i dalje vidljiva (movement:'mascot', Pawny 2.0 - vidi
   // pawnyAvatar ispod) ali bez "Meet Pawny" re-intro teksta - samo ime i
@@ -4082,7 +4417,7 @@ const DAY_20_DELIVER_MATE: Lesson = {
   id: 'l1-d20-deliver-mate',
   level: 1,
   day: 20,
-  title: 'Deliver Mate',
+  title: 'Promote & Checkmate',
   piece: {
     name: 'checkmate',
     glyph: '♛',
@@ -4181,6 +4516,2117 @@ const DAY_20_DELIVER_MATE: Lesson = {
   ],
 };
 
+/**
+ * Day 21 "Opposition" - svi FEN-ovi/potezi nizu E/F verifikovani i preko
+ * chess.js i preko Lichess tablebase API-ja (ne samo chess.js legalnost -
+ * STVARAN ishod dobija/remi), ne samo prepisani iz tiketa. Otkriveno pri
+ * verifikaciji: u E (i njenom zrcalu F), POSTOJI drugi pobednicki potez osim
+ * ciste opozicije (Kd6/Ke3 - kralj ide direktno ispred sopstvenog pesaka) -
+ * tiket bi ga generickom "to pusta kralja nazad" porukom pogresno opisao kao
+ * gubitak partije, pa ima sopstvenu, iskrenu poruku (otherTypeMoves ispod).
+ */
+const DAY_21_OPPOSITION: Lesson = {
+  id: 'l1-d21-opposition',
+  level: 1,
+  day: 21,
+  title: 'King Opposition',
+  piece: {
+    name: 'opposition',
+    glyph: '♚',
+    movement: 'static',
+    bannerText: 'Opposition',
+  },
+  intro: {
+    title: 'Opposition',
+    text: "Two kings, **one empty square** between them. Whoever has to move first **gives ground**. That's what decides who promotes a pawn, or who's shut out for good.",
+  },
+  flatProgressSegments: true,
+  steps: [
+    {
+      id: 'a-parallel-concept',
+      kind: 'quiz',
+      fen: '8/8/4k3/8/4K3/8/8/8 w - - 0 1',
+      orientation: 'w',
+      solution: ['quiz'],
+      prompt: 'Opposition',
+      introText:
+        'This is **opposition**. Kings facing off, one empty square between them, **same file or rank**. Whoever has to move gives ground. That lost ground is what lets a pawn slip through, or keeps one shut out for good.',
+      doneText: 'Opposition: one square, same file or rank.',
+      hintText: '',
+      nextButtonText: 'Got it!',
+    },
+    {
+      id: 'b-parallel-practice',
+      kind: 'teach',
+      fen: '8/8/4k3/8/8/4K3/8/8 w - - 0 1',
+      orientation: 'w',
+      solution: ['e3e4'],
+      prompt: 'Take the Opposition',
+      introText: 'Play the move that takes the **opposition**.',
+      doneText:
+        "That's it. Same file, **one square gap**, black has to move next.",
+      hintText:
+        'Not lined up yet. Same file or rank, **one square** between the kings.',
+      nextButtonText: 'Got it!',
+    },
+    {
+      id: 'c-diagonal-concept',
+      kind: 'quiz',
+      fen: '8/8/5k2/8/3K4/8/8/8 w - - 0 1',
+      orientation: 'w',
+      solution: ['quiz'],
+      prompt: 'Diagonal Opposition',
+      introText:
+        "Opposition doesn't need to be in a straight line. **Same diagonal**, one square between them, works exactly the same way.",
+      doneText: 'Opposition works on the diagonal too.',
+      hintText: '',
+      nextButtonText: 'Got it!',
+    },
+    {
+      id: 'd-diagonal-practice',
+      kind: 'teach',
+      fen: '8/8/5k2/8/8/3K4/8/8 w - - 0 1',
+      orientation: 'w',
+      solution: ['d3d4'],
+      prompt: 'Find the Diagonal',
+      introText: 'Now find the **diagonal opposition**.',
+      doneText:
+        "Same idea, different angle. The gap's **on the diagonal** now. Black still has to give way.",
+      hintText:
+        'Not on the diagonal yet. Same distance from the corner square, **one gap** between the kings.',
+      nextButtonText: 'Got it!',
+    },
+    {
+      id: 'e-pawn-white',
+      kind: 'puzzle',
+      fen: '2k5/8/8/2PK4/8/8/8/8 w - - 0 7',
+      orientation: 'w',
+      // d5c6 (user, paralelna opozicija - dobija, provereno tablebase),
+      // c8b8 (crni, skriptovano - tiket bira bas ovu granu, ne adaptivno),
+      // c6d7 (user - dostize key square, provereno tablebase kao najbrzi mat).
+      solution: ['d5c6', 'c8b8', 'c6d7'],
+      otherTypeMoves: {
+        0: [
+          {
+            uci: 'd5e6',
+            message:
+              "Good, that's the other kind of opposition. We need **the parallel one** here to keep the king out.",
+          },
+          {
+            uci: 'd5d6',
+            message:
+              "That still keeps the win, just not the opposition trick we're drilling. Try the move that **takes the opposition**.",
+          },
+        ],
+      },
+      prompt: 'Opposition Earns the Win',
+      introText:
+        "Here's why opposition actually matters! You've got the technique. Now use it: an extra pawn, and **opposition gets it home**.",
+      moveExplanations: {
+        0: "The king can't get back in front of the pawn now. **Attack c8** next. That's the square your pawn needs to promote. **Play Kd7**.",
+      },
+      quizBoardHighlight: {
+        arrows: [{ from: 'c5', to: 'c8', color: CM_PROTECT }],
+      },
+      doneText:
+        "**Clear path to promotion** now. That's why opposition matters.",
+      hintText:
+        'That lets the king back in front of the pawn. Look for the move that **takes the opposition** instead.',
+      nextButtonText: 'Got it!',
+    },
+    {
+      id: 'f-pawn-black',
+      kind: 'puzzle',
+      fen: '8/8/8/8/3pk3/8/8/3K4 b - - 0 7',
+      orientation: 'b',
+      // e4d3 (user, paralelna opozicija - dobija, provereno tablebase),
+      // d1e1 (belo, skriptovano), d3c2 (user - key square, provereno tablebase).
+      solution: ['e4d3', 'd1e1', 'd3c2'],
+      otherTypeMoves: {
+        0: [
+          {
+            uci: 'e4f3',
+            message:
+              "Good, that's the other kind of opposition. We need **the parallel one** here.",
+          },
+          {
+            uci: 'e4e3',
+            message:
+              "That still keeps the win, just not the opposition trick we're drilling. Try the move that **takes the opposition**.",
+          },
+        ],
+      },
+      prompt: 'Opposition Works Both Ways',
+      introText:
+        'Same idea, other side. Find the move that boots the white king **off d1**.',
+      moveExplanations: {
+        0: "Opposition doesn't care about color. Whoever takes it wins the tempo. **Attack d1** next. That's the square your pawn needs to promote. **Play Kc2**.",
+      },
+      quizBoardHighlight: {
+        arrows: [{ from: 'd4', to: 'd1', color: CM_PROTECT }],
+      },
+      doneText:
+        "**Clear path to promotion** now. That's why opposition matters.",
+      hintText:
+        'That lets the white king slip back. Look for the move that **takes the opposition** instead.',
+      nextButtonText: 'Got it!',
+      celebrate: true,
+    },
+  ],
+  endScreenButtons: [
+    { label: 'Repeat lesson', action: 'repeat' },
+    { label: 'Done', action: 'done' },
+    { label: 'Play', action: 'play' },
+  ],
+};
+
+/**
+ * Day 22 "Material" - 9 FEN-ova verifikovani preko chess.js (sabran zbir
+ * vrednosti figura, p1/n3/b3/r5/q9, poredjen sa tiketovim "tacan odgovor" za
+ * svaki primer) - svi se poklapaju, bez korekcija.
+ *
+ * Dva uvodna popup-a (razlicit title) - umesto novog mehanizma, kombinacija
+ * DVA VEC POSTOJECA: `intro`+`introSteps` (JEDNOclan niz, samo da dugme bude
+ * "Next" umesto default "Let's start") za popup 1, pa `steps[0].preStepIntro`
+ * (sopstveni title + `bullets` za vrednosti figura) za popup 2 - lanac je
+ * automatski (loadStep nakon showIntro odmah provери preStepIntro na prvom
+ * koraku). "Dizajn asset" za King=infinity nije dat (nema Figma linka) -
+ * ovde je to prost Unicode "∞" karakter uz tekst, ne custom icon.
+ *
+ * Faza 1 (4 primera) je fiksnim redosledom; Faza 2 (5 primera, tacno jednom,
+ * random redosled) koristi novo `Lesson.shuffleStepsFrom: 4`. Zato SVAKI od
+ * tih 5 nosi IDENTICAN `doneText` (= tekst sa End Screen-a) - koji god od
+ * njih slucajno ispadne poslednji (shuffle), to je tekst koji ce se prikazati
+ * (DialogContainer cita `step.doneText` sa POSLEDNJEG koraka za End Screen
+ * telo, ne poseban Lesson-level tekst).
+ */
+const MATERIAL_PROMPT = 'Who has the material advantage?';
+const MATERIAL_HINT =
+  "Pawn: 1. Knight: 3. Bishop: 3. Rook: 5. Queen: 9. King: can't be traded. Now do the math. Simple math for you.";
+const MATERIAL_END_TEXT =
+  "That's the first read in every position, before a single move gets played. More material, you press it. Less material, you find another plan. This is where strategy starts.";
+
+function materialStep(
+  id: string,
+  fen: string,
+  introText: string,
+  correct: 'White' | 'Black'
+): LessonStep {
+  const correctIndex = correct === 'White' ? 0 : 1;
+  const wrongColor = correct === 'White' ? 'Black' : 'White';
+  return {
+    id,
+    kind: 'quiz',
+    fen,
+    orientation: 'w',
+    solution: ['quiz'],
+    prompt: MATERIAL_PROMPT,
+    introText,
+    quizOptions: ['White', 'Black'],
+    quizCorrectIndex: correctIndex,
+    // quizRetryOnWrong (isto kao Day 15 "Yes/No") - netacan odgovor NE
+    // zavrsava primer, dugmad se otkljucaju, korisnik proba ponovo, bez
+    // ogranicenja broja pokusaja (tiketov zahtev).
+    quizRetryOnWrong: true,
+    quizExplanationWrong: `Count again. I'm not convinced ${wrongColor}'s ahead there. Pawn 1, knight 3, bishop 3, rook 5, queen 9.`,
+    extraHintText: MATERIAL_HINT,
+    unlimitedQuizHint: true,
+    // Vidi komentar iznad DAY_22 - End Screen telo cita doneText sa
+    // POSLEDNJEG koraka, a koji je poslednji zavisi od shuffle-a.
+    doneText: MATERIAL_END_TEXT,
+    hintText: '',
+  };
+}
+
+const DAY_22_MATERIAL: Lesson = {
+  id: 'l1-d22-material',
+  level: 1,
+  day: 22,
+  title: 'Material',
+  piece: {
+    name: 'material',
+    glyph: '⚖',
+    movement: 'static',
+    bannerText: 'Material',
+  },
+  intro: {
+    title: "What's a position evaluation?",
+    text: "Every position has a score. Part of that score is **material**: who's holding more piece value. Today you learn to count it. Get it right and **you'll know what to play for** before you make a move.",
+  },
+  introSteps: [
+    {
+      text: "Every position has a score. Part of that score is **material**: who's holding more piece value. Today you learn to count it. Get it right and **you'll know what to play for** before you make a move.",
+      buttonText: 'Next',
+    },
+  ],
+  shuffleStepsFrom: 4,
+  steps: [
+    {
+      ...materialStep(
+        'warmup-1-pawns',
+        '6k1/pp6/8/8/8/8/PPPP4/6K1 w - - 0 1',
+        'Just pawns here. Count them.',
+        'White'
+      ),
+      // Popup 2 ("Quick refresher") - prikazuje se PRE ovog, prvog koraka,
+      // posle popup 1. Bullets = sam reminder vrednosti figura, bez custom
+      // asset-a (vidi komentar iznad DAY_22).
+      preStepIntro: {
+        title: 'Quick refresher',
+        text: "Here's what each piece is worth:",
+        bullets: [
+          '♙ Pawn: 1',
+          '♘ Knight: 3',
+          '♗ Bishop: 3',
+          '♖ Rook: 5',
+          '♕ Queen: 9',
+          "♔ King: ∞ (can't be traded)",
+        ],
+        buttonText: "Let's Start",
+      },
+    },
+    materialStep(
+      'warmup-2-knight',
+      '6k1/4p3/2n5/8/8/8/4P3/6K1 w - - 0 1',
+      'One knight makes the difference. Spot it?',
+      'Black'
+    ),
+    materialStep(
+      'warmup-3-rook',
+      '8/4pk2/3p1p2/2p5/5P2/1P3KP1/P7/3R4 w - - 0 1',
+      "One rook says it all.",
+      'White'
+    ),
+    materialStep(
+      'warmup-4-bishop',
+      '8/4p3/3pk3/2p5/1bP2P2/3P1K2/4P3/8 w - - 0 1',
+      'One bishop tips the scale.',
+      'Black'
+    ),
+    materialStep(
+      'main-1-rooks',
+      '1nb2rk1/pp3ppp/8/8/8/8/PP3PPP/1NBR1RK1 w - - 0 1',
+      "Count the **rooks** first, this one's not close.",
+      'White'
+    ),
+    materialStep(
+      'main-2-hidden-bishop',
+      'r1bq1rk1/ppp1bppp/2np1n2/4p3/4P3/2NP1N1P/PPP1BPP1/R2Q1RK1 w - - 0 1',
+      "Don't just scan the center, check **every square**.",
+      'Black'
+    ),
+    materialStep(
+      'main-3-queen-vs-rooks',
+      '3q2k1/ppp2ppp/8/8/8/8/PPP2PPP/R4RK1 w - - 0 1',
+      'A queen against two rooks. **Numbers over feelings**.',
+      'White'
+    ),
+    materialStep(
+      'main-4-pawn',
+      'r2q1rk1/pppb1ppp/2np1n2/8/1b1PP3/2N2NP1/PPP2PBP/R1BQR1K1 w - - 0 1',
+      '**One extra pawn** can be the whole story.',
+      'White'
+    ),
+    materialStep(
+      'main-5-bishops-vs-rook',
+      '3r2k1/pp4pp/8/8/8/8/PP4PP/2B2BK1 w - - 0 1',
+      'Two bishops against one rook. **Add it up**.',
+      'White'
+    ),
+  ],
+  endScreenTitle: 'You count material now.',
+  endScreenButtons: [
+    { label: 'Repeat lesson', action: 'repeat' },
+    { label: 'Done', action: 'done' },
+    { label: 'Play', action: 'play' },
+  ],
+};
+
+/**
+ * Day 23 "Bridge" - cista informativna lekcija, BEZ sahovske table
+ * (Lesson.boardless - vidi DailyLessonActivity.tsx za novi layout). 8 Learn
+ * kartica = `introSteps` (sa novim per-ekran `title`/`bullets`), 10 kviz
+ * pitanja = `steps` (kind:'quiz', bez quizRetryOnWrong - svaki klik, tacan
+ * ili ne, ide dalje, standardan Next klik izmedju). `fen`/`orientation` na
+ * svakom koraku su placeholderi (tip ih zahteva), nikad se ne prikazuju.
+ *
+ * Nekoliko tiketovih rečenica je imalo "but" usred kontrastne misli (Corner
+ * rule - bez jastucnih reci) - zamenjeno sa "yet", bez promene smisla:
+ * kartica 7 (en passant) i 2 od 10 score-tier poruka (4/10, 3/10, 5/10) -
+ * ostalo preneto verbatim iz tiketa.
+ */
+const BRIDGE_PIECE_VALUES_BULLETS = [
+  '♙ Pawn: 1',
+  '♘ Knight: 3',
+  '♗ Bishop: 3',
+  '♖ Rook: 5',
+  '♕ Queen: 9',
+  "♔ King: ∞ (can't be traded)",
+];
+const BRIDGE_CORRECT_POOL = ["That's it.", 'Right.', "That's the one."];
+
+function bridgeQuizStep(
+  id: string,
+  prompt: string,
+  question: string,
+  options: [string, string, string],
+  correctIndex: 0 | 1 | 2
+): LessonStep {
+  return {
+    id,
+    kind: 'quiz',
+    fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+    orientation: 'w',
+    solution: ['quiz'],
+    prompt,
+    introText: question,
+    quizOptions: options,
+    quizCorrectIndex: correctIndex,
+    quizCorrectFeedbackPool: BRIDGE_CORRECT_POOL,
+    quizShowCorrectAnswerOnWrong: true,
+    doneText: "Here's how you did.",
+    hintText: '',
+  };
+}
+
+const DAY_23_BRIDGE: Lesson = {
+  id: 'l1-d23-bridge',
+  level: 1,
+  day: 23,
+  title: 'Learn & Quiz Time',
+  boardless: true,
+  piece: {
+    name: 'chess essentials',
+    glyph: '♟',
+    movement: 'static',
+    bannerText: 'Chess Essentials',
+  },
+  intro: {
+    title: 'Rule number 1: "Up material? Start trading."',
+    text: "Fewer pieces on the board favors the side that's already ahead. Trade knights, bishops, rooks, queens. **Keep your pawns**, they're your endgame plan.",
+  },
+  introSteps: [
+    {
+      title: 'Rule number 1: "Up material? Start trading."',
+      text: "Fewer pieces on the board favors the side that's already ahead. Trade knights, bishops, rooks, queens. **Keep your pawns**, they're your endgame plan.",
+      buttonText: 'Got it!',
+    },
+    {
+      title: 'The king wakes up in the Endgame.',
+      text: "Early on, your king hides. In the endgame, with fewer pieces on the board, it's safe to bring out. It becomes a **fighting piece**, stronger than you think.",
+      buttonText: 'Sure!',
+    },
+    {
+      title: 'Quick refresher',
+      text: "Here's what each piece is worth:",
+      bullets: BRIDGE_PIECE_VALUES_BULLETS,
+      buttonText: 'Got it',
+    },
+    {
+      title: 'Where chess began',
+      text: "Chess traces back to **India**, around the 6th century. It reached Persia next, picked up the name shatranj, then spread through Europe into the game you're playing now.",
+      buttonText: 'Yeap!',
+    },
+    {
+      title: 'Files, ranks, diagonals',
+      text: "**Files** run up and down, a to h. **Ranks** run side to side, 1 to 8. **Diagonals** cut across the board. Every piece's power comes from how it uses these three.",
+      buttonText: 'Next',
+    },
+    {
+      title: 'Three phases, one game',
+      text: 'Every game breaks into three parts. The **Opening**: you develop and fight for the center. The **Middlegame**: plans and tactics happen. The **Endgame**: fewer pieces, every move counts more.',
+      buttonText: 'Cool',
+    },
+    {
+      title: 'Two special pawn moves',
+      text: '**Promotion**: reach the last rank and your pawn becomes any piece you want, usually a queen. **En passant**: capture a pawn that just jumped two squares past yours. You only get one move to do it, right after.',
+      buttonText: 'Next',
+    },
+    {
+      title: 'Castling: yes or no',
+      text: "You can castle if neither the king nor that rook has moved, nothing sits between them, and the king isn't in check, doesn't pass through check, and doesn't land in check. Break any of those, it's off the table.",
+      buttonText: 'Start quiz',
+    },
+  ],
+  steps: [
+    bridgeQuizStep(
+      'quiz-1-material',
+      'Question 1 of 10',
+      "You're ahead in material. What's usually the smart plan?",
+      ['Trade pieces, keep your pawns', 'Trade pawns, keep your pieces', 'Avoid every trade'],
+      0
+    ),
+    bridgeQuizStep(
+      'quiz-2-king-endgame',
+      'Question 2 of 10',
+      'When does the king become a fighting piece?',
+      ['The opening', 'The middlegame', 'The endgame'],
+      2
+    ),
+    bridgeQuizStep(
+      'quiz-3-piece-value',
+      'Question 3 of 10',
+      'Which piece is worth the most?',
+      ['Rook', 'Queen', 'Bishop'],
+      1
+    ),
+    bridgeQuizStep(
+      'quiz-4-origin',
+      'Question 4 of 10',
+      'Where did chess originally come from?',
+      ['India', 'Italy', 'China'],
+      0
+    ),
+    bridgeQuizStep(
+      'quiz-5-ranks',
+      'Question 5 of 10',
+      'What do we call the rows that go from 1 to 8 on the board?',
+      ['Files', 'Ranks', 'Diagonals'],
+      1
+    ),
+    bridgeQuizStep(
+      'quiz-6-middlegame',
+      'Question 6 of 10',
+      'Which phase comes right after the opening?',
+      ['Endgame', 'Middlegame', 'Checkmate'],
+      1
+    ),
+    bridgeQuizStep(
+      'quiz-7-promotion',
+      'Question 7 of 10',
+      "What's it called when your pawn reaches the last rank and becomes a queen?",
+      ['En passant', 'Castling', 'Promotion'],
+      2
+    ),
+    bridgeQuizStep(
+      'quiz-8-castling',
+      'Question 8 of 10',
+      "You can't castle if...",
+      ['Your king has already moved', 'Your bishop already moved.', 'You have more pawns than your opponent'],
+      0
+    ),
+    bridgeQuizStep(
+      'quiz-9-squares',
+      'Question 9 of 10',
+      'How many squares are on a chessboard?',
+      ['32', '64', '100'],
+      1
+    ),
+    bridgeQuizStep(
+      'quiz-10-pawns',
+      'Question 10 of 10',
+      'How many pawns does each player start with?',
+      ['6', '10', '8'],
+      2
+    ),
+  ],
+  scoreSummary: {
+    stepIds: [
+      'quiz-1-material',
+      'quiz-2-king-endgame',
+      'quiz-3-piece-value',
+      'quiz-4-origin',
+      'quiz-5-ranks',
+      'quiz-6-middlegame',
+      'quiz-7-promotion',
+      'quiz-8-castling',
+      'quiz-9-squares',
+      'quiz-10-pawns',
+    ],
+    tiers: [
+      {
+        min: 10,
+        title: 'Absolute genius',
+        text: 'Absolute genius! Total chess mastery, not a single wrong answer!',
+      },
+      {
+        min: 9,
+        title: 'So close',
+        text: 'So close! Just one wrong answer kept you from ultimate chess glory.',
+      },
+      {
+        min: 8,
+        title: 'Sharp mind',
+        text: "Sharp mind! That's a serious display of chess knowledge.",
+      },
+      {
+        min: 7,
+        title: 'Solid score',
+        text: 'Solid score! You clearly know your chess stuff, almost impressed!',
+      },
+      {
+        min: 6,
+        title: 'Not bad',
+        text: 'Not bad! Your chess brain is definitely starting to kick in.',
+      },
+      {
+        min: 5,
+        title: 'Halfway there',
+        text: 'Halfway there! Average score, yet we both know you can push higher.',
+      },
+      {
+        min: 4,
+        title: 'Ouch',
+        text: "Not a total disaster, yet your chess IQ is taking a hit. Try again!",
+      },
+      {
+        min: 3,
+        title: 'Keep practicing',
+        text: "Chess trivia is tough, yet you can definitely do better than this!",
+      },
+      {
+        min: 2,
+        title: 'Needs work',
+        text: "Well, at least it's not a 1/10... barely! Hit retry and test your brain again.",
+      },
+      {
+        min: 0,
+        title: 'Back to the books',
+        text: 'Ouch! Did you guess every answer with your eyes closed? Time to open the books!',
+      },
+    ],
+  },
+  endScreenButtons: [
+    { label: 'Repeat Quiz', action: 'repeat' },
+    { label: 'Done', action: 'done' },
+  ],
+};
+
+/**
+ * Day 24 "Game 3" - treca prava Pawny partija, isti obrazac kao Day 14/18
+ * (kind:'freePlay'). Pawny 3.0 avatar (slika koju je korisnica poslala,
+ * sacuvana kao public/pawny/pawny3.png).
+ *
+ * NAMERNO izostavljen "dinamicki opener" (prva poruka na osnovu STVARNOG
+ * ishoda Game 2 za tog korisnika) - tiket sam predvidja ovaj fallback ako
+ * podatak nije lako dostupan: "Ako to nije lako dostupno na backend-u...
+ * fallback je da se prva poruka i dalje bira nasumicno iz pool-a". Provereno
+ * citanjem koda (ne pogadjam): apps/chessroulette-web/prisma/schema.prisma
+ * nema NIJEDAN model za ishod partije/lekcije po korisniku (samo
+ * Account/Session/User/Chapter/Lesson/LessonTag - Lesson/LessonTag su za
+ * drugaciju "Learn" opening funkciju, ne DailyLesson), a cela DailyLesson
+ * progres/stanje je vec ustanovljeno kao session-only (Movex room state, ne
+ * perzistira kroz lekcije - svaka lekcija je zaseban room/URL). Nema
+ * backend endpoint-a niti bilo kakve postojece perzistencije da se ovo
+ * precita pre starta Game 3 - ne izmisljam lazan/fake ishod. Pool od 15
+ * poruka (dole) radi nepromenjeno, standardno nasumicno biranje bez
+ * ponavljanja iste dva puta zaredom - ISTI generican mehanizam kao Day
+ * 14/18, ne treba nista novo.
+ *
+ * Tiket pominje (ne kao Acceptance Criteria) da "treba razmisliti" o
+ * 10-minutnom satu - korisnica je eksplicitno odlucila da ga NE zeli (ni
+ * probni dodatak nije zadrzan) - partija ostaje netajmovana, isto kao Day
+ * 14/18.
+ */
+const DAY_24_THIRD_GAME: Lesson = {
+  id: 'l1-d24-third-game',
+  level: 1,
+  day: 24,
+  title: 'Game 3.0',
+  endScreenTitle: 'Third game complete.',
+  piece: {
+    name: 'third game',
+    glyph: '♟',
+    movement: 'mascot',
+    bannerText: 'Pawny 3.0',
+    subBannerText: 'Rated 200–400',
+  },
+  intro: {
+    title: 'Time for Game 3',
+    text: "Two games down against Pawny. This is the third, and **the sharpest yet**. Rated **200 to 400**. Let's see how close this one really is.",
+  },
+  introSteps: [
+    {
+      text: "Two games down against Pawny. This is the third, and **the sharpest yet**. Rated **200 to 400**. Let's see how close this one really is.",
+      buttonText: 'Ready',
+    },
+  ],
+  // Day 24 "Pawny 3.0" - novi avatar kroz ceo chat (isti princip kao Day 18
+  // pawny2.png).
+  pawnyAvatar: '/pawny/pawny3.png',
+  steps: [
+    {
+      id: 'vs-pawny-3',
+      kind: 'freePlay',
+      fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+      orientation: 'w',
+      solution: [],
+      prompt: 'Game 3',
+      introText: "Make your first move whenever you're ready.",
+      hintText: '',
+      doneText:
+        "Third real game down. Still no puzzles, still no hints. Three in a row now, that's the part that counts.",
+      // Nov, poseban pool - ne mesa se sa Day 14/18 pool-om (tiketov zahtev).
+      freePlayMessages: [
+        "Third game. I'm basically a veteran now.",
+        'I actually knew that opening had a name this time.',
+        "Two games taught me a few things. Let's see if I actually learned them.",
+        "I still count on my fingers sometimes. Don't judge.",
+        'This one I actually prepared for. Barely.',
+        "Whatever the score is between us, today's the one that matters.",
+        'Someone told me castling early is good. I did it. Feels weird.',
+        "I've stopped hanging my queen in move ten. Progress.",
+        "I've watched two of my own games back. Learned more than I expected.",
+        "This board doesn't scare me anymore. The position still does.",
+        "I know what a fork is now. Doesn't mean I can dodge one.",
+        'Third game, same nerves, slightly better math.',
+        "If this one goes sideways, I'm blaming the opening.",
+        "I've read about the endgame. Reading and playing are different things.",
+        "Two games made me stubborn, not smart. Let's go.",
+      ],
+      // Dalji korak u istom pravcu kao Day 14 (0.8) -> Day 18 (0.65) - "jos
+      // ostriji" Pawny za Game 3 (tiket: +50 rtg na obe granice). Relativno
+      // podesavanje, ISTA napomena kao Day 18 - nije verifikovana tacna rtg
+      // kalibracija (nema formule koja ovaj broj povezuje sa rtg brojem).
+      pawnyRandomMoveChance: 0.5,
+    },
+  ],
+  endScreenButtons: [
+    { label: 'Play again', action: 'repeat' },
+    { label: 'Done', action: 'done' },
+    { label: 'Game Review', action: 'review' },
+  ],
+};
+
+/**
+ * Day 25 "Mate in One" - 5 jednopoteznih mat-zadataka, isti obrazac kao Day
+ * 16 "Puzzle time!" (kind:'puzzle', jednoclan `solution`, `extraHintText` =
+ * tiketov "Secret hint", standardni dvostepeni Hint - tier1 oznaci figuru
+ * sa solution[0].from, tier2 doda strelicu - ne treba nista novo, isti
+ * generican mehanizam kao svuda). Sve 5 pozicija nezavisno provereno preko
+ * chess.js: legalne, nijedna nije vec u sahu, odigran potez je mat, I
+ * (bitno, tiket to tvrdi) svaki je JEDINI legalan potez koji daje mat u toj
+ * poziciji - potvrdjeno, bez korekcija.
+ *
+ * Tiket daje DVA razlicita teksta za trenutak zavrsetka 5. zagonetke - svoj
+ * "On correct" red PO zagonetki ("Pawn holds the queen...") I poseban
+ * "Completion screen" body ("Five mates, five patterns..."). Mehanizam ima
+ * mesta za SAMO JEDAN (End Screen telo cita doneText POSLEDNJEG koraka, isti
+ * princip kao Day 16/22/23) - zadrzala sam Completion screen tekst (on se
+ * stvarno vidi u End Screen popup-u), ne obe verzije.
+ */
+const DAY_25_MATE_IN_ONE: Lesson = {
+  id: 'l1-d25-mate-in-one',
+  level: 1,
+  day: 25,
+  title: 'Checkmate in One with the Queen',
+  endScreenTitle: '5 for 5.',
+  flatProgressSegments: true,
+  piece: {
+    name: 'mate in one',
+    glyph: '♕',
+    movement: 'static',
+    bannerText: 'Mate in One',
+  },
+  intro: {
+    title: 'Mate in one',
+    text: "Five positions, **one move each**. Your job: **find checkmate**. Tap the piece, then tap the square it mates from. Stuck? The hint's always there.",
+  },
+  introSteps: [
+    {
+      text: "Five positions, **one move each**. Your job: **find checkmate**. Tap the piece, then tap the square it mates from. Stuck? The hint's always there.",
+      buttonText: 'Deliver Mate!',
+    },
+  ],
+  steps: [
+    {
+      id: 'p1-back-rank',
+      kind: 'puzzle',
+      fen: '6k1/5ppp/8/8/8/8/4Q3/K7 w - - 0 1',
+      orientation: 'w',
+      solution: ['e2e8'],
+      prompt: 'Queen mates on the back rank',
+      introText:
+        "Find the move that ends it. **His own pawns** are in the way.",
+      doneText: "King's out of moves. Mate.",
+      hintText: "Not yet. Look at what's blocking his own escape.",
+      extraHintText:
+        "His pawns never left home. Now they're the trap. Check the back rank.",
+    },
+    {
+      id: 'p2-knight-support',
+      kind: 'puzzle',
+      fen: 'k7/8/8/N7/8/1Q6/8/4K3 w - - 0 1',
+      orientation: 'w',
+      solution: ['b3b7'],
+      prompt: 'Queen mates with knight support',
+      introText: "One move. Your knight's **already helping**.",
+      doneText: "No square left. That's mate.",
+      hintText: "Not that square. The knight's already got one side covered.",
+      extraHintText:
+        "The knight's already covering his escape. Find the queen move that finishes it.",
+    },
+    {
+      id: 'p3-bishop-mate',
+      kind: 'puzzle',
+      fen: '7k/Q7/8/8/8/8/8/KB6 w - - 0 1',
+      orientation: 'w',
+      solution: ['a7h7'],
+      prompt: 'Queen and bishop mate',
+      introText: "One move finishes this. Your bishop's **lined up**.",
+      doneText: 'Queen and bishop close the door. Mate.',
+      hintText: 'Not quite. Your bishop already does half the work.',
+      extraHintText:
+        "Your bishop's already lined up. Bring the queen in behind it.",
+    },
+    {
+      id: 'p4-rook-mate',
+      kind: 'puzzle',
+      fen: '7k/8/8/8/Q7/8/8/K5R1 w - - 0 1',
+      orientation: 'w',
+      solution: ['a4h4'],
+      prompt: 'Queen and rook mate',
+      introText: "One move. Your rook already **cuts off an escape**.",
+      doneText: 'Rook cuts, queen finishes. Mate.',
+      hintText: "Not that one. The rook's holding one side already.",
+      extraHintText:
+        "The rook's already cut off one side. Queen takes the other.",
+    },
+    {
+      id: 'p5-pawn-mate',
+      kind: 'puzzle',
+      fen: 'k7/8/P7/8/8/8/8/1Q2K3 w - - 0 1',
+      orientation: 'w',
+      solution: ['b1b7'],
+      prompt: 'Queen and pawn mate',
+      introText: "One move. That pawn's doing **more than you think**.",
+      doneText:
+        'Five mates, five patterns, one queen. You found the move each time.',
+      hintText: "Not yet. One pawn's already doing half the job.",
+      extraHintText: 'One pawn, one queen, nowhere for the king to go.',
+    },
+  ],
+  endScreenButtons: [
+    { label: 'Done', action: 'done' },
+    { label: 'Repeat', action: 'repeat' },
+    { label: 'Play', action: 'play' },
+  ],
+};
+
+/**
+ * Day 26 "Perpetual Check" - tiket je oznacen kao "Day 25" (isti broj kao
+ * prethodna lekcija) - ocigledna greska u numeraciji, nastavljam redosled
+ * kao Day 26.
+ *
+ * Svo troje FEN-ova + skriptovane linije nezavisno provereno preko chess.js
+ * (legalnost, sah na svakom potezu korisnika, nijedan korak slucajno mat/pat,
+ * stvarna threefold repeticija na Primeru 2 - chess.js.isThreefoldRepetition()
+ * === true). Primeri 1 i 3 (7 sahova) nisu provereni kroz DOSLOVNU
+ * ponovljenu liniju (tiket daje samo delimican obrazac), nego kroz pravi
+ * minimax: POSTOJI damin niz poteza koji garantuje 7 ciklusa saha BEZ MATA,
+ * bez obzira KOJE legalno bekstvo kralj odabere u svakom koraku - jaca
+ * garancija od "ova tacna linija radi", jer korisnik sme da odigra BILO KOJI
+ * legalan sah (tiketov zahtev), ne samo kanonski.
+ *
+ * `requireLegalCheck` + ANY_LEGAL_CHECK/ANY_LEGAL_REPLY (vidi definicije) -
+ * genericki mehanizam izgradjen za ovu lekciju: BILO KOJI legalan sah je
+ * tacan potez (ne fiksno polje), protivnik (kralj) odgovara BILO KOJIM
+ * legalnim potezom (uvek jedini legalan je bekstvo kraljem - provereno,
+ * nijedna druga crna figura nikad nema legalan potez dok je kralj u sahu u
+ * ovim pozicijama), a Hint strelica se racuna UZIVO (findSafeCheckMove,
+ * lokalan minimax) jer fiksna "kanonska" linija prestaje da vazi cim kralj
+ * (ili user) jednom odstupi od nje.
+ *
+ * "Highlight 6th rank" iz tiketovog opisa Primera 3 (vizuelno isticanje
+ * celog 6. reda) NIJE dodato - nema postojeceg "highlight odmah pri
+ * ucitavanju" mehanizma za puzzle korake van wrongPathPreview (semanticki
+ * pogresna boja/svrha za ovo) - tekst vec kaze "along the 6th rank", nije u
+ * Acceptance Criteria, pa nisam gradila nov mehanizam za to.
+ */
+function perpetualCheckSolution(checks: number): string[] {
+  const arr: string[] = [];
+  for (let i = 0; i < checks; i++) {
+    arr.push(ANY_LEGAL_CHECK);
+    if (i < checks - 1) arr.push(ANY_LEGAL_REPLY);
+  }
+  return arr;
+}
+
+const DAY_26_PERPETUAL_CHECK: Lesson = {
+  id: 'l1-d26-perpetual-check',
+  level: 1,
+  day: 26,
+  title: 'Perpetual Check',
+  endScreenTitle: "That's perpetual check.",
+  piece: {
+    name: 'perpetual check',
+    glyph: '♛',
+    movement: 'static',
+    bannerText: 'Perpetual Check',
+  },
+  intro: {
+    title: 'Perpetual check',
+    text: "Check the king again and again. If it can never get away, **neither side can make progress**. That forces a draw. This is a **perpetual check**.",
+  },
+  introSteps: [
+    {
+      text: "Check the king again and again. If it can never get away, **neither side can make progress**. That forces a draw. This is a **perpetual check**.",
+      buttonText: "Let's go",
+    },
+  ],
+  steps: [
+    {
+      id: 'example1-lone-king',
+      kind: 'puzzle',
+      fen: '6k1/8/8/8/4Q3/8/8/K7 w - - 0 1',
+      orientation: 'w',
+      solution: perpetualCheckSolution(7),
+      requireLegalCheck: true,
+      prompt: 'The queen alone chases a king with nowhere to hide',
+      introText:
+        "The queen alone chases this king, and **any check works**. Give check, over and over - that's the whole idea.",
+      doneText:
+        "Do you know why you need a perpetual check? When you're weaker on material, a draw always comes in handy. Now let's see how that works in actual positions.",
+      hintText:
+        "The point is to check the king again and again, so you get a feel for what perpetual check really is. Press hint if you're stuck.",
+      hintTextAlways: true,
+      unsafeCheckText:
+        "That's a check, just not the safe one. Find the check that keeps the king running forever.",
+      extraHintText: 'Any legal check is fine here. Keep the king running.',
+      nextButtonText: "Let's go!",
+    },
+    {
+      id: 'example2-down-material',
+      kind: 'puzzle',
+      fen: '6k1/1pp3p1/p1n5/4b2Q/8/8/1r1r4/6K1 w - - 0 1',
+      orientation: 'w',
+      solution: perpetualCheckSolution(4),
+      requireLegalCheck: true,
+      prompt: 'Down material, saving half a point with a perpetual',
+      introText:
+        "Black is up in material. You're not winning this one. **The draw is sitting right here**. Don't let the king breathe.",
+      doneText:
+        "Same two squares, over and over. Black can't stop it, and you can't lose it. Draw by repetition.",
+      hintText:
+        "That's not check, and down this much material, that's all you've got. Try again, or use the hint.",
+      hintTextAlways: true,
+      unsafeCheckText:
+        "That's a check, just not the one that holds the draw. Stick to the safe square.",
+      extraHintText: 'One of two squares keeps this going. The hint will show you which.',
+    },
+    {
+      id: 'example3-sixth-rank',
+      kind: 'puzzle',
+      fen: '1k4rr/8/7b/7p/3Q1p2/7P/6P1/7K w - - 0 1',
+      orientation: 'w',
+      solution: perpetualCheckSolution(7),
+      requireLegalCheck: true,
+      prompt: 'A perpetual check along the 6th rank',
+      introText:
+        "Find the perpetual check along **the 6th rank**. Black is stronger on material here, and a draw would suit you. Just dance along the 6th rank.",
+      doneText:
+        "Check, check, check. The king never gets a say. Three examples, one pattern. You'll see it again.",
+      hintText:
+        "Not check. Black's ahead on material here - stick to the 6th rank and keep checking.",
+      hintTextAlways: true,
+      unsafeCheckText:
+        "That's a check, just not the one that keeps the dance going. Find the safe square on the 6th rank.",
+      extraHintText: "Stay on the 6th rank. The hint will show you the exact square.",
+    },
+  ],
+  endScreenButtons: [
+    { label: 'Done', action: 'done' },
+    { label: 'Repeat', action: 'repeat' },
+    { label: 'Play', action: 'play' },
+  ],
+};
+
+/**
+ * Day 27 "Chess Notation" - tiket je oznacen kao "Day 26" (isti broj kao
+ * prethodna lekcija) - ocigledna greska u numeraciji, nastavljam kao Day 27.
+ *
+ * Sva 3 dela (A/B/C, 16 primera ukupno) NEMAJU auto-advance (`noAutoAdvance`
+ * na svakom koraku) - korisnica eksplicitno trazila rucni Next klik svuda,
+ * da stigne da pročita objasnjenje (prvobitno je bio auto-advance na tacan
+ * odgovor, ukinut na njen zahtev). 4 kratke prelazne poruke (pocetna +
+ * izmedju B/C + dve unutar C-ovog uvoda) NISU racunate u "16/16" traci
+ * (vidi LessonStep.excludeFromProgress - nov, generican mehanizam).
+ *
+ * Deo B (markSquares) i netacan odgovor u Delu A/C - obelezavaju POGRESNO
+ * izabrano polje na tabli (plavi okvir + crvena tackica - vidi
+ * wrongMarkedSquare u DailyLessonActivity.tsx), uz TACNO polje istovremeno
+ * (zeleno/zuto fill + plava tackica, `quizBoardHighlight`). Jedan pokusaj -
+ * korak se odmah zavrsava i na netacan odgovor, korisnik bira kad ide dalje.
+ */
+// Puna (fill, ne outline) zuta pozadina za "koje je ovo polje" oznake -
+// korisnica trazila, tanak 3px okvir se slabo video na praznoj tabli.
+const NOTATION_SQUARE_FILL_COLOR = 'rgba(255, 199, 0, 0.55)';
+
+function notationSquareQuiz(
+  id: string,
+  highlightSquare: string,
+  options: [string, string],
+  correctIndex: 0 | 1
+): LessonStep {
+  return {
+    id,
+    kind: 'quiz',
+    fen: '8/8/8/8/8/8/8/8 w - - 0 1',
+    orientation: 'w',
+    solution: ['quiz'],
+    prompt: 'Name the square',
+    introText: "What's this square called?",
+    quizOptions: options,
+    quizCorrectIndex: correctIndex,
+    // BEZ quizRetryOnWrong - jedan pokusaj, kao Deo B (korisnica eksplicitno
+    // trazila da pogresan odgovor ne dozvoljava dalje pogadjanje, samo
+    // oznacavanje pogresnog/tacnog polja na tabli pa rucni Next).
+    quizExplanation: `Right. That's ${options[correctIndex]}.`,
+    quizExplanationWrong:
+      "Good try. Read it in two steps: find the rank first, then trace across to the letter and up to the number. That's your square.",
+    // Puna zuta pozadina (fill, ne outline) - korisnica trazila, tanak okvir
+    // se slabo video na praznoj tabli. Zuta i ne plava/zelena - ovo je sam
+    // PREDMET pitanja (prikazano UNAPRED, pre bilo kog odgovora), ne potvrda
+    // tacnog odgovora.
+    quizBoardHighlight: {
+      squares: [
+        {
+          square: highlightSquare,
+          color: NOTATION_SQUARE_FILL_COLOR,
+          fill: true,
+          dot: true,
+        },
+      ],
+    },
+    quizBoardHighlightUpfront: true,
+    // Bez auto-advance-a - korisnica eksplicitno trazila rucni Next klik
+    // kroz celu lekciju, da stigne da pročita objasnjenje.
+    noAutoAdvance: true,
+    // Slovo+broj animacija (vidi LessonStep.revealSquareAnimation) - i na
+    // tacan i na netacan odgovor, korisnicin eksplicitan zahtev.
+    revealSquareAnimation: true,
+    doneText: 'Square named.',
+    hintText: '',
+  };
+}
+
+function notationFindSquare(
+  id: string,
+  targetSquare: string,
+  introText: string,
+  overrides: Partial<LessonStep> = {}
+): LessonStep {
+  return {
+    id,
+    kind: 'markSquares',
+    fen: '8/8/8/8/8/8/8/8 w - - 0 1',
+    orientation: 'w',
+    solution: [targetSquare],
+    prompt: 'Find the square',
+    introText,
+    // Bez strelica (korisnicin eksplicitan zahtev) - pogresno obelezeno
+    // polje se vec vidi samo po sebi (plavi okvir + crvena tackica, vidi
+    // wrongMarkedSquare u DailyLessonActivity.tsx), ovaj tekst samo
+    // objasnjava METODU citanja koordinata. Korak se ODMAH zavrsava i na
+    // netacan pokusaj (korisnik mora moci da klikne Next, ne ceka se drugi
+    // pokusaj) - vidi finalizeMarkAttempt u DailyLessonActivity.tsx.
+    firstMissText:
+      "Let's read this one together. Follow the rank across, and the file up. Where they cross, that's your square.",
+    retryPromptText: "Here's the square. Take a look, then we'll move on.",
+    // Fill, ne outline - isti razlog kao gore (Part A) - bolje se vidi.
+    quizBoardHighlight: {
+      squares: [
+        { square: targetSquare, color: '#07DA63', fill: true, dot: true },
+      ],
+    },
+    // Slovo+broj animacija (vidi LessonStep.revealSquareAnimation) - i na
+    // tacan i na netacan odgovor, korisnicin eksplicitan zahtev.
+    revealSquareAnimation: true,
+    doneText: "That's it. Next square.",
+    hintText: '',
+    ...overrides,
+  };
+}
+
+function notationWriteMove(
+  id: string,
+  fen: string,
+  moveUci: string,
+  introText: string,
+  options: [string, string],
+  overrides: Partial<LessonStep> = {}
+): LessonStep {
+  return {
+    id,
+    kind: 'quiz',
+    // `fen` je POLAZNA pozicija (figura na polazno polje, NE na odrediste) -
+    // tabla stvarno odigra `moveUci` cim se korak ucita, korisnica trazila
+    // da vidi PRAVI potez (npr. konj Ng1-f3), ne gotovu poziciju.
+    fen,
+    orientation: 'w',
+    solution: ['quiz'],
+    prompt: 'Write the move',
+    introText,
+    // LessonStep.playMoveOnLoad - odigraj potez CIM se korak ucita, pre bilo
+    // kog odgovora (vidi beginStep u DailyLessonActivity.tsx).
+    playMoveOnLoad: moveUci,
+    quizOptions: options,
+    quizCorrectIndex: 0,
+    // BEZ quizRetryOnWrong - jedan pokusaj (vidi notationSquareQuiz iznad).
+    quizExplanation: 'Right.',
+    quizExplanationWrong:
+      "Let's read it again. Rank across, file up. Where they cross is your square. Only one of these matches it.",
+    // Bez auto-advance-a - korisnica eksplicitno trazila rucni Next klik
+    // kroz celu lekciju, da stigne da pročita objasnjenje.
+    noAutoAdvance: true,
+    // Slovo+broj animacija na POLJU iz tacne notacije (npr. "Nf3" -> f3) -
+    // vidi LessonStep.revealSquareAnimation.
+    revealSquareAnimation: true,
+    doneText: 'Move written.',
+    hintText: '',
+    ...overrides,
+  };
+}
+
+const DAY_27_CHESS_NOTATION: Lesson = {
+  id: 'l1-d27-chess-notation',
+  level: 1,
+  day: 27,
+  title: 'Chess Notation',
+  endScreenTitle: 'You can read the board now.',
+  flatProgressSegments: true,
+  piece: {
+    name: 'chess notation',
+    glyph: '♟',
+    movement: 'static',
+    bannerText: 'Chess Notation',
+  },
+  intro: {
+    title: 'Chess notation',
+    text: 'The board is built from files, A to H, and ranks, 1 to 8. Put them together and every square gets its own name: **a first name** (the letter) and **a last name** (the number).',
+  },
+  introSteps: [
+    {
+      text: 'The board is built from files, A to H, and ranks, 1 to 8. Put them together and every square gets its own name: **a first name** (the letter) and **a last name** (the number).',
+      buttonText: "Let's learn!",
+    },
+  ],
+  steps: [
+    // ---------- Opening chat message (not counted in 16/16) ----------
+    {
+      id: 'intro-why-notation',
+      kind: 'quiz',
+      fen: '8/8/8/8/8/8/8/8 w - - 0 1',
+      orientation: 'w',
+      solution: ['quiz'],
+      prompt: 'Chess notation',
+      introText:
+        "Notation isn't just for writing moves down. It's how you see the whole board in your head, and how you count moves ahead before you touch a piece.",
+      doneText: "Let's get started.",
+      hintText: '',
+      nextButtonText: "Let's go!",
+      excludeFromProgress: true,
+    },
+    // ---------- Part A - name the highlighted square (5) ----------
+    notationSquareQuiz('a1-name-e4', 'e4', ['e4', 'e5'], 0),
+    notationSquareQuiz('a2-name-a1', 'a1', ['a1', 'a8'], 0),
+    notationSquareQuiz('a3-name-h8', 'h8', ['h8', 'a8'], 0),
+    notationSquareQuiz('a4-name-c6', 'c6', ['c6', 'c5'], 0),
+    notationSquareQuiz('a5-name-f2', 'f2', ['f2', 'f7'], 0),
+    // ---------- Part B - find and mark the named square (5) ----------
+    notationFindSquare(
+      'b1-find-d5',
+      'd5',
+      "Now I'll give you the square. Find it on the board and mark it for me, right-click it on desktop, or tap it if you're on mobile. Find **d5**."
+    ),
+    notationFindSquare('b2-find-b3', 'b3', 'Find **b3**.'),
+    notationFindSquare('b3-find-g7', 'g7', 'Find **g7**.'),
+    notationFindSquare('b4-find-a4', 'a4', 'Find **a4**.'),
+    notationFindSquare('b5-find-h1', 'h1', 'Find **h1**.', {
+      transitionText: "Now you'll learn how to write moves. Interesting, right?",
+      nextButtonText: 'Yeah!',
+    }),
+    // ---------- Part C intro (not counted in 16/16) ----------
+    {
+      id: 'c-intro-letters',
+      kind: 'quiz',
+      fen: '8/8/8/8/8/8/8/8 w - - 0 1',
+      orientation: 'w',
+      solution: ['quiz'],
+      prompt: 'Writing moves',
+      introText:
+        'When writing moves, the King is K, Queen is Q, Rook is R, Bishop is B, Knight is N, and Pawns are written using only the square they land on. Keep that in mind and it will be easy. Clear?',
+      doneText: 'Clear.',
+      hintText: '',
+      nextButtonText: 'Got it!',
+      excludeFromProgress: true,
+    },
+    {
+      id: 'c-intro-order',
+      kind: 'quiz',
+      fen: '8/8/8/8/8/8/8/8 w - - 0 1',
+      orientation: 'w',
+      solution: ['quiz'],
+      prompt: 'Writing moves',
+      introText:
+        "Now that's clear, let's learn the order: first write the piece letter, then the file letter, then the rank number. An example is **Qd2**. Ready?",
+      doneText: 'Ready.',
+      hintText: '',
+      nextButtonText: 'Yeap!',
+      excludeFromProgress: true,
+    },
+    // ---------- Part C - write the move (6, one per piece) ----------
+    // FEN je polazna pozicija (figura na polaznom polju) - svaka od ovih
+    // odigra pravi potez (g1-f3, e6-h3, f1-g2, a2-a4, a1-d1, f1-g1) cim se
+    // korak ucita. BAG otkriven uzivo (korisnica prijavila da NIJEDNA figura
+    // nije vidljiva ni u jednom primeru) - koren je u deljenoj biblioteci
+    // (ChessFENBoard.validateFenString, util-kit): SVAKA pozicija koja ima
+    // bar jednu figuru (nije cisto prazna tabla) prolazi kroz chess.js
+    // .load(), koji BACA gresku "missing king" bez oba kralja, pa
+    // 'loadedChapter:import' tiho odbija FEN i tabla ostaje na STAROJ
+    // (praznoj) poziciji. Popravka OVDE, u lekciji, ne u deljenoj biblioteci
+    // (ta izmena bi trazila Dragutinovo odobrenje) - svaki primer sad ima
+    // oba kralja, zbijena u uglove van puta demonstrirane figure, sto
+    // zadovoljava chess.js validaciju bez diranja zajednickog koda. Svih 6
+    // poteza ponovo verifikovano kao legalni (chess.js) SA kraljevima.
+    notationWriteMove(
+      'c1-knight-f3',
+      'k7/8/8/8/8/8/8/K5N1 w - - 0 1',
+      'g1f3',
+      'The knight just landed on f3. How would you write this move?',
+      ['Nf3', 'Nc7']
+    ),
+    notationWriteMove(
+      'c2-queen-h3',
+      'k7/8/4Q3/8/8/8/8/K7 w - - 0 1',
+      'e6h3',
+      'The queen just landed on h3. How would you write this move?',
+      ['Qh3', 'Qe6']
+    ),
+    notationWriteMove(
+      'c3-bishop-g2',
+      'k7/8/8/8/8/8/8/K4B2 w - - 0 1',
+      'f1g2',
+      'The bishop just landed on g2. How would you write this move?',
+      ['Bg2', 'Bb7']
+    ),
+    notationWriteMove(
+      'c4-pawn-a4',
+      '7k/8/8/8/8/8/P7/7K w - - 0 1',
+      'a2a4',
+      'With pawns, remember: you never write a letter first, just the square it lands on. How would you write this move?',
+      ['a4', 'Pa4'],
+      {
+        quizExplanationWrong:
+          'Pawns never get a letter in notation, just their square. Easy as that.',
+      }
+    ),
+    notationWriteMove(
+      'c5-rook-d1',
+      'k7/8/8/8/8/8/8/R6K w - - 0 1',
+      'a1d1',
+      'The rook just landed on d1. How would you write this move?',
+      ['Rd1', 'Rd8']
+    ),
+    notationWriteMove(
+      'c6-king-g1',
+      'k7/8/8/8/8/8/8/5K2 w - - 0 1',
+      'f1g1',
+      'The king just landed on g1. How would you write this move?',
+      ['Kg1', 'Kg8'],
+      {
+        celebrate: true,
+        doneText:
+          "Every square has a name. Every move has a notation. That's the whole language, right there.",
+      }
+    ),
+  ],
+  endScreenButtons: [
+    { label: 'Repeat', action: 'repeat' },
+    { label: 'Play', action: 'play' },
+    { label: 'Done', action: 'done' },
+  ],
+};
+
+/**
+ * Day 28 "My First Opening with White - London" - tiket eksplicitno trazi
+ * ponasanje istovetno postojecem London System ucenju u LearnAi aktivnosti
+ * (openingDatabase.ts), samo uklopljeno u DailyLesson format (popup na
+ * pocetku, zavrsni ekran sa Test Opening/Done/Play umesto standardnog).
+ * Potezi se CITAJU odavde (ne prekucavaju), jedini izvor istine za liniju -
+ * ponovo verifikovano chess.js da je svih 17 poteza legalno. Prozni opisi su
+ * ipak nasi (vidi napomenu uz import iznad).
+ */
+const LONDON_MAIN_LINE: string[] =
+  OPENING_DATABASE.find((f) => f.name === 'London System')?.variants.find(
+    (v) => v.variantName === 'Main Line'
+  )?.moves ?? [];
+
+const DAY_28_FIRST_OPENING: Lesson = {
+  id: 'l1-d28-first-opening-london',
+  level: 1,
+  day: 28,
+  title: 'My First Opening with White - London',
+  endScreenTitle: 'You played your first opening! 🎉',
+  piece: {
+    name: 'the London System',
+    glyph: '♗',
+    movement: 'static',
+    bannerText: 'Your First Opening',
+  },
+  intro: {
+    title: 'Your First Opening',
+    text: "Now you're a real Player. It's time to learn the first moves of **an opening**. Let's start with a simple one and learn step by step!",
+  },
+  introSteps: [
+    {
+      text: "Now you're a real Player. It's time to learn the first moves of **an opening**. Let's start with a simple one and learn step by step!",
+      buttonText: 'Start',
+    },
+  ],
+  steps: [
+    {
+      id: 'guided-london',
+      kind: 'puzzle',
+      fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+      orientation: 'w',
+      solution: LONDON_MAIN_LINE,
+      showSolutionArrowUpfront: true,
+      revealArrowOnWrongMove: true,
+      prompt: 'Your First Opening: The London System',
+      introText:
+        "Let's play it together, **one move at a time**. Follow the arrow, I'll take care of Black.",
+      hintText: "Not quite. Follow **the London System's** plan.",
+      // Pise se posle KORISNIKOVOG (belog) poteza, kad je crni auto-odgovor
+      // vec odigran - indeks prati solution[] (parni = beli potezi).
+      moveExplanations: {
+        0: '**The London System** starts in the center. Both sides grab a central pawn right away.',
+        2: 'Knights **develop** first, nothing fancy yet.',
+        4: "The bishop leaves home for **f4** before the e-pawn can box it in. That's the whole point of the London. Black opens a path for the other bishop.",
+        6: 'White **supports the center**. Black develops, eyeing the bishop on f4.',
+        8: 'Rather than trade it off, the bishop steps back to **g3**. Black castles into safety.',
+        10: 'The last knight joins in. Black strikes back at the center with **c5**.',
+        12: 'White **reinforces d4**. Black finishes developing.',
+        14: 'The other bishop joins the game. Black **trades off** the one on g3.',
+      },
+      doneText:
+        "You just played a complete London System, from the first pawn move to a safe, developed position. **Castled king, solid center, every piece in play.** That's a real opening.",
+      transitionText:
+        "Now let's see if it stuck. Same opening, this time **from memory**.",
+    },
+    {
+      id: 'test-london',
+      kind: 'puzzle',
+      fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+      orientation: 'w',
+      solution: LONDON_MAIN_LINE,
+      // BEZ strelice unapred - ovo je test, ne vodjenje. Hint dugme (standardni
+      // dvostepeni sistem) ostaje dostupno ako zatreba.
+      prompt: 'Test Yourself: The London System',
+      introText:
+        "Let's see if it stuck. Play the same opening again, this time **from memory**. I'll take care of Black.",
+      hintText: 'Think back to the **pattern** you just played.',
+      doneText: "You know **the London System** now. That line is yours.",
+    },
+  ],
+  testStepId: 'test-london',
+  endScreenButtons: [
+    { label: 'Test Opening', action: 'testOpening' },
+    { label: 'Done', action: 'done' },
+    { label: 'Play', action: 'play' },
+  ],
+};
+
+/**
+ * Day 29 "My First Opening with Black - Caro-Kann" - isti princip kao Day
+ * 28 (vidi napomene tamo), samo orijentacija 'b' (korisnik igra crnog,
+ * belo prvi potez automatski odigra engine - isti generican mehanizam kao
+ * puzzle koraci gde prvi potez pripada protivniku, vidi beginStep). Nema
+ * "Main Line" varijante u bazi za Caro-Kann, pa je izabrana 'Classical
+ * Variation' (B18) - najpoznatija/udzbenicka linija koja pokazuje PRAVU
+ * ideju otvaranja (lovac izlazi na f5 PRE e6, izbegavajuci francusku manu).
+ * 19 poteza, ponovo verifikovano chess.js.
+ */
+const CARO_KANN_CLASSICAL_LINE: string[] =
+  OPENING_DATABASE.find((f) => f.name === 'Caro-Kann Defense')?.variants.find(
+    (v) => v.variantName === 'Classical Variation'
+  )?.moves ?? [];
+
+const DAY_29_FIRST_OPENING_BLACK: Lesson = {
+  id: 'l1-d29-first-opening-caro-kann',
+  level: 1,
+  day: 29,
+  title: 'My First Opening with Black - Caro-Kann',
+  endScreenTitle: 'You played your first opening as Black! 🎉',
+  piece: {
+    name: 'the Caro-Kann Defense',
+    glyph: '♝',
+    movement: 'static',
+    bannerText: 'Your First Opening (Black)',
+  },
+  intro: {
+    title: 'Your First Opening with Black',
+    text: "You've learned your first moves with White, but now let's do **Black**. Easy and simple, as always!",
+  },
+  introSteps: [
+    {
+      text: "You've learned your first moves with White, but now let's do **Black**. Easy and simple, as always!",
+      buttonText: 'Start',
+    },
+  ],
+  steps: [
+    {
+      id: 'guided-caro-kann',
+      kind: 'puzzle',
+      fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+      orientation: 'b',
+      solution: CARO_KANN_CLASSICAL_LINE,
+      showSolutionArrowUpfront: true,
+      revealArrowOnWrongMove: true,
+      prompt: 'Your First Opening: The Caro-Kann Defense',
+      introText:
+        "Let's play it together, **one move at a time**. Follow the arrow, I'll take care of White.",
+      hintText: "Not quite. Follow **the Caro-Kann's** plan.",
+      // Pise se posle KORISNIKOVOG (crnog) poteza, kad je beli auto-odgovor
+      // vec odigran - indeks prati solution[] (neparni = crni potezi, prvi
+      // potez 0 je belog i vec je auto-odigran pre nego sto korisnik i
+      // pocne).
+      moveExplanations: {
+        1: '**The Caro-Kann** starts with c6, preparing ...d5 without blocking the light-squared bishop, the usual problem in the French. White claims more center with d4.',
+        3: 'Black strikes the center with **d5**. White develops a knight, adding pressure on that pawn.',
+        5: 'Black trades on e4. White recaptures with the knight, **centralizing** it.',
+        7: "The whole point of the Caro-Kann: the bishop gets out to **f5** before e6 locks it in. White's knight hops to g3, eyeing the bishop.",
+        9: 'The bishop tucks back to g6, out of reach. White starts **pushing the h-pawn**, gaining space and eyeing the bishop.',
+        11: "Black plays h6, a useful little move that keeps White's pieces out of g5. White develops the other knight.",
+        13: 'Black brings out a knight. White pushes the h-pawn again, **attacking the bishop**.',
+        15: 'The bishop retreats once more, to h7. White develops the last bishop, eyeing it right back.',
+      },
+      doneText:
+        "You just played a complete Caro-Kann Defense as Black, trading when it helped and keeping your position solid the whole way. **That's a real opening, from the other side of the board.**",
+      transitionText:
+        "Now let's see if it stuck. Same opening, this time **from memory**.",
+    },
+    {
+      id: 'test-caro-kann',
+      kind: 'puzzle',
+      fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+      orientation: 'b',
+      solution: CARO_KANN_CLASSICAL_LINE,
+      // BEZ strelice unapred - ovo je test, ne vodjenje. Hint dugme (standardni
+      // dvostepeni sistem) ostaje dostupno ako zatreba.
+      prompt: 'Test Yourself: The Caro-Kann Defense',
+      introText:
+        "Let's see if it stuck. Play the same opening again, this time **from memory**. I'll take care of White.",
+      hintText: 'Think back to the **pattern** you just played.',
+      doneText: "You know **the Caro-Kann** now. That line is yours.",
+    },
+  ],
+  testStepId: 'test-caro-kann',
+  endScreenButtons: [
+    { label: 'Test Opening', action: 'testOpening' },
+    { label: 'Done', action: 'done' },
+    { label: 'Play', action: 'play' },
+  ],
+};
+
+/**
+ * Day 30 "Graduation Checkpoint 1" - prvi od dva ocenjena testa (16 pitanja,
+ * Part A 1-8 zivo na tabli, Part B 9-16 klasican kviz), prag za prolaz 60%
+ * (9.6/16). Vidi Lesson.graduationTest i LessonStep.anyLegalMoveStreak/
+ * exactMoveUci/raceSolution (lessonDatabase.ts, DailyLessonActivity.tsx) -
+ * novi, generican mehanizam izgradjen bas za ovu lekciju.
+ *
+ * Part A FEN-ovi (Q1,2,4,5,6,7,8) NEMAJU kralja u originalnom tiketu
+ * ("izolovane vezbe, ne partije") - DODAO SAM oba kralja (daleko u uglu,
+ * h1/a8 ili h1/h8/a8 zavisno od pozicije figure koja se testira) jer
+ * deljena biblioteka (ChessFENBoard.validateFenString, util-kit) odbija
+ * SVAKU poziciju koja nije cisto prazna tabla bez provere kralja preko
+ * chess.js - isti bag kao Day 27 Part C, popravljeno OVDE (lekcija), ne u
+ * deljenom kodu. Q3 (kralj) vec ima belog kralja kao samu testiranu
+ * figuru, dodat je samo crni. Svih 8 pozicija + potezi (Q6 a2a4, Q7 b4xc5,
+ * Q8 5-potezna linija) ponovo verifikovani chess.js NAKON dodavanja
+ * kraljeva - obilje legalnih poteza za svaku figuru, kraljevi ne smetaju.
+ * Q15/Q16 (checkmate/stalemate) vec imaju oba kralja (prave pozicije),
+ * takodje nezavisno verifikovano (chess.js .isCheckmate()/.isStalemate()).
+ */
+function drillStreakStep(
+  id: string,
+  pieceSquare: string,
+  fen: string,
+  introText: string,
+  wrongText: string,
+  doneText: string
+): LessonStep {
+  return {
+    id,
+    kind: 'teach',
+    fen,
+    orientation: 'w',
+    // Placeholder duzine 3 (anyLegalMoveStreak) - sadrzaj se nikad ne cita,
+    // samo .length za progress traku/isStepComplete.
+    solution: ['*', '*', '*'],
+    prompt: 'Piece Moves',
+    introText,
+    anyLegalMoveStreak: 3,
+    drillPieceSquare: pieceSquare,
+    hintText: wrongText,
+    doneText,
+  };
+}
+
+const DAY_30_GRADUATION_TEST_1: Lesson = {
+  id: 'l1-d30-graduation-test-1',
+  level: 1,
+  day: 30,
+  title: 'Graduation Checkpoint 1',
+  flatProgressSegments: true,
+  piece: {
+    name: 'everything so far',
+    glyph: '🎓',
+    movement: 'static',
+    bannerText: 'Graduation Test 1',
+  },
+  intro: {
+    title: 'Graduation Test 1 of 2',
+    text: "**Sixteen questions**, everything you've learned so far. First eight are on **a real board**. Play the actual move. Last eight are **quick-fire**. Get **60%** and you move on.",
+  },
+  introSteps: [
+    {
+      text: "**Sixteen questions**, everything you've learned so far. First eight are on **a real board**. Play the actual move. Last eight are **quick-fire**. Get **60%** and you move on.",
+      buttonText: 'Start test',
+    },
+  ],
+  steps: [
+    // ---------- Part A (Q1-8) - interactive board ----------
+    drillStreakStep(
+      'q1-rook',
+      'e1',
+      'k7/8/8/8/8/8/8/4R2K w - - 0 1',
+      'Show me how the rook moves. Play **any 3 legal rook moves** in a row.',
+      "Hold on. The rook only moves straight, along a rank or a file. It doesn't jump like the knight, and it doesn't move diagonally like the bishop.",
+      "That's the rook. **Straight lines, any distance.**"
+    ),
+    drillStreakStep(
+      'q2-bishop',
+      'e1',
+      'k7/8/8/8/8/8/8/4B2K w - - 0 1',
+      'Now the bishop. Play **any 3 legal bishop moves** in a row.',
+      'Hold on. The bishop only moves diagonally. Never straight up a file, never across a rank.',
+      "That's the bishop. **Diagonals only, any distance.**"
+    ),
+    drillStreakStep(
+      'q3-king',
+      'e1',
+      'k7/8/8/8/8/8/8/4K3 w - - 0 1',
+      'Now the king. Play **any 3 legal king moves** in a row.',
+      'Hold on. The king moves one square at a time, in any direction. Never two, never a jump.',
+      "That's the king. **One square, any direction.**"
+    ),
+    drillStreakStep(
+      'q4-knight',
+      'e1',
+      'k7/8/8/8/8/8/8/4N2K w - - 0 1',
+      'Now the knight. Play **any 3 legal knight moves** in a row.',
+      "Hold on. The knight moves in an L: two squares one way, one square the other. It's the only piece that jumps over anything in its path.",
+      "That's the knight. **The only piece that jumps.**"
+    ),
+    drillStreakStep(
+      'q5-queen',
+      'e1',
+      'k7/8/8/8/8/8/8/4Q2K w - - 0 1',
+      'Now the queen. Play **any 3 legal queen moves** in a row.',
+      'Hold on. The queen moves any direction, any distance. Ranks, files, or diagonals. But always in a straight line.',
+      "That's the queen. **Every direction, every distance.**"
+    ),
+    {
+      id: 'q6-pawn-double-step',
+      kind: 'teach',
+      fen: '7k/8/8/8/8/8/P7/7K w - - 0 1',
+      orientation: 'w',
+      solution: ['*'],
+      prompt: 'Pawn Double Step',
+      introText:
+        'Pawns get one special move: **two squares forward**, but only from their starting square. Play it.',
+      exactMoveUci: 'a2a4',
+      drillPieceSquare: 'a2',
+      hintText:
+        'Only from the starting square does a pawn get to move two squares. Push it: a2 to a4.',
+      doneText: "That's the pawn's double step. **One-time offer, starting square only.**",
+    },
+    {
+      id: 'q7-pawn-capture',
+      kind: 'teach',
+      fen: '7k/8/8/2p5/1P6/8/8/7K w - - 0 1',
+      orientation: 'w',
+      solution: ['*'],
+      prompt: 'Pawn Capture',
+      introText:
+        "Pawns don't capture the way they move. Find **the diagonal capture**.",
+      exactMoveUci: 'b4c5',
+      drillPieceSquare: 'b4',
+      hintText:
+        'A pawn moves straight but captures diagonally, never straight. Look one square diagonally ahead.',
+      doneText: "That's how a pawn eats. **Straight to move, diagonal to capture.**",
+    },
+    {
+      id: 'q8-pawn-promotion-race',
+      kind: 'teach',
+      fen: '7k/8/8/8/8/8/4P3/7K w - - 0 1',
+      orientation: 'w',
+      // Placeholder duzine 5 (raceSolution) - samo za progress traku, stvaran
+      // broj odigranih poteza moze biti veci (sporiji put, penal se racuna
+      // odvojeno, vidi raceSolution u DailyLessonActivity.tsx).
+      solution: ['*', '*', '*', '*', '*'],
+      prompt: 'Pawn Promotion Race',
+      introText:
+        'Play as many moves as you need, but get this pawn to **a queen** as fast as possible.',
+      raceSolution: ['e2e4', 'e4e5', 'e5e6', 'e6e7', 'e7e8q'],
+      drillPieceSquare: 'e2',
+      hintText:
+        'That\'s not how the pawn moves forward. Straight ahead, one square, or two, only on the very first move.',
+      doneText:
+        "That's a queen. Fastest path used the double-step. Did you catch it?",
+    },
+    // ---------- Part B (Q9-16) - knowledge quiz ----------
+    {
+      id: 'q9-chess-origin',
+      kind: 'quiz',
+      fen: '8/8/8/8/8/8/8/8 w - - 0 1',
+      orientation: 'w',
+      solution: ['quiz'],
+      prompt: 'Quick one',
+      introText: 'Where did **chess** come from?',
+      quizOptions: ['India', 'China', 'Persia', 'Egypt'],
+      quizCorrectIndex: 0,
+      quizExplanation: 'Right. India, around the 6th century. It spread from there.',
+      quizExplanationWrong:
+        'It started in India, around the 6th century, then spread through Persia and beyond.',
+      autoAdvanceOnCorrect: true,
+      doneText: '',
+      hintText: '',
+    },
+    {
+      id: 'q10-board-makeup',
+      kind: 'quiz',
+      fen: '8/8/8/8/8/8/8/8 w - - 0 1',
+      orientation: 'w',
+      solution: ['quiz'],
+      prompt: 'The Board',
+      introText: 'What does the **chessboard** consist of?',
+      quizOptions: ['Ranks and files', 'Ranks, files, and diagonals'],
+      quizCorrectIndex: 1,
+      quizExplanation: 'Right. Every line on this board is one of those three.',
+      quizExplanationWrong:
+        'Ranks, files, and diagonals. Diagonals are the one people forget.',
+      autoAdvanceOnCorrect: true,
+      doneText: '',
+      hintText: '',
+    },
+    {
+      id: 'q11-queen-value',
+      kind: 'quiz',
+      fen: '8/8/8/8/8/8/8/8 w - - 0 1',
+      orientation: 'w',
+      solution: ['quiz'],
+      prompt: 'Piece Values',
+      introText: 'How many points is the **queen** worth?',
+      quizOptions: ['9', '7', '12'],
+      quizCorrectIndex: 0,
+      quizExplanation: 'Right. The most powerful piece on the board.',
+      quizExplanationWrong: 'The queen is worth **9 points**.',
+      autoAdvanceOnCorrect: true,
+      doneText: '',
+      hintText: '',
+    },
+    {
+      id: 'q12-knight-value',
+      kind: 'quiz',
+      fen: '8/8/8/8/8/8/8/8 w - - 0 1',
+      orientation: 'w',
+      solution: ['quiz'],
+      prompt: 'Piece Values',
+      introText: 'How many points is the **knight** worth?',
+      quizOptions: ['3', '2', '5'],
+      quizCorrectIndex: 0,
+      quizExplanation: 'Right. Same as the bishop.',
+      quizExplanationWrong: 'The knight is worth **3 points**.',
+      autoAdvanceOnCorrect: true,
+      doneText: '',
+      hintText: '',
+    },
+    {
+      id: 'q13-rook-value',
+      kind: 'quiz',
+      fen: '8/8/8/8/8/8/8/8 w - - 0 1',
+      orientation: 'w',
+      solution: ['quiz'],
+      prompt: 'Piece Values',
+      introText: 'How many points is the **rook** worth?',
+      quizOptions: ['5', '3', '7'],
+      quizCorrectIndex: 0,
+      quizExplanation: 'Right. Worth more than a minor piece, less than the queen.',
+      quizExplanationWrong: 'The rook is worth **5 points**.',
+      autoAdvanceOnCorrect: true,
+      doneText: '',
+      hintText: '',
+    },
+    {
+      id: 'q14-pawn-value',
+      kind: 'quiz',
+      fen: '8/8/8/8/8/8/8/8 w - - 0 1',
+      orientation: 'w',
+      solution: ['quiz'],
+      prompt: 'Piece Values',
+      introText: 'How many points is a **pawn** worth?',
+      quizOptions: ['1', '0.5', '2'],
+      quizCorrectIndex: 0,
+      quizExplanation: 'Right. The smallest value, but never worthless.',
+      quizExplanationWrong: 'A pawn is worth **1 point**.',
+      autoAdvanceOnCorrect: true,
+      doneText: '',
+      hintText: '',
+    },
+    {
+      id: 'q15-checkmate-check',
+      kind: 'quiz',
+      fen: '7k/6Q1/6K1/8/8/8/8/8 b - - 0 1',
+      orientation: 'w',
+      solution: ['quiz'],
+      prompt: 'Checkmate or Stalemate?',
+      introText:
+        'Look at this position. **Black to move.** Checkmate, or stalemate?',
+      quizOptions: ['Checkmate', 'Stalemate'],
+      quizCorrectIndex: 0,
+      quizExplanation: "Right. The king's in check, and there's no way out.",
+      quizExplanationWrong:
+        'This is checkmate. The king is in check, with nowhere to go and nothing to block or capture with.',
+      autoAdvanceOnCorrect: true,
+      doneText: '',
+      hintText: '',
+    },
+    {
+      id: 'q16-stalemate-check',
+      kind: 'quiz',
+      fen: 'k7/8/1Q6/8/8/8/8/K7 b - - 0 1',
+      orientation: 'w',
+      solution: ['quiz'],
+      prompt: 'Checkmate or Stalemate?',
+      introText:
+        'Same question, different position. **Black to move.** Checkmate, or stalemate?',
+      quizOptions: ['Checkmate', 'Stalemate'],
+      quizCorrectIndex: 1,
+      quizExplanation: 'Right. No legal moves, but no check either. **That\'s a draw.**',
+      quizExplanationWrong:
+        "This is stalemate. The king has no legal moves, but it isn't in check. That makes it a draw, not a loss.",
+      autoAdvanceOnCorrect: true,
+      celebrate: true,
+      doneText: '',
+      hintText: '',
+    },
+  ],
+  graduationTest: {
+    maxScore: 16,
+    passThreshold: 0.6,
+    passTitle: 'Test 1 passed',
+    passBody:
+      'Every piece, every rule, right on the board. **One more test between you and graduation.**',
+    passButtons: [
+      { label: 'Done', action: 'done' },
+      { label: 'Start Test 2', action: 'nextLesson' },
+    ],
+    failTitle: 'Not quite there',
+    failBody:
+      'You need **60%** to move on. Go back through whatever tripped you up and try again.',
+    failButtons: [{ label: 'Repeat', action: 'repeat' }],
+  },
+};
+
+/**
+ * Day 31 "Graduation Test 2" (Final) - poslednji lesson celog 100-600
+ * starter kursa. Za razliku od Day 30, pitanja su POMESANA (nema Part A/B
+ * split) - redosled ispod je tacno onaj iz tiketa. Novi mehanizmi izgradjeni
+ * BAS za ovu lekciju (svi generican, ne Day31-specificni):
+ * - `quizMultiSelect`/`quizCorrectIndices` (Q2/Q3) - "biraju se 2", sve-ili-
+ *   nista, dugmad se toggle-uju umesto zakljucavanja na prvi klik.
+ * - `exactMoveUci` sad prihvata VISE prihvatljivih poteza (Q5 - Qa8# ILI
+ *   Qg7#, oba verifikovana chess.js kao jedini mogući matovi iz te pozicije)
+ *   i uvek poredi promociju TACNO (Q6 - samo dama, underpromocija odbijena).
+ * - `scoredMarkSquares` (Q13) i `quizScoredRetry` (Q14) - retry dozvoljen,
+ *   -0.25 po pogresnom pokusaju (floor 0.25), automatske "crosshair"
+ *   strelice (fajl+red do tacnog polja) na SVAKI pogresan pokusaj.
+ * - `Lesson.graduationTest.finalScreen` - "Level 1 Graduate" ekran SAMO ako
+ *   se na ovu lekciju stiglo preko "Start Test 2" dugmeta sa vec polozenog
+ *   Day 30 (URL `?fromLessonId=`, vidi napomena uz finalScreen - LAGANA
+ *   provera, nema backend cross-session cuvanje napretka u ovom repou).
+ *
+ * Q4 - tiket ima protivrecnost: naslov kaze "multi-select, pick 1" i AI
+ * chat tekst kaze "Pick the two that are true", ALI je samo JEDNA opcija
+ * oznacena "(correct)". Sa samo jednim tacnim odgovorom, "biraj dva" bi bilo
+ * nemoguce resiti tacno - ovo je ocigledna tipfeler/copy-paste iz Q2/Q3,
+ * popravljeno ovde na standardan single-select kviz (kao Q1/Q7/itd), sa
+ * ispravljenim tekstom "Pick the one that's true."
+ *
+ * Q5 (mat u 1), Q6 (promocija), Q8-Q11 (materijalna prednost) nezavisno
+ * verifikovani chess.js (checkmate/legalnost/tacno prebrojavanje poena).
+ */
+const DAY_31_GRADUATION_TEST_2: Lesson = {
+  id: 'l1-d31-graduation-test-2',
+  level: 1,
+  day: 31,
+  title: 'Graduation Test 2 (Final)',
+  flatProgressSegments: true,
+  piece: {
+    name: 'everything so far',
+    glyph: '🎓',
+    movement: 'static',
+    bannerText: 'Graduation Test 2',
+  },
+  intro: {
+    title: 'Graduation Test 2',
+    text: "**Last one.** Sixteen more questions, mixed board play and quick-fire quiz. Get **60%** and you graduate.",
+  },
+  introSteps: [
+    {
+      text: "**Last one.** Sixteen more questions, mixed board play and quick-fire quiz. Get **60%** and you graduate.",
+      buttonText: 'Start test',
+    },
+  ],
+  steps: [
+    // ---------- Q1 ----------
+    {
+      id: 'q1-queen-king-mate',
+      kind: 'quiz',
+      fen: '8/8/8/8/8/8/8/8 w - - 0 1',
+      orientation: 'w',
+      solution: ['quiz'],
+      prompt: 'Queen + King vs King',
+      introText:
+        'In a king and queen versus king endgame, which piece do you need on the board with your **queen** to deliver checkmate?',
+      quizOptions: ['Your king', 'Queen alone'],
+      quizCorrectIndex: 0,
+      quizExplanation:
+        'Right. The queen can trap the enemy king, but she always needs her own king close by to finish the mate.',
+      quizExplanationWrong:
+        'The queen alone can never force checkmate. She always needs support from her own king.',
+      autoAdvanceOnCorrect: true,
+      doneText: '',
+      hintText: '',
+    },
+    // ---------- Q2 - multi-select, pick 2 ----------
+    {
+      id: 'q2-opening-principles',
+      kind: 'quiz',
+      fen: '8/8/8/8/8/8/8/8 w - - 0 1',
+      orientation: 'w',
+      solution: ['quiz'],
+      prompt: 'Opening Principles',
+      introText:
+        'The opening is the start of the game. Which **two** of these actually matter? Pick both.',
+      quizOptions: [
+        'Control the center',
+        'Develop your pieces',
+        'Put your pieces in the corner',
+        'Bring your queen out early',
+      ],
+      quizMultiSelect: true,
+      quizCorrectIndices: [0, 1],
+      quizExplanation:
+        'Right. Center and development. Everything else in the opening serves those two goals.',
+      quizExplanationWrong:
+        'The two that matter here: control the center, and develop your pieces.',
+      autoAdvanceOnCorrect: true,
+      doneText: '',
+      hintText: '',
+    },
+    // ---------- Q3 - multi-select, pick 2, with diagram ----------
+    {
+      id: 'q3-castling-rights',
+      kind: 'quiz',
+      fen: '4k3/8/8/8/8/8/8/1R3K1R w - - 0 1',
+      orientation: 'w',
+      solution: ['quiz'],
+      prompt: 'Castling Rights',
+      introText:
+        "Look at this position. White's king has already moved once. Which **two** of these make you lose castling rights? Pick both.",
+      quizOptions: [
+        'Your king has moved',
+        "That side's rook has moved",
+        'Your bishop has moved',
+        'You traded your knights',
+      ],
+      quizMultiSelect: true,
+      quizCorrectIndices: [0, 1],
+      quizExplanation:
+        'Right. Move your king and castling is gone for good. Move a rook and you lose castling only on that side.',
+      quizExplanationWrong:
+        'You lose castling rights when your king moves, or when the specific rook moves.',
+      autoAdvanceOnCorrect: true,
+      doneText: '',
+      hintText: '',
+    },
+    // ---------- Q4 - tiket protivrecnost ispravljena na single-select (vidi napomena iznad) ----------
+    {
+      id: 'q4-what-is-a-puzzle',
+      kind: 'quiz',
+      fen: '8/8/8/8/8/8/8/8 w - - 0 1',
+      orientation: 'w',
+      solution: ['quiz'],
+      prompt: 'What Is a Puzzle?',
+      introText: "What is a puzzle in chess? Pick the one that's true.",
+      quizOptions: [
+        'A position where you have to find the best move or sequence of moves',
+        'A position where any legal move works fine',
+        'A type of chess opening',
+      ],
+      quizCorrectIndex: 0,
+      quizExplanation:
+        "Right. A puzzle hands you a position and asks you to find the best move. It's practice, not a live game.",
+      quizExplanationWrong:
+        "A puzzle is a position where you have to find the best move, and it's practice, not a real game against an opponent.",
+      autoAdvanceOnCorrect: true,
+      doneText: '',
+      hintText: '',
+    },
+    // ---------- Q5 - interactive board, mate in 1 ----------
+    {
+      id: 'q5-mate-in-one',
+      kind: 'teach',
+      fen: '6k1/8/6K1/8/8/8/8/Q7 w - - 0 1',
+      orientation: 'w',
+      solution: ['*'],
+      prompt: 'One Move to Mate',
+      introText: 'One move to checkmate. Find it.',
+      exactMoveUci: ['a1a8', 'a1g7'],
+      drillPieceSquare: 'a1',
+      hintText:
+        'Not mate yet. Look at the back rank. Your king already covers the squares next to it.',
+      doneText:
+        "That's mate. The queen controls the whole back rank, and your king cuts off every escape square.",
+    },
+    // ---------- Q6 - interactive board, promotion piece ----------
+    {
+      id: 'q6-promotion-piece',
+      kind: 'teach',
+      fen: '7k/P7/8/8/8/8/8/1K6 w - - 0 1',
+      orientation: 'w',
+      solution: ['*'],
+      prompt: 'Promote the Pawn',
+      introText: 'Promote this pawn. Which piece should you turn it into?',
+      exactMoveUci: 'a7a8q',
+      drillPieceSquare: 'a7',
+      hintText: 'Remember the value of the pieces. Which one is strongest?',
+      doneText:
+        'Right. The queen is the strongest piece, almost always your best promotion.',
+    },
+    // ---------- Q7 ----------
+    {
+      id: 'q7-opposition',
+      kind: 'quiz',
+      fen: '8/8/8/3k4/8/3K4/8/8 w - - 0 1',
+      orientation: 'w',
+      solution: ['quiz'],
+      prompt: 'King Standoff',
+      introText:
+        'Look at this position. What does this standoff between the two kings show?',
+      quizOptions: ['Castling', 'Opposition', 'Zugzwang'],
+      quizCorrectIndex: 1,
+      quizExplanation:
+        'Right. This is **opposition**. Whoever is forced to move first has to give ground.',
+      quizExplanationWrong:
+        'This is opposition. The kings face off, and whoever has to move first is at a disadvantage.',
+      autoAdvanceOnCorrect: true,
+      doneText: '',
+      hintText: '',
+    },
+    // ---------- Q8 - material, position 1 ----------
+    {
+      id: 'q8-material-1-who',
+      kind: 'quiz',
+      fen: '8/4k3/3p1n2/4p3/4P3/3P1B2/2P2K2/8 w - - 0 1',
+      orientation: 'w',
+      solution: ['quiz'],
+      prompt: 'Material Count',
+      introText: 'Look at this position. Who has the material advantage here?',
+      quizOptions: ['White', 'Black', 'Equal'],
+      quizCorrectIndex: 0,
+      quizExplanation: 'Right. White is ahead.',
+      quizExplanationWrong:
+        'White is ahead here. Count the pieces again: bishop and three pawns against knight and two pawns.',
+      autoAdvanceOnCorrect: true,
+      doneText: '',
+      hintText: '',
+    },
+    // ---------- Q9 - material, position 1, by how much ----------
+    {
+      id: 'q9-material-1-amount',
+      kind: 'quiz',
+      fen: '8/4k3/3p1n2/4p3/4P3/3P1B2/2P2K2/8 w - - 0 1',
+      orientation: 'w',
+      solution: ['quiz'],
+      prompt: 'Material Count',
+      introText: 'By how many points is White ahead?',
+      quizOptions: ['1', '2', '3'],
+      quizCorrectIndex: 0,
+      quizExplanation:
+        'Right. **One point.** The bishop and extra pawn edge out the knight.',
+      quizExplanationWrong:
+        'White is ahead by exactly 1 point. Bishop plus three pawns is 6, knight plus two pawns is 5.',
+      autoAdvanceOnCorrect: true,
+      doneText: '',
+      hintText: '',
+    },
+    // ---------- Q10 - material, position 2 ----------
+    {
+      id: 'q10-material-2-who',
+      kind: 'quiz',
+      fen: '8/3qkpp1/3p3p/2p1p3/4P3/3P3P/2P2PP1/5RK1 w - - 0 1',
+      orientation: 'w',
+      solution: ['quiz'],
+      prompt: 'Material Count',
+      introText:
+        'New position. Who has the material advantage here, White or Black?',
+      quizOptions: ['White', 'Black', 'Equal'],
+      quizCorrectIndex: 1,
+      quizExplanation:
+        "Right. Black is ahead. The queen is worth more than White's rook.",
+      quizExplanationWrong: 'Black is ahead here. Compare the queen to the rook.',
+      autoAdvanceOnCorrect: true,
+      doneText: '',
+      hintText: '',
+    },
+    // ---------- Q11 - material, position 2, by how much ----------
+    {
+      id: 'q11-material-2-amount',
+      kind: 'quiz',
+      fen: '8/3qkpp1/3p3p/2p1p3/4P3/3P3P/2P2PP1/5RK1 w - - 0 1',
+      orientation: 'w',
+      solution: ['quiz'],
+      prompt: 'Material Count',
+      introText: 'By how many points?',
+      quizOptions: ['4', '2', '6'],
+      quizCorrectIndex: 0,
+      quizExplanation:
+        'Right. **4 points.** A queen is worth 9, a rook 5, and the pawns are even.',
+      quizExplanationWrong:
+        'Black is ahead by 4 points. Queen plus six pawns is 15, rook plus six pawns is 11.',
+      autoAdvanceOnCorrect: true,
+      doneText: '',
+      hintText: '',
+    },
+    // ---------- Q12 ----------
+    {
+      id: 'q12-perpetual-check',
+      kind: 'quiz',
+      fen: '8/8/8/8/8/8/8/8 w - - 0 1',
+      orientation: 'w',
+      solution: ['quiz'],
+      prompt: 'Perpetual Check',
+      introText: 'What is **perpetual check**?',
+      quizOptions: [
+        'When one side keeps checking the king over and over, and the game ends in a draw by repetition',
+        'When a king is checkmated multiple times in the same game',
+      ],
+      quizCorrectIndex: 0,
+      quizExplanation:
+        "Right. Neither side can escape it, so the game ends in a draw.",
+      quizExplanationWrong:
+        'Perpetual check is when one side keeps giving check over and over. Since it never stops, the game ends in a draw by repetition.',
+      autoAdvanceOnCorrect: true,
+      doneText: '',
+      hintText: '',
+    },
+    // ---------- Q13 - interactive board click ----------
+    {
+      id: 'q13-find-e4',
+      kind: 'markSquares',
+      fen: '8/8/8/8/8/8/8/8 w - - 0 1',
+      orientation: 'w',
+      solution: ['e4'],
+      prompt: 'Find the Square',
+      introText: 'Find and click on **e4**.',
+      scoredMarkSquares: true,
+      firstMissText:
+        'Not e4. Count the files from the left (a-h) and the ranks from the bottom (1-8). See where they cross.',
+      doneText: "That's e4.",
+      hintText: '',
+    },
+    // ---------- Q14 - name the highlighted square ----------
+    {
+      id: 'q14-name-highlighted-square',
+      kind: 'quiz',
+      fen: '8/8/8/8/8/8/8/8 w - - 0 1',
+      orientation: 'w',
+      solution: ['quiz'],
+      prompt: 'Name the Square',
+      introText: 'Which square is highlighted?',
+      quizOptions: ['g5', 'f5', 'g4'],
+      quizCorrectIndex: 0,
+      quizScoredRetry: true,
+      quizBoardHighlightUpfront: true,
+      quizBoardHighlight: {
+        squares: [
+          { square: 'g5', color: 'rgba(255, 199, 0, 0.55)', fill: true, dot: true },
+        ],
+      },
+      quizExplanation: 'Right. **g5.**',
+      quizExplanationWrong: 'Not quite. Use the crosshair to read the coordinate.',
+      doneText: '',
+      hintText: '',
+    },
+    // ---------- Q15 ----------
+    {
+      id: 'q15-opening-white',
+      kind: 'quiz',
+      fen: '8/8/8/8/8/8/8/8 w - - 0 1',
+      orientation: 'w',
+      solution: ['quiz'],
+      prompt: 'Your Opening (White)',
+      introText:
+        'Which opening have you started learning to play with **White**, just the first few moves so far?',
+      quizOptions: ['London System', 'Italian Game', "Queen's Gambit"],
+      quizCorrectIndex: 0,
+      quizExplanation:
+        "Right. The London System. Just the opening moves so far, but that's the start.",
+      quizExplanationWrong:
+        "You've been learning the London System with White, just the first few moves so far.",
+      autoAdvanceOnCorrect: true,
+      doneText: '',
+      hintText: '',
+    },
+    // ---------- Q16 ----------
+    {
+      id: 'q16-opening-black',
+      kind: 'quiz',
+      fen: '8/8/8/8/8/8/8/8 w - - 0 1',
+      orientation: 'w',
+      solution: ['quiz'],
+      prompt: 'Your Opening (Black)',
+      introText:
+        'And which opening have you started learning to play with **Black**, again, just the first few moves?',
+      quizOptions: ['Caro-Kann', 'Sicilian Defense', 'French Defense'],
+      quizCorrectIndex: 0,
+      quizExplanation: 'Right. The Caro-Kann. A solid start for Black.',
+      quizExplanationWrong:
+        "You've been learning the Caro-Kann with Black, just the first few moves so far.",
+      celebrate: true,
+      doneText: '',
+      hintText: '',
+    },
+  ],
+  graduationTest: {
+    maxScore: 16,
+    passThreshold: 0.6,
+    passTitle: 'Test 2 passed',
+    passBody:
+      "Score locked in. **Make sure Test 1 is done too.** Both are needed to graduate.",
+    passButtons: [{ label: 'Done', action: 'done' }],
+    failTitle: 'Not quite there',
+    failBody:
+      'You need **60%** to move on. Go back through whatever tripped you up and try again.',
+    failButtons: [{ label: 'Repeat', action: 'repeat' }],
+    finalScreen: {
+      requiresPriorPassLessonId: 'l1-d30-graduation-test-1',
+      title: 'Level 1 Graduate',
+      body: "Every piece, every rule, both tests. **You're not a beginner anymore.**",
+      buttons: [
+        { label: 'Repeat', action: 'repeat' },
+        { label: 'Play', action: 'play' },
+        { label: 'Done', action: 'done' },
+      ],
+    },
+  },
+};
+
 export const LESSON_DATABASE: Lesson[] = [
   DAY_1_ROOK,
   DAY_2_BISHOP,
@@ -4202,6 +6648,17 @@ export const LESSON_DATABASE: Lesson[] = [
   DAY_18_SECOND_GAME,
   DAY_19_PAWN_PROMOTION,
   DAY_20_DELIVER_MATE,
+  DAY_21_OPPOSITION,
+  DAY_22_MATERIAL,
+  DAY_23_BRIDGE,
+  DAY_24_THIRD_GAME,
+  DAY_25_MATE_IN_ONE,
+  DAY_26_PERPETUAL_CHECK,
+  DAY_27_CHESS_NOTATION,
+  DAY_28_FIRST_OPENING,
+  DAY_29_FIRST_OPENING_BLACK,
+  DAY_30_GRADUATION_TEST_1,
+  DAY_31_GRADUATION_TEST_2,
 ];
 
 export const DEFAULT_LESSON_ID = DAY_1_ROOK.id;

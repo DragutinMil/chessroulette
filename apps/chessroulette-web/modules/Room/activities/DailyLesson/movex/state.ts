@@ -31,6 +31,7 @@ export const createDailyLessonActivityState = (
       hints: 0,
       totalErrors: 0,
       totalHints: 0,
+      score: 0,
       completed: false,
       popup: false,
     },
