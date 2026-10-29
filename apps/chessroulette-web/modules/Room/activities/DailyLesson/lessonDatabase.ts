@@ -517,6 +517,12 @@ export type LessonStep = {
    */
   nextButtonText?: string;
   /**
+   * Skracena verzija nextButtonText-a za mobilni, gde dugme stoji u istom
+   * redu sa progress trakom (npr. 'London S.' umesto 'London System').
+   * Bez nje mobilni prikazuje pun nextButtonText.
+   */
+  nextButtonTextMobile?: string;
+  /**
    * Dodatna trenerova poruka koja se salje POSLE standardnog zavrsetka
    * koraka (watch-step auto-complete, ili markSquares tacan/hint ishod) -
    * za oznacavanje prelaza izmedju vecih tematskih celina lekcije (npr.
@@ -841,7 +847,7 @@ export type Lesson = {
    */
   endScreenTitle?: string;
   /**
-   * Zamenjuje podrazumevani Pawny avatar (`/pawny/pawny.png`) u AI chat-u
+   * Zamenjuje podrazumevani Pawny avatar (`/pawny/pawny.webp`) u AI chat-u
    * (Conversation.tsx) kroz CELU lekciju - npr. Day 18 "Game 2" dobija novi,
    * "sigurniji" vizuel ("Pawny 2.0") umesto Day 14-ovog originala. Path pod
    * `public/`, isti format kao postojeci. Kad nije zadato, ostaje original.
@@ -3436,6 +3442,7 @@ const DAY_13_OPENINGS: Lesson = {
       doneText: 'Time to see it in action.',
       hintText: '',
       nextButtonText: 'London System',
+      nextButtonTextMobile: 'London S.',
     },
     {
       id: 'guided-london',
@@ -4186,7 +4193,7 @@ const DAY_18_SECOND_GAME: Lesson = {
   ],
   // Day 18 "Pawny 2.0" - novi avatar kroz ceo chat (Pawny-jeve poruke I END
   // screen ostaju COACH poruke, ne diraju ovo - samo Pawny-jev lik u balonu).
-  pawnyAvatar: '/pawny/pawny2.png',
+  pawnyAvatar: '/pawny/pawny2.webp',
   steps: [
     {
       id: 'vs-pawny-2',
@@ -5095,7 +5102,7 @@ const DAY_23_BRIDGE: Lesson = {
 /**
  * Day 24 "Game 3" - treca prava Pawny partija, isti obrazac kao Day 14/18
  * (kind:'freePlay'). Pawny 3.0 avatar (slika koju je korisnica poslala,
- * sacuvana kao public/pawny/pawny3.png).
+ * sacuvana kao public/pawny/pawny3.webp).
  *
  * NAMERNO izostavljen "dinamicki opener" (prva poruka na osnovu STVARNOG
  * ishoda Game 2 za tog korisnika) - tiket sam predvidja ovaj fallback ako
@@ -5142,8 +5149,8 @@ const DAY_24_THIRD_GAME: Lesson = {
     },
   ],
   // Day 24 "Pawny 3.0" - novi avatar kroz ceo chat (isti princip kao Day 18
-  // pawny2.png).
-  pawnyAvatar: '/pawny/pawny3.png',
+  // pawny2.webp).
+  pawnyAvatar: '/pawny/pawny3.webp',
   steps: [
     {
       id: 'vs-pawny-3',

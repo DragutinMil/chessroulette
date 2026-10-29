@@ -81,7 +81,7 @@ type Props = {
   suggestedMovePlayed?: boolean;
   onPlaySuggestedMove?: (uci: string) => void;
   /** Lesson.pawnyAvatar (Day 18 "Pawny 2.0") - zamenjuje podrazumevani
-   * `/pawny/pawny.png` kroz celu lekciju. */
+   * `/pawny/pawny.webp` kroz celu lekciju. */
   pawnyAvatarSrc?: string;
   /**
    * Lesson.graduationTest (Day 31 "Graduation Test 2") - iskljucuje "sticky"
@@ -111,7 +111,7 @@ const Conversation = ({
   onToggleMultiOption,
   suggestedMovePlayed,
   onPlaySuggestedMove,
-  pawnyAvatarSrc = '/pawny/pawny.png',
+  pawnyAvatarSrc = '/pawny/pawny.webp',
   disableStickyQuizQuestion,
 }: Props) => {
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -212,6 +212,72 @@ const Conversation = ({
           // bubbli kao Coach, samo sa sopstvenim avatarom/animacijom.
           const isPawny = participant.includes('pawny-bot');
 
+          // Mobilni: ponudjeni odgovori idu UNUTAR zalepljenog pitanja, pa ne mogu
+          // da se podvuku ispod njega dok chat skroluje (desktop ostaje kako je bio).
+          const optionsInSticky = !!isMobile && isStickyQuizQuestion;
+          const quizOptionsBlock = (
+            <>
+              {step?.kind === 'quiz' &&
+                step.quizOptions &&
+                !step.quizMultiSelect &&
+                quizSelectedIndex == null &&
+                index === lastTaskMessageIndex && (
+                  <div className="grid grid-cols-2 gap-2 px-2 md:px-4 mt-1 mb-2">
+                    {step.quizOptions.map((option, i) => (
+                      <button
+                        key={i}
+                        type="button"
+                        onClick={() => onSelectQuizAnswer?.(i)}
+                        className="text-left text-xs sm:text-sm px-3 py-2 rounded-xl border transition-colors duration-150 border-conversation-100 text-white hover:border-[#07DA63] hover:bg-[#07DA63]/[0.06] cursor-pointer"
+                      >
+                        <span className="text-[#07DA63] font-bold">
+                          {String.fromCharCode(65 + i)})
+                        </span>{' '}
+                        {option}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              {/* LessonStep.quizMultiSelect (Day 31 Q2/Q3) - dugmad se TOGGLE-
+                  uju (ne zakljucavaju na prvi klik) - izabrane ostaju vidljivo
+                  oznacene dok se ne dostigne trazen broj, kad se automatski
+                  salje na ocenjivanje (vidi handleToggleMultiOption). */}
+              {step?.kind === 'quiz' &&
+                step.quizOptions &&
+                step.quizMultiSelect &&
+                index === lastTaskMessageIndex &&
+                (() => {
+                  const needed = step.quizCorrectIndices?.length ?? 2;
+                  const locked = quizMultiSelected.length >= needed;
+                  return (
+                    <div className="grid grid-cols-2 gap-2 px-2 md:px-4 mt-1 mb-2">
+                      {step.quizOptions.map((option, i) => {
+                        const isSelected = quizMultiSelected.includes(i);
+                        return (
+                          <button
+                            key={i}
+                            type="button"
+                            disabled={locked}
+                            onClick={() => onToggleMultiOption?.(i)}
+                            className={`text-left text-xs sm:text-sm px-3 py-2 rounded-xl border transition-colors duration-150 cursor-pointer ${
+                              isSelected
+                                ? 'border-[#07DA63] bg-[#07DA63]/[0.1] text-white'
+                                : 'border-conversation-100 text-white hover:border-[#07DA63] hover:bg-[#07DA63]/[0.06]'
+                            }`}
+                          >
+                            <span className="text-[#07DA63] font-bold">
+                              {String.fromCharCode(65 + i)})
+                            </span>{' '}
+                            {option}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  );
+                })()}
+            </>
+          );
+
           return (
             <React.Fragment key={index}>
             <div
@@ -251,7 +317,7 @@ const Conversation = ({
                           }`}
                         >
                           <Image
-                            src="/outposty/outposty.png"
+                            src="/outposty/outposty.webp"
                             alt="Outposty"
                             fill
                             className="object-contain"
@@ -325,7 +391,7 @@ const Conversation = ({
                 <div className="flex justify-start items-center mt-4 ">
                   <div className="outposty-talking relative w-9 h-9 rounded-full overflow-hidden">
                     <Image
-                      src="/outposty/outposty.png"
+                      src="/outposty/outposty.webp"
                       alt="Outposty"
                       fill
                       className="object-contain"
@@ -341,65 +407,9 @@ const Conversation = ({
                   </div>
                 </div>
               )}
+              {optionsInSticky && quizOptionsBlock}
             </div>
-            {step?.kind === 'quiz' &&
-              step.quizOptions &&
-              !step.quizMultiSelect &&
-              quizSelectedIndex == null &&
-              index === lastTaskMessageIndex && (
-                <div className="grid grid-cols-2 gap-2 px-2 md:px-4 mt-1 mb-2">
-                  {step.quizOptions.map((option, i) => (
-                    <button
-                      key={i}
-                      type="button"
-                      onClick={() => onSelectQuizAnswer?.(i)}
-                      className="text-left text-xs sm:text-sm px-3 py-2 rounded-xl border transition-colors duration-150 border-conversation-100 text-white hover:border-[#07DA63] hover:bg-[#07DA63]/[0.06] cursor-pointer"
-                    >
-                      <span className="text-[#07DA63] font-bold">
-                        {String.fromCharCode(65 + i)})
-                      </span>{' '}
-                      {option}
-                    </button>
-                  ))}
-                </div>
-              )}
-            {/* LessonStep.quizMultiSelect (Day 31 Q2/Q3) - dugmad se TOGGLE-
-                uju (ne zakljucavaju na prvi klik) - izabrane ostaju vidljivo
-                oznacene dok se ne dostigne trazen broj, kad se automatski
-                salje na ocenjivanje (vidi handleToggleMultiOption). */}
-            {step?.kind === 'quiz' &&
-              step.quizOptions &&
-              step.quizMultiSelect &&
-              index === lastTaskMessageIndex &&
-              (() => {
-                const needed = step.quizCorrectIndices?.length ?? 2;
-                const locked = quizMultiSelected.length >= needed;
-                return (
-                  <div className="grid grid-cols-2 gap-2 px-2 md:px-4 mt-1 mb-2">
-                    {step.quizOptions.map((option, i) => {
-                      const isSelected = quizMultiSelected.includes(i);
-                      return (
-                        <button
-                          key={i}
-                          type="button"
-                          disabled={locked}
-                          onClick={() => onToggleMultiOption?.(i)}
-                          className={`text-left text-xs sm:text-sm px-3 py-2 rounded-xl border transition-colors duration-150 cursor-pointer ${
-                            isSelected
-                              ? 'border-[#07DA63] bg-[#07DA63]/[0.1] text-white'
-                              : 'border-conversation-100 text-white hover:border-[#07DA63] hover:bg-[#07DA63]/[0.06]'
-                          }`}
-                        >
-                          <span className="text-[#07DA63] font-bold">
-                            {String.fromCharCode(65 + i)})
-                          </span>{' '}
-                          {option}
-                        </button>
-                      );
-                    })}
-                  </div>
-                );
-              })()}
+            {!optionsInSticky && quizOptionsBlock}
             {step?.suggestedMove &&
               !suggestedMovePlayed &&
               index === lastTaskMessageIndex && (
@@ -416,7 +426,8 @@ const Conversation = ({
             </React.Fragment>
           );
         })}
-        <div className="h-12" />
+        {/* Privremeno iskljuceno - razmak je jeo visinu chata; vratiti ako se ispostavi cemu je sluzio. */}
+        {/* <div className="h-12" /> */}
       </div>
       <Paywall
         visible={!!chatLimitPaywallVisible}

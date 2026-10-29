@@ -267,7 +267,7 @@ const StaticIntroBanner = ({
 const MascotIntroBanner = ({
   bannerText,
   subBannerText,
-  mascotSrc = '/pawny/pawny.png',
+  mascotSrc = '/pawny/pawny.webp',
 }: {
   bannerText: string;
   subBannerText?: string;

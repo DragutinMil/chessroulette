@@ -67,6 +67,7 @@ import { pickBoxMethodHint } from './checkmateTechnique';
 import { SendHintExplanation } from './components/WidgetPanel/SendHintExplanation';
 import { LessonProgressBar } from './components/LessonProgressBar';
 import { RIGHT_SIDE_SIZE_PX } from '../../constants';
+import { useRoomDetails } from '../../hooks/useRoomDetails';
 
 const COACH = 'chatGPT123456';
 // Day 14 "Your First Game" - Pawny-jeve poruke idu pod SVOJIM participantId-em
@@ -74,6 +75,10 @@ const COACH = 'chatGPT123456';
 // animaciju umesto zelenog loga. Vidi PAWNY_AVATAR_FRAMES tamo.
 const PAWNY = 'pawny-bot';
 const OPPONENT_REPLY_DELAY_MS = 450;
+// step.moveHighlights pre protivnikovog odgovora - dodatno zadrzavanje (uz
+// OPPONENT_REPLY_DELAY_MS) da se strelica saha stigne videti dok je kralj
+// jos na napadnutom polju.
+const MOVE_HIGHLIGHT_HOLD_MS = 900;
 // kind:'markSquares' - boja tackice za polje koje je KORISNIK trenutno
 // obelezio (razlicita od quizHighlightSquares boja koje su sistemski/hint
 // otkrivena resenja).
@@ -298,8 +303,7 @@ export const DailyLessonActivity = ({
   const [quizBoardNudge, setQuizBoardNudge] = useState(false);
   const quizNudgeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
     null
-  );
-  // Hint dugme - 1. klik oznaci SAMO figuru koja igra, 2. klik doda i strelicu do mete.
+  );  // Hint dugme - 1. klik oznaci SAMO figuru koja igra, 2. klik doda i strelicu do mete.
   const [hintArrowMap, setHintArrowMap] = useState<ArrowsMap | null>(null);
   const [hintPieceSquare, setHintPieceSquare] = useState<string | null>(null);
   const hintArrowTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
@@ -317,7 +321,14 @@ export const DailyLessonActivity = ({
   );
   // Blokira tablu dok traje protivnicki odgovor ili prelazak na sledeci korak.
   const [isBusy, setIsBusy] = useState(false);
-  const [showIntro, setShowIntro] = useState(true);
+  // Za Game Review sobu (r<id ove sobe>) - vidi onGameReview.
+  const roomDetails = useRoomDetails();
+  // Intro samo za lekciju koja jos nije pocela - poruke zive u Movex-u, pa
+  // posle refresh-a vec postoje. Bez ovoga "Let's start" ponovo zove
+  // beginStep i duplira poruku zadatka u chatu.
+  const [showIntro, setShowIntro] = useState(
+    () => !findLoadedChapter(remoteState)?.messages?.length
+  );
   // Popup za novu pod-temu usred lekcije (npr. rokada) - null dok korak nema
   // preStepIntro. Generican mehanizam, ne samo za King/rokadu.
   const [preStepIntro, setPreStepIntro] = useState<LessonStep['preStepIntro'] | null>(
@@ -1973,13 +1984,31 @@ export const DailyLessonActivity = ({
         // ostaje pozicija pre poteza - resolveOpponentReply ce vratiti null
       }
 
+      // step.moveHighlights (npr. Day 17 strelica saha top -> kralj) - crta se
+      // ODMAH posle korisnikovog poteza, dok kralj JOS stoji na tom polju, i
+      // brise se kad protivnik odgovori. Ranije se crtala tek posle odgovora,
+      // pa je pokazivala na polje koje je kralj upravo napustio.
+      const plyHighlight = step.moveHighlights?.[currentProgress];
+      const plyHighlightBeforeReply =
+        step.kind === 'puzzle' && !!replyUci && !!plyHighlight;
+
       if (step.kind === 'puzzle' && replyUci) {
+        if (plyHighlightBeforeReply && plyHighlight) {
+          applyBoardHighlight(plyHighlight);
+          await new Promise<void>((resolve) =>
+            setTimeout(resolve, MOVE_HIGHLIGHT_HOLD_MS)
+          );
+        }
         progressRef.current = progressAfterUserMove + 1;
         await playOpponentReply(
           fenAfterUserMove,
           replyUci,
           withCounters({ progress: progressAfterUserMove + 1 })
         );
+        if (plyHighlightBeforeReply && plyHighlight) {
+          if (plyHighlight.arrows?.length) setQuizHighlightArrows(null);
+          if (plyHighlight.squares?.length) setQuizHighlightSquares(null);
+        }
       }
 
       // Kontinuirana vodjena vezba sa VISE poteza u ISTOM koraku (npr. Day 13
@@ -2057,8 +2086,8 @@ export const DailyLessonActivity = ({
         // belih poteza u ISTOM multi-move puzzle koraku, svaki sa sopstvenim
         // tekstom umesto ponovljenog successText) - uvek tacno kako je
         // napisano, bez variranja (isti princip kao successTextAlways).
-        if (step.moveHighlights?.[currentProgress]) {
-          applyBoardHighlight(step.moveHighlights[currentProgress]);
+        if (plyHighlight && !plyHighlightBeforeReply) {
+          applyBoardHighlight(plyHighlight);
         }
         if (step.moveExplanations?.[currentProgress]) {
           await sendCoachMessage(step.moveExplanations[currentProgress]);
@@ -3113,7 +3142,6 @@ export const DailyLessonActivity = ({
     const pgn = parts.join(' ');
     if (!pgn) return;
 
-    const roomId = getRandomStr();
     const params = new URLSearchParams();
     params.set('activity', 'review');
     params.set('startingPgn', pgn);
@@ -3121,8 +3149,13 @@ export const DailyLessonActivity = ({
     if (userData.user_id) params.set('userId', userData.user_id);
     const theme = new URLSearchParams(window.location.search).get('theme');
     if (theme) params.set('theme', theme);
-    window.location.href = `/room/a/review/${roomId}?${params.toString()}`;
-  }, [currentChapter.notation.history, userData.user_id]);
+    // Kao Match -> Review (MatchStateDialogContainer): review soba je
+    // odvojena 'review' soba izvedena iz ove (r<lessonRoomId>), pravi je
+    // JoinOrCreateRoom preko /room/new. Direktan /room/a/review/<id> je
+    // otvarao sobu koju niko nije napravio.
+    const reviewRoomId = `r${roomDetails?.roomId ?? getRandomStr()}`;
+    window.location.href = `/room/new/${reviewRoomId}?${params.toString()}`;
+  }, [currentChapter.notation.history, userData.user_id, roomDetails?.roomId]);
 
   const boardArrows = useMemo(
     () =>
@@ -3191,34 +3224,52 @@ export const DailyLessonActivity = ({
 
   // Desna kolona (progress traka + chat/kviz) - ISTA za Lesson.boardless i
   // standardne lekcije, deli se ispod umesto duplirana.
+  // Lesson.graduationTest (Day 30) - "running score visible" iz acceptance
+  // kriterijuma, generican prikaz za svaki ocenjen test.
+  const scoreText = lesson?.graduationTest
+    ? `Score: ${Math.round(lessonState.score * 100) / 100} / ${lesson.graduationTest.maxScore}`
+    : null;
+
   const widgetPanelColumn = (
     <div className="flex flex-col gap-2 h-[360px] md:h-full w-full flex-1 md:min-h-0 pb-4 md:pb-0">
       {lesson && (
-        <p className="px-1 text-xs font-bold uppercase tracking-wide text-slate-500">
-          Day {lesson.day} · {lesson.title}
-        </p>
-      )}
-      {/* kind:'freePlay' (Day 14) - prava partija, "1/1" segment nema smisla,
-          pa traka ovde izostaje u potpunosti. */}
-      {step?.kind !== 'freePlay' && (
-        <LessonProgressBar
-          total={segments.total}
-          current={segments.current}
-          completed={segments.completed}
-          currentFraction={segments.currentFraction}
-          celebrateStepDone={nextReady}
-          wrongSegments={wrongQuizSteps}
-        />
-      )}
-      {/* Lesson.graduationTest (Day 30) - "running score visible" iz
-          acceptance kriterijuma, generican prikaz za svaki ocenjen test. */}
-      {lesson?.graduationTest && (
-        <p className="px-1 text-xs font-bold text-[#07DA63] tabular-nums">
-          Score: {Math.round(lessonState.score * 100) / 100} /{' '}
-          {lesson.graduationTest.maxScore}
-        </p>
+        <div className="flex items-baseline justify-between gap-2 px-1">
+          <p className="text-xs font-bold uppercase tracking-wide text-slate-500">
+            Day {lesson.day} · {lesson.title}
+          </p>
+          {/* Mobilni: Score u redu sa naslovom, desno (desktop ga ima ispod trake). */}
+          {scoreText && (
+            <p className="md:hidden shrink-0 text-xs font-bold text-[#07DA63] tabular-nums">
+              {scoreText}
+            </p>
+          )}
+        </div>
       )}
       <WidgetPanel
+        // Progress traku crta WidgetPanel - na mobilnom kviz koraku u istom
+        // redu sa Next dugmetom (vidi buttonsBesideProgress).
+        progressHeader={
+          // kind:'freePlay' (Day 14) - prava partija, "1/1" segment nema
+          // smisla, pa traka ovde izostaje u potpunosti.
+          step?.kind !== 'freePlay' && (
+            <LessonProgressBar
+              total={segments.total}
+              current={segments.current}
+              completed={segments.completed}
+              currentFraction={segments.currentFraction}
+              celebrateStepDone={nextReady}
+              wrongSegments={wrongQuizSteps}
+            />
+          )
+        }
+        // Desktop Score ispod trake - na mobilnom je u redu sa naslovom.
+        progressFooter={
+          scoreText && (
+            <p className="hidden md:block px-1 text-xs font-bold text-[#07DA63] tabular-nums">
+              {scoreText}
+            </p>
+          )
+        }
         userData={userData}
         currentChapterState={currentChapter}
         lesson={lesson}

@@ -31,32 +31,43 @@ type Props = {
  */
 const RANDOM_MOVE_CHANCE = 0.8; // "deli figure za zabavu" - uglavnom nasumican potez, retko "pametan"
 
-function pickBotMoveUci(
-  fen: string,
-  stockfishUci: string,
-  randomMoveChance: number
-): string {
-  if (Math.random() < randomMoveChance) {
-    try {
-      const chess = new Chess(fen);
-      const moves = chess.moves({ verbose: true });
-      if (moves.length > 0) {
-        const m = moves[Math.floor(Math.random() * moves.length)];
-        // Pesak koji stize na krajnji red MORA imati slovo promocije u UCI
-        // stringu (inace ChessFENBoard.move() nema sta da stavi na to polje
-        // osim samog pesaka - "Invalid FEN: some pawns are on the edge rows"
-        // je bas to). chess.js obicno vec vraca m.promotion za ove poteze,
-        // ali ovo je eksplicitna sigurnosna mreza ako ikad ne bude.
-        const isPromotion =
-          m.piece === 'p' && (m.to[1] === '1' || m.to[1] === '8');
-        const promotion = m.promotion ?? (isPromotion ? 'q' : '');
-        return `${m.from}${m.to}${promotion}`;
-      }
-    } catch {
-      // nevalidan fen ili slicno - padni nazad na Stockfish-ov predlog
-    }
+function legalMovesUci(fen: string): string[] {
+  try {
+    return new Chess(fen).moves({ verbose: true }).map((m) => {
+      // Pesak koji stize na krajnji red MORA imati slovo promocije u UCI
+      // stringu (inace ChessFENBoard.move() nema sta da stavi na to polje
+      // osim samog pesaka - "Invalid FEN: some pawns are on the edge rows"
+      // je bas to). chess.js obicno vec vraca m.promotion za ove poteze,
+      // ali ovo je eksplicitna sigurnosna mreza ako ikad ne bude.
+      const isPromotion =
+        m.piece === 'p' && (m.to[1] === '1' || m.to[1] === '8');
+      const promotion = m.promotion ?? (isPromotion ? 'q' : '');
+      return `${m.from}${m.to}${promotion}`;
+    });
+  } catch {
+    return [];
   }
-  return stockfishUci;
+}
+
+function randomOf(moves: string[]): string | null {
+  return moves.length > 0
+    ? moves[Math.floor(Math.random() * moves.length)]
+    : null;
+}
+
+/**
+ * Stockfish-ov predlog vazi SAMO ako je legalan bas u ovoj poziciji. Kasni
+ * 'bestmove' iz prethodne pretrage (posle safety timeout-a) ili pad workera
+ * na mobilnom (nema 'bestmove' uopste) su ranije ostavljali Pawny-ja bez
+ * poteza zauvek (prijavljeno: Day 14, crni kralj u sahu sa jednim izlazom) -
+ * sad se u tom slucaju igra nasumican legalan potez.
+ */
+function pickStockfishOrRandom(
+  stockfishUci: string | null,
+  legal: string[]
+): string | null {
+  if (stockfishUci && legal.includes(stockfishUci)) return stockfishUci;
+  return randomOf(legal);
 }
 
 // Pawny "razmislja" ovoliko DUGO pre nego sto stvarno odigra potez (izbor
@@ -101,51 +112,58 @@ export const PawnyEngine = ({
     // jos nije promenio dok Movex ne potvrdi prethodni Pawny potez).
     if (lastRepliedFenRef.current === fen) return;
 
-    // Vidi MateDefenseEngine.tsx - isti razlog za withStockfishLock (deljeni
-    // worker, Hint box-method upiti su se preplitali sa ovim upitom).
     let cancelled = false;
+    const legal = legalMovesUci(fen);
+    if (legal.length === 0) return;
 
-    withStockfishLock(
-      (worker: Worker) =>
-        new Promise<void>((resolve) => {
-          let settled = false;
-          const finish = () => {
-            if (settled) return;
-            settled = true;
-            worker.removeEventListener('message', onMessage);
-            clearTimeout(safetyTimeout);
-            resolve();
-          };
-          const onMessage = (event: MessageEvent) => {
-            const data = event.data;
-            if (typeof data === 'string' && data.startsWith('bestmove')) {
-              const stockfishUci = data.split(' ')[1];
-              if (
-                !cancelled &&
-                stockfishUci &&
-                stockfishUci !== '(none)'
-              ) {
-                lastRepliedFenRef.current = fen;
-                const uci = pickBotMoveUci(
-                  fen,
-                  stockfishUci,
-                  randomMoveChance
-                );
-                thinkTimeoutRef.current = setTimeout(() => {
-                  onMoveRef.current(uci);
-                }, pickPawnyThinkMs());
+    // lastRepliedFenRef se postavlja tek kad potez STVARNO ode - ako cleanup
+    // otkaze zakazan potez (rerender tokom "razmisljanja"), sledeci prolaz
+    // efekta ga ponovo racuna umesto da tiho preskoci poziciju.
+    const playAfterThinking = (uci: string | null) => {
+      if (cancelled || !uci) return;
+      thinkTimeoutRef.current = setTimeout(() => {
+        lastRepliedFenRef.current = fen;
+        onMoveRef.current(uci);
+      }, pickPawnyThinkMs());
+    };
+
+    // Nasumican potez ne treba Stockfish uopste - ne zavisi od workera.
+    if (Math.random() < randomMoveChance) {
+      playAfterThinking(randomOf(legal));
+    } else {
+      // Vidi MateDefenseEngine.tsx - isti razlog za withStockfishLock (deljeni
+      // worker, Hint box-method upiti su se preplitali sa ovim upitom).
+      withStockfishLock(
+        (worker: Worker) =>
+          new Promise<void>((resolve) => {
+            let settled = false;
+            const finish = (stockfishUci: string | null) => {
+              if (settled) return;
+              settled = true;
+              worker.removeEventListener('message', onMessage);
+              clearTimeout(safetyTimeout);
+              playAfterThinking(pickStockfishOrRandom(stockfishUci, legal));
+              resolve();
+            };
+            const onMessage = (event: MessageEvent) => {
+              const data = event.data;
+              if (typeof data === 'string' && data.startsWith('bestmove')) {
+                finish(data.split(' ')[1] ?? null);
               }
-              finish();
-            }
-          };
-          const safetyTimeout = setTimeout(finish, 5000);
-          worker.addEventListener('message', onMessage);
+            };
+            // Worker se ne javlja (npr. pao na mobilnom) - Pawny ipak igra.
+            const safetyTimeout = setTimeout(() => {
+              worker.postMessage('stop');
+              finish(null);
+            }, 5000);
+            worker.addEventListener('message', onMessage);
 
-          worker.postMessage('stop');
-          worker.postMessage(`position fen ${fen}`);
-          worker.postMessage('go movetime 150');
-        })
-    );
+            worker.postMessage('stop');
+            worker.postMessage(`position fen ${fen}`);
+            worker.postMessage('go movetime 150');
+          })
+      );
+    }
 
     return () => {
       cancelled = true;
