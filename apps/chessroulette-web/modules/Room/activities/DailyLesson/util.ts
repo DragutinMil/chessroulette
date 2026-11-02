@@ -107,7 +107,7 @@ export async function ai_prompt(
   const body: Record<string, string> = {
     prompt: question,
     model: model,
-    agent_name: 'Lesson',
+    agent_name: 'DailyLesson',
   };
   if (previusMessageId?.trim()) body.previous_response_id = previusMessageId;
   try {

@@ -1,4 +1,4 @@
-import { Chess, Square } from 'chess.js';
+import { Chess, Square, validateFen } from 'chess.js';
 import { ChessColor, ChessFEN } from '@xmatter/util-kit';
 import { ArrowsMap } from '@app/components/Chessboard/types';
 import { withStockfishLock } from '@app/modules/ChessEngine/stockfishWorker.js';
@@ -73,6 +73,80 @@ export function requestBestMoveAmong(
           ? ` searchmoves ${candidateUcis.join(' ')}`
           : '';
         worker.postMessage(`go movetime 600${searchmoves}`);
+      })
+  );
+}
+
+export type EngineLine = {
+  uci: string[];
+  scoreCp: number | null;
+  mate: number | null;
+};
+
+// Stockfish obori worker na poziciji bez oba kralja (rani dani imaju jednu figuru na tabli), a worker je deljen sa Pawny-jem
+export function isEngineSafeFen(fen: string): boolean {
+  if (!validateFen(fen).ok) return false;
+  const placement = fen.split(' ')[0];
+  if ((placement.match(/K/g) || []).length !== 1) return false;
+  if ((placement.match(/k/g) || []).length !== 1) return false;
+  try {
+    const chess = new Chess(fen);
+    const waiting = chess.turn() === 'w' ? 'b' : 'w';
+    const [kingSquare] = chess.findPiece({ type: 'k', color: waiting });
+    return !!kingSquare && !chess.isAttacked(kingSquare, chess.turn());
+  } catch {
+    return false;
+  }
+}
+
+// MultiPV analiza za ENGINE blok u pitanju treneru - isti deljeni worker i lock kao Pawny, MateDefense i hint
+export function analyzePosition(
+  fen: string,
+  { multiPv = 3, movetime = 800 }: { multiPv?: number; movetime?: number } = {}
+): Promise<EngineLine[] | null> {
+  if (typeof window === 'undefined' || !isEngineSafeFen(fen)) {
+    return Promise.resolve(null);
+  }
+  return withStockfishLock(
+    (worker: Worker) =>
+      new Promise<EngineLine[] | null>((resolve) => {
+        const lines: EngineLine[] = [];
+        let settled = false;
+        const finish = (result: EngineLine[] | null) => {
+          if (settled) return;
+          settled = true;
+          worker.removeEventListener('message', onMessage);
+          clearTimeout(safetyTimeout);
+          // ostali potrosaci worker-a citaju samo bestmove i ne treba da placaju vise linija
+          worker.postMessage('setoption name MultiPV value 1');
+          resolve(result);
+        };
+        const onMessage = (event: MessageEvent) => {
+          const data = event.data;
+          if (typeof data !== 'string') return;
+          if (data.startsWith('bestmove')) {
+            const found = lines.filter(Boolean);
+            finish(found.length ? found : null);
+            return;
+          }
+          const match = data.match(
+            /^info .*\bmultipv (\d+) .*\bscore (cp|mate) (-?\d+).*\bpv (.+)$/
+          );
+          if (!match) return;
+          const score = Number(match[3]);
+          lines[Number(match[1]) - 1] = {
+            uci: match[4].trim().split(' '),
+            scoreCp: match[2] === 'cp' ? score : null,
+            mate: match[2] === 'mate' ? score : null,
+          };
+        };
+        const safetyTimeout = setTimeout(() => finish(null), 5000);
+        worker.addEventListener('message', onMessage);
+        worker.postMessage('setoption name Skill Level value 20');
+        worker.postMessage(`setoption name MultiPV value ${multiPv}`);
+        worker.postMessage('stop');
+        worker.postMessage(`position fen ${fen}`);
+        worker.postMessage(`go movetime ${movetime}`);
       })
   );
 }

@@ -9,7 +9,7 @@ import type { ChapterState, Message, UserData, dailyLesson } from '../../movex';
 import type { Lesson, LessonStep } from '../../lessonDatabase';
 import { MAX_HINTS_PER_STEP } from '../../lessonDatabase';
 import Conversation from './Conversation';
-import { SendQuestionCoach } from './SendQuestionCoach';
+import { SendQuestionCoach, prepareEngineContext } from './SendQuestionCoach';
 import { FreePlayControls } from './FreePlayControls';
 
 /**
@@ -496,7 +496,11 @@ export const DailyLessonWidgetPanel = ({
                     style={{ boxShadow: '0px 0px 10px 0px #07DA6380' }}
                     className="w-full text-[16px] md:text-[14px] rounded-[20px] border border-conversation-100 bg-[#111111]/40 text-white placeholder-[#FFFFFF]/25 px-4 py-1 md:py-2 transition-colors duration-200 focus:outline-none focus:ring-1 focus:ring-slate-400 focus:border-conversation-200 hover:border-conversation-300"
                     onChange={(e) => setQuestion(e.target.value)}
-                    onFocus={() => setIsFocusedInput(true)}
+                    onFocus={() => {
+                      setIsFocusedInput(true);
+                      // engine analizira poziciju dok korisnik kuca, pa odgovor ne ceka Stockfish
+                      prepareEngineContext(currentChapterState);
+                    }}
                     onBlur={() => setIsFocusedInput(false)}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' && !e.shiftKey) {
@@ -544,7 +548,10 @@ export const DailyLessonWidgetPanel = ({
               )}
               {isMobile && !showMobileChatInput && (
                 <ButtonGreen
-                  onClick={() => setShowMobileChatInput(true)}
+                  onClick={() => {
+                    setShowMobileChatInput(true);
+                    prepareEngineContext(currentChapterState);
+                  }}
                   aria-label="Open chat"
                   size="lg"
                   icon="ChatBubbleOvalLeftEllipsisIcon"
