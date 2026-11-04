@@ -14,7 +14,9 @@ UI CONTROLS AVAILABLE TO THE USER:
 
 const COACH_STYLE = `
 You are a chess coach teaching a complete beginner (rating 100-500).
-Keep answers to one or two short sentences, warm and encouraging.
+Lead with the point. One or two short sentences. Go longer only when the question truly needs a step-by-step explanation, and even then stay under four sentences.
+No filler, no restating the question, no "great question", no em dashes.
+Always bold the key point with **double asterisks**: one or two short phrases per answer, such as a move (**Nf3**), a piece (**Queen**), a square (**e4**) or the core idea (**protect your King**). Never bold a whole sentence. Never start the answer with bold text.
 Never use jargon without explaining it. Always answer in English.
 `.trim();
 
@@ -29,6 +31,28 @@ const PIECE_LABELS: Record<string, string> = {
   r: 'Rook',
   q: 'Queen',
 };
+
+const KEY_POINT_REGEX =
+  /\b(?:O-O(?:-O)?|[KQRBN]?[a-h]?[1-8]?x?[a-h][1-8](?:=[QRBN])?[+#]?|Kings?|Queens?|Rooks?|Bishops?|Knights?|Pawns?|checkmate|stalemate)\b/g;
+const MAX_KEY_POINTS = 2;
+
+// AI cesto vrati odgovor bez **, pa sami podebljamo do dve poente (potez/polje, figura)
+export function emphasizeKeyPoints(text: string): string {
+  if (!text || text.includes('**')) return text;
+  const seen = new Set<string>();
+  let count = 0;
+  return text.replace(KEY_POINT_REGEX, (match, offset: number) => {
+    if (count >= MAX_KEY_POINTS || offset === 0) return match;
+    // potezi sa brojem (1. e4 e5) su klikabilna dugmad u chatu, ne smeju dobiti **
+    if (/\d+\.(?:\.\.)?\s*(?:\S+\s+)?$/.test(text.slice(0, offset)))
+      return match;
+    const key = match.toLowerCase();
+    if (seen.has(key)) return match;
+    seen.add(key);
+    count++;
+    return `**${match}**`;
+  });
+}
 
 // fokus na polje za pitanje pokrene analizu, a slanje ceka isti rezultat umesto nove analize
 const engineContextCache = new Map<string, Promise<string>>();
@@ -100,7 +124,10 @@ async function buildEngineContext(state: ChapterState): Promise<string> {
       lines
         .map(
           (line, i) =>
-            `${i + 1}. ${uciToSan(fen, line.uci[0])} (${formatScore(line, turn)})`
+            `${i + 1}. ${uciToSan(fen, line.uci[0])} (${formatScore(
+              line,
+              turn
+            )})`
         )
         .join('  '),
   ];
@@ -119,7 +146,8 @@ async function buildEngineContext(state: ChapterState): Promise<string> {
   if (userMove) out.push(userMove);
 
   const hanging = hangingPieces(chess);
-  if (hanging.length) out.push(`Attacked and undefended: ${hanging.join(', ')}`);
+  if (hanging.length)
+    out.push(`Attacked and undefended: ${hanging.join(', ')}`);
 
   return out.join('\n');
 }
@@ -151,7 +179,10 @@ async function describeUserMove(
     return '';
   }
 
-  const beforeLines = await analyzePosition(before, { multiPv: 1, movetime: 400 });
+  const beforeLines = await analyzePosition(before, {
+    multiPv: 1,
+    movetime: 400,
+  });
   // ako protivnik jos nije odgovorio, pozicija posle poteza je ova na tabli i vec je analizirana
   const afterLines =
     board(after) === board(state.displayFen)
@@ -167,12 +198,16 @@ async function describeUserMove(
     loss >= 300
       ? 'blunder'
       : loss >= 150
-        ? 'mistake'
-        : loss >= 70
-          ? 'inaccuracy'
-          : 'fine';
+      ? 'mistake'
+      : loss >= 70
+      ? 'inaccuracy'
+      : 'fine';
 
-  return `User's last move: ${moves[index].san}, eval for the user before ${formatCp(beforeCp)}, after ${formatCp(afterCp)} (${verdict})`;
+  return `User's last move: ${
+    moves[index].san
+  }, eval for the user before ${formatCp(beforeCp)}, after ${formatCp(
+    afterCp
+  )} (${verdict})`;
 }
 
 type RealMove = FBHMove & { isNonMove?: false };
@@ -193,7 +228,9 @@ function hangingPieces(chess: Chess): string[] {
         !chess.isAttacked(piece.square, piece.color)
       ) {
         result.push(
-          `${colorName(piece.color)} ${PIECE_LABELS[piece.type]} on ${piece.square}`
+          `${colorName(piece.color)} ${PIECE_LABELS[piece.type]} on ${
+            piece.square
+          }`
         );
       }
     }
@@ -245,10 +282,10 @@ function describeScore(line: EngineLine, turn: 'w' | 'b'): string {
     abs < 0.5
       ? 'roughly equal'
       : abs < 1.5
-        ? `${side} is slightly better`
-        : abs < 3
-          ? `${side} is better`
-          : `${side} is winning`;
+      ? `${side} is slightly better`
+      : abs < 3
+      ? `${side} is better`
+      : `${side} is winning`;
   return `${formatScore(line, turn)} (${words})`;
 }
 

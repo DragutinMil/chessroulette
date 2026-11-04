@@ -74,7 +74,11 @@ function pickStockfishOrRandom(
 // izmedju nasumicnog i Stockfish-ovog predloga je trenutan, ovo je samo
 // vestacka pauza da partija ne deluje robotski). NIKAD duze od 3 sekunde,
 // cela partija - samo 1, 2 ili 3s, nasumicno, bez izuzetaka.
-function pickPawnyThinkMs() {
+const FIRST_MOVE_THINK_MS = 300;
+
+function pickPawnyThinkMs(fen: string) {
+  // prvi Pawny potez partije (potez 1 u FEN-u) ide odmah
+  if (fen.split(' ')[5] === '1') return FIRST_MOVE_THINK_MS;
   const quick = [1000, 2000, 3000];
   return quick[Math.floor(Math.random() * quick.length)];
 }
@@ -124,7 +128,7 @@ export const PawnyEngine = ({
       thinkTimeoutRef.current = setTimeout(() => {
         lastRepliedFenRef.current = fen;
         onMoveRef.current(uci);
-      }, pickPawnyThinkMs());
+      }, pickPawnyThinkMs(fen));
     };
 
     // Nasumican potez ne treba Stockfish uopste - ne zavisi od workera.

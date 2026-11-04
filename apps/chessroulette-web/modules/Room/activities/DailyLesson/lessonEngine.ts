@@ -2,7 +2,7 @@ import { Chess, Square, validateFen } from 'chess.js';
 import { ChessColor, ChessFEN } from '@xmatter/util-kit';
 import { ArrowsMap } from '@app/components/Chessboard/types';
 import { withStockfishLock } from '@app/modules/ChessEngine/stockfishWorker.js';
-import { ANY_LEGAL_REPLY, LessonStep } from './lessonDatabase';
+import { ANY_LEGAL_REPLY, KING_APPROACH, LessonStep } from './lessonDatabase';
 
 export type LessonMove = { from: Square; to: Square; promoteTo?: string };
 
@@ -295,6 +295,61 @@ export function uciToMove(uci: string): LessonMove {
     to: uci.slice(2, 4) as Square,
     ...(uci.length >= 5 ? { promoteTo: uci[4] } : {}),
   };
+}
+
+const kingDistance = (a: string, b: string) =>
+  Math.max(
+    Math.abs(a.charCodeAt(0) - b.charCodeAt(0)),
+    Math.abs(Number(a[1]) - Number(b[1]))
+  );
+
+/** KING_APPROACH marker ('K>c7') -> ciljno polje, inace null. */
+export function kingApproachTarget(uci: string | undefined): Square | null {
+  return uci?.startsWith(KING_APPROACH)
+    ? (uci.slice(KING_APPROACH.length) as Square)
+    : null;
+}
+
+/** Potezi kralja na potezu koji ga priblizavaju cilju, sa oznakom da li daju pat. */
+export function kingApproachMoves(
+  fen: ChessFEN,
+  target: Square
+): { move: LessonMove; stalemate: boolean }[] {
+  try {
+    return new Chess(fen)
+      .moves({ verbose: true })
+      .filter(
+        (m) =>
+          m.piece === 'k' &&
+          kingDistance(m.to, target) < kingDistance(m.from, target)
+      )
+      .map((m) => {
+        const next = new Chess(fen);
+        next.move({ from: m.from, to: m.to });
+        return {
+          move: { from: m.from as Square, to: m.to as Square },
+          stalemate: next.isStalemate(),
+        };
+      });
+  } catch {
+    return [];
+  }
+}
+
+/** Konkretan potez za solution unos - KING_APPROACH bira najpravolinijskiji korak bez pata. */
+export function resolveSolutionMove(
+  fen: ChessFEN,
+  uci: string
+): LessonMove | null {
+  const target = kingApproachTarget(uci);
+  if (!target) return uciToMove(uci);
+  const manhattan = (sq: string) =>
+    Math.abs(sq.charCodeAt(0) - target.charCodeAt(0)) +
+    Math.abs(Number(sq[1]) - Number(target[1]));
+  const best = kingApproachMoves(fen, target)
+    .filter((m) => !m.stalemate)
+    .sort((a, b) => manhattan(a.move.to) - manhattan(b.move.to))[0];
+  return best?.move ?? null;
 }
 
 /**
