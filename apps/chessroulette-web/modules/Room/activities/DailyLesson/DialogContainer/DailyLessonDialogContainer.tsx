@@ -37,7 +37,10 @@ const KNIGHT_CELL = 32;
 const KnightIntroAnimation = ({ glyph }: { glyph: string }) => (
   <div
     className="relative mx-auto my-3 rounded-md overflow-hidden"
-    style={{ width: KNIGHT_GRID * KNIGHT_CELL, height: KNIGHT_GRID * KNIGHT_CELL }}
+    style={{
+      width: KNIGHT_GRID * KNIGHT_CELL,
+      height: KNIGHT_GRID * KNIGHT_CELL,
+    }}
   >
     <div className="grid grid-cols-5 grid-rows-5 h-full w-full">
       {Array.from({ length: KNIGHT_GRID * KNIGHT_GRID }, (_, i) => {
@@ -413,23 +416,25 @@ const PieceIntroAnimation = ({
     );
 
   return (
-  <div className="relative mx-auto my-3 h-[128px] w-[128px] rounded-md overflow-hidden">
-    <div className="grid grid-cols-4 grid-rows-4 h-full w-full">
-      {Array.from({ length: 16 }, (_, i) => {
-        const row = Math.floor(i / 4);
-        const col = i % 4;
-        const isLight = (row + col) % 2 === 0;
-        return (
-          <div
-            key={i}
-            style={{
-              background: isLight ? 'rgb(240, 217, 181)' : 'rgb(181, 136, 99)',
-            }}
-          />
-        );
-      })}
-    </div>
-    {/*
+    <div className="relative mx-auto my-3 h-[128px] w-[128px] rounded-md overflow-hidden">
+      <div className="grid grid-cols-4 grid-rows-4 h-full w-full">
+        {Array.from({ length: 16 }, (_, i) => {
+          const row = Math.floor(i / 4);
+          const col = i % 4;
+          const isLight = (row + col) % 2 === 0;
+          return (
+            <div
+              key={i}
+              style={{
+                background: isLight
+                  ? 'rgb(240, 217, 181)'
+                  : 'rgb(181, 136, 99)',
+              }}
+            />
+          );
+        })}
+      </div>
+      {/*
       Pun glif (npr. ♜/♝), ne suplji (♖/♗) - suplji je beo i nestaje na
       svetlim poljima. Svetli obris drzi kontrast i na tamnim poljima.
       'king' krece iz centralnog polja (32,32) da bi svih 8 suseda ostalo
@@ -439,19 +444,19 @@ const PieceIntroAnimation = ({
       vrha i ide nadole izgledalo bi kao da pesak ide unazad.
       ('static' se vraca ranije, kao HistoryIntroBanner - nikad ne stize ovde.)
     */}
-    <div
-      className={`dl-piece-${movement} absolute ${
-        movement === 'king'
-          ? 'left-8 top-8'
-          : movement === 'pawn'
+      <div
+        className={`dl-piece-${movement} absolute ${
+          movement === 'king'
+            ? 'left-8 top-8'
+            : movement === 'pawn'
             ? 'left-0 top-16'
             : 'left-0 top-0'
-      } h-8 w-8 flex items-center justify-center text-[30px] leading-none text-[#14181F]`}
-      style={{ textShadow: '0 1px 2px rgba(255,255,255,0.45)' }}
-    >
-      {glyph}
-    </div>
-    <style>{`
+        } h-8 w-8 flex items-center justify-center text-[30px] leading-none text-[#14181F]`}
+        style={{ textShadow: '0 1px 2px rgba(255,255,255,0.45)' }}
+      >
+        {glyph}
+      </div>
+      <style>{`
       @keyframes dl-piece-straight {
         0%   { transform: translate(0, 0); }
         25%  { transform: translate(96px, 0); }
@@ -498,14 +503,26 @@ const PieceIntroAnimation = ({
         .dl-piece-straight, .dl-piece-diagonal, .dl-piece-king, .dl-piece-pawn { animation: none; }
       }
     `}</style>
-  </div>
+    </div>
   );
 };
 
 const CASTLE_LAYOUTS = {
   // indeksi polja u nizu (e1..h1 / a1..e1), 0 = najlevlje polje u traci
-  'castle-kingside': { squares: 4, kingStart: 0, kingEnd: 2, rookStart: 3, rookEnd: 1 },
-  'castle-queenside': { squares: 5, kingStart: 4, kingEnd: 2, rookStart: 0, rookEnd: 3 },
+  'castle-kingside': {
+    squares: 4,
+    kingStart: 0,
+    kingEnd: 2,
+    rookStart: 3,
+    rookEnd: 1,
+  },
+  'castle-queenside': {
+    squares: 5,
+    kingStart: 4,
+    kingEnd: 2,
+    rookStart: 0,
+    rookEnd: 3,
+  },
 } as const;
 
 const CASTLE_CELL = 32;
@@ -538,7 +555,8 @@ const CastlingDiagram = ({
             style={{
               width: CASTLE_CELL,
               height: CASTLE_CELL,
-              background: i % 2 === 0 ? 'rgb(240, 217, 181)' : 'rgb(181, 136, 99)',
+              background:
+                i % 2 === 0 ? 'rgb(240, 217, 181)' : 'rgb(181, 136, 99)',
             }}
           />
         ))}
@@ -778,7 +796,7 @@ export const DailyLessonDialogContainer = ({
   // ikad bilo pogresno" namerno razliciti brojevi.
   const errorCount =
     lesson?.flatProgressSegments && !lesson?.scoreSummary
-      ? (wrongQuizSteps?.size ?? 0)
+      ? wrongQuizSteps?.size ?? 0
       : lessonState.totalErrors;
 
   // Lesson.graduationTest (Day 30/31 "Graduation Test") - zavrsni ekran ima
@@ -830,7 +848,7 @@ export const DailyLessonDialogContainer = ({
           >
             {graduationResult
               ? graduationResult.title
-              : (lesson?.endScreenTitle ?? 'Lesson complete! 🎉')}
+              : lesson?.endScreenTitle ?? 'Lesson complete! 🎉'}
           </span>
         }
         content={
@@ -843,11 +861,11 @@ export const DailyLessonDialogContainer = ({
             {scoreTier && (
               <div className="mt-3 w-full border border-[#07DA63]/30 bg-[#07DA63]/[0.07] rounded-xl px-3 py-2.5 text-center">
                 <p className="text-[#07DA63] text-xs font-bold tracking-wide uppercase">
-                  {scoreTier.correctCount}/{scoreTier.total} correct —{' '}
+                  {scoreTier.correctCount}/{scoreTier.total} correct ·{' '}
                   {scoreTier.title}
                 </p>
                 <p className="text-slate-300 text-xs mt-1">
-                  {scoreTier.text}
+                  {renderMarkdownInline(scoreTier.text)}
                 </p>
               </div>
             )}
@@ -884,9 +902,10 @@ export const DailyLessonDialogContainer = ({
                 graduationTest (Day 30) ide JOS ispred toga - pass/fail
                 varijanta bira SOPSTVENI red dugmadi, nezavisno od
                 endScreenButtons (test obicno i nema to polje postavljeno). */}
-            {(graduationResult
-              ? graduationResult.buttons
-              : lesson?.endScreenButtons
+            {(
+              graduationResult
+                ? graduationResult.buttons
+                : lesson?.endScreenButtons
             ) ? (
               (graduationResult
                 ? graduationResult.buttons
@@ -898,21 +917,30 @@ export const DailyLessonDialogContainer = ({
                     btn.action === 'repeat'
                       ? 'ArrowPathIcon'
                       : btn.action === 'done'
-                        ? 'CheckIcon'
-                        : btn.action === 'review'
-                          ? 'ChartBarIcon'
-                          : btn.action === 'play'
-                            ? 'PlayIcon'
-                            : btn.action === 'testOpening'
-                              ? 'AcademicCapIcon'
-                              : btn.action === 'nextLesson'
-                                ? 'ArrowRightIcon'
-                                : 'LightBulbIcon'
+                      ? 'CheckIcon'
+                      : btn.action === 'review'
+                      ? 'ChartBarIcon'
+                      : btn.action === 'play'
+                      ? 'PlayIcon'
+                      : btn.action === 'testOpening'
+                      ? 'AcademicCapIcon'
+                      : btn.action === 'nextLesson'
+                      ? 'ArrowRightIcon'
+                      : 'LightBulbIcon'
                   }
                   iconKind="outline"
                   size="lg"
                   className="w-full text-[16px] h-[44px] rounded-[22px]"
-                  style={{ marginTop: i === 0 ? 20 : 12 }}
+                  style={{
+                    marginTop: i === 0 ? 20 : 12,
+                    // isti zeleni Next Lesson kao na standardnom End Screen-u
+                    ...(btn.action === 'nextLesson' && onNextLesson
+                      ? {
+                          backgroundColor: 'rgba(7, 218, 99)',
+                          color: '#000000',
+                        }
+                      : {}),
+                  }}
                   disabled={
                     btn.action === 'placeholder' ||
                     (btn.action === 'nextLesson' && !onNextLesson)
@@ -921,8 +949,8 @@ export const DailyLessonDialogContainer = ({
                     btn.action === 'placeholder'
                       ? (btn as { tooltip?: string }).tooltip ?? 'Coming soon'
                       : btn.action === 'nextLesson' && !onNextLesson
-                        ? 'More lessons coming soon'
-                        : undefined
+                      ? 'More lessons coming soon'
+                      : undefined
                   }
                   onClick={
                     btn.action === 'repeat'
@@ -931,27 +959,27 @@ export const DailyLessonDialogContainer = ({
                           onRepeatLesson();
                         }
                       : btn.action === 'done'
-                        ? () => {
-                            window.location.href = '/lessons';
-                          }
-                        : btn.action === 'review'
-                          ? onGameReview
-                          : btn.action === 'play'
-                            ? () => {
-                                // Vodi na Play (matchmaking) stranicu glavne
-                                // web-app, isto kao postojece "Home" dugme u
-                                // Puzzle aktivnosti (puzzleAi), samo druga ruta.
-                                window.location.href =
-                                  'https://app.outpostchess.com/intsearch';
-                              }
-                            : btn.action === 'testOpening'
-                              ? () => {
-                                  onDismissCelebration();
-                                  onTestOpening?.();
-                                }
-                              : btn.action === 'nextLesson'
-                                ? onNextLesson
-                                : undefined
+                      ? () => {
+                          window.location.href = '/lessons';
+                        }
+                      : btn.action === 'review'
+                      ? onGameReview
+                      : btn.action === 'play'
+                      ? () => {
+                          // Vodi na Play (matchmaking) stranicu glavne
+                          // web-app, isto kao postojece "Home" dugme u
+                          // Puzzle aktivnosti (puzzleAi), samo druga ruta.
+                          window.location.href =
+                            'https://app.outpostchess.com/intsearch';
+                        }
+                      : btn.action === 'testOpening'
+                      ? () => {
+                          onDismissCelebration();
+                          onTestOpening?.();
+                        }
+                      : btn.action === 'nextLesson'
+                      ? onNextLesson
+                      : undefined
                   }
                 >
                   &nbsp;{btn.label}
@@ -970,11 +998,17 @@ export const DailyLessonDialogContainer = ({
                   className="w-full text-[16px] h-[44px] rounded-[22px] transition-[filter,transform] duration-150 hover:brightness-110 hover:scale-[1.02] active:scale-[0.98]"
                   style={
                     onNextLesson
-                      ? { marginTop: 20, backgroundColor: 'rgba(7, 218, 99)', color: '#000000' }
+                      ? {
+                          marginTop: 20,
+                          backgroundColor: 'rgba(7, 218, 99)',
+                          color: '#000000',
+                        }
                       : { marginTop: 20 }
                   }
                   disabled={!onNextLesson}
-                  tooltip={onNextLesson ? undefined : 'More lessons coming soon'}
+                  tooltip={
+                    onNextLesson ? undefined : 'More lessons coming soon'
+                  }
                   onClick={onNextLesson}
                 >
                   &nbsp;Next Lesson

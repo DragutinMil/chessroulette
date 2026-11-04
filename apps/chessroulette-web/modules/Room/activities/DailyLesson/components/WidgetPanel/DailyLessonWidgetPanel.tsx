@@ -9,7 +9,11 @@ import type { ChapterState, Message, UserData, dailyLesson } from '../../movex';
 import type { Lesson, LessonStep } from '../../lessonDatabase';
 import { MAX_HINTS_PER_STEP } from '../../lessonDatabase';
 import Conversation from './Conversation';
-import { SendQuestionCoach, prepareEngineContext } from './SendQuestionCoach';
+import {
+  SendQuestionCoach,
+  emphasizeKeyPoints,
+  prepareEngineContext,
+} from './SendQuestionCoach';
 import { FreePlayControls } from './FreePlayControls';
 
 /**
@@ -37,6 +41,10 @@ export type DailyLessonWidgetPanelProps = {
   onHint: () => void;
   /** LessonStep.liveHint (Day 20 Phase 2) - uzivo poziv u toku, prikazuje "Thinking..." i blokira dupli klik. */
   liveHintLoading?: boolean;
+  /** Broj hintova na pocetku trenutnog poteza (limit od 2 vazi po potezu). */
+  hintBase?: number;
+  /** Korisnik je vukao figuru na vec resenom koraku - Next/Start pulsira dok se ne klikne. */
+  nudgeNext?: boolean;
   /** Vraca celu lekciju na prvi korak. */
   onRepeatLesson: () => void;
   onNextStep: () => void;
@@ -70,6 +78,8 @@ export const DailyLessonWidgetPanel = ({
   progressFooter,
   onHint,
   liveHintLoading,
+  hintBase = 0,
+  nudgeNext = false,
   onRepeatLesson,
   onNextStep,
   onMessage,
@@ -233,12 +243,12 @@ export const DailyLessonWidgetPanel = ({
       // dugme (pokazuje tacna polja), pa ga pominjemo eksplicitno.
       const fallback =
         step?.kind === 'quiz'
-          ? "Hmm, I couldn't quite catch that! Just try an answer above — right or wrong, I'll explain it. No pressure, mistakes are totally fine here 🙂"
+          ? "Didn't catch that. Pick an answer above. **Right or wrong**, I'll explain it."
           : step?.kind === 'markSquares'
-            ? "Hmm, I couldn't quite catch that! Right-click (or press on mobile) on the squares you think are right to mark them — and tap Hint below if you want a pointer in the right direction 🙂"
-            : "Hmm, I couldn't quite catch that! If you're stuck, tap Hint below and I'll help you out.";
+          ? "Didn't catch that. **Right-click** the squares you think are right (long-press on mobile). Stuck? Tap **Hint**."
+          : "Didn't catch that. Stuck? Tap **Hint** below.";
       onMessage({
-        content: answerText || fallback,
+        content: answerText ? emphasizeKeyPoints(answerText) : fallback,
         participantId: 'chatGPT123456',
         idResponse: data?.id ?? '',
       });
@@ -305,109 +315,109 @@ export const DailyLessonWidgetPanel = ({
           Take Back, u mestu koje Draw/Resign oslobode) - ne duplirati. */}
       {step?.kind !== 'freePlay' &&
         (step?.kind !== 'quiz' || !!step?.extraHintText) && (
-        <ButtonGreen
-          onClick={onHint}
-          icon="LightBulbIcon"
-          iconKind="outline"
-          size="md"
-          className="md:max-w-[110px] max-w-[110px] px-4"
-          style={{ maxWidth: smallMobile ? '76px' : '' }}
-          disabled={
-            isBusy ||
-            isStepComplete ||
-            liveHintLoading ||
-            // step.liveHint (Day 20 Phase 2) - uvek dostupno, NIJE
-            // ograniceno MAX_HINTS_PER_STEP brojacem (vidi onHint).
-            (!step?.liveHint && lessonState.hints >= MAX_HINTS_PER_STEP)
-          }
-        >
-          <p>{liveHintLoading ? 'Thinking...' : 'Hint'}</p>
-        </ButtonGreen>
-      )}
+          <ButtonGreen
+            onClick={onHint}
+            icon="LightBulbIcon"
+            iconKind="outline"
+            size="md"
+            className="md:max-w-[110px] max-w-[110px] px-4"
+            style={{ maxWidth: smallMobile ? '76px' : '' }}
+            disabled={
+              isBusy ||
+              isStepComplete ||
+              liveHintLoading ||
+              // step.liveHint (Day 20 Phase 2) - uvek dostupno, NIJE
+              // ograniceno MAX_HINTS_PER_STEP brojacem (vidi onHint).
+              (!step?.liveHint &&
+                lessonState.hints - hintBase >= MAX_HINTS_PER_STEP)
+            }
+          >
+            <p>{liveHintLoading ? 'Thinking...' : 'Hint'}</p>
+          </ButtonGreen>
+        )}
 
       {lessonDone ? (
-          <>
-            <ButtonGreen
-              icon="PlayIcon"
-              iconKind="outline"
-              size="md"
-              className="md:max-w-[130px] max-w-[130px] px-4"
-              style={{ maxWidth: smallMobile ? '90px' : '' }}
-              onClick={() => {
-                window.location.href =
-                  'https://app.outpostchess.com/online-list';
-              }}
-            >
-              <p className="whitespace-nowrap">Play</p>
-            </ButtonGreen>
-            <ButtonGreen
-              onClick={onRepeatLesson}
-              icon="ArrowPathIcon"
-              iconKind="outline"
-              size="md"
-              className="md:max-w-[130px] max-w-[130px] px-4"
-              style={{ maxWidth: smallMobile ? '90px' : '' }}
-              disabled={isBusy}
-              title="Restart the whole lesson"
-            >
-              <p className="whitespace-nowrap">Repeat</p>
-            </ButtonGreen>
-          </>
-        ) : step?.kind === 'freePlay' ? (
-          <FreePlayControls
-            onDrawOffer={onDrawOffer}
-            onTakeBack={onTakeBack}
-            onResign={onResign}
-            // Resign/Draw/Take Back su UVEK aktivni, ne samo dok je
-            // korisnikov red - korisnik moze da ih pozove i dok Pawny
-            // "razmislja" (ranije je ovo bilo `isBusy`, gasilo sva 3
-            // dugmeta tacno tada). canTakeBack ispod ostaje jedino
-            // pravo ogranicenje (nema sta da se vrati).
-            disabled={false}
-            canTakeBack={canTakeBack}
-            hideDrawResign={!!step?.requireCheckmate}
-            showHint={!!step?.liveHint}
-            onHint={onHint}
-            hintLoading={liveHintLoading}
-          />
-        ) : (
+        <>
           <ButtonGreen
-            onClick={handleNextClick}
-            icon="ArrowRightIcon"
+            icon="PlayIcon"
             iconKind="outline"
-            iconClassName="relative z-10"
             size="md"
-            // Pored progress trake (mobilni) dugme se siri koliko tekst trazi
-            // (npr. Day 13 'London System'), traka uzima ostatak reda.
-            className={`${
-              buttonsBesideProgress ? '' : 'md:max-w-[130px] max-w-[130px]'
-            } px-4 transition-[filter,transform] duration-150 hover:brightness-110 hover:scale-[1.03] active:scale-[0.97] hover:[animation-play-state:paused] ${
-              nextReady ? 'animate-attentionPulse' : ''
-            }`}
-            style={{
-              maxWidth: smallMobile && !buttonsBesideProgress ? '90px' : '',
-              // Instant zelena samo dok je korak gotov ali jos busy (kratak
-              // bljesak dok se ceka protivnikov odgovor) - kad je nextReady,
-              // zelenu "puni" pilulica ispod, ne skoci odjednom.
-              ...(isStepComplete && !nextReady
-                ? { backgroundColor: 'rgba(7, 218, 99)', color: '#000000' }
-                : {}),
+            className="md:max-w-[130px] max-w-[130px] px-4"
+            style={{ maxWidth: smallMobile ? '90px' : '' }}
+            onClick={() => {
+              window.location.href = 'https://app.outpostchess.com/online-list';
             }}
-            disabled={isBusy || !isStepComplete || isLastStep}
           >
-            {nextReady && (
-              <div className="absolute inset-0 rounded-2xl overflow-hidden pointer-events-none">
-                <div
-                  onAnimationEnd={handleAutoAdvanceFillDone}
-                  className="dl-next-fill h-full group-hover:[animation-play-state:paused]"
-                />
-                <style>{`
+            <p className="whitespace-nowrap">Play</p>
+          </ButtonGreen>
+          <ButtonGreen
+            onClick={onRepeatLesson}
+            icon="ArrowPathIcon"
+            iconKind="outline"
+            size="md"
+            className="md:max-w-[130px] max-w-[130px] px-4"
+            style={{ maxWidth: smallMobile ? '90px' : '' }}
+            disabled={isBusy}
+            title="Restart the whole lesson"
+          >
+            <p className="whitespace-nowrap">Repeat</p>
+          </ButtonGreen>
+        </>
+      ) : step?.kind === 'freePlay' ? (
+        <FreePlayControls
+          onDrawOffer={onDrawOffer}
+          onTakeBack={onTakeBack}
+          onResign={onResign}
+          // Resign/Draw/Take Back su UVEK aktivni, ne samo dok je
+          // korisnikov red - korisnik moze da ih pozove i dok Pawny
+          // "razmislja" (ranije je ovo bilo `isBusy`, gasilo sva 3
+          // dugmeta tacno tada). canTakeBack ispod ostaje jedino
+          // pravo ogranicenje (nema sta da se vrati).
+          disabled={false}
+          canTakeBack={canTakeBack}
+          hideDrawResign={!!step?.requireCheckmate}
+          showHint={!!step?.liveHint}
+          onHint={onHint}
+          hintLoading={liveHintLoading}
+        />
+      ) : (
+        <ButtonGreen
+          onClick={handleNextClick}
+          icon="ArrowRightIcon"
+          iconKind="outline"
+          iconClassName="relative z-10"
+          size="md"
+          // Pored progress trake (mobilni) dugme se siri koliko tekst trazi
+          // (npr. Day 13 'London System'), traka uzima ostatak reda.
+          className={`${
+            buttonsBesideProgress ? '' : 'md:max-w-[130px] max-w-[130px]'
+          } px-4 transition-[filter,transform] duration-150 hover:brightness-110 hover:scale-[1.03] active:scale-[0.97] hover:[animation-play-state:paused] ${
+            nextReady || nudgeNext ? 'animate-attentionPulse' : ''
+          }`}
+          style={{
+            maxWidth: smallMobile && !buttonsBesideProgress ? '90px' : '',
+            // Instant zelena samo dok je korak gotov ali jos busy (kratak
+            // bljesak dok se ceka protivnikov odgovor) - kad je nextReady,
+            // zelenu "puni" pilulica ispod, ne skoci odjednom.
+            ...(isStepComplete && !nextReady
+              ? { backgroundColor: 'rgba(7, 218, 99)', color: '#000000' }
+              : {}),
+          }}
+          disabled={isBusy || !isStepComplete || isLastStep}
+        >
+          {nextReady && (
+            <div className="absolute inset-0 rounded-2xl overflow-hidden pointer-events-none">
+              <div
+                onAnimationEnd={handleAutoAdvanceFillDone}
+                className="dl-next-fill h-full group-hover:[animation-play-state:paused]"
+              />
+              <style>{`
                   @keyframes dl-next-fill { from { width: 0%; } to { width: 100%; } }
                   .dl-next-fill { background: rgba(7, 218, 99); animation: dl-next-fill ${AUTO_ADVANCE_MS}ms linear forwards; }
                   @media (prefers-reduced-motion: reduce) { .dl-next-fill { animation: none; width: 0%; } }
                 `}</style>
-              </div>
-            )}
+            </div>
+          )}
           <p className="relative whitespace-nowrap">
             {(buttonsBesideProgress && step?.nextButtonTextMobile) ||
               (step?.nextButtonText ?? 'Next')}
@@ -459,7 +469,9 @@ export const DailyLessonWidgetPanel = ({
                 smallMobile={smallMobile}
                 isMobile={isMobile}
                 chatLimitPaywallVisible={chatLimitPaywallVisible}
-                onCloseChatLimitPaywall={() => setChatLimitPaywallVisible(false)}
+                onCloseChatLimitPaywall={() =>
+                  setChatLimitPaywallVisible(false)
+                }
                 nextReady={nextReady}
                 step={step}
                 quizSelectedIndex={quizSelectedIndex}

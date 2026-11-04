@@ -34,6 +34,8 @@ type Props = Required<
      * video objasnjenje "ovo je statican primer" ako bas nju povuce.
      */
     anyPieceDraggable?: boolean;
+    /** Resen korak ceka Next - potez ide pravo u onMove (poruka), ne u premove. */
+    forceUserTurn?: boolean;
   };
 
 export const DailyLessonBoard = ({
@@ -47,6 +49,7 @@ export const DailyLessonBoard = ({
   rightSideClassName,
   canPlay = true,
   anyPieceDraggable = false,
+  forceUserTurn = false,
   ...chessBoardProps
 }: Props) => {
   const lm =
@@ -57,8 +60,9 @@ export const DailyLessonBoard = ({
   // Ko je stvarno na potezu po FEN-u - NE korisnikova boja fiksno. U puzzle
   // koracima, dok korisnikov potez ceka odigravanje protivnika, ovo je
   // protivnikova boja; cim protivnik odigra, vraca se na orientation.
-  const sideToMove =
-    (fen.split(' ')[1] as 'w' | 'b' | undefined) ?? orientation;
+  const sideToMove = forceUserTurn
+    ? orientation
+    : (fen.split(' ')[1] as 'w' | 'b' | undefined) ?? orientation;
 
   /**
    * Namerno propustamo i poteze koji nisu validni po sahovskim pravilima -
