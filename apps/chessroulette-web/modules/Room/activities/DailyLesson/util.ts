@@ -107,7 +107,7 @@ export async function ai_prompt(
   const body: Record<string, string> = {
     prompt: question,
     model: model,
-    agent_name: 'Lesson',
+    agent_name: 'DailyLesson',
   };
   if (previusMessageId?.trim()) body.previous_response_id = previusMessageId;
   try {
@@ -203,6 +203,23 @@ const GENERIC_HINT_HELP_VARIANTS = [
   'Here you go — follow the arrow!',
   "Take a peek — I've shown you the way.",
 ];
+
+/**
+ * Lesson.shuffleStepsFrom (Day 22 "Material") - vraca NOVI niz: koraci PRE
+ * `fromIndex` ostaju u originalnom redosledu, koraci OD `fromIndex` nadalje
+ * se nasumicno premestaju (Fisher-Yates). Original niz se ne menja. Kad je
+ * `fromIndex` undefined, vraca isti niz nepromenjen (bez kopiranja).
+ */
+export function shuffleFrom<T>(items: T[], fromIndex?: number): T[] {
+  if (fromIndex == null) return items;
+  const fixed = items.slice(0, fromIndex);
+  const rest = items.slice(fromIndex);
+  for (let i = rest.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [rest[i], rest[j]] = [rest[j], rest[i]];
+  }
+  return [...fixed, ...rest];
+}
 
 /**
  * Bira poruku razlicitu od poslednje poslate, da se dva ista kratka komentara

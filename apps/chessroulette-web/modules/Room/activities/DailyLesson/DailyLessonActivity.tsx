@@ -22,6 +22,7 @@ import {
   pickHintHelpMessage,
   pickVariedMessage,
   pickVariedWrongMoveMessage,
+  shuffleFrom,
 } from './util';
 import { DailyLessonDialogContainer } from './DialogContainer/DailyLessonDialogContainer';
 import {
@@ -31,6 +32,7 @@ import {
   initialDefaultChapter,
 } from './movex';
 import {
+  ANY_LEGAL_CHECK,
   ANY_LEGAL_REPLY,
   findLesson,
   getNextLessonId,
@@ -38,13 +40,19 @@ import {
   MAX_HINTS_PER_STEP,
 } from './lessonDatabase';
 import {
+  buildCrosshairArrows,
   buildSolutionArrow,
   computeLinePath,
+  findSafeCheckMove,
   hasMoreUserMoves,
+  isSafeCheckMove,
   illegalMoveReason,
   isValidUnorderedMove,
+  kingApproachMoves,
+  kingApproachTarget,
   knightElbowSquare,
   movesMatch,
+  resolveSolutionMove,
   pieceAt,
   pieceLegalTargets,
   resolveNextUnorderedTarget,
@@ -55,12 +63,14 @@ import {
 } from './lessonEngine';
 import { WidgetPanel } from './components/WidgetPanel';
 import { DailyLessonBoard } from './components/DailyLessonBoard';
+import { NotationConvergeAnimation } from './components/NotationConvergeAnimation';
 import { PawnyEngine } from './components/PawnyEngine';
 import { MateDefenseEngine } from './components/MateDefenseEngine';
 import { pickBoxMethodHint } from './checkmateTechnique';
 import { SendHintExplanation } from './components/WidgetPanel/SendHintExplanation';
 import { LessonProgressBar } from './components/LessonProgressBar';
 import { RIGHT_SIDE_SIZE_PX } from '../../constants';
+import { useRoomDetails } from '../../hooks/useRoomDetails';
 
 const COACH = 'chatGPT123456';
 // Day 14 "Your First Game" - Pawny-jeve poruke idu pod SVOJIM participantId-em
@@ -68,6 +78,10 @@ const COACH = 'chatGPT123456';
 // animaciju umesto zelenog loga. Vidi PAWNY_AVATAR_FRAMES tamo.
 const PAWNY = 'pawny-bot';
 const OPPONENT_REPLY_DELAY_MS = 450;
+// step.moveHighlights pre protivnikovog odgovora - dodatno zadrzavanje (uz
+// OPPONENT_REPLY_DELAY_MS) da se strelica saha stigne videti dok je kralj
+// jos na napadnutom polju.
+const MOVE_HIGHLIGHT_HOLD_MS = 900;
 // kind:'markSquares' - boja tackice za polje koje je KORISNIK trenutno
 // obelezio (razlicita od quizHighlightSquares boja koje su sistemski/hint
 // otkrivena resenja).
@@ -136,7 +150,7 @@ export const DailyLessonActivity = ({
   // Generican, ne Day9/Day10-specifican. Ostaje dok korisnik ne predje na
   // sledeci korak (clearFeedback u loadStep ga gasi).
   const [quizHighlightSquares, setQuizHighlightSquares] = useState<
-    { square: Square; color: string }[] | null
+    { square: Square; color: string; fill?: boolean; dot?: boolean }[] | null
   >(null);
   const [quizHighlightArrows, setQuizHighlightArrows] =
     useState<ArrowsMap | null>(null);
@@ -152,18 +166,20 @@ export const DailyLessonActivity = ({
     (highlight: NonNullable<LessonStep['quizBoardHighlight']>) => {
       const { arrows, squares } = highlight;
       if (arrows?.length) {
-        const arrowsMap = arrows.reduce(
-          (acc, { from, to, color }) => {
-            acc[`${from}${to}-${color}`] = [from, to, color];
-            return acc;
-          },
-          {} as Record<string, [string, string, string]>
-        );
+        const arrowsMap = arrows.reduce((acc, { from, to, color }) => {
+          acc[`${from}${to}-${color}`] = [from, to, color];
+          return acc;
+        }, {} as Record<string, [string, string, string]>);
         setQuizHighlightArrows(arrowsMap as unknown as ArrowsMap);
       }
       if (squares?.length) {
         setQuizHighlightSquares(
-          squares.map((s) => ({ square: s.square as Square, color: s.color }))
+          squares.map((s) => ({
+            square: s.square as Square,
+            color: s.color,
+            fill: s.fill,
+            dot: s.dot,
+          }))
         );
       }
     },
@@ -174,6 +190,39 @@ export const DailyLessonActivity = ({
   // movex - ovo je "u toku" selekcija pre provere, ne treba drugim
   // igracima u sobi.
   const [markedSquares, setMarkedSquares] = useState<Set<Square>>(new Set());
+  // Day 27 "Chess Notation" - polje koje je korisnik POGRESNO obelezio
+  // (markSquares desni klik) ILI pogresno izabrao (kviz tekstualna opcija
+  // ciji naziv je polje, vidi onSelectQuizAnswer), ostaje vidljivo (plavi
+  // okvir + crvena tackica, vidi squareRenderer) - korisnica eksplicitno
+  // trazila da se NJENA greska jasno vidi, umesto strelica duz reda/kolone.
+  // Cisti se na sledeci klik/pokusaj i na ucitavanje sledeceg koraka
+  // (clearFeedback).
+  const [wrongMarkedSquare, setWrongMarkedSquare] = useState<Square | null>(
+    null
+  );
+  // LessonStep.revealSquareAnimation (Day 27 "Chess Notation") - slovo+broj
+  // "spajanje" animacija (vidi NotationConvergeAnimation.tsx), okida se posle
+  // SVAKOG odgovora (tacnog ili netacnog). `nonce` forsira remount (restart
+  // CSS tranzicija) i kad se ISTO polje otkrije dva puta zaredom. `pieceLetter`
+  // (Part C "napisi potez") - slovo figure (npr. 'N'), dodaje se ISPRED u
+  // istom redosledu kojim se notacija pise (vidi onSelectQuizAnswer).
+  const [revealAnimation, setRevealAnimation] = useState<{
+    square: Square;
+    pieceLetter?: string;
+    nonce: number;
+  } | null>(null);
+  const revealAnimationNonceRef = useRef(0);
+  const triggerRevealAnimation = useCallback(
+    (square: string, pieceLetter?: string) => {
+      revealAnimationNonceRef.current += 1;
+      setRevealAnimation({
+        square: square as Square,
+        pieceLetter,
+        nonce: revealAnimationNonceRef.current,
+      });
+    },
+    []
+  );
   const lastMarkNudgeAtRef = useRef(0);
   // kind:'freePlay' (Day 14 "Your First Game") - broj odigranih poteza
   // (oba igraca zajedno) u tekucoj partiji, i koji indeksi iz
@@ -216,6 +265,15 @@ export const DailyLessonActivity = ({
   // progressRef sam vise NIJE pouzdan signal "da li sme ponovo da se odgovori"
   // za ovaj tip koraka.
   const quizAnsweredCorrectlyRef = useRef(false);
+  // LessonStep.anyLegalMoveStreak/exactMoveUci/raceSolution (Day 30
+  // "Graduation Checkpoint 1" Part A) - sopstveni, odvojen set refova, NE
+  // deli progressRef/errorsRef semantiku standardnog teach/puzzle koraka
+  // (resenje je ovde samo placeholder duzine, ne stvarna lista poteza).
+  // Sve se resetuje na pocetku svakog ovakvog koraka (vidi beginStep).
+  const drillStreakRef = useRef(0); // ukupno LEGALNIH poteza (anyLegalMoveStreak) - greska NE resetuje ovo, samo kosta poene
+  const drillStepScoreRef = useRef(1); // frakcioni skor OVOG koraka, 1.0 start, floor 0.25
+  const drillMovesPlayedRef = useRef(0); // ukupno odigranih poteza (raceSolution - za "extra moves" penal)
+  const drillCurrentSquareRef = useRef<string | null>(null); // gde se figura koja se testira TRENUTNO nalazi
   // freePlay - pozicija posle korisnikovog drop-a, prikazana odmah dok Movex ne potvrdi.
   const [freePlayOptimisticFen, setFreePlayOptimisticFen] = useState<
     string | null
@@ -237,16 +295,16 @@ export const DailyLessonActivity = ({
   // oboji roze (vidi LessonProgressBar.wrongSegments), ne resetuje se po
   // koraku (za razliku od ostalih feedback refova) jer treba da ostane
   // vidljivo i posle prelaska na sledece pitanje. Resetuje se na Repeat.
-  const [wrongQuizSteps, setWrongQuizSteps] = useState<Set<number>>(
-    new Set()
-  );
+  const [wrongQuizSteps, setWrongQuizSteps] = useState<Set<number>>(new Set());
   // Kratak "fokus na kviz" flash - tabla se zatamni kad user pokusa potez
   // dok je aktivno kviz pitanje (vidi onMove).
   const [quizBoardNudge, setQuizBoardNudge] = useState(false);
+  // potez na vec resenom koraku - Next/Start pulsira, poruka ide jednom po koraku
+  const [nudgeNext, setNudgeNext] = useState(false);
+  const doneMoveNudgedRef = useRef(false);
   const quizNudgeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
     null
-  );
-  // Hint dugme - 1. klik oznaci SAMO figuru koja igra, 2. klik doda i strelicu do mete.
+  ); // Hint dugme - 1. klik oznaci SAMO figuru koja igra, 2. klik doda i strelicu do mete.
   const [hintArrowMap, setHintArrowMap] = useState<ArrowsMap | null>(null);
   const [hintPieceSquare, setHintPieceSquare] = useState<string | null>(null);
   const hintArrowTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
@@ -264,12 +322,19 @@ export const DailyLessonActivity = ({
   );
   // Blokira tablu dok traje protivnicki odgovor ili prelazak na sledeci korak.
   const [isBusy, setIsBusy] = useState(false);
-  const [showIntro, setShowIntro] = useState(true);
+  // Za Game Review sobu (r<id ove sobe>) - vidi onGameReview.
+  const roomDetails = useRoomDetails();
+  // Intro samo za lekciju koja jos nije pocela - poruke zive u Movex-u, pa
+  // posle refresh-a vec postoje. Bez ovoga "Let's start" ponovo zove
+  // beginStep i duplira poruku zadatka u chatu.
+  const [showIntro, setShowIntro] = useState(
+    () => !findLoadedChapter(remoteState)?.messages?.length
+  );
   // Popup za novu pod-temu usred lekcije (npr. rokada) - null dok korak nema
   // preStepIntro. Generican mehanizam, ne samo za King/rokadu.
-  const [preStepIntro, setPreStepIntro] = useState<LessonStep['preStepIntro'] | null>(
-    null
-  );
+  const [preStepIntro, setPreStepIntro] = useState<
+    LessonStep['preStepIntro'] | null
+  >(null);
 
   const [userData, setUserData] = useState({
     name_first: '',
@@ -302,6 +367,39 @@ export const DailyLessonActivity = ({
   const lessonState = currentChapter.dailyLesson;
   const lesson = findLesson(lessonState.lessonId);
 
+  /**
+   * Lesson.shuffleStepsFrom (Day 22 "Material") - koraci od tog indeksa se
+   * nasumicno premestaju JEDNOM po "pokretanju" lekcije (prvi load ILI
+   * Repeat - vidi onRepeatLesson ispod, koji ovaj ref eksplicitno cisti pre
+   * loadStep(0)), ne na svaki render. `lesson.steps` sam (bez
+   * shuffleStepsFrom) se nikad ne kopira/menja - ostali 21+ lekcija
+   * nepromenjeni. Kljuc je lessonId - promena lekcije automatski re-roll-uje.
+   */
+  const shuffledStepsRef = useRef<{
+    lessonId: string;
+    steps: LessonStep[];
+  } | null>(null);
+  if (lesson && shuffledStepsRef.current?.lessonId !== lesson.id) {
+    shuffledStepsRef.current = {
+      lessonId: lesson.id,
+      steps: shuffleFrom(lesson.steps, lesson.shuffleStepsFrom),
+    };
+  }
+  const steps = shuffledStepsRef.current?.steps ?? lesson?.steps ?? [];
+
+  // Indeks "koji po redu BROJIVI korak" je dati sirovi stepIndex - isti
+  // princip kao `countableBefore` u segments ispod (LessonStep.
+  // excludeFromProgress preskace kratke prelazne poruke, npr. Day 27 intro).
+  // Koristi se za wrongQuizSteps/LessonProgressBar.wrongSegments - taj Set
+  // mora da nosi istu "brojivu" indeksaciju kao segmenti trake, inace greska
+  // na PRVOM pitanju oboji DRUGI segment (prijavljen bag - excludeFromProgress
+  // korak ispred pomera sirov niz-indeks za 1 u odnosu na trakin indeks).
+  const countableIndexOf = useCallback(
+    (rawIndex: number) =>
+      steps.slice(0, rawIndex).filter((s) => !s.excludeFromProgress).length,
+    [steps]
+  );
+
   // Prava pozicija stigla kroz Movex - optimisticna vise ne treba.
   useEffect(() => {
     setFreePlayOptimisticFen(null);
@@ -315,9 +413,23 @@ export const DailyLessonActivity = ({
    * trenutak "skoci nazad" na stari segment pa se onda ponovo napuni na novi.
    */
   const stepIndexRef = useRef(lessonState.stepIndex);
-  const step: LessonStep | null = lesson?.steps[stepIndexRef.current] ?? null;
+  const step: LessonStep | null = steps[stepIndexRef.current] ?? null;
 
-  const totalSteps = lesson?.steps.length ?? 0;
+  // Sigurnosna mreza (korisnica prijavila: staro quiz oznacavanje polja - npr.
+  // f2 iz Part A - ostaje vidljivo na tabli i NAKON prelaska na sledeci
+  // markSquares korak u Part B, cija tabla treba da bude potpuno cista dok
+  // ne pokusa). clearFeedback() u loadStep vec gasi quizHighlightSquares na
+  // pocetku ucitavanja, ali ovaj efekat je DODATNA garancija koja se okida
+  // na SVAKU promenu aktivnog koraka, nezavisno od kog async toka je highlight
+  // prvobitno postavljen (npr. 6s "pilulica" na Next dugmetu, itd).
+  useEffect(() => {
+    setQuizHighlightSquares(null);
+    setQuizHighlightArrows(null);
+    setNudgeNext(false);
+    doneMoveNudgedRef.current = false;
+  }, [step?.id]);
+
+  const totalSteps = steps.length;
   const isLastStep = !!lesson && stepIndexRef.current === totalSteps - 1;
 
   /**
@@ -338,9 +450,20 @@ export const DailyLessonActivity = ({
   // ne iz (mozda zastarelog) lessonState, inace brzi uzastopni klikovi na Hint
   // svi vide isti stari broj i uvecanje se izgubi (uvek +1 od istog starog 0).
   const hintsRef = useRef(lessonState.hints);
+  // hintsRef na pocetku trenutnog poteza - limit od 2 hinta vazi po potezu, ne po koraku
+  const hintBaseRef = useRef(0);
+  const [hintBase, setHintBase] = useState(0);
+  const hintsThisMove = () => hintsRef.current - hintBaseRef.current;
+  const startNewMoveHints = () => {
+    hintBaseRef.current = hintsRef.current;
+    setHintBase(hintsRef.current);
+  };
   const errorsRef = useRef(lessonState.errors);
   const totalHintsRef = useRef(lessonState.totalHints);
   const totalErrorsRef = useRef(lessonState.totalErrors);
+  // Lesson.graduationTest (Day 30) - kumulativan skor, isti princip kao
+  // totalErrorsRef/totalHintsRef (ne resetuje se na Next, samo na Repeat).
+  const scoreRef = useRef(lessonState.score);
 
   if (awaitingResetRef.current) {
     // Reset je stigao kroz Movex tek kad se poklope i korak i progress. Dok
@@ -359,12 +482,16 @@ export const DailyLessonActivity = ({
     } else if (lessonState.progress > progressRef.current) {
       progressRef.current = lessonState.progress;
     }
-    if (lessonState.hints > hintsRef.current) hintsRef.current = lessonState.hints;
-    if (lessonState.errors > errorsRef.current) errorsRef.current = lessonState.errors;
+    if (lessonState.hints > hintsRef.current)
+      hintsRef.current = lessonState.hints;
+    if (lessonState.errors > errorsRef.current)
+      errorsRef.current = lessonState.errors;
     if (lessonState.totalHints > totalHintsRef.current)
       totalHintsRef.current = lessonState.totalHints;
     if (lessonState.totalErrors > totalErrorsRef.current)
       totalErrorsRef.current = lessonState.totalErrors;
+    if (lessonState.score > scoreRef.current)
+      scoreRef.current = lessonState.score;
   }
   const progress = progressRef.current;
 
@@ -383,6 +510,7 @@ export const DailyLessonActivity = ({
       errors: errorsRef.current,
       totalHints: totalHintsRef.current,
       totalErrors: totalErrorsRef.current,
+      score: scoreRef.current,
       ...patch,
     }),
     [lessonState]
@@ -391,7 +519,8 @@ export const DailyLessonActivity = ({
   // kind:'freePlay' (Day 14) nema solution niz (ostaje []) - "zavrsen" znaci
   // partija je stvarno gotova (mat/pat/remi), ne progress>=0 koje bi bilo
   // odmah tacno od samog pocetka i blokiralo tablu pre prvog poteza.
-  const isStepComplete = !!step &&
+  const isStepComplete =
+    !!step &&
     (step.kind === 'freePlay'
       ? lessonState.completed
       : progress >= step.solution.length);
@@ -406,7 +535,15 @@ export const DailyLessonActivity = ({
   const isWatchStep =
     (step?.kind === 'quiz' && !step.quizOptions) ||
     step?.kind === 'markSquares' ||
-    !!step?.noAutoAdvance;
+    !!step?.noAutoAdvance ||
+    // LessonStep.autoAdvanceOnCorrect (Day 31) - korak vec ima SOPSTVENI,
+    // brzi (1100ms) auto-advance na tacan odgovor. Bez ovoga, standardna 6s
+    // "pilulica" ispod bi istovremeno trcala UPOREDO sa njim - kad bi oba
+    // na kraju pozvala onNextStep() (npr. ako pilulicin tajmer kasni i jos
+    // uvek "visi" kad sledeci korak vec ucita), drugi poziv bi preskocio
+    // SLEDECI korak bez da ga korisnik ikad vidi/odgovori (korisnicin
+    // prijavljen bag - Day 31 Q12 "progutano"). Generican mehanizam.
+    !!step?.autoAdvanceOnCorrect;
   // Next je spreman za klik - i progress traka i Next dugme slave isti trenutak.
   const nextReady =
     !lessonState.completed &&
@@ -420,7 +557,6 @@ export const DailyLessonActivity = ({
    * svih pet puzzli cine poslednji deo koji se puni kako se resavaju.
    */
   const segments = useMemo(() => {
-    const steps = lesson?.steps ?? [];
     // lesson.flatProgressSegments - OTKAZUJE grupisanje ispod: svaki korak
     // (ukljucujuci trailing puzzle korake) dobija SVOJ segment. Koristi se
     // kad su puzzle koraci tematski razliciti, pojedinacno imenovani primeri
@@ -428,15 +564,25 @@ export const DailyLessonActivity = ({
     // inace bi JEDNA greska na BILO KOJOJ od njih obojila ceo spojeni
     // segment, iako su ostale tacne.
     if (lesson?.flatProgressSegments) {
+      // LessonStep.excludeFromProgress (Day 27 "Chess Notation") - kratki
+      // prelazni "watch & learn" koraci se ne racunaju u traku - "current"
+      // je broj BROJIVIH koraka PRE tekuceg, ne sirov niz-indeks.
       const stepIndex = stepIndexRef.current;
+      const countableTotal = steps.filter((s) => !s.excludeFromProgress).length;
+      const countableBefore = steps
+        .slice(0, stepIndex)
+        .filter((s) => !s.excludeFromProgress).length;
+      const currentIsCountable = !steps[stepIndex]?.excludeFromProgress;
       return {
-        total: steps.length,
-        current: stepIndex,
+        total: countableTotal,
+        current: countableBefore,
         // kind:'freePlay' (Day 14) nema solution.length da deli (ostaje []) -
         // bez ove provere bilo bi 0/0 = NaN, pa nevalidan CSS width.
-        completed: stepIndex,
+        completed: countableBefore,
         currentFraction:
-          step && step.solution.length ? progress / step.solution.length : 0,
+          currentIsCountable && step && step.solution.length
+            ? progress / step.solution.length
+            : 0,
       };
     }
     // Samo TRAILING niz puzzle-koraka na KRAJU niza (npr. Rook/Bishop-ovih 5
@@ -479,7 +625,7 @@ export const DailyLessonActivity = ({
   }, [lesson, step, progress, isStepComplete]);
 
   const sendCoachMessage = useCallback(
-    (content: string, kind?: 'task') =>
+    (content: string, kind?: 'task' | 'wrongQuizAnswer') =>
       enqueueMovexUpdate(() =>
         dispatch({
           type: 'loadedChapter:writeMessage',
@@ -534,8 +680,11 @@ export const DailyLessonActivity = ({
     setQuizHighlightSquares(null);
     setQuizHighlightArrows(null);
     setMarkedSquares(new Set());
+    setWrongMarkedSquare(null);
+    setRevealAnimation(null);
     if (!opts?.keepHintArrow) {
-      if (hintArrowTimeoutRef.current) clearTimeout(hintArrowTimeoutRef.current);
+      if (hintArrowTimeoutRef.current)
+        clearTimeout(hintArrowTimeoutRef.current);
       setHintArrowMap(null);
       setHintPieceSquare(null);
     }
@@ -585,6 +734,44 @@ export const DailyLessonActivity = ({
   const beginStep = useCallback(
     async (target: LessonStep) => {
       await sendStepIntro(target);
+
+      // LessonStep.anyLegalMoveStreak/exactMoveUci/raceSolution (Day 30
+      // "Graduation Checkpoint 1" Part A) - svez pocetak za svaki ovakav
+      // korak: streak na 0, skor koraka na pun 1.0, figura koja se testira
+      // POCINJE na drillPieceSquare (menja se kako se igra).
+      if (
+        target.kind === 'teach' &&
+        (target.anyLegalMoveStreak ||
+          target.exactMoveUci ||
+          target.raceSolution)
+      ) {
+        drillStreakRef.current = 0;
+        drillStepScoreRef.current = 1;
+        drillMovesPlayedRef.current = 0;
+        drillCurrentSquareRef.current = target.drillPieceSquare ?? null;
+      }
+      // LessonStep.scoredMarkSquares/quizScoredRetry (Day 31 "Graduation
+      // Test 2" Q13/Q14) - isti "skor koraka pocinje na 1.0" princip, deli
+      // isti ref (drillStepScoreRef) - ova dva tipa koraka se nikad ne
+      // preklapaju sa anyLegalMoveStreak/exactMoveUci/raceSolution (razliciti
+      // `kind`), pa je bezbedno deliti.
+      if (
+        (target.kind === 'markSquares' && target.scoredMarkSquares) ||
+        (target.kind === 'quiz' && target.quizScoredRetry)
+      ) {
+        drillStepScoreRef.current = 1;
+      }
+
+      // LessonStep.requireLegalCheck (Day 26 "Perpetual Check") - "zagreva"
+      // minimax memo-kes ODMAH pri ucitavanju koraka (fire-and-forget, posle
+      // intro poruke je vec poslata), ne tek na prvi potez/Hint klik - tako
+      // je prvi stvaran potez/Hint vec brz umesto da korisnik ceka 1-2s bas
+      // kad pokusa nesto da odigra. setTimeout(0) da ne blokira ovaj isti
+      // render ciklus (intro tekst stigne na ekran prvo).
+      if (target.kind === 'puzzle' && target.requireLegalCheck) {
+        const totalRounds = Math.ceil(target.solution.length / 2);
+        setTimeout(() => findSafeCheckMove(target.fen, totalRounds), 0);
+      }
 
       // kind:'freePlay' (Day 14 "Your First Game") - prava partija, ne
       // skriptovana vezba. Samo reset brojaca za novu partiju (i prvi put i
@@ -651,6 +838,27 @@ export const DailyLessonActivity = ({
         applyBoardHighlight(target.quizBoardHighlight);
       }
 
+      // LessonStep.playMoveOnLoad (Day 27 "Chess Notation" Part C) - tabla
+      // POCINJE sa figurom na POLAZNOM polju (`target.fen`) i odigra STVARAN
+      // potez do odredista CIM se korak ucita, pre bilo kog odgovora -
+      // korisnica trazila da vidi pravi potez (npr. konj Ng1-f3), ne samo
+      // gotovu poziciju, da pitanje "kako bi ovo zapisao" opisuje ono sto je
+      // STVARNO video. Mala pauza pre poteza (isti princip kao protivnikov
+      // odgovor u puzzle koracima) da polazna pozicija stigne da se vidi.
+      if (target.kind === 'quiz' && target.playMoveOnLoad) {
+        await new Promise<void>((resolve) =>
+          setTimeout(resolve, OPPONENT_REPLY_DELAY_MS)
+        );
+        const introMove = uciToMove(target.playMoveOnLoad);
+        moveSoundRef.current?.play().catch(() => {});
+        await enqueueMovexUpdate(() =>
+          dispatch({
+            type: 'loadedChapter:addDailyLessonMove',
+            payload: { move: { from: introMove.from, to: introMove.to } },
+          })
+        );
+      }
+
       // Strelica do resenja vidljiva ODMAH, bez cekanja Hint klika (npr.
       // Day 12 "Bring It On!" - vodjeno izvodjenje, ne testiranje znanja).
       if (
@@ -689,7 +897,10 @@ export const DailyLessonActivity = ({
         (target.kind === 'teach' || target.kind === 'puzzle') &&
         target.highlightRookRanks
       ) {
-        const rookGroups = rookRankSquaresByRook(target.fen, target.orientation);
+        const rookGroups = rookRankSquaresByRook(
+          target.fen,
+          target.orientation
+        );
         setRookRankSquares(
           rookGroups.flatMap(({ rankSquares }) =>
             rankSquares.map((sq) => ({
@@ -701,7 +912,11 @@ export const DailyLessonActivity = ({
       }
 
       const firstUci = target.solution[0];
-      if (target.kind === 'puzzle' && firstUci && firstUci !== ANY_LEGAL_REPLY) {
+      if (
+        target.kind === 'puzzle' &&
+        firstUci &&
+        firstUci !== ANY_LEGAL_REPLY
+      ) {
         const { from } = uciToMove(firstUci);
         const mover = pieceAt(target.fen, from);
         if (mover && mover.color !== target.orientation) {
@@ -715,6 +930,18 @@ export const DailyLessonActivity = ({
             firstUci,
             withCounters({ progress: 1, popup: false, completed: false })
           );
+          // Bag (Day 29 "Caro-Kann", orientation:'b') - showSolutionArrowUpfront
+          // iznad je vec nacrtala strelicu za solution[0], ALI to je bas
+          // potez koji je OVDE upravo auto-odigrao protivnik, ne korisnikov.
+          // Korisnik ostaje bez strelice za SVOJ stvarni prvi potez
+          // (solution[1]) dok ne pogodi slucajno ili ne zatrazi Hint -
+          // "vodjenje" se prekida pre nego sto i pocne. Ponovo nacrtaj
+          // strelicu OVDE, sada za solution[1] - isti princip kao re-arm
+          // logika u onMove za svaki sledeci potez.
+          if (target.showSolutionArrowUpfront) {
+            const nextUci = target.solution[1];
+            if (nextUci) setHintArrowMap(buildSolutionArrow(nextUci));
+          }
         }
       }
       setIsBusy(false);
@@ -732,7 +959,11 @@ export const DailyLessonActivity = ({
   /** Ucitava zadati korak na tablu i resetuje napredak u njemu. */
   const loadStep = useCallback(
     async (stepIndex: number, lessonPatch: Partial<dailyLesson> = {}) => {
-      const target = lesson?.steps[stepIndex];
+      // Cita ref-a DIREKTNO (ne zatvoreni `steps`) - onRepeatLesson gore
+      // mutira shuffledStepsRef SINHRONO, TACNO pre ovog poziva; zatvoreni
+      // `steps` bi i dalje bio stara (pred-reroll) vrednost iz ovog render-a
+      // dok React ne zavrti sledeci render.
+      const target = (shuffledStepsRef.current?.steps ?? steps)[stepIndex];
       if (!target) return;
 
       clearFeedback();
@@ -751,6 +982,8 @@ export const DailyLessonActivity = ({
       // da su hintovi vec potroseni na sasvim novom primeru).
       progressRef.current = 0;
       hintsRef.current = 0;
+      hintBaseRef.current = 0;
+      setHintBase(0);
       errorsRef.current = 0;
       quizAnsweredCorrectlyRef.current = false;
       // Ukupni brojaci se diraju samo kad ih poziv eksplicitno resetuje
@@ -760,6 +993,7 @@ export const DailyLessonActivity = ({
         totalHintsRef.current = lessonPatch.totalHints;
       if (lessonPatch.totalErrors !== undefined)
         totalErrorsRef.current = lessonPatch.totalErrors;
+      if (lessonPatch.score !== undefined) scoreRef.current = lessonPatch.score;
       stepKeyRef.current = `${lessonState.lessonId}:${stepIndex}`;
       stepIndexRef.current = stepIndex;
       awaitingResetRef.current = true;
@@ -798,14 +1032,7 @@ export const DailyLessonActivity = ({
 
       await beginStep(target);
     },
-    [
-      lesson,
-      lessonState,
-      dispatch,
-      clearFeedback,
-      withCounters,
-      beginStep,
-    ]
+    [steps, lessonState, dispatch, clearFeedback, withCounters, beginStep]
   );
 
   const onDismissPreStepIntro = useCallback(() => {
@@ -813,9 +1040,16 @@ export const DailyLessonActivity = ({
     if (step) beginStep(step);
   }, [step, beginStep]);
 
+  const onNextStep = useCallback(() => {
+    if (isLastStep) return;
+    // Hintovi i greske su po koraku (svaki FEN nosi svoja 2 hinta), ne
+    // kumulativni za celu lekciju - moraju se resetovati na svaki novi korak.
+    return loadStep(stepIndexRef.current + 1, { errors: 0, hints: 0 });
+  }, [isLastStep, loadStep]);
+
   const onWrongMove = useCallback(
-    async (move: ShortChessMove) => {
-      clearFeedback({ keepHintArrow: hintsRef.current >= MAX_HINTS_PER_STEP });
+    async (move: ShortChessMove, otherTypeMessage?: string) => {
+      clearFeedback({ keepHintArrow: hintsThisMove() >= MAX_HINTS_PER_STEP });
       setWrongSquare(move.to);
       wrongMoveTimeoutRef.current = setTimeout(() => setWrongSquare(null), 700);
 
@@ -828,9 +1062,35 @@ export const DailyLessonActivity = ({
       // polje - ne postoji jedan unapred odredjen potez da bi se njegov
       // pocetni kvadrat ovde oznacio, a i ne bismo smeli da ga nagovestimo.
       if (step && !step.goalCondition) {
+        // LessonStep.requireLegalCheck (Day 26) - "from" nije u solution-u
+        // (ANY_LEGAL_CHECK marker, ne UCI) - figura koja igra je UVEK dama,
+        // trazi se na trenutnoj tabli umesto citanja iz resenja.
         const from = step.unorderedTargets
           ? resolveNextUnorderedTarget(currentChapter.displayFen, step)?.from
-          : uciToMove(step.solution[progressRef.current] ?? '').from;
+          : step.requireLegalCheck
+          ? (() => {
+              try {
+                const board = new Chess(currentChapter.displayFen).board();
+                for (const row of board) {
+                  for (const sq of row) {
+                    if (
+                      sq &&
+                      sq.type === 'q' &&
+                      sq.color === step.orientation
+                    ) {
+                      return sq.square as Square;
+                    }
+                  }
+                }
+              } catch {
+                // ignore
+              }
+              return undefined;
+            })()
+          : resolveSolutionMove(
+              currentChapter.displayFen,
+              step.solution[progressRef.current] ?? ''
+            )?.from;
         if (from) {
           const targets = pieceLegalTargets(currentChapter.displayFen, from);
           // Ostaje na tabli dok korisnik ne odigra sledeci potez (tacan ili
@@ -866,7 +1126,9 @@ export const DailyLessonActivity = ({
       // nego i pogresne poteze na tabli (teach/puzzle, ukljucujuci
       // goalCondition korake). Bez ovoga Day 9 Part B ("nadji mat/pat sam")
       // bi uvecavao footer brojac a traku ostavljao zelenu.
-      setWrongQuizSteps((prev) => new Set(prev).add(stepIndexRef.current));
+      setWrongQuizSteps((prev) =>
+        new Set(prev).add(countableIndexOf(stepIndexRef.current))
+      );
 
       await enqueueMovexUpdate(() =>
         dispatch({
@@ -876,7 +1138,26 @@ export const DailyLessonActivity = ({
         })
       );
       if (step) {
-        if (step.hintTextAlways) {
+        // step.otherTypeMoves (Day 21 "Opposition") - potez je PREPOZNAT
+        // kao svoja sopstvena kategorija (npr. opozicija, samo pogresna
+        // vrsta), ne generican promasaj - salje se TACNO napisana poruka,
+        // bez variranja (isti princip kao hintTextAlways).
+        if (otherTypeMessage) {
+          await sendCoachMessage(otherTypeMessage);
+        } else if (
+          step.requireExactPromotion &&
+          step.nonQueenPromotionText &&
+          move.promoteTo &&
+          move.promoteTo.toLowerCase() !== 'q'
+        ) {
+          // promocija u ne-damu je legalna, ali ovde je samo dama tacna
+          await sendCoachMessage(step.nonQueenPromotionText);
+        } else if (
+          step.wrongCaptureText &&
+          pieceAt(currentChapter.displayFen, move.to)
+        ) {
+          await sendCoachMessage(step.wrongCaptureText);
+        } else if (step.hintTextAlways) {
           await sendCoachMessage(step.hintText);
         } else {
           const lastContent =
@@ -891,6 +1172,7 @@ export const DailyLessonActivity = ({
     [
       applyBoardHighlight,
       clearFeedback,
+      countableIndexOf,
       currentChapter.displayFen,
       currentChapter.messages,
       dispatch,
@@ -909,8 +1191,10 @@ export const DailyLessonActivity = ({
   // tako da se figura vizuelno vraca kao i kod pravog pogresnog poteza.
   const onNearMissMove = useCallback(
     async (alt: NonNullable<LessonStep['altSolutions']>[number]) => {
-      clearFeedback({ keepHintArrow: hintsRef.current >= MAX_HINTS_PER_STEP });
-      await sendCoachMessage(alt.retryMessage ?? step?.hintText ?? 'Try again!');
+      clearFeedback({ keepHintArrow: hintsThisMove() >= MAX_HINTS_PER_STEP });
+      await sendCoachMessage(
+        alt.retryMessage ?? step?.hintText ?? 'Try again!'
+      );
     },
     [clearFeedback, sendCoachMessage, step]
   );
@@ -951,7 +1235,11 @@ export const DailyLessonActivity = ({
         // promotion dijalog salje ispravno veliko/malo slovo PO BOJI (npr.
         // 'Q' za belog), pa se ovde mora eksplicitno spustiti na malo slovo,
         // inace chess.js baca "Invalid move" (video se kod f7-g8=Q).
-        promotion: (move.promoteTo ?? 'q').toLowerCase() as 'q' | 'r' | 'b' | 'n',
+        promotion: (move.promoteTo ?? 'q').toLowerCase() as
+          | 'q'
+          | 'r'
+          | 'b'
+          | 'n',
       });
 
       if (chess.isGameOver()) {
@@ -989,7 +1277,11 @@ export const DailyLessonActivity = ({
         await enqueueMovexUpdate(() =>
           dispatch({
             type: 'loadedChapter:setDailyLesson',
-            payload: withCounters({ progress: 1, popup: true, completed: true }),
+            payload: withCounters({
+              progress: 1,
+              popup: true,
+              completed: true,
+            }),
           })
         );
         setIsBusy(false);
@@ -1081,7 +1373,12 @@ export const DailyLessonActivity = ({
         const why = illegalMoveReason(fenBeforeMove, move.from, move.to);
         if (why) {
           sendCoachMessage(
-            illegalMoveMessage(why.reason, why.piece, move.to, targets.length > 0)
+            illegalMoveMessage(
+              why.reason,
+              why.piece,
+              move.to,
+              targets.length > 0
+            )
           );
         }
         return;
@@ -1241,6 +1538,243 @@ export const DailyLessonActivity = ({
         return;
       }
 
+      // LessonStep.anyLegalMoveStreak/exactMoveUci/raceSolution (Day 30
+      // "Graduation Checkpoint 1" Part A) - potpuno odvojena grana, NE
+      // poredi se sa solution[] (ovde samo placeholder duzine). Potez sa
+      // BILO KOG drugog polja (npr. dummy kralj dodat samo zbog FEN
+      // validacije) se tiho ignorise - nije deo zadatka.
+      if (
+        step?.kind === 'teach' &&
+        progressRef.current < step.solution.length &&
+        (step.anyLegalMoveStreak || step.exactMoveUci || step.raceSolution)
+      ) {
+        if (move.from !== drillCurrentSquareRef.current) return;
+
+        const deduction = step.scoreDeduction ?? 0.25;
+        const chess = new Chess(currentChapter.displayFen);
+        const legalMoves = chess.moves({
+          square: move.from as Square,
+          verbose: true,
+        });
+        const matchedLegal = legalMoves.find(
+          (m) =>
+            m.to === move.to &&
+            (!move.promoteTo ||
+              (m.promotion ?? '').toLowerCase() ===
+                move.promoteTo.toLowerCase())
+        );
+        // Bag prijavljen: ove pozicije imaju dummy kraljeve dodati SAMO
+        // zbog FEN validacije (vidi komentar uz DAY_30 u lessonDatabase.ts).
+        // Pravi sah NIKAD ne dozvoljava da se kralj pojede (korisnik bi vec
+        // bio u satu/matu pre te pozicije) - ali chess.js, kad se pozicija
+        // UCITA direktno (ne stigne kroz pravu partiju), generise "uzmi
+        // kralja" kao sasvim obican legalan potez klizece figure! Bez ove
+        // provere, pokusaj da se pojede kralj bi se pogresno RACUNAO kao
+        // tacan potez (ukljucujuci sam kralj kao "odigranu figuru"). Uvek
+        // tretiraj kao gresku, bez obzira sta chess.js kaze.
+        const isKingCapture = chess.get(move.to as Square)?.type === 'k';
+        const isLegal = !!matchedLegal && !isKingCapture;
+        const wrongMessage = isKingCapture
+          ? "That's the king. You can't capture it, not even here."
+          : step.hintText;
+
+        const applyDrillMove = (forPromotion?: boolean) => {
+          startNewMoveHints();
+          return enqueueMovexUpdate(() =>
+            dispatch({
+              type: 'loadedChapter:addDailyLessonMove',
+              payload: {
+                move: {
+                  from: move.from,
+                  to: move.to,
+                  ...(move.promoteTo ? { promoteTo: move.promoteTo } : {}),
+                },
+                // Uvek korisnikov red opet - nema "protivnika" u ovim
+                // izolovanim vezbama, svaki potez je njegov.
+                forceTurn: step.orientation,
+                lesson: withCounters({}),
+              },
+            })
+          );
+        };
+
+        const finalizeDrillStep = async (doneMessage?: string) => {
+          scoreRef.current += drillStepScoreRef.current;
+          progressRef.current = step.solution.length;
+          stepDoneSoundRef.current?.play().catch(() => {});
+          await enqueueMovexUpdate(() =>
+            dispatch({
+              type: 'loadedChapter:setDailyLesson',
+              payload: withCounters({ progress: step.solution.length }),
+            })
+          );
+          if (doneMessage ?? step.doneText) {
+            await sendCoachMessage(doneMessage ?? step.doneText);
+          }
+          if (step.celebrate || isLastStep) {
+            await enqueueMovexUpdate(() =>
+              dispatch({
+                type: 'loadedChapter:setDailyLesson',
+                payload: withCounters({
+                  progress: step.solution.length,
+                  popup: true,
+                  completed: isLastStep,
+                }),
+              })
+            );
+          }
+        };
+
+        const flashWrong = async (message: string) => {
+          clearFeedback({
+            keepHintArrow: hintsThisMove() >= MAX_HINTS_PER_STEP,
+          });
+          setWrongSquare(move.to);
+          wrongMoveTimeoutRef.current = setTimeout(
+            () => setWrongSquare(null),
+            700
+          );
+          wrongMoveSoundRef.current!.currentTime = 0;
+          wrongMoveSoundRef.current?.play().catch(() => {});
+          const nextErrors = errorsRef.current + 1;
+          errorsRef.current = nextErrors;
+          totalErrorsRef.current += 1;
+          // Bag prijavljen: ovaj korak je imao bar jedan pogresan/ilegalan
+          // pokusaj, ali se NIKAD nije dodavao u wrongQuizSteps (za razliku
+          // od onWrongMove/onSelectQuizAnswer/finalizeMarkAttempt, koji svi
+          // ovo rade) - segment na traci je zato ostajao zelen cak i kad je
+          // korisnica pogresila usput. Isti countableIndexOf princip kao
+          // svuda drugde.
+          setWrongQuizSteps((prev) =>
+            new Set(prev).add(countableIndexOf(stepIndexRef.current))
+          );
+          await enqueueMovexUpdate(() =>
+            dispatch({
+              type: 'loadedChapter:setDailyLesson',
+              payload: withCounters({ progress: progressRef.current }),
+            })
+          );
+          if (message) await sendCoachMessage(message);
+        };
+
+        // ---------- Q6/Q7 (Day 30), Q5/Q6 (Day 31) stil: jedan od unapred
+        // odredjenih tacnih poteza (jedan string ili VISE prihvatljivih) ----------
+        if (step.exactMoveUci) {
+          const acceptedUcis = Array.isArray(step.exactMoveUci)
+            ? step.exactMoveUci
+            : [step.exactMoveUci];
+          const isTarget = acceptedUcis.some((uci) =>
+            movesMatch(uci, move, true)
+          );
+          if (isLegal && isTarget) {
+            await applyDrillMove();
+            await finalizeDrillStep();
+          } else {
+            drillStepScoreRef.current = Math.max(
+              0.25,
+              drillStepScoreRef.current - deduction
+            );
+            await flashWrong(wrongMessage);
+          }
+          return;
+        }
+
+        // ---------- Q8 stil: trka do promocije ----------
+        // Korisnica eksplicitno trazila STROZE ponasanje od originalnog
+        // "bilo koji legalan potez, penal na kraju za spori put": svako
+        // odstupanje od raceSolution (spor prvi potez umesto dvopoljnog
+        // skoka, promocija u bilo sta osim dame) se sad ODBIJA - potez se NE
+        // primenjuje, pesak ostaje gde je bio, penal + poruka, korisnik
+        // mora da proba TACNO taj potez ponovo. Isti princip kao Day 19
+        // "Pawn Promotion" (requireExactPromotion), samo pod ovim sistemom
+        // bodovanja (movesMatch odavde ne koristi nikakvu drugu potvrdu).
+        if (step.raceSolution) {
+          const expectedUci = step.raceSolution[drillMovesPlayedRef.current];
+          const isExactMatch =
+            !!expectedUci && movesMatch(expectedUci, move, true);
+          if (isExactMatch) {
+            drillMovesPlayedRef.current += 1;
+            drillCurrentSquareRef.current = move.to;
+            await applyDrillMove(true);
+            if (drillMovesPlayedRef.current >= step.raceSolution.length) {
+              await finalizeDrillStep();
+            } else {
+              progressRef.current = Math.min(
+                drillMovesPlayedRef.current,
+                step.solution.length
+              );
+              await enqueueMovexUpdate(() =>
+                dispatch({
+                  type: 'loadedChapter:setDailyLesson',
+                  payload: withCounters({ progress: progressRef.current }),
+                })
+              );
+              moveSoundRef.current?.play().catch(() => {});
+            }
+          } else {
+            drillStepScoreRef.current = Math.max(
+              0.25,
+              drillStepScoreRef.current - deduction
+            );
+            // Specificnija poruka kad je u pitanju TACNO polje/krajnja tacka
+            // (samo pogresna brzina/promocija), generican fallback inace.
+            const isSameDestinationWrongPromo =
+              isLegal &&
+              expectedUci &&
+              `${move.from}${move.to}` === expectedUci.slice(0, 4) &&
+              !!move.promoteTo &&
+              move.promoteTo.toLowerCase() !== (expectedUci[4] ?? 'q');
+            const isSlowFirstStep =
+              isLegal &&
+              drillMovesPlayedRef.current === 0 &&
+              move.to[1] !== expectedUci?.[3];
+            const message = isSameDestinationWrongPromo
+              ? "That works, but you've got a stronger piece waiting. Promote to a queen instead."
+              : isSlowFirstStep
+              ? "That's not the fastest start. From the starting square, you can push two. Get to a queen as fast as you can."
+              : wrongMessage;
+            await flashWrong(message);
+          }
+          return;
+        }
+
+        // ---------- Q1-5 stil: N legalnih poteza zaredom ----------
+        if (step.anyLegalMoveStreak) {
+          if (isLegal) {
+            drillCurrentSquareRef.current = move.to;
+            drillStreakRef.current += 1;
+            await applyDrillMove();
+            if (drillStreakRef.current >= step.anyLegalMoveStreak) {
+              progressRef.current = step.solution.length;
+              await finalizeDrillStep();
+            } else {
+              progressRef.current = drillStreakRef.current;
+              await enqueueMovexUpdate(() =>
+                dispatch({
+                  type: 'loadedChapter:setDailyLesson',
+                  payload: withCounters({ progress: progressRef.current }),
+                })
+              );
+              moveSoundRef.current?.play().catch(() => {});
+            }
+          } else {
+            // Korisnica prijavila: brojac se ranije resetovao na 0 na SVAKI
+            // pogresan/ilegalan pokusaj, pa je greska usred vezbe znala da
+            // trazi VISE OD 3 ukupna uspesna poteza (3 NOVA zaredom POSLE
+            // greske, ne 3 ukupno). Trazeno ponasanje: greska KOSTA POENE
+            // (penal ispod), ali NE resetuje koliko je poteza vec uspesno
+            // odigrano - "3 ukupno, cak i pored greske". drillStreakRef
+            // (i progress) se NAMERNO ne diraju ovde.
+            drillStepScoreRef.current = Math.max(
+              0.25,
+              drillStepScoreRef.current - deduction
+            );
+            await flashWrong(wrongMessage);
+          }
+        }
+        return;
+      }
+
       // Kviz korak - tabla je samo ambijent, nema sta da se odigra. MORA pre
       // donjeg "currentProgress >= solution.length" izlaza: "watch & learn"
       // koraci (bez quizOptions) vec imaju progress postavljen na kraj cim se
@@ -1265,7 +1799,29 @@ export const DailyLessonActivity = ({
       }
 
       const currentProgress = progressRef.current;
-      if (!step || currentProgress >= step.solution.length) return;
+      if (!step) return;
+      // Korak je resen, tabla ceka Next/Start - objasni umesto tihog vracanja figure
+      if (currentProgress >= step.solution.length) {
+        if (step.kind !== 'teach' && step.kind !== 'puzzle') return;
+        setNudgeNext(true);
+        if (!doneMoveNudgedRef.current) {
+          doneMoveNudgedRef.current = true;
+          await sendCoachMessage(
+            `Nothing to play here. Click **${
+              step.nextButtonText ?? 'Next'
+            }** to keep going.`
+          );
+        }
+        return;
+      }
+
+      // KING_APPROACH (Day 20) - svaki korak kralja ka cilju je tacan, osim pata
+      const approachTarget = kingApproachTarget(step.solution[currentProgress]);
+      const approachMove = approachTarget
+        ? kingApproachMoves(currentChapter.displayFen, approachTarget).find(
+            (m) => m.move.from === move.from && m.move.to === move.to
+          )
+        : undefined;
 
       // goalCondition (Day 9, "nadji mat/pat u jednom") - potez se ne poredi
       // sa fiksnim kvadratom, nego se STVARNO odigra kroz chess.js i proveri
@@ -1287,8 +1843,10 @@ export const DailyLessonActivity = ({
                   | 'n',
               });
               if (!played) return false;
-              if (step.goalCondition === 'checkmate') return chess.isCheckmate();
-              if (step.goalCondition === 'stalemate') return chess.isStalemate();
+              if (step.goalCondition === 'checkmate')
+                return chess.isCheckmate();
+              if (step.goalCondition === 'stalemate')
+                return chess.isStalemate();
               // denyCastleKingside/denyCastleQueenside (Day 15) - potez je
               // vec odigran, red je na protivniku (chess.js sam to uradi),
               // pa se ovde proverava da li JOS uvek ima legalan O-O/O-O-O
@@ -1305,16 +1863,31 @@ export const DailyLessonActivity = ({
               return false;
             }
           })()
+        : approachTarget
+        ? !!approachMove && !approachMove.stalemate
         : step.unorderedTargets
-          ? isValidUnorderedMove(currentChapter.displayFen, step, move)
-          : movesMatch(
-              step.solution[currentProgress] ?? '',
-              move,
-              step.requireExactPromotion
-            ) ||
-            (step.altMoves?.[currentProgress] ?? []).some((uci) =>
-              movesMatch(uci, move, step.requireExactPromotion)
-            );
+        ? isValidUnorderedMove(currentChapter.displayFen, step, move)
+        : step.requireLegalCheck &&
+          step.solution[currentProgress] === ANY_LEGAL_CHECK
+        ? // LessonStep.requireLegalCheck (Day 26 "Perpetual Check") -
+          // NIJE dovoljno da potez bude BILO KOJI legalan sah - mora
+          // biti PROVERENO bezbedan (isSafeCheckMove, pravi minimax),
+          // inace korisnik moze da "sahira" na nasumicno polje koje ga
+          // vodi u cistu poziciju bez daljeg saha - to tehnicki JESTE
+          // sah, ali nije dobar potez za ovu vezbu.
+          isSafeCheckMove(
+            currentChapter.displayFen,
+            `${move.from}${move.to}`,
+            Math.max(1, Math.ceil((step.solution.length - currentProgress) / 2))
+          )
+        : movesMatch(
+            step.solution[currentProgress] ?? '',
+            move,
+            step.requireExactPromotion
+          ) ||
+          (step.altMoves?.[currentProgress] ?? []).some((uci) =>
+            movesMatch(uci, move, step.requireExactPromotion)
+          );
       // Potez koji TEHNICKI zadovoljava goalCondition (npr. i jeste sah-mat)
       // ali je oznacen requireRetry (npr. Day 12 "nauci TACNO Kiss of Death",
       // ne bilo koji mat damom+kraljem) - ohrabrujuca poruka, potez se NE
@@ -1330,8 +1903,57 @@ export const DailyLessonActivity = ({
         return;
       }
 
+      // step.illegalMoveText (Day 28/29) - nelegalan potez nije greska: bez X-a, zvuka i roze trake
+      if (
+        !isCorrect &&
+        step.illegalMoveText &&
+        !pieceLegalTargets(currentChapter.displayFen, move.from).includes(
+          move.to
+        )
+      ) {
+        clearFeedback({ keepHintArrow: true });
+        await sendCoachMessage(step.illegalMoveText);
+        return;
+      }
+
       if (!isCorrect) {
-        await onWrongMove(move);
+        // step.otherTypeMoves (Day 21 "Opposition") - potez koji ne prolazi
+        // korak, ali JE prepoznat kao sopstvena kategorija (vidi definiciju
+        // polja) - sopstvena poruka umesto generickog hintText-a.
+        // step.unsafeCheckText (Day 26 "Perpetual Check") - potez JESTE sah
+        // (legalan), samo nije PROVEREN kao bezbedan - drugacija poruka od
+        // standardnog hintText-a (koji je za poteze koji uopste nisu sah).
+        const isUnsafeButRealCheck =
+          step.requireLegalCheck &&
+          step.solution[currentProgress] === ANY_LEGAL_CHECK &&
+          step.unsafeCheckText &&
+          (() => {
+            try {
+              const chess = new Chess(currentChapter.displayFen);
+              const played = chess.move({
+                from: move.from,
+                to: move.to,
+                promotion: (move.promoteTo ?? 'q').toLowerCase() as
+                  | 'q'
+                  | 'r'
+                  | 'b'
+                  | 'n',
+              });
+              return !!played && chess.inCheck();
+            } catch {
+              return false;
+            }
+          })();
+        const otherTypeMessage = isUnsafeButRealCheck
+          ? step.unsafeCheckText
+          : approachMove?.stalemate
+          ? step.stalemateText
+          : approachTarget
+          ? step.kingApproachWrongText
+          : step.otherTypeMoves?.[currentProgress]?.find((m) =>
+              movesMatch(m.uci, move)
+            )?.message;
+        await onWrongMove(move, otherTypeMessage);
         return;
       }
 
@@ -1396,6 +2018,7 @@ export const DailyLessonActivity = ({
       const progressAfterUserMove = currentProgress + 1;
       // Odmah pomeramo lokalni napredak - sledeci potez ne sme da ceka Movex.
       progressRef.current = progressAfterUserMove;
+      startNewMoveHints();
       const lessonAfterUserMove: dailyLesson = withCounters({
         progress: progressAfterUserMove,
       });
@@ -1465,13 +2088,35 @@ export const DailyLessonActivity = ({
         // ostaje pozicija pre poteza - resolveOpponentReply ce vratiti null
       }
 
+      // step.moveHighlights (npr. Day 17 strelica saha top -> kralj) - crta se
+      // ODMAH posle korisnikovog poteza, dok kralj JOS stoji na tom polju, i
+      // brise se kad protivnik odgovori. Ranije se crtala tek posle odgovora,
+      // pa je pokazivala na polje koje je kralj upravo napustio.
+      const plyHighlight = step.moveHighlights?.[currentProgress];
+      const plyHighlightBeforeReply =
+        step.kind === 'puzzle' && !!replyUci && !!plyHighlight;
+
       if (step.kind === 'puzzle' && replyUci) {
+        if (plyHighlightBeforeReply && plyHighlight) {
+          applyBoardHighlight(plyHighlight);
+          await new Promise<void>((resolve) =>
+            setTimeout(resolve, MOVE_HIGHLIGHT_HOLD_MS)
+          );
+        }
         progressRef.current = progressAfterUserMove + 1;
         await playOpponentReply(
           fenAfterUserMove,
           replyUci,
           withCounters({ progress: progressAfterUserMove + 1 })
         );
+        if (
+          plyHighlightBeforeReply &&
+          plyHighlight &&
+          !step.keepMoveHighlights
+        ) {
+          if (plyHighlight.arrows?.length) setQuizHighlightArrows(null);
+          if (plyHighlight.squares?.length) setQuizHighlightSquares(null);
+        }
       }
 
       // Kontinuirana vodjena vezba sa VISE poteza u ISTOM koraku (npr. Day 13
@@ -1509,7 +2154,7 @@ export const DailyLessonActivity = ({
           move.promoteTo.toLowerCase() !== 'q' &&
           step.nonQueenPromotionText
             ? step.nonQueenPromotionText
-            : (altSolution?.doneText ?? step.doneText);
+            : altSolution?.doneText ?? step.doneText;
         // Board highlight (npr. Day 12 "box" koji dama drzi oko kralja) -
         // ovde se prikazuje POSLE cele sekvence (ukljucujuci protivnikov
         // auto-odgovor), ne odmah posle korisnikovog poteza - za
@@ -1549,8 +2194,8 @@ export const DailyLessonActivity = ({
         // belih poteza u ISTOM multi-move puzzle koraku, svaki sa sopstvenim
         // tekstom umesto ponovljenog successText) - uvek tacno kako je
         // napisano, bez variranja (isti princip kao successTextAlways).
-        if (step.moveHighlights?.[currentProgress]) {
-          applyBoardHighlight(step.moveHighlights[currentProgress]);
+        if (plyHighlight && !plyHighlightBeforeReply) {
+          applyBoardHighlight(plyHighlight);
         }
         if (step.moveExplanations?.[currentProgress]) {
           await sendCoachMessage(step.moveExplanations[currentProgress]);
@@ -1587,6 +2232,7 @@ export const DailyLessonActivity = ({
       isLastStep,
       withCounters,
       applyBoardHighlight,
+      countableIndexOf,
     ]
   );
 
@@ -1614,7 +2260,7 @@ export const DailyLessonActivity = ({
       // odgovor (vidi nize), pa bi progressRef vec bio na kraju posle PRVOG
       // pokusaja, bez obzira na tacnost. Ponovni pokusaj se blokira samo kad
       // je VEC definitivno odgovoreno TACNO (quizAnsweredCorrectlyRef).
-      if (step.quizRetryOnWrong) {
+      if (step.quizRetryOnWrong || step.quizScoredRetry) {
         if (quizAnsweredCorrectlyRef.current) return;
       } else if (progressRef.current >= step.solution.length) {
         return;
@@ -1624,9 +2270,40 @@ export const DailyLessonActivity = ({
       (isCorrect ? stepDoneSoundRef : wrongMoveSoundRef).current
         ?.play()
         .catch(() => {});
+      // Lesson.graduationTest - tacan odgovor dodaje poene, jedan pokusaj
+      // (Day 30 Part B, flat 1 poen) ILI frakcioni skor koraka (Day 31 Q14
+      // "quizScoredRetry" - moze biti umanjen prethodnim pogresnim
+      // pokusajima, vidi grana ispod). Generican mehanizam.
+      if (lesson?.graduationTest && isCorrect) {
+        scoreRef.current += step.quizScoredRetry
+          ? drillStepScoreRef.current
+          : 1;
+      }
+      // Day 27 "Chess Notation" - kviz opcije su cesto SAME polje/notacija
+      // (npr. 'e4'/'e5', 'Nf3'/'Nc7') - na netacan odgovor, obelezi NA TABLI
+      // koje polje korisnik pogresno izabrao (plavi okvir + crvena tackica,
+      // isti vizuelni jezik kao markSquares Part B). Preskace se kad netacna
+      // opcija cilja ISTO polje kao tacna (npr. 'a4' vs 'Pa4' - razlika je u
+      // notaciji, ne u polju, obelezavanje bi tu bilo pogresno/zbunjujuce).
+      // Generican mehanizam - ne samo za ovu lekciju, radi za svaki kviz
+      // ciji su quizOptions stringovi koji se zavrsavaju nazivom polja.
+      if (isCorrect) {
+        setWrongMarkedSquare(null);
+      } else if (step.quizOptions) {
+        const wrongSq = step.quizOptions[index]?.match(/[a-h][1-8]$/)?.[0];
+        const correctSq =
+          step.quizCorrectIndex != null
+            ? step.quizOptions[step.quizCorrectIndex]?.match(/[a-h][1-8]$/)?.[0]
+            : undefined;
+        if (wrongSq && wrongSq !== correctSq) {
+          setWrongMarkedSquare(wrongSq as Square);
+        }
+      }
       if (!isCorrect) {
         const stepIndex = stepIndexRef.current;
-        setWrongQuizSteps((prev) => new Set(prev).add(stepIndex));
+        setWrongQuizSteps((prev) =>
+          new Set(prev).add(countableIndexOf(stepIndex))
+        );
         // Netacan kviz odgovor racuna se u ukupan broj gresaka na kraju
         // lekcije (End Screen) - isti brojac kao pogresni potezi na tabli,
         // samo bez "pokusaj ponovo" (kviz je jedan pokusaj). Ako lekcija ima
@@ -1645,6 +2322,48 @@ export const DailyLessonActivity = ({
           totalErrorsRef.current += 1;
         }
 
+        // LessonStep.quizScoredRetry (Day 31 "Graduation Test 2" Q14) -
+        // netacan odgovor NE zatvara pitanje, ALI svaki pokusaj oduzima
+        // poene (floor 0.25) i prikazuje automatske crosshair strelice do
+        // tacnog polja (citano sa kraja tacne quizOptions opcije, npr. 'g5')
+        // - isti princip kao scoredMarkSquares (finalizeMarkAttempt).
+        if (step.quizScoredRetry) {
+          const deduction = step.scoreDeduction ?? 0.25;
+          drillStepScoreRef.current = Math.max(
+            0.25,
+            drillStepScoreRef.current - deduction
+          );
+          const correctSq =
+            step.quizCorrectIndex != null
+              ? step.quizOptions?.[step.quizCorrectIndex]?.match(
+                  /[a-h][1-8]$/
+                )?.[0]
+              : undefined;
+          if (correctSq) {
+            const crosshair = buildCrosshairArrows(correctSq);
+            applyBoardHighlight({
+              arrows: Object.values(crosshair).map(([from, to, color]) => ({
+                from,
+                to,
+                color: color ?? '#11C6D1',
+              })),
+            });
+          }
+          if (step.quizExplanationWrong) {
+            await sendCoachMessage(
+              step.quizExplanationWrong,
+              'wrongQuizAnswer'
+            );
+          }
+          await enqueueMovexUpdate(() =>
+            dispatch({
+              type: 'loadedChapter:setDailyLesson',
+              payload: withCounters({ progress: progressRef.current }),
+            })
+          );
+          return;
+        }
+
         // Day 15 Position 6 "Yes/No" trik - netacan odgovor NE zatvara
         // pitanje (dugmad se vracaju u WidgetPanel-u, korisnik moze da proba
         // ponovo), ALI "Got it!" se ODMAH otkljucava i na netacan odgovor -
@@ -1652,7 +2371,10 @@ export const DailyLessonActivity = ({
         // mora moci da ide dalje kad god hoce, ne samo kad konacno pogodi.
         if (step.quizRetryOnWrong) {
           if (step.quizExplanationWrong) {
-            await sendCoachMessage(step.quizExplanationWrong);
+            await sendCoachMessage(
+              step.quizExplanationWrong,
+              'wrongQuizAnswer'
+            );
           }
           // NAMERNO ne diramo progressRef.current ovde (ostaje 0) - samo
           // reaktivni lessonState.progress ide na kraj, da isStepComplete
@@ -1667,7 +2389,7 @@ export const DailyLessonActivity = ({
           );
           return;
         }
-      } else if (step.quizRetryOnWrong) {
+      } else if (step.quizRetryOnWrong || step.quizScoredRetry) {
         quizAnsweredCorrectlyRef.current = true;
       }
 
@@ -1684,6 +2406,22 @@ export const DailyLessonActivity = ({
       if (step.quizBoardHighlight) {
         applyBoardHighlight(step.quizBoardHighlight);
       }
+      // LessonStep.revealSquareAnimation (Day 27) - slovo+broj (+ opciono
+      // slovo figure, Part C) "spajanje" na TACNOM polju, i na tacan i na
+      // netacan odgovor. Polje se cita sa kraja tacne quizOptions opcije
+      // (npr. 'Nf3' -> 'f3', 'e4' -> 'e4'), slovo figure sa pocetka (npr.
+      // 'Nf3' -> 'N') - izostaje za pesacke poteze (nemaju slovo) i za Part
+      // A (naziv polja, ne potez).
+      if (
+        step.revealSquareAnimation &&
+        step.quizOptions &&
+        step.quizCorrectIndex != null
+      ) {
+        const correctOption = step.quizOptions[step.quizCorrectIndex];
+        const targetSq = correctOption?.match(/[a-h][1-8]$/)?.[0];
+        const pieceLetter = correctOption?.match(/^[KQRBN]/)?.[0];
+        if (targetSq) triggerRevealAnimation(targetSq, pieceLetter);
+      }
 
       // Day 15 Position 6 - posle TACNOG "Yes" odgovora, tabla sama odigra
       // rokadu da pokaze da je stvarno legalna, PRE Coach-ove poruke.
@@ -1698,11 +2436,34 @@ export const DailyLessonActivity = ({
         );
       }
 
+      // step.quizCorrectFeedbackPool / quizShowCorrectAnswerOnWrong (Day 23
+      // "Bridge" kviz) - generican fond/sablon umesto autorovane poruke po
+      // pitanju, vidi definicije polja u lessonDatabase.ts.
+      const correctAnswerText =
+        step.quizOptions && step.quizCorrectIndex != null
+          ? step.quizOptions[step.quizCorrectIndex]
+          : undefined;
       const explanation = isCorrect
-        ? step.quizExplanation
-        : (step.quizExplanationWrong ?? step.quizExplanation);
+        ? step.quizCorrectFeedbackPool?.length
+          ? pickVariedMessage(
+              step.quizExplanation ?? step.quizCorrectFeedbackPool[0],
+              currentChapter.messages[currentChapter.messages.length - 1]
+                ?.content,
+              step.quizCorrectFeedbackPool
+            )
+          : step.quizExplanation
+        : step.quizShowCorrectAnswerOnWrong && correctAnswerText
+        ? `The right answer: ${correctAnswerText}.`
+        : step.quizExplanationWrong ?? step.quizExplanation;
       if (explanation) {
-        await sendCoachMessage(explanation);
+        // Netacan odgovor - fiksna "Not quite right." oznaka ide ispred
+        // (vidi WRONG_ANSWER_LABEL u Conversation.tsx/TypewriterText.tsx,
+        // Message.kind u movex/types.ts) - zato ovde (i gore) poruka sama
+        // vise NE treba sopstveno "Not quite..." na pocetku, dupliralo bi se.
+        await sendCoachMessage(
+          explanation,
+          isCorrect ? undefined : 'wrongQuizAnswer'
+        );
       }
 
       if (step.celebrate || isLastStep) {
@@ -1716,16 +2477,124 @@ export const DailyLessonActivity = ({
             }),
           })
         );
+      } else if (isCorrect && step.autoAdvanceOnCorrect) {
+        // LessonStep.autoAdvanceOnCorrect (opt-in, vraceno za Day 30
+        // "Graduation Checkpoint 1" Part B - "immediate advance" na tacan
+        // odgovor, rucni Next ostaje na netacan). Day 27 ga NAMERNO ne
+        // koristi (korisnica tada trazila iskljucivo rucni Next kroz celu
+        // tu lekciju) - polje je generican opt-in, ne globalno ponasanje.
+        // Korisnica prijavila (Day 31, mnogo uzastopnih auto-advance pitanja
+        // zaredom): korak zna da "proguta" sledece pitanje bez da ga korisnik
+        // uopste vidi/odgovori. ZASTITA - zapamti IDENTITET koraka u trenutku
+        // zakazivanja (stepKeyRef), proveri DA LI JE JOS UVEK isti kad tajmer
+        // stvarno opali. Ako se korak vec promenio u medjuvremenu (npr. stigao
+        // je i vec odigran JOS jedan brz odgovor/drugi mehanizam koji je vec
+        // pomerio korak), ovaj zakazani poziv se tiho preskace umesto da
+        // preskoci korak na koji je korisnik u medjuvremenu stigao.
+        const scheduledStepKey = stepKeyRef.current;
+        setTimeout(() => {
+          if (stepKeyRef.current !== scheduledStepKey) return;
+          onNextStep();
+        }, 1100);
       }
     },
     [
       step,
       isLastStep,
+      onNextStep,
       withCounters,
       dispatch,
       sendCoachMessage,
       lesson,
       applyBoardHighlight,
+      currentChapter.messages,
+      countableIndexOf,
+      triggerRevealAnimation,
+    ]
+  );
+
+  /**
+   * LessonStep.quizMultiSelect (Day 31 "Graduation Test 2" Q2/Q3) - korisnik
+   * BIRA tacno `quizCorrectIndices.length` opcija (dugmad se toggle-uju u
+   * WidgetPanel-u, ovo se zove TEK kad je taj broj dostignut). Tacno samo
+   * ako izabrani skup TACNO odgovara `quizCorrectIndices` (sve-ili-nista) -
+   * jedan pokusaj, bez retry-ja, isti autoAdvanceOnCorrect/scoring princip
+   * kao standardan kviz.
+   */
+  const onSelectMultiQuizAnswer = useCallback(
+    async (selectedIndices: number[]) => {
+      if (!step || step.kind !== 'quiz' || !step.quizMultiSelect) return;
+      if (progressRef.current >= step.solution.length) return;
+
+      const correctSet = new Set(step.quizCorrectIndices ?? []);
+      const selectedSet = new Set(selectedIndices);
+      const isCorrect =
+        correctSet.size === selectedSet.size &&
+        [...correctSet].every((i) => selectedSet.has(i));
+      (isCorrect ? stepDoneSoundRef : wrongMoveSoundRef).current
+        ?.play()
+        .catch(() => {});
+      if (lesson?.graduationTest && isCorrect) {
+        scoreRef.current += 1;
+      }
+      if (!isCorrect) {
+        const stepIndex = stepIndexRef.current;
+        setWrongQuizSteps((prev) =>
+          new Set(prev).add(countableIndexOf(stepIndex))
+        );
+        errorsRef.current += 1;
+        totalErrorsRef.current += 1;
+      }
+
+      progressRef.current = step.solution.length;
+      await enqueueMovexUpdate(() =>
+        dispatch({
+          type: 'loadedChapter:setDailyLesson',
+          payload: withCounters({ progress: step.solution.length }),
+        })
+      );
+      if (step.quizBoardHighlight) {
+        applyBoardHighlight(step.quizBoardHighlight);
+      }
+      const explanation = isCorrect
+        ? step.quizExplanation
+        : step.quizExplanationWrong ?? step.quizExplanation;
+      if (explanation) {
+        await sendCoachMessage(
+          explanation,
+          isCorrect ? undefined : 'wrongQuizAnswer'
+        );
+      }
+      if (step.celebrate || isLastStep) {
+        await enqueueMovexUpdate(() =>
+          dispatch({
+            type: 'loadedChapter:setDailyLesson',
+            payload: withCounters({
+              progress: step.solution.length,
+              popup: true,
+              completed: isLastStep,
+            }),
+          })
+        );
+      } else if (isCorrect && step.autoAdvanceOnCorrect) {
+        // Ista zastita kao u onSelectQuizAnswer - vidi komentar tamo.
+        const scheduledStepKey = stepKeyRef.current;
+        setTimeout(() => {
+          if (stepKeyRef.current !== scheduledStepKey) return;
+          onNextStep();
+        }, 1100);
+      }
+    },
+    [
+      step,
+      isLastStep,
+      onNextStep,
+      withCounters,
+      dispatch,
+      sendCoachMessage,
+      lesson,
+      applyBoardHighlight,
+      countableIndexOf,
     ]
   );
 
@@ -1767,7 +2636,9 @@ export const DailyLessonActivity = ({
 
       if (!isCorrect) {
         const stepIndex = stepIndexRef.current;
-        setWrongQuizSteps((prev) => new Set(prev).add(stepIndex));
+        setWrongQuizSteps((prev) =>
+          new Set(prev).add(countableIndexOf(stepIndex))
+        );
         const isScoreSummaryStep = lesson?.scoreSummary?.stepIds.includes(
           step.id
         );
@@ -1778,6 +2649,20 @@ export const DailyLessonActivity = ({
           errorsRef.current += 1;
           totalErrorsRef.current += 1;
         }
+
+        // Pogresno obelezeno polje ostaje vidljivo (plavi okvir + crvena
+        // tackica, vidi squareRenderer/wrongMarkedSquare) - korisnica
+        // eksplicitno trazila "ne strelicama". Korak se ODMAH zavrsava (ne
+        // ceka drugi pokusaj) - mora moci da klikne Next kad hoce, ne sme
+        // ostati zakljucana dok ne pogodi.
+        setWrongMarkedSquare(Array.from(markedSet)[0] ?? null);
+        setMarkedSquares(new Set());
+      }
+
+      // scoredMarkSquares (Day 31) - TACAN pokusaj dodaje preostali skor
+      // koraka (1.0 ako nikad nije pogresio) u kumulativni lesson score.
+      if (isCorrect && step.scoredMarkSquares && lesson?.graduationTest) {
+        scoreRef.current += drillStepScoreRef.current;
       }
 
       progressRef.current = step.solution.length;
@@ -1790,15 +2675,25 @@ export const DailyLessonActivity = ({
 
       // Board highlight UVEK - tacno ili netacno, korisnik mora da vidi gde
       // su prava polja pre nego sto predje dalje (isti princip kao kviz).
+      // Netacno - ovo je TACNO polje (zeleno), zajedno sa pogresno obelezenim
+      // (plavo+crveno, gore) - obe boje vidljive istovremeno, jasno razlicite.
       if (step.quizBoardHighlight) {
         applyBoardHighlight(step.quizBoardHighlight);
+      }
+      // LessonStep.revealSquareAnimation (Day 27 Part B) - ciljno polje je
+      // direktno solution[0] (markSquares nema notaciju da se parsira).
+      if (step.revealSquareAnimation && step.solution[0]) {
+        triggerRevealAnimation(step.solution[0]);
       }
 
       const explanation = isCorrect
         ? step.doneText
-        : (step.retryPromptText ?? step.doneText);
+        : step.firstMissText ?? step.retryPromptText ?? step.doneText;
       if (explanation) {
-        await sendCoachMessage(explanation);
+        await sendCoachMessage(
+          explanation,
+          isCorrect ? undefined : 'wrongQuizAnswer'
+        );
       }
       if (step.transitionText) {
         await sendCoachMessage(step.transitionText);
@@ -1815,6 +2710,8 @@ export const DailyLessonActivity = ({
           })
         );
       }
+      // BEZ auto-advance-a (korisnica eksplicitno trazila da se to iskljuci
+      // kroz celu lekciju) - Next dugme ceka rucni klik.
     },
     [
       step,
@@ -1824,6 +2721,8 @@ export const DailyLessonActivity = ({
       withCounters,
       sendCoachMessage,
       applyBoardHighlight,
+      countableIndexOf,
+      triggerRevealAnimation,
     ]
   );
 
@@ -1843,12 +2742,22 @@ export const DailyLessonActivity = ({
       if (already) next.delete(square);
       else next.add(square);
       setMarkedSquares(next);
+      // Nov pokusaj pocinje - prethodno pogresno obelezeno polje (vidi
+      // wrongMarkedSquare) vise nije relevantno.
+      if (wrongMarkedSquare) setWrongMarkedSquare(null);
 
       if (next.size === step.solution.length) {
         await finalizeMarkAttempt(next);
       }
     },
-    [step, isBusy, isStepComplete, markedSquares, finalizeMarkAttempt]
+    [
+      step,
+      isBusy,
+      isStepComplete,
+      markedSquares,
+      wrongMarkedSquare,
+      finalizeMarkAttempt,
+    ]
   );
 
   const onHint = useCallback(async () => {
@@ -1886,7 +2795,8 @@ export const DailyLessonActivity = ({
           lastHintQueenSquareRef.current = technique.uci.slice(2, 4);
         }
         const bestUci =
-          technique?.uci ?? (await requestBestMoveUci(currentChapter.displayFen));
+          technique?.uci ??
+          (await requestBestMoveUci(currentChapter.displayFen));
         if (!bestUci) {
           await sendCoachMessage(
             "Couldn't reach the engine just now. Try Hint again in a moment."
@@ -1940,8 +2850,14 @@ export const DailyLessonActivity = ({
     // figuru ili potez na tabli - hint je tu samo JEDAN tekstualni trag, bez
     // dvostepenog sistema (nema sta drugo da se oznaci).
     if (step.kind === 'quiz') {
-      if (!step.extraHintText || hintsRef.current >= 1) return;
-      hintsRef.current = 1;
+      if (!step.extraHintText) return;
+      // step.unlimitedQuizHint (Day 22 "Material") - ovde hint NE otkriva
+      // resenje, samo podseca na vrednosti figura, pa nema razloga da se
+      // zakljuca posle prvog klika kao Day 9 Checkmate/Stalemate.
+      if (!step.unlimitedQuizHint) {
+        if (hintsRef.current >= 1) return;
+        hintsRef.current = 1;
+      }
       totalHintsRef.current += 1;
       await enqueueMovexUpdate(() =>
         dispatch({
@@ -1963,11 +2879,19 @@ export const DailyLessonActivity = ({
       hintsRef.current = 1;
       totalHintsRef.current += 1;
       await sendCoachMessage(
-        "To mark a square: right-click it with your mouse on desktop — or tap it if you're on mobile."
+        'To mark a square: right-click it on desktop, or tap it on mobile.'
       );
-      if (step.quizBoardHighlight) {
-        applyBoardHighlight(step.quizBoardHighlight);
-      }
+      // bez quizBoardHighlight - pokazi sama trazena polja
+      applyBoardHighlight(
+        step.quizBoardHighlight ?? {
+          squares: step.solution.map((square) => ({
+            square,
+            color: '#07DA63',
+            fill: true,
+            dot: true,
+          })),
+        }
+      );
       await enqueueMovexUpdate(() =>
         dispatch({
           type: 'loadedChapter:setDailyLesson',
@@ -1980,9 +2904,155 @@ export const DailyLessonActivity = ({
       return;
     }
 
-    if (hintsRef.current >= MAX_HINTS_PER_STEP) {
+    // LessonStep.anyLegalMoveStreak/exactMoveUci/raceSolution (Day 30
+    // "Graduation Checkpoint 1" Part A) - bag prijavljen: generican fallback
+    // ispod (za standardne teach/puzzle korake) cita `step.solution[progress]`
+    // kao UCI string, ali ovde je `solution` samo placeholder ('*') - uciToMove
+    // na tome nije davao validno polje, pa se "oznacavanje" tiho gubilo. ISTI
+    // standardni dvostepeni sistem kao svuda drugde (1. klik oznaci figuru,
+    // 2./poslednji klik doda strelicu, ostaje dok korisnik ne odigra), samo
+    // se ciljno polje racuna po modu umesto citanja iz solution[].
+    if (
+      step.kind === 'teach' &&
+      (step.anyLegalMoveStreak || step.exactMoveUci || step.raceSolution)
+    ) {
+      if (hintsThisMove() >= MAX_HINTS_PER_STEP) {
+        await sendCoachMessage(
+          "You've used **both hints** for this move. Look at the board, you'll spot it."
+        );
+        return;
+      }
+      const from = drillCurrentSquareRef.current as Square | null;
+      if (!from) return;
+      // Bilo koji TRENUTNO legalan potez te figure - zajednicki fallback za
+      // anyLegalMoveStreak (uvek) i raceSolution (kad korisnik vec presao
+      // duzinu najbrze linije, spori put). uciToMove NIKAD ne vraca
+      // null/undefined (prazan string za nevalidan UCI) - ne sme se osloniti
+      // na `??`/optional chaining protiv njega, zato eksplicitna provera.
+      const anyCurrentLegalTo = (): string | undefined => {
+        try {
+          const chess = new Chess(currentChapter.displayFen);
+          return chess.moves({ square: from, verbose: true })[0]?.to;
+        } catch {
+          return undefined;
+        }
+      };
+      let to: string | undefined;
+      if (step.exactMoveUci) {
+        const firstUci = Array.isArray(step.exactMoveUci)
+          ? step.exactMoveUci[0]
+          : step.exactMoveUci;
+        to = uciToMove(firstUci).to;
+      } else if (step.raceSolution) {
+        const raceUci = step.raceSolution[drillMovesPlayedRef.current];
+        const raceTo = raceUci ? uciToMove(raceUci).to : '';
+        to = raceTo || anyCurrentLegalTo();
+      } else {
+        to = anyCurrentLegalTo();
+      }
+      if (!to) return;
+
+      const isFinalHint = hintsThisMove() + 1 >= MAX_HINTS_PER_STEP;
+      clearFeedback();
+      setHintPieceSquare(from);
+      if (isFinalHint) {
+        setHintArrowMap(buildSolutionArrow(`${from}${to}`));
+      }
+      hintsRef.current += 1;
+      totalHintsRef.current += 1;
+      await enqueueMovexUpdate(() =>
+        dispatch({
+          type: 'loadedChapter:setDailyLesson',
+          payload: withCounters({ progress: progressRef.current }),
+        })
+      );
+      if (step.extraHintText) {
+        await sendCoachMessage(step.extraHintText);
+      } else {
+        const lastContent =
+          currentChapter.messages[currentChapter.messages.length - 1]?.content;
+        await sendCoachMessage(pickHintHelpMessage(lastContent));
+      }
+      return;
+    }
+
+    // LessonStep.requireLegalCheck (Day 26 "Perpetual Check") - ISTI
+    // standardni dvostepeni Hint kao svuda drugde (1. klik oznaci figuru,
+    // 2./poslednji klik doda strelicu) - korisnicin eksplicitan zahtev,
+    // umesto ranijeg "jedan nivo, strelica odmah". "Figura" je uvek dama,
+    // njeno TRENUTNO polje se trazi na tabli (jeftino, ne treba minimax) -
+    // skupo UZIVO racunanje (findSafeCheckMove) se zove SAMO na 2. klik, kad
+    // se stvarno otkriva potez (solution ovde nosi samo ANY_LEGAL_CHECK
+    // marker, ne fiksan UCI - tacno koje polje je "bezbedno" zavisi od toga
+    // gde je kralj STVARNO pobegao).
+    if (step.kind === 'puzzle' && step.requireLegalCheck) {
+      if (hintsThisMove() >= MAX_HINTS_PER_STEP) {
+        await sendCoachMessage(
+          "You've used **both hints** for this move. Look at the board, you'll spot it."
+        );
+        return;
+      }
+      const queenSquare = (() => {
+        try {
+          const board = new Chess(currentChapter.displayFen).board();
+          for (const row of board) {
+            for (const sq of row) {
+              if (sq && sq.type === 'q' && sq.color === step.orientation) {
+                return sq.square as Square;
+              }
+            }
+          }
+        } catch {
+          // ignore
+        }
+        return null;
+      })();
+      if (!queenSquare) return;
+
+      const isFinalHint = hintsThisMove() + 1 >= MAX_HINTS_PER_STEP;
+      clearFeedback();
+      setHintPieceSquare(queenSquare);
+
+      if (isFinalHint) {
+        // Skupo racunanje (moze potrajati par sekundi na prvi poziv u ovom
+        // pokusaju) - setLiveHintLoading + setTimeout(0) da "Thinking..."
+        // stvarno stigne da se renderuje pre nego sto glavna nit blokira.
+        setLiveHintLoading(true);
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        try {
+          const roundsRemaining = Math.max(
+            1,
+            Math.ceil((step.solution.length - progressRef.current) / 2)
+          );
+          const safe = findSafeCheckMove(
+            currentChapter.displayFen,
+            roundsRemaining
+          );
+          if (safe) {
+            setHintArrowMap(buildSolutionArrow(safe.uci));
+          }
+        } finally {
+          setLiveHintLoading(false);
+        }
+      }
+
+      hintsRef.current += 1;
+      totalHintsRef.current += 1;
+      await enqueueMovexUpdate(() =>
+        dispatch({
+          type: 'loadedChapter:setDailyLesson',
+          payload: withCounters({ progress: progressRef.current }),
+        })
+      );
+      if (step.extraHintText) {
+        await sendCoachMessage(step.extraHintText);
+      }
+      return;
+    }
+
+    if (hintsThisMove() >= MAX_HINTS_PER_STEP) {
       await sendCoachMessage(
-        "You've used both hints — look at the board, you'll spot the move."
+        "You've used **both hints** for this move. Look at the board, you'll spot it."
       );
       return;
     }
@@ -2000,18 +3070,20 @@ export const DailyLessonActivity = ({
         ? uciToMove(step.hintMove)
         : null
       : step.unorderedTargets
-        ? resolveNextUnorderedTarget(currentChapter.displayFen, step)
-        : (() => {
-            const uci = step.solution[progress];
-            return uci ? uciToMove(uci) : null;
-          })();
+      ? resolveNextUnorderedTarget(currentChapter.displayFen, step)
+      : (() => {
+          const uci = step.solution[progress];
+          return uci
+            ? resolveSolutionMove(currentChapter.displayFen, uci)
+            : null;
+        })();
     if (!nextMove) return;
 
     // 1. hint - samo oznaci figuru koja igra. 2. (poslednji) hint - dodaje i
     // strelicu do mete. Nijedan hint se ne gasi sam po sebi (nema tajmera) -
     // ostaje na tabli dok korisnik ne odigra sledeci potez. Vazi za ceo
     // Daily Lesson, ne samo poslednji hint.
-    const isFinalHint = hintsRef.current + 1 >= MAX_HINTS_PER_STEP;
+    const isFinalHint = hintsThisMove() + 1 >= MAX_HINTS_PER_STEP;
     const { from, to } = nextMove;
 
     clearFeedback();
@@ -2067,21 +3139,45 @@ export const DailyLessonActivity = ({
   /** Repeat uvek vraca celu lekciju na prvi korak, ne samo tekuci. */
   const onRepeatLesson = useCallback(() => {
     setWrongQuizSteps(new Set());
+    // Lesson.shuffleStepsFrom (Day 22) - forsira re-roll na svaki Repeat
+    // (ne samo prvi put), citajuci null lessonId nikad ne poklapa pravi
+    // lesson.id gore, pa ga taj if-blok odmah ponovo izracuna.
+    if (lesson) {
+      shuffledStepsRef.current = {
+        lessonId: lesson.id,
+        steps: shuffleFrom(lesson.steps, lesson.shuffleStepsFrom),
+      };
+    }
     return loadStep(0, {
       errors: 0,
       hints: 0,
       totalErrors: 0,
       totalHints: 0,
+      score: 0,
       completed: false,
     });
-  }, [loadStep]);
+  }, [loadStep, lesson]);
 
-  const onNextStep = useCallback(() => {
-    if (isLastStep) return;
-    // Hintovi i greske su po koraku (svaki FEN nosi svoja 2 hinta), ne
-    // kumulativni za celu lekciju - moraju se resetovati na svaki novi korak.
-    return loadStep(stepIndexRef.current + 1, { errors: 0, hints: 0 });
-  }, [isLastStep, loadStep]);
+  /**
+   * Lesson.testStepId (Day 28 "My First Opening with White — London") -
+   * skace DIREKTNO na oznaceni korak (npr. "testiraj me opet na istoj
+   * liniji, bez vodjenog dela"), isti reset brojaca kao Repeat, ali BEZ
+   * vracanja na korak 0. Generican mehanizam, ne Day28-specifican.
+   */
+  const onTestOpening = useCallback(() => {
+    if (!lesson?.testStepId) return;
+    const index = steps.findIndex((s) => s.id === lesson.testStepId);
+    if (index < 0) return;
+    setWrongQuizSteps(new Set());
+    return loadStep(index, {
+      errors: 0,
+      hints: 0,
+      totalErrors: 0,
+      totalHints: 0,
+      score: 0,
+      completed: false,
+    });
+  }, [lesson, steps, loadStep]);
 
   const onDismissCelebration = useCallback(
     () =>
@@ -2102,8 +3198,14 @@ export const DailyLessonActivity = ({
     params.delete('pgn'); // staro pogresno ime parametra (zamenjeno sa lessonId)
     params.set('activity', 'dailylesson');
     params.set('lessonId', nextLessonId);
+    // Lesson.graduationTest.finalScreen (Day 31) - laka, URL-bazirana
+    // potvrda "stigao sam ovde PREKO prolaza kroz prethodnu lekciju" (vidi
+    // napomenu uz finalScreen u lessonDatabase.ts - nema backend/cross-
+    // session cuvanje napretka u ovom repou). Postavlja se na SVAKI prelaz,
+    // bezopasno za lekcije koje ga ne citaju.
+    if (lesson) params.set('fromLessonId', lesson.id);
     window.location.href = `/room/new?${params.toString()}`;
-  }, [nextLessonId]);
+  }, [nextLessonId, lesson]);
 
   /**
    * endScreenButtons action:'review' (Day 14 "Your First Game") - otvara
@@ -2131,7 +3233,6 @@ export const DailyLessonActivity = ({
     const pgn = parts.join(' ');
     if (!pgn) return;
 
-    const roomId = getRandomStr();
     const params = new URLSearchParams();
     params.set('activity', 'review');
     params.set('startingPgn', pgn);
@@ -2139,8 +3240,13 @@ export const DailyLessonActivity = ({
     if (userData.user_id) params.set('userId', userData.user_id);
     const theme = new URLSearchParams(window.location.search).get('theme');
     if (theme) params.set('theme', theme);
-    window.location.href = `/room/a/review/${roomId}?${params.toString()}`;
-  }, [currentChapter.notation.history, userData.user_id]);
+    // Kao Match -> Review (MatchStateDialogContainer): review soba je
+    // odvojena 'review' soba izvedena iz ove (r<lessonRoomId>), pravi je
+    // JoinOrCreateRoom preko /room/new. Direktan /room/a/review/<id> je
+    // otvarao sobu koju niko nije napravio.
+    const reviewRoomId = `r${roomDetails?.roomId ?? getRandomStr()}`;
+    window.location.href = `/room/new/${reviewRoomId}?${params.toString()}`;
+  }, [currentChapter.notation.history, userData.user_id, roomDetails?.roomId]);
 
   const boardArrows = useMemo(
     () =>
@@ -2165,37 +3271,181 @@ export const DailyLessonActivity = ({
   // sto korisnik uopste pokusa potez - komentar iznad je opisivao nameru,
   // ali `!isStepComplete` je bio bezuslovan, pa namera nikad nije radila za
   // bas te korake (otud tiha, bez-poruke odbijena vuca figure).
+  // resen teach/puzzle korak (ceka Next/Start) - potez stize do onMove radi poruke
+  const stepDoneAwaitingNext =
+    isStepComplete &&
+    (step?.kind === 'teach' || step?.kind === 'puzzle') &&
+    !lessonState.completed &&
+    !isLastStep;
   // freePlay - kao Match: ko je na potezu odredjuje turn (premove dok Pawny razmislja), ne isBusy.
   const canPlay =
     !showIntro &&
     !preStepIntro &&
-    (step?.kind === 'quiz' || !isStepComplete) &&
+    (step?.kind === 'quiz' || !isStepComplete || stepDoneAwaitingNext) &&
     (step?.kind === 'freePlay' || !isBusy);
+
+  // Popup serija (intro/preStepIntro/End Screen) - ISTA za Lesson.boardless
+  // i standardne lekcije, pa se izvlaci jednom i deli ispod umesto
+  // duplirana dva puta (vidi boardless granu).
+  const dialogContainer = (
+    <DailyLessonDialogContainer
+      lesson={lesson}
+      step={step}
+      lessonState={lessonState}
+      showIntro={showIntro}
+      onStartLesson={async () => {
+        setShowIntro(false);
+        // step.preStepIntro na PRVOM koraku (npr. Day 22 "Material" - popup
+        // 2, podsetnik vrednosti figura) - loadStep ovo vec provera za
+        // SVAKI sledeci korak, ali prvi korak nikad ne prolazi kroz
+        // loadStep (vec je ucitan pri mount-u), pa se ovde mora ponoviti
+        // ista provera, inace se popup nikad ne prikaze.
+        if (step?.preStepIntro) {
+          setPreStepIntro(step.preStepIntro);
+          return;
+        }
+        if (step) await beginStep(step);
+      }}
+      onDismissCelebration={onDismissCelebration}
+      onRepeatLesson={onRepeatLesson}
+      onNextStep={onNextStep}
+      isLastStep={isLastStep}
+      onNextLesson={nextLessonId ? onNextLesson : undefined}
+      onGameReview={onGameReview}
+      onTestOpening={onTestOpening}
+      preStepIntro={preStepIntro}
+      onDismissPreStepIntro={onDismissPreStepIntro}
+      wrongQuizSteps={wrongQuizSteps}
+    />
+  );
+
+  // Desna kolona (progress traka + chat/kviz) - ISTA za Lesson.boardless i
+  // standardne lekcije, deli se ispod umesto duplirana.
+  // Lesson.graduationTest (Day 30) - "running score visible" iz acceptance
+  // kriterijuma, generican prikaz za svaki ocenjen test.
+  const scoreText = lesson?.graduationTest
+    ? `Score: ${Math.round(lessonState.score * 100) / 100} / ${
+        lesson.graduationTest.maxScore
+      }`
+    : null;
+
+  const widgetPanelColumn = (
+    <div className="flex flex-col gap-2 h-[360px] md:h-full w-full flex-1 md:min-h-0 pb-4 md:pb-0">
+      {lesson && (
+        <div className="flex items-baseline justify-between gap-2 px-1">
+          <p className="text-xs font-bold uppercase tracking-wide text-slate-500">
+            Day {lesson.day} · {lesson.title}
+          </p>
+          {/* Mobilni: Score u redu sa naslovom, desno (desktop ga ima ispod trake). */}
+          {scoreText && (
+            <p className="md:hidden shrink-0 text-xs font-bold text-[#07DA63] tabular-nums">
+              {scoreText}
+            </p>
+          )}
+        </div>
+      )}
+      <WidgetPanel
+        // Progress traku crta WidgetPanel - na mobilnom kviz koraku u istom
+        // redu sa Next dugmetom (vidi buttonsBesideProgress).
+        progressHeader={
+          // kind:'freePlay' (Day 14) - prava partija, "1/1" segment nema
+          // smisla, pa traka ovde izostaje u potpunosti.
+          step?.kind !== 'freePlay' && (
+            <LessonProgressBar
+              total={segments.total}
+              current={segments.current}
+              completed={segments.completed}
+              currentFraction={segments.currentFraction}
+              celebrateStepDone={nextReady}
+              wrongSegments={wrongQuizSteps}
+            />
+          )
+        }
+        // Desktop Score ispod trake - na mobilnom je u redu sa naslovom.
+        progressFooter={
+          scoreText && (
+            <p className="hidden md:block px-1 text-xs font-bold text-[#07DA63] tabular-nums">
+              {scoreText}
+            </p>
+          )
+        }
+        userData={userData}
+        currentChapterState={currentChapter}
+        lesson={lesson}
+        step={step}
+        lessonState={lessonState}
+        isStepComplete={isStepComplete}
+        isLastStep={isLastStep}
+        isBusy={isBusy}
+        nextReady={nextReady}
+        isInstructor={settings.isInstructor}
+        onHint={onHint}
+        liveHintLoading={liveHintLoading}
+        hintBase={hintBase}
+        nudgeNext={nudgeNext}
+        onRepeatLesson={onRepeatLesson}
+        onNextStep={onNextStep}
+        onSelectQuizAnswer={onSelectQuizAnswer}
+        onSelectMultiQuizAnswer={onSelectMultiQuizAnswer}
+        onPlaySuggestedMove={onPlaySuggestedMove}
+        onDrawOffer={onDrawOffer}
+        onTakeBack={onTakeBack}
+        onResign={onResign}
+        canTakeBack={freePlyCountState >= 2}
+        onMessage={async (payload) =>
+          await enqueueMovexUpdate(() =>
+            dispatch({ type: 'loadedChapter:writeMessage', payload })
+          )
+        }
+        onHistoryNotationRefocus={async (payload) => {
+          await enqueueMovexUpdate(() =>
+            dispatch({
+              type: 'loadedChapter:focusHistoryIndex',
+              payload,
+            })
+          );
+        }}
+      />
+    </div>
+  );
+
+  // Lesson.boardless (Day 23 "Bridge") - bez table nigde, kviz/chat kartica
+  // puna-ekrana preko dekorativne (NE-interaktivne) pozadine, umesto
+  // standardnog split layout-a (ResizableDesktopLayout ispod). Popup serija
+  // (dialogContainer) ostaje identicna - vec je sopstveni full-screen
+  // overlay, nezavisan od layout-a ispod njega.
+  if (lesson?.boardless) {
+    return (
+      <div className="relative w-full h-full min-h-[100dvh] overflow-hidden bg-[#0b0f17]">
+        {/* Dekorativna pozadina - NAMERNO nije stvarna tabla (korisnicin
+            zahtev - "nema potrebe da je bude"), samo diskretan motiv da
+            ekran ne bude prazan. */}
+        <div
+          aria-hidden
+          className="absolute inset-0 flex items-center justify-center opacity-[0.05] pointer-events-none select-none"
+        >
+          <span style={{ fontSize: 'min(65vw, 65vh)', lineHeight: 1 }}>
+            {lesson.piece.glyph}
+          </span>
+        </div>
+        <div
+          aria-hidden
+          className="absolute inset-0 pointer-events-none bg-gradient-to-b from-black/0 via-black/0 to-black/50"
+        />
+        {dialogContainer}
+        <div className="relative z-10 flex flex-col h-full min-h-[100dvh] w-full max-w-[480px] mx-auto px-4 py-4 md:py-8">
+          {widgetPanelColumn}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <ResizableDesktopLayout
       rightSideSize={RIGHT_SIDE_SIZE_PX}
       mainComponent={({ boardSize }) => (
         <div>
-          <DailyLessonDialogContainer
-            lesson={lesson}
-            step={step}
-            lessonState={lessonState}
-            showIntro={showIntro}
-            onStartLesson={async () => {
-              setShowIntro(false);
-              if (step) await beginStep(step);
-            }}
-            onDismissCelebration={onDismissCelebration}
-            onRepeatLesson={onRepeatLesson}
-            onNextStep={onNextStep}
-            isLastStep={isLastStep}
-            onNextLesson={nextLessonId ? onNextLesson : undefined}
-            onGameReview={onGameReview}
-            preStepIntro={preStepIntro}
-            onDismissPreStepIntro={onDismissPreStepIntro}
-            wrongQuizSteps={wrongQuizSteps}
-          />
+          {dialogContainer}
 
           {/* Day 14 "Your First Game" - Pawny (Stockfish, namerno slab)
               odigrava crnog kad je na potezu, samo za kind:'freePlay'. Bez
@@ -2238,92 +3488,243 @@ export const DailyLessonActivity = ({
           )}
 
           <div className="relative">
-          <DailyLessonBoard
-            // Forsira remount table na SVAKI prelazak koraka, cak i kad dva
-            // uzastopna koraka dele IDENTICAN FEN (npr. Day 11 A1/A2 obe
-            // pocetna pozicija, ili prazna tabla kod B1/B2) - biblioteka
-            // (react-chessboard) sama brise korisnikove strelice/krugove na
-            // promenu FEN-a i na levi klik, ALI samo kad FEN string STVARNO
-            // drugacije izgleda od proslog; kad se poklopi, njena interna
-            // "crtana" strelica ostaje da visi preko nove pozicije. Key vezan
-            // za stepIndexRef (lokalan, trenutan - ne ceka Movex) ovo resava
-            // generalno, ne samo za slucajeve istog FEN-a.
-            key={`${lessonState.lessonId}:${stepIndexRef.current}`}
-            sizePx={boardSize}
-            displayFen={freePlayOptimisticFen ?? currentChapter.displayFen}
-            orientation={currentChapter.orientation}
-            circlesMap={currentChapter.circlesMap}
-            notation={currentChapter.notation}
-            arrowsMap={boardArrows}
-            hintFromSquare={
-              (wrongMoveHint?.from ?? hintPieceSquare ?? undefined) as
-                | Square
-                | undefined
-            }
-            glowSquare={glowSquare ?? undefined}
-            canPlay={canPlay}
-            // freePlay (Day 14/18) MORA da ima premove kao i Match (korisnik
-            // povuce figuru dok Pawny "razmislja", potez se "opali" sam cim
-            // dodje red na njega - standardno sahovsko ponasanje). Ranije je
-            // ovde bilo iskljuceno jer je premove osumnjicen za "dupliran"
-            // potez - stvarni uzrok je bio drugde (vidi lastUserMoveRef,
-            // 500ms debounce na identican (from,to) u onFreePlayUserMove),
-            // koji ostaje kao zastita bez obzira na premove.
-            allowPremoves={true}
-            // Gasi klizecu animaciju prelaza figure na drop za freePlay -
-            // bez nje nema "preklapanja" izmedju drag-ove optimisticne
-            // pozicije i stvarne FEN pozicije koja stize sa malim zakasnjenjem.
-            disableAnimations={step?.kind === 'freePlay'}
-            // kind:'quiz' ("Got it!" primeri, sa ili bez pitanja) - tabla je
-            // cist ambijent, nema koncept "moje/protivnikove figure". Bez
-            // ovoga, vucenje CRNE (ili bilo koje "tudje") figure bi i dalje
-            // bilo tiho odbijeno pre nego sto stigne do onMove, i korisnik
-            // nikad ne bi video "ovo je statican primer" objasnjenje.
-            anyPieceDraggable={step?.kind === 'quiz'}
-            squareRenderer={({ square, children }) => {
-              // kind:'markSquares' - desni klik (desktop) ili tap (mobilni)
-              // obelezava/skida oznaku sa JEDNOG polja. Potpuno nezavisno od
-              // drag-figuru mehanizma (prazna tabla, nema sta da se vuce).
-              if (step?.kind === 'markSquares') {
-                // Hint (quizHighlightSquares) - isti okvir kao svuda drugde
-                // (boxShadow inset, vidi quizMark ispod), NE tackica - Hint
-                // samo POKAZUJE, ne "obelezava". Korisnikov sopstveni klik
-                // (markedSquares) ostaje tackica - to je NJEGOVA oznaka.
-                const hintMark = quizHighlightSquares?.find(
-                  (m) => m.square === square
-                );
-                const isMarked = markedSquares.has(square as Square);
-                return (
-                  <div
-                    style={{
-                      position: 'relative',
-                      width: '100%',
-                      height: '100%',
-                      cursor: 'pointer',
-                      ...(hintMark
-                        ? { boxShadow: `inset 0 0 0 3px ${hintMark.color}` }
-                        : {}),
-                    }}
-                    onContextMenu={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      onToggleMarkSquare(square as Square);
-                    }}
-                    onClick={(e) => {
-                      // Levi klik nije ispravan gest ovde - podseti umesto
-                      // da ga cisto ignorises.
-                      e.stopPropagation();
-                      sendMarkSquaresNudge();
-                    }}
-                    onTouchEnd={(e) => {
-                      // Tap na mobilnom - isti efekat kao desni klik na
-                      // desktopu, bez potrebe za drzanjem.
-                      e.preventDefault();
-                      onToggleMarkSquare(square as Square);
-                    }}
-                  >
-                    {children}
-                    {isMarked && (
+            <DailyLessonBoard
+              // Forsira remount table na SVAKI prelazak koraka, cak i kad dva
+              // uzastopna koraka dele IDENTICAN FEN (npr. Day 11 A1/A2 obe
+              // pocetna pozicija, ili prazna tabla kod B1/B2) - biblioteka
+              // (react-chessboard) sama brise korisnikove strelice/krugove na
+              // promenu FEN-a i na levi klik, ALI samo kad FEN string STVARNO
+              // drugacije izgleda od proslog; kad se poklopi, njena interna
+              // "crtana" strelica ostaje da visi preko nove pozicije. Key vezan
+              // za stepIndexRef (lokalan, trenutan - ne ceka Movex) ovo resava
+              // generalno, ne samo za slucajeve istog FEN-a.
+              key={`${lessonState.lessonId}:${stepIndexRef.current}`}
+              sizePx={boardSize}
+              displayFen={freePlayOptimisticFen ?? currentChapter.displayFen}
+              orientation={currentChapter.orientation}
+              forceUserTurn={stepDoneAwaitingNext && !isBusy}
+              circlesMap={currentChapter.circlesMap}
+              notation={currentChapter.notation}
+              arrowsMap={boardArrows}
+              hintFromSquare={
+                (wrongMoveHint?.from ?? hintPieceSquare ?? undefined) as
+                  | Square
+                  | undefined
+              }
+              glowSquare={glowSquare ?? undefined}
+              canPlay={canPlay}
+              // freePlay (Day 14/18) MORA da ima premove kao i Match (korisnik
+              // povuce figuru dok Pawny "razmislja", potez se "opali" sam cim
+              // dodje red na njega - standardno sahovsko ponasanje). Ranije je
+              // ovde bilo iskljuceno jer je premove osumnjicen za "dupliran"
+              // potez - stvarni uzrok je bio drugde (vidi lastUserMoveRef,
+              // 500ms debounce na identican (from,to) u onFreePlayUserMove),
+              // koji ostaje kao zastita bez obzira na premove.
+              allowPremoves={true}
+              // Gasi klizecu animaciju prelaza figure na drop za freePlay -
+              // bez nje nema "preklapanja" izmedju drag-ove optimisticne
+              // pozicije i stvarne FEN pozicije koja stize sa malim zakasnjenjem.
+              disableAnimations={step?.kind === 'freePlay'}
+              // kind:'quiz' ("Got it!" primeri, sa ili bez pitanja) - tabla je
+              // cist ambijent, nema koncept "moje/protivnikove figure". Bez
+              // ovoga, vucenje CRNE (ili bilo koje "tudje") figure bi i dalje
+              // bilo tiho odbijeno pre nego sto stigne do onMove, i korisnik
+              // nikad ne bi video "ovo je statican primer" objasnjenje.
+              anyPieceDraggable={step?.kind === 'quiz' || stepDoneAwaitingNext}
+              squareRenderer={({ square, children }) => {
+                // kind:'markSquares' - desni klik (desktop) ili tap (mobilni)
+                // obelezava/skida oznaku sa JEDNOG polja. Potpuno nezavisno od
+                // drag-figuru mehanizma (prazna tabla, nema sta da se vuce).
+                if (step?.kind === 'markSquares') {
+                  // Hint (quizHighlightSquares) - isti okvir kao svuda drugde
+                  // (boxShadow inset, vidi quizMark ispod), NE tackica - Hint
+                  // samo POKAZUJE, ne "obelezava". Korisnikov sopstveni klik
+                  // (markedSquares) ostaje tackica - to je NJEGOVA oznaka.
+                  const hintMark = quizHighlightSquares?.find(
+                    (m) => m.square === square
+                  );
+                  const isMarked = markedSquares.has(square as Square);
+                  // wrongMarkedSquare (Day 27 "Chess Notation" Part B) - polje
+                  // koje je korisnik POGRESNO obelezio na prvom promasaju,
+                  // ostaje vidljivo: plavi okvir + crvena (ne plava) tackica -
+                  // korisnica eksplicitno trazila da njena greska bude jasno
+                  // oznacena, umesto strelica duz reda/kolone.
+                  const isWrongMarked = wrongMarkedSquare === square;
+                  return (
+                    <div
+                      style={{
+                        position: 'relative',
+                        width: '100%',
+                        height: '100%',
+                        cursor: 'pointer',
+                        ...(isWrongMarked
+                          ? {
+                              boxShadow: `inset 0 0 0 3px ${MARK_SELECT_COLOR}`,
+                            }
+                          : hintMark
+                          ? hintMark.fill
+                            ? { background: hintMark.color }
+                            : {
+                                boxShadow: `inset 0 0 0 3px ${hintMark.color}`,
+                              }
+                          : {}),
+                      }}
+                      onContextMenu={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        onToggleMarkSquare(square as Square);
+                      }}
+                      onClick={(e) => {
+                        // Levi klik nije ispravan gest ovde - podseti umesto
+                        // da ga cisto ignorises.
+                        e.stopPropagation();
+                        sendMarkSquaresNudge();
+                      }}
+                      onTouchEnd={(e) => {
+                        // Tap na mobilnom - isti efekat kao desni klik na
+                        // desktopu, bez potrebe za drzanjem.
+                        e.preventDefault();
+                        onToggleMarkSquare(square as Square);
+                      }}
+                    >
+                      {children}
+                      {/* hintMark.dot (Day 27) - ista plava tackica kao
+                        korisnikova sopstvena oznaka ispod, DODATNO preko
+                        fill-a kad hint/otkrivanje to trazi. isWrongMarked -
+                        ISTA tackica, ali crvena, na polju koje je korisnik
+                        pogresno obelezio. */}
+                      {(isMarked || hintMark?.dot || isWrongMarked) && (
+                        <div
+                          style={{
+                            position: 'absolute',
+                            inset: 0,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            pointerEvents: 'none',
+                          }}
+                        >
+                          <div
+                            style={{
+                              width: '26%',
+                              height: '26%',
+                              borderRadius: '9999px',
+                              background: isWrongMarked
+                                ? '#f2358d'
+                                : MARK_SELECT_COLOR,
+                              boxShadow: `0 0 6px 2px ${
+                                isWrongMarked ? '#f2358d' : MARK_SELECT_COLOR
+                              }88`,
+                            }}
+                          />
+                        </div>
+                      )}
+                    </div>
+                  );
+                }
+
+                if (wrongSquare === square) {
+                  return (
+                    <div
+                      style={{
+                        position: 'relative',
+                        width: '100%',
+                        height: '100%',
+                      }}
+                    >
+                      {children}
+                      <svg
+                        viewBox="0 0 100 100"
+                        style={{
+                          position: 'absolute',
+                          inset: 0,
+                          width: '100%',
+                          height: '100%',
+                          pointerEvents: 'none',
+                        }}
+                      >
+                        <line
+                          x1="18"
+                          y1="18"
+                          x2="82"
+                          y2="82"
+                          stroke="#f2358d"
+                          strokeWidth="14"
+                          strokeLinecap="round"
+                        />
+                        <line
+                          x1="82"
+                          y1="18"
+                          x2="18"
+                          y2="82"
+                          stroke="#f2358d"
+                          strokeWidth="14"
+                          strokeLinecap="round"
+                        />
+                      </svg>
+                    </div>
+                  );
+                }
+
+                // LessonStep.wrongPathPreview (Day 17 Step 3) - isti X kao
+                // iznad, samo TRAJAN (ne vezan za wrongSquare, koji se gasi
+                // posle 700ms) - ostaje na tabli kroz ceo korak.
+                if (xMarkSquares?.includes(square as Square)) {
+                  return (
+                    <div
+                      style={{
+                        position: 'relative',
+                        width: '100%',
+                        height: '100%',
+                      }}
+                    >
+                      {children}
+                      <svg
+                        viewBox="0 0 100 100"
+                        style={{
+                          position: 'absolute',
+                          inset: 0,
+                          width: '100%',
+                          height: '100%',
+                          pointerEvents: 'none',
+                        }}
+                      >
+                        <line
+                          x1="18"
+                          y1="18"
+                          x2="82"
+                          y2="82"
+                          stroke="#f2358d"
+                          strokeWidth="14"
+                          strokeLinecap="round"
+                        />
+                        <line
+                          x1="82"
+                          y1="18"
+                          x2="18"
+                          y2="82"
+                          stroke="#f2358d"
+                          strokeWidth="14"
+                          strokeLinecap="round"
+                        />
+                      </svg>
+                    </div>
+                  );
+                }
+
+                // Kruzic za "ovde top moze da ode" ide PREKO figure (ne kao
+                // pozadina polja) - inace se ne vidi kad je meta polje zauzeto
+                // pesakom koji treba pojesti.
+                if (wrongMoveHint?.targets?.includes(square as Square)) {
+                  return (
+                    <div
+                      style={{
+                        position: 'relative',
+                        width: '100%',
+                        height: '100%',
+                      }}
+                    >
+                      {children}
                       <div
                         style={{
                           position: 'absolute',
@@ -2339,317 +3740,204 @@ export const DailyLessonActivity = ({
                             width: '26%',
                             height: '26%',
                             borderRadius: '9999px',
-                            background: MARK_SELECT_COLOR,
-                            boxShadow: `0 0 6px 2px ${MARK_SELECT_COLOR}88`,
+                            background: 'rgba(7,218,99,0.85)',
+                            boxShadow: '0 0 6px 2px rgba(7,218,99,0.55)',
                           }}
                         />
                       </div>
-                    )}
-                  </div>
-                );
-              }
+                    </div>
+                  );
+                }
 
-              if (wrongSquare === square) {
-                return (
-                  <div
-                    style={{
-                      position: 'relative',
-                      width: '100%',
-                      height: '100%',
-                    }}
-                  >
-                    {children}
-                    <svg
-                      viewBox="0 0 100 100"
-                      style={{
-                        position: 'absolute',
-                        inset: 0,
-                        width: '100%',
-                        height: '100%',
-                        pointerEvents: 'none',
-                      }}
-                    >
-                      <line
-                        x1="18"
-                        y1="18"
-                        x2="82"
-                        y2="82"
-                        stroke="#f2358d"
-                        strokeWidth="14"
-                        strokeLinecap="round"
-                      />
-                      <line
-                        x1="82"
-                        y1="18"
-                        x2="18"
-                        y2="82"
-                        stroke="#f2358d"
-                        strokeWidth="14"
-                        strokeLinecap="round"
-                      />
-                    </svg>
-                  </div>
-                );
-              }
-
-              // LessonStep.wrongPathPreview (Day 17 Step 3) - isti X kao
-              // iznad, samo TRAJAN (ne vezan za wrongSquare, koji se gasi
-              // posle 700ms) - ostaje na tabli kroz ceo korak.
-              if (xMarkSquares?.includes(square as Square)) {
-                return (
-                  <div
-                    style={{
-                      position: 'relative',
-                      width: '100%',
-                      height: '100%',
-                    }}
-                  >
-                    {children}
-                    <svg
-                      viewBox="0 0 100 100"
-                      style={{
-                        position: 'absolute',
-                        inset: 0,
-                        width: '100%',
-                        height: '100%',
-                        pointerEvents: 'none',
-                      }}
-                    >
-                      <line
-                        x1="18"
-                        y1="18"
-                        x2="82"
-                        y2="82"
-                        stroke="#f2358d"
-                        strokeWidth="14"
-                        strokeLinecap="round"
-                      />
-                      <line
-                        x1="82"
-                        y1="18"
-                        x2="18"
-                        y2="82"
-                        stroke="#f2358d"
-                        strokeWidth="14"
-                        strokeLinecap="round"
-                      />
-                    </svg>
-                  </div>
-                );
-              }
-
-              // Kruzic za "ovde top moze da ode" ide PREKO figure (ne kao
-              // pozadina polja) - inace se ne vidi kad je meta polje zauzeto
-              // pesakom koji treba pojesti.
-              if (wrongMoveHint?.targets?.includes(square as Square)) {
-                return (
-                  <div
-                    style={{
-                      position: 'relative',
-                      width: '100%',
-                      height: '100%',
-                    }}
-                  >
-                    {children}
+                // "Reveal path" (History lekcija) - ista tackica kao gore, samo
+                // drugi izvor polja (cela otkrivena linija, ne "gde figura sme").
+                if (revealSquares?.includes(square as Square)) {
+                  return (
                     <div
                       style={{
-                        position: 'absolute',
-                        inset: 0,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        pointerEvents: 'none',
+                        position: 'relative',
+                        width: '100%',
+                        height: '100%',
                       }}
                     >
+                      {children}
                       <div
                         style={{
-                          width: '26%',
-                          height: '26%',
-                          borderRadius: '9999px',
-                          background: 'rgba(7,218,99,0.85)',
-                          boxShadow: '0 0 6px 2px rgba(7,218,99,0.55)',
+                          position: 'absolute',
+                          inset: 0,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          pointerEvents: 'none',
                         }}
-                      />
+                      >
+                        <div
+                          style={{
+                            width: '26%',
+                            height: '26%',
+                            borderRadius: '9999px',
+                            background: 'rgba(7,218,99,0.85)',
+                            boxShadow: '0 0 6px 2px rgba(7,218,99,0.55)',
+                          }}
+                        />
+                      </div>
                     </div>
-                  </div>
-                );
-              }
+                  );
+                }
 
-              // "Reveal path" (History lekcija) - ista tackica kao gore, samo
-              // drugi izvor polja (cela otkrivena linija, ne "gde figura sme").
-              if (revealSquares?.includes(square as Square)) {
-                return (
-                  <div
-                    style={{
-                      position: 'relative',
-                      width: '100%',
-                      height: '100%',
-                    }}
-                  >
-                    {children}
+                // Kviz board highlight (Day 9+) - boja dolazi po polju iz
+                // step.quizBoardHighlight (napad/blokirano/odbrana imaju
+                // razlicito znacenje istovremeno). Isti vizuelni jezik kao
+                // postojeci hint-na-figuru okvir (useCustomStyles.ts
+                // hintFromStyles) - inset box-shadow preko CELOG polja, ne
+                // skupljena unutrasnja kutija.
+                const quizMark = quizHighlightSquares?.find(
+                  (m) => m.square === square
+                );
+                // wrongMarkedSquare na kviz koraku (Day 27 "Chess Notation" Part
+                // A/C) - polje koje korisnik POGRESNO izabrao kroz tekstualnu
+                // opciju (ne klikom na tablu, vidi onSelectQuizAnswer), isti
+                // vizuelni jezik kao markSquares ispod: plavi okvir + crvena
+                // tackica. Nezavisno od quizMark - to polje obicno NEMA
+                // sopstveni unos u quizHighlightSquares (samo tacno polje ima).
+                const isWrongQuizMarked =
+                  step?.kind === 'quiz' && wrongMarkedSquare === square;
+                if (quizMark || isWrongQuizMarked) {
+                  // quizMark.fill (Day 27 "Chess Notation") - puna obojena
+                  // pozadina umesto tankog okvira, bolje se vidi na praznoj
+                  // tabli - vidi LessonStep.quizBoardHighlight.squares[].fill.
+                  // quizMark.dot - DODATNA nasa plava tackica na sredini (isti
+                  // vizuelni jezik kao markSquares korisnikova sopstvena
+                  // oznaka ispod), jos jedan sloj kontrasta preko fill-a.
+                  return (
                     <div
                       style={{
-                        position: 'absolute',
-                        inset: 0,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        pointerEvents: 'none',
+                        position: 'relative',
+                        width: '100%',
+                        height: '100%',
+                        ...(isWrongQuizMarked
+                          ? {
+                              boxShadow: `inset 0 0 0 3px ${MARK_SELECT_COLOR}`,
+                            }
+                          : quizMark!.fill
+                          ? { background: quizMark!.color }
+                          : {
+                              boxShadow: `inset 0 0 0 3px ${quizMark!.color}`,
+                            }),
                       }}
                     >
-                      <div
-                        style={{
-                          width: '26%',
-                          height: '26%',
-                          borderRadius: '9999px',
-                          background: 'rgba(7,218,99,0.85)',
-                          boxShadow: '0 0 6px 2px rgba(7,218,99,0.55)',
-                        }}
-                      />
+                      {children}
+                      {(quizMark?.dot || isWrongQuizMarked) && (
+                        <div
+                          style={{
+                            position: 'absolute',
+                            inset: 0,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            pointerEvents: 'none',
+                          }}
+                        >
+                          <div
+                            style={{
+                              width: '26%',
+                              height: '26%',
+                              borderRadius: '9999px',
+                              background: isWrongQuizMarked
+                                ? '#f2358d'
+                                : MARK_SELECT_COLOR,
+                              boxShadow: `0 0 6px 2px ${
+                                isWrongQuizMarked
+                                  ? '#f2358d'
+                                  : MARK_SELECT_COLOR
+                              }88`,
+                            }}
+                          />
+                        </div>
+                      )}
                     </div>
-                  </div>
-                );
-              }
+                  );
+                }
 
-              // Kviz board highlight (Day 9+) - boja dolazi po polju iz
-              // step.quizBoardHighlight (napad/blokirano/odbrana imaju
-              // razlicito znacenje istovremeno). Isti vizuelni jezik kao
-              // postojeci hint-na-figuru okvir (useCustomStyles.ts
-              // hintFromStyles) - inset box-shadow preko CELOG polja, ne
-              // skupljena unutrasnja kutija.
-              const quizMark = quizHighlightSquares?.find(
-                (m) => m.square === square
-              );
-              if (quizMark) {
-                return (
-                  <div
-                    style={{
-                      position: 'relative',
-                      width: '100%',
-                      height: '100%',
-                      boxShadow: `inset 0 0 0 3px ${quizMark.color}`,
-                    }}
-                  >
-                    {children}
-                  </div>
+                // LessonStep.highlightRookRanks (Day 17) - CEO red topa, FILL
+                // preko celog polja (ne okvir kao quizMark iznad) - isti
+                // vizuelni jezik kao app-ovo sopstveno "last move" oznacavanje
+                // (translucentno, figure ispod ostaju vidljive).
+                const rookRankMark = rookRankSquares?.find(
+                  (m) => m.square === square
                 );
-              }
+                if (rookRankMark) {
+                  return (
+                    <div
+                      style={{
+                        position: 'relative',
+                        width: '100%',
+                        height: '100%',
+                        background: rookRankMark.color,
+                      }}
+                    >
+                      {children}
+                    </div>
+                  );
+                }
 
-              // LessonStep.highlightRookRanks (Day 17) - CEO red topa, FILL
-              // preko celog polja (ne okvir kao quizMark iznad) - isti
-              // vizuelni jezik kao app-ovo sopstveno "last move" oznacavanje
-              // (translucentno, figure ispod ostaju vidljive).
-              const rookRankMark = rookRankSquares?.find(
-                (m) => m.square === square
-              );
-              if (rookRankMark) {
-                return (
-                  <div
-                    style={{
-                      position: 'relative',
-                      width: '100%',
-                      height: '100%',
-                      background: rookRankMark.color,
-                    }}
-                  >
-                    {children}
-                  </div>
+                // Bez ikakvog aktivnog oznacavanja - standardno polje.
+                // NAMERNO null (ne `children` direktno) - react-chessboard
+                // samo (squareRenderer?.(...) || defaultniDiv) i taj default
+                // div nosi `squareStyles[squareId]` (npr. "last move" highlight,
+                // premove boja) - `return children` bi to tiho izgubio za
+                // VECINU polja (probano i vraceno, stvarni bag za nevidljivu
+                // figuru u Part C bio je NEGDE DRUGDE - vidi ChessFENBoard.
+                // validateFenString u util-kit, popravljeno u lessonDatabase.ts
+                // FEN-ovima, ne ovde).
+                return null as unknown as React.JSX.Element;
+              }}
+              onMove={onMove}
+              onArrowsChange={noop}
+              onCircleDraw={async (tuple) => {
+                await enqueueMovexUpdate(() =>
+                  dispatch({ type: 'loadedChapter:drawCircle', payload: tuple })
                 );
+              }}
+              onClearCircles={async () => {
+                await enqueueMovexUpdate(() =>
+                  dispatch({ type: 'loadedChapter:clearCircles' })
+                );
+              }}
+              rightSideClassName="flex-1"
+              rightSideComponent={
+                <>
+                  <div className="relative flex flex-1 flex-col items-center justify-center">
+                    <PanelResizeHandle
+                      className="w-1 h-20 rounded-lg bg-slate-600"
+                      title="Resize"
+                    />
+                  </div>
+                  <div className="flex-1" />
+                </>
               }
-
-              return null as unknown as React.JSX.Element;
-            }}
-            onMove={onMove}
-            onArrowsChange={noop}
-            onCircleDraw={async (tuple) => {
-              await enqueueMovexUpdate(() =>
-                dispatch({ type: 'loadedChapter:drawCircle', payload: tuple })
-              );
-            }}
-            onClearCircles={async () => {
-              await enqueueMovexUpdate(() =>
-                dispatch({ type: 'loadedChapter:clearCircles' })
-              );
-            }}
-            rightSideClassName="flex-1"
-            rightSideComponent={
-              <>
-                <div className="relative flex flex-1 flex-col items-center justify-center">
-                  <PanelResizeHandle
-                    className="w-1 h-20 rounded-lg bg-slate-600"
-                    title="Resize"
-                  />
-                </div>
-                <div className="flex-1" />
-              </>
-            }
-          />
-          {step?.kind === 'quiz' && step.quizDimBoard && (
-            <div
-              className={`absolute inset-0 pointer-events-none transition-opacity duration-300 bg-black ${
-                quizBoardNudge ? 'opacity-60' : 'opacity-30'
-              }`}
             />
-          )}
+            {step?.kind === 'quiz' && step.quizDimBoard && (
+              <div
+                className={`absolute inset-0 pointer-events-none transition-opacity duration-300 bg-black ${
+                  quizBoardNudge ? 'opacity-60' : 'opacity-30'
+                }`}
+              />
+            )}
+            {revealAnimation && (
+              <NotationConvergeAnimation
+                key={revealAnimation.nonce}
+                square={revealAnimation.square}
+                pieceLetter={revealAnimation.pieceLetter}
+                sizePx={boardSize}
+                orientation={currentChapter.orientation}
+                onDone={() => setRevealAnimation(null)}
+              />
+            )}
           </div>
         </div>
       )}
-      rightComponent={
-        <div className="flex flex-col gap-2 h-[360px] md:h-full w-full flex-1 md:min-h-0 pb-4 md:pb-0">
-          {lesson && (
-            <p className="px-1 text-xs font-bold uppercase tracking-wide text-slate-500">
-              Day {lesson.day} · {lesson.title}
-            </p>
-          )}
-          {/* kind:'freePlay' (Day 14) - prava partija, "1/1" segment nema
-              smisla, pa traka ovde izostaje u potpunosti. */}
-          {step?.kind !== 'freePlay' && (
-            <LessonProgressBar
-              total={segments.total}
-              current={segments.current}
-              completed={segments.completed}
-              currentFraction={segments.currentFraction}
-              celebrateStepDone={nextReady}
-              wrongSegments={wrongQuizSteps}
-            />
-          )}
-          <WidgetPanel
-            userData={userData}
-            currentChapterState={currentChapter}
-            lesson={lesson}
-            step={step}
-            lessonState={lessonState}
-            isStepComplete={isStepComplete}
-            isLastStep={isLastStep}
-            isBusy={isBusy}
-            nextReady={nextReady}
-            isInstructor={settings.isInstructor}
-            onHint={onHint}
-            liveHintLoading={liveHintLoading}
-            onRepeatLesson={onRepeatLesson}
-            onNextStep={onNextStep}
-            onSelectQuizAnswer={onSelectQuizAnswer}
-            onPlaySuggestedMove={onPlaySuggestedMove}
-            onDrawOffer={onDrawOffer}
-            onTakeBack={onTakeBack}
-            onResign={onResign}
-            canTakeBack={freePlyCountState >= 2}
-            onMessage={async (payload) =>
-              await enqueueMovexUpdate(() =>
-                dispatch({ type: 'loadedChapter:writeMessage', payload })
-              )
-            }
-            onHistoryNotationRefocus={async (payload) => {
-              await enqueueMovexUpdate(() =>
-                dispatch({
-                  type: 'loadedChapter:focusHistoryIndex',
-                  payload,
-                })
-              );
-            }}
-          />
-        </div>
-      }
+      rightComponent={widgetPanelColumn}
     />
   );
 };

@@ -49,6 +49,13 @@ export type dailyLesson = {
   /** Kroz celu lekciju - NE resetuje se na Next, samo na Repeat. Za summary na kraju. */
   totalErrors: number;
   totalHints: number;
+  /**
+   * Lesson.graduationTest (Day 30 "Graduation Checkpoint 1") - kumulativan
+   * brojcan skor kroz celu lekciju (frakcioni poeni po pitanju), NE
+   * resetuje se na Next, samo na Repeat - isti princip kao totalErrors.
+   * Generican mehanizam, 0 za sve ostale lekcije (nikad se ne koristi).
+   */
+  score: number;
   /** Cela lekcija je zavrsena - krije se Next, ostaju Play i Repeat. */
   completed: boolean;
   /** Celebration overlay je otvoren. */
@@ -69,8 +76,14 @@ export type Message = {
   content: string;
   participantId: string;
   idResponse: string;
-  /** 'task' = zadatak koraka, prikazuje se u istaknutom oblacicu umesto kao obican chat tekst. */
-  kind?: 'task';
+  /**
+   * 'task' = zadatak koraka, prikazuje se u istaknutom oblacicu umesto kao
+   * obican chat tekst. 'wrongQuizAnswer' = netacan odgovor na kind:'quiz'
+   * pitanje - cela poruka boldovana nasom roze bojom (#f2358d, ista kao
+   * pogresan potez na tabli), da user odmah vidi da je pogresio, ne samo
+   * procita. Generican, ne vezan za odredjenu lekciju.
+   */
+  kind?: 'task' | 'wrongQuizAnswer';
 };
 
 export type UserData = {

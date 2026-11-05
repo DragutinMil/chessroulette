@@ -46,8 +46,11 @@ const StockfishEngine: React.FC<StockfishEngineProps> = ({
   const dispatch = usePlayActionsDispatch();
   // Yuki - najslabiji botelja, slabiji od Viole
   const isYuki = bot == 'zldVhT0HMLRc1000';
-  // const isAmara = bot == '_TjQM58i13jmm000';
-  
+  // Obbina - jaca od Yukija, slabija od Viole
+  const isObbina = bot == '_TjQM58i13jmm000';
+  // procenat nasumicnih poteza: Yuki 30%, Obbina 15%, ostali 0
+  const randomMoveChance = isYuki ? 0.3 : isObbina ? 0.15 : 0;
+
 
   useEffect(() => {
     if (typeof window === 'undefined') return; // Ensure it's client-side
@@ -76,7 +79,7 @@ const StockfishEngine: React.FC<StockfishEngineProps> = ({
           baseDepth = 4;
           baseSkill = 0;
           baseContempt = 12;
-        } else if (isYuki) {
+        } else if (isYuki || isObbina) {
           baseDepth = 1;
           baseSkill = 0;
           baseContempt = 0;
@@ -151,8 +154,8 @@ const StockfishEngine: React.FC<StockfishEngineProps> = ({
     if (!isMyTurn) {
       return;
     }
-    // Yuki ne jaca kad vodi
-    if (isYuki) {
+    // Yuki i Obbina ne jacaju kad vode
+    if (isYuki || isObbina) {
       return;
     }
 
@@ -367,8 +370,8 @@ const StockfishEngine: React.FC<StockfishEngineProps> = ({
       if (!isMyTurnRef.current) {
         lastPlayedFenRef.current = currentFen;
         let move = bestMove;
-        // Yuki u 35% slucajeva igra nasumican legalan potez
-        if (isYuki && Math.random() < 0.35) {
+        // Yuki i Obbina ponekad igraju nasumican legalan potez
+        if (randomMoveChance > 0 && Math.random() < randomMoveChance) {
           const legalMoves = new Chess(currentFen).moves({ verbose: true });
           if (legalMoves.length > 0) {
             const m = legalMoves[Math.floor(Math.random() * legalMoves.length)];

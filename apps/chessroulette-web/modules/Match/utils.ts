@@ -154,9 +154,9 @@ export const getMakeFakeName = () => {
 export const chatBotList = [
   {
     id: '_TjQM58i13jmm000',
-    name: 'Amara',
+    name: 'Obbina',
     lastName: 'Okafor',
-    picture: '',
+    picture: 'https://api.outpostchess.com/upload/w_250,ao_1/https://outpostchess.fra1.digitaloceanspaces.com/f5907c84-ea34-4b21-8db9-e09290f1fd39.png',
     botType: 'botelja',
   },
   {
