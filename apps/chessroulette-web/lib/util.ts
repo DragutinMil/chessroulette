@@ -68,7 +68,13 @@ export const safeReducer = <S, A extends AnyAction>(
 ): MovexReducer<S, A> => {
   const fn: MovexReducer<S, A> = (prev, action) => {
     try {
-      return original(prev, action);
+      const next = original(prev, action);
+      // soba bez activity obara Movex pri sledecem citanju ($transformState)
+      if (!(next as any)?.activity) {
+        console.error(`${name} Reducer returned state without activity:`, action.type, (action as any).payload);
+        return prev;
+      }
+      return next;
     } catch (e) {
       console.error(`${name} Reducer crashed on action:`, action.type, e);
       return prev;
@@ -76,7 +82,19 @@ export const safeReducer = <S, A extends AnyAction>(
   };
 
   fn.$canReconcileState = original.$canReconcileState;
-  fn.$transformState = original.$transformState;
+
+  const transformState = original.$transformState;
+  // greska u $transformState (pri slanju stanja klijentu) takodje ne sme da obori server
+  fn.$transformState = transformState
+    ? (state, masterContext) => {
+        try {
+          return transformState(state, masterContext);
+        } catch (e) {
+          console.error(`${name} $transformState crashed, state keys:`, Object.keys(state || {}), e);
+          return state;
+        }
+      }
+    : undefined;
 
   return fn;
 };
