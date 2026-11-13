@@ -64,12 +64,10 @@ export const MatchAbortContainer = ({
         });
       }}
       confirmContent={
-        <div className="flex flex-row justify-center  ">
-          <div>
-            {firstRound
-              ? 'If you abort, this match will be canceled and invalid!'
-              : 'Be careful. If you Abort, you will lose the whole match!'}
-          </div>
+        <div className="text-center text-sm md:text-base text-slate-300">
+          {firstRound
+            ? "It gets canceled and won't count."
+            : 'Abort now and you lose the whole match.'}
         </div>
       }
       canAbortOnDemand={isMyTurn}
