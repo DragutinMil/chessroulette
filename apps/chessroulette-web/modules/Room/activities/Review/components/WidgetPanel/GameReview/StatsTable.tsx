@@ -7,6 +7,7 @@ type StatsTableProps = {
   content: string;
   review: EvaluationMove[];
   onMoveClick?: (index: FBHIndex) => void;
+  focusedIndex?: FBHIndex;
 };
 
 const getHighlightClassError = (value: number): string => {
@@ -24,13 +25,18 @@ export const StatsTable: React.FC<StatsTableProps> = ({
   content,
   review,
   onMoveClick,
+  focusedIndex,
 }) => {
   const values = content.split('/').map(Number);
   return (
     <div className="w-[100%] justify-center">
       <div>
         <p className="relative bottom-2">Evaluation Graph</p>
-        <EvalChart review={review} onMoveClick={onMoveClick} />
+        <EvalChart
+          review={review}
+          onMoveClick={onMoveClick}
+          focusedIndex={focusedIndex}
+        />
       </div>
       {/* Header */}
       <div className="w-[85%] justify-center mt-2">

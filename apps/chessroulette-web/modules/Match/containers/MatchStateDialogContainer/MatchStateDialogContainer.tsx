@@ -6,6 +6,7 @@ import { invoke } from '@xmatter/util-kit';
 import { BetweenGamesAborter } from './components/BetweenGamesAborter';
 import { Button } from '../../../../components/Button/Button';
 import { Icon } from '@app/components/Icon/Icon';
+import { AiSearchIcon } from '@app/components/Icon/AiSearchIcon';
 import { useRouter } from 'next/navigation';
 import {
   checkUser,
@@ -213,11 +214,14 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
     ) {
       // Send to grab result from chessroullette
       sendResult(userId).then((ratings) => {
-        if (match?.status !== 'complete' || !myRole || !match.winner) return;
-        const newRating =
-          match.winner === myRole
-            ? ratings?.winner_rejting
-            : ratings?.loser_rejting;
+        if (match?.status !== 'complete' || !myRole) return;
+        // remi: calc_roullete_rejting_v2 upisuje challenger -> winner_rejting, challengee -> loser_rejting
+        const gotWinnerSlot = match.winner
+          ? match.winner === myRole
+          : myRole === 'challenger';
+        const newRating = gotWinnerSlot
+          ? ratings?.winner_rejting
+          : ratings?.loser_rejting;
         if (newRating === null || newRating === undefined) return;
         const roundedNew = Math.round(Number(newRating));
         const oldRating = Number(match[myRole].rating);
@@ -569,12 +573,12 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
                       //href={`http://localhost:4200/room/new/r${room}?activity=review&userId=${userId}&theme=op&pgn=${roomId}`}
                     >
                       <Button
-                        icon="MagnifyingGlassIcon"
                         bgColor="green"
                         className="transition-all text-black  duration-200 w-full hover:border-green-600 bg-green-600 animate-reviewPulse"
                         style={{ minWidth: '160px', color: '#000' }}
                         onClick={() => {}}
                       >
+                        <AiSearchIcon className="h-5 w-5" />
                         AI Coach Review
                       </Button>
                     </Link>
