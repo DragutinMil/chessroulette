@@ -214,11 +214,14 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
     ) {
       // Send to grab result from chessroullette
       sendResult(userId).then((ratings) => {
-        if (match?.status !== 'complete' || !myRole || !match.winner) return;
-        const newRating =
-          match.winner === myRole
-            ? ratings?.winner_rejting
-            : ratings?.loser_rejting;
+        if (match?.status !== 'complete' || !myRole) return;
+        // remi: calc_roullete_rejting_v2 upisuje challenger -> winner_rejting, challengee -> loser_rejting
+        const gotWinnerSlot = match.winner
+          ? match.winner === myRole
+          : myRole === 'challenger';
+        const newRating = gotWinnerSlot
+          ? ratings?.winner_rejting
+          : ratings?.loser_rejting;
         if (newRating === null || newRating === undefined) return;
         const roundedNew = Math.round(Number(newRating));
         const oldRating = Number(match[myRole].rating);

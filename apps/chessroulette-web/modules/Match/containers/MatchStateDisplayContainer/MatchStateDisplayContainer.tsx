@@ -10,7 +10,8 @@ import { enqueueMovexUpdatePlay } from '../../utils';
 import { useCurrentOrPrevMatchPlay } from '../../Play/hooks';
 // import { isMobile } from '@app/modules/Room/activities/Review/util';
 import { UsersMap } from '@app/modules/User';
-import { ConfirmButton } from '@app/components/Button';
+import { Button } from '@app/components/Button';
+import { Dialog } from '@app/components/Dialog';
 
 type MatchStateDisplayContainerProps = {
   activeBot?: string;
@@ -95,6 +96,8 @@ export const MatchStateDisplayContainer = ({
   const [disconnectedAt, setDisconnectedAt] = useState<number | null>(null);
   const [canClaimVictory, setCanClaimVictory] = useState(false);
   const [secondsLeft, setSecondsLeft] = useState(30);
+  // potvrda za claim victory - isti Dialog kao abort potvrda
+  const [showClaimConfirm, setShowClaimConfirm] = useState(false);
   const wasOpponentOnlineRef = useRef(false);
 
   useEffect(() => {
@@ -216,29 +219,44 @@ export const MatchStateDisplayContainer = ({
                 <span className="whitespace-nowrap text-slate-400 hidden md:flex  pt-0 relative bottom-1 md:pt-1 text-sm flex items-center text-md font-semibold min-h-[32px] ">
                   Opponent disconnected!
                 </span>
-                <ConfirmButton
+                <Button
                   bgColor="red"
                   size="sm"
                   icon="TrophyIcon"
                   iconKind="solid"
-                  confirmModalTitle="Claim Victory?"
-                  confirmWord="Yes"
-                  confirmModalContent={
-                    <div className="flex flex-row justify-center ">
-                      <div>Opponent has been disconnected. Claim the win?</div>
-                    </div>
-                  }
-                  confirmModalAgreeButtonBgColor="red"
-                  onClick={() => {
-                    dispatch({
-                      type: 'play:resignGame',
-                      payload: { color: opponentColor },
-                    });
-                  }}
+                  onClick={() => setShowClaimConfirm(true)}
                   className="p-1 gap-2 h-8 relative bottom-1  left-[-5px] md:left-4"
                 >
                   Claim Victory
-                </ConfirmButton>
+                </Button>
+                {showClaimConfirm && (
+                  <Dialog
+                    title="Claim victory?"
+                    content={
+                      <div className="text-center text-sm md:text-base text-slate-300">
+                        Opponent has been disconnected. Claim the win?
+                      </div>
+                    }
+                    buttons={[
+                      {
+                        children: 'Close',
+                        bgColor: 'green',
+                        onClick: () => setShowClaimConfirm(false),
+                      },
+                      {
+                        children: 'Yes',
+                        bgColor: 'red',
+                        onClick: () => {
+                          setShowClaimConfirm(false);
+                          dispatch({
+                            type: 'play:resignGame',
+                            payload: { color: opponentColor },
+                          });
+                        },
+                      },
+                    ]}
+                  />
+                )}
               </div>
             )}
           </div>
