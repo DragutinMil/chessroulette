@@ -6,9 +6,34 @@ import { FBHIndex } from '@xmatter/util-kit';
 // type EvalChartProps = {
 //   review:EvaluationMove[]
 // };
-export default function EvalChart({ review, onMoveClick }: any) {
+type EvalChartProps = {
+  review: EvaluationMove[];
+  onMoveClick?: (index: FBHIndex) => void;
+  // Currently focused move in the notation (the arrows/move list above the
+  // board). Drawn as a vertical timeline marker so the user can see where in
+  // the game they are.
+  focusedIndex?: FBHIndex;
+};
+
+// review[i] holds the evaluation after ply i (0 = White's 1st move), the same
+// mapping handleClick uses to go back from chart index to FBHIndex.
+export const fbhIndexToChartIndex = (
+  focusedIndex: FBHIndex | undefined,
+  reviewLength: number
+): number | null => {
+  if (!focusedIndex || reviewLength === 0) return null;
+  const ply = focusedIndex[0] * 2 + focusedIndex[1];
+  return Math.max(0, Math.min(reviewLength - 1, ply));
+};
+
+export default function EvalChart({
+  review,
+  onMoveClick,
+  focusedIndex,
+}: EvalChartProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [hovered, setHovered] = useState<number | null>(null);
+  const activeIndex = fbhIndexToChartIndex(focusedIndex, review?.length ?? 0);
 
   useEffect(() => {
     if (!canvasRef.current || !review?.length) return;
@@ -29,7 +54,7 @@ export default function EvalChart({ review, onMoveClick }: any) {
       return height - ((v - minEval) / (maxEval - minEval)) * height;
     };
 
-    const stepX = width / (review.length - 1);
+    const stepX = review.length > 1 ? width / (review.length - 1) : 0;
     if (!ctx) return;
     ctx.clearRect(0, 0, width, height);
 
@@ -79,7 +104,34 @@ export default function EvalChart({ review, onMoveClick }: any) {
       //   ctx.fillStyle = hovered === i ? '#f59e0b' : '#111';
       ctx.fill();
     });
-  }, [review, hovered]);
+
+    // 📍 timeline marker for the currently focused move
+    if (activeIndex !== null) {
+      const x = Math.max(1, Math.min(width - 1, activeIndex * stepX));
+      const y = normalizeY(Number(review[activeIndex].eval));
+
+      // save/restore so the marker styles don't leak into the next redraw
+      // (grid lines rely on the context's default stroke style)
+      ctx.save();
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.85)';
+      ctx.lineWidth = 2;
+      ctx.setLineDash([6, 4]);
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, height);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      ctx.beginPath();
+      ctx.arc(x, y, 7, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(7, 218, 99)';
+      ctx.fill();
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = '#ffffff';
+      ctx.stroke();
+      ctx.restore();
+    }
+  }, [review, hovered, activeIndex]);
 
   // 🖱️ hover logika
   const handleMove = (e: any) => {
