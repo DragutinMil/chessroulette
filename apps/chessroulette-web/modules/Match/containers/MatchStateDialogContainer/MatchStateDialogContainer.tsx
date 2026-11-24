@@ -2,7 +2,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { Dialog } from '@app/components/Dialog';
 import { Text } from '@app/components/Text';
 import { now } from '@app/lib/time';
-import { invoke } from '@xmatter/util-kit';
+import { GameOverReason, invoke } from '@xmatter/util-kit';
 import { BetweenGamesAborter } from './components/BetweenGamesAborter';
 import { Button } from '../../../../components/Button/Button';
 import { Icon } from '@app/components/Icon/Icon';
@@ -47,6 +47,8 @@ import { useParams } from 'next/navigation';
 
 export type ActivityActions = CounterActions;
 
+// posle mata popup ceka da se vidi '#' i pad kralja
+const CHECKMATE_DIALOG_DELAY_MS = 1200;
 const RATING_COUNT_DELAY_MS = 250;
 const RATING_COUNT_MS = 900;
 
@@ -246,6 +248,17 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
 
         setEndGameReason(reasons[Number(match.endedGames[0].gameOverReason)]);
 
+        const lastEndedGame = match.endedGames[match.endedGames.length - 1];
+        const endDelayMs =
+          lastEndedGame?.status === 'complete' &&
+          lastEndedGame.gameOverReason === GameOverReason.checkmate
+            ? CHECKMATE_DIALOG_DELAY_MS
+            : 0;
+        const showMatchDialog = () =>
+          endDelayMs
+            ? setTimeout(() => setMatchDialogReady(true), endDelayMs)
+            : setMatchDialogReady(true);
+
         if (iLostMatch && !sessionLossStreakChecked) {
           sessionLossStreakChecked = true;
           setTimeout(async () => {
@@ -280,7 +293,7 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
               }
               setLossStreakPaywallVisible(true);
             }
-          }, 1000);
+          }, 1000 + endDelayMs);
         }
 
         if (!sessionMatchStreakChecked) {
@@ -303,12 +316,12 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
                 patchUserStreakPlay({ play_celebration: today });
               }
             } finally {
-              setMatchDialogReady(true);
+              showMatchDialog();
             }
           };
           checkStreak();
         } else {
-          setMatchDialogReady(true);
+          showMatchDialog();
         }
       }
     }

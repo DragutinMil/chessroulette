@@ -118,6 +118,13 @@ module.exports = {
             boxShadow: '0 0 22px rgba(7,218,99,0.85)',
           },
         },
+        // matirani kralj pada na stranu i ostaje da lezi
+        kingFall: {
+          '0%': { transform: 'rotate(0deg)' },
+          '70%': { transform: 'rotate(95deg)' },
+          '85%': { transform: 'rotate(85deg)' },
+          '100%': { transform: 'rotate(90deg)' },
+        },
         progressPop: {
           '0%, 100%': {
             transform: 'scaleY(1)',
@@ -151,6 +158,7 @@ module.exports = {
         attentionPulse: 'attentionPulse 1.2s ease-in-out infinite',
         progressPop: 'progressPop 1.2s ease-in-out infinite',
         reviewPulse: 'reviewPulse 2.2s ease-in-out infinite',
+        kingFall: 'kingFall 0.6s ease-in 0.2s both',
         // sublevelBlink: 'sublevelBlink 0.45s ease-out'
       },
     },
