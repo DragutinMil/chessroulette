@@ -450,7 +450,8 @@ const MatchContainerInner = ({
             className={` w-max[full] md:w-max[3/4] mr-0 ${isTablet && 'px-4'} `}
           >
             <PlayContainer
-              key={match.endedGames.length}
+              // remount tek na startu nove partije, ne na kraju (inace se matni potez vrati pa animira)
+              key={match.endedGames.length + (match.gameInPlay ? 1 : 0)}
               botType={activeBot?.botType}
               userRating={userRating}
               botId={activeBot?.id}
