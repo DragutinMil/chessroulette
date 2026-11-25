@@ -6,9 +6,27 @@ import {
   FBHHistory,
   FBHIndex,
   FreeBoardHistory,
-  pgnToFen,
+  getNewChessGame,
 } from '@xmatter/util-kit';
 import { GameDisplayState } from '../types';
+
+// chess.js replay-uje celu partiju - isti pgn trazi vise komponenti na svaki render, pa parsiramo jednom
+let pgnCache: { pgn: ChessPGN; history: FBHHistory; fen: ChessFEN } | undefined;
+const parsePgn = (pgn: ChessPGN) => {
+  if (pgnCache?.pgn !== pgn) {
+    const chess = getNewChessGame({ pgn });
+    pgnCache = {
+      pgn,
+      history: FreeBoardHistory.linearToTurnHistory(
+        chess.history({ verbose: true })
+      ),
+      fen: chess.fen(),
+    };
+  }
+  return pgnCache;
+};
+
+export const getFenFromPgn = (pgn: ChessPGN): ChessFEN => parsePgn(pgn).fen;
 
 const getLastMove = (history: FBHHistory, atIndex: FBHIndex) => {
   const lm = FreeBoardHistory.findMoveAtIndex(history, atIndex);
@@ -23,12 +41,13 @@ export const getGameDisplayState = ({
   pgn: ChessPGN;
   focusedIndex?: FBHIndex;
 }): GameDisplayState => {
-  const allHistory = FreeBoardHistory.pgnToHistory(pgn);
+  const parsed = parsePgn(pgn);
+  const allHistory = parsed.history;
 
   if (!focusedIndex) {
     const lastFocusedIndex = FreeBoardHistory.getLastIndexInHistory(allHistory);
 
-    const fen = pgnToFen(pgn);
+    const fen = parsed.fen;
 
     return {
       fen,
@@ -56,7 +75,7 @@ export const getGameDisplayState = ({
 };
 
 export const getTurnFromPgn = (pgn: ChessPGN): ChessColor =>
-  getTurnFromFen(pgnToFen(pgn));
+  getTurnFromFen(parsePgn(pgn).fen);
 
 export const getTurnFromFen = (fen: ChessFEN): ChessColor =>
   new ChessFENBoard(fen).getFenState().turn;

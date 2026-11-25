@@ -758,7 +758,8 @@ export namespace FreeBoardHistory {
     return fenBoard.fen;
   };
 
-  const linearToTurnHistory = (
+  // izvezeno da bi se history i fen dobili iz jednog chess.js parsiranja
+  export const linearToTurnHistory = (
     linearHistory: DetailedChessMove[]
   ): FBHHistory => {
     type U = {
