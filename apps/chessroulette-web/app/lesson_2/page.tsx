@@ -14,11 +14,15 @@ export default async function Lessons2Page() {
   const session = await getCustomServerSession(authOptions);
   return (
     <div className="flex flex-col h-full container mx-auto">
-      {/* lekcije se otvaraju sa theme=op, pa i stranica nosi Outpost izgled */}
-      <Header themeName="op" session={session} />
+      {/* lekcije se otvaraju sa theme=op, pa i stranica nosi Outpost izgled.
+          Na telefonu header crta DailyLessonsSection u zakucanom delu na vrhu. */}
+      <div className="hidden md:block">
+        <Header themeName="op" session={session} />
+      </div>
       <DailyLessonsSection
         lessons={LESSON_DATABASE_2}
         levelLabel="Level 600–1200"
+        mobileHeader={<Header themeName="op" session={session} />}
       />
     </div>
   );
