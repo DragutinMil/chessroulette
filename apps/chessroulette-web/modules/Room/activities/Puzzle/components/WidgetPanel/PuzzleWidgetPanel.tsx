@@ -6,7 +6,7 @@ import React, {
   useRef,
 } from 'react';
 import { ButtonGreen } from '@app/components/Button/ButtonGreen';
-import { ChessFENBoard } from '@xmatter/util-kit';
+import { ChessFENBoard, uciToChessMove } from '@xmatter/util-kit';
 import {
   FreeBoardNotation,
   FreeBoardNotationProps,
@@ -621,18 +621,13 @@ Unlock Unlimited Puzzles, Unlimited Game Reviews, and Unlimited AI Chat for just
       if (!isMyTurn && currentChapterState.chessAiMode.mode == 'play') {
         setHintCircle(false);
 
-        const promo = m.length == 5 ? m[4] : undefined;
-        if (promo && 'qrbn'.includes(promo)) {
-          // engine igra suprotnom bojom od orijentacije - crni = mala slova
-          const n = {
-            from: fromChess,
-            to: toChess,
-            promoteTo:
-              currentChapterState.orientation == 'w'
-                ? promo
-                : promo.toUpperCase(),
-          };
-          setTimeout(() => onMove(n), 1500);
+        // engine igra suprotnom bojom od orijentacije
+        const engineMove = uciToChessMove(
+          m,
+          currentChapterState.orientation == 'w' ? 'b' : 'w'
+        );
+        if (engineMove.promoteTo) {
+          setTimeout(() => onMove(engineMove), 1500);
         } else {
           let n = { from: fromChess, to: toChess };
           if (currentChapterState.notation.history.length == 0) {

@@ -1,7 +1,17 @@
 import { PieceSymbol, Square, Chess } from 'chess.js';
 import { Arrow } from 'react-chessboard';
-import { ChessArrowId, ChessFEN, ChessMove, ChessPGN } from '../types';
-import { fenBoardPieceSymbolToPieceSymbol } from '../../ChessFENBoard';
+import {
+  ChessArrowId,
+  ChessFEN,
+  ChessMove,
+  ChessPGN,
+  ShortChessMove,
+} from '../types';
+import {
+  FenBoardPromotionalPieceSymbol,
+  fenBoardPieceSymbolToPieceSymbol,
+} from '../../ChessFENBoard';
+import { ChessColor } from './chessColor/types';
 
 export const isDarkSquare = (s: Square): boolean => {
   const [file, rank] = s;
@@ -112,6 +122,28 @@ export const pgnToFen = (pgn: ChessPGN): ChessFEN =>
  * @param m
  * @returns
  */
+// UCI potez iz engine-a ('g2g1n') u ShortChessMove - promoteTo je FEN simbol po boji (beli = veliko slovo)
+export const uciToChessMove = (
+  uci: string,
+  color: ChessColor
+): ShortChessMove => {
+  const from = uci.slice(0, 2) as Square;
+  const to = uci.slice(2, 4) as Square;
+  const promo = uci[4];
+
+  if (promo && 'qrbn'.includes(promo)) {
+    return {
+      from,
+      to,
+      promoteTo: (color === 'w'
+        ? promo.toUpperCase()
+        : promo) as FenBoardPromotionalPieceSymbol,
+    };
+  }
+
+  return { from, to };
+};
+
 export const localChessMoveToChessLibraryMove = ({
   from,
   to,

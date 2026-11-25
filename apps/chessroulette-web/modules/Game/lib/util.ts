@@ -7,8 +7,10 @@ import {
   FBHIndex,
   FreeBoardHistory,
   getNewChessGame,
+  ShortChessMove,
 } from '@xmatter/util-kit';
 import { GameDisplayState } from '../types';
+import type { CheckmateSquares } from '@app/components/Chessboard/ChessboardContainer/ChessboardDisplay';
 
 // chess.js replay-uje celu partiju - isti pgn trazi vise komponenti na svaki render, pa parsiramo jednom
 let pgnCache: { pgn: ChessPGN; history: FBHHistory; fen: ChessFEN } | undefined;
@@ -27,6 +29,23 @@ const parsePgn = (pgn: ChessPGN) => {
 };
 
 export const getFenFromPgn = (pgn: ChessPGN): ChessFEN => parsePgn(pgn).fen;
+
+// polja za '#' (figura koja je matirala) i pad kralja - undefined ako pozicija nije mat
+export const getCheckmateSquares = (
+  fen: ChessFEN,
+  lastMove?: ShortChessMove
+): CheckmateSquares | undefined => {
+  if (!lastMove) return undefined;
+  const chess = getNewChessGame({ fen });
+  if (!chess.isCheckmate()) return undefined;
+  const matedColor = chess.turn();
+  const kingSquare = chess
+    .board()
+    .flat()
+    .find((p) => p?.type === 'k' && p.color === matedColor)?.square;
+  if (!kingSquare) return undefined;
+  return { attackerSquare: lastMove.to, kingSquare };
+};
 
 const getLastMove = (history: FBHHistory, atIndex: FBHIndex) => {
   const lm = FreeBoardHistory.findMoveAtIndex(history, atIndex);

@@ -6,6 +6,7 @@ import {
   ChessRouler,
   GameOverReason,
   swapColor,
+  uciToChessMove,
 } from '@xmatter/util-kit';
 
 const PLAYERS_BY_COLOR = {
@@ -172,47 +173,87 @@ describe('Game Status: Idling > Ongoing', () => {
   });
 });
 
+const createOngoingGame = ({
+  pgn,
+  lastMoveAt = 123,
+  timeLeft,
+}: {
+  pgn: ChessPGN;
+  lastMoveAt?: number;
+  timeLeft?: Partial<OngoingGame['timeLeft']>;
+}) => {
+  const pendingGame = createPendingGame({
+    players: PLAYERS_BY_COLOR,
+    timeClass: 'blitz',
+  });
+
+  try {
+    const chessRouler = new ChessRouler({ pgn });
+
+    return {
+      ...pendingGame,
+      lastMoveBy: swapColor(chessRouler.turn()),
+      status: 'ongoing',
+      startedAt: 0,
+      pgn,
+      timeLeft: {
+        ...pendingGame.timeLeft,
+        lastUpdatedAt: timeLeft?.lastUpdatedAt || lastMoveAt,
+        w: timeLeft?.w || pendingGame.timeLeft.w,
+        b: timeLeft?.b || pendingGame.timeLeft.b,
+      },
+      lastMoveAt,
+    } satisfies OngoingGame;
+  } catch (e) {
+    console.error(e);
+  }
+};
+
 describe('Ongoing > Ongoing', () => {
-  // TBD
+  // beli pesak na g7, g8 je prazno - moze promocija u bilo koju figuru
+  const PROMOTION_READY_PGN = '1. h4 g5 2. hxg5 h5 3. g6 Bh6 4. g7 Nf6';
+
+  test('Bot underpromotion from engine UCI ("g7g8n") is accepted as a knight', () => {
+    const game = createOngoingGame({ pgn: PROMOTION_READY_PGN })!;
+
+    const actual = playReducer(game, {
+      type: 'play:move',
+      payload: { ...uciToChessMove('g7g8n', 'w'), moveAt: 200 },
+    });
+
+    expect(actual.pgn.endsWith('5. g8=N')).toBe(true);
+    expect(actual.lastMoveBy).toBe('w');
+  });
+
+  test.each(['q', 'r', 'b', 'n'])(
+    'Promotion to "%s" is accepted',
+    (piece) => {
+      const game = createOngoingGame({ pgn: PROMOTION_READY_PGN })!;
+
+      const actual = playReducer(game, {
+        type: 'play:move',
+        payload: { ...uciToChessMove(`g7g8${piece}`, 'w'), moveAt: 200 },
+      });
+
+      expect(actual.pgn).toContain(`g8=${piece.toUpperCase()}`);
+    }
+  );
+
+  test('Pawn move to the last rank without a promotion piece is rejected (state unchanged)', () => {
+    const game = createOngoingGame({ pgn: PROMOTION_READY_PGN })!;
+    const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+
+    const actual = playReducer(game, {
+      type: 'play:move',
+      payload: { from: 'g7', to: 'g8', moveAt: 200 },
+    });
+
+    expect(actual).toBe(game);
+    errorSpy.mockRestore();
+  });
 });
 
 describe('Game Status: Ongoing > Completed', () => {
-  const createOngoingGame = ({
-    pgn,
-    lastMoveAt = 123,
-    timeLeft,
-  }: {
-    pgn: ChessPGN;
-    lastMoveAt?: number;
-    timeLeft?: Partial<OngoingGame['timeLeft']>;
-  }) => {
-    const pendingGame = createPendingGame({
-      players: PLAYERS_BY_COLOR,
-      timeClass: 'blitz',
-    });
-
-    try {
-      const chessRouler = new ChessRouler({ pgn });
-
-      return {
-        ...pendingGame,
-        lastMoveBy: swapColor(chessRouler.turn()),
-        status: 'ongoing',
-        startedAt: 0,
-        pgn,
-        timeLeft: {
-          ...pendingGame.timeLeft,
-          lastUpdatedAt: timeLeft?.lastUpdatedAt || lastMoveAt,
-          w: timeLeft?.w || pendingGame.timeLeft.w,
-          b: timeLeft?.b || pendingGame.timeLeft.b,
-        },
-        lastMoveAt,
-      } satisfies OngoingGame;
-    } catch (e) {
-      console.error(e);
-    }
-  };
-
   test('Player times out (on "play:move" action) but the opponent has insufficient material and is awarded a draw instead of loss', () => {
     const game = createOngoingGame({
       pgn: '1. e4 e6 2. Qg4 d5 3. Qg6 hxg6 4. Ba6 Qg5 5. Nf3 Qxd2+ 6. Bxd2 dxe4 7. Bh6 exf3 8. Na3 gxh6 9. Bxb7 fxg2 10. Nb5 Bxb7 11. Nxa7 gxh1=Q+ 12. Kd2 Qxa1 13. f4 Rxa7 14. h4 Qxa2 15. f5 Qxb2 16. h5 gxh5 17. fxe6 fxe6 18. Kd3 Qxc2+ 19. Kxc2',
