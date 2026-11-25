@@ -621,17 +621,17 @@ Unlock Unlimited Puzzles, Unlimited Game Reviews, and Unlimited AI Chat for just
       if (!isMyTurn && currentChapterState.chessAiMode.mode == 'play') {
         setHintCircle(false);
 
-        if (
-          m.length == 5 &&
-          (m.slice(4, 5) == 'q' ||
-            m.slice(4, 5) == 'b' ||
-            m.slice(4, 5) == 'r' ||
-            m.slice(4, 5) == 'k')
-        ) {
-          const n =
-            currentChapterState.orientation == 'w'
-              ? { from: fromChess, to: toChess, promoteTo: 'q' }
-              : { from: fromChess, to: toChess, promoteTo: 'Q' };
+        const promo = m.length == 5 ? m[4] : undefined;
+        if (promo && 'qrbn'.includes(promo)) {
+          // engine igra suprotnom bojom od orijentacije - crni = mala slova
+          const n = {
+            from: fromChess,
+            to: toChess,
+            promoteTo:
+              currentChapterState.orientation == 'w'
+                ? promo
+                : promo.toUpperCase(),
+          };
           setTimeout(() => onMove(n), 1500);
         } else {
           let n = { from: fromChess, to: toChess };

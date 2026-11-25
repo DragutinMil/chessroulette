@@ -268,7 +268,8 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
         onMove(payload);
       };
 
-      if (promo === 'q') {
+      // svaka promocija (q/r/b/n) - bez figure chess.js odbija potez i bot se zaledi
+      if (promo) {
         engineMoveTimeoutRef.current = setTimeout(() => {
           dispatchIfStillCurrent({ from, to, promoteTo: promo });
         }, 2000);
