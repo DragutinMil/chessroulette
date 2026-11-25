@@ -305,12 +305,14 @@ export const DailyLessonsSection: React.FC<Props> = ({
   return (
     <main className="flex flex-1 justify-center text-white">
       <div className="flex flex-col gap-8 w-full max-w-[1200px] px-4 md:px-8 pt-2 md:pt-6 pb-10 md:pb-24">
-        {/* Naslov + Continue kartica; na telefonu zakucani na vrhu dok putanja skroluje */}
+        {/* Naslov + Continue kartica; na telefonu zakucani na vrhu dok putanja skroluje.
+            items-start (ne center): visina kartice zavisi od naslova/prompta lekcije,
+            pa bi centriranje spustalo blok razlicito na Level 1 i Level 2. */}
         <div
           ref={stickyTopRef}
           className={`sticky top-0 z-10 -mx-4 px-4 ${
             mobileHeader ? 'pt-0' : 'pt-3'
-          } pb-4 bg-[#01210b] shadow-[0_14px_16px_-10px_#01210b] md:static md:mx-0 md:p-0 md:bg-transparent md:shadow-none flex flex-wrap items-center justify-between gap-4 md:gap-8`}
+          } pb-4 bg-[#01210b] shadow-[0_14px_16px_-10px_#01210b] md:static md:mx-0 md:p-0 md:bg-transparent md:shadow-none flex flex-wrap items-start justify-between gap-4 md:gap-8`}
         >
           {/* Telefon: header u zakucanom delu, ceo red, bez dodatnog paddinga (header ima svoj). */}
           {mobileHeader && (
@@ -349,7 +351,7 @@ export const DailyLessonsSection: React.FC<Props> = ({
 
           <section
             aria-label="Continue"
-            className="flex-[1_1_600px] md:max-w-[680px] rounded-[20px] bg-[#0C2A17] border border-white/[0.08] p-4 md:p-[22px] flex flex-wrap gap-6 items-center"
+            className="flex-[1_1_600px] md:max-w-[680px] rounded-[20px] bg-[#0C2A17] border border-white/[0.08] p-4 md:p-[22px] flex flex-wrap gap-6 items-start"
           >
             {firstStep && isDesktop && (
               <div className=" w-[232px] shrink-0 rounded-[10px] overflow-hidden shadow-[0_16px_40px_rgba(0,0,0,0.45)] pointer-events-none">
