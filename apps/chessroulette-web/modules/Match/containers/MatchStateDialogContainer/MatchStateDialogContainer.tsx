@@ -47,7 +47,7 @@ import { useParams } from 'next/navigation';
 export type ActivityActions = CounterActions;
 
 // posle mata popup ceka da se vidi '#' i pad kralja
-const CHECKMATE_DIALOG_DELAY_MS = 1200;
+const CHECKMATE_DIALOG_DELAY_MS = 1700;
 const RATING_COUNT_DELAY_MS = 250;
 const RATING_COUNT_MS = 900;
 
