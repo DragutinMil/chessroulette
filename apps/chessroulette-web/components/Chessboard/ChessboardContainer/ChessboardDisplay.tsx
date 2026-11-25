@@ -17,6 +17,8 @@ import {
 } from 'react-chessboard';
 import { PromotionDialogLayer } from './PromotionDialogLayer';
 
+export type CheckmateSquares = { attackerSquare: string; kingSquare: string };
+
 export type ChessboardDisplayProps = Omit<
   ReactChessBoardProps,
   'fen' | 'boardOrientation'
@@ -31,6 +33,8 @@ export type ChessboardDisplayProps = Omit<
   onSubmitPromoMove: (move: ShortChessMove) => void;
   squareStyles?: any;
   squareRenderer?: ChessboardOptions['squareRenderer'];
+  // mat: '#' na figuri koja je matirala + pad kralja
+  checkmate?: CheckmateSquares;
   animationDurationInMs?: number;
   onSquareClick?: (square: string, piece?: string) => void;
   //onPieceClick?: (square: string, piece: string | null) => void;
@@ -72,6 +76,7 @@ export const ChessboardDisplay = ({
   lastMove,
   squareStyles,
   squareRenderer,
+  checkmate,
   onArrowsChange,
   // displayArrows,
 
@@ -88,6 +93,52 @@ export const ChessboardDisplay = ({
   ...boardProps
 }: ChessboardDisplayProps) => {
   // console.log('animationDurationInMs',animationDurationInMs);
+  // za ostala polja vraca undefined -> react-chessboard crta podrazumevano
+  const checkmateSquareRenderer: ChessboardOptions['squareRenderer'] =
+    checkmate &&
+    ((({ square, children }) => {
+      const isAttacker = square === checkmate.attackerSquare;
+      const isKing = square === checkmate.kingSquare;
+      if (!isAttacker && !isKing) return undefined;
+      return (
+        <div
+          style={{
+            width: '100%',
+            height: '100%',
+            position: 'relative',
+            ...squareStyles?.[square],
+          }}
+        >
+          {isKing ? (
+            <div
+              className="animate-kingFall"
+              style={{ width: '100%', height: '100%' }}
+            >
+              {children}
+            </div>
+          ) : (
+            children
+          )}
+          {isAttacker && (
+            <div
+              className="absolute flex items-center justify-center rounded-full bg-red-600 text-white font-bold pointer-events-none animate-fadeIn"
+              style={{
+                top: '4%',
+                right: '4%',
+                width: '32%',
+                height: '32%',
+                fontSize: sizePx / 8 / 4.5,
+                lineHeight: 1,
+                zIndex: 10,
+              }}
+            >
+              #
+            </div>
+          )}
+        </div>
+      );
+    }) as ChessboardOptions['squareRenderer']);
+
   return (
     <div
       className="flex"
@@ -134,7 +185,7 @@ export const ChessboardDisplay = ({
               // return true;
             },
             squareStyles,
-            squareRenderer,
+            squareRenderer: checkmateSquareRenderer || squareRenderer,
             darkSquareStyle: {
               backgroundColor: boardTheme.darkSquare,
             },
