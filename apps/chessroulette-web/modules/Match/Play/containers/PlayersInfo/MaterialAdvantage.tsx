@@ -1,5 +1,6 @@
 import React from 'react';
-import { PieceSan, ShortChessColor, getNewChessGame } from '@xmatter/util-kit';
+import { PieceSan, ShortChessColor } from '@xmatter/util-kit';
+import { getFenFromPgn } from '@app/modules/Game/lib';
 import { useTheme } from '@app/hooks/useTheme/useTheme';
 import { useIsTablet } from '@app/hooks/useIsTablet';
 
@@ -18,15 +19,14 @@ export const getMaterialAdvantage = (
 ): Record<ShortChessColor, MaterialAdvantageData> => {
   const diff = { q: 0, r: 0, b: 0, n: 0, p: 0 };
 
-  getNewChessGame({ pgn })
-    .board()
-    .forEach((row) =>
-      row.forEach((square) => {
-        if (square && square.type !== 'k') {
-          diff[square.type] += square.color === 'w' ? 1 : -1;
-        }
-      })
-    );
+  // broji iz keširanog fen-a (velika slova = beli) umesto novog replay-a cele partije
+  const placement = getFenFromPgn(pgn).split(' ')[0];
+  for (const ch of placement) {
+    const role = ch.toLowerCase() as keyof typeof diff;
+    if (role in diff) {
+      diff[role] += ch === role ? -1 : 1;
+    }
+  }
 
   const result: Record<ShortChessColor, MaterialAdvantageData> = {
     w: { pieces: [], score: 0 },
