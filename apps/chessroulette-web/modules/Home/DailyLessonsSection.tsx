@@ -22,6 +22,20 @@ import {
 
 const DAYS_PER_WEEK = 7;
 
+// Ista pozadina kao ekran lekcije (RoomTemplate), da lista i lekcija izgledaju kao jedna celina.
+const LESSONS_BG =
+  'linear-gradient(112.99deg, #07DA63 -68.31%, #000000 23.1%, #01160A 73.92%, #06B251 154.15%)';
+
+// Fiksiran sloj iza cele stranice (i iza headera iz page.tsx): gradient stoji
+// u mestu dok lista skroluje, kao na ekranu lekcije.
+const LessonsBackground = () => (
+  <div
+    aria-hidden
+    className="fixed inset-0 -z-10 pointer-events-none"
+    style={{ background: LESSONS_BG }}
+  />
+);
+
 type Props = {
   lessons?: Lesson[];
   levelLabel?: string;
@@ -238,6 +252,7 @@ export const DailyLessonsSection: React.FC<Props> = ({
   if (!current) {
     return (
       <>
+        <LessonsBackground />
         {mobileHeader && <div className="md:hidden">{mobileHeader}</div>}
         <main className="flex flex-1 justify-center px-4 py-10">
           <p className="text-slate-500">No lessons yet.</p>
@@ -304,6 +319,7 @@ export const DailyLessonsSection: React.FC<Props> = ({
 
   return (
     <main className="flex flex-1 justify-center text-white">
+      <LessonsBackground />
       <div className="flex flex-col gap-8 w-full max-w-[1200px] px-4 md:px-8 pt-2 md:pt-6 pb-10 md:pb-24">
         {/* Naslov + Continue kartica; na telefonu zakucani na vrhu dok putanja skroluje.
             items-start (ne center): visina kartice zavisi od naslova/prompta lekcije,
@@ -312,7 +328,7 @@ export const DailyLessonsSection: React.FC<Props> = ({
           ref={stickyTopRef}
           className={`sticky top-0 z-10 -mx-4 px-4 ${
             mobileHeader ? 'pt-0' : 'pt-3'
-          } pb-4 bg-[#01210b] shadow-[0_14px_16px_-10px_#01210b] md:static md:mx-0 md:p-0 md:bg-transparent md:shadow-none flex flex-wrap items-start justify-between gap-4 md:gap-8`}
+          } pb-4 bg-black/60 backdrop-blur-md shadow-[0_14px_16px_-10px_rgba(0,0,0,0.6)] md:static md:mx-0 md:p-0 md:bg-transparent md:backdrop-blur-none md:shadow-none flex flex-wrap items-start justify-between gap-4 md:gap-8`}
         >
           {/* Telefon: header u zakucanom delu, ceo red, bez dodatnog paddinga (header ima svoj). */}
           {mobileHeader && (
