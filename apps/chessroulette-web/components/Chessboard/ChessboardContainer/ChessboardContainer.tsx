@@ -11,6 +11,7 @@ import {
   ShortChessMove,
   ChessColor,
   isPromotableMove,
+  uciToChessMove,
 } from '@xmatter/util-kit';
 import { Square } from 'chess.js';
 import { useArrowAndCircleColor } from '../hooks/useArrowAndCircleColor';
@@ -256,9 +257,9 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
         engineMoveTimeoutRef.current = null;
       }
 
-      const from = m.slice(0, 2);
-      const to = m.slice(2, 4);
-      const promo = m[4];
+      // bot je na potezu, pa je njegova boja strana na potezu u fen-u
+      const move = uciToChessMove(m, fen.split(' ')[1] as ChessColor);
+      const { from, to } = move;
       // The position this move was computed for — if it no longer matches
       // latestFenRef.current by the time the delayed dispatch below fires,
       // the position has moved on and this move would just get rejected.
@@ -269,9 +270,9 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
       };
 
       // svaka promocija (q/r/b/n) - bez figure chess.js odbija potez i bot se zaledi
-      if (promo) {
+      if (move.promoteTo) {
         engineMoveTimeoutRef.current = setTimeout(() => {
-          dispatchIfStillCurrent({ from, to, promoteTo: promo });
+          dispatchIfStillCurrent(move);
         }, 2000);
       } else {
         if (match && (botType == 'botelja' || botType == 'matchFake')) {
