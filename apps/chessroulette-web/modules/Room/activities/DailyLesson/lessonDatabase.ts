@@ -55,6 +55,12 @@ export const KING_APPROACH = 'K>';
 /** Koliko puta korisnik moze da trazi hint po koraku, pre nego sto se dugme ugasi. */
 export const MAX_HINTS_PER_STEP = 2;
 
+/** Oznake na mini-tabli popupa: obojena polja (opciono natpis) i strelice. */
+export type DiagramMarks = {
+  squares?: { square: string; color: string; label?: string }[];
+  arrows?: { from: string; to: string; color: string }[];
+};
+
 export type LessonStep = {
   id: string;
   kind: LessonStepKind;
@@ -212,6 +218,16 @@ export type LessonStep = {
       hintSquare?: string;
       /** Poruka posle protivnikovog odgovora na ovaj potez, iza moveExplanations. */
       replyText?: string;
+      /** Oznake posle protivnikovog odgovora (npr. face-off), do sledeceg poteza (Day 30). */
+      replyHighlight?: {
+        arrows?: { from: string; to: string; color: string }[];
+        squares?: {
+          square: string;
+          color: string;
+          fill?: boolean;
+          label?: string;
+        }[];
+      };
       highlight?: {
         arrows?: { from: string; to: string; color: string }[];
         squares?: { square: string; color: string; fill?: boolean }[];
@@ -300,6 +316,7 @@ export type LessonStep = {
     /** Staticna mini-tabla iz FEN-a, sa opciono obojenim redom (Lessons 2 Day 8). */
     diagramFen?: string;
     diagramHighlightRank?: number;
+    diagramMarks?: DiagramMarks;
   };
   /**
    * Skakac koji preskace figuru - poljace "izmedju" from/to (racunato
@@ -366,6 +383,8 @@ export type LessonStep = {
       message: string;
       /** Znak na tabli uz ovaj potez, npr. '?' (Lessons 2 Day 28). */
       glyph?: string;
+      /** Dobar potez, samo nije trazeni: poruka bez X, zvuka i brojanja greske. */
+      noPenalty?: boolean;
     }[]
   >;
   /** Po indeksu korisnikovog poteza: znak na tabli posle tacnog poteza, npr. '!' (Lessons 2 Day 28). */
@@ -469,6 +488,8 @@ export type LessonStep = {
   quizAutoPlayReply?: string;
   /** Kviz se moze odgovoriti i potezom na tabli: indeks = quizOptions indeks, vrednost = UCI potezi te opcije. */
   quizMoveOptions?: string[][];
+  /** Uz quizMoveOptions: svaki drugi legalan potez na tabli je pogresan odgovor (Lessons 2 Day 32). */
+  quizMoveOtherWrong?: boolean;
   /** Posle odgovora oboji centralna polja koja tacan potez zauzima/napada (Lessons 2 Day 4). */
   quizCenterControl?: boolean;
   /**
@@ -673,12 +694,35 @@ export type LessonStep = {
    * Stalne oznake polja (npr. red koji top drzi) - ne brisu se izmedju poteza
    * ni kroz continuesGame korake, ispod privremenih highlight-a (Lessons 2 Day 29).
    */
+  /** markSquares: dodatni tacni skupovi polja (npr. kralj ILI polje mata). */
+  markSquaresAlt?: string[][];
+  /** markSquares: potezi (UCI) koji, odigrani na tabli, vaze kao tacan odgovor. */
+  markSquaresMoveAccept?: string[];
+  /** Kviz sa quizDemoLine: posle tacnog odgovora i demo linije sam prelazi dalje, bez Next. */
+  advanceAfterDemo?: boolean;
+  /** Posle mata: tabla pokaze ko daje mat, ko cuva polja i sta blokira kralja. */
+  mateHighlight?: boolean;
+  /** KPK: beli kralj na 6. redu ispred pesaka dobija oznaku WINNING i vesel zvuk. */
+  kpkWinGlow?: boolean;
+  /** freePlay KPK: trener komentarise svaki korisnikov potez po situaciji. */
+  kpkCoachTexts?: {
+    winning: string[];
+    kingFirst: string[];
+    pawnGo: string[];
+    gainGround: string[];
+    findOpposition: string[];
+  };
   boardBackdrop?: {
     square: string;
     color: string;
     fill?: boolean;
     label?: string;
   }[];
+  /**
+   * Pogresan potez koji daje pat ili ostavlja figuru da visi dobija svoju
+   * poruku umesto missTexts/hintText (Day 30, gde hintText kaze "still winning").
+   */
+  wrongMoveBlunderTexts?: { hangs: string; stalemate: string };
   /** Po indeksu korisnikovog poteza: posle tog poteza zameni boardBackdrop. */
   moveBackdrops?: Record<
     number,
@@ -833,6 +877,8 @@ export type LessonStep = {
    * ne odigra jedan od ovih poteza (streak koncept ne postoji ovde).
    */
   exactMoveUci?: string | string[];
+  /** Uz exactMoveUci (Lessons 2 Day 31): potez BILO KOJOM figurom je pokusaj, ne tiho ignorisan. */
+  exactMoveAnyPiece?: boolean;
   /**
    * Samo kind:'teach' (Day 30 Q8 "promotion race") - TACNA, unapred zadata
    * sekvenca poteza (UCI niz, npr. dvopoljni skok pa niz jednopoljnih
@@ -920,6 +966,9 @@ export type Lesson = {
     /** Staticna mini-tabla na ovom ekranu (Lessons 2 Day 8), sa opciono obojenim redom. */
     diagramFen?: string;
     diagramHighlightRank?: number;
+    diagramMarks?: DiagramMarks;
+    /** UCI potez koji se animira u petlji; oznake se pale posle poteza. */
+    diagramMove?: string;
   }[];
   /**
    * Default: trailing niz kind:'puzzle' koraka na KRAJU lekcije (npr. 5
@@ -986,6 +1035,10 @@ export type Lesson = {
    * "sigurniji" vizuel ("Pawny 2.0") umesto Day 14-ovog originala. Path pod
    * `public/`, isti format kao postojeci. Kad nije zadato, ostaje original.
    */
+  /** Ime protivnika umesto "Pawny" (Lessons 2: Mia, Alex, Leo), za karticu i putanju. */
+  opponentName?: string;
+  /** Kratak opis protivnika na kartici i putanji, npr. 'Tactician'. */
+  opponentTagline?: string;
   pawnyAvatar?: string;
   /** Slika vec ima svoju pozadinu i plocu (Pawny 4.0-6.0) - uvodna kartica tada ne crta svoju. */
   pawnyAvatarFramed?: boolean;
@@ -997,6 +1050,8 @@ export type Lesson = {
    * Kalibracija NIJE izmerena, podesava se ovde bez izmene koda.
    */
   pawnyRating?: {
+    /** Fiksni prikazani rejting (isti u svakoj partiji); bez njega se bira nasumicno min-max. */
+    fixed?: number;
     min: number;
     max: number;
     jitter: number;
@@ -6993,25 +7048,20 @@ const L2_DAY_1_PIN: Lesson = {
   },
   introSteps: [
     {
-      text: "A pinned piece **can't move without exposing something bigger** behind it. Sometimes that something is the king. Then it's **illegal to move at all**.",
+      text: "Your piece attacks along a line. An enemy piece stands in front of a **more valuable one**. If that's the **king**, the pinned piece **can't legally move**. Anything else, it can. It **shouldn't**.",
       buttonText: 'Find the pin!',
+      // Re1 vezuje skakaca e4 za kralja e8 (chess.js).
+      diagramFen: '4k3/8/8/8/4n3/8/7K/R7 w - - 0 1',
+      diagramMove: 'a1e1',
+      diagramMarks: {
+        squares: [
+          { square: 'e4', color: 'rgba(242, 53, 141, 0.55)', label: 'PINNED' },
+        ],
+        arrows: [{ from: 'e1', to: 'e8', color: 'rgba(17, 198, 209, 0.8)' }],
+      },
     },
   ],
   steps: [
-    {
-      id: 'intro-what-is-pin',
-      kind: 'quiz',
-      fen: '8/8/8/8/8/8/8/8 w - - 0 1',
-      orientation: 'w',
-      solution: ['quiz'],
-      prompt: 'Pin',
-      introText:
-        "A pin happens when your piece attacks along a line: a file, rank, or diagonal. An enemy piece stands in front of a **more valuable one** behind it. If the piece behind is the **king**, the pinned piece can't legally move at all. If it's anything else, it can move. It **shouldn't**. Five positions. Find the move that pins.",
-      doneText: "Let's go.",
-      hintText: '',
-      nextButtonText: "Let's go!",
-      excludeFromProgress: true,
-    },
     {
       id: 'p1-bishop-knight-king',
       kind: 'puzzle',
@@ -7088,11 +7138,55 @@ const L2_DAY_1_PIN: Lesson = {
         'Hold on. Find the diagonal with both the **rook and the king** on it.',
       hintTextAlways: true,
     },
+    // Real game 1: g2 vezan lovcem e4, Qxh3# jedini mat u 1 (SF).
+    {
+      id: 'p6-real-game-qxh3',
+      kind: 'puzzle',
+      fen: '8/2Q5/4pp1k/8/3pbP1p/6qP/P5P1/2R3RK b - - 2 2',
+      orientation: 'b',
+      solution: ['g3h3'],
+      prompt: 'Real game: use the pin',
+      preStepIntro: {
+        title: 'Pins from real games',
+        text: 'Clean drills are done. Now **two real games**. Messier boards. Same weapon.',
+        buttonText: "Let's go!",
+      },
+      introText: "You're Black. **Use the power of the pin.**",
+      doneText:
+        "Checkmate. The g2 pawn **can't take**. It's pinned to the king by your bishop.",
+      hintText:
+        'Hold on. Look at the **g2 pawn**. Can it really move? Then hit what it guards.',
+      hintTextAlways: true,
+      wrongMoveHighlight: { squares: l2Line(['e4', 'f3', 'g2', 'h1']) },
+    },
+    // Real game 2: g7 vezan damom g2, Nh6+ Kh8 (jedini) Nxf7+, +6.9 (SF).
+    {
+      id: 'p7-real-game-nh6',
+      kind: 'puzzle',
+      fen: '5rk1/p1p2qpp/1pp5/5N2/4Pr1P/3P4/PPP3Q1/1K1R3R w - - 0 1',
+      orientation: 'w',
+      solution: ['f5h6', 'g8h8', 'h6f7'],
+      prompt: 'Real game: use the pin',
+      introText: '**Use the power of the pin.** Win something big.',
+      doneText:
+        "Queen won. g7 couldn't take the knight. It's **pinned to the king** by your queen.",
+      hintText:
+        'Hold on. Your queen pins the **g7 pawn**. Which square can it no longer guard?',
+      hintTextAlways: true,
+      moveGuides: {
+        2: {
+          hintText: 'The king ran. **Now take what the knight attacks.**',
+        },
+      },
+      wrongMoveHighlight: {
+        squares: l2Line(['g2', 'g3', 'g4', 'g5', 'g6', 'g7', 'g8']),
+      },
+    },
   ],
   endScreenButtons: [
     { label: 'Done', action: 'done' },
     { label: 'Repeat', action: 'repeat' },
-    { label: 'Play', action: 'play' },
+    { label: 'Next', action: 'nextLesson' },
   ],
 };
 
@@ -7118,25 +7212,22 @@ const L2_DAY_2_BACK_RANK_MATE: Lesson = {
   },
   introSteps: [
     {
-      text: "A king **trapped behind its own pawns**, with nowhere to run on its own back rank. One rook or queen sliding all the way in, and **it's over**.",
+      text: 'A king **trapped behind its own pawns**. Nothing guards its row. One rook or queen slides all the way in. **Checkmate.**',
       buttonText: 'Find the mate!',
+      // Ra8# jedini mat (chess.js).
+      diagramFen: '7k/6pp/8/8/8/8/6PP/R5K1 w - - 0 1',
+      diagramMove: 'a1a8',
+      diagramMarks: {
+        squares: [
+          { square: 'g7', color: 'rgba(17, 198, 209, 0.45)' },
+          { square: 'h7', color: 'rgba(17, 198, 209, 0.45)' },
+          { square: 'h8', color: 'rgba(242, 53, 141, 0.55)', label: 'MATE' },
+        ],
+        arrows: [{ from: 'a8', to: 'g8', color: 'rgba(17, 198, 209, 0.8)' }],
+      },
     },
   ],
   steps: [
-    {
-      id: 'intro-back-rank',
-      kind: 'quiz',
-      fen: '8/8/8/8/8/8/8/8 w - - 0 1',
-      orientation: 'w',
-      solution: ['quiz'],
-      prompt: 'Back rank mate',
-      introText:
-        "Look at the **king's own row**. If its escape squares are blocked by its own pawns and nothing's watching that row, one piece sliding all the way down it is **checkmate**. Six positions. Find the mating move each time.",
-      doneText: "Let's go.",
-      hintText: '',
-      nextButtonText: "Let's go!",
-      excludeFromProgress: true,
-    },
     {
       id: 'p1-rook-center',
       kind: 'puzzle',
@@ -7150,47 +7241,59 @@ const L2_DAY_2_BACK_RANK_MATE: Lesson = {
         'Hold on. **His own pawns** are his problem. Put your rook all the way down his row.',
       hintTextAlways: true,
     },
+    // Qb1+ Qd1 (fiksno; Qc1/Qe1 isto gube) Qxd1# (chess.js + SF mat u 2).
     {
-      id: 'p2-rook-h-corner',
+      id: 'p2-black-queen-check-mate',
       kind: 'puzzle',
-      fen: '7k/6pp/8/8/8/8/8/1R2K3 w - - 0 1',
-      orientation: 'w',
-      solution: ['b1b8'],
-      prompt: 'Rook mates in the corner',
-      introText: 'Same idea, **corner** this time. Find it.',
-      doneText: "Corner or center, doesn't matter. **Same trap.**",
-      hintText:
-        "Hold on. Check which row his king **can't leave**. Get your rook all the way onto it.",
-      hintTextAlways: true,
-    },
-    {
-      id: 'p3-rook-a-corner',
-      kind: 'puzzle',
-      fen: 'k7/pp6/8/8/8/8/8/4K2R w - - 0 1',
-      orientation: 'w',
-      solution: ['h1h8'],
-      prompt: 'Rook mates in the other corner',
-      introText: 'One more corner.',
-      doneText:
-        "Right again. You're starting to **see it before you look for it**.",
-      hintText:
-        'Hold on. Same pattern as before. **Find the row**, get all the way across it.',
-      hintTextAlways: true,
-    },
-    {
-      id: 'p4-rook-capture-mate',
-      kind: 'puzzle',
-      fen: 'r5k1/5ppp/8/8/8/8/8/R3K3 w - - 0 1',
-      orientation: 'w',
-      solution: ['a1a8'],
-      prompt: 'Rook mates with a capture',
+      fen: '6k1/ppp4p/3p1pp1/3P4/2PNq3/1P6/P2Q1PPP/6K1 b - - 0 23',
+      orientation: 'b',
+      solution: ['e4b1', 'd2d1', 'b1d1'],
+      prompt: "You're Black: check first, then mate",
       introText:
-        "This time there's a rook in the way. See what happens if you **just take it**.",
+        "You're Black. White's king is stuck behind **its own pawns**. **Find the mate.**",
       doneText:
-        "You didn't just win his rook. You **mated him with the same move**.",
-      hintText:
-        "Hold on. Don't work around the piece on a8. **Go straight through it.**",
+        'Check, block, take. The blocker was **the only guard** of that row.',
+      hintText: "Hold on. Get your queen to **White's back rank** with check.",
       hintTextAlways: true,
+      moveGuides: {
+        2: { hintText: 'He blocked with the queen. **Take it. Mate.**' },
+      },
+    },
+    // Rxd1+ Re1 (jedini) Rxe1# (chess.js + SF mat u 2).
+    {
+      id: 'p3-black-rook-takes-queen',
+      kind: 'puzzle',
+      fen: '2kr1b1r/ppp3p1/2N1b2p/4R3/8/2P5/PP3PPP/RNBQ2K1 b - - 0 14',
+      orientation: 'b',
+      solution: ['d8d1', 'e5e1', 'd1e1'],
+      prompt: "You're Black: take with check",
+      introText:
+        'Black again. Your rook stares down **the d-file**. **Find the mate.**',
+      doneText:
+        "His queen fell with check. The rook block didn't help. **Same row, same trap.**",
+      hintText: 'Hold on. What sits at the **end of your d-file**? Take it.',
+      hintTextAlways: true,
+      moveGuides: {
+        2: { hintText: 'He blocked with the rook. **Take it. Mate.**' },
+      },
+    },
+    // Qg1+ Qd1 (fiksno; Qc1/Qe1 gube brze) Qxd1+ Rxd1 (jedini) Rxd1# (chess.js + SF mat u 3).
+    {
+      id: 'p4-black-queen-trade-mate',
+      kind: 'puzzle',
+      fen: '3r4/1k6/1q5p/1p1R2pP/6P1/2P2P2/PP1Q4/K7 b - - 0 40',
+      orientation: 'b',
+      solution: ['b6g1', 'd2d1', 'g1d1', 'd5d1', 'd8d1'],
+      prompt: "You're Black: check, trade, mate",
+      introText:
+        "White's king sits in **the corner**. Pawns on a2 and b2 lock it in. **Find the mate.**",
+      doneText: 'Queens off, rook in. **The corner king had no air.**',
+      hintText: "Hold on. Get your queen to **White's back rank** with check.",
+      hintTextAlways: true,
+      moveGuides: {
+        2: { hintText: 'He blocked with the queen. **Take it, with check.**' },
+        4: { hintText: 'His rook took back. **Now yours finishes it.**' },
+      },
     },
     {
       id: 'p5-black-queen-mate',
@@ -7200,7 +7303,7 @@ const L2_DAY_2_BACK_RANK_MATE: Lesson = {
       solution: ['d8d1'],
       prompt: "You're Black: queen mates on the back rank",
       introText:
-        "Switch sides. White's king has **the exact same problem**. Finish it.",
+        "Quick one. White's king has **the exact same problem**. Finish it.",
       doneText:
         "Same pattern, either color. That's the point. **It'll happen to you too** if you're not careful.",
       hintText:
@@ -7224,11 +7327,60 @@ const L2_DAY_2_BACK_RANK_MATE: Lesson = {
         'Hold on. Your rooks are **stacked on the d-file**. Start by taking on d1.',
       hintTextAlways: true,
     },
+    // Real game 1: Qxf2+ Kh1 (jedini) Qf1+ Rxf1 (jedini) Rxf1# (chess.js + SF).
+    {
+      id: 'p7-real-game-qxf2',
+      kind: 'puzzle',
+      fen: 'b4r1k/4R2p/p1P1Qqp1/1p6/1P6/P7/5PPP/2R3K1 b - - 2 33',
+      orientation: 'b',
+      solution: ['f6f2', 'g1h1', 'f2f1', 'c1f1', 'f8f1'],
+      prompt: 'Real game: back rank mate',
+      preStepIntro: {
+        title: 'Back rank mates from real games',
+        text: 'Easy ones done. Now **two real games**. Longer lines. **Play them to mate.**',
+        buttonText: "Let's go!",
+      },
+      introText: "You're Black. **Find the mate.** It takes three moves.",
+      doneText:
+        'Queen sacrifice, then the rook walks in. **His back rank had one guard.** You removed it.',
+      hintText: 'Hold on. Start with **check**. Look at f2.',
+      hintTextAlways: true,
+      moveGuides: {
+        2: {
+          hintText:
+            'King in the corner. Now **give up the queen** on his back rank.',
+        },
+        4: { hintText: 'His rook took. **Finish it.**' },
+      },
+    },
+    // Real game 2: Qc2+ Ka1 (jedini) Qc1+ Rxc1 (jedini) Rxc1# (chess.js + SF).
+    {
+      id: 'p8-real-game-qc2',
+      kind: 'puzzle',
+      fen: 'r5k1/5pp1/2r3p1/pp1Q4/3PR1P1/7P/PP3q2/1K2R3 b - - 0 27',
+      orientation: 'b',
+      solution: ['f2c2', 'b1a1', 'c2c1', 'e1c1', 'c6c1'],
+      prompt: 'Real game: back rank mate',
+      introText:
+        "Last one. You're Black. **Find the mate.** Three moves again.",
+      doneText:
+        'Same trick, other side of the board. **Sacrifice, recapture, mate.**',
+      hintText:
+        'Hold on. Your rook is on the **c-file**. Bring the queen there with check.',
+      hintTextAlways: true,
+      moveGuides: {
+        2: {
+          hintText:
+            'King in the corner. **Give up the queen** on his back rank.',
+        },
+        4: { hintText: 'His rook took. **Finish it.**' },
+      },
+    },
   ],
   endScreenButtons: [
     { label: 'Done', action: 'done' },
     { label: 'Repeat', action: 'repeat' },
-    { label: 'Play', action: 'play' },
+    { label: 'Next', action: 'nextLesson' },
   ],
 };
 
@@ -7284,26 +7436,13 @@ const L2_DAY_3_RULE_OF_SQUARE: Lesson = {
   },
   introSteps: [
     {
-      text: "**Don't calculate every move.** Draw a diagonal from the pawn to the edge, drop a line to the pawn's rank, and form a square. If the king's inside it (or can step in), **it catches the pawn**. If not, **the pawn queens**.",
-      buttonText: 'Show me!',
+      text: "**Don't calculate every move.** Draw the pawn's square to the edge. King inside it, or stepping in: **he catches the pawn**. Outside: **the pawn queens**.",
+      buttonText: 'Quiz me',
+      diagramFen: '8/8/8/7k/3P4/8/8/K7 b - - 0 1',
+      diagramMarks: l2PawnSquare('d4', 'h'),
     },
   ],
   steps: [
-    {
-      id: 'demo-square',
-      kind: 'quiz',
-      fen: '8/8/8/7k/3P4/8/8/K7 b - - 0 1',
-      orientation: 'w',
-      solution: ['quiz'],
-      prompt: 'The square',
-      introText:
-        "Here's the square. A diagonal from the pawn to the edge, a line down to the pawn's rank: **d4, d8, h8, h4**. The black king is on h5, **inside the box**. If it's his move, he walks in and catches it. Remember what inside the box looks like. Next, you judge it yourself.",
-      quizBoardHighlight: l2PawnSquare('d4', 'h'),
-      doneText: 'Your turn.',
-      hintText: '',
-      nextButtonText: 'Got it, quiz me',
-      excludeFromProgress: true,
-    },
     {
       id: 'q1-pawn-queens',
       kind: 'quiz',
@@ -7402,7 +7541,7 @@ const L2_DAY_3_RULE_OF_SQUARE: Lesson = {
   endScreenButtons: [
     { label: 'Done', action: 'done' },
     { label: 'Repeat', action: 'repeat' },
-    { label: 'Play', action: 'play' },
+    { label: 'Next', action: 'nextLesson' },
   ],
 };
 
@@ -7435,26 +7574,13 @@ const L2_DAY_4_CENTER_CONTROL: Lesson = {
   },
   introSteps: [
     {
-      text: 'Four squares matter more than the rest of the board combined: **d4, d5, e4, e5**. Every good opening move is fighting for **at least one of them**.',
-      buttonText: 'Show me the center',
+      text: 'Four squares matter most: **d4, d5, e4, e5**. Every good opening move **fights for at least one of them**.',
+      buttonText: 'Quiz me',
+      diagramFen: L2_START_FEN,
+      diagramMarks: { squares: L2_CENTER },
     },
   ],
   steps: [
-    {
-      id: 'demo-center',
-      kind: 'quiz',
-      fen: L2_START_FEN,
-      orientation: 'w',
-      solution: ['quiz'],
-      prompt: 'The center',
-      introText:
-        "**These four squares.** Whoever controls them gets more space, faster development, and pieces that reach further. Every move you're about to look at either fights for one of these squares, or it doesn't.",
-      quizBoardHighlight: { squares: L2_CENTER },
-      doneText: 'Your turn.',
-      hintText: '',
-      nextButtonText: 'Quiz me',
-      excludeFromProgress: true,
-    },
     {
       id: 'q1-e4-d4-vs-a3',
       kind: 'quiz',
@@ -7544,7 +7670,7 @@ const L2_DAY_4_CENTER_CONTROL: Lesson = {
       orientation: 'w',
       solution: ['quiz'],
       prompt: 'Bishops fight from afar',
-      introText: 'Last one. This pair **looks similar** at first glance.',
+      introText: 'This pair **looks similar** at first glance.',
       quizOptions: ['3. Bc4', '3. Be2'],
       quizCorrectIndex: 0,
       quizMoveOptions: [['f1c4'], ['f1e2']],
@@ -7557,11 +7683,61 @@ const L2_DAY_4_CENTER_CONTROL: Lesson = {
       doneText: 'Occupy it, or attack it from the side. Either counts.',
       hintText: '',
     },
+    // SF: d4 najbolji (+0.62).
+    {
+      id: 'g1-grab-center-vs-g6',
+      kind: 'puzzle',
+      fen: 'rnbqkbnr/pppppp1p/6p1/8/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2',
+      orientation: 'w',
+      solution: ['d2d4'],
+      prompt: 'In a game: grab the center',
+      introText:
+        'Now in a real game. Black played **g6** and left the center alone. **Grab it.**',
+      doneText:
+        '**d4.** Two pawns side by side. Whenever the opponent lets you, **take the center with both pawns**.',
+      hintText:
+        'Hold on. You already have e4. **Put the second pawn next to it.**',
+      hintTextAlways: true,
+      wrongMoveHighlight: { squares: L2_CENTER },
+    },
+    // SF: d4 najbolji (+0.37), c3 ga priprema.
+    {
+      id: 'g2-grab-center-c3',
+      kind: 'puzzle',
+      fen: 'rnbqkbnr/pp1p1ppp/4p3/2p5/4P3/2P5/PP1P1PPP/RNBQKBNR w KQkq - 0 2',
+      orientation: 'w',
+      solution: ['d2d4'],
+      prompt: 'In a game: grab the center',
+      introText: 'You played **c3** for a reason. **Grab the center.**',
+      doneText:
+        '**d4.** c3 was there to support it. Now if Black takes, **c3 takes back** and you keep two pawns in the middle.',
+      hintText:
+        'Hold on. Your c3 pawn guards **one central square**. Put a pawn there.',
+      hintTextAlways: true,
+      wrongMoveHighlight: { squares: L2_CENTER },
+    },
+    // Nastavak posle 3.d4, tabla okrenuta: SF d5 najbolji (-0.32).
+    {
+      id: 'g3-black-strikes-back-d5',
+      kind: 'puzzle',
+      fen: 'rnbqkbnr/pp1p1ppp/4p3/2p5/3PP3/2P5/PP3PPP/RNBQKBNR b KQkq - 0 2',
+      orientation: 'b',
+      solution: ['d7d5'],
+      prompt: "You're Black: fight back",
+      introText:
+        "Switch sides. You're Black now. White owns **two central pawns**. **How do you fight for the center?**",
+      doneText:
+        "**d5.** Hit the center with a pawn of your own. **Don't hand it over for free.**",
+      hintText:
+        'Hold on. Your e6 pawn already supports **one central square**. Strike at e4 from there.',
+      hintTextAlways: true,
+      wrongMoveHighlight: { squares: L2_CENTER },
+    },
   ],
   endScreenButtons: [
     { label: 'Done', action: 'done' },
     { label: 'Repeat', action: 'repeat' },
-    { label: 'Play', action: 'play' },
+    { label: 'Next', action: 'nextLesson' },
   ],
 };
 
@@ -7663,7 +7839,7 @@ const L2_DAY_5_OPENING_MISTAKES: Lesson = {
       solution: ['quiz'],
       prompt: 'Theory check',
       introText:
-        'Quick theory check before the last two. Why is bringing the queen out early **usually a mistake**, even when nothing gets captured?',
+        'Quick theory check. Why is bringing the queen out early **usually a mistake**, even when nothing gets captured?',
       quizOptions: [
         'Moving the queen before move 10 is illegal',
         'The opponent develops a piece while attacking it, gaining a free move',
@@ -7725,15 +7901,43 @@ const L2_DAY_5_OPENING_MISTAKES: Lesson = {
       doneText: 'Develop, defend, attack. One move, three jobs.',
       hintText: '',
     },
+    // Crni igra Nc6-a5 (h5 nije legalno sa c6): ivica + ista figura dvaput.
+    {
+      id: 'q6-knight-to-a5',
+      kind: 'quiz',
+      fen: 'r1bqkbnr/pppp1ppp/2n5/1B2p3/4P3/5N2/PPPP1PPP/RNBQK2R b KQkq - 0 1',
+      orientation: 'w',
+      solution: ['quiz'],
+      prompt: "Black's last move",
+      playMoveOnLoad: 'c6a5',
+      introText:
+        "Last one. Look at Black's last move: the knight went **from c6 to a5**. Good move or bad move?",
+      quizOptions: ['Good move', 'Bad move'],
+      quizCorrectIndex: 1,
+      quizBoardHighlightUpfront: true,
+      quizBoardHighlight: {
+        arrows: [{ from: 'c6', to: 'a5', color: '#f2358d' }],
+        squares: [
+          { square: 'c6', color: 'rgba(242, 53, 141, 0.35)', fill: true },
+          { square: 'a5', color: 'rgba(242, 53, 141, 0.35)', fill: true },
+        ],
+      },
+      quizExplanation:
+        'Right. Bad. The knight runs **to the edge**. And it moves **twice** in the opening. **Two principles broken** in one move.',
+      quizExplanationWrong:
+        "It's bad. The knight runs **to the edge**, where it does little. And it moves **twice** while other pieces sit at home. **Two principles broken.**",
+      doneText: 'Edge knight, same piece twice. **Spot it, then punish it.**',
+      hintText: '',
+    },
   ],
   endScreenButtons: [
     { label: 'Done', action: 'done' },
     { label: 'Repeat', action: 'repeat' },
-    { label: 'Play', action: 'play' },
+    { label: 'Next', action: 'nextLesson' },
   ],
 };
 
-// Provereno u chess.js: svako resenje napada tacno 2 figure; P1-P4 nemaju drugu viljusku, P5 Nxf7 brani Bb3.
+// Provereno u chess.js: svako resenje napada tacno 2 figure; nastavak do uzimanja plena (SF: crni spasava jednu figuru).
 const L2_DAY_6_FORK: Lesson = {
   id: 'l2-d6-fork',
   level: 2,
@@ -7755,102 +7959,164 @@ const L2_DAY_6_FORK: Lesson = {
   },
   introSteps: [
     {
-      text: "**One piece, two targets, one move.** If a single piece attacks two things at once and the opponent can only save one, that's a fork.",
+      text: '**One piece, two targets, one move.** Your opponent saves one. **You take the other.**',
       buttonText: "Let's fork!",
+      // Nc7+ napada kralja e8 i damu a8 (chess.js).
+      diagramFen: 'q3k3/8/8/1N6/8/8/8/4K3 w - - 0 1',
+      diagramMove: 'b5c7',
+      diagramMarks: {
+        squares: [
+          { square: 'c7', color: 'rgba(17, 198, 209, 0.55)', label: 'FORK' },
+          { square: 'e8', color: 'rgba(242, 53, 141, 0.45)' },
+          { square: 'a8', color: 'rgba(242, 53, 141, 0.45)' },
+        ],
+        arrows: [
+          { from: 'c7', to: 'e8', color: 'rgba(242, 53, 141, 0.85)' },
+          { from: 'c7', to: 'a8', color: 'rgba(242, 53, 141, 0.85)' },
+        ],
+      },
     },
   ],
   steps: [
-    {
-      id: 'intro-fork',
-      kind: 'quiz',
-      fen: '8/8/8/8/8/8/8/8 w - - 0 1',
-      orientation: 'w',
-      solution: ['quiz'],
-      prompt: 'Fork',
-      introText:
-        "A fork doesn't need to be flashy. It just needs to **hit two things your opponent can't both protect**. Knights are famous for it because of their weird shape. Any piece can fork. Five positions. Find the move that forks.",
-      doneText: "Let's go.",
-      hintText: '',
-      nextButtonText: "Let's go!",
-      excludeFromProgress: true,
-    },
     {
       id: 'p1-knight-two-rooks',
       kind: 'puzzle',
       fen: '4k3/8/1r3r2/8/8/N3N2B/7P/7K w - - 0 1',
       orientation: 'w',
-      solution: ['e3d5'],
+      solution: ['e3d5', 'f6f7', 'd5b6'],
       prompt: 'Knight forks two rooks',
       introText: 'Find the move that **hits both rooks** at once.',
       doneText:
-        "**Both rooks, one knight.** Black saves one, loses the other. That's the fork.",
+        "**Both rooks, one knight.** Black saved one. You ate the other. That's the fork.",
       hintText:
         'Hold on. A fork is **one piece attacking two targets** at the same time. This move hits one thing, or nothing. Find the knight jump that lands on a square attacking both rooks.',
       hintTextAlways: true,
+      moveGuides: {
+        2: { hintText: 'Black saved the f-rook. **Take the other one.**' },
+      },
     },
     {
       id: 'p2-pawn-fork',
       kind: 'puzzle',
       fen: '4k3/8/1n1b4/8/2PP4/8/4K3/8 w - - 0 1',
       orientation: 'w',
-      solution: ['c4c5'],
+      solution: ['c4c5', 'b6d5', 'c5d6'],
       prompt: 'Pawn forks two pieces',
       introText:
         'Even a pawn can fork. Find the push that **attacks both pieces**.',
       doneText:
-        'A pawn just forked **a knight and a bishop**. Small piece, same idea: two targets, one move.',
+        'A pawn forked **a knight and a bishop**, then took the bishop. Small piece, same idea: two targets, one move.',
       hintText:
         'Hold on. A fork is **one piece hitting two targets** at once. A pawn attacks diagonally. Find the square where both of its diagonal attacks land on an enemy piece.',
       hintTextAlways: true,
+      moveGuides: { 2: { hintText: 'The knight ran. **Take the bishop.**' } },
     },
     {
       id: 'p3-royal-fork',
       kind: 'puzzle',
       fen: 'r3k3/8/N7/8/8/8/8/4K3 w - - 0 1',
       orientation: 'w',
-      solution: ['a6c7'],
+      solution: ['a6c7', 'e8d7', 'c7a8'],
       prompt: 'Knight forks king and rook',
       introText: 'This one **gives check** too. Find the fork.',
       doneText:
-        'Check, and **the rook on a8** is hanging too. When a fork includes **the king**, the other piece is basically already lost. The king has to move first.',
+        'Check first, rook next. When a fork includes **the king**, the other piece is already lost. The king **has to move first**.',
       hintText:
         "Hold on. A fork hits **two targets at once**. Find a knight move that gives check AND attacks something else valuable. That's what makes it a fork, not just a check.",
       hintTextAlways: true,
+      moveGuides: { 2: { hintText: 'The king moved. **Now take the rook.**' } },
     },
     {
       id: 'p4-bishop-fork',
       kind: 'puzzle',
       fen: '8/1n6/8/6p1/7k/8/BP4r1/1KR5 w - - 0 1',
       orientation: 'w',
-      solution: ['a2d5'],
+      solution: ['a2d5', 'g2d2', 'd5b7'],
       prompt: 'Bishop forks rook and knight',
       introText:
         'Bishops fork too. Along diagonals instead of knight jumps. **Find it.**',
       doneText:
-        'One bishop, two diagonals: **the knight on b7 and the rook on g2**. Same fork, different shape.',
+        'One bishop, two diagonals: **the knight on b7 and the rook on g2**. The rook ran. The knight paid. Same fork, different shape.',
       hintText:
         'Hold on. A fork is **one piece, two targets**. Find the square where your bishop sits on one diagonal to an enemy piece AND on a different diagonal to another.',
       hintTextAlways: true,
+      moveGuides: { 2: { hintText: 'The rook ran. **Take the knight.**' } },
     },
     {
       id: 'p5-knight-queen-rook',
       kind: 'puzzle',
       fen: '2rqk2r/1p3ppp/pb3n2/4p1N1/8/PB5Q/1P3PPP/R4RK1 w - - 0 1',
       orientation: 'w',
-      solution: ['g5f7'],
+      solution: ['g5f7', 'd8c7', 'f7h8'],
       prompt: 'Knight forks queen and rook',
-      introText: 'Last one. This fork **wins the most material** of the set.',
+      introText: 'This fork **wins the most material** of the set.',
       doneText:
-        "**The queen on d8 and the rook on h8**, both hit by one knight. The king can't take it: your bishop on b3 guards f7. Black saves the queen, the rook's gone. White wins big.",
+        "**The queen on d8 and the rook on h8**, both hit by one knight. The king couldn't take it: your bishop on b3 guards f7. Black saved the queen. **The rook is yours.**",
       hintText:
         "Hold on. A fork is **one piece attacking two targets** the opponent can't both save. Find the knight move that hits two pieces, and one of them is worth going out of your way for.",
       hintTextAlways: true,
+      moveGuides: { 2: { hintText: 'The queen escaped. **Take the rook.**' } },
+    },
+    // Real problem 1: Ne3+ Kd3 (fiksno, svi potezi kralja gube lovca) Nxg2 (SF +10.7).
+    {
+      id: 'p6-real-game-ne3',
+      kind: 'puzzle',
+      fen: '8/6pp/8/4K3/2kP2N1/6P1/6b1/8 w - - 0 1',
+      orientation: 'w',
+      solution: ['g4e3', 'c4d3', 'e3g2'],
+      prompt: 'Real problem: find the fork',
+      preStepIntro: {
+        title: 'Time to shine',
+        text: '**Three real problems.** No labels, no hand-holding. Solve all three and you can call yourself a **fork master**.',
+        buttonText: "Let's go!",
+      },
+      introText: '**Find the fork.** Then collect.',
+      doneText:
+        'Check plus a hanging bishop. **The king moves, the bishop falls.**',
+      hintText:
+        'Hold on. Look for a knight jump that **checks the king** and hits something else.',
+      hintTextAlways: true,
+      moveGuides: { 2: { hintText: 'The king moved. **Take the bishop.**' } },
+    },
+    // Real problem 2: Nd6+ Kf8 (Bxd6 gubi damu na Bxd8) Nxb7 (SF +3.7).
+    {
+      id: 'p7-real-game-nd6',
+      kind: 'puzzle',
+      fen: 'r2qk2r/1b1nbppp/p3p3/1p1nP1B1/3pN3/3B1N2/PP3PPP/R2Q1RK1 w kq - 0 1',
+      orientation: 'w',
+      solution: ['e4d6', 'e8f8', 'd6b7'],
+      prompt: 'Real problem: find the fork',
+      introText: 'Busy board. **Find the fork** anyway.',
+      doneText:
+        "Check and the b7 bishop in one jump. Bxd6 wasn't an option: **your g5 bishop takes the queen**.",
+      hintText:
+        'Hold on. Which knight jump **checks the king**? Look what else it hits.',
+      hintTextAlways: true,
+      moveGuides: {
+        2: { hintText: 'The king stepped aside. **Take the bishop.**' },
+      },
+    },
+    // Real problem 3: Nxg6+ (h7 vezan damom h3) Kg7 Nxf8 (SF +8.3).
+    {
+      id: 'p8-real-game-nxg6',
+      kind: 'puzzle',
+      fen: '5q1k/pp2N2p/3p2p1/2n1b3/8/4B2Q/PPP4P/7K w - - 0 1',
+      orientation: 'w',
+      solution: ['e7g6', 'h8g7', 'g6f8'],
+      prompt: 'Real problem: find the fork',
+      introText: 'Last one. The biggest prize of the day. **Find the fork.**',
+      doneText:
+        "Check, queen, bishop. **Three targets.** h7 couldn't take: it's **pinned by your queen**. That's a fork master.",
+      hintText:
+        'Hold on. Your knight can take a pawn **with check**. Can the h7 pawn really take back?',
+      hintTextAlways: true,
+      moveGuides: { 2: { hintText: 'The king ran. **Take the queen.**' } },
     },
   ],
   endScreenButtons: [
     { label: 'Done', action: 'done' },
     { label: 'Repeat', action: 'repeat' },
-    { label: 'Play', action: 'play' },
+    { label: 'Next', action: 'nextLesson' },
   ],
 };
 
@@ -7861,6 +8127,33 @@ const l2GuardRank = (rank: number) => ({
       .split('')
       .map((f) => ({ square: `${f}${rank}`, color: L2_LINE, fill: true })),
   },
+});
+// Ladder: red koji top sece (WALL, tirkizno) i red saha (CHECK, roze), sa natpisom na topu.
+const l2LadderBackdrop = (
+  wall: [string, number],
+  check?: [string, number, string]
+) => {
+  const row = (rank: number, color: string, rook: string, label: string) =>
+    'abcdefgh'.split('').map((f) => ({
+      square: `${f}${rank}`,
+      color,
+      fill: true,
+      ...(`${f}${rank}` === rook && { label }),
+    }));
+  return [
+    ...row(wall[1], 'rgba(17, 198, 209, 0.35)', wall[0], 'WALL'),
+    ...(check
+      ? check[1] === wall[1]
+        ? []
+        : row(check[1], 'rgba(242, 53, 141, 0.3)', check[0], check[2])
+      : []),
+  ];
+};
+const l2LadderNext = (square: string) => ({
+  square,
+  color: 'rgba(242, 53, 141, 0.3)',
+  fill: true,
+  label: 'CHECK',
 });
 const L2_LADDER_WRONG =
   "Hold on. Check with the rook that's **already lined up** with the king's row. The other rook's job right now is just to **guard the row behind him**.";
@@ -7887,25 +8180,24 @@ const L2_DAY_8_LADDER_MATE: Lesson = {
   },
   introSteps: [
     {
-      text: "Two rooks, taking turns. One **checks along the king's row** while the other **guards the row behind**, so the king only has one direction to go. Walk him to the edge, and the last check is mate.",
+      text: "Two rooks take turns. One **checks along the king's row**. The other **guards the row behind**. Walk him to the edge. **The last check is mate.**",
       buttonText: "Let's go",
+      // Rb7 cuva 7. red, Ra8# (chess.js).
+      diagramFen: '4k3/1R6/8/8/8/8/R7/6K1 w - - 0 1',
+      diagramMove: 'a2a8',
+      diagramMarks: {
+        squares: [
+          ...['a7', 'c7', 'd7', 'e7', 'f7', 'g7', 'h7'].map((square) => ({
+            square,
+            color: 'rgba(17, 198, 209, 0.45)',
+          })),
+          { square: 'e8', color: 'rgba(242, 53, 141, 0.55)', label: 'MATE' },
+        ],
+        arrows: [{ from: 'a8', to: 'd8', color: 'rgba(17, 198, 209, 0.8)' }],
+      },
     },
   ],
   steps: [
-    {
-      id: 'intro-ladder',
-      kind: 'quiz',
-      fen: '8/8/8/8/8/8/8/8 w - - 0 1',
-      orientation: 'w',
-      solution: ['quiz'],
-      prompt: 'Ladder mate',
-      introText:
-        "Watch the pattern: one rook checks, the king is forced up a row because **the OTHER rook already covers the row behind him**. Then the rooks swap jobs. Same idea, every time, until there's no board left for the king to walk into.",
-      doneText: "Let's go.",
-      hintText: '',
-      nextButtonText: 'Start',
-      excludeFromProgress: true,
-    },
     {
       id: 'e1-ladder-short',
       kind: 'puzzle',
@@ -7920,6 +8212,17 @@ const L2_DAY_8_LADDER_MATE: Lesson = {
         2: "He's **out of rows**. One more check and there's nowhere left.",
       },
       moveGuides: { 0: l2GuardRank(5), 2: l2GuardRank(6), 4: l2GuardRank(7) },
+      // Ceo primer u boji: WALL = top koji sece red, CHECK = top koji daje (sledeci) sah.
+      boardBackdrop: [...l2LadderBackdrop(['a5', 5]), l2LadderNext('h4')],
+      moveHighlights: {
+        0: { squares: l2LadderBackdrop(['a5', 5], ['h6', 6, 'CHECK']) },
+        2: { squares: l2LadderBackdrop(['h6', 6], ['a7', 7, 'CHECK']) },
+      },
+      moveBackdrops: {
+        0: [...l2LadderBackdrop(['h6', 6]), l2LadderNext('a5')],
+        2: [...l2LadderBackdrop(['a7', 7]), l2LadderNext('h6')],
+        4: l2LadderBackdrop(['a7', 7], ['h8', 8, 'MATE']),
+      },
       doneText:
         "**That's the ladder.** Two rooks, taking turns, and the king runs out of board.",
       hintText: L2_LADDER_WRONG,
@@ -7948,25 +8251,26 @@ const L2_DAY_8_LADDER_MATE: Lesson = {
         "Hold on. Same rule as before: **the rook that's already on the king's row** is the one that checks. The other one just watches the row behind.",
       hintTextAlways: true,
     },
+    // Korisnicin FEN + beli kralj d1 (bez njega FEN nije validan). Ra4+ Kg5 Rb5+ Kf6 Ra6+ Ke7 Rb7+ Kd8 Ra8# (chess.js).
     {
       id: 'e3-ladder-full',
       kind: 'puzzle',
-      fen: '8/8/8/8/4k3/R7/7R/3K4 w - - 0 1',
+      fen: '8/8/8/8/7k/1R6/R7/3K4 w - - 0 1',
       orientation: 'w',
       solution: [
-        'h2h4',
-        'e4e5',
-        'a3a5',
-        'e5e6',
-        'h4h6',
-        'e6e7',
-        'a5a7',
-        'e7e8',
-        'h6h8',
+        'a2a4',
+        'h4g5',
+        'b3b5',
+        'g5f6',
+        'a4a6',
+        'f6e7',
+        'b5b7',
+        'e7d8',
+        'a6a8',
       ],
       prompt: 'Ladder mate: 4 checks, then mate',
       introText:
-        'Longest version. Same two-rook pattern, just **more rungs** on the ladder.',
+        'Longest version. Your rooks start **below the king**. Check, he steps up, **other rook checks**. All the way to mate.',
       successText: "Up one row. **Other rook's turn.**",
       successTextAlways: true,
       moveGuides: {
@@ -7979,7 +8283,7 @@ const L2_DAY_8_LADDER_MATE: Lesson = {
       doneText:
         "Four checks, one pattern, repeated. **That's the whole technique.** You can do this with any two rooks, anywhere on the board.",
       hintText:
-        "Hold on. Find the rook that's **lined up with the king's current row** and check with it. The other rook stays put, guarding the row behind.",
+        "Hold on. The rook on the row **right below the king** is your guard. It stays put. **The other rook checks** on the king's row.",
       hintTextAlways: true,
     },
     {
@@ -8009,12 +8313,54 @@ const L2_DAY_8_LADDER_MATE: Lesson = {
       },
       moveGuides: {
         0: l2GuardRank(4),
-        2: l2GuardRank(5),
+        // Posle Kg7: kralj cuva h7, sah tamo gubi topa.
+        2: {
+          ...l2GuardRank(5),
+          replyHighlight: {
+            arrows: [
+              { from: 'g7', to: 'h7', color: 'rgba(242, 53, 141, 0.85)' },
+            ],
+            squares: [
+              {
+                square: 'h7',
+                color: 'rgba(242, 53, 141, 0.55)',
+                fill: true,
+                label: 'GUARDED',
+              },
+              {
+                square: 'h5',
+                color: 'rgba(17, 198, 209, 0.45)',
+                fill: true,
+                label: 'MOVE ME',
+              },
+            ],
+          },
+        },
         4: {
           hintText:
             "Move the rook **along the same rank, as far as possible**, without sharing a file with the other rook. That's the solution!",
           wrongText:
             'Hold on. A check on h7 just hangs the rook. Move it **along its rank, as far away as possible**, without sharing a file with the other rook.',
+          // Posle Rb5 Kf7: top daleko, pored a-topa, kralj ne stize.
+          replyHighlight: {
+            arrows: [
+              { from: 'h5', to: 'b5', color: 'rgba(17, 198, 209, 0.85)' },
+            ],
+            squares: [
+              {
+                square: 'b5',
+                color: 'rgba(17, 198, 209, 0.55)',
+                fill: true,
+                label: 'FAR AWAY',
+              },
+              {
+                square: 'b7',
+                color: 'rgba(7, 218, 99, 0.45)',
+                fill: true,
+                label: 'CHECK HERE',
+              },
+            ],
+          },
         },
         6: l2GuardRank(6),
         8: l2GuardRank(7),
@@ -8028,7 +8374,7 @@ const L2_DAY_8_LADDER_MATE: Lesson = {
   endScreenButtons: [
     { label: 'Done', action: 'done' },
     { label: 'Repeat', action: 'repeat' },
-    { label: 'Play', action: 'play' },
+    { label: 'Next', action: 'nextLesson' },
   ],
 };
 
@@ -8039,6 +8385,11 @@ const l2GuardPromo = (king: string, promo: string) => ({
 });
 const L2_WINS_DRAW = ['White wins', 'Draw'];
 const L2_DRAW_WINS = ['Draw', 'White wins'];
+
+const L2_QUEEN_ONLY =
+  "That's legal. The **Queen** is always the strongest choice. **Promote to a Queen.**";
+const L2_KPK_PLAN_WRONG =
+  'Hold on. Follow the plan: **opposition first**, then **guard the promotion square**, then push.';
 
 // Odgovori i linije provereni tacnim KPK resavacem + chess.js; linije idu do bezbedne dame, crni bira najduzu odbranu.
 const L2_DAY_9_OPPOSITION_2: Lesson = {
@@ -8062,28 +8413,23 @@ const L2_DAY_9_OPPOSITION_2: Lesson = {
   },
   introSteps: [
     {
-      text: "You already know what opposition is. Now let's **use it to win** a king and pawn endgame: push the defending king aside and walk your pawn home.",
-      buttonText: 'Apply it',
+      text: 'Kings face off with **one square between them**. The side to move has to step aside. **Take the opposition**, and your king walks your pawn home.',
+      buttonText: 'Quiz me',
+      // Ke6 uzima opoziciju (chess.js).
+      diagramFen: '4k3/8/8/4K3/4P3/8/8/8 w - - 0 1',
+      diagramMove: 'e5e6',
+      diagramMarks: {
+        squares: [
+          {
+            square: 'e7',
+            color: 'rgba(17, 198, 209, 0.45)',
+            label: 'OPPOSITION',
+          },
+        ],
+      },
     },
   ],
   steps: [
-    {
-      id: 'demo-opposition',
-      kind: 'quiz',
-      fen: '4k3/8/8/4K3/4P3/8/8/8 w - - 0 1',
-      orientation: 'w',
-      solution: ['quiz'],
-      prompt: 'Opposition',
-      introText:
-        "Kings on e5 and e8, pawn right behind on e4. White to move plays **Ke6 and takes the opposition**: kings facing off with **one square between them**, and Black has to move. His king is forced to step aside, and yours walks through. In a position like this, **that's the whole game**.",
-      quizBoardHighlight: {
-        arrows: [{ from: 'e5', to: 'e6', color: 'rgba(7, 218, 99, 0.8)' }],
-      },
-      doneText: 'Your turn.',
-      hintText: '',
-      nextButtonText: 'Quiz me',
-      excludeFromProgress: true,
-    },
     {
       id: 'q1-easy-win',
       kind: 'quiz',
@@ -8099,24 +8445,65 @@ const L2_DAY_9_OPPOSITION_2: Lesson = {
         "Right. When the defending king is this far away, **it doesn't matter who has the move**. White walks the pawn home.",
       quizExplanationWrong:
         "Black's king is **completely out of the picture**. This one wins itself. The real skill comes in the next few questions.",
-      quizDemoLine: [
-        {
-          uci: 'e6d7',
-          text: '**Kd7.** Your king **guards e8**, the promotion square. He can never get in front of the pawn now.',
-          highlight: l2GuardPromo('d7', 'e8'),
-        },
-        { uci: 'g8f8' },
-        { uci: 'e5e6' },
-        { uci: 'f8g8' },
-        { uci: 'e6e7', text: 'The pawn walks. **Nothing can stop it now.**' },
-        { uci: 'g8h8' },
-        {
-          uci: 'e7e8q',
-          text: '**Queen.** Your king covered every square the pawn needed.',
-        },
-      ],
       doneText: 'Next one.',
       hintText: '',
+    },
+    {
+      id: 'q1-play',
+      kind: 'puzzle',
+      fen: '6k1/8/4K3/4P3/8/8/8/8 w - - 0 1',
+      orientation: 'w',
+      solution: ['e6d7', 'g8f8', 'e5e6', 'f8g8', 'e6e7', 'g8h8', 'e7e8q'],
+      prompt: 'Now you play it',
+      introText: 'Now you play it. **King first**: grab the promotion square.',
+      kpkWinGlow: true,
+      moveExplanations: {
+        0: '**Kd7.** Your king **guards e8**. He can never get in front of the pawn now.',
+        2: 'The pawn walks. **The road is clear.**',
+      },
+      moveGuides: {},
+      moveBackdrops: {
+        0: [
+          {
+            square: 'e8',
+            color: 'rgba(7, 218, 99, 0.5)',
+            fill: true,
+            label: 'GUARDED',
+          },
+        ],
+        2: [
+          {
+            square: 'e8',
+            color: 'rgba(7, 218, 99, 0.5)',
+            fill: true,
+            label: 'GUARDED',
+          },
+          {
+            square: 'e7',
+            color: 'rgba(17, 198, 209, 0.5)',
+            fill: true,
+            label: 'PATH',
+          },
+        ],
+        4: [
+          {
+            square: 'e8',
+            color: 'rgba(7, 218, 99, 0.5)',
+            fill: true,
+            label: 'GUARDED',
+          },
+        ],
+      },
+      moveHighlights: {
+        0: {
+          arrows: [{ from: 'd7', to: 'e8', color: 'rgba(7, 218, 99, 0.85)' }],
+        },
+      },
+      doneText: '**Queen.** King first, pawn second. Every time.',
+      requireExactPromotion: true,
+      nonQueenPromotionText: L2_QUEEN_ONLY,
+      hintText: L2_KPK_PLAN_WRONG,
+      hintTextAlways: true,
     },
     {
       id: 'q2-c-pawn-win',
@@ -8140,26 +8527,83 @@ const L2_DAY_9_OPPOSITION_2: Lesson = {
         'Right. Kc6 takes the opposition, the king **has to step off c8**, and Kb7 takes the square for good. Game over.',
       quizExplanationWrong:
         'Use the opposition to **force the king off the promotion square**. Kc6, the king steps aside, Kb7. The pawn walks in.',
-      quizDemoLine: [
-        {
-          uci: 'b6c6',
-          text: '**Kc6. Opposition.** Black has to move his king.',
-        },
-        { uci: 'c8d8', text: 'He steps off the promotion square.' },
-        {
-          uci: 'c6b7',
-          text: '**Kb7.** Your king **guards c8**, the promotion square. It belongs to you now. The pawn runs.',
-          highlight: l2GuardPromo('b7', 'c8'),
-        },
-        { uci: 'd8e8' },
-        { uci: 'c5c6' },
-        { uci: 'e8f8' },
-        { uci: 'c6c7' },
-        { uci: 'f8g8' },
-        { uci: 'c7c8q', text: '**Queen.** Opposition first, then the square.' },
-      ],
       doneText: 'Next one.',
       hintText: '',
+    },
+    {
+      id: 'q2-play',
+      kind: 'puzzle',
+      fen: '2k5/8/1K6/2P5/8/8/8/8 w - - 0 1',
+      orientation: 'w',
+      solution: [
+        'b6c6',
+        'c8d8',
+        'c6b7',
+        'd8e8',
+        'c5c6',
+        'e8f8',
+        'c6c7',
+        'f8g8',
+        'c7c8q',
+      ],
+      prompt: 'Now you play it',
+      introText: 'Now you play it. **Take the opposition** first.',
+      kpkWinGlow: true,
+      moveExplanations: {
+        0: '**Opposition.** He has to step off c8.',
+        2: '**Kb7.** The promotion square **belongs to you**. Now the pawn runs.',
+      },
+      moveGuides: {},
+      moveBackdrops: {
+        0: [
+          {
+            square: 'c7',
+            color: 'rgba(17, 198, 209, 0.5)',
+            fill: true,
+            label: 'OPPOSITION',
+          },
+        ],
+        2: [
+          {
+            square: 'c8',
+            color: 'rgba(7, 218, 99, 0.5)',
+            fill: true,
+            label: 'GUARDED',
+          },
+        ],
+        4: [
+          {
+            square: 'c8',
+            color: 'rgba(7, 218, 99, 0.5)',
+            fill: true,
+            label: 'GUARDED',
+          },
+          {
+            square: 'c7',
+            color: 'rgba(17, 198, 209, 0.5)',
+            fill: true,
+            label: 'PATH',
+          },
+        ],
+        6: [
+          {
+            square: 'c8',
+            color: 'rgba(7, 218, 99, 0.5)',
+            fill: true,
+            label: 'GUARDED',
+          },
+        ],
+      },
+      moveHighlights: {
+        2: {
+          arrows: [{ from: 'b7', to: 'c8', color: 'rgba(7, 218, 99, 0.85)' }],
+        },
+      },
+      doneText: '**Queen.** Opposition first, then the square, then the pawn.',
+      requireExactPromotion: true,
+      nonQueenPromotionText: L2_QUEEN_ONLY,
+      hintText: L2_KPK_PLAN_WRONG,
+      hintTextAlways: true,
     },
     {
       id: 'q3-opposition-white-to-move',
@@ -8176,34 +8620,94 @@ const L2_DAY_9_OPPOSITION_2: Lesson = {
         'Right. **Ke6 takes the opposition**, the black king steps aside, and White fights for the promotion square. Just as we learned.',
       quizExplanationWrong:
         'White moving first is **good news** here. Ke6 takes the opposition. A king on the 6th rank in front of its pawn wins.',
-      quizDemoLine: [
-        {
-          uci: 'e5e6',
-          text: '**Ke6. Opposition.** And your king is on the 6th rank. This is already won.',
-        },
-        { uci: 'e8f8', text: 'Black has to step aside.' },
-        {
-          uci: 'e6d7',
-          text: '**Kd7.** Your king **guards e8**, the promotion square, and the whole road ahead.',
-          highlight: l2GuardPromo('d7', 'e8'),
-        },
-        { uci: 'f8g7' },
-        {
-          uci: 'e4e5',
-          text: 'Now the pawn moves. **The king leads, the pawn follows.**',
-        },
-        { uci: 'g7f8' },
-        { uci: 'e5e6' },
-        { uci: 'f8g8' },
-        { uci: 'e6e7' },
-        { uci: 'g8h8' },
-        {
-          uci: 'e7e8q',
-          text: '**Queen.** One opposition move decided all of it.',
-        },
-      ],
       doneText: 'Next one.',
       hintText: '',
+    },
+    {
+      id: 'q3-play',
+      kind: 'puzzle',
+      fen: '4k3/8/8/4K3/4P3/8/8/8 w - - 0 1',
+      orientation: 'w',
+      solution: [
+        'e5e6',
+        'e8f8',
+        'e6d7',
+        'f8g7',
+        'e4e5',
+        'g7f8',
+        'e5e6',
+        'f8g8',
+        'e6e7',
+        'g8h8',
+        'e7e8q',
+      ],
+      prompt: 'Now you play it',
+      introText: 'Now you play it. **King first.** Take the opposition.',
+      kpkWinGlow: true,
+      moveExplanations: {
+        0: '**Ke6. Opposition**, and your king is on **the 6th rank**. Winning position.',
+        2: '**Kd7.** Your king **guards e8** and the whole road.',
+        4: 'Now the pawn moves. **The king leads, the pawn follows.**',
+      },
+      moveGuides: {},
+      moveBackdrops: {
+        0: [
+          {
+            square: 'e7',
+            color: 'rgba(17, 198, 209, 0.5)',
+            fill: true,
+            label: 'OPPOSITION',
+          },
+        ],
+        2: [
+          {
+            square: 'e8',
+            color: 'rgba(7, 218, 99, 0.5)',
+            fill: true,
+            label: 'GUARDED',
+          },
+        ],
+        4: [
+          {
+            square: 'e8',
+            color: 'rgba(7, 218, 99, 0.5)',
+            fill: true,
+            label: 'GUARDED',
+          },
+        ],
+        6: [
+          {
+            square: 'e8',
+            color: 'rgba(7, 218, 99, 0.5)',
+            fill: true,
+            label: 'GUARDED',
+          },
+          {
+            square: 'e7',
+            color: 'rgba(17, 198, 209, 0.5)',
+            fill: true,
+            label: 'PATH',
+          },
+        ],
+        8: [
+          {
+            square: 'e8',
+            color: 'rgba(7, 218, 99, 0.5)',
+            fill: true,
+            label: 'GUARDED',
+          },
+        ],
+      },
+      moveHighlights: {
+        2: {
+          arrows: [{ from: 'd7', to: 'e8', color: 'rgba(7, 218, 99, 0.85)' }],
+        },
+      },
+      doneText: '**Queen.** One opposition move decided all of it.',
+      requireExactPromotion: true,
+      nonQueenPromotionText: L2_QUEEN_ONLY,
+      hintText: L2_KPK_PLAN_WRONG,
+      hintTextAlways: true,
     },
     {
       id: 'q5-from-the-side',
@@ -8220,22 +8724,123 @@ const L2_DAY_9_OPPOSITION_2: Lesson = {
         "That's right! Just as we learned: **use the opposition to push the king away** and support your pawn to promotion.",
       quizExplanationWrong:
         "Take the opposition whenever you can. That's how you **force the king away** from the pawn's promotion square.",
-      quizDemoLine: [
-        { uci: 'd6e6', text: '**Ke6. Opposition**, from the side this time.' },
-        { uci: 'e8d8', text: 'He steps aside.' },
-        {
-          uci: 'e6f7',
-          text: '**Kf7.** Your king **guards e8**, the promotion square. Now the path is clear. **The pawn just keeps marching forward!**',
-          highlight: l2GuardPromo('f7', 'e8'),
-        },
-        { uci: 'd8c7' },
-        { uci: 'e5e6' },
-        { uci: 'c7b8' },
-        { uci: 'e6e7' },
-        { uci: 'b8c8' },
-        { uci: 'e7e8q', text: '**Queen.** Same idea, different direction.' },
-      ],
       doneText: 'King in front, **opposition taken**, pawn walks home.',
+      hintText: '',
+    },
+    {
+      id: 'q5-play',
+      kind: 'puzzle',
+      fen: '4k3/8/3K4/4P3/8/8/8/8 w - - 0 1',
+      orientation: 'w',
+      solution: [
+        'd6e6',
+        'e8d8',
+        'e6f7',
+        'd8c7',
+        'e5e6',
+        'c7b8',
+        'e6e7',
+        'b8c8',
+        'e7e8q',
+      ],
+      prompt: 'Now you play it',
+      introText: 'Now you play it. **Opposition from the side.**',
+      kpkWinGlow: true,
+      moveExplanations: {
+        0: '**Ke6. Opposition**, from the side this time.',
+        2: '**Kf7.** Your king **guards e8**. The pawn just keeps marching.',
+      },
+      moveGuides: {},
+      moveBackdrops: {
+        0: [
+          {
+            square: 'e7',
+            color: 'rgba(17, 198, 209, 0.5)',
+            fill: true,
+            label: 'OPPOSITION',
+          },
+        ],
+        2: [
+          {
+            square: 'e8',
+            color: 'rgba(7, 218, 99, 0.5)',
+            fill: true,
+            label: 'GUARDED',
+          },
+        ],
+        4: [
+          {
+            square: 'e8',
+            color: 'rgba(7, 218, 99, 0.5)',
+            fill: true,
+            label: 'GUARDED',
+          },
+          {
+            square: 'e7',
+            color: 'rgba(17, 198, 209, 0.5)',
+            fill: true,
+            label: 'PATH',
+          },
+        ],
+        6: [
+          {
+            square: 'e8',
+            color: 'rgba(7, 218, 99, 0.5)',
+            fill: true,
+            label: 'GUARDED',
+          },
+        ],
+      },
+      moveHighlights: {
+        2: {
+          arrows: [{ from: 'f7', to: 'e8', color: 'rgba(7, 218, 99, 0.85)' }],
+        },
+      },
+      doneText: '**Queen.** Same idea, different direction.',
+      requireExactPromotion: true,
+      nonQueenPromotionText: L2_QUEEN_ONLY,
+      hintText: L2_KPK_PLAN_WRONG,
+      hintTextAlways: true,
+    },
+    // Kd2/Kf2 dobija, e4 remi (SF: e4 = 0.00, Kd2 = +81).
+    {
+      id: 'king-before-pawn',
+      kind: 'quiz',
+      fen: '4k3/8/8/8/8/8/4P3/4K3 w - - 0 1',
+      orientation: 'w',
+      solution: ['quiz'],
+      prompt: 'King or pawn first?',
+      preStepIntro: {
+        title: 'King first, pawn second',
+        text: 'Push the pawn first and it runs ahead **alone**. His king steps in front of it. **Draw.** Your king goes first and clears the road. **The pawn follows.**',
+        diagramFen: '8/8/8/4k3/4P3/8/8/4K3 w - - 0 1',
+        diagramMarks: {
+          squares: [
+            { square: 'e4', color: 'rgba(242, 53, 141, 0.55)', label: 'ALONE' },
+            {
+              square: 'e5',
+              color: 'rgba(242, 53, 141, 0.35)',
+              label: 'BLOCKED',
+            },
+            {
+              square: 'e1',
+              color: 'rgba(242, 53, 141, 0.35)',
+              label: 'TOO FAR',
+            },
+          ],
+        },
+        buttonText: 'Got it',
+      },
+      introText: 'Which move **wins**? Tap it, or play it on the board.',
+      quizOptions: ['e4 (pawn first)', 'Kd2 (king first)'],
+      quizCorrectIndex: 1,
+      quizMoveOptions: [['e2e4'], ['e1d2', 'e1f2']],
+      quizMoveOtherWrong: true,
+      quizExplanation:
+        'Right. **King first.** Kd2, Ke3, Ke4: your king walks in front of the pawn. Push e4 first and his king blocks it. **Draw.**',
+      quizExplanationWrong:
+        'Not that one. **King first.** Push the pawn early and his king plants itself in front of it. **Draw.** Kd2 wins.',
+      doneText: 'Next one.',
       hintText: '',
     },
     // Part 2 - slobodna igra protiv punog Stockfish-a; KPK resavac: dobijeno, pobedjuju samo Ke4/Kd4/Kf4.
@@ -8250,8 +8855,9 @@ const L2_DAY_9_OPPOSITION_2: Lesson = {
         title: 'Part 2: Win it',
         text: "Now you play. **Win this endgame** against a defender that doesn't make mistakes. Queen the pawn and he can't take it: that's the win.",
         bullets: [
-          'King **in front** of the pawn.',
+          '**King first** into action.',
           '**Take the opposition** whenever you can.',
+          '**Take squares.** Reach the 6th rank in front of the pawn.',
           'Stuck? **Hint** shows the move and why.',
         ],
         buttonText: 'Play',
@@ -8262,6 +8868,29 @@ const L2_DAY_9_OPPOSITION_2: Lesson = {
       liveHint: true,
       hintTechnique: 'kpkOpposition',
       freePlayGoal: 'promote',
+      kpkWinGlow: true,
+      kpkCoachTexts: {
+        winning: [
+          '**Winning position!** King on the 6th, in front of the pawn. Now walk it home.',
+        ],
+        kingFirst: [
+          '**King first.** The pawn waits. Your king leads the way.',
+          '**King into action.** Push the pawn early and his king blocks it.',
+        ],
+        pawnGo: [
+          'Pawn forward. **Your king already cleared the road.**',
+          '**Good.** The king leads, the pawn follows.',
+        ],
+        gainGround: [
+          "**Take squares.** Every step forward is ground he can't have.",
+          '**Gain ground.** Aim for the 6th rank in front of the pawn.',
+          '**Keep walking.** Your king in front, his king pushed back.',
+        ],
+        findOpposition: [
+          '**Look for the opposition.** Kings face to face, one square apart, his move.',
+          '**Opposition first.** Make his king give way.',
+        ],
+      },
       oppositionCoachTexts: [
         '**Opposition.** His king has to step aside now.',
         "**You've got the opposition.** Now he's the one who has to give way.",
@@ -8271,13 +8900,15 @@ const L2_DAY_9_OPPOSITION_2: Lesson = {
         "That's a draw. **The opposition slipped away.** Back to the start. Lead with the king this time.",
       doneText:
         "**Queen.** You won it against the best defense. That's applied opposition.",
+      requireExactPromotion: true,
+      nonQueenPromotionText: L2_QUEEN_ONLY,
       hintText: '',
     },
   ],
   endScreenButtons: [
     { label: 'Done', action: 'done' },
     { label: 'Repeat', action: 'repeat' },
-    { label: 'Play', action: 'play' },
+    { label: 'Next', action: 'nextLesson' },
   ],
 };
 
@@ -8305,26 +8936,11 @@ const L2_DAY_10_DEVELOPMENT: Lesson = {
   },
   introSteps: [
     {
-      text: "Five habits that decide **who's ready to fight first**: knights toward the center, light pieces (bishops/knights) before heavy (rooks/queen) ones, the queen staying home a little longer, and rooks that end up **exactly where they're most useful**.",
+      text: '**Knights out first**, toward the center. **Bishops next. Castle.** Then rooks to open files. The queen joins **only with a real reason**.',
       buttonText: "Let's go",
     },
   ],
   steps: [
-    {
-      id: 'intro-checklist',
-      kind: 'quiz',
-      fen: L2_START_FEN,
-      orientation: 'w',
-      solution: ['quiz'],
-      prompt: 'Development',
-      introText:
-        "Quick mental checklist for every opening: **knights out first**, usually toward the center. **Bishops next**, once you know where they're aimed. **Castle.** Then rooks and queen join in: rooks onto open files, queen only when there's a real reason. Let's go through it piece by piece.",
-      doneText: "Let's go.",
-      hintText: '',
-      nextButtonText: 'Start',
-      noAutoAdvance: true,
-      excludeFromProgress: true,
-    },
     {
       id: 'i1-knight-to-center',
       kind: 'puzzle',
@@ -8464,25 +9080,36 @@ const L2_DAY_10_DEVELOPMENT: Lesson = {
       hintText: '',
     },
     {
-      id: 'i6-rook-open-file',
+      id: 'i6-develop-bishop-g5',
       kind: 'puzzle',
-      fen: 'r1bq1rk1/ppp2ppp/2n2n2/3p4/1b1P4/2N2N2/PPP2PPP/R1BQ1RK1 w - - 0 8',
+      // Beli lovac d3 dodat (bez njega je beli bio lovac manje). SF: Bg5 +0.33.
+      fen: 'r1bq1rk1/ppp2ppp/2n2n2/3p4/1b1P4/2NB1N2/PPP2PPP/R1BQ1RK1 w - - 0 8',
       orientation: 'w',
-      solution: ['f1e1'],
-      prompt: 'Rook to the open file',
+      solution: ['c1g5'],
+      prompt: 'Finish your development',
       introText:
-        'Both sides are castled. **One file on the board has no pawns left on it at all.** Put a rook there.',
+        'Both sides are castled. **One light piece is still at home.** Develop it with purpose.',
+      otherTypeMoves: {
+        0: [
+          {
+            uci: 'f1e1',
+            noPenalty: true,
+            message:
+              '**Good move.** Rook to the open file. One **light piece is still at home**. Find it and develop it first.',
+          },
+        ],
+      },
       doneText:
-        "Right. **The e-file is completely open**: no pawns, either side. That's exactly where a rook belongs, **doing something**, not sitting in the corner.",
+        '**Bg5.** Your last light piece is out, and it **pins the f6 knight** to the queen. Now every minor piece is working.',
       hintText:
-        "Hold on. Check every file for pawns. **One of them is completely empty.** That's the file your rook wants.",
+        'Hold on. Look at your back rank. **One bishop never moved.** Give it a good square.',
       hintTextAlways: true,
     },
   ],
   endScreenButtons: [
     { label: 'Done', action: 'done' },
     { label: 'Repeat', action: 'repeat' },
-    { label: 'Play', action: 'play' },
+    { label: 'Next', action: 'nextLesson' },
   ],
 };
 
@@ -8503,6 +9130,13 @@ const L2_OPENING_NAMES = [
   "King's Gambit",
 ];
 const l2Mark = (squares: string[]) => ({ squares: l2Line(squares) });
+
+// Skotska, Classical Variation iz baze otvaranja (isti izvor kao London u Day 28), prvih 6 poteza obe strane.
+const L2_SCOTCH_LINE: string[] = (
+  OPENING_DATABASE.find((f) => f.name === 'Scotch Game')?.variants.find(
+    (v) => v.variantName === 'Classical Variation'
+  )?.moves ?? []
+).slice(0, 12);
 
 const L2_DAY_11_OPENING_NAMES: Lesson = {
   id: 'l2-d10-opening-names',
@@ -8525,27 +9159,12 @@ const L2_DAY_11_OPENING_NAMES: Lesson = {
   },
   introSteps: [
     {
-      text: 'Five setups **every serious player recognizes on sight**. Learn to name them first. Then we test you.',
+      text: 'Same first moves, **very different games**. Five setups every serious player **recognizes on sight**. Learn the names. Then we test you.',
       buttonText: 'Show me',
     },
   ],
   steps: [
     // ---------- Deo 1 - ucenje, ne broji se u napredak ----------
-    {
-      id: 'intro-openings',
-      kind: 'quiz',
-      fen: L2_START_FEN,
-      orientation: 'w',
-      solution: ['quiz'],
-      prompt: 'Openings',
-      introText:
-        "Same starting moves (e4, e5, knight to f3, knight to c6) lead to **very different games** depending on where the bishop goes next, or what White plays instead. **Five setups, five names.** Let's go.",
-      doneText: "Let's go.",
-      hintText: '',
-      nextButtonText: "Let's go",
-      noAutoAdvance: true,
-      excludeFromProgress: true,
-    },
     {
       id: 'learn-italian',
       kind: 'quiz',
@@ -8731,11 +9350,56 @@ const L2_DAY_11_OPENING_NAMES: Lesson = {
       doneText: 'Five for five on the names.',
       hintText: '',
     },
+    {
+      id: 'guided-scotch',
+      kind: 'puzzle',
+      fen: L2_START_FEN,
+      orientation: 'w',
+      solution: L2_SCOTCH_LINE,
+      showSolutionArrowUpfront: true,
+      revealArrowOnWrongMove: true,
+      prompt: 'Learn it: the Scotch Game',
+      preStepIntro: {
+        title: 'Play the Scotch',
+        text: 'You know the names. Now learn **one opening for real**: the first **six moves of the Scotch Game**, and why each one is played. Then you play it **from memory**.',
+        buttonText: "Let's play",
+      },
+      introText: "**One move at a time.** Follow the arrow. I'll play Black.",
+      hintText:
+        'Not quite. Follow **the Scotch** plan. The arrow shows the move.',
+      illegalMoveText:
+        "That's an **illegal move**. Follow the Scotch line. Stuck? Tap **Hint**.",
+      // Posle belog poteza i crnog odgovora; indeks prati solution[].
+      moveExplanations: {
+        0: '**e4** takes a central square and opens lines for the queen and bishop. Black answers **e5**.',
+        2: '**Nf3** develops and attacks e5. Black defends it with **Nc6**.',
+        4: "**d4.** That's the Scotch: White hits the center **right away**. Black takes: **exd4**.",
+        6: '**Nxd4** takes back with a piece, now **in the center**. Black brings the bishop to **c5**, aiming at your knight.',
+        8: '**Nb3** steps away from the attack and **hits the bishop**. Black keeps it safe on **b6**.',
+        10: '**Nc3** develops and guards e4. Black develops too: **Nf6** hits e4.',
+      },
+      doneText:
+        'Six moves of a real opening. **Center first, pieces out, nothing wasted.**',
+      transitionText: "Now let's see if it stuck. Same line, **from memory**.",
+    },
+    {
+      id: 'test-scotch',
+      kind: 'puzzle',
+      fen: L2_START_FEN,
+      orientation: 'w',
+      solution: L2_SCOTCH_LINE,
+      prompt: 'Test yourself: the Scotch Game',
+      introText: "Same six moves, **from memory**. No arrows. I'll play Black.",
+      hintText: 'Think back to **the line you just played**.',
+      illegalMoveText:
+        "That's an **illegal move**. Follow the Scotch line. Stuck? Tap **Hint**.",
+      doneText: '**The Scotch is yours.** Six moves, every one with a reason.',
+    },
   ],
   endScreenButtons: [
     { label: 'Done', action: 'done' },
     { label: 'Repeat', action: 'repeat' },
-    { label: 'Play', action: 'play' },
+    { label: 'Next', action: 'nextLesson' },
   ],
 };
 
@@ -8761,37 +9425,108 @@ const L2_DAY_12_SKEWER: Lesson = {
   },
   introSteps: [
     {
-      text: "**The opposite of a pin.** A pin traps the weaker piece in front. A skewer forces **the stronger piece in front to move**. Whatever's standing behind it is next.",
+      text: '**The opposite of a pin.** You attack **the stronger piece in front**. It has to move. **Whatever stands behind it falls.**',
       buttonText: "Let's skewer!",
+      // Re1+ kralj mora da se skloni, dama e8 pada (chess.js).
+      diagramFen: '4q3/8/4k3/8/8/8/8/R5K1 w - - 0 1',
+      diagramMove: 'a1e1',
+      diagramMarks: {
+        squares: [
+          { square: 'e6', color: 'rgba(242, 53, 141, 0.55)', label: 'CHECK' },
+          { square: 'e8', color: 'rgba(242, 53, 141, 0.55)', label: 'NEXT' },
+        ],
+        arrows: [{ from: 'e1', to: 'e8', color: 'rgba(17, 198, 209, 0.8)' }],
+      },
     },
   ],
   steps: [
-    {
-      id: 'intro-skewer',
-      kind: 'quiz',
-      fen: '8/8/8/8/8/8/8/8 w - - 0 1',
-      orientation: 'w',
-      solution: ['quiz'],
-      prompt: 'Skewer',
-      introText:
-        "You already know the pin: weak piece stuck in front, can't move. A skewer flips it: **something valuable** (sometimes the king itself) is attacked and **HAS to move out of the way**, and there's something less valuable sitting right behind it on the same line. Five positions. Find the move that skewers.",
-      doneText: "Let's go.",
-      hintText: '',
-      nextButtonText: "Let's go!",
-      excludeFromProgress: true,
-    },
     {
       id: 'p1-rook-king-rook',
       kind: 'puzzle',
       fen: 'r7/8/8/k7/8/8/8/1R2K3 w - - 0 1',
       orientation: 'w',
-      solution: ['b1a1'],
+      // Ra1+ Kb4 (fiksno, svi potezi kralja napustaju a-liniju) Rxa8 (chess.js).
+      solution: ['b1a1', 'a5b4', 'a1a8'],
       prompt: 'Rook skewers king and rook',
-      introText: "Check the king. Then see **what's standing behind it**.",
+      introText:
+        "His **king** and his **rook** stand on the same file. Check the king. Then see **what's standing behind it**.",
+      // Pre poteza: kralj i top na istoj liniji.
+      boardBackdrop: [
+        {
+          square: 'a5',
+          color: 'rgba(242, 53, 141, 0.45)',
+          fill: true,
+          label: 'KING',
+        },
+        { square: 'a6', color: 'rgba(17, 198, 209, 0.35)', fill: true },
+        { square: 'a7', color: 'rgba(17, 198, 209, 0.35)', fill: true },
+        {
+          square: 'a8',
+          color: 'rgba(242, 53, 141, 0.45)',
+          fill: true,
+          label: 'ROOK',
+        },
+      ],
+      moveHighlights: {
+        0: {
+          arrows: [{ from: 'a1', to: 'a8', color: 'rgba(17, 198, 209, 0.85)' }],
+          squares: [
+            {
+              square: 'a5',
+              color: 'rgba(242, 53, 141, 0.45)',
+              fill: true,
+              label: 'CHECK',
+            },
+            {
+              square: 'a8',
+              color: 'rgba(242, 53, 141, 0.45)',
+              fill: true,
+              label: 'BEHIND',
+            },
+          ],
+        },
+      },
+      moveBackdrops: {
+        0: [
+          {
+            square: 'a1',
+            color: 'rgba(17, 198, 209, 0.35)',
+            fill: true,
+            label: 'SKEWER',
+          },
+          ...['a2', 'a3', 'a4', 'a5', 'a6', 'a7'].map((square) => ({
+            square,
+            color: 'rgba(17, 198, 209, 0.35)',
+            fill: true,
+          })),
+          {
+            square: 'a8',
+            color: 'rgba(7, 218, 99, 0.5)',
+            fill: true,
+            label: 'TAKE IT',
+          },
+        ],
+        2: [
+          {
+            square: 'a8',
+            color: 'rgba(7, 218, 99, 0.5)',
+            fill: true,
+            label: 'WON',
+          },
+        ],
+      },
+      moveExplanations: {
+        0: '**Check.** The king has to leave the a-file. Now look: **his rook was hiding behind him**, and nothing defends it.',
+      },
+      moveGuides: {
+        2: {
+          hintText: 'The king stepped aside. **Take the rook behind him.**',
+        },
+      },
       doneText:
-        "Check. The king has to move off the a-file, and **his rook on a8** is sitting right behind him, undefended. **That's a skewer.**",
+        "Check first, rook second. **That's a skewer**: the big piece in front has to move, the piece behind it falls.",
       hintText:
-        "Hold on. A skewer starts with **a threat the opponent CAN'T ignore**, usually a check, or an attack on something too valuable to lose. Find the move that lines your rook up with his king, with something else of his behind it on the same line.",
+        "Hold on. Line your rook up with **his king on the a-file**. Check him, and see what's behind.",
       hintTextAlways: true,
     },
     {
@@ -8799,64 +9534,121 @@ const L2_DAY_12_SKEWER: Lesson = {
       kind: 'puzzle',
       fen: 'q3k3/8/8/8/8/8/8/4K2R w - - 0 1',
       orientation: 'w',
-      solution: ['h1h8'],
+      solution: ['h1h8', 'e8d7', 'h8a8'],
       prompt: 'Rook skewers king and queen',
       introText: "Check again. Look **what's behind the king** this time.",
       doneText:
-        "Check. His king moves off the rank, and **his queen, his QUEEN**, is sitting right behind it. **That's about as good as a skewer gets.**",
+        "Check. His king moved off the rank, and **his queen, his QUEEN**, was sitting right behind it. Now she's yours. **That's about as good as a skewer gets.**",
       hintText:
         "Hold on. Same idea as Puzzle 1. Look carefully at **what's lined up behind his king** this time before you decide where to check from.",
       hintTextAlways: true,
+      moveGuides: {
+        2: { hintText: 'The king moved. **Take the queen behind him.**' },
+      },
     },
     {
       id: 'p3-bishop-queen-rook',
       kind: 'puzzle',
       fen: 'r6k/5pp1/6bp/8/4q3/6P1/1Q3P1P/2R2BK1 w - - 0 1',
       orientation: 'w',
-      solution: ['f1g2'],
+      solution: ['f1g2', 'e4e8', 'g2a8'],
       prompt: 'Bishop skewers queen and rook',
       introText:
         "Skewers don't only happen in straight lines. Find this one **on the diagonal**.",
       doneText:
-        'Same principle, **different geometry**. His queen is attacked on the diagonal, has to move, and **his rook on a8** is sitting right behind her on that same diagonal.',
+        'Same principle, **different geometry**. His queen was attacked on the diagonal and had to move. **His rook on a8** was right behind her. Rook for bishop: **you win the exchange**.',
       hintText:
         "Hold on. This one's **on a diagonal**, not a file or rank. A bishop skewer works exactly the same way, just along the bishop's own lines. Find the square that **lines up his queen and his rook**.",
       hintTextAlways: true,
+      moveGuides: {
+        2: { hintText: 'The queen ran to defend. **Take the rook anyway.**' },
+      },
     },
     {
       id: 'p4-bishop-queen-rook-2',
       kind: 'puzzle',
       fen: 'rnbr2k1/ppp2pbp/5qp1/3p4/2PPp3/1P4PN/P3PPBP/R1BQ1RK1 w - - 0 1',
       orientation: 'w',
-      solution: ['c1g5'],
+      solution: ['c1g5', 'f6d6', 'g5d8'],
       prompt: 'Bishop skewer, once again',
       introText:
         'It looks complicated. **The bishop can land an awesome skewer** on the queen and rook. Try to find it!',
       doneText:
-        'Bravo! The bishop **attacks the queen** on the diagonal with **the rook right behind her**. The queen has to run, leaving a juicy target behind!',
+        'Bravo! The bishop **attacked the queen** with **the rook right behind her**. The queen ran. **The rook is yours.**',
       hintText:
         "Wait. Look at the whole board and **the c1 bishop's diagonal**. Can it attack something valuable?",
       hintTextAlways: true,
+      moveGuides: {
+        2: {
+          hintText: 'The queen stepped away. **Take the rook behind her.**',
+        },
+      },
     },
     {
       id: 'p5-queen-king-rook',
       kind: 'puzzle',
       fen: '3k2r1/5p1p/6p1/1r6/8/P7/1P6/1K5Q w - - 0 1',
       orientation: 'w',
-      solution: ['h1a8'],
+      solution: ['h1a8', 'd8e7', 'a8g8'],
       prompt: 'Queen skewer',
       introText: 'The queen can also be **powerful in a skewer**!',
       doneText:
-        "That's it! The queen made **a long journey**, and it's going to yield **a huge reward**!",
+        "That's it! The queen made **a long journey**: check on the back rank, the king steps aside, **the g8 rook falls**.",
       hintText:
         "Not quite. I know it's a long way. Try to spot **the queen's longest diagonal**.",
       hintTextAlways: true,
+      moveGuides: {
+        2: { hintText: 'The king moved. **Take the rook behind him.**' },
+      },
+    },
+    // Be7 napada damu f6, iza nje lovac h4. Qe6 (fiksno) Bxh4 (SF +7.0; Qxe7 je duza odbrana).
+    {
+      id: 'p6-harder-be7',
+      kind: 'puzzle',
+      fen: '1r4k1/2p2p2/2p2qn1/2B1pN2/PP2P1Qb/2P5/5PK1/3R4 w - - 0 1',
+      orientation: 'w',
+      solution: ['c5e7', 'f6e6', 'e7h4'],
+      prompt: 'Harder one: find the skewer',
+      preStepIntro: {
+        title: 'Let me see you',
+        text: '**Two harder ones.** Busy boards, same idea: hit the big piece, **take what stands behind it**.',
+        buttonText: "Let's go!",
+      },
+      introText: '**Find the skewer.** Then collect.',
+      doneText:
+        'The queen ran. **The bishop behind her fell.** Same line, two targets.',
+      hintText:
+        'Hold on. Look at the **diagonal through f6**. What sits behind the queen?',
+      hintTextAlways: true,
+      moveGuides: {
+        2: {
+          hintText: 'The queen stepped away. **Take what was behind her.**',
+        },
+      },
+    },
+    // Rf4+ (kralj na e4, skakac b4 iza njega). Kxd5 (fiksno) Rxb4 (SF +4.9).
+    {
+      id: 'p7-harder-rf4',
+      kind: 'puzzle',
+      fen: '8/5R1p/3p2p1/r2P4/1n2k3/6P1/5P1P/5BK1 w - - 0 1',
+      orientation: 'w',
+      solution: ['f7f4', 'e4d5', 'f4b4'],
+      prompt: 'Harder one: find the skewer',
+      introText: 'Last one. **Check first.** Then see what was hiding.',
+      doneText:
+        "Check on the 4th rank, the king steps aside, **the knight is yours**. That's a skewer with check.",
+      hintText:
+        'Hold on. Which rook check puts the king **in front of another piece**?',
+      hintTextAlways: true,
+      moveGuides: {
+        2: { hintText: 'The king moved. **Take the knight behind it.**' },
+      },
     },
   ],
   endScreenButtons: [
     { label: 'Done', action: 'done' },
     { label: 'Repeat', action: 'repeat' },
-    { label: 'Play', action: 'play' },
+    { label: 'Next', action: 'nextLesson' },
   ],
 };
 
@@ -9088,7 +9880,7 @@ const L2_DAY_13_SMOTHERED_MATE: Lesson = {
   endScreenButtons: [
     { label: 'Done', action: 'done' },
     { label: 'Repeat', action: 'repeat' },
-    { label: 'Play', action: 'play' },
+    { label: 'Next', action: 'nextLesson' },
   ],
 };
 
@@ -9108,8 +9900,18 @@ function l2DecoyPlan(
       ...chase.map(([from, to]) => ({ from, to, color: L2_CHASE })),
     ],
     squares: [
-      ...decoy.map((square) => ({ square, color: L2_LINE, fill: true })),
-      ...prize.map((square) => ({ square, color: L2_PRIZE, fill: true })),
+      ...decoy.map((square) => ({
+        square,
+        color: L2_LINE,
+        fill: true,
+        label: 'DECOY',
+      })),
+      ...prize.map((square) => ({
+        square,
+        color: L2_PRIZE,
+        fill: true,
+        label: 'PRIZE',
+      })),
     ],
   };
 }
@@ -9141,7 +9943,7 @@ function l2DecoyFinish(
   );
 }
 
-// Jedan skriptovan potez kao kviz sa jednim dugmetom: korisnik klikne ili odigra potez, app odigra odgovor i nacrta novi plan.
+// Jedan skriptovan potez kao kviz sa jednim dugmetom: korisnik klikne ili odigra potez, komentar, pa odgovor i novi plan.
 function l2DecoyMove(
   id: string,
   fen: string,
@@ -9168,11 +9970,17 @@ function l2DecoyMove(
     quizAutoPlayMove: uci,
     quizBoardHighlight: plan,
     quizBoardHighlightUpfront: true,
-    quizDemoLine: [{ uci: reply, text, highlight: after }, ...finish],
+    // Redosled: komentar o potezu, pa odgovor crnog, pa sledeci predlog.
+    quizExplanation: text,
+    quizDemoLine: [{ uci: reply, highlight: after }, ...finish],
     doneText: '',
     hintText: '',
     noAutoAdvance: true,
     excludeFromProgress: true,
+    // Isti primer, ista partija: bez ponovnog ucitavanja table izmedju poteza.
+    continuesGame: true,
+    // Bez Next unutar primera: potez, komentar, pa odmah sledeci predlog.
+    advanceAfterDemo: finish.length === 0,
   };
 }
 
@@ -9293,7 +10101,14 @@ const L2_DAY_15_DECOY: Lesson = {
       quizCorrectIndex: 1,
       extraHintText:
         'Look for a pawn **far from everything else**. Is there one?',
-      quizBoardHighlight: l2DecoyPlan([], ['g4', 'g5'], []),
+      // Primer 2 (remi): nema plena, samo blokirani pesaci bez natpisa.
+      quizBoardHighlight: {
+        squares: ['g4', 'g5'].map((square) => ({
+          square,
+          color: L2_PRIZE,
+          fill: true,
+        })),
+      },
       quizExplanation:
         "That's right! You can try various tricks. Even if you lose the pawn, **you'll hold the draw using the opposition**.",
       quizExplanationWrong:
@@ -9495,7 +10310,7 @@ const L2_DAY_15_DECOY: Lesson = {
   endScreenButtons: [
     { label: 'Done', action: 'done' },
     { label: 'Repeat', action: 'repeat' },
-    { label: 'Play', action: 'play' },
+    { label: 'Next', action: 'nextLesson' },
   ],
 };
 
@@ -9690,16 +10505,23 @@ const L2_DAY_16_HANGS: Lesson = {
       "Right. **Hangs**, and it's the worst kind: **Rd1 is mate.** Your own pawns on f2, g2 and h2 box your king in, and nothing's left to block or capture on the back rank.",
       "Oh, not safe at all. In fact, **you're done in one move!** That's a back-rank mate."
     ),
-    l2Locate(
-      'e4-locate',
-      '3r2k1/5ppp/1b6/8/8/7Q/5PPP/6K1 b - - 1 1',
-      'w',
-      'g1',
-      "It's not a pawn or a piece this time. **What's the most valuable thing on the board?**",
-      "That's the one habit that matters more than any other: **check the back rank before every quiet move.**",
-      "Nope. **Your king** is the one in danger. Rd1 and it's mate.",
-      [{ from: 'd8', to: 'd1', color: L2_ATTACKER }]
-    ),
+    {
+      ...l2Locate(
+        'e4-locate',
+        '3r2k1/5ppp/1b6/8/8/7Q/5PPP/6K1 b - - 1 1',
+        'w',
+        'g1',
+        "It's not a pawn or a piece this time. **What's the most valuable thing on the board?**",
+        "That's the one habit that matters more than any other: **check the back rank before every quiet move.**",
+        "Nope. **Your king** is the one in danger. Rd1 and it's mate.",
+        [{ from: 'd8', to: 'd1', color: L2_ATTACKER }]
+      ),
+      // Tacno i polje mata (d1) ili potez Rd1 odigran na tabli.
+      markSquaresAlt: [['d1']],
+      markSquaresMoveAccept: ['d8d1'],
+      introText:
+        "**Mark what's in danger**: your king, or the mate square. **Right-click** on desktop, tap on mobile. Or just **play Black's move**.",
+    },
     // ---------- Primer 5 - Hangs, pesak (crni) ----------
     l2Candidate(
       'e5-classify',
@@ -9727,7 +10549,7 @@ const L2_DAY_16_HANGS: Lesson = {
   endScreenButtons: [
     { label: 'Done', action: 'done' },
     { label: 'Repeat', action: 'repeat' },
-    { label: 'Play', action: 'play' },
+    { label: 'Next', action: 'nextLesson' },
   ],
 };
 
@@ -10027,20 +10849,36 @@ const L2_DAY_17_OPENING_TRAPS: Lesson = {
 };
 
 // Zajednicke Pawny poruke za partije u drugoj turi (svaka verzija dodaje svoje dve).
-const L2_PAWNY_LINES = [
-  "I've stopped giving pieces away for free. Most of the time.",
-  "You've gotten sharper. So have I.",
-  'I actually look at what you attack now. New habit.',
-  "This is the part where I'd usually blunder. Watching myself.",
+// Lessons 2 protivnici (Mia, Alex, Leo): poruke tokom partije, po liku.
+const L2_MIA_LINES = [
+  'Your move took a while. Thinking hard or hoping?',
+  "I'd take that pawn. Then again, I take everything.",
+  "Fast is fine. Accurate is better. I'm working on it.",
+  "Nice. I didn't see that one coming.",
+  'One loose piece is all I need.',
   'I learned what a pin is. I plan to use it on you.',
   "You're making me think. I don't love it.",
-  'Every game you play, I get one update. Keep up.',
-  'I counted the material twice this time. Still close.',
+  'Good game so far. I mean that.',
+];
+const L2_ALEX_LINES = [
+  'Every pawn counts in my games.',
+  "I'd rather be slow than sorry.",
+  'You attacked. I defended. Your turn again.',
+  'Endgames are where I win. Just saying.',
   "That move made sense. I'm almost annoyed.",
-  "Rated higher, same nerves. Let's go.",
-  "I've read about endgames. Let's not find out if it helped.",
-  "Whatever happens, you're playing a stronger me today.",
-  'Good game so far. I mean that. Mostly.',
+  'I counted the material twice. Still close.',
+  'Patience wins more games than brilliance.',
+  'Good game. Keep it clean.',
+];
+const L2_LEO_LINES = [
+  'Every piece of mine has a job. Does yours?',
+  'Nice idea. Wrong move order.',
+  'Pressure is a privilege. Enjoy it.',
+  'Show me what you learned. All of it.',
+  "I respect that move. I'll punish the next one.",
+  'One slow move and the endgame is mine.',
+  "You've gotten sharper. So have I.",
+  "Good game so far. Don't relax.",
 ];
 const L2_PAWNY_END_BUTTONS: Lesson['endScreenButtons'] = [
   { label: 'Play again', action: 'repeat' },
@@ -10053,28 +10891,31 @@ const L2_DAY_7_PAWNY_4: Lesson = {
   id: 'l2-pawny-4-game',
   level: 2,
   day: 7,
-  title: 'Game vs Pawny 4.0',
-  endScreenTitle: 'Game over vs. Pawny 4.0 ({rating})',
+  title: 'Game vs Mia',
+  endScreenTitle: 'Game over vs. Mia ({rating})',
   piece: {
-    name: 'pawny 4.0',
+    name: 'mia',
     glyph: '♟',
     movement: 'mascot',
-    bannerText: 'Pawny 4.0 ({rating})',
+    bannerText: 'Mia ({rating})',
     subBannerText: 'Rated 700–950',
   },
   intro: {
-    title: 'Time for a real game',
-    text: "**Pawny's a bit stronger this time.** Today's rating: **{rating}**. Full game, no hints. Show what stuck.",
+    title: 'Meet Mia',
+    text: "**Mia plays fast and loves tactics.** Leave one piece loose and she'll find it. Today's rating: **{rating}**. Full game, no hints.",
   },
   introSteps: [
     {
-      text: "**Pawny's a bit stronger this time.** Today's rating: **{rating}**. Full game, no hints. Show what stuck.",
+      text: "**Mia plays fast and loves tactics.** Leave one piece loose and she'll find it. Today's rating: **{rating}**. Full game, no hints.",
       buttonText: 'Ready',
     },
   ],
-  pawnyAvatar: '/pawny/pawny4.webp',
+  pawnyAvatar: '/opponents/mia.webp',
+  opponentName: 'Mia',
+  opponentTagline: 'Tactician',
   pawnyAvatarFramed: true,
   pawnyRating: {
+    fixed: 940,
     min: 700,
     max: 950,
     jitter: 40,
@@ -10090,16 +10931,16 @@ const L2_DAY_7_PAWNY_4: Lesson = {
       fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
       orientation: 'w',
       solution: [],
-      prompt: 'Game vs Pawny 4.0',
+      prompt: 'Game vs Mia',
       introText: "Make your first move **whenever you're ready**.",
       hintText: '',
       doneText:
         "Another real game down. **No puzzles, no hints, just you.** That's the part that counts.",
       // Na svakih 5 poteza, nasumicno, bez ponavljanja (vidi freePlayMessages).
       freePlayMessages: [
-        "Version 4.0. I've been studying. Mostly.",
-        "Four versions in and I still don't trust my own king.",
-        ...L2_PAWNY_LINES,
+        'I like sharp positions. Hope you do too.',
+        'Careful. I see forks before I see anything else.',
+        ...L2_MIA_LINES,
       ],
     },
   ],
@@ -10111,29 +10952,32 @@ const L2_DAY_14_PAWNY_5: Lesson = {
   id: 'l2-pawny-5-game',
   level: 2,
   day: 14,
-  title: 'Game vs Pawny 5.0',
-  endScreenTitle: 'Game over vs. Pawny 5.0 ({rating})',
+  title: 'Game vs Alex',
+  endScreenTitle: 'Game over vs. Alex ({rating})',
   piece: {
-    name: 'pawny 5.0',
+    name: 'alex',
     glyph: '♟',
     movement: 'mascot',
-    bannerText: 'Pawny 5.0 ({rating})',
+    bannerText: 'Alex ({rating})',
     subBannerText: 'Rated 950–1150',
   },
   intro: {
-    title: 'Pawny got stronger again',
-    text: "**Another step up from Pawny 4.0.** Today's rating: **{rating}**. Full game, no hints. Everything you've learned since, use it.",
+    title: 'Meet Alex',
+    text: "**Alex plays solid and waits for your mistakes.** No cheap tricks. Today's rating: **{rating}**. Full game, no hints. Use everything you've learned since.",
   },
   introSteps: [
     {
-      text: "**Another step up from Pawny 4.0.** Today's rating: **{rating}**. Full game, no hints. Everything you've learned since, use it.",
+      text: "**Alex plays solid and waits for your mistakes.** No cheap tricks. Today's rating: **{rating}**. Full game, no hints. Use everything you've learned since.",
       buttonText: 'Ready',
     },
   ],
-  pawnyAvatar: '/pawny/pawny5.webp',
+  pawnyAvatar: '/opponents/alex.webp',
+  opponentName: 'Alex',
+  opponentTagline: 'Positional',
   pawnyAvatarFramed: true,
   // Nastavak iste (neizmerene) skale kao Pawny 4.0: manje nasumicnih poteza.
   pawnyRating: {
+    fixed: 1050,
     min: 950,
     max: 1150,
     jitter: 40,
@@ -10149,15 +10993,15 @@ const L2_DAY_14_PAWNY_5: Lesson = {
       fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
       orientation: 'w',
       solution: [],
-      prompt: 'Game vs Pawny 5.0',
+      prompt: 'Game vs Alex',
       introText: "Make your first move **whenever you're ready**.",
       hintText: '',
       doneText:
         "Another real game down. **No puzzles, no hints, just you.** That's the part that counts.",
       freePlayMessages: [
-        'Version 5.0. Same face, better habits.',
-        "Five versions in. I've started trusting my king. A little.",
-        ...L2_PAWNY_LINES,
+        "No rush. I'll wait for your mistake.",
+        "Solid position. Let's see who blinks first.",
+        ...L2_ALEX_LINES,
       ],
     },
   ],
@@ -10191,6 +11035,102 @@ const L2_DAY_18_DISCOVERED_ATTACK: Lesson = {
     },
   ],
   steps: [
+    // ---------- Primer 0 - objasnjenje: Bxh7+ Kxh7 (fiksno) Rxd7 (SF +5.6) ----------
+    {
+      id: 'p0-explained-bxh7',
+      kind: 'puzzle',
+      fen: '5rk1/3q1ppp/8/8/8/3B1N1P/5PP1/3R2K1 w - - 0 1',
+      orientation: 'w',
+      solution: ['d3h7', 'g8h7', 'd1d7'],
+      prompt: 'How it works',
+      introText:
+        'Your **bishop blocks your own rook** on the d-file. Behind it: **his queen**. Move the bishop **with a threat of its own**.',
+      // Pre poteza: top, lovac koji blokira, dama na istoj liniji.
+      boardBackdrop: [
+        {
+          square: 'd1',
+          color: 'rgba(17, 198, 209, 0.35)',
+          fill: true,
+          label: 'ROOK',
+        },
+        { square: 'd2', color: 'rgba(17, 198, 209, 0.35)', fill: true },
+        {
+          square: 'd3',
+          color: 'rgba(255, 196, 0, 0.5)',
+          fill: true,
+          label: 'BLOCKER',
+        },
+        ...['d4', 'd5', 'd6'].map((square) => ({
+          square,
+          color: 'rgba(17, 198, 209, 0.35)',
+          fill: true,
+        })),
+        {
+          square: 'd7',
+          color: 'rgba(242, 53, 141, 0.45)',
+          fill: true,
+          label: 'QUEEN',
+        },
+      ],
+      moveHighlights: {
+        0: {
+          arrows: [
+            { from: 'd1', to: 'd7', color: 'rgba(242, 53, 141, 0.85)' },
+            { from: 'h7', to: 'g8', color: 'rgba(17, 198, 209, 0.85)' },
+          ],
+          squares: [
+            {
+              square: 'g8',
+              color: 'rgba(17, 198, 209, 0.35)',
+              fill: true,
+              label: 'CHECK',
+            },
+            {
+              square: 'd7',
+              color: 'rgba(242, 53, 141, 0.45)',
+              fill: true,
+              label: 'ATTACKED',
+            },
+          ],
+        },
+      },
+      moveBackdrops: {
+        0: [
+          ...['d1', 'd2', 'd3', 'd4', 'd5', 'd6'].map((square) => ({
+            square,
+            color: 'rgba(17, 198, 209, 0.35)',
+            fill: true,
+          })),
+          {
+            square: 'd7',
+            color: 'rgba(7, 218, 99, 0.5)',
+            fill: true,
+            label: 'TAKE IT',
+          },
+        ],
+        2: [
+          {
+            square: 'd7',
+            color: 'rgba(7, 218, 99, 0.5)',
+            fill: true,
+            label: 'WON',
+          },
+        ],
+      },
+      moveExplanations: {
+        0: '**Two attacks in one move.** The bishop gives check, and the rook behind it **now sees the queen**. Black has to answer the check first.',
+      },
+      moveGuides: {
+        2: {
+          hintText: 'He took the bishop. **Now the rook takes the queen.**',
+        },
+      },
+      doneText:
+        "Bishop for a queen. That's a **discovered attack**: the piece that moves makes one threat, **the piece behind it makes the other**.",
+      hintText:
+        'Hold on. Move the **bishop off the d-file**, and do it **with check**. Then look at your rook.',
+      hintTextAlways: true,
+    },
     // ---------- Primer 1 - mehanizam ----------
     {
       id: 'p1-knight-unblocks-bishop',
@@ -10332,7 +11272,7 @@ const L2_DAY_18_DISCOVERED_ATTACK: Lesson = {
   endScreenButtons: [
     { label: 'Done', action: 'done' },
     { label: 'Repeat', action: 'repeat' },
-    { label: 'Play', action: 'play' },
+    { label: 'Next', action: 'nextLesson' },
   ],
 };
 
@@ -10366,6 +11306,7 @@ const L2_DAY_19_ANASTASIA_MATE: Lesson = {
     // ---------- Primer 1 - obrazac ----------
     {
       id: 'p1-spot-the-pattern',
+      mateHighlight: true,
       kind: 'puzzle',
       fen: '1r6/pbp1kpp1/6p1/8/P1Bp4/3P4/P3nPPK/R1B2R2 b - - 0 4',
       orientation: 'b',
@@ -10415,6 +11356,7 @@ const L2_DAY_19_ANASTASIA_MATE: Lesson = {
     // ---------- Primer 2 - mat u jednom ----------
     {
       id: 'p2-straight-to-mate',
+      mateHighlight: true,
       kind: 'puzzle',
       fen: '5rk1/ppp2pbp/3p2p1/7P/4r3/1NP1B3/PP2nPP1/R2QR2K b - - 0 2',
       orientation: 'b',
@@ -10438,6 +11380,7 @@ const L2_DAY_19_ANASTASIA_MATE: Lesson = {
     // ---------- Primer 3 - zrtva topa, pa dama ----------
     {
       id: 'p3-force-the-recapture',
+      mateHighlight: true,
       kind: 'puzzle',
       fen: '2b2r1k/4Nppn/4p3/1n1p4/2pP4/2P1P1P1/5PP1/qN1QK2R w K - 2 3',
       orientation: 'w',
@@ -10474,6 +11417,7 @@ const L2_DAY_19_ANASTASIA_MATE: Lesson = {
     // ---------- Primer 4 - pesak namesta mat ----------
     {
       id: 'p4-pawn-sets-it-up',
+      mateHighlight: true,
       kind: 'puzzle',
       fen: 'r4r2/5p2/4NRp1/3b3k/qPn5/2pR2P1/P4N2/K7 w - - 0 2',
       orientation: 'w',
@@ -10508,6 +11452,7 @@ const L2_DAY_19_ANASTASIA_MATE: Lesson = {
     // ---------- Primer 5 - dama mami kralja ----------
     {
       id: 'p5-queen-decoy',
+      mateHighlight: true,
       kind: 'puzzle',
       fen: '6k1/5p2/1p5p/p4Np1/5q2/Q6P/PPr5/3R3K w - - 2 4',
       orientation: 'w',
@@ -10541,7 +11486,7 @@ const L2_DAY_19_ANASTASIA_MATE: Lesson = {
   endScreenButtons: [
     { label: 'Done', action: 'done' },
     { label: 'Repeat', action: 'repeat' },
-    { label: 'Play', action: 'play' },
+    { label: 'Next', action: 'nextLesson' },
   ],
 };
 
@@ -10757,7 +11702,7 @@ const L2_DAY_20_PASSED_PAWN: Lesson = {
   endScreenButtons: [
     { label: 'Done', action: 'done' },
     { label: 'Repeat', action: 'repeat' },
-    { label: 'Play', action: 'play' },
+    { label: 'Next', action: 'nextLesson' },
   ],
 };
 
@@ -11029,7 +11974,7 @@ const L2_DAY_21_PAWN_ISLANDS: Lesson = {
   endScreenButtons: [
     { label: 'Done', action: 'done' },
     { label: 'Repeat', action: 'repeat' },
-    { label: 'Play', action: 'play' },
+    { label: 'Next', action: 'nextLesson' },
   ],
 };
 
@@ -11038,29 +11983,32 @@ const L2_DAY_22_PAWNY_6: Lesson = {
   id: 'l2-pawny-6-game',
   level: 2,
   day: 22,
-  title: 'Game vs Pawny 6.0',
-  endScreenTitle: 'Game over vs. Pawny 6.0 ({rating})',
+  title: 'Game vs Leo',
+  endScreenTitle: 'Game over vs. Leo ({rating})',
   piece: {
-    name: 'pawny 6.0',
+    name: 'leo',
     glyph: '♟',
     movement: 'mascot',
-    bannerText: 'Pawny 6.0 ({rating})',
+    bannerText: 'Leo ({rating})',
     subBannerText: 'Rated 1100–1300',
   },
   intro: {
-    title: 'One more game',
-    text: "**One more game before your two graduation tests.** Pawny 6.0, today's rating: **{rating}**. Strongest yet. Full game, no hints.",
+    title: 'Meet Leo',
+    text: "**One more game before your two graduation tests.** Leo is the strongest yet: today's rating **{rating}**. Full game, no hints.",
   },
   introSteps: [
     {
-      text: "**One more game before your two graduation tests.** Pawny 6.0, today's rating: **{rating}**. Strongest yet. Full game, no hints.",
+      text: "**One more game before your two graduation tests.** Leo is the strongest yet: today's rating **{rating}**. Full game, no hints.",
       buttonText: 'Ready',
     },
   ],
-  pawnyAvatar: '/pawny/pawny6.webp',
+  pawnyAvatar: '/opponents/leo.webp',
+  opponentName: 'Leo',
+  opponentTagline: 'Endgame grinder',
   pawnyAvatarFramed: true,
   // Nastavak iste (neizmerene) skale kao Pawny 4.0/5.0.
   pawnyRating: {
+    fixed: 1200,
     min: 1100,
     max: 1300,
     jitter: 40,
@@ -11076,15 +12024,15 @@ const L2_DAY_22_PAWNY_6: Lesson = {
       fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
       orientation: 'w',
       solution: [],
-      prompt: 'Game vs Pawny 6.0',
+      prompt: 'Game vs Leo',
       introText: "Make your first move **whenever you're ready**.",
       hintText: '',
       doneText:
         'Last game before Graduation, done. **No puzzles, no hints, just you.** Next up: the tests.',
       freePlayMessages: [
-        'Version 6.0. Last stop before your graduation. No pressure.',
-        "Six versions in. I've got a cape now. Didn't help my endgames.",
-        ...L2_PAWNY_LINES,
+        "Last stop before graduation. I don't hand out passes.",
+        "I've seen this opening a thousand times.",
+        ...L2_LEO_LINES,
       ],
     },
   ],
@@ -11115,12 +12063,7 @@ const L2_DAY_23_DISCOVERED_CHECK: Lesson = {
   },
   introSteps: [
     {
-      text: "One piece moves, and **the piece behind it gives check**. That's a discovered check. If the moving piece checks too, it's a **double check**. **Then the king has to move.**",
-      buttonText: 'Next',
-    },
-    {
-      title: "Why it's the most dangerous check",
-      text: 'The piece that moved is **free to grab something**, while another piece gives the check. With a double check, **no block and no capture saves him**. Only a king move.',
+      text: "One piece moves, and **the piece behind it gives check**: a discovered check. If the moving piece checks too, it's a **double check**. No block, no capture: **the king has to move.**",
       buttonText: 'Start',
     },
   ],
@@ -11133,7 +12076,70 @@ const L2_DAY_23_DISCOVERED_CHECK: Lesson = {
       orientation: 'w',
       solution: ['e5c6'],
       prompt: 'Discovered check',
-      introText: "**Find White's best move.**",
+      introText:
+        'Your **knight blocks your own rook** on the e-file. Behind it: **his king**. Move the knight, and **grab something on the way**.',
+      // Pre poteza: top, skakac koji blokira, kralj na e-liniji, lovac kao plen.
+      boardBackdrop: [
+        {
+          square: 'e1',
+          color: 'rgba(17, 198, 209, 0.35)',
+          fill: true,
+          label: 'ROOK',
+        },
+        ...['e2', 'e3', 'e4', 'e6', 'e7'].map((square) => ({
+          square,
+          color: 'rgba(17, 198, 209, 0.35)',
+          fill: true,
+        })),
+        {
+          square: 'e5',
+          color: 'rgba(255, 196, 0, 0.5)',
+          fill: true,
+          label: 'BLOCKER',
+        },
+        {
+          square: 'e8',
+          color: 'rgba(242, 53, 141, 0.45)',
+          fill: true,
+          label: 'KING',
+        },
+        {
+          square: 'c6',
+          color: 'rgba(242, 53, 141, 0.45)',
+          fill: true,
+          label: 'PRIZE',
+        },
+      ],
+      // Posle Nxc6+: sah topom niz otvorenu e-liniju, lovac uzet.
+      moveBackdrops: { 0: [] },
+      quizBoardHighlight: {
+        arrows: [{ from: 'e1', to: 'e8', color: 'rgba(242, 53, 141, 0.85)' }],
+        squares: [
+          {
+            square: 'e1',
+            color: 'rgba(17, 198, 209, 0.35)',
+            fill: true,
+            label: 'CHECK',
+          },
+          ...['e2', 'e3', 'e4', 'e5', 'e6', 'e7'].map((square) => ({
+            square,
+            color: 'rgba(17, 198, 209, 0.35)',
+            fill: true,
+          })),
+          {
+            square: 'e8',
+            color: 'rgba(242, 53, 141, 0.45)',
+            fill: true,
+            label: 'KING',
+          },
+          {
+            square: 'c6',
+            color: 'rgba(7, 218, 99, 0.5)',
+            fill: true,
+            label: 'WON',
+          },
+        ],
+      },
       moveGuides: {
         0: {
           hintText:
@@ -11309,11 +12315,69 @@ const L2_DAY_23_DISCOVERED_CHECK: Lesson = {
       hintText:
         'Not that. **Your bishop is blocking your queen on the a-file.** Find the diagonal check.',
     },
+    // ---------- Deo 2 - mat: Nh5+ (ili Ne8+) dvostruki sah, Qg7# (chess.js + SF mat u 2) ----------
+    {
+      id: 'p6-mate-knight-queen',
+      kind: 'puzzle',
+      fen: '5r2/5pk1/5Npp/4Q3/8/8/8/5K2 w - - 0 1',
+      orientation: 'w',
+      solution: ['f6h5', ANY_LEGAL_REPLY, 'e5g7'],
+      altMoves: { 0: ['f6e8'] },
+      prompt: 'Now deliver mate',
+      preStepIntro: {
+        title: 'Now deliver mate',
+        text: 'Same weapon, bigger prize. **Use a discovered or double check to mate the king.** Two moves each.',
+        buttonText: "Let's go!",
+      },
+      introText:
+        "**Mate in two.** Your knight is **blocking your queen's diagonal** to his king.",
+      mateHighlight: true,
+      moveExplanations: {
+        0: '**Double check.** The knight and the queen both hit the king. **He has to move.**',
+      },
+      moveGuides: {
+        2: {
+          hintText:
+            'Put your queen **right next to his king**. Your knight protects that square.',
+        },
+      },
+      doneText:
+        '**Qg7#.** The double check forced the king to move, and the queen walked in. **The knight guards her.**',
+      hintText:
+        'Hold on. Move the knight **with check**, and open the **e5 to g7 diagonal** at the same time.',
+      hintTextAlways: true,
+    },
+    // ---------- Deo 2 - mat: Bf5+ dvostruki sah, Kg8 (jedini), Be6# (chess.js + SF mat u 2) ----------
+    {
+      id: 'p7-mate-bishop-rook',
+      kind: 'puzzle',
+      fen: '5b2/6pk/5p2/6p1/5r2/7B/2K5/7R w - - 0 1',
+      orientation: 'w',
+      solution: ['h3f5', 'h7g8', 'f5e6'],
+      prompt: 'Mate with the rook behind',
+      introText:
+        '**Mate in two.** Your bishop is **blocking your rook** on the h-file.',
+      mateHighlight: true,
+      moveExplanations: {
+        0: '**Double check.** Bishop on the diagonal, rook on the h-file. **Only g8 is left.**',
+      },
+      moveGuides: {
+        2: {
+          hintText:
+            'Move the bishop again **with check**. Your rook still keeps the h-file shut.',
+        },
+      },
+      doneText:
+        '**Be6#.** The bishop checks, the rook keeps the h-file closed. **Nowhere to go.**',
+      hintText:
+        'Hold on. Move the bishop **with check**. The rook behind it checks too.',
+      hintTextAlways: true,
+    },
   ],
   endScreenButtons: [
     { label: 'Done', action: 'done' },
     { label: 'Repeat', action: 'repeat' },
-    { label: 'Play', action: 'play' },
+    { label: 'Next', action: 'nextLesson' },
   ],
 };
 
@@ -11615,7 +12679,7 @@ const L2_DAY_24_MATE_IN_TWO: Lesson = {
   endScreenButtons: [
     { label: 'Done', action: 'done' },
     { label: 'Repeat', action: 'repeat' },
-    { label: 'Play', action: 'play' },
+    { label: 'Next', action: 'nextLesson' },
   ],
 };
 
@@ -11980,7 +13044,7 @@ const L2_DAY_25_PAWN_RACES: Lesson = {
   endScreenButtons: [
     { label: 'Done', action: 'done' },
     { label: 'Repeat', action: 'repeat' },
-    { label: 'Play', action: 'play' },
+    { label: 'Next', action: 'nextLesson' },
   ],
 };
 
@@ -12266,7 +13330,7 @@ const L2_DAY_26_DEFLECTION: Lesson = {
   endScreenButtons: [
     { label: 'Done', action: 'done' },
     { label: 'Repeat', action: 'repeat' },
-    { label: 'Play', action: 'play' },
+    { label: 'Next', action: 'nextLesson' },
   ],
 };
 
@@ -12476,7 +13540,7 @@ const L2_DAY_27_DECOY_PAWN: Lesson = {
   endScreenButtons: [
     { label: 'Done', action: 'done' },
     { label: 'Repeat', action: 'repeat' },
-    { label: 'Play', action: 'play' },
+    { label: 'Next', action: 'nextLesson' },
   ],
 };
 
@@ -12836,7 +13900,7 @@ const L2_DAY_28_DOUBLE_ATTACK: Lesson = {
   endScreenButtons: [
     { label: 'Done', action: 'done' },
     { label: 'Repeat', action: 'repeat' },
-    { label: 'Play', action: 'play' },
+    { label: 'Next', action: 'nextLesson' },
   ],
 };
 
@@ -12845,6 +13909,7 @@ const L2_BOX_CUT = 'rgba(17, 198, 209, 0.28)';
 const L2_BOX_CHECK = 'rgba(242, 53, 141, 0.35)';
 const L2_BOX_KING = 'rgba(7, 218, 99, 0.45)';
 const L2_BOX_ARROW = 'rgba(7, 218, 99, 0.85)';
+const L2_BOX_THREAT_ARROW = 'rgba(242, 53, 141, 0.85)';
 const L2_BOX_WRONG =
   "Might not be a bad move. **We're drilling one exact method right now.** Play the highlighted move.";
 
@@ -12886,8 +13951,6 @@ const l2BoxStep = (
   hintTextAlways: true,
   missTexts: [L2_BOX_WRONG],
   suggestSolutionMoves: true,
-  // "L" se vidi dok crni kralj jos stoji na polju, pa nestaje sa njegovim odgovorom.
-  moveHighlightHoldMs: 1800,
   ...step,
 });
 
@@ -12895,7 +13958,7 @@ const L2_DAY_29_BOX_METHOD: Lesson = {
   id: 'l2-d29-box-method',
   level: 2,
   day: 29,
-  title: 'The Box Method',
+  title: 'The One-Rook Mate',
   endScreenTitle: 'Box closed.',
   endScreenText:
     "Four pictures, every time: **the L approach, the face-off, the rook switching sides** when it's attacked, and **handing over the move** when you can't advance. That's the whole technique. Next lesson, you run it yourself.",
@@ -12904,10 +13967,10 @@ const L2_DAY_29_BOX_METHOD: Lesson = {
     name: 'box method',
     glyph: '♜',
     movement: 'static',
-    bannerText: 'The Box Method',
+    bannerText: 'The One-Rook Mate',
   },
   intro: {
-    title: 'The box method',
+    title: 'The One-Rook Mate',
     text: "King and rook against a lone king always wins. **Your rook cuts off a rank or a file. Your king walks in to shrink the space.** Four pictures do all the work here: the knight's-move approach, the face-off, the rook switching sides when it's attacked, and handing over the move when you can't advance. Watch for all four. You'll see each one more than once.",
   },
   introSteps: [
@@ -12956,6 +14019,14 @@ const L2_DAY_29_BOX_METHOD: Lesson = {
         title: "I 'L' you with my King",
         text: "See the shape between the two kings? **That's a knight's jump. An L.** Keep making that shape, one step at a time, until the kings end up face to face. **That face-off is the next picture you need to remember.**",
         diagramFen: '8/8/4k3/R7/3K4/8/8/8 b - - 5 3',
+        diagramMarks: {
+          squares: [
+            { square: 'd4', color: L2_BOX_KING },
+            { square: 'e6', color: L2_BOX_KING, label: 'L' },
+            ...l2BoxRank(5, 'CUT OFF', L2_BOX_CUT, 'f'),
+          ],
+          arrows: [{ from: 'd4', to: 'e6', color: L2_BOX_ARROW }],
+        },
         buttonText: 'Got it!',
       },
       solution: ['d4e4', 'f6g6', 'e4f4', 'g6h6', 'f4g4', 'h6g6'],
@@ -12996,6 +14067,15 @@ const L2_DAY_29_BOX_METHOD: Lesson = {
         title: 'Face to face',
         text: "Kings lined up, one square apart, same file or rank. **Whenever you see this picture, it's time for a side check.** It pushes the king down another row.",
         diagramFen: '8/8/6k1/R7/6K1/8/8/8 w - - 12 7',
+        diagramMarks: {
+          squares: [
+            { square: 'g4', color: L2_BOX_KING },
+            { square: 'g6', color: L2_BOX_KING },
+            { square: 'g5', color: L2_BOX_CHECK, label: 'FACE-OFF' },
+            ...l2BoxRank(5, 'CUT OFF', L2_BOX_CUT, 'c'),
+          ],
+          arrows: [{ from: 'a5', to: 'a6', color: L2_BOX_ARROW }],
+        },
         buttonText: 'Got it!',
       },
       solution: [
@@ -13053,7 +14133,18 @@ const L2_DAY_29_BOX_METHOD: Lesson = {
         title: 'Rook switches sides',
         text: 'Rook under attack? **It just slides to the far end of the same line it is already holding.** Same cutoff. Zero risk.',
         diagramFen: '8/1k6/R7/3K4/8/8/8/8 w - - 22 12',
-        diagramHighlightRank: 6,
+        diagramMarks: {
+          squares: [
+            { square: 'a6', color: L2_BOX_CHECK, label: 'ATTACKED' },
+            { square: 'b7', color: L2_BOX_CHECK },
+            { square: 'h6', color: L2_BOX_KING },
+            ...l2BoxRank(6, 'CUT OFF', L2_BOX_CUT, 'e'),
+          ],
+          arrows: [
+            { from: 'b7', to: 'a6', color: L2_BOX_THREAT_ARROW },
+            { from: 'a6', to: 'h6', color: L2_BOX_ARROW },
+          ],
+        },
         buttonText: 'Got it!',
       },
       solution: ['a6h6', 'b7c7'],
@@ -13066,6 +14157,14 @@ const L2_DAY_29_BOX_METHOD: Lesson = {
           squares: [{ square: 'h6', color: L2_BOX_KING, fill: true }],
           arrows: [{ from: 'a6', to: 'h6', color: L2_BOX_ARROW }],
         },
+      },
+      // Crni kralj sada pravi "L" nama, oznaceno magentom.
+      quizBoardHighlight: {
+        squares: [
+          { square: 'c7', color: L2_BOX_CHECK, fill: true },
+          { square: 'd5', color: L2_BOX_CHECK, fill: true, label: 'L' },
+        ],
+        arrows: [{ from: 'c7', to: 'd5', color: L2_BOX_THREAT_ARROW }],
       },
       doneText:
         "Kc7. Smart. **Making sure you can't play the L move this time.**",
@@ -13086,7 +14185,18 @@ const L2_DAY_29_BOX_METHOD: Lesson = {
         title: 'Hand over the move',
         text: "No L move on the board? **Shift the rook one square along the same line instead.** You're not gaining ground, you're passing the move, so the king has to walk into the face-off on its own next turn.",
         diagramFen: '8/2k5/7R/3K4/8/8/8/8 w - - 24 13',
-        diagramHighlightRank: 6,
+        diagramMarks: {
+          squares: [
+            { square: 'c7', color: L2_BOX_CHECK },
+            { square: 'd5', color: L2_BOX_CHECK, label: 'L' },
+            { square: 'g6', color: L2_BOX_KING, label: 'PASS' },
+            ...l2BoxRank(6, 'CUT OFF', L2_BOX_CUT, 'b'),
+          ],
+          arrows: [
+            { from: 'c7', to: 'd5', color: L2_BOX_THREAT_ARROW },
+            { from: 'h6', to: 'g6', color: L2_BOX_ARROW },
+          ],
+        },
         buttonText: 'Got it!',
       },
       solution: [
@@ -13148,8 +14258,837 @@ const L2_DAY_29_BOX_METHOD: Lesson = {
   endScreenButtons: [
     { label: 'Done', action: 'done' },
     { label: 'Repeat', action: 'repeat' },
-    { label: 'Play', action: 'play' },
+    { label: 'Next', action: 'nextLesson' },
   ],
+};
+
+// Lessons 2 Day 30 - ista linija kao Day 29 (37 polu-poteza, proverena u chess.js), korisnik igra sam.
+const L2_ROOK_TRY_WRONG =
+  "That's OK. **You're still winning.** We're learning one exact technique here. **Follow the method.**";
+const L2_ROOK_TRY_L_HINT = "**Make the L.** A knight's jump from his king.";
+const L2_ROOK_TRY_SIDE_HINT =
+  '**Kings face to face.** Time for the side check.';
+const l2FaceOff = (white: string, gap: string, black: string) => ({
+  squares: [
+    { square: white, color: L2_BOX_KING, fill: true },
+    { square: gap, color: L2_BOX_CHECK, fill: true, label: 'FACE-OFF' },
+    { square: black, color: L2_BOX_KING, fill: true },
+  ],
+  arrows: [],
+});
+
+const L2_DAY_30_ROOK_MATE_PRACTICE: Lesson = {
+  id: 'l2-d30-rook-mate-practice',
+  level: 2,
+  day: 30,
+  title: 'Rook Mate: Try It Yourself',
+  endScreenTitle: 'Congrats!',
+  endScreenText: 'You just delivered a checkmate!',
+  flatProgressSegments: true,
+  piece: {
+    name: 'rook mate',
+    glyph: '♜',
+    movement: 'static',
+    bannerText: 'Rook Mate: Try It Yourself',
+  },
+  intro: {
+    title: 'Try it yourself',
+    text: 'Same position as last lesson. **Same method, this time you play it.** Box, L, face-off, switch sides, hand over the move. Stuck? **Hint 1** shows the piece, **Hint 2** shows the move.',
+  },
+  introSteps: [
+    {
+      title: 'Try it yourself',
+      text: 'Same position as last lesson. **Same method, this time you play it.** Box, L, face-off, switch sides, hand over the move. Stuck? **Hint 1** shows the piece, **Hint 2** shows the move.',
+      buttonText: "Let's Start",
+    },
+  ],
+  steps: [
+    {
+      id: 'rook-try-full-line',
+      kind: 'puzzle',
+      fen: '8/8/4k3/8/8/8/4K3/R7 w - - 0 1',
+      orientation: 'w',
+      prompt: 'Deliver the mate',
+      introText:
+        'Your rook and king against the lone king. **Cut it off, box it in, finish it.**',
+      solution: [
+        'a1a5',
+        'e6d6',
+        'e2d3',
+        'd6e6',
+        'd3d4',
+        'e6f6',
+        'd4e4',
+        'f6g6',
+        'e4f4',
+        'g6h6',
+        'f4g4',
+        'h6g6',
+        'a5a6',
+        'g6f7',
+        'g4g5',
+        'f7e7',
+        'g5f5',
+        'e7d7',
+        'f5e5',
+        'd7c7',
+        'e5d5',
+        'c7b7',
+        'a6h6',
+        'b7c7',
+        'h6g6',
+        'c7b7',
+        'd5c5',
+        'b7a7',
+        'c5b5',
+        'a7b7',
+        'g6g7',
+        'b7b8',
+        'b5c6',
+        'b8a8',
+        'c6b6',
+        'a8b8',
+        'g7g8',
+      ],
+      hintText: L2_ROOK_TRY_WRONG,
+      hintTextAlways: true,
+      wrongMoveBlunderTexts: {
+        hangs: 'That hangs the rook. **No rook, no mate.** Try another move.',
+        stalemate:
+          "That's **stalemate**. No check, and no legal move left. **A draw, not a win.** Try another move.",
+      },
+      moveBackdrops: {
+        0: l2BoxRank(5, 'CUT OFF'),
+        12: l2BoxRank(6, 'CUT OFF'),
+        30: l2BoxRank(7, 'CUT OFF'),
+        36: l2BoxRank(8, 'MATE', L2_BOX_CHECK),
+      },
+      moveHighlights: {
+        4: l2BoxL('d4', 'e6'),
+        6: l2BoxL('e4', 'f6'),
+        8: l2BoxL('f4', 'g6'),
+        10: l2BoxL('g4', 'h6'),
+        12: { squares: l2BoxRank(6, 'CHECK', L2_BOX_CHECK), arrows: [] },
+        14: l2BoxL('g5', 'f7'),
+        16: l2BoxL('f5', 'e7'),
+        18: l2BoxL('e5', 'd7'),
+        20: l2BoxL('d5', 'c7'),
+        22: {
+          squares: [{ square: 'h6', color: L2_BOX_KING, fill: true }],
+          arrows: [{ from: 'a6', to: 'h6', color: L2_BOX_ARROW }],
+        },
+        24: {
+          squares: [
+            { square: 'g6', color: L2_BOX_KING, fill: true, label: 'PASS' },
+          ],
+          arrows: [{ from: 'h6', to: 'g6', color: L2_BOX_ARROW }],
+        },
+        26: l2BoxL('c5', 'b7'),
+        28: l2BoxL('b5', 'a7'),
+        30: { squares: l2BoxRank(7, 'CHECK', L2_BOX_CHECK), arrows: [] },
+        32: l2BoxL('c6', 'b8'),
+        34: l2BoxL('b6', 'a8'),
+      },
+      moveExplanations: {
+        0: "**Cut off.** The 5th rank is sealed. **That's the box.**",
+        2: '**Kd3.** King walks in.',
+        4: "**I 'L' you.** Knight's jump between the kings.",
+        6: '**L** again.',
+        8: '**L.**',
+        10: '**L.**',
+        12: '**Side check.** Down a row.',
+        14: '**L.**',
+        16: '**L.**',
+        18: '**L.**',
+        20: '**L.**',
+        22: '**Rook switches sides.** Same box, zero risk.',
+        24: '**Hand over the move.** He has to walk into it.',
+        26: "**L** move's back on.",
+        28: '**L.**',
+        30: '**Side check.** One row left.',
+        32: '**L.**',
+        34: '**L.**',
+      },
+      moveGlyphs: { 22: '!', 24: '!' },
+      moveGuides: {
+        0: { hintText: '**Cut it off first.** Which rank can your rook seal?' },
+        2: { hintText: '**Bring your king in.** Toward the box.' },
+        4: { hintText: L2_ROOK_TRY_L_HINT },
+        6: { hintText: L2_ROOK_TRY_L_HINT },
+        8: { hintText: L2_ROOK_TRY_L_HINT },
+        10: {
+          hintText: L2_ROOK_TRY_L_HINT,
+          replyText: 'Kg6. **Face-off. Opposition.** You know what comes next.',
+          replyHighlight: l2FaceOff('g4', 'g5', 'g6'),
+        },
+        12: { hintText: L2_ROOK_TRY_SIDE_HINT },
+        14: { hintText: L2_ROOK_TRY_L_HINT },
+        16: { hintText: L2_ROOK_TRY_L_HINT },
+        18: { hintText: L2_ROOK_TRY_L_HINT },
+        20: {
+          hintText: L2_ROOK_TRY_L_HINT,
+          replyText: "Kb7. **Your rook's attacked.**",
+          replyHighlight: {
+            squares: [
+              {
+                square: 'a6',
+                color: L2_BOX_CHECK,
+                fill: true,
+                label: 'ATTACKED',
+              },
+              { square: 'b7', color: L2_BOX_CHECK, fill: true },
+            ],
+            arrows: [{ from: 'b7', to: 'a6', color: L2_BOX_THREAT_ARROW }],
+          },
+        },
+        22: {
+          hintText:
+            "**Rook's attacked.** Slide it along the same line, far away.",
+          replyText: "Kc7. **He's making the L now.** No L move for you.",
+          replyHighlight: {
+            squares: [
+              { square: 'c7', color: L2_BOX_CHECK, fill: true },
+              { square: 'd5', color: L2_BOX_CHECK, fill: true, label: 'L' },
+            ],
+            arrows: [{ from: 'c7', to: 'd5', color: L2_BOX_THREAT_ARROW }],
+          },
+        },
+        24: {
+          hintText:
+            '**No L move.** Shift the rook one square. Hand over the move.',
+        },
+        26: { hintText: L2_ROOK_TRY_L_HINT },
+        28: {
+          hintText: L2_ROOK_TRY_L_HINT,
+          replyText: 'Kb7. **Face-off. Opposition.**',
+          replyHighlight: l2FaceOff('b5', 'b6', 'b7'),
+        },
+        30: { hintText: L2_ROOK_TRY_SIDE_HINT },
+        32: { hintText: L2_ROOK_TRY_L_HINT },
+        34: {
+          hintText: L2_ROOK_TRY_L_HINT,
+          replyText: 'Kb8. **Face-off.** Last row.',
+          replyHighlight: l2FaceOff('b6', 'b7', 'b8'),
+        },
+        36: { hintText: '**Finish it.** Side check on the last row.' },
+      },
+      quizBoardHighlight: {
+        squares: [{ square: 'b8', color: L2_BOX_CHECK, fill: true }],
+        arrows: [],
+      },
+      doneText: '**Rg8#.** No script on the board. **Your technique.**',
+    },
+  ],
+  endScreenButtons: [
+    { label: 'Repeat Lesson', action: 'repeat' },
+    { label: 'Done', action: 'done' },
+    { label: 'Next', action: 'nextLesson' },
+  ],
+};
+
+// Lessons 2 Day 31 - Graduation 2.0, Test 1. Pozicije iz izvornih lekcija, provereno Stockfish-om.
+const L2_GRAD_EMPTY = '8/8/8/8/8/8/8/8 w - - 0 1';
+
+// Board pitanje u testu: cela linija (do mata ili dobijenog materijala), bodovana kao puzzle.
+const l2GradBoard = (
+  id: string,
+  prompt: string,
+  fen: string,
+  orientation: 'w' | 'b',
+  solution: string[],
+  introText: string,
+  wrongText: string,
+  doneText: string,
+  extra: Partial<LessonStep> = {}
+): LessonStep => ({
+  id,
+  kind: 'puzzle',
+  fen,
+  orientation,
+  solution,
+  prompt,
+  introText,
+  hintText: wrongText,
+  hintTextAlways: true,
+  doneText,
+  ...extra,
+});
+
+const l2GradQuiz = (
+  id: string,
+  prompt: string,
+  fen: string,
+  introText: string,
+  quizOptions: string[],
+  quizCorrectIndex: number,
+  quizExplanation: string,
+  quizExplanationWrong: string,
+  extra: Partial<LessonStep> = {}
+): LessonStep => ({
+  id,
+  kind: 'quiz',
+  fen,
+  orientation: 'w',
+  solution: ['quiz'],
+  prompt,
+  introText,
+  quizOptions,
+  quizCorrectIndex,
+  quizExplanation,
+  quizExplanationWrong,
+  autoAdvanceOnCorrect: true,
+  doneText: '',
+  hintText: '',
+  ...extra,
+});
+
+const L2_DAY_31_GRADUATION_TEST_1: Lesson = {
+  id: 'l2-d31-graduation-test-1',
+  level: 2,
+  day: 31,
+  title: 'Graduation 2.0: Test 1',
+  flatProgressSegments: true,
+  piece: {
+    name: 'everything so far',
+    glyph: '🎓',
+    movement: 'static',
+    bannerText: 'Graduation 2.0 · Test 1',
+  },
+  intro: {
+    title: 'Graduation Test 1 of 2',
+    text: 'Everything from Course 2 so far, in one test. **Fifteen questions**, mixed board play and quiz. Get **60%** to move on to the final test.',
+  },
+  introSteps: [
+    {
+      title: 'Graduation Test 1 of 2',
+      text: 'Everything from Course 2 so far, in one test. **Fifteen questions**, mixed board play and quiz. Get **60%** to move on to the final test.',
+      buttonText: 'Start test',
+    },
+  ],
+  steps: [
+    // Q1
+    l2GradQuiz(
+      'q1-what-is-smothered',
+      'Smothered mate',
+      L2_GRAD_EMPTY,
+      'What actually makes a mate **smothered**?',
+      [
+        'Two rooks mate the king',
+        'Its own pieces block every escape',
+        "The king hasn't moved yet",
+      ],
+      1,
+      "Right. **Its own pieces box it in.** That's why a knight can mate from a square the king can't even touch.",
+      "Smothered mate means **the king's own pieces trap it** with no legal escape square. Then a knight mates from right next to it."
+    ),
+    // Q2 - Smothered Mate, Primer 1
+    l2GradBoard(
+      'q2-smothered-mate',
+      'Smothered mate',
+      '6rk/6pp/7N/8/8/8/8/6K1 w - - 0 1',
+      'w',
+      ['h6f7'],
+      "The king's already smothered by its own pieces. **Find mate in one.**",
+      'Not mate yet. **The rook and both pawns already block every escape square.** Your knight just needs the right square.',
+      "**Nf7#.** No square to run, nothing to block with. **That's smothered mate.**"
+    ),
+    // Q3 - Decoy: The Outside Passed Pawn, Primer 1 (FEN iz lekcije, crni na potezu)
+    l2GradQuiz(
+      'q3-outside-passer-win',
+      'Outside passed pawn',
+      '8/8/4k3/P5p1/6P1/4K3/8/8 b - - 0 1',
+      "White's a-pawn has nothing left in front of it. **Win or Draw?**",
+      ['Win', 'Draw'],
+      0,
+      "Right. **Win.** That a-pawn has nobody left to stop it, and **chasing it costs Black's king everything.**",
+      "This is a **Win**. Count Black's king's round trip to stop the a-pawn. **By the time it gets back, White's king has already cleaned up.**"
+    ),
+    // Q4 - Decoy: The Outside Passed Pawn, Primer 2
+    l2GradQuiz(
+      'q4-outside-passer-draw',
+      'Outside passed pawn',
+      '8/8/4k3/6p1/6P1/4K3/8/8 w - - 0 1',
+      'Same shape as the last position. **Win or Draw?**',
+      ['Win', 'Draw'],
+      1,
+      'Right. **Draw.** Both pawns are stuck facing each other. **No outside passed pawn** to pull a king away.',
+      "This is a **Draw**. Neither pawn is passed, so **there's nothing to decoy either king with.**"
+    ),
+    // Q5 - Pawn Races, Primer 2
+    l2GradQuiz(
+      'q5-race-counting-trap',
+      'Pawn race',
+      '8/8/6k1/6p1/P7/8/1K6/8 b - - 0 1',
+      '**Black to move.** Count the moves to promotion for both pawns. Who wins the race?',
+      ['White', 'Black', 'Draw'],
+      2,
+      'Right. **Draw.** Black queens first, and White queens **right after**. With both queens on the board, nobody can force anything.',
+      "It's a **Draw**. Black does queen first. **Counting tells you who queens first. Not who wins.** White queens right after."
+    ),
+    // Q6
+    l2GradQuiz(
+      'q6-what-is-passed',
+      'Passed pawn',
+      L2_GRAD_EMPTY,
+      'A pawn is **passed** when...',
+      [
+        "It's on the 6th rank",
+        "It's defended by a pawn",
+        'No enemy pawn ahead on its file or the files next to it',
+      ],
+      2,
+      'Right. **Check its own file and both neighbors.** Nothing there, nothing stops it.',
+      "A pawn is passed when **no enemy pawn on its file or either neighboring file** can block or capture it. Rank and support don't matter."
+    ),
+    // Q7 - Passed Pawn, Primer 7
+    l2GradBoard(
+      'q7-push-with-tempo',
+      'Passed pawn',
+      '8/1r3kp1/3p1p1p/3P4/4P2P/R4P2/p5P1/5K2 b - - 0 1',
+      'b',
+      ['b7b1', ANY_LEGAL_REPLY, 'a2a1q', 'a3a1', 'b1a1'],
+      '**Black to move.** You know this pawn is passed. Now push it home. Tip: **look for a move that gives check first.**',
+      "That doesn't give check. **White gets time to deal with the a-pawn.** A move that forces the king to react buys the pawn its tempo.",
+      "**Rxa1.** The pawn cost White its rook. **That's the tempo paying off.**",
+      {
+        moveExplanations: {
+          0: "**Rb1+.** Check first. **White's king has to answer you.**",
+        },
+        moveGuides: {
+          2: { wrongText: '**Push the pawn.** Your rook already covers a1.' },
+          4: { wrongText: '**Take back on a1.**' },
+        },
+      }
+    ),
+    // Q8 - Pawn Islands, Primer 7
+    l2GradQuiz(
+      'q8-islands-white',
+      'Pawn islands',
+      '6k1/1ppp1pp1/8/8/8/8/P1P1P3/6K1 w - - 0 1',
+      'How many **pawn islands** does White have?',
+      ['2', '3', '4', '5'],
+      1,
+      'Right. **3.** a2, c2 and e2, each cut off by an empty file.',
+      "It's **3**. Every White pawn here is cut off from the others by a gap. **Check each one.**"
+    ),
+    // Q9 - Pawn Islands, Primer 9
+    l2GradQuiz(
+      'q9-islands-black',
+      'Pawn islands',
+      '6k1/pp1pp2p/8/8/8/8/PPP2PPP/6K1 w - - 0 1',
+      "Same idea, Black's side this time. How many **pawn islands** does Black have?",
+      ['1', '2', '3'],
+      2,
+      'Right. **3.** a7-b7, d7-e7, and h7 on its own.',
+      "It's **3**. Find every empty file between Black's pawns. **There's more than one gap.**"
+    ),
+    // Q10
+    l2GradQuiz(
+      'q10-discovered-rule',
+      'Discovered attack',
+      L2_GRAD_EMPTY,
+      'In a discovered attack, **the piece that moves...**',
+      ['Must give check', 'Can do anything it wants', 'Must capture something'],
+      1,
+      'Right. **The moving piece is free to do its own thing.** The danger is the piece that was waiting behind it.',
+      'The piece that moves **can do anything at all**. The real attack comes from the piece it was blocking.'
+    ),
+    // Q11 - Discovered Attack, Primer 1 (FEN iz lekcije; tiketov FEN nema Nxc6 kao najbolji)
+    l2GradBoard(
+      'q11-discovered-attack',
+      'Discovered attack',
+      '6k1/r4ppp/2p5/4r3/3N4/1P5P/PB3PP1/R5K1 w - - 0 1',
+      'w',
+      ['d4c6', 'e5e8', 'c6a7'],
+      "Your knight is standing right in your own bishop's way. **Find White's best move.**",
+      "Look at the knight on d4. **It's blocking your own bishop's diagonal.** What happens when it steps aside and grabs something on the way?",
+      '**Nxa7.** Two rooks attacked, one saved. **The other one is yours.**',
+      {
+        moveExplanations: {
+          0: '**Nxc6.** The bishop hits the rook on e5, and **the knight hits a7.**',
+        },
+        moveGuides: {
+          2: {
+            wrongText:
+              'The rook on e5 got away. **Which rook is still hanging?**',
+          },
+        },
+      }
+    ),
+    // Q12 - Discovered / Double Check, Primer 1
+    l2GradBoard(
+      'q12-discovered-check',
+      'Discovered check',
+      'r3k3/1p6/2b5/4N3/8/8/6P1/4R1K1 w - - 0 1',
+      'w',
+      ['e5c6', 'e8d7', 'c6b4'],
+      "Your knight is sitting between your rook and the black king. **Find White's best move.**",
+      "The knight on e5 is **in your own rook's way** on the e-file. What happens when it steps off, picking something up too?",
+      '**Knight safe from the b7 pawn.** Discovered check, **a whole piece up.**',
+      {
+        moveExplanations: {
+          0: '**Nxc6+.** Bishop gone, and **the rook checks down the open e-file.**',
+        },
+        altMoves: { 2: ['c6d4', 'c6e5'] },
+        moveGuides: {
+          2: {
+            wrongText:
+              'Your knight on c6 is attacked by the b7 pawn. **Get it to a safe square.**',
+          },
+        },
+      }
+    ),
+    // Q13
+    l2GradQuiz(
+      'q13-why-double-check',
+      'Double check',
+      L2_GRAD_EMPTY,
+      'Why can a double check **never be blocked or captured away**?',
+      [
+        'Two checkers. One move stops only one',
+        "The king's on the back rank",
+        'Only a queen and knight can do it',
+      ],
+      0,
+      'Right. **One move blocks one line, or captures one piece.** Never both. The king has to move.',
+      '**Two separate pieces attack at once.** Block or capture one, and the other checker is still there.'
+    ),
+    // Q14 - Discovered / Double Check, Primer 3
+    l2GradBoard(
+      'q14-double-check',
+      'Double check',
+      '4k2r/6p1/5b2/7r/4N3/8/7P/4R1K1 w - - 0 1',
+      'w',
+      ['e4f6', ANY_LEGAL_REPLY, 'f6h5'],
+      'Your knight on e4 blocks your own rook. **It can also jump somewhere that attacks the king directly.** Find the move.',
+      'This needs a square that does two things at once: **attacks the king itself, and clears the e-file** for your rook.',
+      "**Nxh5.** Bishop and rook back for one knight. **That's what a double check buys.**",
+      {
+        moveExplanations: {
+          0: '**Nxf6+.** Double check. **The king has to move.**',
+        },
+        moveGuides: {
+          2: {
+            wrongText: 'The king moved. **What can your knight grab now?**',
+          },
+        },
+      }
+    ),
+    // Q15 - nova pozicija (nije iz lekcije): Stockfish +1.5 posle Nxd5, napad 3 (Nc3, c4, Qd1) protiv odbrane 2 (Nf6, Qd8)
+    l2GradQuiz(
+      'q15-count-attackers',
+      'Attackers vs defenders',
+      'rnbq1rk1/pp2bppp/5n2/1B1p4/2P5/2N2N2/PP3PPP/R1BQ1RK1 w - - 0 1',
+      'White plays **Nxd5**. Count the attackers and defenders on d5. **Good move or bad?**',
+      ['Good', 'Bad'],
+      0,
+      'Right. **3 attackers** on d5 (Nc3, the c4 pawn, Qd1) against **2 defenders** (Nf6, Qd8). One extra attacker wins the pawn.',
+      "It's **good**. Count again: **3 attackers** on d5, only **2 defenders**. More attackers than defenders wins material.",
+      {
+        celebrate: true,
+        quizBoardHighlightUpfront: true,
+        quizBoardHighlight: {
+          squares: [
+            { square: 'd5', color: 'rgba(242, 53, 141, 0.35)', fill: true },
+          ],
+          arrows: [{ from: 'c3', to: 'd5', color: 'rgba(7, 218, 99, 0.85)' }],
+        },
+      }
+    ),
+  ],
+  graduationTest: {
+    maxScore: 15,
+    passThreshold: 0.6,
+    passTitle: 'Test 1 passed',
+    passBody: 'On to the final one.',
+    passButtons: [
+      { label: 'Done', action: 'done' },
+      { label: 'Start Test 2', action: 'nextLesson' },
+    ],
+    failTitle: 'Not quite',
+    failBody: 'You need **60%** to move on. **Give it another run.**',
+    failButtons: [{ label: 'Repeat', action: 'repeat' }],
+  },
+};
+
+// Lessons 2 Day 32 - Graduation 2.0, Test 2 (final). Sve pozicije provere Stockfish-om; Q9 (x-ray) i Q14 nisu iz lekcija.
+const L2_DAY_32_GRADUATION_TEST_2: Lesson = {
+  id: 'l2-d32-graduation-test-2',
+  level: 2,
+  day: 32,
+  title: 'Graduation 2.0: Test 2 (Final)',
+  flatProgressSegments: true,
+  piece: {
+    name: 'everything so far',
+    glyph: '🎓',
+    movement: 'static',
+    bannerText: 'Graduation 2.0 · Final',
+  },
+  intro: {
+    title: 'Graduation Test 2 of 2: Final',
+    text: '**Last one.** Fifteen more questions, mixed board play and quiz. Pass this at **60%** and you graduate Course 2.',
+  },
+  introSteps: [
+    {
+      title: 'Graduation Test 2 of 2: Final',
+      text: '**Last one.** Fifteen more questions, mixed board play and quiz. Pass this at **60%** and you graduate Course 2.',
+      buttonText: 'Start test',
+    },
+  ],
+  steps: [
+    // Q1
+    l2GradQuiz(
+      'q1-what-is-double-attack',
+      'Double attack',
+      L2_GRAD_EMPTY,
+      'A **double attack** is...',
+      [
+        'Two checks in a row',
+        'One move, two threats',
+        'Two pieces hitting one square',
+      ],
+      1,
+      'Right. **One move, two threats.** The defender only saves one.',
+      "It's **one move that creates two threats** at once. The defender can only answer one."
+    ),
+    // Q2 - Double Attack, Primer 1
+    l2GradBoard(
+      'q2-double-attack',
+      'Double attack',
+      '8/p1p5/k3rbp1/4n3/4N3/2P2P2/PP2K3/6R1 w - - 0 1',
+      'w',
+      ['e4c5', ANY_LEGAL_REPLY, 'c5e6'],
+      'Your knight on e4 can **check the king and attack something valuable** from the same square. Find the move.',
+      'Look for a knight move that **checks the king on a6** and, from that same square, **hits the rook on e6**.',
+      "**Nxe6.** The rook falls. **That's a double attack.**",
+      {
+        moveExplanations: {
+          0: '**Nc5+.** Check first. **The king has to move.**',
+        },
+        moveGuides: {
+          2: {
+            wrongText: 'The king moved. **Now take what you were attacking.**',
+          },
+        },
+      }
+    ),
+    // Q3 - Mate in Two, Primer 1
+    l2GradBoard(
+      'q3-mate-in-two',
+      'Mate in two',
+      '1r1qr1k1/p1p1bppp/2ppb3/4p1NQ/4P3/2NPB3/PPP2PPP/R4RK1 w - - 0 1',
+      'w',
+      ['h5h7', 'g8f8', 'h7h8'],
+      "Find **mate in 2**. What's White's first move?",
+      'Your knight on g5 already eyes h7. **What if your queen takes that pawn too?**',
+      '**Qh8#.** Mate in two.',
+      {
+        moveExplanations: { 0: '**Qxh7+.** One square for the king.' },
+        moveGuides: {
+          2: {
+            wrongText: 'The king went to f8. **Your queen mates next move.**',
+          },
+        },
+      }
+    ),
+    // Q4 - Mate in Two, Primer 3
+    l2GradBoard(
+      'q4-mate-in-two-harder',
+      'Mate in two',
+      '5rk1/5pp1/2N5/8/6K1/3P4/8/3Q4 w - - 0 1',
+      'w',
+      ['c6e7', 'g8h7', 'd1h1'],
+      "Find **mate in 2**. What's White's first move?",
+      'Look for a knight move that **checks the king and takes away its best escape square**.',
+      '**Qh1#.** Mate in two.',
+      {
+        moveExplanations: { 0: '**Ne7+.** The king is pushed to the edge.' },
+        moveGuides: {
+          2: {
+            wrongText:
+              'The king is on the h-file. **Your queen mates next move.**',
+          },
+        },
+      }
+    ),
+    // Q5
+    l2GradQuiz(
+      'q5-what-is-deflection',
+      'Deflection',
+      L2_GRAD_EMPTY,
+      '**Deflection** means...',
+      [
+        'Luring the king with a pawn',
+        'Attacking through a blocker',
+        'Forcing a defender off its post',
+      ],
+      2,
+      'Right. **Force the defender off its post**, then take what it was guarding.',
+      'Deflection **forces a defender away** from what it guards, usually with a check. Pawn bait is decoy. Through a blocker is x-ray.'
+    ),
+    // Q6 - Deflection, Primer 3
+    l2GradBoard(
+      'q6-deflection',
+      'Deflection',
+      '3qr1k1/5pp1/1p4bp/8/3Q4/5P2/P1P3PP/R2R3K b - - 0 2',
+      'b',
+      ['e8e1', 'd1e1', 'd8d4'],
+      "**Black to move.** Your queen stares at White's queen on d4, and **something guards d4**. Find the move.",
+      "Find the check that **pulls away the one piece guarding d4**. It's a rook.",
+      '**Qxd4.** d4 lost its only guard. **The queen falls.**',
+      {
+        moveExplanations: { 0: '**Re1+.** The rook on d1 has to take.' },
+        moveGuides: {
+          2: { wrongText: 'The d1 rook is gone from d4. **Take the queen.**' },
+        },
+      }
+    ),
+    // Q7
+    l2GradQuiz(
+      'q7-what-is-decoy',
+      'Decoy',
+      L2_GRAD_EMPTY,
+      'A **decoy** move...',
+      [
+        'Offers bait while the real win happens elsewhere',
+        'Checks a defender off its square',
+        'Counts attackers and defenders',
+      ],
+      0,
+      "Right. **Let them take the bait.** That's the point, not a mistake.",
+      'A decoy **offers something tempting on purpose**. The real win happens elsewhere while they collect it.'
+    ),
+    // Q8 - Decoy Pawn, Example 2 (h4 i Kb2 dobijaju, a6 je remi)
+    l2GradQuiz(
+      'q8-dont-take-bait',
+      'Decoy pawn',
+      '8/1p6/8/P4k2/8/8/7P/1K6 w - - 0 1',
+      'Which White move **only draws** instead of winning? **Tap it, or play it on the board.**',
+      ['h4', 'Kb2', 'a6'],
+      2,
+      'Right. **a6.** bxa6 just trades your extra pawn away. **That pawn was never in danger.**',
+      "It's **a6**. bxa6 trades the a-pawn off for nothing. **Leave it alone** and almost anything else wins.",
+      {
+        quizMoveOptions: [['h2h4'], ['b1b2'], ['a5a6']],
+        quizMoveOtherWrong: true,
+      }
+    ),
+    // Q9
+    l2GradQuiz(
+      'q9-what-is-x-ray',
+      'X-ray attack',
+      L2_GRAD_EMPTY,
+      'An **x-ray attack** means...',
+      [
+        'Check from far away',
+        'Attacking through a blocker',
+        'Rooks defending each other',
+      ],
+      1,
+      'Right. **The attack was already there, just blocked.** Force the blocker onto that square.',
+      'X-ray is an attack **already lined up behind a blocker**. A forcing move clears the way.'
+    ),
+    // Q10 - x-ray, nova pozicija (u Course 2 nema x-ray lekcije): Qe8+ Rxe8 Rxe8#
+    l2GradBoard(
+      'q10-x-ray',
+      'X-ray attack',
+      '1R1r2k1/2q2ppp/8/1Q6/8/5K2/8/8 w - - 0 1',
+      'w',
+      ['b5e8', 'd8e8', 'b8e8'],
+      "Your rook on b8 aims down the 8th rank, **blocked only by Black's rook**. Find White's best move.",
+      "Find a check that **forces Black's rook onto the square** your rook is already aiming at.",
+      "**Rxe8#.** Black's rook stepped right into your rook's line. **Mate.**",
+      {
+        moveExplanations: { 0: '**Qe8+.** Black has one answer.' },
+        moveGuides: {
+          2: {
+            wrongText:
+              'The rook took on e8. **Your rook on b8 is aiming right at it.**',
+          },
+        },
+      }
+    ),
+    // Q11 - The One-Rook Mate
+    l2GradQuiz(
+      'q11-face-off',
+      'Rook mate',
+      L2_GRAD_EMPTY,
+      'Rook mate technique: **kings face to face**, one square apart. What do you do?',
+      ['Side check with the rook', 'Step your king back', 'Trade the rook off'],
+      0,
+      'Right. **The side check is what makes progress.** It pushes the king down a row.',
+      "Kings face to face means **side check**. That's what pushes the king down a row."
+    ),
+    // Q12 - The One-Rook Mate
+    l2GradQuiz(
+      'q12-rook-attacked',
+      'Rook mate',
+      L2_GRAD_EMPTY,
+      "The enemy king **attacks your rook** while it's cutting off a line. What now?",
+      [
+        'Move it to another file',
+        'Trade it off',
+        'Slide it to the far end of its line',
+      ],
+      2,
+      "Right. **Same cut-off, zero risk.** The box doesn't move an inch.",
+      'Slide it to the **far end of the same line**. Same cut-off, and the king never catches it.'
+    ),
+    // Q13 - The One-Rook Mate / Try It Yourself
+    l2GradQuiz(
+      'q13-stalemate',
+      'Stalemate',
+      L2_GRAD_EMPTY,
+      'True or false: the lone king on the edge, **zero legal moves, not in check**, is a win.',
+      ["True. That's checkmate", "False. That's stalemate"],
+      1,
+      'Right. **No check plus no moves is stalemate.** Leave the king a move until the mating one.',
+      "It's **false**. Zero moves without check is **stalemate, a draw**. A won position, thrown away."
+    ),
+    // Q14 - nova pozicija, Rg8# provereno
+    l2GradBoard(
+      'q14-final-mate',
+      'Deliver the mate',
+      '1k6/6R1/1K6/8/8/8/8/8 w - - 0 1',
+      'w',
+      ['g7g8'],
+      'Your king on b6, rook on g7, his king **boxed in on b8**. **Finish it.**',
+      "The king's already boxed in on the back rank. **Your rook just needs to get onto that rank.**",
+      "**Rg8#.** Check along the back rank, and your king covers the rest. **That's the technique.**"
+    ),
+    // Q15 - capstone
+    l2GradQuiz(
+      'q15-name-the-tactic',
+      'Name the tactic',
+      L2_GRAD_EMPTY,
+      "A forcing move makes a defender step **onto the exact square** another of your pieces was already attacking. What's it called?",
+      ['X-ray attack', 'Decoy', 'Deflection'],
+      0,
+      'Right. **X-ray.** The attack was already there, hidden behind the blocker.',
+      "It's **x-ray**. Your piece was **already lined up behind the blocker** the whole time.",
+      { celebrate: true }
+    ),
+  ],
+  graduationTest: {
+    maxScore: 15,
+    passThreshold: 0.6,
+    passTitle: 'Test 2 passed',
+    passBody: '**Go finish Test 1** to graduate.',
+    passButtons: [{ label: 'Done', action: 'done' }],
+    failTitle: 'Not quite',
+    failBody: 'You need **60%** to pass. **Run it back.**',
+    failButtons: [{ label: 'Repeat', action: 'repeat' }],
+    finalScreen: {
+      requiresPriorPassLessonId: 'l2-d31-graduation-test-1',
+      title: 'Level 2 Graduate',
+      body: '**Course 2 complete.** Tactics, endgames, the rook mate. All of it, on the board.',
+      buttons: [
+        { label: 'Repeat', action: 'repeat' },
+        { label: 'Play', action: 'play' },
+        { label: 'Done', action: 'done' },
+      ],
+    },
+  },
 };
 
 // Lessons 2 tura, prikazuje se na /lesson_2. Id-jevi moraju biti jedinstveni u obe ture.
@@ -13183,6 +15122,9 @@ export const LESSON_DATABASE_2: Lesson[] = [
   L2_DAY_27_DECOY_PAWN,
   L2_DAY_28_DOUBLE_ATTACK,
   L2_DAY_29_BOX_METHOD,
+  L2_DAY_30_ROOK_MATE_PRACTICE,
+  L2_DAY_31_GRADUATION_TEST_1,
+  L2_DAY_32_GRADUATION_TEST_2,
 ];
 
 const LESSON_TRACKS: Lesson[][] = [LESSON_DATABASE, LESSON_DATABASE_2];

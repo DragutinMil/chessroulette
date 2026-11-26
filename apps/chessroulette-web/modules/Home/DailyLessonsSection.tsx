@@ -106,6 +106,95 @@ const PlayIcon = ({ size = 14 }) => (
   </svg>
 );
 
+// Graduation test (Lesson.graduationTest) ima poseban izgled na putanji.
+const isGraduation = (row: Row) => !!row.lesson.graduationTest;
+// Lessons 2 partije protiv Mia/Alex/Leo - portret umesto broja i katanca.
+const isOpponent = (row: Row) =>
+  !!row.lesson.opponentName && !!row.lesson.pawnyAvatar;
+const OPP_RING =
+  'linear-gradient(135deg, #11C6D1 0%, #3FE0E8 45%, #07DA63 100%)';
+
+const OpponentAvatar: React.FC<{
+  row: Row;
+  size: number;
+  rounded?: string;
+  isDone?: boolean;
+  locked?: boolean;
+}> = ({ row, size, rounded = '9999px', isDone, locked }) => (
+  <span
+    className="relative shrink-0 p-[2px]"
+    style={{
+      width: size,
+      height: size,
+      borderRadius: rounded,
+      background: OPP_RING,
+    }}
+  >
+    <img
+      src={row.lesson.pawnyAvatar}
+      alt={row.lesson.opponentName}
+      className="w-full h-full object-cover object-[50%_25%] bg-[#0B1A12]"
+      style={{
+        borderRadius: rounded,
+        filter: locked ? 'grayscale(55%) brightness(0.8)' : undefined,
+      }}
+    />
+    {isDone ? (
+      <span className="absolute -right-1 -top-1 w-[18px] h-[18px] rounded-full bg-[#64D771] flex items-center justify-center ring-2 ring-[#0B1A12]">
+        <CheckIcon size={11} />
+      </span>
+    ) : locked ? (
+      <span className="absolute -right-1 -bottom-1 w-[18px] h-[18px] rounded-full bg-[#0A1A10] border border-white/25 flex items-center justify-center">
+        <LockIcon size={10} />
+      </span>
+    ) : null}
+  </span>
+);
+
+const GRAD_BORDER =
+  'linear-gradient(135deg, #11C6D1 0%, #3FE0E8 40%, #64D771 100%)';
+const GRAD_GLOW =
+  '0 0 0 1px rgba(17,198,209,0.35), 0 12px 34px rgba(17,198,209,0.32)';
+
+// Up next lekcija: sjaj koji "dise" + obrub koji se siri i nestaje.
+const NEXT_BEACON_CSS = `
+.op-next-breath{animation:opNextBreath 2.8s ease-in-out infinite}
+.op-next-ripple{position:absolute;inset:0;pointer-events:none;border:2px solid rgba(63,224,232,0.85);animation:opNextRipple 2.8s cubic-bezier(0.22,1,0.36,1) infinite}
+@keyframes opNextRipple{0%{inset:0;opacity:0.75}75%,100%{inset:-8px;opacity:0}}
+@keyframes opNextBreath{0%,100%{box-shadow:0 0 0 1px rgba(17,198,209,0.3),0 12px 34px rgba(17,198,209,0.26)}50%{box-shadow:0 0 0 3px rgba(63,224,232,0.28),0 16px 50px rgba(17,198,209,0.5)}}
+@media (prefers-reduced-motion:reduce){.op-next-breath{animation:none}.op-next-ripple{display:none}}
+`;
+
+const NextRipple: React.FC<{ radius: number; className?: string }> = ({
+  radius,
+  className = '',
+}) => (
+  <span
+    aria-hidden="true"
+    className={`op-next-ripple ${className}`}
+    style={{ borderRadius: radius }}
+  />
+);
+
+const QueenWatermark: React.FC<{ className: string }> = ({ className }) => (
+  <span
+    aria-hidden="true"
+    className={`absolute leading-none pointer-events-none select-none ${className}`}
+    style={{ color: '#8FEFF4' }}
+  >
+    ♛
+  </span>
+);
+
+const GradBadge: React.FC = () => (
+  <span
+    className="inline-flex items-center whitespace-nowrap text-[9px] font-extrabold tracking-[0.8px] px-2 py-[3px] rounded-full text-[#001008]"
+    style={{ background: GRAD_BORDER }}
+  >
+    GRADUATION
+  </span>
+);
+
 // Zakljucana lekcija nije link; u admin modu (LESSONS_UNLOCK_ALL) jeste.
 const LessonLink: React.FC<{
   row: Row;
@@ -319,6 +408,7 @@ export const DailyLessonsSection: React.FC<Props> = ({
 
   return (
     <main className="flex flex-1 justify-center text-white">
+      <style>{NEXT_BEACON_CSS}</style>
       <LessonsBackground />
       <div className="flex flex-col gap-8 w-full max-w-[1200px] px-4 md:px-8 pt-2 md:pt-6 pb-10 md:pb-24">
         {/* Naslov + Continue kartica; na telefonu zakucani na vrhu dok putanja skroluje.
@@ -470,35 +560,62 @@ export const DailyLessonsSection: React.FC<Props> = ({
             if (r.index === current.index && !allDone) {
               return (
                 <li key={r.lesson.id} ref={currentPathItemRef} className="px-3">
-                  <div className="flex items-center gap-3.5 p-3.5 rounded-[18px] bg-[#0E2E30] border-2 border-[#11C6D1] shadow-[0_0_0_4px_rgba(17,198,209,0.12),0_12px_36px_rgba(17,198,209,0.25)]">
-                    <span
-                      aria-hidden="true"
-                      className="shrink-0 w-[52px] h-[52px] rounded-[14px] bg-[#11C6D1] text-[#001008] flex items-center justify-center text-[24px] font-extrabold"
+                  <div className="relative">
+                    <NextRipple radius={18} />
+                    <div
+                      className={`op-next-breath relative overflow-hidden flex items-center gap-3.5 p-3.5 rounded-[18px] ${
+                        isGraduation(r)
+                          ? 'bg-[#0B3A3F] border-2 border-[#11C6D1]'
+                          : 'bg-[#0E2E30] border-2 border-[#11C6D1] shadow-[0_0_0_4px_rgba(17,198,209,0.12),0_12px_36px_rgba(17,198,209,0.25)]'
+                      }`}
+                      style={isGraduation(r) ? { boxShadow: GRAD_GLOW } : {}}
                     >
-                      {r.lesson.day}
-                    </span>
-                    <span className="flex-1 min-w-0 flex flex-col gap-0.5">
-                      <span className="text-[11px] font-extrabold text-[#11C6D1] tracking-[0.8px]">
-                        {r.status === 'tomorrow' ? 'OPENS TOMORROW' : 'UP NEXT'}
+                      {isGraduation(r) && (
+                        <QueenWatermark className="right-16 -bottom-4 text-[90px] opacity-[0.16]" />
+                      )}
+                      {isOpponent(r) ? (
+                        <OpponentAvatar row={r} size={56} rounded="16px" />
+                      ) : (
+                        <span
+                          aria-hidden="true"
+                          className="shrink-0 w-[52px] h-[52px] rounded-[14px] bg-[#11C6D1] text-[#001008] flex items-center justify-center text-[24px] font-extrabold"
+                        >
+                          {r.lesson.day}
+                        </span>
+                      )}
+                      <span className="flex-1 min-w-0 flex flex-col gap-0.5">
+                        <span className="text-[11px] font-extrabold text-[#11C6D1] tracking-[0.8px]">
+                          {r.status === 'tomorrow'
+                            ? 'OPENS TOMORROW'
+                            : 'UP NEXT'}
+                          {isGraduation(r) && ' · GRADUATION'}
+                        </span>
+                        <span className="text-[17px] font-extrabold leading-[1.2]">
+                          {r.lesson.title}
+                        </span>
+                        <span className="text-[12px] font-semibold text-[#11C6D1]">
+                          {isOpponent(r)
+                            ? `Game · Day ${r.lesson.day}${
+                                r.lesson.pawnyRating?.fixed
+                                  ? ` · ${r.lesson.pawnyRating.fixed}`
+                                  : ''
+                              }`
+                            : `Lesson ${r.lesson.day}`}
+                        </span>
                       </span>
-                      <span className="text-[17px] font-extrabold leading-[1.2]">
-                        {r.lesson.title}
-                      </span>
-                      <span className="text-[12px] font-semibold text-[#11C6D1]">
-                        Lesson {r.lesson.day}
-                      </span>
-                    </span>
-                    {renderCta('pill')}
+                      {renderCta('pill')}
+                    </div>
                   </div>
                 </li>
               );
             }
             const isDone = r.status === 'done';
+            const grad = isGraduation(r);
             return (
               <li
                 key={r.lesson.id}
                 className="flex flex-col"
-                style={{ opacity }}
+                style={{ opacity: grad || isOpponent(r) ? 1 : opacity }}
               >
                 {isDone && (
                   <span
@@ -508,9 +625,38 @@ export const DailyLessonsSection: React.FC<Props> = ({
                 )}
                 <LessonLink
                   row={r}
-                  className="flex items-center gap-4 min-h-[48px] pl-8 pr-4 text-white"
+                  className={
+                    grad
+                      ? 'relative overflow-hidden flex items-center gap-4 min-h-[60px] mx-3 pl-[18px] pr-4 py-2.5 rounded-[16px] border-[1.5px] border-[#11C6D1] bg-[linear-gradient(160deg,#0C4248,#06252A)] text-white'
+                      : 'flex items-center gap-4 min-h-[48px] pl-8 pr-4 text-white'
+                  }
+                  style={grad ? { boxShadow: GRAD_GLOW } : undefined}
                 >
-                  {isDone ? (
+                  {grad && (
+                    <QueenWatermark className="right-3 -bottom-4 text-[72px] opacity-[0.18]" />
+                  )}
+                  {isGraduation(r) ? (
+                    <span
+                      className="relative shrink-0 w-10 h-10 rounded-[10px] p-[2px]"
+                      style={{ background: GRAD_BORDER, boxShadow: GRAD_GLOW }}
+                    >
+                      <span className="w-full h-full rounded-[8px] bg-[#0B3A3F] flex items-center justify-center text-[22px] leading-none text-[#BFF6F9]">
+                        ♛
+                      </span>
+                      {isDone && (
+                        <span className="absolute -right-1.5 -top-1.5 w-[18px] h-[18px] rounded-full bg-[#64D771] flex items-center justify-center">
+                          <CheckIcon size={11} />
+                        </span>
+                      )}
+                    </span>
+                  ) : isOpponent(r) ? (
+                    <OpponentAvatar
+                      row={r}
+                      size={42}
+                      isDone={isDone}
+                      locked={!isDone}
+                    />
+                  ) : isDone ? (
                     <span className="shrink-0 w-10 h-10 rounded-[10px] bg-[#64D771] flex items-center justify-center">
                       <CheckIcon size={18} />
                     </span>
@@ -520,14 +666,28 @@ export const DailyLessonsSection: React.FC<Props> = ({
                     </span>
                   )}
                   <span className="flex flex-col gap-0.5 min-w-0">
-                    <span className="text-[15px] font-bold truncate">
+                    <span
+                      className="text-[15px] font-bold truncate"
+                      style={grad ? { color: '#E8FDFE' } : undefined}
+                    >
                       {r.lesson.title}
                     </span>
                     <span
                       className="text-[12px] font-semibold"
-                      style={{ color: isDone ? '#64D771' : '#B5C4BA' }}
+                      style={{
+                        color: isDone
+                          ? '#64D771'
+                          : isGraduation(r)
+                          ? '#8FEFF4'
+                          : '#B5C4BA',
+                      }}
                     >
-                      Lesson {r.lesson.day} · {isDone ? 'Done' : 'Locked'}
+                      {isGraduation(r)
+                        ? 'Graduation test'
+                        : isOpponent(r)
+                        ? 'Game'
+                        : 'Lesson'}{' '}
+                      {r.lesson.day} · {isDone ? 'Done' : 'Locked'}
                     </span>
                   </span>
                 </LessonLink>
@@ -590,12 +750,140 @@ const CalendarTile: React.FC<{ row: Row; currentIndex: number }> = ({
     : 'Locked';
   const statusColor = isCurrent ? '#001008' : isDone ? '#64D771' : '#B5C4BA';
 
+  if (isGraduation(row)) {
+    return (
+      <LessonLink
+        row={row}
+        className={`relative flex-1 flex rounded-[16px] p-[2px] ${
+          isCurrent ? 'op-next-breath' : ''
+        }`}
+        style={{
+          background: GRAD_BORDER,
+          boxShadow: GRAD_GLOW,
+          opacity: isCurrent || isDone || currentIndex === -1 ? 1 : 0.9,
+        }}
+      >
+        {isCurrent && <NextRipple radius={16} />}
+        <span
+          className="relative flex-1 flex flex-col justify-between gap-2 min-h-[120px] box-border p-3 rounded-[14px] overflow-hidden"
+          style={{
+            background: isCurrent
+              ? 'linear-gradient(160deg, #11707A 0%, #0B3A3F 100%)'
+              : 'linear-gradient(160deg, #0C4248 0%, #06252A 100%)',
+            color: '#E8FDFE',
+          }}
+        >
+          <QueenWatermark className="-right-1 -bottom-3 text-[86px] opacity-[0.2]" />
+          <span className="relative flex justify-between items-start">
+            <span className="text-[26px] font-extrabold leading-none">
+              {row.lesson.day}
+            </span>
+            {isDone ? (
+              <span
+                aria-label="Done"
+                className="w-7 h-7 rounded-lg bg-[#64D771] flex items-center justify-center"
+              >
+                <CheckIcon />
+              </span>
+            ) : (
+              !isCurrent && (
+                <span
+                  aria-label="Locked"
+                  className="w-7 h-7 rounded-lg border-[1.5px] border-[#11C6D1]/50 bg-[#06252A] box-border flex items-center justify-center"
+                >
+                  <LockIcon stroke="#8FEFF4" />
+                </span>
+              )
+            )}
+          </span>
+          <span className="relative text-[12px] font-bold leading-[1.3]">
+            {row.lesson.title}
+          </span>
+          <span className="relative">
+            <GradBadge />
+          </span>
+          <span
+            className="relative text-[11px] font-extrabold"
+            style={{ color: isDone ? '#64D771' : '#8FEFF4' }}
+          >
+            {statusText}
+          </span>
+        </span>
+      </LessonLink>
+    );
+  }
+
+  if (isOpponent(row)) {
+    const locked = !isDone && !isCurrent;
+    return (
+      <LessonLink
+        row={row}
+        className={`relative flex-1 flex rounded-[16px] p-[2px] ${
+          isCurrent ? 'op-next-breath' : ''
+        }`}
+        style={{
+          background: OPP_RING,
+          opacity: locked ? 0.9 : 1,
+          boxShadow: '0 10px 30px rgba(17,198,209,0.22)',
+        }}
+      >
+        {isCurrent && <NextRipple radius={16} />}
+        <span className="relative flex-1 flex flex-col justify-between min-h-[120px] rounded-[14px] overflow-hidden bg-[#0B1A12]">
+          <img
+            src={row.lesson.pawnyAvatar}
+            alt={row.lesson.opponentName}
+            className="absolute inset-0 w-full h-full object-cover object-[50%_22%]"
+            style={{
+              filter: locked ? 'grayscale(55%) brightness(0.75)' : undefined,
+            }}
+          />
+          <span className="absolute inset-0 bg-[linear-gradient(180deg,rgba(11,26,18,0.15)_20%,rgba(11,26,18,0.92)_88%)]" />
+          <span className="relative flex justify-between items-start p-2.5">
+            <span className="text-[20px] font-extrabold leading-none text-white drop-shadow">
+              {row.lesson.day}
+            </span>
+            {isDone ? (
+              <span
+                aria-label="Done"
+                className="w-6 h-6 rounded-lg bg-[#64D771] flex items-center justify-center"
+              >
+                <CheckIcon size={14} />
+              </span>
+            ) : locked ? (
+              <span
+                aria-label="Locked"
+                className="w-6 h-6 rounded-lg bg-black/55 border border-white/25 flex items-center justify-center"
+              >
+                <LockIcon size={12} />
+              </span>
+            ) : row.lesson.pawnyRating?.fixed ? (
+              <span className="rounded-full bg-[#11C6D1] px-1.5 py-0.5 text-[10px] font-extrabold text-[#001008]">
+                {row.lesson.pawnyRating.fixed}
+              </span>
+            ) : null}
+          </span>
+          <span className="relative p-2.5 pt-0 flex flex-col">
+            <span className="text-[10px] font-extrabold uppercase tracking-[0.12em] text-[#3FE0E8]">
+              {isCurrent ? 'Up next · Game' : 'Game vs'}
+            </span>
+            <span className="text-[17px] font-extrabold leading-tight text-white">
+              {row.lesson.opponentName}
+            </span>
+          </span>
+        </span>
+      </LessonLink>
+    );
+  }
+
   return (
     <LessonLink
       row={row}
-      className="flex-1 flex flex-col justify-between gap-2 min-h-[124px] box-border p-3 rounded-[14px]"
+      className={`relative flex-1 flex flex-col justify-between gap-2 min-h-[124px] box-border p-3 rounded-[14px] ${
+        isCurrent ? 'op-next-breath' : ''
+      }`}
       style={style}
     >
+      {isCurrent && <NextRipple radius={14} />}
       <span className="flex justify-between items-start">
         <span className="text-[26px] font-extrabold leading-none">
           {row.lesson.day}

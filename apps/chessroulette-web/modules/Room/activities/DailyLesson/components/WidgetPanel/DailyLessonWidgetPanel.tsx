@@ -499,8 +499,10 @@ export const DailyLessonWidgetPanel = ({
             <p className="whitespace-nowrap">Repeat</p>
           </ButtonGreen>
         </>
-      ) : step?.kind === 'freePlay' && step.freePlayGoal && !isStepComplete ? (
-        // Lessons 2 Day 8 - isti par dugmadi kao Hint/Next u ostalim lekcijama; posle dame Next (Day 27).
+      ) : step?.kind === 'freePlay' &&
+        (step.freePlayGoal || step.requireCheckmate) &&
+        !isStepComplete ? (
+        // Lessons 2 Day 8/30 - isti par dugmadi kao Hint/Next u ostalim lekcijama; posle cilja Next (Day 27).
         <ButtonGreen
           onClick={onTakeBack}
           icon="ArrowUturnLeftIcon"
@@ -512,7 +514,9 @@ export const DailyLessonWidgetPanel = ({
         >
           <p className="whitespace-nowrap">Take Back</p>
         </ButtonGreen>
-      ) : step?.kind === 'freePlay' && !step.freePlayGoal ? (
+      ) : step?.kind === 'freePlay' &&
+        !step.freePlayGoal &&
+        !step.requireCheckmate ? (
         <FreePlayControls
           onDrawOffer={onDrawOffer}
           onTakeBack={onTakeBack}
@@ -526,7 +530,7 @@ export const DailyLessonWidgetPanel = ({
           canTakeBack={canTakeBack}
           hideDrawResign={!!step?.requireCheckmate || !!step?.freePlayGoal}
         />
-      ) : (
+      ) : step?.advanceAfterDemo ? null : (
         <ButtonGreen
           onClick={
             answerViaNext ? () => onSelectQuizAnswer(0) : handleNextClick
