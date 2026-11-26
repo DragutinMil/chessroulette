@@ -1,4 +1,5 @@
 import Cookies from 'js-cookie';
+import { Chess, Square } from 'chess.js';
 import type { IllegalMoveReason } from './lessonEngine';
 import type { Lesson } from './lessonDatabase';
 
@@ -53,8 +54,13 @@ export function parseMessageMoves(content: string): MessageMoveSegment[] {
       const inlineBlack = after.match(/^\s+([^\s\[\]]+)/);
       if (inlineBlack && looksLikeSanMove(inlineBlack[1])) {
         const blackValue = inlineBlack[1];
-        const blackStart = match.index + fullMatch.length;
-        const blackEnd = blackStart + inlineBlack[0].length;
+        // Razmak pre crnog poteza ostaje u tekstu, inace se prikaze "e4e5".
+        const blackStart =
+          match.index +
+          fullMatch.length +
+          inlineBlack[0].length -
+          blackValue.length;
+        const blackEnd = blackStart + blackValue.length;
         moveSegments.push({
           start: blackStart,
           end: blackEnd,
@@ -380,7 +386,167 @@ export function getLessonAccess(
 export function rollPawnyRating(lesson: Lesson | null): number | null {
   const cfg = lesson?.pawnyRating;
   if (!cfg) return null;
+  if (cfg.fixed != null) return cfg.fixed;
   return Math.round(cfg.min + Math.random() * (cfg.max - cfg.min));
+}
+
+/**
+ * KPK pravilo 6. reda: beli kralj na 6. redu, tacno ispred svog pesaka
+ * (ista linija, ne a/h pesak), pesak bezbedan. Vraca polje kralja ili null.
+ */
+export function kpkWinningKingSquare(fen: string): string | null {
+  const rows = fen.split(' ')[0].split('/');
+  let king: string | null = null;
+  let enemyKing: string | null = null;
+  const pawns: string[] = [];
+  rows.forEach((row, r) => {
+    let f = 0;
+    for (const c of row) {
+      if (/\d/.test(c)) {
+        f += Number(c);
+        continue;
+      }
+      const sq = `${String.fromCharCode(97 + f)}${8 - r}`;
+      if (c === 'K') king = sq;
+      if (c === 'k') enemyKing = sq;
+      if (c === 'P') pawns.push(sq);
+      f += 1;
+    }
+  });
+  if (!king || pawns.length !== 1) return null;
+  const k: string = king;
+  const p = pawns[0];
+  if (p[0] === 'a' || p[0] === 'h') return null;
+  const kr = Number(k[1]);
+  const dist = (x: string, y: string) =>
+    Math.max(
+      Math.abs(x.charCodeAt(0) - y.charCodeAt(0)),
+      Math.abs(Number(x[1]) - Number(y[1]))
+    );
+  // Pesak mora biti bezbedan: cuva ga kralj, ili je protivnicki kralj daleko.
+  const pawnSafe = dist(k, p) <= 1 || !enemyKing || dist(enemyKing, p) >= 3;
+  const ok = kr === 6 && Number(p[1]) < kr && k[0] === p[0] && pawnSafe;
+  return ok ? k : null;
+}
+
+/**
+ * Oznake posle mata: kralj (MATE), figura koja daje sah (CHECK) i njena linija,
+ * skakac (GUARD) i polja koja pokriva, ostala pokrivena polja, polja blokirana
+ * sopstvenim figurama. Vraca null ako pozicija nije mat.
+ */
+export function mateExplainHighlight(fen: string): {
+  arrows: { from: string; to: string; color: string }[];
+  squares: { square: string; color: string; fill: boolean; label?: string }[];
+} | null {
+  let chess: Chess;
+  try {
+    chess = new Chess(fen);
+  } catch {
+    return null;
+  }
+  if (!chess.isCheckmate()) return null;
+  const loser = chess.turn();
+  const winner = loser === 'w' ? 'b' : 'w';
+  const king = chess
+    .board()
+    .flat()
+    .find((p) => p && p.type === 'k' && p.color === loser)?.square;
+  if (!king) return null;
+  const MATE = 'rgba(242, 53, 141, 0.55)';
+  const LINE = 'rgba(7, 218, 99, 0.35)';
+  const KNIGHT = 'rgba(17, 198, 209, 0.45)';
+  const OWN = 'rgba(140, 140, 140, 0.45)';
+  const squares = new Map<
+    string,
+    { square: string; color: string; fill: boolean; label?: string }
+  >();
+  const arrows: { from: string; to: string; color: string }[] = [];
+  const checkers = chess.attackers(king as Square, winner);
+  const f = (sq: string) => sq.charCodeAt(0) - 97;
+  const r = (sq: string) => Number(sq[1]);
+  const at = (x: number, y: number) => `${String.fromCharCode(97 + x)}${y}`;
+  for (const c of checkers) {
+    const piece = chess.get(c as Square);
+    squares.set(c, { square: c, color: MATE, fill: true, label: 'CHECK' });
+    arrows.push({ from: c, to: king, color: 'rgba(242, 53, 141, 0.85)' });
+    // Linija napada (top/dama/lovac) do kralja.
+    if (piece && piece.type !== 'n' && piece.type !== 'p') {
+      const dx = Math.sign(f(king) - f(c));
+      const dy = Math.sign(r(king) - r(c));
+      let x = f(c) + dx;
+      let y = r(c) + dy;
+      while (at(x, y) !== king && x >= 0 && x < 8 && y >= 1 && y <= 8) {
+        squares.set(at(x, y), { square: at(x, y), color: LINE, fill: true });
+        x += dx;
+        y += dy;
+      }
+    }
+  }
+  // Polja oko kralja; kralj sklonjen da se vide i napadi "kroz" njega.
+  const probe = new Chess(fen);
+  probe.remove(king as Square);
+  for (let dx = -1; dx <= 1; dx++)
+    for (let dy = -1; dy <= 1; dy++) {
+      if (!dx && !dy) continue;
+      const x = f(king) + dx;
+      const y = r(king) + dy;
+      if (x < 0 || x > 7 || y < 1 || y > 8) continue;
+      const sq = at(x, y);
+      // Figura koja daje sah zadrzava svoju oznaku (CHECK).
+      const keepLabel = squares.get(sq)?.label;
+      const occ = chess.get(sq as Square);
+      if (occ && occ.color === loser) {
+        squares.set(sq, { square: sq, color: OWN, fill: true });
+        continue;
+      }
+      const atk = probe.attackers(sq as Square, winner);
+      if (!atk.length) continue;
+      const knight = atk.find((a) => probe.get(a as Square)?.type === 'n');
+      if (knight) {
+        if (!keepLabel)
+          squares.set(sq, { square: sq, color: KNIGHT, fill: true });
+        arrows.push({ from: knight, to: sq, color: 'rgba(17, 198, 209, 0.8)' });
+        if (!squares.get(knight)?.label)
+          squares.set(knight, {
+            square: knight,
+            color: KNIGHT,
+            fill: true,
+            label: 'GUARD',
+          });
+      } else if (!squares.has(sq)) {
+        squares.set(sq, { square: sq, color: LINE, fill: true });
+      }
+    }
+  squares.set(king, { square: king, color: MATE, fill: true, label: 'MATE' });
+  return { arrows, squares: Array.from(squares.values()) };
+}
+
+/** Kratak vesel akord (Web Audio, bez fajla) za "Winning position". */
+export function playWinChime() {
+  try {
+    const Ctx =
+      window.AudioContext ||
+      (window as unknown as { webkitAudioContext: typeof AudioContext })
+        .webkitAudioContext;
+    const ctx = new Ctx();
+    [523.25, 659.25, 783.99, 1046.5].forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.value = freq;
+      const t = ctx.currentTime + i * 0.09;
+      gain.gain.setValueAtTime(0, t);
+      gain.gain.linearRampToValueAtTime(0.18, t + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.5);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(t);
+      osc.stop(t + 0.55);
+    });
+    setTimeout(() => ctx.close().catch(() => {}), 1500);
+  } catch {
+    // bez zvuka ako browser ne podrzava Web Audio
+  }
 }
 
 /** Zamenjuje {rating} u tekstovima lekcije koje korisnik vidi. */

@@ -1,4 +1,11 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { MovexBoundResourceFromConfig } from 'movex-react';
 import { Chess, Square } from 'chess.js';
 import {
@@ -29,6 +36,9 @@ import {
   rollPawnyRating,
   shuffleFrom,
   withPawnyRating,
+  kpkWinningKingSquare,
+  mateExplainHighlight,
+  playWinChime,
 } from './util';
 import { DailyLessonDialogContainer } from './DialogContainer/DailyLessonDialogContainer';
 import {
@@ -75,6 +85,30 @@ import { NotationConvergeAnimation } from './components/NotationConvergeAnimatio
 import { PawnyEngine } from './components/PawnyEngine';
 import { MateDefenseEngine } from './components/MateDefenseEngine';
 import { pickBoxMethodHint } from './checkmateTechnique';
+
+// Pat, ili protivnik moze da uzme figuru koju niko ne brani (Day 30).
+const wrongMoveBlunder = (
+  fen: string,
+  move: { from: string; to: string }
+): 'stalemate' | 'hangs' | null => {
+  try {
+    const chess = new Chess(fen);
+    chess.move({ from: move.from, to: move.to, promotion: 'q' });
+    if (chess.isStalemate()) return 'stalemate';
+    for (const reply of chess.moves({ verbose: true })) {
+      if (!reply.captured) continue;
+      const after = new Chess(chess.fen());
+      after.move(reply);
+      if (!after.moves({ verbose: true }).some((m) => m.to === reply.to)) {
+        return 'hangs';
+      }
+    }
+  } catch {
+    // nelegalan potez - nije blunder
+  }
+  return null;
+};
+
 import { SendHintExplanation } from './components/WidgetPanel/SendHintExplanation';
 import { LessonProgressBar } from './components/LessonProgressBar';
 import { RIGHT_SIDE_SIZE_PX } from '../../constants';
@@ -266,12 +300,18 @@ export const DailyLessonActivity = ({
   // Samo KORISNIKOVI potezi (ne Pawny-jevi) - za motivationMessages ucestalost
   // (prvih 5 - svaki put, do 15. - na svaki 3., posle - na svaki 5.).
   const userMoveCountRef = useRef(0);
+  // markSquares - potez na tabli kao odgovor (onMove je definisan pre finalizeMarkAttempt).
+  const finalizeMarkAttemptRef = useRef<
+    ((marked: Set<Square>) => Promise<void>) | null
+  >(null);
+  const lastKpkCoachRef = useRef<string | null>(null);
   const motivationUsedMsgsRef = useRef<Set<number>>(new Set());
   // LessonStep.techniqueTips (Day 20 "Deliver Mate" Phase 2) - za razliku od
   // freePlayMessages/motivationUsedMsgsRef gore, ovaj pool se RECIKLIRA kad
   // se potrosi (Set se isprazni i kreze ispocetka) umesto da samo cuti -
   // partija moze trajati duze od broja saveta u pool-u.
   const techniqueTipsUsedRef = useRef<Set<number>>(new Set());
+  const lastTechniqueTipRef = useRef<number | null>(null);
   // Hint dugme u toku live AI poziva (Stockfish + ai_prompt) - LessonStep.liveHint
   // (Day 20 Phase 2). Odvojeno od standardnog hintsRef/MAX_HINTS_PER_STEP
   // brojaca (taj ovde NAMERNO nije dotaknut - live hint je dostupan
@@ -429,6 +469,20 @@ export const DailyLessonActivity = ({
     findLoadedChapter(remoteState) || initialDefaultChapter;
   const lessonState = currentChapter.dailyLesson;
   const lesson = findLesson(lessonState.lessonId);
+  // Promena strane (beli/crni) izmedju primera: tabla se blago pretopi umesto treptaja.
+  const boardFadeRef = useRef<HTMLDivElement>(null);
+  const prevOrientationRef = useRef(currentChapter.orientation);
+  useLayoutEffect(() => {
+    if (prevOrientationRef.current === currentChapter.orientation) return;
+    prevOrientationRef.current = currentChapter.orientation;
+    boardFadeRef.current?.animate?.(
+      [
+        { opacity: 0, transform: 'scale(0.985)' },
+        { opacity: 1, transform: 'scale(1)' },
+      ],
+      { duration: 480, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' }
+    );
+  }, [currentChapter.orientation]);
   // Lesson.pawnyRating - rejting ove partije, nov na svaki Play again.
   const [pawnyRating, setPawnyRating] = useState<number | null>(null);
   useEffect(() => {
@@ -513,6 +567,51 @@ export const DailyLessonActivity = ({
   const [backdropSquares, setBackdropSquares] = useState<
     LessonStep['boardBackdrop'] | null
   >(null);
+  // LessonStep.mateHighlight - posle mata objasni na tabli ko matira i sta blokira kralja.
+  useEffect(() => {
+    if (!step?.mateHighlight) return;
+    const hl = mateExplainHighlight(currentChapter.displayFen);
+    if (!hl) return;
+    // Mala pauza da ovo dodje POSLE ostalih oznaka zavrsetka koraka.
+    const t = setTimeout(() => applyBoardHighlight(hl), 450);
+    return () => clearTimeout(t);
+  }, [currentChapter.displayFen, step?.id]);
+
+  // Optimisticna pozicija se gasi tek kad Movex stigne do iste pozicije (bez trzaja nazad).
+  useEffect(() => {
+    if (!freePlayOptimisticFen) return;
+    if (
+      currentChapter.displayFen.split(' ')[0] ===
+      freePlayOptimisticFen.split(' ')[0]
+    ) {
+      setFreePlayOptimisticFen(null);
+      return;
+    }
+    const t = setTimeout(() => setFreePlayOptimisticFen(null), 3000);
+    return () => clearTimeout(t);
+  }, [currentChapter.displayFen, freePlayOptimisticFen]);
+  // LessonStep.kpkWinGlow - kralj na 6. redu ispred pesaka: oznaka + zvuk pri dolasku.
+  const kpkWinSquare =
+    step?.kpkWinGlow && !preStepIntro && !showIntro
+      ? kpkWinningKingSquare(currentChapter.displayFen)
+      : null;
+  // Pobednicki zvuk: jednom po primeru, prvi put kad je kralj na 6. redu ispred pesaka.
+  const kpkChimedRef = useRef<{ id?: string; done: boolean }>({ done: false });
+  const kpkCoachWinRef = useRef<{ id?: string; done: boolean }>({
+    done: false,
+  });
+  useEffect(() => {
+    if (!step?.kpkWinGlow) return;
+    const isStart =
+      currentChapter.displayFen.split(' ')[0] === step.fen.split(' ')[0];
+    // Novi primer, ili freePlay krenuo ispocetka (start nije pobednicki).
+    if (kpkChimedRef.current.id !== step.id || (isStart && !kpkWinSquare))
+      kpkChimedRef.current = { id: step.id, done: false };
+    if (kpkWinSquare && !kpkChimedRef.current.done) {
+      kpkChimedRef.current.done = true;
+      playWinChime();
+    }
+  }, [currentChapter.displayFen, step?.id, kpkWinSquare]);
   // LessonStep.moveGlyphs / otherTypeMoves[].glyph - znak uz korisnikov potez (Day 28).
   const [moveGlyph, setMoveGlyph] = useState<{
     square: string;
@@ -549,10 +648,18 @@ export const DailyLessonActivity = ({
       const glyph = s.prompt.match(/(\?\?|!!|\?!|!\?|\?|!)$/)?.[1];
       if (glyph) return { square: focusedMove.to, glyph };
     }
-    if (focusedMove.san?.endsWith('#'))
-      return { square: focusedMove.to, glyph: '#' };
+    // util-kit stavlja '#' i na remi (npr. nedovoljno materijala), pa proveri pravi mat.
+    if (focusedMove.san?.endsWith('#')) {
+      let mate = false;
+      try {
+        mate = new Chess(currentChapter.displayFen).isCheckmate();
+      } catch {
+        mate = false;
+      }
+      if (mate) return { square: focusedMove.to, glyph: '#' };
+    }
     return moveGlyph;
-  }, [focusedMove, steps, moveGlyph]);
+  }, [focusedMove, steps, moveGlyph, currentChapter.displayFen]);
 
   // Sigurnosna mreza (korisnica prijavila: staro quiz oznacavanje polja - npr.
   // f2 iz Part A - ostaje vidljivo na tabli i NAKON prelaska na sledeci
@@ -562,12 +669,25 @@ export const DailyLessonActivity = ({
   // na SVAKU promenu aktivnog koraka, nezavisno od kog async toka je highlight
   // prvobitno postavljen (npr. 6s "pilulica" na Next dugmetu, itd).
   useEffect(() => {
-    setQuizHighlightSquares(null);
-    setQuizHighlightArrows(null);
+    // Nastavak iste partije sa oznakom unapred: odmah nove oznake, bez praznog trenutka.
+    if (
+      step?.continuesGame &&
+      step.kind === 'quiz' &&
+      step.quizBoardHighlightUpfront &&
+      step.quizBoardHighlight
+    ) {
+      applyBoardHighlight(step.quizBoardHighlight);
+    } else {
+      setQuizHighlightSquares(null);
+      setQuizHighlightArrows(null);
+    }
     setNudgeNext(false);
     doneMoveNudgedRef.current = false;
     setBoardFocus(false);
     setMoveGlyph(null);
+    // Prvi korak lekcije ne ide kroz loadStep, pa njegov boardBackdrop postavi ovde.
+    if (step?.boardBackdrop && progressRef.current === 0)
+      setBackdropSquares(step.boardBackdrop);
   }, [step?.id]);
 
   const totalSteps = steps.length;
@@ -767,14 +887,39 @@ export const DailyLessonActivity = ({
     };
   }, [lesson, step, progress, isStepComplete]);
 
+  // Chat ritam: sledeca poruka (i automatski potez) ceka da se prethodna ispise do kraja.
+  const chatBusyUntilRef = useRef(0);
+  const reserveChatSlot = (content: string) => {
+    const now = Date.now();
+    const start = Math.max(now, chatBusyUntilRef.current);
+    // TypewriterText kuca ~8ms po znaku; malo rezerve za render i pauza posle.
+    const typing = Math.min(4000, content.length * 11 + 350);
+    chatBusyUntilRef.current = start + typing;
+    return start - now;
+  };
+  const waitForChat = useCallback(async () => {
+    const wait = chatBusyUntilRef.current - Date.now();
+    if (wait > 0) await new Promise<void>((r) => setTimeout(r, wait));
+  }, []);
   const sendCoachMessage = useCallback(
-    (content: string, kind?: 'task' | 'wrongQuizAnswer') =>
-      enqueueMovexUpdate(() =>
-        dispatch({
-          type: 'loadedChapter:writeMessage',
-          payload: { content, participantId: COACH, idResponse: '', kind },
-        })
-      ),
+    async (content: string, kind?: 'task' | 'wrongQuizAnswer') => {
+      const delay = reserveChatSlot(content);
+      const send = () =>
+        enqueueMovexUpdate(() =>
+          dispatch({
+            type: 'loadedChapter:writeMessage',
+            payload: { content, participantId: COACH, idResponse: '', kind },
+          })
+        );
+      // Poruka koja ceka red u chatu ne zakljucava tablu: salje se u pozadini.
+      if (delay > 0) {
+        setTimeout(() => {
+          send();
+        }, delay);
+        return;
+      }
+      return send();
+    },
     [dispatch]
   );
 
@@ -846,6 +991,7 @@ export const DailyLessonActivity = ({
       await new Promise<void>((resolve) =>
         setTimeout(resolve, OPPONENT_REPLY_DELAY_MS)
       );
+      await waitForChat();
       moveSoundRef.current?.play().catch(() => {});
       await enqueueMovexUpdate(() =>
         dispatch({
@@ -865,7 +1011,7 @@ export const DailyLessonActivity = ({
         })
       );
     },
-    [dispatch]
+    [dispatch, waitForChat]
   );
 
   /**
@@ -886,6 +1032,7 @@ export const DailyLessonActivity = ({
               setTimeout(resolve, OPPONENT_REPLY_DELAY_MS)
             );
             if (stepKeyRef.current !== key) break;
+            await waitForChat();
             const introMove = uciToMove(uci);
             moveSoundRef.current?.play().catch(() => {});
             await enqueueMovexUpdate(() =>
@@ -930,7 +1077,9 @@ export const DailyLessonActivity = ({
       // `kind`), pa je bezbedno deliti.
       if (
         (target.kind === 'markSquares' && target.scoredMarkSquares) ||
-        (target.kind === 'quiz' && target.quizScoredRetry)
+        (target.kind === 'quiz' && target.quizScoredRetry) ||
+        // Lessons 2 Day 31/32: puzzle u testu, skor koraka od 1.0 nanize.
+        (target.kind === 'puzzle' && !!lesson?.graduationTest)
       ) {
         drillStepScoreRef.current = 1;
       }
@@ -1145,6 +1294,15 @@ export const DailyLessonActivity = ({
         gameHistory.length > 0;
 
       clearFeedback();
+      // Nastavak partije: nove oznake odmah, bez prazne table izmedju poteza.
+      if (
+        continuesGame &&
+        target.kind === 'quiz' &&
+        target.quizBoardHighlightUpfront &&
+        target.quizBoardHighlight
+      ) {
+        applyBoardHighlight(target.quizBoardHighlight);
+      }
       // NIJE u clearFeedback - taj se zove i na pogresan potez, gde top nije
       // stvarno pomeren pa stari rook-rank highlight i dalje tacno opisuje
       // tablu. Resetuje se SAMO ovde, na ucitavanje novog koraka.
@@ -1224,7 +1382,15 @@ export const DailyLessonActivity = ({
 
       await beginStep(target);
     },
-    [steps, lessonState, dispatch, clearFeedback, withCounters, beginStep]
+    [
+      steps,
+      lessonState,
+      dispatch,
+      clearFeedback,
+      withCounters,
+      beginStep,
+      applyBoardHighlight,
+    ]
   );
 
   const onDismissPreStepIntro = useCallback(() => {
@@ -1253,7 +1419,7 @@ export const DailyLessonActivity = ({
       // goalCondition korak (npr. "nadji mat u jednom") nema fiksno "tacno"
       // polje - ne postoji jedan unapred odredjen potez da bi se njegov
       // pocetni kvadrat ovde oznacio, a i ne bismo smeli da ga nagovestimo.
-      if (step && !step.goalCondition) {
+      if (step && !step.goalCondition && !lesson?.graduationTest) {
         // LessonStep.requireLegalCheck (Day 26) - "from" nije u solution-u
         // (ANY_LEGAL_CHECK marker, ne UCI) - figura koja igra je UVEK dama,
         // trazi se na trenutnoj tabli umesto citanja iz resenja.
@@ -1322,6 +1488,14 @@ export const DailyLessonActivity = ({
       wrongMoveSoundRef.current!.currentTime = 0;
       wrongMoveSoundRef.current?.play().catch(() => {});
 
+      // Puzzle u graduation testu: -0.25 po promasaju, najmanje 0.25.
+      if (step?.kind === 'puzzle' && lesson?.graduationTest) {
+        drillStepScoreRef.current = Math.max(
+          0.25,
+          drillStepScoreRef.current - (step.scoreDeduction ?? 0.25)
+        );
+      }
+
       const nextErrors = errorsRef.current + 1;
       const nextTotalErrors = totalErrorsRef.current + 1;
       errorsRef.current = nextErrors;
@@ -1358,6 +1532,15 @@ export const DailyLessonActivity = ({
           // promocija u ne-damu je legalna, ali ovde je samo dama tacna
           await sendCoachMessage(step.nonQueenPromotionText);
         } else if (
+          step.wrongMoveBlunderTexts &&
+          wrongMoveBlunder(currentChapter.displayFen, move)
+        ) {
+          await sendCoachMessage(
+            step.wrongMoveBlunderTexts[
+              wrongMoveBlunder(currentChapter.displayFen, move)!
+            ]
+          );
+        } else if (
           step.wrongCaptureText &&
           pieceAt(currentChapter.displayFen, move.to)
         ) {
@@ -1387,6 +1570,7 @@ export const DailyLessonActivity = ({
       currentChapter.displayFen,
       currentChapter.messages,
       dispatch,
+      lesson,
       lessonState,
       sendCoachMessage,
       step,
@@ -1639,6 +1823,21 @@ export const DailyLessonActivity = ({
         }
         return;
       }
+      // LessonStep.requireExactPromotion u freePlay: samo dama, ostalo se vraca.
+      if (
+        step?.requireExactPromotion &&
+        move.promoteTo &&
+        move.promoteTo.toLowerCase() !== 'q'
+      ) {
+        clearFeedback();
+        setWrongSquare(move.to);
+        wrongMoveSoundRef.current!.currentTime = 0;
+        wrongMoveSoundRef.current?.play().catch(() => {});
+        await sendCoachMessage(
+          step.nonQueenPromotionText ?? 'Promote to a **Queen**.'
+        );
+        return;
+      }
       // Figura ostaje na drop polju odmah, ne vraca se na polazno dok potez ceka u Movex redu.
       setFreePlayOptimisticFen(chess.fen());
 
@@ -1707,17 +1906,84 @@ export const DailyLessonActivity = ({
           .filter((i) => !techniqueTipsUsedRef.current.has(i));
         if (unusedTipIndexes.length === 0) {
           techniqueTipsUsedRef.current = new Set();
-          unusedTipIndexes = tipPool.map((_, i) => i);
+          // Posle recikliranja ne ponavljaj poslednji savet odmah.
+          unusedTipIndexes = tipPool
+            .map((_, i) => i)
+            .filter(
+              (i) => tipPool.length < 2 || i !== lastTechniqueTipRef.current
+            );
         }
         const tipPick =
           unusedTipIndexes[Math.floor(Math.random() * unusedTipIndexes.length)];
         techniqueTipsUsedRef.current.add(tipPick);
+        lastTechniqueTipRef.current = tipPick;
         sendCoachMessage(tipPool[tipPick]);
+      }
+
+      // LessonStep.kpkCoachTexts - komentar posle svakog poteza, po situaciji.
+      const kpkCoach = step?.kpkCoachTexts;
+      if (kpkCoach) {
+        const played = chess.history({ verbose: true })[0];
+        const fenAfter = chess.fen();
+        const winNow = kpkWinningKingSquare(fenAfter);
+        const winBefore = kpkWinningKingSquare(fenBeforeMove);
+        const kings = chess
+          .board()
+          .flat()
+          .filter((p) => p?.type === 'k')
+          .map((p) => p!.square);
+        const [ka, kb] = kings;
+        const kdf = Math.abs(ka.charCodeAt(0) - kb.charCodeAt(0));
+        const kdr = Math.abs(Number(ka[1]) - Number(kb[1]));
+        const isOpposition =
+          played?.piece === 'k' &&
+          ((kdf === 0 && kdr === 2) || (kdf === 2 && kdr === 0));
+        if (
+          kpkCoachWinRef.current.id !== step?.id ||
+          fenBeforeMove.split(' ')[0] === step?.fen.split(' ')[0]
+        )
+          kpkCoachWinRef.current = { id: step?.id, done: false };
+        const firstWin = !kpkCoachWinRef.current.done && !!winNow;
+        if (firstWin) kpkCoachWinRef.current.done = true;
+        // Kralj vec ispred pesaka (isti ili susedni fajl) - guranje je u redu.
+        const wk = chess
+          .board()
+          .flat()
+          .find((p) => p?.type === 'k' && p.color === 'w')?.square;
+        const wp = chess
+          .board()
+          .flat()
+          .find((p) => p?.type === 'p' && p.color === 'w')?.square;
+        const kingLeadsPawn =
+          !!wk &&
+          !!wp &&
+          Number(wk[1]) > Number(wp[1]) &&
+          Math.abs(wk.charCodeAt(0) - wp.charCodeAt(0)) <= 1;
+        const pool = firstWin
+          ? kpkCoach.winning
+          : isOpposition
+          ? step?.oppositionCoachTexts ?? kpkCoach.gainGround
+          : played?.piece === 'p'
+          ? winBefore || kingLeadsPawn
+            ? kpkCoach.pawnGo
+            : kpkCoach.kingFirst
+          : played?.piece === 'k' &&
+            Number(played.to[1]) > Number(played.from[1])
+          ? kpkCoach.gainGround
+          : kpkCoach.findOpposition;
+        if (pool.length) {
+          let pick = Math.floor(Math.random() * pool.length);
+          if (pool.length > 1 && pool[pick] === lastKpkCoachRef.current)
+            pick = (pick + 1) % pool.length;
+          lastKpkCoachRef.current = pool[pick];
+          sendCoachMessage(pool[pick]);
+        }
       }
 
       // LessonStep.oppositionCoachTexts - kraljevi licem u lice, jedno polje izmedju, crni na potezu.
       const oppositionPool = step?.oppositionCoachTexts;
       if (
+        !kpkCoach &&
         oppositionPool?.length &&
         chess.history({ verbose: true })[0]?.piece === 'k'
       ) {
@@ -1841,6 +2107,17 @@ export const DailyLessonActivity = ({
       // hint promene). Vazi za sve Daily Lesson korake.
       if (move.from === move.to) return;
 
+      // markSquares sa markSquaresMoveAccept: tacan potez na tabli = tacno obelezavanje.
+      if (step?.kind === 'markSquares') {
+        if (progressRef.current >= step.solution.length) return;
+        if (step.markSquaresMoveAccept?.includes(`${move.from}${move.to}`)) {
+          await finalizeMarkAttemptRef.current?.(
+            new Set(step.solution as Square[])
+          );
+        }
+        return;
+      }
+
       // kind:'freePlay' (Day 14) - prava partija, nema solution niza da se
       // poredi (ostaje []), pa ide u SOPSTVENU granu PRE donje provere koja
       // bi inace odmah izasla (solution.length je 0).
@@ -1859,7 +2136,11 @@ export const DailyLessonActivity = ({
         progressRef.current < step.solution.length &&
         (step.anyLegalMoveStreak || step.exactMoveUci || step.raceSolution)
       ) {
-        if (move.from !== drillCurrentSquareRef.current) return;
+        if (
+          move.from !== drillCurrentSquareRef.current &&
+          !(step.exactMoveUci && step.exactMoveAnyPiece)
+        )
+          return;
 
         const deduction = step.scoreDeduction ?? 0.25;
         const chess = new Chess(currentChapter.displayFen);
@@ -2108,6 +2389,12 @@ export const DailyLessonActivity = ({
           }
           return;
         }
+        // advanceAfterDemo - nema Next dugmeta, sledeci korak stize sam: potez se tiho ignorise.
+        if (
+          step.advanceAfterDemo &&
+          progressRef.current >= step.solution.length
+        )
+          return;
         // Odgovoreno pitanje - potez na tabli pulsira Next, isto kao kod resenog puzzle-a.
         if (step.quizOptions && progressRef.current >= step.solution.length) {
           setNudgeNext(true);
@@ -2141,9 +2428,42 @@ export const DailyLessonActivity = ({
           step.quizMoveOptions?.findIndex((ucis) => ucis.includes(uci)) ?? -1;
         if (optionIndex !== -1) {
           if (progressRef.current >= step.solution.length) return;
+          // Tacan potez ostaje na tabli odmah (bez vracanja dok Movex ne potvrdi).
+          if (optionIndex === step.quizCorrectIndex) {
+            try {
+              const after = new Chess(currentChapter.displayFen);
+              if (after.move({ from: move.from, to: move.to, promotion: 'q' }))
+                setFreePlayOptimisticFen(after.fen());
+            } catch {
+              // nelegalno - bez optimisticnog prikaza
+            }
+          }
           setBoardQuizAnswer({ stepId: step.id, index: optionIndex });
           await onSelectQuizAnswerRef.current?.(optionIndex, uci);
           return;
+        }
+        // quizMoveOtherWrong: bilo koji drugi legalan potez = pogresan odgovor.
+        if (step.quizMoveOtherWrong) {
+          if (progressRef.current >= step.solution.length) return;
+          let legal = false;
+          try {
+            legal = !!new Chess(currentChapter.displayFen).move({
+              from: move.from,
+              to: move.to,
+              promotion: 'q',
+            });
+          } catch {
+            legal = false;
+          }
+          if (legal) {
+            setWrongSquare(move.to);
+            wrongMoveTimeoutRef.current = setTimeout(
+              () => setWrongSquare(null),
+              700
+            );
+            await onSelectQuizAnswerRef.current?.(-1);
+            return;
+          }
         }
         setQuizBoardNudge(true);
         if (quizNudgeTimeoutRef.current)
@@ -2319,6 +2639,15 @@ export const DailyLessonActivity = ({
           : step.otherTypeMoves?.[currentProgress]?.find((m) =>
               movesMatch(m.uci, move)
             )?.message;
+        // otherTypeMoves[].noPenalty: dobar potez, samo nije trazeni - poruka bez greske.
+        const softOther = step.otherTypeMoves?.[currentProgress]?.find(
+          (m) => m.noPenalty && movesMatch(m.uci, move)
+        );
+        if (softOther) {
+          clearFeedback();
+          await sendCoachMessage(softOther.message);
+          return;
+        }
         const wrongGlyph = step.otherTypeMoves?.[currentProgress]?.find((m) =>
           movesMatch(m.uci, move)
         )?.glyph;
@@ -2496,6 +2825,9 @@ export const DailyLessonActivity = ({
           if (plyHighlight.arrows?.length) setQuizHighlightArrows(null);
           if (plyHighlight.squares?.length) setQuizHighlightSquares(null);
         }
+        const replyHighlight =
+          step.moveGuides?.[currentProgress]?.replyHighlight;
+        if (replyHighlight) applyBoardHighlight(replyHighlight);
       }
 
       // Kontinuirana vodjena vezba sa VISE poteza u ISTOM koraku (npr. Day 13
@@ -2523,6 +2855,9 @@ export const DailyLessonActivity = ({
 
       const finalProgress = progressRef.current;
       if (finalProgress >= step.solution.length) {
+        if (step.kind === 'puzzle' && lesson?.graduationTest) {
+          scoreRef.current += drillStepScoreRef.current;
+        }
         stepDoneSoundRef.current?.play().catch(() => {});
         // Promocija u nedamu i dalje ispravno zavrsava korak, samo drugi ton
         // poruke (blago upozorenje umesto pune pohvale) - vidi nonQueenPromotionText.
@@ -2911,6 +3246,7 @@ export const DailyLessonActivity = ({
           focus,
         } of step.quizDemoLine) {
           await pause(OPPONENT_REPLY_DELAY_MS * 2);
+          if (!demoSkipRef.current) await waitForChat();
           if (stepKeyRef.current !== key || demoSkipRef.current) break;
           // Tabla izlazi u prvi plan pre poteza, pa tek kad se smiri krecu potezi.
           if (focus && !focused) {
@@ -2966,6 +3302,14 @@ export const DailyLessonActivity = ({
         }
         if (stepKeyRef.current === key && step.quizDemoEndHighlight) {
           applyBoardHighlight(step.quizDemoEndHighlight);
+        }
+        // LessonStep.advanceAfterDemo - kratka pauza za citanje, pa sledeci korak sam.
+        if (isCorrect && step.advanceAfterDemo) {
+          await new Promise<void>((resolve) => setTimeout(resolve, 900));
+          if (stepKeyRef.current === key) {
+            onNextStep();
+            return;
+          }
         }
         setIsBusy(false);
       }
@@ -3132,10 +3476,16 @@ export const DailyLessonActivity = ({
   const finalizeMarkAttempt = useCallback(
     async (markedSet: Set<Square>) => {
       if (!step || step.kind !== 'markSquares') return;
-      const expected = new Set(step.solution);
+      const matches = (set: string[]) => {
+        const expected = new Set(set);
+        return (
+          markedSet.size === expected.size &&
+          Array.from(markedSet).every((sq) => expected.has(sq))
+        );
+      };
       const isCorrect =
-        markedSet.size === expected.size &&
-        Array.from(markedSet).every((sq) => expected.has(sq));
+        matches(step.solution) ||
+        !!step.markSquaresAlt?.some((alt) => matches(alt));
       (isCorrect ? stepDoneSoundRef : wrongMoveSoundRef).current
         ?.play()
         .catch(() => {});
@@ -3231,6 +3581,8 @@ export const DailyLessonActivity = ({
       triggerRevealAnimation,
     ]
   );
+
+  finalizeMarkAttemptRef.current = finalizeMarkAttempt;
 
   const onToggleMarkSquare = useCallback(
     async (square: Square) => {
@@ -3894,6 +4246,11 @@ export const DailyLessonActivity = ({
     />
   );
 
+  // Ista tabla (bez remount-a) kroz korake koji nastavljaju istu partiju.
+  let boardKeyIndex = stepIndexRef.current;
+  while (boardKeyIndex > 0 && steps[boardKeyIndex]?.continuesGame)
+    boardKeyIndex--;
+
   // Desna kolona (progress traka + chat/kviz) - ISTA za Lesson.boardless i
   // standardne lekcije, deli se ispod umesto duplirana.
   // Lesson.graduationTest (Day 30) - "running score visible" iz acceptance
@@ -3903,6 +4260,50 @@ export const DailyLessonActivity = ({
         lesson.graduationTest.maxScore
       }`
     : null;
+
+  // Partija protiv Pawnyja: kartica protivnika (slika, verzija, rejting).
+  const isPawnyGame =
+    step?.kind === 'freePlay' &&
+    !step.strongOpponent &&
+    lesson?.piece.movement === 'mascot';
+  const pawnyVersion = lesson?.title.match(/\d+\.\d+/)?.[0];
+  const pawnyRatingText =
+    lesson?.pawnyRating && pawnyRating != null
+      ? `Rating ${pawnyRating.toLocaleString('en-US')}`
+      : lesson?.piece.subBannerText ?? null;
+  const pawnyCard = isPawnyGame && lesson && (
+    <div className="flex items-center gap-3 rounded-2xl border border-[#11C6D1]/40 bg-[linear-gradient(135deg,rgba(17,198,209,0.14),rgba(7,218,99,0.06))] px-3 py-2.5">
+      <span className="relative shrink-0">
+        <img
+          src={lesson.pawnyAvatar ?? '/pawny/pawny.webp'}
+          alt=""
+          className={`w-11 h-11 object-cover bg-[#0E2E30] ring-2 ring-[#11C6D1]/70 ${
+            lesson.opponentName ? 'rounded-full object-[50%_25%]' : 'rounded-xl'
+          }`}
+        />
+        <span className="absolute -right-0.5 -bottom-0.5 w-3 h-3 rounded-full bg-[#07DA63] ring-2 ring-[#0B1A12]" />
+      </span>
+      <span className="flex flex-col min-w-0">
+        <span className="text-[10px] font-extrabold uppercase tracking-[0.08em] text-[#11C6D1]">
+          Your opponent
+        </span>
+        <span className="text-[15px] font-extrabold text-white leading-tight truncate">
+          {lesson.opponentName ??
+            `Pawny${pawnyVersion ? ` ${pawnyVersion}` : ''}`}
+          {lesson.opponentTagline && (
+            <span className="ml-2 text-[11px] font-bold uppercase tracking-[0.1em] text-[#3FE0E8]">
+              {lesson.opponentTagline}
+            </span>
+          )}
+        </span>
+      </span>
+      {pawnyRatingText && (
+        <span className="ml-auto shrink-0 rounded-full bg-[#11C6D1] px-2.5 py-1 text-[12px] font-extrabold text-[#001008] tabular-nums">
+          {pawnyRatingText}
+        </span>
+      )}
+    </div>
+  );
 
   const widgetPanelColumn = (
     <div className="flex flex-col gap-2 h-[360px] md:h-full w-full flex-1 md:min-h-0 pb-4 md:pb-0">
@@ -3925,7 +4326,9 @@ export const DailyLessonActivity = ({
         progressHeader={
           // kind:'freePlay' (Day 14) - prava partija, "1/1" segment nema
           // smisla, pa traka ovde izostaje u potpunosti.
-          step?.kind !== 'freePlay' && (
+          step?.kind === 'freePlay' ? (
+            pawnyCard
+          ) : (
             <LessonProgressBar
               total={segments.total}
               current={segments.current}
@@ -4096,499 +4499,525 @@ export const DailyLessonActivity = ({
                 : ''
             }`}
           >
-            <DailyLessonBoard
-              // Forsira remount table na SVAKI prelazak koraka, cak i kad dva
-              // uzastopna koraka dele IDENTICAN FEN (npr. Day 11 A1/A2 obe
-              // pocetna pozicija, ili prazna tabla kod B1/B2) - biblioteka
-              // (react-chessboard) sama brise korisnikove strelice/krugove na
-              // promenu FEN-a i na levi klik, ALI samo kad FEN string STVARNO
-              // drugacije izgleda od proslog; kad se poklopi, njena interna
-              // "crtana" strelica ostaje da visi preko nove pozicije. Key vezan
-              // za stepIndexRef (lokalan, trenutan - ne ceka Movex) ovo resava
-              // generalno, ne samo za slucajeve istog FEN-a.
-              key={`${lessonState.lessonId}:${stepIndexRef.current}`}
-              sizePx={boardSize}
-              displayFen={freePlayOptimisticFen ?? currentChapter.displayFen}
-              orientation={currentChapter.orientation}
-              forceUserTurn={
-                (stepDoneAwaitingNext ||
-                  // Watch/staticni primer - pokusaj ide u onMove (poruka), ne u premove.
-                  (step?.kind === 'quiz' &&
-                    !step.quizOptions &&
-                    !step.quizMoveOptions)) &&
-                !isBusy
-              }
-              circlesMap={currentChapter.circlesMap}
-              notation={currentChapter.notation}
-              arrowsMap={boardArrows}
-              hintFromSquare={
-                (wrongMoveHint?.from ?? hintPieceSquare ?? undefined) as
-                  | Square
-                  | undefined
-              }
-              glowSquare={glowSquare ?? undefined}
-              canPlay={canPlay}
-              // freePlay (Day 14/18) MORA da ima premove kao i Match (korisnik
-              // povuce figuru dok Pawny "razmislja", potez se "opali" sam cim
-              // dodje red na njega - standardno sahovsko ponasanje). Ranije je
-              // ovde bilo iskljuceno jer je premove osumnjicen za "dupliran"
-              // potez - stvarni uzrok je bio drugde (vidi lastUserMoveRef,
-              // 500ms debounce na identican (from,to) u onFreePlayUserMove),
-              // koji ostaje kao zastita bez obzira na premove.
-              allowPremoves={true}
-              // Gasi klizecu animaciju prelaza figure na drop za freePlay -
-              // bez nje nema "preklapanja" izmedju drag-ove optimisticne
-              // pozicije i stvarne FEN pozicije koja stize sa malim zakasnjenjem.
-              disableAnimations={step?.kind === 'freePlay'}
-              // kind:'quiz' ("Got it!" primeri, sa ili bez pitanja) - tabla je
-              // cist ambijent, nema koncept "moje/protivnikove figure". Bez
-              // ovoga, vucenje CRNE (ili bilo koje "tudje") figure bi i dalje
-              // bilo tiho odbijeno pre nego sto stigne do onMove, i korisnik
-              // nikad ne bi video "ovo je statican primer" objasnjenje.
-              anyPieceDraggable={step?.kind === 'quiz' || stepDoneAwaitingNext}
-              squareRenderer={({ square, children }) => {
-                // kind:'markSquares' - desni klik (desktop) ili tap (mobilni)
-                // obelezava/skida oznaku sa JEDNOG polja. Potpuno nezavisno od
-                // drag-figuru mehanizma (prazna tabla, nema sta da se vuce).
-                if (step?.kind === 'markSquares') {
-                  // Hint (quizHighlightSquares) - isti okvir kao svuda drugde
-                  // (boxShadow inset, vidi quizMark ispod), NE tackica - Hint
-                  // samo POKAZUJE, ne "obelezava". Korisnikov sopstveni klik
-                  // (markedSquares) ostaje tackica - to je NJEGOVA oznaka.
-                  const hintMark = quizHighlightSquares?.find(
-                    (m) => m.square === square
-                  );
-                  const isMarked = markedSquares.has(square as Square);
-                  // wrongMarkedSquare (Day 27 "Chess Notation" Part B) - polje
-                  // koje je korisnik POGRESNO obelezio na prvom promasaju,
-                  // ostaje vidljivo: plavi okvir + crvena (ne plava) tackica -
-                  // korisnica eksplicitno trazila da njena greska bude jasno
-                  // oznacena, umesto strelica duz reda/kolone.
-                  const isWrongMarked = wrongMarkedSquare === square;
-                  return (
-                    <div
-                      style={{
-                        position: 'relative',
-                        width: '100%',
-                        height: '100%',
-                        cursor: 'pointer',
-                        ...(isWrongMarked
-                          ? {
-                              boxShadow: `inset 0 0 0 3px ${MARK_SELECT_COLOR}`,
-                            }
-                          : hintMark
-                          ? hintMark.fill
-                            ? { background: hintMark.color }
-                            : {
-                                boxShadow: `inset 0 0 0 3px ${hintMark.color}`,
+            <div
+              ref={boardFadeRef}
+              // Skriveno dok Movex ne posalje novu stranu (FEN stize pre orientation).
+              style={{
+                opacity:
+                  step && step.orientation !== currentChapter.orientation
+                    ? 0
+                    : undefined,
+              }}
+            >
+              <DailyLessonBoard
+                // Forsira remount table na SVAKI prelazak koraka, cak i kad dva
+                // uzastopna koraka dele IDENTICAN FEN (npr. Day 11 A1/A2 obe
+                // pocetna pozicija, ili prazna tabla kod B1/B2) - biblioteka
+                // (react-chessboard) sama brise korisnikove strelice/krugove na
+                // promenu FEN-a i na levi klik, ALI samo kad FEN string STVARNO
+                // drugacije izgleda od proslog; kad se poklopi, njena interna
+                // "crtana" strelica ostaje da visi preko nove pozicije. Key vezan
+                // za stepIndexRef (lokalan, trenutan - ne ceka Movex) ovo resava
+                // generalno, ne samo za slucajeve istog FEN-a.
+                key={`${lessonState.lessonId}:${boardKeyIndex}`}
+                sizePx={boardSize}
+                displayFen={freePlayOptimisticFen ?? currentChapter.displayFen}
+                orientation={currentChapter.orientation}
+                forceUserTurn={
+                  (stepDoneAwaitingNext ||
+                    !!step?.markSquaresMoveAccept ||
+                    // Watch/staticni primer - pokusaj ide u onMove (poruka), ne u premove.
+                    (step?.kind === 'quiz' &&
+                      !step.quizOptions &&
+                      !step.quizMoveOptions)) &&
+                  !isBusy
+                }
+                circlesMap={currentChapter.circlesMap}
+                notation={currentChapter.notation}
+                arrowsMap={boardArrows}
+                hintFromSquare={
+                  (wrongMoveHint?.from ?? hintPieceSquare ?? undefined) as
+                    | Square
+                    | undefined
+                }
+                glowSquare={glowSquare ?? undefined}
+                canPlay={canPlay}
+                // freePlay (Day 14/18) MORA da ima premove kao i Match (korisnik
+                // povuce figuru dok Pawny "razmislja", potez se "opali" sam cim
+                // dodje red na njega - standardno sahovsko ponasanje). Ranije je
+                // ovde bilo iskljuceno jer je premove osumnjicen za "dupliran"
+                // potez - stvarni uzrok je bio drugde (vidi lastUserMoveRef,
+                // 500ms debounce na identican (from,to) u onFreePlayUserMove),
+                // koji ostaje kao zastita bez obzira na premove.
+                allowPremoves={true}
+                // Gasi klizecu animaciju prelaza figure na drop za freePlay -
+                // bez nje nema "preklapanja" izmedju drag-ove optimisticne
+                // pozicije i stvarne FEN pozicije koja stize sa malim zakasnjenjem.
+                disableAnimations={step?.kind === 'freePlay'}
+                // kind:'quiz' ("Got it!" primeri, sa ili bez pitanja) - tabla je
+                // cist ambijent, nema koncept "moje/protivnikove figure". Bez
+                // ovoga, vucenje CRNE (ili bilo koje "tudje") figure bi i dalje
+                // bilo tiho odbijeno pre nego sto stigne do onMove, i korisnik
+                // nikad ne bi video "ovo je statican primer" objasnjenje.
+                anyPieceDraggable={
+                  step?.kind === 'quiz' ||
+                  stepDoneAwaitingNext ||
+                  !!step?.markSquaresMoveAccept
+                }
+                squareRenderer={({ square, children }) => {
+                  // kind:'markSquares' - desni klik (desktop) ili tap (mobilni)
+                  // obelezava/skida oznaku sa JEDNOG polja. Potpuno nezavisno od
+                  // drag-figuru mehanizma (prazna tabla, nema sta da se vuce).
+                  if (step?.kind === 'markSquares') {
+                    // Hint (quizHighlightSquares) - isti okvir kao svuda drugde
+                    // (boxShadow inset, vidi quizMark ispod), NE tackica - Hint
+                    // samo POKAZUJE, ne "obelezava". Korisnikov sopstveni klik
+                    // (markedSquares) ostaje tackica - to je NJEGOVA oznaka.
+                    const hintMark = quizHighlightSquares?.find(
+                      (m) => m.square === square
+                    );
+                    const isMarked = markedSquares.has(square as Square);
+                    // wrongMarkedSquare (Day 27 "Chess Notation" Part B) - polje
+                    // koje je korisnik POGRESNO obelezio na prvom promasaju,
+                    // ostaje vidljivo: plavi okvir + crvena (ne plava) tackica -
+                    // korisnica eksplicitno trazila da njena greska bude jasno
+                    // oznacena, umesto strelica duz reda/kolone.
+                    const isWrongMarked = wrongMarkedSquare === square;
+                    return (
+                      <div
+                        style={{
+                          position: 'relative',
+                          width: '100%',
+                          height: '100%',
+                          cursor: 'pointer',
+                          ...(isWrongMarked
+                            ? {
+                                boxShadow: `inset 0 0 0 3px ${MARK_SELECT_COLOR}`,
                               }
-                          : {}),
-                      }}
-                      onContextMenu={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        onToggleMarkSquare(square as Square);
-                      }}
-                      onClick={(e) => {
-                        // Levi klik nije ispravan gest ovde - podseti umesto
-                        // da ga cisto ignorises.
-                        e.stopPropagation();
-                        if (step.markRetryOnWrong) {
+                            : hintMark
+                            ? hintMark.fill
+                              ? { background: hintMark.color }
+                              : {
+                                  boxShadow: `inset 0 0 0 3px ${hintMark.color}`,
+                                }
+                            : {}),
+                        }}
+                        onContextMenu={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
                           onToggleMarkSquare(square as Square);
-                        } else {
-                          sendMarkSquaresNudge();
-                        }
-                      }}
-                      onTouchEnd={(e) => {
-                        // Tap na mobilnom - isti efekat kao desni klik na
-                        // desktopu, bez potrebe za drzanjem.
-                        e.preventDefault();
-                        onToggleMarkSquare(square as Square);
-                      }}
-                    >
-                      {children}
-                      {/* hintMark.dot (Day 27) - ista plava tackica kao
+                        }}
+                        onClick={(e) => {
+                          // Levi klik nije ispravan gest ovde - podseti umesto
+                          // da ga cisto ignorises.
+                          e.stopPropagation();
+                          if (step.markRetryOnWrong) {
+                            onToggleMarkSquare(square as Square);
+                          } else {
+                            sendMarkSquaresNudge();
+                          }
+                        }}
+                        onTouchEnd={(e) => {
+                          // Tap na mobilnom - isti efekat kao desni klik na
+                          // desktopu, bez potrebe za drzanjem.
+                          e.preventDefault();
+                          onToggleMarkSquare(square as Square);
+                        }}
+                      >
+                        {children}
+                        {/* hintMark.dot (Day 27) - ista plava tackica kao
                         korisnikova sopstvena oznaka ispod, DODATNO preko
                         fill-a kad hint/otkrivanje to trazi. isWrongMarked -
                         ISTA tackica, ali crvena, na polju koje je korisnik
                         pogresno obelezio. */}
-                      {(isMarked || hintMark?.dot || isWrongMarked) && (
-                        <div
-                          style={{
-                            position: 'absolute',
-                            inset: 0,
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            pointerEvents: 'none',
-                          }}
-                        >
+                        {(isMarked || hintMark?.dot || isWrongMarked) && (
                           <div
                             style={{
-                              width: '26%',
-                              height: '26%',
-                              borderRadius: '9999px',
-                              background: isWrongMarked
-                                ? '#f2358d'
-                                : MARK_SELECT_COLOR,
-                              boxShadow: `0 0 6px 2px ${
-                                isWrongMarked ? '#f2358d' : MARK_SELECT_COLOR
-                              }88`,
+                              position: 'absolute',
+                              inset: 0,
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              pointerEvents: 'none',
                             }}
-                          />
-                        </div>
-                      )}
-                    </div>
-                  );
-                }
-
-                if (wrongSquare === square) {
-                  return (
-                    <div
-                      style={{
-                        position: 'relative',
-                        width: '100%',
-                        height: '100%',
-                      }}
-                    >
-                      {children}
-                      <svg
-                        viewBox="0 0 100 100"
-                        style={{
-                          position: 'absolute',
-                          inset: 0,
-                          width: '100%',
-                          height: '100%',
-                          pointerEvents: 'none',
-                        }}
-                      >
-                        <line
-                          x1="18"
-                          y1="18"
-                          x2="82"
-                          y2="82"
-                          stroke="#f2358d"
-                          strokeWidth="14"
-                          strokeLinecap="round"
-                        />
-                        <line
-                          x1="82"
-                          y1="18"
-                          x2="18"
-                          y2="82"
-                          stroke="#f2358d"
-                          strokeWidth="14"
-                          strokeLinecap="round"
-                        />
-                      </svg>
-                    </div>
-                  );
-                }
-
-                // LessonStep.wrongPathPreview (Day 17 Step 3) - isti X kao
-                // iznad, samo TRAJAN (ne vezan za wrongSquare, koji se gasi
-                // posle 700ms) - ostaje na tabli kroz ceo korak.
-                if (xMarkSquares?.includes(square as Square)) {
-                  return (
-                    <div
-                      style={{
-                        position: 'relative',
-                        width: '100%',
-                        height: '100%',
-                      }}
-                    >
-                      {children}
-                      <svg
-                        viewBox="0 0 100 100"
-                        style={{
-                          position: 'absolute',
-                          inset: 0,
-                          width: '100%',
-                          height: '100%',
-                          pointerEvents: 'none',
-                        }}
-                      >
-                        <line
-                          x1="18"
-                          y1="18"
-                          x2="82"
-                          y2="82"
-                          stroke="#f2358d"
-                          strokeWidth="14"
-                          strokeLinecap="round"
-                        />
-                        <line
-                          x1="82"
-                          y1="18"
-                          x2="18"
-                          y2="82"
-                          stroke="#f2358d"
-                          strokeWidth="14"
-                          strokeLinecap="round"
-                        />
-                      </svg>
-                    </div>
-                  );
-                }
-
-                // Kruzic za "ovde top moze da ode" ide PREKO figure (ne kao
-                // pozadina polja) - inace se ne vidi kad je meta polje zauzeto
-                // pesakom koji treba pojesti.
-                if (wrongMoveHint?.targets?.includes(square as Square)) {
-                  return (
-                    <div
-                      style={{
-                        position: 'relative',
-                        width: '100%',
-                        height: '100%',
-                      }}
-                    >
-                      {children}
-                      {boardAnnotation?.square === square &&
-                        renderGlyphBadge(boardAnnotation.glyph, boardSize)}
-                      <div
-                        style={{
-                          position: 'absolute',
-                          inset: 0,
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          pointerEvents: 'none',
-                        }}
-                      >
-                        <div
-                          style={{
-                            width: '26%',
-                            height: '26%',
-                            borderRadius: '9999px',
-                            background: 'rgba(7,218,99,0.85)',
-                            boxShadow: '0 0 6px 2px rgba(7,218,99,0.55)',
-                          }}
-                        />
-                      </div>
-                    </div>
-                  );
-                }
-
-                // "Reveal path" (History lekcija) - ista tackica kao gore, samo
-                // drugi izvor polja (cela otkrivena linija, ne "gde figura sme").
-                if (revealSquares?.includes(square as Square)) {
-                  return (
-                    <div
-                      style={{
-                        position: 'relative',
-                        width: '100%',
-                        height: '100%',
-                      }}
-                    >
-                      {children}
-                      <div
-                        style={{
-                          position: 'absolute',
-                          inset: 0,
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          pointerEvents: 'none',
-                        }}
-                      >
-                        <div
-                          style={{
-                            width: '26%',
-                            height: '26%',
-                            borderRadius: '9999px',
-                            background: 'rgba(7,218,99,0.85)',
-                            boxShadow: '0 0 6px 2px rgba(7,218,99,0.55)',
-                          }}
-                        />
-                      </div>
-                    </div>
-                  );
-                }
-
-                // Kviz board highlight (Day 9+) - boja dolazi po polju iz
-                // step.quizBoardHighlight (napad/blokirano/odbrana imaju
-                // razlicito znacenje istovremeno). Isti vizuelni jezik kao
-                // postojeci hint-na-figuru okvir (useCustomStyles.ts
-                // hintFromStyles) - inset box-shadow preko CELOG polja, ne
-                // skupljena unutrasnja kutija.
-                const transientMark = quizHighlightSquares?.find(
-                  (m) => m.square === square
-                );
-                // Stalna oznaka (boardBackdrop) samo kad nema privremene na tom polju.
-                const backdropMark = transientMark
-                  ? undefined
-                  : backdropSquares?.find((m) => m.square === square);
-                const quizMark = transientMark ?? backdropMark;
-                // wrongMarkedSquare na kviz koraku (Day 27 "Chess Notation" Part
-                // A/C) - polje koje korisnik POGRESNO izabrao kroz tekstualnu
-                // opciju (ne klikom na tablu, vidi onSelectQuizAnswer), isti
-                // vizuelni jezik kao markSquares ispod: plavi okvir + crvena
-                // tackica. Nezavisno od quizMark - to polje obicno NEMA
-                // sopstveni unos u quizHighlightSquares (samo tacno polje ima).
-                const isWrongQuizMarked =
-                  step?.kind === 'quiz' && wrongMarkedSquare === square;
-                if (quizMark || isWrongQuizMarked) {
-                  // quizMark.fill (Day 27 "Chess Notation") - puna obojena
-                  // pozadina umesto tankog okvira, bolje se vidi na praznoj
-                  // tabli - vidi LessonStep.quizBoardHighlight.squares[].fill.
-                  // quizMark.dot - DODATNA nasa plava tackica na sredini (isti
-                  // vizuelni jezik kao markSquares korisnikova sopstvena
-                  // oznaka ispod), jos jedan sloj kontrasta preko fill-a.
-                  return (
-                    <div
-                      style={{
-                        position: 'relative',
-                        width: '100%',
-                        height: '100%',
-                        ...(isWrongQuizMarked
-                          ? {
-                              boxShadow: `inset 0 0 0 3px ${MARK_SELECT_COLOR}`,
-                            }
-                          : quizMark!.fill
-                          ? { background: quizMark!.color }
-                          : {
-                              boxShadow: `inset 0 0 0 3px ${quizMark!.color}`,
-                            }),
-                      }}
-                    >
-                      {children}
-                      {quizMark?.label && (
-                        // key = natpis, da se animacija ponovi kad se natpis promeni
-                        <div
-                          key={quizMark.label}
-                          className={backdropMark ? '' : 'animate-fadeIn'}
-                          style={{
-                            position: 'absolute',
-                            top: '4%',
-                            left: '50%',
-                            transform: 'translateX(-50%)',
-                            padding: '1px 6px',
-                            borderRadius: '9999px',
-                            background: quizMark.color.replace(
-                              /[\d.]+\)$/,
-                              '0.95)'
-                            ),
-                            color: '#000',
-                            fontSize: 'clamp(7px, 1.1vw, 11px)',
-                            fontWeight: 800,
-                            letterSpacing: '0.04em',
-                            whiteSpace: 'nowrap',
-                            pointerEvents: 'none',
-                            boxShadow: '0 2px 8px rgba(0,0,0,0.45)',
-                            zIndex: 2,
-                          }}
-                        >
-                          {quizMark.label}
-                        </div>
-                      )}
-                      {(transientMark?.dot || isWrongQuizMarked) && (
-                        <div
-                          style={{
-                            position: 'absolute',
-                            inset: 0,
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            pointerEvents: 'none',
-                          }}
-                        >
-                          <div
-                            style={{
-                              width: '26%',
-                              height: '26%',
-                              borderRadius: '9999px',
-                              background: isWrongQuizMarked
-                                ? '#f2358d'
-                                : MARK_SELECT_COLOR,
-                              boxShadow: `0 0 6px 2px ${
-                                isWrongQuizMarked
+                          >
+                            <div
+                              style={{
+                                width: '26%',
+                                height: '26%',
+                                borderRadius: '9999px',
+                                background: isWrongMarked
                                   ? '#f2358d'
-                                  : MARK_SELECT_COLOR
-                              }88`,
+                                  : MARK_SELECT_COLOR,
+                                boxShadow: `0 0 6px 2px ${
+                                  isWrongMarked ? '#f2358d' : MARK_SELECT_COLOR
+                                }88`,
+                              }}
+                            />
+                          </div>
+                        )}
+                      </div>
+                    );
+                  }
+
+                  if (wrongSquare === square) {
+                    return (
+                      <div
+                        style={{
+                          position: 'relative',
+                          width: '100%',
+                          height: '100%',
+                        }}
+                      >
+                        {children}
+                        <svg
+                          viewBox="0 0 100 100"
+                          style={{
+                            position: 'absolute',
+                            inset: 0,
+                            width: '100%',
+                            height: '100%',
+                            pointerEvents: 'none',
+                          }}
+                        >
+                          <line
+                            x1="18"
+                            y1="18"
+                            x2="82"
+                            y2="82"
+                            stroke="#f2358d"
+                            strokeWidth="14"
+                            strokeLinecap="round"
+                          />
+                          <line
+                            x1="82"
+                            y1="18"
+                            x2="18"
+                            y2="82"
+                            stroke="#f2358d"
+                            strokeWidth="14"
+                            strokeLinecap="round"
+                          />
+                        </svg>
+                      </div>
+                    );
+                  }
+
+                  // LessonStep.wrongPathPreview (Day 17 Step 3) - isti X kao
+                  // iznad, samo TRAJAN (ne vezan za wrongSquare, koji se gasi
+                  // posle 700ms) - ostaje na tabli kroz ceo korak.
+                  if (xMarkSquares?.includes(square as Square)) {
+                    return (
+                      <div
+                        style={{
+                          position: 'relative',
+                          width: '100%',
+                          height: '100%',
+                        }}
+                      >
+                        {children}
+                        <svg
+                          viewBox="0 0 100 100"
+                          style={{
+                            position: 'absolute',
+                            inset: 0,
+                            width: '100%',
+                            height: '100%',
+                            pointerEvents: 'none',
+                          }}
+                        >
+                          <line
+                            x1="18"
+                            y1="18"
+                            x2="82"
+                            y2="82"
+                            stroke="#f2358d"
+                            strokeWidth="14"
+                            strokeLinecap="round"
+                          />
+                          <line
+                            x1="82"
+                            y1="18"
+                            x2="18"
+                            y2="82"
+                            stroke="#f2358d"
+                            strokeWidth="14"
+                            strokeLinecap="round"
+                          />
+                        </svg>
+                      </div>
+                    );
+                  }
+
+                  // Kruzic za "ovde top moze da ode" ide PREKO figure (ne kao
+                  // pozadina polja) - inace se ne vidi kad je meta polje zauzeto
+                  // pesakom koji treba pojesti.
+                  if (wrongMoveHint?.targets?.includes(square as Square)) {
+                    return (
+                      <div
+                        style={{
+                          position: 'relative',
+                          width: '100%',
+                          height: '100%',
+                        }}
+                      >
+                        {children}
+                        {boardAnnotation?.square === square &&
+                          renderGlyphBadge(boardAnnotation.glyph, boardSize)}
+                        <div
+                          style={{
+                            position: 'absolute',
+                            inset: 0,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            pointerEvents: 'none',
+                          }}
+                        >
+                          <div
+                            style={{
+                              width: '26%',
+                              height: '26%',
+                              borderRadius: '9999px',
+                              background: 'rgba(7,218,99,0.85)',
+                              boxShadow: '0 0 6px 2px rgba(7,218,99,0.55)',
                             }}
                           />
                         </div>
-                      )}
-                    </div>
-                  );
-                }
+                      </div>
+                    );
+                  }
 
-                // LessonStep.highlightRookRanks (Day 17) - CEO red topa, FILL
-                // preko celog polja (ne okvir kao quizMark iznad) - isti
-                // vizuelni jezik kao app-ovo sopstveno "last move" oznacavanje
-                // (translucentno, figure ispod ostaju vidljive).
-                const rookRankMark = rookRankSquares?.find(
-                  (m) => m.square === square
-                );
-                if (rookRankMark) {
-                  return (
-                    <div
-                      style={{
-                        position: 'relative',
-                        width: '100%',
-                        height: '100%',
-                        background: rookRankMark.color,
-                      }}
-                    >
-                      {children}
-                    </div>
-                  );
-                }
+                  // "Reveal path" (History lekcija) - ista tackica kao gore, samo
+                  // drugi izvor polja (cela otkrivena linija, ne "gde figura sme").
+                  if (revealSquares?.includes(square as Square)) {
+                    return (
+                      <div
+                        style={{
+                          position: 'relative',
+                          width: '100%',
+                          height: '100%',
+                        }}
+                      >
+                        {children}
+                        <div
+                          style={{
+                            position: 'absolute',
+                            inset: 0,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            pointerEvents: 'none',
+                          }}
+                        >
+                          <div
+                            style={{
+                              width: '26%',
+                              height: '26%',
+                              borderRadius: '9999px',
+                              background: 'rgba(7,218,99,0.85)',
+                              boxShadow: '0 0 6px 2px rgba(7,218,99,0.55)',
+                            }}
+                          />
+                        </div>
+                      </div>
+                    );
+                  }
 
-                // Znak uz odigran potez - zadrzava "last move" boju polja.
-                if (boardAnnotation?.square === square) {
-                  return (
-                    <div
-                      style={{
-                        position: 'relative',
-                        width: '100%',
-                        height: '100%',
-                        background: boardTheme.lastMoveToSquare,
-                      }}
-                    >
-                      {children}
-                      {renderGlyphBadge(boardAnnotation.glyph, boardSize)}
-                    </div>
-                  );
-                }
+                  // Kviz board highlight (Day 9+) - boja dolazi po polju iz
+                  // step.quizBoardHighlight (napad/blokirano/odbrana imaju
+                  // razlicito znacenje istovremeno). Isti vizuelni jezik kao
+                  // postojeci hint-na-figuru okvir (useCustomStyles.ts
+                  // hintFromStyles) - inset box-shadow preko CELOG polja, ne
+                  // skupljena unutrasnja kutija.
+                  const transientMark =
+                    kpkWinSquare === square
+                      ? {
+                          square,
+                          color: 'rgba(7, 218, 99, 0.6)',
+                          fill: true,
+                          label: 'WINNING',
+                          dot: false,
+                        }
+                      : quizHighlightSquares?.find((m) => m.square === square);
+                  // Stalna oznaka (boardBackdrop) samo kad nema privremene na tom polju.
+                  const backdropMark = transientMark
+                    ? undefined
+                    : backdropSquares?.find((m) => m.square === square);
+                  const quizMark = transientMark ?? backdropMark;
+                  // wrongMarkedSquare na kviz koraku (Day 27 "Chess Notation" Part
+                  // A/C) - polje koje korisnik POGRESNO izabrao kroz tekstualnu
+                  // opciju (ne klikom na tablu, vidi onSelectQuizAnswer), isti
+                  // vizuelni jezik kao markSquares ispod: plavi okvir + crvena
+                  // tackica. Nezavisno od quizMark - to polje obicno NEMA
+                  // sopstveni unos u quizHighlightSquares (samo tacno polje ima).
+                  const isWrongQuizMarked =
+                    step?.kind === 'quiz' && wrongMarkedSquare === square;
+                  if (quizMark || isWrongQuizMarked) {
+                    // quizMark.fill (Day 27 "Chess Notation") - puna obojena
+                    // pozadina umesto tankog okvira, bolje se vidi na praznoj
+                    // tabli - vidi LessonStep.quizBoardHighlight.squares[].fill.
+                    // quizMark.dot - DODATNA nasa plava tackica na sredini (isti
+                    // vizuelni jezik kao markSquares korisnikova sopstvena
+                    // oznaka ispod), jos jedan sloj kontrasta preko fill-a.
+                    return (
+                      <div
+                        style={{
+                          position: 'relative',
+                          width: '100%',
+                          height: '100%',
+                          ...(isWrongQuizMarked
+                            ? {
+                                boxShadow: `inset 0 0 0 3px ${MARK_SELECT_COLOR}`,
+                              }
+                            : quizMark!.fill
+                            ? { background: quizMark!.color }
+                            : {
+                                boxShadow: `inset 0 0 0 3px ${quizMark!.color}`,
+                              }),
+                        }}
+                      >
+                        {children}
+                        {quizMark?.label && (
+                          // key = natpis, da se animacija ponovi kad se natpis promeni
+                          <div
+                            key={quizMark.label}
+                            className={backdropMark ? '' : 'animate-fadeIn'}
+                            style={{
+                              position: 'absolute',
+                              top: '4%',
+                              left: '50%',
+                              transform: 'translateX(-50%)',
+                              padding: '1px 6px',
+                              borderRadius: '9999px',
+                              background: quizMark.color.replace(
+                                /[\d.]+\)$/,
+                                '0.95)'
+                              ),
+                              color: '#000',
+                              fontSize: 'clamp(7px, 1.1vw, 11px)',
+                              fontWeight: 800,
+                              letterSpacing: '0.04em',
+                              whiteSpace: 'nowrap',
+                              pointerEvents: 'none',
+                              boxShadow: '0 2px 8px rgba(0,0,0,0.45)',
+                              zIndex: 2,
+                            }}
+                          >
+                            {quizMark.label}
+                          </div>
+                        )}
+                        {(transientMark?.dot || isWrongQuizMarked) && (
+                          <div
+                            style={{
+                              position: 'absolute',
+                              inset: 0,
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              pointerEvents: 'none',
+                            }}
+                          >
+                            <div
+                              style={{
+                                width: '26%',
+                                height: '26%',
+                                borderRadius: '9999px',
+                                background: isWrongQuizMarked
+                                  ? '#f2358d'
+                                  : MARK_SELECT_COLOR,
+                                boxShadow: `0 0 6px 2px ${
+                                  isWrongQuizMarked
+                                    ? '#f2358d'
+                                    : MARK_SELECT_COLOR
+                                }88`,
+                              }}
+                            />
+                          </div>
+                        )}
+                      </div>
+                    );
+                  }
 
-                // Bez ikakvog aktivnog oznacavanja - standardno polje.
-                // NAMERNO null (ne `children` direktno) - react-chessboard
-                // samo (squareRenderer?.(...) || defaultniDiv) i taj default
-                // div nosi `squareStyles[squareId]` (npr. "last move" highlight,
-                // premove boja) - `return children` bi to tiho izgubio za
-                // VECINU polja (probano i vraceno, stvarni bag za nevidljivu
-                // figuru u Part C bio je NEGDE DRUGDE - vidi ChessFENBoard.
-                // validateFenString u util-kit, popravljeno u lessonDatabase.ts
-                // FEN-ovima, ne ovde).
-                return null as unknown as React.JSX.Element;
-              }}
-              onMove={onMove}
-              onArrowsChange={noop}
-              onCircleDraw={async (tuple) => {
-                await enqueueMovexUpdate(() =>
-                  dispatch({ type: 'loadedChapter:drawCircle', payload: tuple })
-                );
-              }}
-              onClearCircles={async () => {
-                await enqueueMovexUpdate(() =>
-                  dispatch({ type: 'loadedChapter:clearCircles' })
-                );
-              }}
-              rightSideClassName="flex-1"
-              rightSideComponent={
-                <>
-                  <div className="relative flex flex-1 flex-col items-center justify-center">
-                    <PanelResizeHandle
-                      className="w-1 h-20 rounded-lg bg-slate-600"
-                      title="Resize"
-                    />
-                  </div>
-                  <div className="flex-1" />
-                </>
-              }
-            />
+                  // LessonStep.highlightRookRanks (Day 17) - CEO red topa, FILL
+                  // preko celog polja (ne okvir kao quizMark iznad) - isti
+                  // vizuelni jezik kao app-ovo sopstveno "last move" oznacavanje
+                  // (translucentno, figure ispod ostaju vidljive).
+                  const rookRankMark = rookRankSquares?.find(
+                    (m) => m.square === square
+                  );
+                  if (rookRankMark) {
+                    return (
+                      <div
+                        style={{
+                          position: 'relative',
+                          width: '100%',
+                          height: '100%',
+                          background: rookRankMark.color,
+                        }}
+                      >
+                        {children}
+                      </div>
+                    );
+                  }
+
+                  // Znak uz odigran potez - zadrzava "last move" boju polja.
+                  if (boardAnnotation?.square === square) {
+                    return (
+                      <div
+                        style={{
+                          position: 'relative',
+                          width: '100%',
+                          height: '100%',
+                          background: boardTheme.lastMoveToSquare,
+                        }}
+                      >
+                        {children}
+                        {renderGlyphBadge(boardAnnotation.glyph, boardSize)}
+                      </div>
+                    );
+                  }
+
+                  // Bez ikakvog aktivnog oznacavanja - standardno polje.
+                  // NAMERNO null (ne `children` direktno) - react-chessboard
+                  // samo (squareRenderer?.(...) || defaultniDiv) i taj default
+                  // div nosi `squareStyles[squareId]` (npr. "last move" highlight,
+                  // premove boja) - `return children` bi to tiho izgubio za
+                  // VECINU polja (probano i vraceno, stvarni bag za nevidljivu
+                  // figuru u Part C bio je NEGDE DRUGDE - vidi ChessFENBoard.
+                  // validateFenString u util-kit, popravljeno u lessonDatabase.ts
+                  // FEN-ovima, ne ovde).
+                  return null as unknown as React.JSX.Element;
+                }}
+                onMove={onMove}
+                onArrowsChange={noop}
+                onCircleDraw={async (tuple) => {
+                  await enqueueMovexUpdate(() =>
+                    dispatch({
+                      type: 'loadedChapter:drawCircle',
+                      payload: tuple,
+                    })
+                  );
+                }}
+                onClearCircles={async () => {
+                  await enqueueMovexUpdate(() =>
+                    dispatch({ type: 'loadedChapter:clearCircles' })
+                  );
+                }}
+                rightSideClassName="flex-1"
+                rightSideComponent={
+                  <>
+                    <div className="relative flex flex-1 flex-col items-center justify-center">
+                      <PanelResizeHandle
+                        className="w-1 h-20 rounded-lg bg-slate-600"
+                        title="Resize"
+                      />
+                    </div>
+                    <div className="flex-1" />
+                  </>
+                }
+              />
+            </div>
             {step?.kind === 'quiz' && step.quizDimBoard && (
               <div
                 className={`absolute inset-0 pointer-events-none transition-opacity duration-300 bg-black ${

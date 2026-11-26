@@ -167,9 +167,16 @@ const Conversation = ({
   // demo koraci, sticky + poluprovidna pozadina bi sakrila doneText poruku
   // koja stize odmah posle klika (ista zamka kao ranije kod watch koraka).
   let lastTaskMessageIndex = -1;
+  // Dugmad idu SAMO uz zadatak tekuceg koraka - ne uz stari dok novi jos nije stigao.
+  const currentStepIntro = step
+    ? `**${step.prompt}**\n\n${step.introText}`
+    : '';
   if ((step?.kind === 'quiz' && step.quizOptions) || step?.suggestedMove) {
     for (let i = currentChapterState.messages.length - 1; i >= 0; i--) {
-      if (currentChapterState.messages[i].kind === 'task') {
+      if (
+        currentChapterState.messages[i].kind === 'task' &&
+        currentChapterState.messages[i].content === currentStepIntro
+      ) {
         lastTaskMessageIndex = i;
         break;
       }
@@ -213,9 +220,11 @@ const Conversation = ({
           const isTask = msg.kind === 'task';
           // suggestedMove koraci NAMERNO ne lepe oblacic (vidi komentar uz
           // lastTaskMessageIndex) - sticky je samo za pravo kviz pitanje.
+          // Predlog jednog poteza (jedno dugme) nije pitanje - ne lepi se, ide u novi red dole.
           const isStickyQuizQuestion =
             step?.kind === 'quiz' &&
             !!step.quizOptions &&
+            step.quizOptions.length > 1 &&
             !disableStickyQuizQuestion &&
             index === lastTaskMessageIndex;
           // Day 14 "Your First Game" - Pawny-jeve poruke (vidi
@@ -233,8 +242,10 @@ const Conversation = ({
                 !step.quizMultiSelect &&
                 !step.quizAnswerViaNextButton &&
                 quizSelectedIndex == null &&
-                index === lastTaskMessageIndex && (
-                  <div className="grid grid-cols-2 gap-2 px-2 md:px-4 mt-1 mb-2">
+                index === lastTaskMessageIndex &&
+                // Dugmad tek kad se pitanje ispise (tekst, pa dugme, pa potez).
+                (!isLastMessage || typingDone) && (
+                  <div className="grid grid-cols-2 gap-2 px-2 md:px-4 mt-1 mb-2 animate-fadeIn">
                     {step.quizOptions.map((option, i) => (
                       <button
                         key={i}

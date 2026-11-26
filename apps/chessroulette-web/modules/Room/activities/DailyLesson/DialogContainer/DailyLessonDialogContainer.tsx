@@ -5,7 +5,12 @@ import { Dialog } from '@app/components/Dialog';
 import { ButtonGreen } from '@app/components/Button/ButtonGreen';
 import { Icon } from '@app/components/Icon/Icon';
 import { dailyLesson } from '../movex';
-import { Lesson, LessonStep, getLessonsPagePath } from '../lessonDatabase';
+import {
+  DiagramMarks,
+  Lesson,
+  LessonStep,
+  getLessonsPagePath,
+} from '../lessonDatabase';
 
 // Popup-ovi (ovaj fajl) naglasavaju **bold** ZELENOM bojom umesto obicnog
 // bold-a - za razliku od Conversation.tsx (AI chat) gde ostaje cist bold.
@@ -316,6 +321,75 @@ const MascotIntroBanner = ({
   </div>
 );
 
+// Lessons 2 protivnik (Mia/Alex/Leo): kartica igraca sa portretom, imenom i rejtingom.
+const OpponentIntroCard = ({
+  src,
+  name,
+  tagline,
+  bannerText,
+  subBannerText,
+}: {
+  src: string;
+  name: string;
+  tagline?: string;
+  bannerText: string;
+  subBannerText?: string;
+}) => {
+  const rating = bannerText.match(/\(([\d,]+)\)/)?.[1];
+  return (
+    <div className="relative mx-auto my-3 w-full max-w-[250px]">
+      <div className="op-opp-glow absolute -inset-1 rounded-[22px] bg-[linear-gradient(135deg,#11C6D1,#3FE0E8_45%,#07DA63)] opacity-60 blur-md" />
+      <div className="relative rounded-[20px] p-[2px] bg-[linear-gradient(135deg,#11C6D1,#3FE0E8_45%,#07DA63)]">
+        <div className="relative overflow-hidden rounded-[18px] bg-[#0B1A12]">
+          <div className="relative h-[220px] w-full">
+            <Image
+              src={src}
+              alt={name}
+              fill
+              className="object-cover object-[50%_25%]"
+            />
+            <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent_45%,rgba(11,26,18,0.95))]" />
+            <div className="op-opp-shine pointer-events-none absolute inset-0 bg-[linear-gradient(115deg,transparent_30%,rgba(255,255,255,0.18)_45%,transparent_60%)]" />
+            <span className="absolute left-3 top-3 rounded-full bg-black/55 px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-[0.12em] text-[#3FE0E8] backdrop-blur">
+              Your opponent
+            </span>
+            {rating && (
+              <span className="absolute right-3 top-3 rounded-full bg-[#11C6D1] px-2.5 py-1 text-[12px] font-extrabold text-[#001008] tabular-nums shadow-[0_4px_14px_rgba(17,198,209,0.45)]">
+                {rating}
+              </span>
+            )}
+          </div>
+          <div className="relative -mt-14 px-4 pb-4 text-left">
+            <div className="flex items-center gap-2">
+              <span className="text-[26px] font-extrabold leading-none text-white">
+                {name}
+              </span>
+              <span className="h-2.5 w-2.5 rounded-full bg-[#07DA63] shadow-[0_0_8px_#07DA63]" />
+            </div>
+            {tagline && (
+              <p className="mt-1 text-[12px] font-bold uppercase tracking-[0.14em] text-[#3FE0E8]">
+                {tagline}
+              </p>
+            )}
+            {subBannerText && (
+              <p className="mt-0.5 text-[11px] font-semibold text-slate-400">
+                {subBannerText}
+              </p>
+            )}
+          </div>
+        </div>
+      </div>
+      <style>{`
+        @keyframes op-opp-shine { 0% { transform: translateX(-120%); } 55%, 100% { transform: translateX(120%); } }
+        .op-opp-shine { animation: op-opp-shine 3.6s ease-in-out infinite; }
+        @keyframes op-opp-glow { 0%, 100% { opacity: .45; } 50% { opacity: .75; } }
+        .op-opp-glow { animation: op-opp-glow 2.8s ease-in-out infinite; }
+        @media (prefers-reduced-motion: reduce) { .op-opp-shine, .op-opp-glow { animation: none; } }
+      `}</style>
+    </div>
+  );
+};
+
 // Puni (ne suplji) glifovi - isti kao glyph polje svih ostalih lekcija
 // (Rook ♜, Bishop ♝, King ♚, Knight ♞, Queen ♛, Pawn ♟) - suplji bi na
 // svetloj pozadini nestao.
@@ -397,6 +471,8 @@ const PieceIntroAnimation = ({
   subBannerText,
   mascotSrc,
   mascotFramed,
+  opponentName,
+  opponentTagline,
 }: {
   glyph: string;
   movement:
@@ -416,7 +492,19 @@ const PieceIntroAnimation = ({
   /** Samo za movement:'mascot' - vidi MascotIntroBanner. */
   mascotSrc?: string;
   mascotFramed?: boolean;
+  opponentName?: string;
+  opponentTagline?: string;
 }) => {
+  if (movement === 'mascot' && opponentName && mascotSrc)
+    return (
+      <OpponentIntroCard
+        src={mascotSrc}
+        name={opponentName}
+        tagline={opponentTagline}
+        bannerText={bannerText ?? opponentName}
+        subBannerText={subBannerText}
+      />
+    );
   if (movement === 'knight') return <KnightIntroAnimation glyph={glyph} />;
   if (movement === 'queen') return <QueenIntroAnimation glyph={glyph} />;
   if (movement === 'numbers') return <PieceValuesIntroAnimation />;
@@ -562,14 +650,51 @@ const FEN_GLYPHS: Record<string, string> = {
 };
 const FEN_CELL = 26;
 
+const FILES = 'abcdefgh';
+// Veca tabla kad ima oznake, da se natpisi i strelice citaju.
+const FEN_CELL_MARKED = 36;
+// Centar polja (npr. 'e4') u pikselima mini-table.
+const squareCenter = (sq: string, cell: number) => ({
+  x: (FILES.indexOf(sq[0]) + 0.5) * cell,
+  y: (8 - Number(sq[1]) + 0.5) * cell,
+});
+
 // Staticna tabla iz FEN-a za uvodni popup (introSteps.diagramFen).
 const FenDiagram = ({
   fen,
   highlightRank,
+  marks: marksProp,
+  animateMove,
 }: {
   fen: string;
   highlightRank?: number;
+  marks?: DiagramMarks;
+  animateMove?: string;
 }) => {
+  // Petlja: start -> figura klizi -> oznake -> reset.
+  const [phase, setPhase] = useState<'start' | 'moving' | 'done'>('start');
+  useEffect(() => {
+    if (!animateMove) return;
+    let timer: ReturnType<typeof setTimeout>;
+    const run = () => {
+      setPhase('start');
+      timer = setTimeout(() => {
+        setPhase('moving');
+        timer = setTimeout(() => {
+          setPhase('done');
+          timer = setTimeout(run, 2600);
+        }, 800);
+      }, 1000);
+    };
+    run();
+    return () => clearTimeout(timer);
+  }, [animateMove]);
+  const moveFrom = animateMove?.slice(0, 2);
+  const moveTo = animateMove?.slice(2, 4);
+  const marks =
+    animateMove && phase !== 'done' && marksProp
+      ? { ...marksProp, squares: [], arrows: [] }
+      : marksProp;
   const rows = fen
     .split(' ')[0]
     .split('/')
@@ -578,23 +703,39 @@ const FenDiagram = ({
         .split('')
         .flatMap((c) => (/\d/.test(c) ? Array(Number(c)).fill('') : [c]))
     );
+  const cell = marksProp ? FEN_CELL_MARKED : FEN_CELL;
+  const size = cell * 8;
+  const movingPiece = moveFrom
+    ? rows[8 - Number(moveFrom[1])]?.[FILES.indexOf(moveFrom[0])]
+    : '';
+  const moverPos = moveFrom
+    ? squareCenter(phase === 'start' ? moveFrom : moveTo!, cell)
+    : null;
   return (
     <div
-      className="mx-auto my-3 rounded-md overflow-hidden grid grid-cols-8"
-      style={{ width: FEN_CELL * 8 }}
+      className="relative mx-auto my-3 rounded-md overflow-hidden grid grid-cols-8"
+      style={{ width: size }}
     >
       {rows.map((row, r) =>
-        row.map((piece: string, f: number) => {
+        row.map((rawPiece: string, f: number) => {
+          const sq = `${FILES[f]}${8 - r}`;
+          const piece =
+            sq === moveFrom || (sq === moveTo && phase !== 'start')
+              ? ''
+              : rawPiece;
           const dark = (r + f) % 2 === 1;
           const highlighted = highlightRank === 8 - r;
+          const mark = marks?.squares?.find(
+            (m) => m.square === `${FILES[f]}${8 - r}`
+          );
           return (
             <div
               key={`${r}-${f}`}
-              className="flex items-center justify-center leading-none"
+              className="relative flex items-center justify-center leading-none"
               style={{
-                width: FEN_CELL,
-                height: FEN_CELL,
-                fontSize: 21,
+                width: cell,
+                height: cell,
+                fontSize: marksProp ? 29 : 21,
                 background: highlighted
                   ? dark
                     ? 'rgb(96, 170, 98)'
@@ -610,11 +751,244 @@ const FenDiagram = ({
                     : 'none',
               }}
             >
-              {piece ? FEN_GLYPHS[piece.toLowerCase()] : ''}
+              {mark && (
+                <div
+                  className="absolute inset-0"
+                  style={{ background: mark.color }}
+                />
+              )}
+              <span className="relative">
+                {piece ? FEN_GLYPHS[piece.toLowerCase()] : ''}
+              </span>
             </div>
           );
         })
       )}
+      {movingPiece && moverPos && (
+        <div
+          className="absolute flex items-center justify-center leading-none pointer-events-none"
+          style={{
+            width: cell,
+            height: cell,
+            left: moverPos.x - cell / 2,
+            top: moverPos.y - cell / 2,
+            transition:
+              phase === 'start' ? 'none' : 'left 0.7s ease, top 0.7s ease',
+            fontSize: marksProp ? 29 : 21,
+            color:
+              movingPiece === movingPiece.toUpperCase() ? '#fff' : '#14181F',
+            textShadow:
+              movingPiece === movingPiece.toUpperCase()
+                ? '0 0 2px #14181F, 0 0 1px #14181F'
+                : 'none',
+          }}
+        >
+          {FEN_GLYPHS[movingPiece.toLowerCase()]}
+        </div>
+      )}
+      {!!marks?.arrows?.length && (
+        <svg
+          className="absolute inset-0 pointer-events-none"
+          width={size}
+          height={size}
+          viewBox={`0 0 ${size} ${size}`}
+        >
+          {marks.arrows.map((a, i) => {
+            const from = squareCenter(a.from, cell);
+            const to = squareCenter(a.to, cell);
+            const len = Math.hypot(to.x - from.x, to.y - from.y);
+            // Vrh strelice malo pre centra ciljnog polja.
+            const k = (len - cell * 0.3) / len;
+            const end = {
+              x: from.x + (to.x - from.x) * k,
+              y: from.y + (to.y - from.y) * k,
+            };
+            const angle = Math.atan2(to.y - from.y, to.x - from.x);
+            const head = 9;
+            const p1 = {
+              x: end.x - head * Math.cos(angle - 0.5),
+              y: end.y - head * Math.sin(angle - 0.5),
+            };
+            const p2 = {
+              x: end.x - head * Math.cos(angle + 0.5),
+              y: end.y - head * Math.sin(angle + 0.5),
+            };
+            return (
+              <g key={i}>
+                <line
+                  x1={from.x}
+                  y1={from.y}
+                  x2={end.x - 3 * Math.cos(angle)}
+                  y2={end.y - 3 * Math.sin(angle)}
+                  stroke={a.color}
+                  strokeWidth={5}
+                  strokeLinecap="round"
+                />
+                <polygon
+                  points={`${end.x},${end.y} ${p1.x},${p1.y} ${p2.x},${p2.y}`}
+                  fill={a.color}
+                />
+              </g>
+            );
+          })}
+        </svg>
+      )}
+      {marks?.squares
+        ?.filter((m) => m.label)
+        .map((m) => {
+          const c = squareCenter(m.square, cell);
+          // Gruba procena sirine natpisa, da ne ispadne preko ivice table.
+          const half = ((m.label?.length ?? 0) * 5.5 + 8) / 2;
+          const x = Math.min(Math.max(c.x, half + 1), size - half - 1);
+          return (
+            <div
+              key={`label-${m.square}`}
+              className="absolute pointer-events-none"
+              style={{
+                left: x,
+                top: c.y - cell / 2 + 1,
+                transform: 'translateX(-50%)',
+                padding: '0 4px',
+                borderRadius: 9999,
+                background: m.color.replace(/[\d.]+\)$/, '0.95)'),
+                color: '#000',
+                fontSize: 8,
+                lineHeight: '11px',
+                fontWeight: 800,
+                letterSpacing: '0.04em',
+                whiteSpace: 'nowrap',
+                boxShadow: '0 1px 4px rgba(0,0,0,0.45)',
+              }}
+            >
+              {m.label}
+            </div>
+          );
+        })}
+    </div>
+  );
+};
+
+// Graduation test rezultat: krug sa procentom, crta praga i tackica po pitanju.
+const GraduationScore = ({
+  score,
+  maxScore,
+  passThreshold,
+  passed,
+  questionCount,
+  wrongSteps,
+}: {
+  score: number;
+  maxScore: number;
+  passThreshold: number;
+  passed: boolean;
+  questionCount: number;
+  wrongSteps?: Set<number>;
+}) => {
+  const [shown, setShown] = useState(0);
+  const pct = Math.max(0, Math.min(1, score / maxScore));
+  useEffect(() => {
+    const t = setTimeout(() => setShown(pct), 80);
+    return () => clearTimeout(t);
+  }, [pct]);
+  const size = 136;
+  const stroke = 10;
+  const r = (size - stroke) / 2;
+  const c = 2 * Math.PI * r;
+  const accent = passed ? '#07DA63' : '#f2358d';
+  // Crta praga (npr. 60%) na obodu kruga, krug pocinje odozgo.
+  const tickAngle = passThreshold * 2 * Math.PI - Math.PI / 2;
+  const tick = (rad: number) => ({
+    x: size / 2 + rad * Math.cos(tickAngle),
+    y: size / 2 + rad * Math.sin(tickAngle),
+  });
+  const tickIn = tick(r - stroke / 2 - 3);
+  const tickOut = tick(r + stroke / 2 + 3);
+  return (
+    <div className="mt-4 w-full flex flex-col items-center">
+      <div className="relative" style={{ width: size, height: size }}>
+        <svg width={size} height={size} className="-rotate-90">
+          <circle
+            cx={size / 2}
+            cy={size / 2}
+            r={r}
+            fill="none"
+            stroke="rgba(255,255,255,0.08)"
+            strokeWidth={stroke}
+          />
+          <circle
+            cx={size / 2}
+            cy={size / 2}
+            r={r}
+            fill="none"
+            stroke={accent}
+            strokeWidth={stroke}
+            strokeLinecap="round"
+            strokeDasharray={c}
+            strokeDashoffset={c * (1 - shown)}
+            style={{
+              transition:
+                'stroke-dashoffset 1.4s cubic-bezier(0.22, 1, 0.36, 1)',
+              filter: `drop-shadow(0 0 6px ${accent}88)`,
+            }}
+          />
+        </svg>
+        <svg width={size} height={size} className="absolute inset-0">
+          <line
+            x1={tickIn.x}
+            y1={tickIn.y}
+            x2={tickOut.x}
+            y2={tickOut.y}
+            stroke="#ffffff"
+            strokeOpacity={0.7}
+            strokeWidth={2}
+            strokeLinecap="round"
+          />
+        </svg>
+        <div className="absolute inset-0 flex flex-col items-center justify-center">
+          <span
+            className="text-[32px] font-extrabold leading-none tabular-nums"
+            style={{ color: accent }}
+          >
+            {Math.round(pct * 100)}%
+          </span>
+          <span className="mt-1 text-[11px] text-slate-400 tabular-nums">
+            {Math.round(score * 100) / 100} / {maxScore} pts
+          </span>
+        </div>
+      </div>
+      <p className="mt-2 text-[10px] uppercase tracking-[0.14em] text-slate-500">
+        Pass mark {Math.round(passThreshold * 100)}%
+      </p>
+      <div className="mt-3 flex flex-wrap justify-center gap-[5px]">
+        {Array.from({ length: questionCount }, (_, i) => {
+          const missed = wrongSteps?.has(i);
+          return (
+            <span
+              key={i}
+              title={`Q${i + 1}`}
+              className="h-[10px] w-[10px] rounded-full animate-fadeIn"
+              style={{
+                animationDelay: `${300 + i * 60}ms`,
+                animationFillMode: 'both',
+                background: missed ? '#f2358d' : '#07DA63',
+                boxShadow: missed
+                  ? '0 0 6px rgba(242,53,141,0.5)'
+                  : '0 0 6px rgba(7,218,99,0.5)',
+              }}
+            />
+          );
+        })}
+      </div>
+      <div className="mt-2 flex items-center gap-3 text-[10px] text-slate-500">
+        <span className="flex items-center gap-1">
+          <span className="h-[6px] w-[6px] rounded-full bg-[#07DA63]" />
+          First try
+        </span>
+        <span className="flex items-center gap-1">
+          <span className="h-[6px] w-[6px] rounded-full bg-[#f2358d]" />
+          Missed or retried
+        </span>
+      </div>
     </div>
   );
 };
@@ -776,6 +1150,8 @@ export const DailyLessonDialogContainer = ({
               <FenDiagram
                 fen={introStep.diagramFen}
                 highlightRank={introStep.diagramHighlightRank}
+                marks={introStep.diagramMarks}
+                animateMove={introStep.diagramMove}
               />
             ) : (
               <PieceIntroAnimation
@@ -785,6 +1161,8 @@ export const DailyLessonDialogContainer = ({
                 subBannerText={lesson.piece.subBannerText}
                 mascotSrc={lesson.pawnyAvatar}
                 mascotFramed={lesson.pawnyAvatarFramed}
+                opponentName={lesson.opponentName}
+                opponentTagline={lesson.opponentTagline}
               />
             )}
             <p className="text-slate-300 text-sm text-center leading-relaxed">
@@ -859,6 +1237,7 @@ export const DailyLessonDialogContainer = ({
               <FenDiagram
                 fen={preStepIntro.diagramFen}
                 highlightRank={preStepIntro.diagramHighlightRank}
+                marks={preStepIntro.diagramMarks}
               />
             )}
             <p className="text-slate-300 text-sm text-center leading-relaxed">
@@ -993,13 +1372,17 @@ export const DailyLessonDialogContainer = ({
                 </p>
               </div>
             )}
-            {graduationResult && (
-              <div className="mt-3 w-full border border-[#07DA63]/30 bg-[#07DA63]/[0.07] rounded-xl px-3 py-2.5 text-center">
-                <p className="text-[#07DA63] text-xs font-bold tracking-wide uppercase">
-                  {Math.round(lessonState.score * 100) / 100} /{' '}
-                  {lesson?.graduationTest?.maxScore} points
-                </p>
-              </div>
+            {graduationResult && lesson?.graduationTest && (
+              <GraduationScore
+                score={lessonState.score}
+                maxScore={lesson.graduationTest.maxScore}
+                passThreshold={lesson.graduationTest.passThreshold}
+                passed={graduationResult.passed}
+                questionCount={
+                  lesson.steps.filter((st) => !st.excludeFromProgress).length
+                }
+                wrongSteps={wrongQuizSteps}
+              />
             )}
             <div className="mt-3 flex items-center gap-4 text-xs text-slate-400">
               <span className="flex items-center gap-1">
