@@ -1165,11 +1165,11 @@ export const DailyLessonDialogContainer = ({
                 opponentTagline={lesson.opponentTagline}
               />
             )}
-            <p className="text-slate-300 text-sm text-center leading-relaxed">
+            <p className="text-slate-300 text-sm font-normal text-center leading-relaxed">
               {renderMarkdownInline(introStep?.text ?? lesson.intro.text)}
             </p>
             {introStep?.bullets && introStep.bullets.length > 0 && (
-              <ul className="mt-3 w-full text-slate-300 text-sm space-y-1.5">
+              <ul className="mt-3 w-full text-slate-300 text-sm font-normal space-y-1.5">
                 {introStep.bullets.map((bullet, i) => (
                   <li key={i} className="flex items-start gap-2">
                     <span className="text-[#07DA63] mt-0.5">•</span>

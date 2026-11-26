@@ -8,6 +8,7 @@ import {
   // toLongChessColor,
 } from '@xmatter/util-kit';
 import { Chess } from 'chess.js';
+import { chatBotList } from '../Match/utils';
 
 type StockfishEngineProps = {
   fen: ChessFEN;
@@ -20,13 +21,35 @@ type StockfishEngineProps = {
   // engineMove: (m: ShortChessMove) => void;
 };
 
+// sansa da bot odigra nasumican legalan potez umesto Stockfish poteza
+const BOT_MISTAKE_CHANCE: Record<string, number> = {
+  zldVhT0HMLRc1000: 0.25, // Yuki
+  _TjQM58i13jmm000: 0.12, // Obbina
+  '9aEXYS0xwZS21000': 0.03, // Stella
+  '-BihTlRZ-SKTL000': 0.01, // Laura
+};
+
+// jacina matchFake botova po nivou (1-8), ne zavisi od rejtinga protivnika
+const MATCH_FAKE_LEVELS: Record<
+  number,
+  { skill: number; depth: number; mistake: number }
+> = {
+  1: { skill: 0, depth: 1, mistake: 0.3 },
+  2: { skill: 0, depth: 1, mistake: 0.2 },
+  3: { skill: 0, depth: 2, mistake: 0.12 },
+  4: { skill: 1, depth: 3, mistake: 0.07 },
+  5: { skill: 3, depth: 4, mistake: 0.04 },
+  6: { skill: 5, depth: 5, mistake: 0.02 },
+  7: { skill: 7, depth: 6, mistake: 0.01 },
+  8: { skill: 9, depth: 8, mistake: 0 },
+};
+
 const StockfishEngine: React.FC<StockfishEngineProps> = ({
   fen,
   isMyTurn,
   engineMove,
   botColor,
   botType,
-  userRating,
   bot,
 }) => {
   // const [stockfishOutput, setStockfishOutput] = useState('Initializing...');
@@ -46,12 +69,27 @@ const StockfishEngine: React.FC<StockfishEngineProps> = ({
   const dispatch = usePlayActionsDispatch();
   // Yuki - najslabiji botelja, slabiji od Viole
   const isYuki = bot == 'zldVhT0HMLRc1000';
-  // const isAmara = bot == '_TjQM58i13jmm000';
-  
+  // Obbina - jaca od Yukija, slabija od Viole
+  const isObbina = bot == '_TjQM58i13jmm000';
+  // osnovni nivo matchFake bota; tokom partije se pomera najvise ±1
+  const baseLevel =
+    botType === 'matchFake'
+      ? chatBotList.find((b) => b.id === bot)?.level ?? 4
+      : undefined;
+  const [level, setLevel] = useState(baseLevel);
+  const randomMoveChance =
+    level !== undefined
+      ? MATCH_FAKE_LEVELS[level].mistake
+      : BOT_MISTAKE_CHANCE[bot] ?? 0;
+
 
   useEffect(() => {
     if (typeof window === 'undefined') return; // Ensure it's client-side
-    if (skill == '' && bot) {
+    if (baseLevel !== undefined) {
+      setDepth(String(MATCH_FAKE_LEVELS[baseLevel].depth));
+      setSkill(String(MATCH_FAKE_LEVELS[baseLevel].skill));
+      setContempt('0');
+    } else if (skill == '' && bot) {
       let baseDepth = 2;
       let baseSkill = 1;
       let baseContempt = 10;
@@ -76,7 +114,7 @@ const StockfishEngine: React.FC<StockfishEngineProps> = ({
           baseDepth = 4;
           baseSkill = 0;
           baseContempt = 12;
-        } else if (isYuki) {
+        } else if (isYuki || isObbina) {
           baseDepth = 1;
           baseSkill = 0;
           baseContempt = 0;
@@ -151,8 +189,8 @@ const StockfishEngine: React.FC<StockfishEngineProps> = ({
     if (!isMyTurn) {
       return;
     }
-    // Yuki ne jaca kad vodi
-    if (isYuki) {
+    // Yuki i Obbina ne jacaju kad vode
+    if (isYuki || isObbina) {
       return;
     }
 
@@ -163,6 +201,29 @@ const StockfishEngine: React.FC<StockfishEngineProps> = ({
           (botType == 'botelja' || botType == 'basic'))) &&
       changeAfterMove !== moveNumber
     ) {
+      // score je iz ugla korisnika (racuna se dok je on na potezu)
+      if (baseLevel !== undefined && level !== undefined) {
+        const s = Number(score);
+        const step = s > 500 ? 1 : s < -400 ? -1 : 0;
+        const newLevel = Math.max(
+          Math.max(1, baseLevel - 1),
+          Math.min(Math.min(8, baseLevel + 1), level + step)
+        );
+        if (s > 2000 && moveNumber > 20) {
+          setTimeout(() => {
+            dispatch({
+              type: 'play:resignGame',
+              payload: { color: botColor },
+            });
+          }, 1500);
+        }
+        setLevel(newLevel);
+        setDepth(String(MATCH_FAKE_LEVELS[newLevel].depth));
+        setSkill(String(MATCH_FAKE_LEVELS[newLevel].skill));
+        setChangeAfterMove(moveNumber);
+        return;
+      }
+
       let newDepth = Number(depth);
       let newSkill = Number(skill);
       let newContempt = Number(contempt);
@@ -209,41 +270,6 @@ const StockfishEngine: React.FC<StockfishEngineProps> = ({
     }
   }, [score]);
 
-  useEffect(() => {
-    if (userRating == undefined) {
-      return;
-    }
-    if (botType !== 'matchFake') {
-      return;
-    }
-    //pocetna podesavanja za MATCH MAKE
-    let baseDepth;
-    let baseSkill;
-    let baseContempt;
-    if (userRating && userRating > 1500) {
-      baseDepth = 7;
-      baseSkill = 8;
-      baseContempt = 10;
-    } else if (userRating > 1500) {
-      baseDepth = 3;
-      baseSkill = 5;
-      baseContempt = 5;
-    } else if (userRating > 1400) {
-      baseDepth = 2;
-      baseSkill = 3;
-      baseContempt = 5;
-    } else if (userRating > 1300) {
-      baseDepth = 0;
-      baseSkill = 1;
-      baseContempt = 4;
-    } else {
-      baseDepth = 0;
-      baseSkill = 0;
-      baseContempt = 1;
-    }
-    getFinalSkill(baseDepth, baseSkill, baseContempt);
-  }, [userRating]);
-
   const getFinalSkill = (
     baseDepth: number,
     baseSkill: number,
@@ -286,6 +312,12 @@ const StockfishEngine: React.FC<StockfishEngineProps> = ({
     stockfishRef.current.postMessage('stop');
 
     stockfishRef.current.postMessage(`position fen ${fen}`);
+
+    // matchFake: bez UCI_LimitStrength (gazi Skill Level), jacinu nosi nivo
+    if (baseLevel !== undefined) {
+      stockfishRef.current.postMessage(`go depth ${depth}`);
+      return;
+    }
 
     if (depth && Number(depth) > 5) {
       stockfishRef.current.postMessage(`go depth ${depth}`);
@@ -367,8 +399,8 @@ const StockfishEngine: React.FC<StockfishEngineProps> = ({
       if (!isMyTurnRef.current) {
         lastPlayedFenRef.current = currentFen;
         let move = bestMove;
-        // Yuki u 35% slucajeva igra nasumican legalan potez
-        if (isYuki && Math.random() < 0.35) {
+        // bot ponekad previdi i odigra nasumican potez (BOT_MISTAKE_CHANCE)
+        if (randomMoveChance > 0 && Math.random() < randomMoveChance) {
           const legalMoves = new Chess(currentFen).moves({ verbose: true });
           if (legalMoves.length > 0) {
             const m = legalMoves[Math.floor(Math.random() * legalMoves.length)];

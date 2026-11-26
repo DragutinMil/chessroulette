@@ -7,6 +7,7 @@ import Image from 'next/image';
 import GithubLogo from './assets/github-mark-white.svg';
 import DiscordLogo from './assets/discord-icon-svgrepo-com.svg';
 import { useRouter } from 'next/navigation';
+import { HeaderUserActions } from './HeaderUserActions';
 // import { useEffect } from 'react';
 // import Cookies from 'js-cookie';
 type Props = {
@@ -14,6 +15,8 @@ type Props = {
   showConnectionStatus?: boolean;
   showOnboarding?: boolean;
   session?: CustomSession;
+  /** Vatrica, zvonce i profil (linkovi ka Web App-u), za sada samo na listi lekcija. */
+  showUserActions?: boolean;
 };
 
 export default (props: Props) => {
@@ -48,6 +51,8 @@ export default (props: Props) => {
 
       <div className="flex gap-6 items-center justify-end">
         {props.showConnectionStatus && <ConnectionStatus />}
+
+        {props.showUserActions && <HeaderUserActions />}
 
         {props.showOnboarding && (
           <>

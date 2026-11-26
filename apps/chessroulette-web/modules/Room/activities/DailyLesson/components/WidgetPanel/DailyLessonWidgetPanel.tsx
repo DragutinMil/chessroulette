@@ -15,6 +15,7 @@ import {
   prepareEngineContext,
 } from './SendQuestionCoach';
 import { FreePlayControls } from './FreePlayControls';
+import { StepDoneGlow } from '../StepDoneGlow';
 
 /**
  * Koliko dugo Next dugme puni "pilulicu" pre nego sto samo ucita sledeci
@@ -465,7 +466,9 @@ export const DailyLessonWidgetPanel = ({
                 lessonState.hints - hintBase >= MAX_HINTS_PER_STEP)
             }
           >
-            <p>{liveHintLoading ? 'Thinking...' : 'Hint'}</p>
+            <p className="font-bold">
+              {liveHintLoading ? 'Thinking...' : 'Hint'}
+            </p>
           </ButtonGreen>
         )}
 
@@ -540,9 +543,7 @@ export const DailyLessonWidgetPanel = ({
           // (npr. Day 13 'London System'), traka uzima ostatak reda.
           className={`${
             buttonsBesideProgress ? '' : 'md:max-w-[130px] max-w-[130px]'
-          } px-4 transition-[filter,transform] duration-150 hover:brightness-110 hover:scale-[1.03] active:scale-[0.97] hover:[animation-play-state:paused] ${
-            nextReady ? 'animate-attentionPulse' : ''
-          }`}
+          } px-4 transition-[filter,transform] duration-150 hover:brightness-110 hover:scale-[1.03] active:scale-[0.97]`}
           style={{
             maxWidth: smallMobile && !buttonsBesideProgress ? '90px' : '',
             // Instant zelena samo dok je korak gotov ali jos busy (kratak
@@ -556,6 +557,8 @@ export const DailyLessonWidgetPanel = ({
             answerViaNext ? isBusy : isBusy || !isStepComplete || isLastStep
           }
         >
+          {/* Korak gotov: zeleno svetlo stalno kruzi oko ivice dugmeta (ne samo na hover). */}
+          {nextReady && <StepDoneGlow roundedClassName="rounded-[18px]" />}
           {nextReady && (
             <div className="absolute inset-0 rounded-2xl overflow-hidden pointer-events-none">
               <div
@@ -571,7 +574,7 @@ export const DailyLessonWidgetPanel = ({
           )}
           {/* Korisnik igra na tabli umesto da klikne - svetlo putuje po ivici dugmeta. */}
           {nudgeNext && !nextReady && <NudgeGlow />}
-          <p className="relative whitespace-nowrap">
+          <p className="relative whitespace-nowrap font-bold">
             {answerViaNext
               ? step?.quizOptions?.[0]
               : (buttonsBesideProgress && step?.nextButtonTextMobile) ||

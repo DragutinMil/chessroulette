@@ -262,6 +262,7 @@ const ConversationReview = ({
                       content={msg.content}
                       review={currentChapterState.chessAiMode.review}
                       onMoveClick={onMoveClick}
+                      focusedIndex={currentChapterState.notation?.focusedIndex}
                     />
                   ) : (
                     <p className="flex  items-center text-[14px]  justify-start  text-left whitespace-pre-line">

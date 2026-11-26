@@ -2,10 +2,11 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { Dialog } from '@app/components/Dialog';
 import { Text } from '@app/components/Text';
 import { now } from '@app/lib/time';
-import { invoke } from '@xmatter/util-kit';
+import { GameOverReason, invoke } from '@xmatter/util-kit';
 import { BetweenGamesAborter } from './components/BetweenGamesAborter';
 import { Button } from '../../../../components/Button/Button';
 import { Icon } from '@app/components/Icon/Icon';
+import { AiSearchIcon } from '@app/components/Icon/AiSearchIcon';
 import { useRouter } from 'next/navigation';
 import {
   checkUser,
@@ -46,6 +47,8 @@ import { useParams } from 'next/navigation';
 
 export type ActivityActions = CounterActions;
 
+// posle mata popup ceka da se vidi '#' i pad kralja
+const CHECKMATE_DIALOG_DELAY_MS = 1700;
 const RATING_COUNT_DELAY_MS = 250;
 const RATING_COUNT_MS = 900;
 
@@ -213,11 +216,14 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
     ) {
       // Send to grab result from chessroullette
       sendResult(userId).then((ratings) => {
-        if (match?.status !== 'complete' || !myRole || !match.winner) return;
-        const newRating =
-          match.winner === myRole
-            ? ratings?.winner_rejting
-            : ratings?.loser_rejting;
+        if (match?.status !== 'complete' || !myRole) return;
+        // remi: calc_roullete_rejting_v2 upisuje challenger -> winner_rejting, challengee -> loser_rejting
+        const gotWinnerSlot = match.winner
+          ? match.winner === myRole
+          : myRole === 'challenger';
+        const newRating = gotWinnerSlot
+          ? ratings?.winner_rejting
+          : ratings?.loser_rejting;
         if (newRating === null || newRating === undefined) return;
         const roundedNew = Math.round(Number(newRating));
         const oldRating = Number(match[myRole].rating);
@@ -241,6 +247,17 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
         ];
 
         setEndGameReason(reasons[Number(match.endedGames[0].gameOverReason)]);
+
+        const lastEndedGame = match.endedGames[match.endedGames.length - 1];
+        const endDelayMs =
+          lastEndedGame?.status === 'complete' &&
+          lastEndedGame.gameOverReason === GameOverReason.checkmate
+            ? CHECKMATE_DIALOG_DELAY_MS
+            : 0;
+        const showMatchDialog = () =>
+          endDelayMs
+            ? setTimeout(() => setMatchDialogReady(true), endDelayMs)
+            : setMatchDialogReady(true);
 
         if (iLostMatch && !sessionLossStreakChecked) {
           sessionLossStreakChecked = true;
@@ -276,7 +293,7 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
               }
               setLossStreakPaywallVisible(true);
             }
-          }, 1000);
+          }, 1000 + endDelayMs);
         }
 
         if (!sessionMatchStreakChecked) {
@@ -299,12 +316,12 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
                 patchUserStreakPlay({ play_celebration: today });
               }
             } finally {
-              setMatchDialogReady(true);
+              showMatchDialog();
             }
           };
           checkStreak();
         } else {
-          setMatchDialogReady(true);
+          showMatchDialog();
         }
       }
     }
@@ -424,6 +441,7 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
   if (match?.status === 'aborted') {
     return (
       <Dialog
+        dim="strong"
         title="Match Aborted"
         content={
           <>
@@ -483,6 +501,7 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
     return (
       <>
         <Dialog
+          dim="strong"
           title={`${endGameReason}`}
           hasCloseButton
           compactHeader
@@ -567,13 +586,13 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
                       //href={`http://localhost:4200/room/new/r${room}?activity=review&userId=${userId}&theme=op&pgn=${roomId}`}
                     >
                       <Button
-                        icon="MagnifyingGlassIcon"
                         bgColor="green"
-                        className="transition-all text-black  duration-200 w-full hover:border-green-600 hover:scale-[1.0] hover:shadow-[0_0_16px_rgba(7,218,99,0.35)] bg-green-600"
+                        className="transition-all text-black  duration-200 w-full hover:border-green-600 bg-green-600 animate-reviewPulse"
                         style={{ minWidth: '160px', color: '#000' }}
                         onClick={() => {}}
                       >
-                        Review
+                        <AiSearchIcon className="h-5 w-5" />
+                        AI Coach Review
                       </Button>
                     </Link>
 
@@ -728,6 +747,7 @@ export const MatchStateDialogContainer: React.FC<Props> = ({
 
     return (
       <Dialog
+        dim="strong"
         title={
           match.type === 'bestOf'
             ? `Game ${matchView.endedGamesCount} Ended${titleSuffix}`

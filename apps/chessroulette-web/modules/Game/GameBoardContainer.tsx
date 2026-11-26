@@ -1,6 +1,8 @@
+import { useMemo } from 'react';
 import { DistributivePick } from '@xmatter/util-kit';
 import { Playboard, PlayboardProps } from '@app/components/Boards';
 import { useGame } from '@app/modules/Game/hooks';
+import { getCheckmateSquares } from '@app/modules/Game/lib';
 
 export type GameBoardContainerProps = DistributivePick<
   PlayboardProps,
@@ -30,6 +32,12 @@ export const GameBoardContainer = (
   const { displayState, committedState } = useGame();
   const disableAnimations = isBulletTimeClass(committedState.game.timeClass);
 
+  // polja za '#' oznaku i pad kralja - samo kad tabla prikazuje matnu poziciju
+  const checkmate = useMemo(
+    () => getCheckmateSquares(displayState.fen, displayState.lastMove),
+    [displayState.fen, displayState.lastMove]
+  );
+
   return (
     <Playboard
       fen={displayState.fen}
@@ -40,6 +48,7 @@ export const GameBoardContainer = (
       lastMove={displayState.lastMove}
       onLastMoveWasPromotionChange={boardProps.onLastMoveWasPromotionChange}
       disableAnimations={disableAnimations}
+      checkmate={checkmate}
       {...boardProps}
     />
   );
